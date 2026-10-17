@@ -1,0 +1,14 @@
+{
+  "experiments/cutouts/shale_bloomer/mq3/features.json": "832acf36dfc2b2599bf5de22063cce6e3990c886374bd77f8de5bfdaf4680d6c",
+  "experiments/cutouts/shale_bloomer/mq3/features/empty.png": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+  "experiments/cutouts/shale_bloomer/mq3/features/front_amber_left.png": "af556f51f9616fb84a2ac2c83558da6a0dba8ea503ef1524d87f83a4e0e9ea52",
+  "experiments/cutouts/shale_bloomer/mq3/features/front_amber_right.png": "bf3a4ad425e5b6e6477c603fb56f03af2126d9bef27c795a3ab6f5600c8cfd23",
+  "experiments/cutouts/shale_bloomer/mq3/features/front_amber_upper.png": "e687682d874819a85035d78eedd1e862f6cf4b6a1a94846e606dc0a01fb57619",
+  "experiments/cutouts/shale_bloomer/mq3/features/front_crown_gem.png": "63df1b4c886c762d9f229eaa083c1871e2770895c48761dc646e58df28303679",
+  "experiments/cutouts/shale_bloomer/mq3/features/rear_amber_rear_left.png": "6f8e2165ac2fd2812655742069a6bdd9ca04f52db76895c7465b0865576f5ada",
+  "experiments/cutouts/shale_bloomer/mq3/features/rear_amber_rear_low.png": "03e02b50ed9db94a8f0bf4de04bff6e6673cda6a0d4ddaa287d6b4c3372f948e",
+  "experiments/cutouts/shale_bloomer/mq3/features/rear_crown_gem.png": "d43472b06ce4e56aba24d4f127e6fd2bc91ae681d886511359004c4a4c0d2c17",
+  "experiments/cutouts/lightning_wisp/mq4/features.json": "d8020450f6fb9b41de1694fc795ab94573b7c7c42bd0579a0b72f55a09cd0524",
+  "experiments/cutouts/lightning_wisp/mq4/features/empty.png": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+  "experiments/cutouts/lightning_wisp/mq4/features/front_eye.png": "2d47ce8e0b002805e9ff80efa685983bd55dfab694283b94c456158e30bbf4b5"
+}

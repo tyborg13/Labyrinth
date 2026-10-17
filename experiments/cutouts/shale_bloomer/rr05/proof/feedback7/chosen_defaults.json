@@ -1,0 +1,144 @@
+{
+  "player_facing_defaults_chosen": [],
+  "director_specified": {
+    "backing_shape": "exact approved rest alpha",
+    "backing_colour": "10th percentile, excluding 1px outline and features",
+    "visible_inside_body_limit": 0.03,
+    "outside_outline_tolerance_px": 0,
+    "rest_identity_tolerance_px": 0,
+    "root_body_bone": {
+      "shale_bloomer": "trunk",
+      "lightning_wisp": "core"
+    },
+    "idle_key_restored": [
+      0.5,
+      5
+    ],
+    "bleed_texels_kept": 1376
+  },
+  "derivation_conventions": {
+    "luma": "existing visual_probe_runner encoded-RGB Rec.709 weights (2126,7152,722)/10000",
+    "percentile": "nearest-rank; actual source colour; stable row/column ties",
+    "outline_ring": "one source pixel, 8-neighbour erosion",
+    "body_bone": "deepest common painted-part ancestor below root; otherwise TODO_DESIGN"
+  },
+  "unchanged_proof_fields": {
+    "fps": 60,
+    "step_frames": 6,
+    "canvas_size": 512,
+    "source_offset": 128,
+    "boundary_residual_fraction": 0.01,
+    "transform_tolerance": 0.0001,
+    "bounds_margin_px": 2,
+    "native_raster_fraction": 0.01,
+    "native_raster_edge_pixels": 1
+  },
+  "test_fields": {
+    "file": "tests/test_maquette_backing.py",
+    "FIXTURE_SIZE": 255,
+    "FIXTURE_RING_RGBA": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "FIXTURE_INTERIOR_RGBA": [
+      54,
+      31,
+      19,
+      255
+    ],
+    "SAMPLER_TIMEOUT_SECONDS": 60,
+    "FIXTURE_BODY_RECT": [
+      20,
+      20,
+      40,
+      40
+    ],
+    "FIXTURE_INTERIOR_RECT": [
+      21,
+      21,
+      39,
+      39
+    ],
+    "FIXTURE_FEATURE_RECT": [
+      22,
+      22,
+      28,
+      28
+    ],
+    "FIXTURE_GAP_RECT": [
+      28,
+      23,
+      32,
+      37
+    ],
+    "FIXTURE_MUTATION_YX": [
+      25,
+      25
+    ],
+    "FIXTURE_GATE_SIZE": 40,
+    "FIXTURE_GATE_BODY_RECT": [
+      5,
+      5,
+      35,
+      35
+    ],
+    "FIXTURE_GATE_HOLE_RECT": [
+      18,
+      18,
+      20,
+      20
+    ],
+    "FIXTURE_ORPHAN_YX": [
+      0,
+      0
+    ]
+  },
+  "diagnostics": {
+    "PROOF_MASK_RGBA": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "PROOF_EXAMPLES": {
+      "shale_bloomer": [
+        [
+          "front",
+          "move",
+          19
+        ],
+        [
+          "front",
+          "shell",
+          18
+        ],
+        [
+          "front",
+          "death",
+          75
+        ]
+      ],
+      "lightning_wisp": [
+        [
+          "front",
+          "idle",
+          78
+        ],
+        [
+          "front",
+          "death",
+          65
+        ]
+      ]
+    },
+    "PROOF_TILE_SIZE": 256
+  },
+  "full_suite_watchdog": {
+    "INTERNAL_GODOT_BUDGET_SECONDS": 900,
+    "REPORT_GRACE_SECONDS": 60,
+    "outer_timeout_seconds": 960,
+    "reason": "unchanged suite 900s assertion; outer reporting grace receives its actual final result"
+  }
+}

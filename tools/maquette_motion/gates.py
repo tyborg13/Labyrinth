@@ -7,7 +7,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from cutout_pipeline.cases import digest, read_json, write_json
-from maquette_motion.contract import expected as director_contract, phases as sample_phases, evaluate
+from maquette_motion.contract import expected as director_contract, phases as sample_phases, evaluate, approved_source
+from cutout_pipeline.cases import CutoutError
 
 PROJECT = Path(__file__).resolve().parents[2]
 SOURCE = PROJECT / 'spec/peer_benchmark/staged/rr-04/motion_tracks.json'
@@ -44,10 +45,14 @@ def expected_bones(compiled, layout, view, clip, at, step, pixel_scale=1):
 def errors(case, sample_path):
     actual=read_json(case/'compiled_motion.json')
     creature=actual['creature']
-    expected=director_contract(SOURCE,creature,read_json(PROJECT/'spec/art_identity/maquettes'/creature/'spec.json'))
     failures=[]
+    try:
+        source = approved_source(case)
+    except CutoutError as error:
+        failures.append(str(error))
+        source = SOURCE
+    expected=director_contract(source,creature,read_json(PROJECT/'spec/art_identity/maquettes'/creature/'spec.json'))
     if actual!=expected:failures.append('Compiled authored keys/signs differ from protected source')
-    if (case/'director_motion.json').read_bytes()!=SOURCE.read_bytes():failures.append('Protected motion copy differs')
     sampled=read_json(sample_path)
     if not sampled['ok']:failures.append('Sampler failed')
     if sampled['compiled_sha256']!=digest(case/'compiled_motion.json'):failures.append('Stale motion samples')
@@ -91,6 +96,9 @@ def production_errors(manifest, compiled):
     return failures
 
 RUNTIME_PATHS = ['scripts/maquette_cutout_runtime/motion.gd', 'scripts/maquette_cutout_runtime/rig.gd',
+    'scripts/maquette_cutout_runtime/pixel_presentation.gd', 'tools/maquette_motion/features.py', 'tools/maquette_motion/pixels.py', 'tools/maquette_motion/raster.py',
+    'tools/maquette_motion/joint_seams.py', 'tools/maquette_motion/seam_pose.py', 'tools/maquette_motion/seam_builder.py', 'tools/maquette_motion/silhouette.py', 'tools/maquette_motion/continuity.py', 'tools/maquette_motion/bleed.py', 'tools/maquette_motion/seam_support.py', 'tools/maquette_motion/contract.py', 'tools/maquette_motion/continuity_limits.py', 'tools/maquette_motion/feature_builder.py',
+    'tests/maquette_cutout/seam_capture.gd', 'tests/maquette_cutout/reference_masks.gd', 'tests/maquette_cutout/pixel_capture.gd', 'tests/maquette_cutout/pixel_samples.gd', 'tests/maquette_cutout/proof_inputs.gd', 'tools/maquette_cutout_polish.py',
     'scripts/maquette_cutout_runtime/renderer.gd', 'scripts/maquette_cutout_runtime/action.gd',
     'scripts/maquette_cutout_runtime/presentation.gd', 'scripts/maquette_cutout_runtime/portrait.gd',
     'tests/maquette_cutout/native_capture.gd', 'tools/maquette_motion/compiler.py', 'scripts/run_scene.gd', 'scripts/combat_board_view.gd', 'scripts/cutout_context.gd', 'scripts/actor_presentation.gd', 'data/enemies.json']
@@ -102,9 +110,16 @@ def production_bindings(base):
 
 def input_bindings(case):
     paths = {'cutout.json','compiled_motion.json','director_motion.json','source/spec.json','motion.gd','layouts/front.json','layouts/rear.json'}
+    if (case / 'seams.json').exists(): paths.add('seams.json')
+    if (case / 'seam_parent_decisions.json').exists(): paths.add('seam_parent_decisions.json')
+    if (case / 'director_amendments.json').exists(): paths.add('director_amendments.json')
     for view in ('front','rear'):
         paths.add('source/'+view+'/processed.png')
         paths.update(p['file'] for p in read_json(case/f'layouts/{view}.json')['parts'])
+    if (case/'features.json').exists():
+        paths.add('features.json')
+        for feature in read_json(case/'features.json')['features']:
+            paths.update(d['mask'] for d in feature['views'].values() if not d['mask'].startswith('TODO_DESIGN_'))
     result={p:digest(case/p) for p in paths}
     result.update({'runtime:'+p:digest(PROJECT/p) for p in RUNTIME_PATHS})
     return result

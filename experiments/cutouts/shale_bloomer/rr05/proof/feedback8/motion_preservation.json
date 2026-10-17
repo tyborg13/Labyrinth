@@ -1,0 +1,12 @@
+{
+  "shale_bloomer": {
+    "source": "spec/peer_benchmark/staged/rr-04/motion_tracks.json",
+    "sha256": "9afd85fda216b122522a38825cd8c82d3c154fb48ebb432f1eee0a3c01f4f0de",
+    "exact_source_bytes": true
+  },
+  "lightning_wisp": {
+    "source": "spec/peer_benchmark/staged/rr-04/motion_tracks.json",
+    "sha256": "9afd85fda216b122522a38825cd8c82d3c154fb48ebb432f1eee0a3c01f4f0de",
+    "exact_source_bytes": true
+  }
+}

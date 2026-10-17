@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-05
+  run: rr-05-1792248088020476000-84004
+  HOME: /private/tmp/labyrinth-godot-home/rr-05-1792248088020476000-84004
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-05-1792248088020476000-84004/godot.log --headless --path . --script tests/maquette_cutout/pixel_samples.gd -- --case experiments/cutouts/shale_bloomer/mq3 --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback1/shale-pixels.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE PIXEL SAMPLES: PASS (1008 poses; headless transforms only)

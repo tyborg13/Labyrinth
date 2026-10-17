@@ -6567,8 +6567,8 @@
   "assets/units/lightning_wisp_cutout/front/rest.png": {
     "kind": "rest",
     "id": "lightning_wisp",
-    "pixel_sha256": "711ba9eb8127ada661023b99dd6ab934ed295722cad20b01ed777c920f4d0c9d",
-    "parts_pixel_sha256": "6e304d8a819add1964951f15102b3588f202a8e4e60a3e5410e51776c1bcaaff"
+    "pixel_sha256": "e7b5047d12a55f7e321b61d44773d184bc99cd960abeb760a0bd1765bb9b5438",
+    "parts_pixel_sha256": "114a0019608a64233d7b0359783cd419d6ba6fa1dde5f9ebe16bf61c743441b8"
   },
   "assets/units/lightning_wisp_cutout/front/tail.png": {
     "pixel_sha256": "960ad00e5032ec24f0ff6d59ae246b33f44e40475561c21fb8dd735a43bf0177",
@@ -6579,80 +6579,80 @@
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/hidden/front/arc_left.png": {
-    "pixel_sha256": "dfc3954b03ce72cd0c2fad5664261d38d8c890a902ac2324302b79422bfdd642",
-    "source_pixel_sha256": "e68004eaa0bdd2f5c741bd865806f9b2645a009b4202fafd7e8626dd7d72c1ff",
+    "pixel_sha256": "0bf187eeeb4ab0b29382e6cf32152dd4abb6b9447815aa3fc644899dc2f9a9fd",
+    "source_pixel_sha256": "5066c8ae19a089258881f2bffbf4bcdfe1fbb9c9b24e84d48cacd2ae40656fcb",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/hidden/front/arc_right.png": {
-    "pixel_sha256": "26679f945b0d1074393f78d1b8f2cf6c4a724d37348aa64718aed39d58be2071",
-    "source_pixel_sha256": "56e441f76b3f8ec088ea5b92bb150f1c9332fc99e5bc905b14262568a447ed2b",
+    "pixel_sha256": "8834f20d658786403cc3808ae59cce759278e8b43f834305459e323d283db629",
+    "source_pixel_sha256": "de8a4b16678d47571377c28bde87cdc355a555f07a6915bf1f95fbc473c716a2",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/hidden/front/core.png": {
-    "pixel_sha256": "baeefc894cdd1f548a46aaecb8e923eb5ed622ec5956e6e5601f3dfd4ff8d10d",
-    "source_pixel_sha256": "3e88850e22c5e5b83a547a40e872f652e3257526d700e62b47a618c374a6f657",
+    "pixel_sha256": "c0bb622f69e08bd9b342ae8e36fc3541958f292f6f0f2887b551aa3f3c2749ef",
+    "source_pixel_sha256": "889e7266f458d1635f6afe6298450fda60e6953cbac4ced091bd07a3db7d3093",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/hidden/front/crown.png": {
-    "pixel_sha256": "d01e632610532fb666467649c665580d823e8a9c5dc586d7fb6aad0536d215a8",
-    "source_pixel_sha256": "d01e632610532fb666467649c665580d823e8a9c5dc586d7fb6aad0536d215a8",
+    "pixel_sha256": "05668664bade6840bfc1e30e957162c23f975c61ce3334cd3541cbbecd26a6a1",
+    "source_pixel_sha256": "40f674906f1bfe1b84d8aeaf95ea73c2a95a8033b5a4a8e6d269d70bad616bc5",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/hidden/front/tail.png": {
-    "pixel_sha256": "3ee0485f69e8cf3517011233646851ed3cfc1910e065a6b6c40483cf2e9cc6fb",
-    "source_pixel_sha256": "85d8c7ebf866d7223bc50567b6cd28503dc1b084557c8bb260beda4e5cc909e1",
+    "pixel_sha256": "4e4608f100d1bdc9e1766adb9216af2bf65c9abbbdf37dc58313b7910c66d2a5",
+    "source_pixel_sha256": "f55fa3fabeb0066a1647f6f153aa144d00a2ef22cf9bc8e07b6711c01c72ce21",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/hidden/rear/arc_left.png": {
-    "pixel_sha256": "40e36181195e472e2f1423bd5f02776c8900ec456c766328360b30aff6ad44bb",
-    "source_pixel_sha256": "b019f3bcb115eec69ca9b71ca1d5b1b80c5d7fb2a2d59dd53d56e91121eabefa",
+    "pixel_sha256": "b024c07f368363ab673508da8278bce549ac75b62fcceb4e6ff7a5e8706b820b",
+    "source_pixel_sha256": "78f9d981b9257d408f4b1e7e5e7b51b7db7ffbbeed881722da4ce1765cabd393",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/hidden/rear/arc_right.png": {
-    "pixel_sha256": "41a3bbf2dd06e68ba5f907c6c85d094a4fda43737a4d34bc3413a28a329eef63",
-    "source_pixel_sha256": "60408089f4777903e44c375caa2e201e050c893881418d63694bbd76db6b0507",
+    "pixel_sha256": "b024c07f368363ab673508da8278bce549ac75b62fcceb4e6ff7a5e8706b820b",
+    "source_pixel_sha256": "78f9d981b9257d408f4b1e7e5e7b51b7db7ffbbeed881722da4ce1765cabd393",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/hidden/rear/core.png": {
-    "pixel_sha256": "6c32e33603794418ff7e7cb7106dfec74115dc01d79da6e59067e9239d166371",
-    "source_pixel_sha256": "11a9910dbd2faebe25c7a780758b98ce7efd3ff9d4c91dc08e18b8a5536c5771",
+    "pixel_sha256": "e3c3b5607c610ad96c73bceee4219fd52d78c1e4d90081aa5f148bfec01eefd5",
+    "source_pixel_sha256": "e1999aac43e5a799c8779fe6c87307e1759abb7ca3ef25e9a60dc73a0374dae3",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/hidden/rear/crown.png": {
-    "pixel_sha256": "20b2d247f35393d4e37ff9d44a9d1f3c3114da9a26c0baf0cdaf22950fa68a53",
-    "source_pixel_sha256": "f81288df99766ed929253a1f23fe3fcb4758707d6ef695e06d70fbb8a31536d8",
+    "pixel_sha256": "b024c07f368363ab673508da8278bce549ac75b62fcceb4e6ff7a5e8706b820b",
+    "source_pixel_sha256": "78f9d981b9257d408f4b1e7e5e7b51b7db7ffbbeed881722da4ce1765cabd393",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/hidden/rear/tail.png": {
-    "pixel_sha256": "e51cd55c2cacbf7f8dd6949ebd91750b324b5a3c6e9d0e2bec756adf4b2451ad",
-    "source_pixel_sha256": "b20847c19551fd2fe4d360d6fba2dd61c9ba802c5e603946795327f85b325af7",
+    "pixel_sha256": "a013ee72e37c8ee7a57eeac4cfc9d856665aa67c543fa08ca79d81e308d9dbbb",
+    "source_pixel_sha256": "26cf1677928fe4ea12c13b04b902400d899d556c795295cc5b315e49f53dde94",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
@@ -6693,8 +6693,8 @@
   "assets/units/lightning_wisp_cutout/rear/rest.png": {
     "kind": "rest",
     "id": "lightning_wisp",
-    "pixel_sha256": "9d0fdc78f6e56f99fb90e6baa3666b8387569e7b25b6a584f179a209ae8a8222",
-    "parts_pixel_sha256": "6e304d8a819add1964951f15102b3588f202a8e4e60a3e5410e51776c1bcaaff"
+    "pixel_sha256": "3383114501d8b75c8c0e48287212a43e98f56ea915d6cfe4bbde7b463c7caf6a",
+    "parts_pixel_sha256": "114a0019608a64233d7b0359783cd419d6ba6fa1dde5f9ebe16bf61c743441b8"
   },
   "assets/units/lightning_wisp_cutout/rear/tail.png": {
     "pixel_sha256": "c7b50155f3b700b1ed77f7f59201d083febdfa2c24a75c9499b2faade9f71541",
@@ -6705,72 +6705,80 @@
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/segmented/front/arc_left.png": {
-    "pixel_sha256": "d0a4a08d9830c0e34367646f5b01e3b959c23349d28fe60f335e0c855a456018",
-    "source_pixel_sha256": "3bb024c09df84d5ad2f0f60465d87c2124249d930c7142ad8db730aa036f6c75",
+    "pixel_sha256": "5ef3df6254b02d2adc1d56b4d537741c042d555bde23ec3cc6b6decb85b467fe",
+    "source_pixel_sha256": "0f5c4c0641a4081f226e863f8ee1103f508fe2e46805c599d4d8adc832f34d6a",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/segmented/front/arc_right.png": {
-    "pixel_sha256": "4ef84237307778c0b3952f9307fc6236eb771aa225a3b41d2822eb05835385ba",
-    "source_pixel_sha256": "a80981131af462e698fb3d1f090e40be4cf40c73e55605bd5bbc04d31887b807",
+    "pixel_sha256": "777a4490c4ebefbe952d17b0903b46eff172727dc8a87383d7c443b65bb58992",
+    "source_pixel_sha256": "ac892598ff5f3abe021d7de2a13295f5cdafdc4f47b4b06dc3bb4ca6f5539e8d",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/segmented/front/core.png": {
-    "pixel_sha256": "7c9ff1aec3ebad6f2bcfd34bb4380b2d49d7fbfc08961b49cfd54e8549a77608",
-    "source_pixel_sha256": "f680bbbf1af47255121866e8f4a0f0706b6bfcbfb81d2df7ddd238f8e0603924",
+    "pixel_sha256": "fb86f8ab46020ef57b85a6fabfe51807de46648ae3e1cb1d03ed0466acf347bc",
+    "source_pixel_sha256": "5296255a48458f367e379892b01c628adff4f929cdd7f3d2a98633d5a7c7cdce",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/segmented/front/crown.png": {
-    "pixel_sha256": "5d9ed081a4f4ef06694f986b6caea49a914b070440b818810a3a09306ca19555",
-    "source_pixel_sha256": "e2b2a2e172092bfef04b2ebb6d2caab5ea2899a0bcf84c0d4369d8e4c566467a",
+    "pixel_sha256": "76967f9fcfc93a60349019e6d6245fb7b8b40816fe0883796d30d78310ccba88",
+    "source_pixel_sha256": "7a99a8fb58e2db5b341708a40cdcba6c900a877eeebd0537d1dd2df6031b5625",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/front/feature_eye.png": {
+    "pixel_sha256": "491281d94803915e4fbd31e0a0e92549332c3821b1838d414873323b4689ad5f",
+    "source_pixel_sha256": "93ce460cecac7494181bc6d2c9b6341470796bd594597a2e58f163ea9c99db31",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/segmented/front/tail.png": {
-    "pixel_sha256": "aa6fa53f087c72bf81d6b12a58dd79e98311e94ac086fe967433a202ddc6ac9a",
-    "source_pixel_sha256": "8739573cba7f4c502291ed1f6425ab97f53e734f2df95dd4d881d21995fcecee",
+    "pixel_sha256": "46654e4e638077e6cacbfb9d783f8d664df41c0dd7edf94f109efed4851126a1",
+    "source_pixel_sha256": "4f9c1dadb0cc924975544ca279a68e83aae5f7436d0f8534abb4092da45b1a8b",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/segmented/rear/arc_left.png": {
-    "pixel_sha256": "0e34c9a531aa38a58a798c07bac560b0cca0471b907f9a42adf2c64f265ebc4b",
-    "source_pixel_sha256": "8272e32e00b20ea9ab5e5869695128f6db50b1ad68f7a74b706ae881a24081d2",
+    "pixel_sha256": "103e175defa7b9a31d4dae58c89b2b40d7ced794444b1bb80f6eac6892a51e32",
+    "source_pixel_sha256": "09ce34abab6bcd69d288b3e7782f059fc6c45e31c960afe0c551b585b36b167e",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/segmented/rear/arc_right.png": {
-    "pixel_sha256": "4d59f7c1841eeef6b1df1cb1d7a3d50b445ec9766cf75f2c5f28015c90e96468",
-    "source_pixel_sha256": "295305bea4c37f039e02ad4eeff864084acd70c3523c2f99bcbb2e0214e7e5f3",
+    "pixel_sha256": "02ef5c494c7f09802f7716e7c1f625c6c0bf2a316dabbd89182c2f528a7d8d92",
+    "source_pixel_sha256": "103fa86b50b7811636da47cdf6e60bfb04c81a344c8db139dba4a2531481b622",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/segmented/rear/core.png": {
-    "pixel_sha256": "4353171493041284e4d25ad0485450605a5f55db385ae758d687aa828b9a8793",
-    "source_pixel_sha256": "500f49e67651ca5c30f5c98afc3b209f3c6a7169f772029c7ff3cf517d3b40e4",
+    "pixel_sha256": "9a64208a771e4d945fbd3cb1eb3fba308378f51d68a1f6cf7f2146d58df493a1",
+    "source_pixel_sha256": "a85bf2179fdac010a26884f9d6688d54defa83905af6ab2636c92da2a883273b",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/segmented/rear/crown.png": {
-    "pixel_sha256": "8c2bece48f19220c6e52678000383266a446f6a32eb98194120a9477076a312f",
-    "source_pixel_sha256": "9efa811b2ec1784b20739aa16beb539151251004e1b428d1b74211d266578318",
+    "pixel_sha256": "8b37bccf52e1977baab35f75940778534c5f7eccd36ef7fedb3030498c1279a9",
+    "source_pixel_sha256": "c0720bccc4fe602e68f610bdcdce8cd7cf497a4e20935467bcdd61489696fc33",
     "id": "lightning_wisp",
     "mode": "regrid",
     "grid": 1.47,

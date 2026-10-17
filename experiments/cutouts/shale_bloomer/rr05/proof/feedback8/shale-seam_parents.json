@@ -1,0 +1,344 @@
+[
+  {
+    "name": "TODO_DESIGN_seam_parent_front_core_petal_near_l",
+    "view": "front",
+    "parts": [
+      "core",
+      "petal_near_l"
+    ],
+    "bones": [
+      "core",
+      "petal_near_l"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 71,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_core_petal_near_r",
+    "view": "front",
+    "parts": [
+      "core",
+      "petal_near_r"
+    ],
+    "bones": [
+      "core",
+      "petal_near_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 40,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_core_petal_far_l",
+    "view": "front",
+    "parts": [
+      "core",
+      "petal_far_l"
+    ],
+    "bones": [
+      "core",
+      "petal_far_l"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 62,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_core_petal_far_r",
+    "view": "front",
+    "parts": [
+      "core",
+      "petal_far_r"
+    ],
+    "bones": [
+      "core",
+      "petal_far_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 35,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_petal_near_l_petal_near_r",
+    "view": "front",
+    "parts": [
+      "petal_near_l",
+      "petal_near_r"
+    ],
+    "bones": [
+      "petal_near_l",
+      "petal_near_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 22,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_petal_near_l_petal_far_l",
+    "view": "front",
+    "parts": [
+      "petal_near_l",
+      "petal_far_l"
+    ],
+    "bones": [
+      "petal_near_l",
+      "petal_far_l"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 31,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_petal_near_r_petal_far_r",
+    "view": "front",
+    "parts": [
+      "petal_near_r",
+      "petal_far_r"
+    ],
+    "bones": [
+      "petal_near_r",
+      "petal_far_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 67,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_petal_far_l_petal_far_r",
+    "view": "front",
+    "parts": [
+      "petal_far_l",
+      "petal_far_r"
+    ],
+    "bones": [
+      "petal_far_l",
+      "petal_far_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 28,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_tendril_high_r_tendril_low_r",
+    "view": "front",
+    "parts": [
+      "tendril_high_r",
+      "tendril_low_r"
+    ],
+    "bones": [
+      "tendril_high_r",
+      "tendril_low_r"
+    ],
+    "depths": [
+      2,
+      2
+    ],
+    "shared_boundary_px": 49,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_front_root_tip_l_root_tip_r",
+    "view": "front",
+    "parts": [
+      "root_tip_l",
+      "root_tip_r"
+    ],
+    "bones": [
+      "root_tip_l",
+      "root_tip_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 7,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_core_petal_near_l",
+    "view": "rear",
+    "parts": [
+      "core",
+      "petal_near_l"
+    ],
+    "bones": [
+      "core",
+      "petal_near_l"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 42,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_core_petal_near_r",
+    "view": "rear",
+    "parts": [
+      "core",
+      "petal_near_r"
+    ],
+    "bones": [
+      "core",
+      "petal_near_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 29,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_core_petal_far_l",
+    "view": "rear",
+    "parts": [
+      "core",
+      "petal_far_l"
+    ],
+    "bones": [
+      "core",
+      "petal_far_l"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 40,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_core_petal_far_r",
+    "view": "rear",
+    "parts": [
+      "core",
+      "petal_far_r"
+    ],
+    "bones": [
+      "core",
+      "petal_far_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 62,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_petal_near_l_petal_near_r",
+    "view": "rear",
+    "parts": [
+      "petal_near_l",
+      "petal_near_r"
+    ],
+    "bones": [
+      "petal_near_l",
+      "petal_near_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 7,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_petal_near_l_petal_far_l",
+    "view": "rear",
+    "parts": [
+      "petal_near_l",
+      "petal_far_l"
+    ],
+    "bones": [
+      "petal_near_l",
+      "petal_far_l"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 49,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_petal_near_r_petal_far_r",
+    "view": "rear",
+    "parts": [
+      "petal_near_r",
+      "petal_far_r"
+    ],
+    "bones": [
+      "petal_near_r",
+      "petal_far_r"
+    ],
+    "depths": [
+      3,
+      3
+    ],
+    "shared_boundary_px": 49,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_tendril_low_l_root_stem_l",
+    "view": "rear",
+    "parts": [
+      "tendril_low_l",
+      "root_stem_l"
+    ],
+    "bones": [
+      "tendril_low_l",
+      "root_stem_l"
+    ],
+    "depths": [
+      2,
+      2
+    ],
+    "shared_boundary_px": 6,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  },
+  {
+    "name": "TODO_DESIGN_seam_parent_rear_root_stem_l_root_stem_r",
+    "view": "rear",
+    "parts": [
+      "root_stem_l",
+      "root_stem_r"
+    ],
+    "bones": [
+      "root_stem_l",
+      "root_stem_r"
+    ],
+    "depths": [
+      2,
+      2
+    ],
+    "shared_boundary_px": 27,
+    "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+  }
+]

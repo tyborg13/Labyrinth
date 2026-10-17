@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-05
+  run: rr-05-1792243347392015000-72688
+  HOME: /private/tmp/labyrinth-godot-home/rr-05-1792243347392015000-72688
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-05-1792243347392015000-72688/godot.log --headless --path . --script tests/maquette_cutout/native_capture.gd -- --case res://experiments/cutouts/shale_bloomer/mq3 --output /private/tmp/rr05-parse --validate-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE NATIVE CAPTURE PARSE: PASS

@@ -21,12 +21,12 @@
   "recipe_sha256": "a8e3e3d6b40cbf9d19da6c57165c9eda4a2b351a2d706f1d12db3f6d9fad889b",
   "protected_inputs": {
     "hidden_requests/contact_sheet.png": "b3d322a73e973b69f789b5f4555459918caabd7a67284f4985a420cd5c7c242f",
-    "hidden_requests/front_arc_left.png": "3b0b1f9400a138bb73ef347bf4507074665accaa8929f252077247554023040b",
-    "hidden_requests/front_arc_left_4x.png": "11c0cd23d8d2dfd71dd3a4f245eb8a95470ef19456ba33f012cbe6ee8c853055",
+    "hidden_requests/front_arc_left.png": "bf51327e448ed7c202037bc234c39aee825351ae07ccb0629cf6c4e5393cd23b",
+    "hidden_requests/front_arc_left_4x.png": "f66f71e54fd0492762bdfde6b0b9269011f3233598a582f466e847823c943992",
     "hidden_requests/front_arc_right.png": "b34d722134350b36d7d8f93600e90c2673a0c55e6b17edf04651642e29ee0b06",
     "hidden_requests/front_arc_right_4x.png": "b2262e721e4b4ae12db640e87472a81025cdcaace434561ae426c5ac0e682dc4",
-    "hidden_requests/front_core.png": "605e1f700347af2c66bde5f37d5c76387611c373c7a30a83031f878be959fd13",
-    "hidden_requests/front_core_4x.png": "aa7ac58874e0a8839c0f5e8af39ccecbb68052afc32cd11db56e0c395f6f0ed0",
+    "hidden_requests/front_core.png": "cc286aa275f55cdfc31656ec3b47ab4723b5d2fcdd00fc12285b5de67fa89022",
+    "hidden_requests/front_core_4x.png": "11eae1920387d345a5fe4194e0be0e125ef9c876867ee99b527a73c8b08c66ea",
     "hidden_requests/front_crown.png": "4872341cd0d39a5caf93a1e9499a1fe89e1ca514fa378ca9c6694bd4db0eda5a",
     "hidden_requests/front_crown_4x.png": "0cc40b311d873f07b2b211a0a72caae858f4846b984fa7ae1c90bcae37cb70c7",
     "hidden_requests/front_tail.png": "82156b6598527de36259bab7b3551c46043ba6079c7f94b378c12a6a6e3e4ecb",
@@ -41,17 +41,17 @@
     "hidden_requests/rear_crown_4x.png": "12e78eeeb9bbb63d04c9831288a7c159a8e7a018f149da102b1f93cff6238e97",
     "hidden_requests/rear_tail.png": "b88f4ebae314fb47aefa56e833b95356981cfeb6918a0a45cc7d686afb48bf51",
     "hidden_requests/rear_tail_4x.png": "09be3d86e1d7b6f299c8aad8304ebba7edcab83d2cc1cf07e180e78a460d18d4",
-    "layouts/front.json": "c5549ec5dfbb4a38daefc0b141e4d42aae73e23d49b72cce9b18d340798dca07",
-    "layouts/rear.json": "e0899d49c7f0302212a38a00022cf0b94c2378a5277fc3fe9cf1d715a839de22",
-    "recipes/rig.json": "4a0e5c78a737c2ffc075ad4b99b086dd740248ff45e078720b1e723825cbd161",
+    "layouts/front.json": "90c38f3597c589c6034f8687e3dc2001b1ca84c439af3ec91ebbff36faa3990d",
+    "layouts/rear.json": "a21d0c1aa0f9c1430d2e7dc948000d7711079e2c160420a1722157c2c8c9b8de",
+    "recipes/rig.json": "6e2d8309e5dfdf5065fbb690c0d975764c6cbc0769c9e4e76434712a84016b97",
     "registered/front_clay.png": "ed1c8f6bca9c4bfa0945b2740054c33d6dd4ba724083a819cc8c1f46ac69b579",
-    "registered/front_hidden_arc_left.npy": "77a8c8d01e48748fe3dc71afbf0d66b7a53515119c5946f183deae3dbbe9800d",
+    "registered/front_hidden_arc_left.npy": "81079f0d06eaf47e243b87d2ec158c3214fdaf27ab378f412abd57cd5e2d08af",
     "registered/front_hidden_arc_right.npy": "2b1dcc1cb269c6a7fc3cc823e4b93246562c837f171b5885a0a8cc4719d68951",
-    "registered/front_hidden_core.npy": "9bed2f43af58a8a9d4ae9ce738893dc02300f31b131737d39d8205929a4a0d65",
+    "registered/front_hidden_core.npy": "4727beb3c4f5b6667a9200f8a41541949557213e1bf037972de68312ebb615c4",
     "registered/front_hidden_crown.npy": "d0c93b108f59d3707230454fab967df3634e6cd21ee2e289518e9d1b207882b6",
     "registered/front_hidden_tail.npy": "a224285a44ab70e3591ce5da9a974ea0fe6acdd082f3a109107281dc0a04c98c",
     "registered/front_joints_px.json": "9c436d26af456be0065c7da6b2a14cd6d98484457e32cf20e7986c2d273f3acf",
-    "registered/front_owners.npy": "073b5c9acd2c0370f4c6f2eb0cba15f57ab0cfe394233bfd7f40baf922627b3b",
+    "registered/front_owners.npy": "6a1f0d33f4a7a8d03d5a17ea5bb10f9a43cc504f3828cc1bf491f07c84998ca9",
     "registered/front_parts.png": "5f2ee65ae1e43f44ffa4b132d61b5cad3b642a6929cb3522923ee6e7d21cfa39",
     "registered/front_registration.json": "2bdf0eda3dfff429ac07aacbb84d73c7d14648bb2df3ad56669e8c5bd999fc25",
     "registered/front_solo_arc_left.png": "7d7b1da9edf96db4fb37bab00dfa7fbe1782a7fb186c996b8d5588d43fa3891f",
@@ -66,7 +66,7 @@
     "registered/rear_hidden_crown.npy": "799bf86ea484af060c25cf23358267d9e78bc91626f046f7d10835266d67e5ab",
     "registered/rear_hidden_tail.npy": "9a883a1cab6424397099f32b099f212aad671f7d2bbc6c7edd1479ba466750a9",
     "registered/rear_joints_px.json": "36d95232f9c369612df760b6047b89b9ea23098951ea9150e701eca43463126e",
-    "registered/rear_owners.npy": "c09b9fc8757090a107bdf66dbdd1557dbfbc4b8a377107fc0802973ed51561be",
+    "registered/rear_owners.npy": "aa70d42b70d07f12b9573825b874ab4fde215220770251789f3fa6d28608606b",
     "registered/rear_parts.png": "f09560e08e8b697639b1322c329bb14739f312620eaad81b027c0b589710b4d9",
     "registered/rear_registration.json": "64dc4463159e06a3e1f12daa3991a02e7c0af48cbb97d97a4dce916421c19495",
     "registered/rear_solo_arc_left.png": "4f212280ac419c14e519c608c8ea2ca7593587b8e57ee4ef640caa866d848cd3",
@@ -74,21 +74,22 @@
     "registered/rear_solo_core.png": "83a1e2d837c9532ad7deb51b81e9f17e08533e4ca4670017f4a73220b4cf35e5",
     "registered/rear_solo_crown.png": "1742454e24090e92e22011e4ffeaffafba20a4b8b11b755f6c5291f45e33145c",
     "registered/rear_solo_tail.png": "dda1cb633c4ca3b593506d65abe4264414dc4955443522a479b40b478b94de14",
-    "segmented/front/arc_left.png": "a4acf98f56b0ecfbb35690de6992042981e1f2f5a24890350e89760e53820efc",
-    "segmented/front/arc_right.png": "74b318ca65674463feee220091db37d39ad1f1dcc411a9a4c1f2402559013916",
-    "segmented/front/core.png": "c73786e74b478849c827c49238b6f9b103ee6d84f0f14a20e9e1c2f75b9ef76d",
-    "segmented/front/crown.png": "6a7be520f98b63ac226aa9a35cda4a087d63dc966298c16852c8bbaa3e4494fe",
-    "segmented/front/ownership.png": "d4c60a138d7074589d342402e117393b1b7a93d99f11fe76b8f3f696a5fb2a65",
+    "segmented/front/arc_left.png": "937b339b7f6c27700c5e8e245810e62777f2a86ac4d23c05edf4d2196c3f9c29",
+    "segmented/front/arc_right.png": "da97265a740954d3245082b88337cc8aa0aa7111148dcefd7cf6da60da709149",
+    "segmented/front/core.png": "e79aa2c7ddc2d22c0582718617603e665dc84a6487bc1bd071f8f591751a727b",
+    "segmented/front/crown.png": "764adaa96c29d7e09facf8347795e3adfcf9ae539f1ee1b7031669a950bfb43c",
+    "segmented/front/feature_eye.png": "8fb9fbf9507b7b4b0312c60e1f0dc595dc366cf68edbc7b43fe6b569b2d2ff32",
+    "segmented/front/ownership.png": "db2418cb22a8d56ee1a179036553c2ffdf0d4da167fc53fbc7494258f5d7a476",
     "segmented/front/reconstructed.png": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f",
-    "segmented/front/segmentation.json": "9f9d21f4f51f182f64894aa5ebc64d8c5d4e9c33dd879198de87c3c5fa33047b",
-    "segmented/front/tail.png": "93ef6f5312254528e614548c9013d70baca00201fd6f5d1b4e38fe5ca73a9847",
-    "segmented/rear/arc_left.png": "a14beb6ef441120f37933c17aa12beb00f927b907e53e573ed8f892bbefedd7b",
-    "segmented/rear/arc_right.png": "76f70e1da88575170a92d458187fd9585f5d39427ba40a3a11a33fabbad7badf",
-    "segmented/rear/core.png": "c80c58d5b35ffbf95ac56be937fb47e61dc749f75a949684a93aac27bf415c73",
-    "segmented/rear/crown.png": "92e72c623d42a78d03044f0180c894257858b991853afaac45b7ddd72d3289ac",
+    "segmented/front/segmentation.json": "fe0344f273bdb1e1ea5d7450df4f1c712a79f1c5ba4360565204ca070ac40b09",
+    "segmented/front/tail.png": "7ae966c9f094538d63b196b76e06d28628f2de6bb584be6f3ea4b7a0f7c415d8",
+    "segmented/rear/arc_left.png": "af729c8ea493da89e007d66143801e0e0b7826a7d70c2b33df056e2dfb525e3f",
+    "segmented/rear/arc_right.png": "1ab2cb6c64e42341ecb3e14c05a13adac4aeeda515162796d1400e9bb1598c5b",
+    "segmented/rear/core.png": "2c7fdfc0e6c67db67f89b8ab48e1c555fee89cec45d4d3d5176dd661bdb24ba3",
+    "segmented/rear/crown.png": "9db427b05b80c0e07acef714abe894b7339a3c1e02d07c5877b3f177c42d9614",
     "segmented/rear/ownership.png": "0282672c265134b99756a6a66d73968ed9057770d4a0419719361428bda24e11",
     "segmented/rear/reconstructed.png": "d1c368097ba9015dc9876c62047372427605b8a7205f37950d7f499af98309bf",
-    "segmented/rear/segmentation.json": "6670f356707524ba92b8281183c53d0e8833d239f72728300db6431c0c0686ed",
+    "segmented/rear/segmentation.json": "ecba84fefdccaf16fa478857699cf13f89c0b0e84b63ceafbd8673812ac5683b",
     "segmented/rear/tail.png": "4104d04f93a67fef89b119e84445fedba9d08bc0843ff36c96ba33aaf6ca5272",
     "source/front/kit.json": "533fa6a12bc349c7133ca75374da431e55858571488d3b69b51d88723b3d6a21",
     "source/front/processed.json": "9abe595724bff89f14e4a8209d5fc0027f18b476399b3d99524ab7ad5fb27757",
@@ -125,22 +126,22 @@
       "part": "core",
       "material": "storm-cloud vapour with painted lightning veins",
       "request": "hidden_requests/front_core.png",
-      "request_sha256": "605e1f700347af2c66bde5f37d5c76387611c373c7a30a83031f878be959fd13",
-      "visible_mask_sha256": "47c969c44f516e5ecb39aa6f726bb8e1421651b9e83294d5ad6499b6b453f931",
-      "hidden_mask_sha256": "29f576b52f0b8f69863b9f0042fa71fe1a026d9e722b2b3826dfda64f88161e9",
-      "donor_mask_sha256": "dfa4724d8cb002967899ec92cbf03fda1905f63ec6f671e6969f9a21b7aa2496",
+      "request_sha256": "cc286aa275f55cdfc31656ec3b47ab4723b5d2fcdd00fc12285b5de67fa89022",
+      "visible_mask_sha256": "ae57a64db911b4ea6e4b840c3b5600922b30fd4bfa64116f23799bbb58155f2a",
+      "hidden_mask_sha256": "6a7d1c483ade39b9f3efaf521c2300dd1e31784be4c7cd1f462aec2eb57c58d6",
+      "donor_mask_sha256": "6e23c4d713efd95a93ebb49a0b114a865208ee067ffe434eb7caf971bd6463cb",
       "donor_parts": [
         "arc_left",
         "arc_right",
         "crown"
       ],
-      "own_conditioning_mask_sha256": "47c969c44f516e5ecb39aa6f726bb8e1421651b9e83294d5ad6499b6b453f931",
+      "own_conditioning_mask_sha256": "ae57a64db911b4ea6e4b840c3b5600922b30fd4bfa64116f23799bbb58155f2a",
       "source_paint_sha256": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f",
-      "visible_rgba_sha256": "611b2af2ea70cc8b00887f7b1aecaba2897c47715aa0be0ef7b3c6b6110b5c36",
-      "donor_rgb_sha256": "a5780fecc06a715d4ce17b34baf70463ec3859391e389d584319f12b2a54e1a4",
-      "own_visible_pixels": 6556,
-      "donor_visible_pixels": 1526,
-      "hidden_pixels": 1344,
+      "visible_rgba_sha256": "8d0e8f4fef7b7ccefb441e2bb3e961e99830d7ee7ea7a3ed4533f249bd25f914",
+      "donor_rgb_sha256": "21b29beeb0f03e20cd756a7fa6bede5ee5e94e13ff6d8bae3fa1335b02ad3e8a",
+      "own_visible_pixels": 6596,
+      "donor_visible_pixels": 1486,
+      "hidden_pixels": 1304,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
@@ -158,73 +159,73 @@
       },
       "palette": [
         [
-          38,
+          39,
           28,
           44
         ],
         [
-          64,
-          51,
-          85
+          65,
+          53,
+          87
         ],
         [
-          97,
-          82,
-          133
+          96,
+          48,
+          177
         ],
         [
-          116,
-          57,
-          215
+          107,
+          96,
+          141
         ],
         [
-          150,
-          127,
-          195
+          147,
+          84,
+          242
         ],
         [
-          240,
-          224,
+          239,
+          221,
           245
         ]
       ],
       "quantization_palette": [
         [
-          38,
+          39,
           28,
           44
         ],
         [
-          64,
-          51,
-          85
+          65,
+          53,
+          87
         ],
         [
-          97,
-          82,
-          133
+          96,
+          48,
+          177
         ],
         [
-          116,
-          57,
-          215
+          107,
+          96,
+          141
         ],
         [
-          150,
-          127,
-          195
+          147,
+          84,
+          242
         ],
         [
-          240,
-          224,
+          239,
+          221,
           245
         ]
       ],
-      "palette_iterations": 15,
+      "palette_iterations": 11,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 6556,
-      "own_conditioning_pixels": 6556,
-      "conditioning_pixels_in_hidden_region": 1329,
+      "palette_sample_pixels": 6596,
+      "own_conditioning_pixels": 6596,
+      "conditioning_pixels_in_hidden_region": 1289,
       "outline_pixels": 72,
       "outline_tone": [
         20,
@@ -236,21 +237,21 @@
       "outputs": [
         {
           "output": "hidden/front/core.png",
-          "original_sha256": "436b173541d53048e971ee4a86092888e6f97b73049346c70a6fc4def6b3f548",
-          "output_rgba_sha256": "cd5802573b631dbea647be776744b70fdc7569fdd6fd60c6c1e6364808db7882",
-          "alpha_sha256": "e9d7d3dd871390e625990b47200e4c081baa75ee43768da6e3280d7b812a45ba",
+          "original_sha256": "565457481f69b2894e6eaa5f51e6cd124051321594c555bda844df385aa859fc",
+          "output_rgba_sha256": "77b4eb19004e15280f1842380559f00ca2303407dcc2c592d53fdc0ed413e024",
+          "alpha_sha256": "67be7a34532a87cc6261de2976efa97ce99524a94963abd166132b7c15e465b8",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "6dac8010649888bb3e235f4fb8bab61d264c125b9822d05133f40595c2e471d1"
+          "output_sha256": "ab943f01549566285d9614b57570fe0c36bbe7a048b1975da5de4b6538f6632d"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/core.png",
-      "original_sha256": "436b173541d53048e971ee4a86092888e6f97b73049346c70a6fc4def6b3f548",
-      "output_rgba_sha256": "cd5802573b631dbea647be776744b70fdc7569fdd6fd60c6c1e6364808db7882",
-      "alpha_sha256": "e9d7d3dd871390e625990b47200e4c081baa75ee43768da6e3280d7b812a45ba",
+      "original_sha256": "565457481f69b2894e6eaa5f51e6cd124051321594c555bda844df385aa859fc",
+      "output_rgba_sha256": "77b4eb19004e15280f1842380559f00ca2303407dcc2c592d53fdc0ed413e024",
+      "alpha_sha256": "67be7a34532a87cc6261de2976efa97ce99524a94963abd166132b7c15e465b8",
       "preview": "hidden_fills/front_core.png",
-      "output_sha256": "6dac8010649888bb3e235f4fb8bab61d264c125b9822d05133f40595c2e471d1",
-      "preview_sha256": "df6d92cef7c0be7bbffb27f05532a567261c659e3ff83f455e839cfde08cfcc9"
+      "output_sha256": "58cad12a220a6afbacafea5071c4de415419f6f6d42ab1208f8b5c6058641576",
+      "preview_sha256": "6fce3a6eafd51b7235c2c1f928be011af4c7cb27221bdfc3d269890ff121a3de"
     },
     {
       "view": "front",
@@ -260,7 +261,7 @@
       "request_sha256": "4872341cd0d39a5caf93a1e9499a1fe89e1ca514fa378ca9c6694bd4db0eda5a",
       "visible_mask_sha256": "30bfe094aafdcc91520904852fc2705e9446b725d0fbd50da3dd4fc3a3e55d1c",
       "hidden_mask_sha256": "9fb76733ccac9c3c148546a81b9e907c61df0c33b6a4aa44fcc35ad014d0756d",
-      "donor_mask_sha256": "8d21d4b85d598082c563a61fa6f1652f2e8970538200fbb9feaa556b622c02c0",
+      "donor_mask_sha256": "6153f43f9b0c1bc84207bae9e12e0b56b1370900c029fcf8c20a0b775af774d9",
       "donor_parts": [
         "arc_right",
         "core"
@@ -268,15 +269,15 @@
       "own_conditioning_mask_sha256": "30bfe094aafdcc91520904852fc2705e9446b725d0fbd50da3dd4fc3a3e55d1c",
       "source_paint_sha256": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f",
       "visible_rgba_sha256": "87c263259c8c30e8bc2b60e5cf1d6adc3141ddd47730f2a7c73d2f2be89aff0e",
-      "donor_rgb_sha256": "279e0b154d56213dd583b01856d9ddea14e3552d033818877b21ebcf2a2c4bd3",
+      "donor_rgb_sha256": "c64175fcae0991f9369463267c0ddd826124d5efff8ebf1874255f9e0e65ebe0",
       "own_visible_pixels": 325,
-      "donor_visible_pixels": 7185,
+      "donor_visible_pixels": 7225,
       "hidden_pixels": 61,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
         "iterations": 297,
-        "max_residual": 9.884964152549738e-07,
+        "max_residual": 9.545530035521139e-07,
         "domain": [
           63,
           75,
@@ -371,7 +372,7 @@
           "output_rgba_sha256": "0502aaa121015f59dd0058d856e1c493937662c941516066e50a0c4fff40edf6",
           "alpha_sha256": "11631df9f7774c4e3f43da2e40276ecd45038eff86a32983a1e53351622b5e0f",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "2eccda0b00aaf6d3ea239c10d88e8f627cfb878359c4fbf2c0e2c6bfda3fe1af"
+          "output_sha256": "723796130cdd79603c7235f81e8f909b4a712c80e52c193c44fd48bce4cd1482"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -499,7 +500,7 @@
           "output_rgba_sha256": "9789360c6aadcf12a94fecb38072861aabff541fc772b766bf98402ca62ffe7c",
           "alpha_sha256": "47c0d4bc1076e0aca84bb5adb1f4707b8572236919ec202aaa000119e3c2cab5",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "bb8d4f133a08aadf92928f6ea0dc6c3efb9f7e11fb5ae74b1e77acc1c94696e2"
+          "output_sha256": "cfe71eca04c36319b51315c12ac52c8f08f2301a42bc76a7ce766527bf6bbcbf"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -516,22 +517,22 @@
       "part": "arc_left",
       "material": "storm-cloud vapour with painted lightning veins",
       "request": "hidden_requests/front_arc_left.png",
-      "request_sha256": "3b0b1f9400a138bb73ef347bf4507074665accaa8929f252077247554023040b",
-      "visible_mask_sha256": "648d07c7e85f2600c30b4f7f44785f93032cc3f890bad99e4bd3af8b18f97ece",
-      "hidden_mask_sha256": "7228af51d2cc67740828d94a7fa47b114615987045fd6e7d05bf9cf2a24c48b3",
-      "donor_mask_sha256": "19276dba0cac64070a103149bc2f74f7bb2321aecf649d377475e57b2f003364",
+      "request_sha256": "bf51327e448ed7c202037bc234c39aee825351ae07ccb0629cf6c4e5393cd23b",
+      "visible_mask_sha256": "3595e379f282a25ebda540066a1d6280ba82bef08da052433bffeae09a94df77",
+      "hidden_mask_sha256": "5680ebcbc14557cc04bc34602bc67081bb8664c0967da314b2a84c3e8f6315c3",
+      "donor_mask_sha256": "0adb65d44ff1323ea3eee44f90430c1f78d1e3040e8bd37fb078a96063215d3c",
       "donor_parts": [
         "arc_right",
         "core",
         "crown"
       ],
-      "own_conditioning_mask_sha256": "648d07c7e85f2600c30b4f7f44785f93032cc3f890bad99e4bd3af8b18f97ece",
+      "own_conditioning_mask_sha256": "3595e379f282a25ebda540066a1d6280ba82bef08da052433bffeae09a94df77",
       "source_paint_sha256": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f",
-      "visible_rgba_sha256": "d020bac14bf26dff8aa4d9ed7902c3b18e8520d07bc9077a940aa2c8d1a4b0e0",
-      "donor_rgb_sha256": "39b7a0c8d372bdbb798ff7769c1d5ad64b5968502c788c5fa30480c6395dd0e5",
-      "own_visible_pixels": 572,
-      "donor_visible_pixels": 7510,
-      "hidden_pixels": 746,
+      "visible_rgba_sha256": "b82bba2e171bb5e6a595aa39fb1458537c1265ef16c2f11e91bf696f34904526",
+      "donor_rgb_sha256": "6746c2e0a6764b7f1202056633cc4629f4fa952007e9b7c46ead659d1b498920",
+      "own_visible_pixels": 532,
+      "donor_visible_pixels": 7550,
+      "hidden_pixels": 786,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
@@ -554,9 +555,9 @@
           44
         ],
         [
-          83,
+          82,
           37,
-          160
+          158
         ],
         [
           113,
@@ -564,8 +565,8 @@
           147
         ],
         [
-          135,
-          66,
+          136,
+          67,
           243
         ],
         [
@@ -586,9 +587,9 @@
           44
         ],
         [
-          83,
+          82,
           37,
-          160
+          158
         ],
         [
           113,
@@ -596,8 +597,8 @@
           147
         ],
         [
-          135,
-          66,
+          136,
+          67,
           243
         ],
         [
@@ -611,12 +612,12 @@
           241
         ]
       ],
-      "palette_iterations": 10,
+      "palette_iterations": 13,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 572,
-      "own_conditioning_pixels": 572,
-      "conditioning_pixels_in_hidden_region": 746,
-      "outline_pixels": 206,
+      "palette_sample_pixels": 532,
+      "own_conditioning_pixels": 532,
+      "conditioning_pixels_in_hidden_region": 786,
+      "outline_pixels": 220,
       "outline_tone": [
         20,
         16,
@@ -627,21 +628,21 @@
       "outputs": [
         {
           "output": "hidden/front/arc_left.png",
-          "original_sha256": "f76836a45061842fb2f3771828188532522ff00b65bb04a6ab33f9db35162854",
-          "output_rgba_sha256": "be79b78338b36a0c4d5dd8d23221f725377a65c615f95f91e0934ae913d2bdee",
-          "alpha_sha256": "0b71e09ab78930055f6ddcc131fd544f4d65534804a274b05eaa6cfd65f41c0b",
+          "original_sha256": "b06ab8014a8b9530e48be8f9e01b3357a8e61b58a59fbbf8915004890601e53d",
+          "output_rgba_sha256": "623bbf89fc696dc27b7d6527019bb8902cfb6fc07ee92c3c7b99f1c258a0f310",
+          "alpha_sha256": "ef8579be0f85ffe7bcf2658234d68776f47e6f457d2b150ed33b12506656f8b8",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "443b9cf2b26b93162d33b046f1f7addfb13d4095b9ffac03495ef37792e8832f"
+          "output_sha256": "5042905e9daf0c935832024bfb40133ee3510e147c42f2724362b9709c2e7791"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/arc_left.png",
-      "original_sha256": "f76836a45061842fb2f3771828188532522ff00b65bb04a6ab33f9db35162854",
-      "output_rgba_sha256": "be79b78338b36a0c4d5dd8d23221f725377a65c615f95f91e0934ae913d2bdee",
-      "alpha_sha256": "0b71e09ab78930055f6ddcc131fd544f4d65534804a274b05eaa6cfd65f41c0b",
+      "original_sha256": "b06ab8014a8b9530e48be8f9e01b3357a8e61b58a59fbbf8915004890601e53d",
+      "output_rgba_sha256": "623bbf89fc696dc27b7d6527019bb8902cfb6fc07ee92c3c7b99f1c258a0f310",
+      "alpha_sha256": "ef8579be0f85ffe7bcf2658234d68776f47e6f457d2b150ed33b12506656f8b8",
       "preview": "hidden_fills/front_arc_left.png",
-      "output_sha256": "443b9cf2b26b93162d33b046f1f7addfb13d4095b9ffac03495ef37792e8832f",
-      "preview_sha256": "2bde04a114cb80532c8b1defb786f4e557e11ca4569179c2986480b60131f5a9"
+      "output_sha256": "444978486a48db7ad61dbc50f314262697be75b9702e38dcf40361ec152d504b",
+      "preview_sha256": "498a3a34ad442baa76dd73648465c88eb1f89ad54ced3d2ff5b351820609ed95"
     },
     {
       "view": "front",
@@ -763,7 +764,7 @@
           "output_rgba_sha256": "2d56ec45a93b38660873d79a8651ff0045f3677c07db6113d92150a8592a92b7",
           "alpha_sha256": "4ad1901314f4a01ea8d748f39901ca1de4c0390246f038a6ce518e9f1e4c7402",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "2fe1cbd1229ec4005ddbad0602ecb5043e7233adc5a6dcb9823afae3fc7bf6d8"
+          "output_sha256": "d8905533d337222d2499571908fc4aa6daa69145c8181ab2cb59a9145aa1d9e3"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -895,7 +896,7 @@
           "output_rgba_sha256": "54fb25d66bfaf63428b1c6bee28e9675926be50732c00cddfab406b2da7d0fc9",
           "alpha_sha256": "39d011c08796f9866d065e80a9966b0e0300c4b73451ab8348eb94e75d529439",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "e40c0a62f3695fce73769744e9b918af6585619ef524f357705227908f8bab4b"
+          "output_sha256": "13a1692799fe19fbcf2e76498ce13e3e65fde97fc3b5ce85f91fcbcc29782e37"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1026,7 +1027,7 @@
           "output_rgba_sha256": "db09f80ad4f70c0e85a6cdfb5a240bcee2a98f0ee47d1e94b6b2881d252a099f",
           "alpha_sha256": "112517c6679281675ee80d1e4663db8bf86b9660ca8a3d0776885afa48c64ded",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "7b2cf1b4bfa75a9dd2107e8b641e8d22f6ff39bbf236a5315cae17ba15cff933"
+          "output_sha256": "4b2698844bec5608cddbec60f6cc82edf8b2d77010bef29be4da3321f998b4ac"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1154,7 +1155,7 @@
           "output_rgba_sha256": "da843792fd37c623dfe07af863ad03d9673ca3012de52d22515b945cd2160802",
           "alpha_sha256": "6f6a86de107a0b35093cb81a13f17db74901dd5ae6c7f0637bfecac7b7a7afee",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "b3935f06195b3511f4b5b3804d065cd1abd5c6fd099add1be34e04b477a452d0"
+          "output_sha256": "70d64e97821b1d2560ffc8d5416395c69b0e2cdd8dbebcb5a5057079660c323b"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1286,7 +1287,7 @@
           "output_rgba_sha256": "94bf9c4f804362ec5b7f01f0d8e6c4f4fa6c2937dbbdbf8a7ee26ce7e129cedb",
           "alpha_sha256": "6105eb1bf1e30279bc7d89ce0d4f8813f2371dad24965716eeeedc7edb65db1f",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "cb72a1d98af9d392bd5b1792e479e98a135b5c15d2b9fa92a1c858d83898cc22"
+          "output_sha256": "4b2698844bec5608cddbec60f6cc82edf8b2d77010bef29be4da3321f998b4ac"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1418,7 +1419,7 @@
           "output_rgba_sha256": "b4aa51c4c377481ba57e381109da3e99d0f15872c85f268a6e011d6bfc1cba8a",
           "alpha_sha256": "6d43ff79f2d647089aabe175f006fdf83af76fd44905c4bf07b36678806d6e22",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "7640b1e0c01f0dbe479fa241326cc9dbac7061f1508c61a936b3221197869f79"
+          "output_sha256": "4b2698844bec5608cddbec60f6cc82edf8b2d77010bef29be4da3321f998b4ac"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1430,5 +1431,11 @@
       "output_sha256": "7640b1e0c01f0dbe479fa241326cc9dbac7061f1508c61a936b3221197869f79",
       "preview_sha256": "788a95ee952522892538cd7d6030297a438d1fa65e44d04407e4e5f7bb15c07a"
     }
-  ]
+  ],
+  "continuity": {
+    "tool_sha256": "997fe1147a91dda704434709ad1525a8708e53a8ae75620a631adebd23532295",
+    "joint_overlap_margin_px": 2,
+    "policy": "Exact approved RGBA donors; hidden complete bone support, clipped to approved rest alpha",
+    "joint_seams_tool_sha256": "6d6f07d74769c2e5f27ebeeb4eb1e0a37c768f7c69f21eda3522e28b03529fc0"
+  }
 }

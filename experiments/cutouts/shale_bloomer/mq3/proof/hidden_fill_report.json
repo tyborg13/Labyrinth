@@ -26,13 +26,13 @@
     "layouts": {
       "front": {
         "joints": 19,
-        "parts": 32,
+        "parts": 36,
         "meshes": 0,
         "vertices": 0
       },
       "rear": {
         "joints": 19,
-        "parts": 32,
+        "parts": 35,
         "meshes": 0,
         "vertices": 0
       }

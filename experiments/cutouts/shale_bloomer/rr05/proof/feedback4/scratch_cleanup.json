@@ -1,0 +1,31 @@
+{
+  "removed_trials": [
+    {
+      "directory": "output/rr-05/feedback4/trial",
+      "files": 922,
+      "bytes": 130546571
+    },
+    {
+      "directory": "output/rr-05/feedback4/target",
+      "files": 648,
+      "bytes": 55575211
+    },
+    {
+      "directory": "output/rr-05/feedback4/joint_pivot",
+      "files": 650,
+      "bytes": 75620629
+    }
+  ],
+  "before_case_snapshots": "Compacted to immutable old layouts, cropped part RGBA and approved rests for historical CPU/native replay; not runnable authoring cases",
+  "discarded_debug_helpers_and_images": [
+    "output/rr-05/feedback4/target_trial.py",
+    "output/rr-05/feedback4/search_trial.py",
+    "output/rr-05/feedback4/joint_pivot_trial.py",
+    "output/rr-05/feedback4/diagnose_trial.py",
+    "output/rr-05/feedback4/trial.py",
+    "output/rr-05/feedback4/trial_rear_idle_42.png",
+    "output/rr-05/feedback4/trial_front_move_9.png",
+    "output/rr-05/feedback4/trial_front_death_45.png",
+    "output/rr-05/feedback4/trial_front_idle_0.png"
+  ]
+}

@@ -1,0 +1,1111 @@
+{
+  "policy": "Feedback 8: local seam bands, never a whole-creature backing.\n\nRest ownership, including features assigned to their logical owners, supplies\nthe regions (hidden fills/bleed are not ownership). Feature pixels supply\nneither band paint nor band coverage.\nBoundary length is the number of shared unit pixel edges. Band width is the\ntotal width, centred on those edges. Distances are Euclidean source pixels.\nEqual-depth, independently moving siblings require a director-supplied owner.\n",
+  "minimum_shared_boundary_px": 3,
+  "width": "total width centred on boundary; ceil(max sampled separation) + 1 px",
+  "paint": "nearest approved parent texel, excluding features; stable row/column distance ties",
+  "views": {
+    "front": [
+      {
+        "name": "seam_trunk_petal_near_l",
+        "parts": [
+          "trunk",
+          "petal_near_l"
+        ],
+        "shared_boundary_px": 39,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 40.067175765340075,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 42,
+        "pixels": 1682,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_petal_near_l.png",
+        "sha256": "18fd4049b65c7d34d5b79bc7dd3240f06afb321ace5b59bb65359c1c7d9192f4"
+      },
+      {
+        "name": "seam_trunk_petal_near_r",
+        "parts": [
+          "trunk",
+          "petal_near_r"
+        ],
+        "shared_boundary_px": 72,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 19.47326602330542,
+        "worst_pose": {
+          "clip": "shell",
+          "frame": 18
+        },
+        "band_width_px": 21,
+        "pixels": 1240,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_petal_near_r.png",
+        "sha256": "58ebf17792b25a4d93c6073da7f57ab49d6fcb8f158caff993d21e46e4dfee60"
+      },
+      {
+        "name": "seam_trunk_tendril_high_l",
+        "parts": [
+          "trunk",
+          "tendril_high_l"
+        ],
+        "shared_boundary_px": 108,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 54.98858219333953,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 56,
+        "pixels": 3151,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_tendril_high_l.png",
+        "sha256": "ee5e54633273e1ec44af631a78d7750638ec360fe42a36ba02257f9590c035a3"
+      },
+      {
+        "name": "seam_trunk_tendril_high_r",
+        "parts": [
+          "trunk",
+          "tendril_high_r"
+        ],
+        "shared_boundary_px": 72,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 16.653558981907032,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 18,
+        "pixels": 914,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_tendril_high_r.png",
+        "sha256": "b173a6d43e560e3248ab10afe059fed73bf80a3bf193c3f421f7afca2f340e70"
+      },
+      {
+        "name": "seam_trunk_tendril_low_l",
+        "parts": [
+          "trunk",
+          "tendril_low_l"
+        ],
+        "shared_boundary_px": 205,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 22.415086343781226,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 76
+        },
+        "band_width_px": 24,
+        "pixels": 2322,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_tendril_low_l.png",
+        "sha256": "435117dab2eb2f1cc0dd7ac31ed708c08b4dc638a77dc940f79424f5af3aba57"
+      },
+      {
+        "name": "seam_trunk_tendril_low_r",
+        "parts": [
+          "trunk",
+          "tendril_low_r"
+        ],
+        "shared_boundary_px": 133,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 27.22319968396033,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 29,
+        "pixels": 2600,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_tendril_low_r.png",
+        "sha256": "377561f8306f6b7cf5bc6d0f1dc79f1d46edc09712ac8fc8c25b3d5fc24ad42f"
+      },
+      {
+        "name": "seam_trunk_root_stem_r",
+        "parts": [
+          "trunk",
+          "root_stem_r"
+        ],
+        "shared_boundary_px": 114,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 6.690395592926966,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 19
+        },
+        "band_width_px": 8,
+        "pixels": 745,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_root_stem_r.png",
+        "sha256": "778669ae380a01f319ef4e3cda4e8db13f7cafefccc028f5c939cec978cbdd02"
+      },
+      {
+        "name": "seam_trunk_root_stem_c",
+        "parts": [
+          "trunk",
+          "root_stem_c"
+        ],
+        "shared_boundary_px": 25,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 3.923911191117876,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 14
+        },
+        "band_width_px": 5,
+        "pixels": 115,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_root_stem_c.png",
+        "sha256": "cf9fc039d23e7ce8b327c6f5c93ac11c83a974c6409cf7fdb02deb5dc5c134c7"
+      },
+      {
+        "name": "seam_trunk_root_tip_r",
+        "parts": [
+          "trunk",
+          "root_tip_r"
+        ],
+        "shared_boundary_px": 23,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 14.881208827006848,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 21
+        },
+        "band_width_px": 16,
+        "pixels": 403,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_root_tip_r.png",
+        "sha256": "b79c7801d442aa1c5bfb76d52252b13e6b2b2af06d6fadf9fd554014a0e266bf"
+      },
+      {
+        "name": "seam_trunk_root_tip_c",
+        "parts": [
+          "trunk",
+          "root_tip_c"
+        ],
+        "shared_boundary_px": 12,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 10.729869873235053,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 18
+        },
+        "band_width_px": 12,
+        "pixels": 222,
+        "parent_z_index": 9,
+        "file": "seams/front/seam_trunk_root_tip_c.png",
+        "sha256": "25933a059bcca6a062d36dd18e98279b20d26ca39088e27e6863ed8e38d00704"
+      },
+      {
+        "name": "seam_core_petal_near_l",
+        "parts": [
+          "core",
+          "petal_near_l"
+        ],
+        "shared_boundary_px": 71,
+        "parent": "TODO_DESIGN_seam_parent_front_core_petal_near_l"
+      },
+      {
+        "name": "seam_core_petal_near_r",
+        "parts": [
+          "core",
+          "petal_near_r"
+        ],
+        "shared_boundary_px": 40,
+        "parent": "TODO_DESIGN_seam_parent_front_core_petal_near_r"
+      },
+      {
+        "name": "seam_core_petal_far_l",
+        "parts": [
+          "core",
+          "petal_far_l"
+        ],
+        "shared_boundary_px": 62,
+        "parent": "TODO_DESIGN_seam_parent_front_core_petal_far_l"
+      },
+      {
+        "name": "seam_core_petal_far_r",
+        "parts": [
+          "core",
+          "petal_far_r"
+        ],
+        "shared_boundary_px": 35,
+        "parent": "TODO_DESIGN_seam_parent_front_core_petal_far_r"
+      },
+      {
+        "name": "seam_petal_near_l_petal_near_r",
+        "parts": [
+          "petal_near_l",
+          "petal_near_r"
+        ],
+        "shared_boundary_px": 22,
+        "parent": "TODO_DESIGN_seam_parent_front_petal_near_l_petal_near_r"
+      },
+      {
+        "name": "seam_petal_near_l_petal_far_l",
+        "parts": [
+          "petal_near_l",
+          "petal_far_l"
+        ],
+        "shared_boundary_px": 31,
+        "parent": "TODO_DESIGN_seam_parent_front_petal_near_l_petal_far_l"
+      },
+      {
+        "name": "seam_petal_near_l_tendril_high_l",
+        "parts": [
+          "petal_near_l",
+          "tendril_high_l"
+        ],
+        "shared_boundary_px": 25,
+        "parent": "tendril_high_l",
+        "bone": "tendril_high_l",
+        "maximum_sampled_separation_px": 49.02175117003543,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 51,
+        "pixels": 1182,
+        "parent_z_index": 3,
+        "file": "seams/front/seam_petal_near_l_tendril_high_l.png",
+        "sha256": "7b09dbba6831b83a11ad30a016d142e85db95374f20a7fec1ee37977195f14da"
+      },
+      {
+        "name": "seam_petal_near_r_petal_far_r",
+        "parts": [
+          "petal_near_r",
+          "petal_far_r"
+        ],
+        "shared_boundary_px": 67,
+        "parent": "TODO_DESIGN_seam_parent_front_petal_near_r_petal_far_r"
+      },
+      {
+        "name": "seam_petal_near_r_tendril_high_r",
+        "parts": [
+          "petal_near_r",
+          "tendril_high_r"
+        ],
+        "shared_boundary_px": 5,
+        "parent": "tendril_high_r",
+        "bone": "tendril_high_r",
+        "maximum_sampled_separation_px": 21.6269784141378,
+        "worst_pose": {
+          "clip": "shell",
+          "frame": 18
+        },
+        "band_width_px": 23,
+        "pixels": 301,
+        "parent_z_index": 8,
+        "file": "seams/front/seam_petal_near_r_tendril_high_r.png",
+        "sha256": "8a6625318b1c99d039f99d1919dcf254d96ea42051ea01d80dd887cca592088d"
+      },
+      {
+        "name": "seam_petal_far_l_petal_far_r",
+        "parts": [
+          "petal_far_l",
+          "petal_far_r"
+        ],
+        "shared_boundary_px": 28,
+        "parent": "TODO_DESIGN_seam_parent_front_petal_far_l_petal_far_r"
+      },
+      {
+        "name": "seam_tendril_high_l_root_tip_c",
+        "parts": [
+          "tendril_high_l",
+          "root_tip_c"
+        ],
+        "shared_boundary_px": 3,
+        "parent": "tendril_high_l",
+        "bone": "tendril_high_l",
+        "maximum_sampled_separation_px": 56.7051901511279,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 58,
+        "pixels": 1012,
+        "parent_z_index": 3,
+        "file": "seams/front/seam_tendril_high_l_root_tip_c.png",
+        "sha256": "13177977993d2859e4bd5abe98c22ad37ae68a8274e6f9d7d8b4ec331ec9ec4d"
+      },
+      {
+        "name": "seam_tendril_high_r_tendril_low_r",
+        "parts": [
+          "tendril_high_r",
+          "tendril_low_r"
+        ],
+        "shared_boundary_px": 49,
+        "parent": "TODO_DESIGN_seam_parent_front_tendril_high_r_tendril_low_r"
+      },
+      {
+        "name": "seam_tendril_low_l_root_tip_c",
+        "parts": [
+          "tendril_low_l",
+          "root_tip_c"
+        ],
+        "shared_boundary_px": 25,
+        "parent": "tendril_low_l",
+        "bone": "tendril_low_l",
+        "maximum_sampled_separation_px": 25.33766426391811,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 27,
+        "pixels": 758,
+        "parent_z_index": 11,
+        "file": "seams/front/seam_tendril_low_l_root_tip_c.png",
+        "sha256": "397b7573f52e12ffb1c26e601573558b0721186a3baeeb64b0883ab6a20d3722"
+      },
+      {
+        "name": "seam_root_stem_r_root_tip_l",
+        "parts": [
+          "root_stem_r",
+          "root_tip_l"
+        ],
+        "shared_boundary_px": 9,
+        "parent": "root_stem_r",
+        "bone": "root_stem_r",
+        "maximum_sampled_separation_px": 34.839275733685724,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 8
+        },
+        "band_width_px": 36,
+        "pixels": 348,
+        "parent_z_index": 7,
+        "file": "seams/front/seam_root_stem_r_root_tip_l.png",
+        "sha256": "5d643f746a57c8fbd9f98020fb7705b03881d72b35e13417416a3809dec7ebdc"
+      },
+      {
+        "name": "seam_root_stem_r_root_tip_r",
+        "parts": [
+          "root_stem_r",
+          "root_tip_r"
+        ],
+        "shared_boundary_px": 38,
+        "parent": "root_stem_r",
+        "bone": "root_stem_r",
+        "maximum_sampled_separation_px": 4.86929401589828,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 24
+        },
+        "band_width_px": 6,
+        "pixels": 216,
+        "parent_z_index": 7,
+        "file": "seams/front/seam_root_stem_r_root_tip_r.png",
+        "sha256": "ce9512d1ba4b7b199f37538cfc5797b88259a4693b1a936c074597c72374b9f9"
+      },
+      {
+        "name": "seam_root_stem_c_root_tip_c",
+        "parts": [
+          "root_stem_c",
+          "root_tip_c"
+        ],
+        "shared_boundary_px": 23,
+        "parent": "root_stem_c",
+        "bone": "root_stem_c",
+        "maximum_sampled_separation_px": 5.376070612591394,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 16
+        },
+        "band_width_px": 7,
+        "pixels": 107,
+        "parent_z_index": 4,
+        "file": "seams/front/seam_root_stem_c_root_tip_c.png",
+        "sha256": "4ea8c2142e32de6badbf09c8d0ba9fd513ea720ca4ce5bceaf569fc0b840be91"
+      },
+      {
+        "name": "seam_root_tip_l_root_tip_r",
+        "parts": [
+          "root_tip_l",
+          "root_tip_r"
+        ],
+        "shared_boundary_px": 7,
+        "parent": "TODO_DESIGN_seam_parent_front_root_tip_l_root_tip_r"
+      }
+    ],
+    "rear": [
+      {
+        "name": "seam_trunk_core",
+        "parts": [
+          "trunk",
+          "core"
+        ],
+        "shared_boundary_px": 43,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 12.537780026237511,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 14,
+        "pixels": 349,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_core.png",
+        "sha256": "75425f7bd3e9bc92612335e312961505870332a39581752df1d369c78b0aad0e"
+      },
+      {
+        "name": "seam_trunk_petal_far_l",
+        "parts": [
+          "trunk",
+          "petal_far_l"
+        ],
+        "shared_boundary_px": 11,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 25.794449338035964,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 27,
+        "pixels": 470,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_petal_far_l.png",
+        "sha256": "8eff9933a7918393dd73ee55e4b98adcb7a9216c1b07e6f74e4e626a92028bab"
+      },
+      {
+        "name": "seam_trunk_petal_far_r",
+        "parts": [
+          "trunk",
+          "petal_far_r"
+        ],
+        "shared_boundary_px": 18,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 16.48801990015204,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 18,
+        "pixels": 339,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_petal_far_r.png",
+        "sha256": "6ccabfdf500e15db718ef11cc906ac402855507d7c751e3a2e5d27f47c8ea00c"
+      },
+      {
+        "name": "seam_trunk_tendril_high_l",
+        "parts": [
+          "trunk",
+          "tendril_high_l"
+        ],
+        "shared_boundary_px": 163,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 67.7858346508054,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 69,
+        "pixels": 7334,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_tendril_high_l.png",
+        "sha256": "403b2538712e3918cf88c71f6ce9975ac7a0c1ed4e588029aacaf04de4e868d1"
+      },
+      {
+        "name": "seam_trunk_tendril_high_r",
+        "parts": [
+          "trunk",
+          "tendril_high_r"
+        ],
+        "shared_boundary_px": 99,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 33.09718632882791,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 35,
+        "pixels": 2738,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_tendril_high_r.png",
+        "sha256": "4c1cb3c6f30ba13695457a58651bff561a1a0754a7dc04781e5e243525bdb54e"
+      },
+      {
+        "name": "seam_trunk_tendril_mid_l",
+        "parts": [
+          "trunk",
+          "tendril_mid_l"
+        ],
+        "shared_boundary_px": 170,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 24.359678630356218,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 75
+        },
+        "band_width_px": 26,
+        "pixels": 2969,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_tendril_mid_l.png",
+        "sha256": "5a22e772a9e7adcb83fc61314618cd9adf63ff2a3aa5064ad979c3bc7a7b634a"
+      },
+      {
+        "name": "seam_trunk_tendril_low_r",
+        "parts": [
+          "trunk",
+          "tendril_low_r"
+        ],
+        "shared_boundary_px": 35,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 22.52172739492446,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 24,
+        "pixels": 606,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_tendril_low_r.png",
+        "sha256": "838f640173a52dab8bf3828cf3f44755cedb8f50cd07a38d11ce676abe8d3815"
+      },
+      {
+        "name": "seam_trunk_root_stem_l",
+        "parts": [
+          "trunk",
+          "root_stem_l"
+        ],
+        "shared_boundary_px": 35,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 4.146477826556606,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 11
+        },
+        "band_width_px": 6,
+        "pixels": 203,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_root_stem_l.png",
+        "sha256": "f5f8b1a79c3e5f1efe99d16a67a7a419ba8394eaaac6d8b7904719d740ea9fc1"
+      },
+      {
+        "name": "seam_trunk_root_tip_l",
+        "parts": [
+          "trunk",
+          "root_tip_l"
+        ],
+        "shared_boundary_px": 33,
+        "parent": "trunk",
+        "bone": "trunk",
+        "maximum_sampled_separation_px": 13.221999855056193,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 10
+        },
+        "band_width_px": 15,
+        "pixels": 410,
+        "parent_z_index": 7,
+        "file": "seams/rear/seam_trunk_root_tip_l.png",
+        "sha256": "7783287b765e6e4fddeb530f4aa0940cd37192d356864d0feee92365568e2b9c"
+      },
+      {
+        "name": "seam_core_petal_near_l",
+        "parts": [
+          "core",
+          "petal_near_l"
+        ],
+        "shared_boundary_px": 42,
+        "parent": "TODO_DESIGN_seam_parent_rear_core_petal_near_l"
+      },
+      {
+        "name": "seam_core_petal_near_r",
+        "parts": [
+          "core",
+          "petal_near_r"
+        ],
+        "shared_boundary_px": 29,
+        "parent": "TODO_DESIGN_seam_parent_rear_core_petal_near_r"
+      },
+      {
+        "name": "seam_core_petal_far_l",
+        "parts": [
+          "core",
+          "petal_far_l"
+        ],
+        "shared_boundary_px": 40,
+        "parent": "TODO_DESIGN_seam_parent_rear_core_petal_far_l"
+      },
+      {
+        "name": "seam_core_petal_far_r",
+        "parts": [
+          "core",
+          "petal_far_r"
+        ],
+        "shared_boundary_px": 62,
+        "parent": "TODO_DESIGN_seam_parent_rear_core_petal_far_r"
+      },
+      {
+        "name": "seam_petal_near_l_petal_near_r",
+        "parts": [
+          "petal_near_l",
+          "petal_near_r"
+        ],
+        "shared_boundary_px": 7,
+        "parent": "TODO_DESIGN_seam_parent_rear_petal_near_l_petal_near_r"
+      },
+      {
+        "name": "seam_petal_near_l_petal_far_l",
+        "parts": [
+          "petal_near_l",
+          "petal_far_l"
+        ],
+        "shared_boundary_px": 49,
+        "parent": "TODO_DESIGN_seam_parent_rear_petal_near_l_petal_far_l"
+      },
+      {
+        "name": "seam_petal_near_r_petal_far_r",
+        "parts": [
+          "petal_near_r",
+          "petal_far_r"
+        ],
+        "shared_boundary_px": 49,
+        "parent": "TODO_DESIGN_seam_parent_rear_petal_near_r_petal_far_r"
+      },
+      {
+        "name": "seam_petal_far_l_tendril_high_l",
+        "parts": [
+          "petal_far_l",
+          "tendril_high_l"
+        ],
+        "shared_boundary_px": 28,
+        "parent": "tendril_high_l",
+        "bone": "tendril_high_l",
+        "maximum_sampled_separation_px": 42.96599192347451,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 44,
+        "pixels": 1033,
+        "parent_z_index": 6,
+        "file": "seams/rear/seam_petal_far_l_tendril_high_l.png",
+        "sha256": "2f9eb74609ebbbaecafe4bea888b4d603d1d67db5e684d6dc8769f573b673b59"
+      },
+      {
+        "name": "seam_tendril_high_l_root_tip_c",
+        "parts": [
+          "tendril_high_l",
+          "root_tip_c"
+        ],
+        "shared_boundary_px": 31,
+        "parent": "tendril_high_l",
+        "bone": "tendril_high_l",
+        "maximum_sampled_separation_px": 46.7548505251135,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "band_width_px": 48,
+        "pixels": 817,
+        "parent_z_index": 6,
+        "file": "seams/rear/seam_tendril_high_l_root_tip_c.png",
+        "sha256": "3a3c446aeccf8ad1f63a841e177be74db52b947a824b3bf23db56cbf6166d6e3"
+      },
+      {
+        "name": "seam_tendril_low_l_root_stem_l",
+        "parts": [
+          "tendril_low_l",
+          "root_stem_l"
+        ],
+        "shared_boundary_px": 6,
+        "parent": "TODO_DESIGN_seam_parent_rear_tendril_low_l_root_stem_l"
+      },
+      {
+        "name": "seam_root_stem_l_root_stem_r",
+        "parts": [
+          "root_stem_l",
+          "root_stem_r"
+        ],
+        "shared_boundary_px": 27,
+        "parent": "TODO_DESIGN_seam_parent_rear_root_stem_l_root_stem_r"
+      },
+      {
+        "name": "seam_root_stem_l_root_tip_l",
+        "parts": [
+          "root_stem_l",
+          "root_tip_l"
+        ],
+        "shared_boundary_px": 25,
+        "parent": "root_stem_l",
+        "bone": "root_stem_l",
+        "maximum_sampled_separation_px": 8.30285866769156,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 7
+        },
+        "band_width_px": 10,
+        "pixels": 230,
+        "parent_z_index": 8,
+        "file": "seams/rear/seam_root_stem_l_root_tip_l.png",
+        "sha256": "4b185cacd19dc335b4a6c4ec690559aa73606889b3074dc4af4d769c0e6c2bfd"
+      }
+    ]
+  },
+  "TODO_DESIGN": [
+    {
+      "name": "TODO_DESIGN_seam_parent_front_core_petal_near_l",
+      "view": "front",
+      "parts": [
+        "core",
+        "petal_near_l"
+      ],
+      "bones": [
+        "core",
+        "petal_near_l"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 71,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_core_petal_near_r",
+      "view": "front",
+      "parts": [
+        "core",
+        "petal_near_r"
+      ],
+      "bones": [
+        "core",
+        "petal_near_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 40,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_core_petal_far_l",
+      "view": "front",
+      "parts": [
+        "core",
+        "petal_far_l"
+      ],
+      "bones": [
+        "core",
+        "petal_far_l"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 62,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_core_petal_far_r",
+      "view": "front",
+      "parts": [
+        "core",
+        "petal_far_r"
+      ],
+      "bones": [
+        "core",
+        "petal_far_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 35,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_petal_near_l_petal_near_r",
+      "view": "front",
+      "parts": [
+        "petal_near_l",
+        "petal_near_r"
+      ],
+      "bones": [
+        "petal_near_l",
+        "petal_near_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 22,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_petal_near_l_petal_far_l",
+      "view": "front",
+      "parts": [
+        "petal_near_l",
+        "petal_far_l"
+      ],
+      "bones": [
+        "petal_near_l",
+        "petal_far_l"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 31,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_petal_near_r_petal_far_r",
+      "view": "front",
+      "parts": [
+        "petal_near_r",
+        "petal_far_r"
+      ],
+      "bones": [
+        "petal_near_r",
+        "petal_far_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 67,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_petal_far_l_petal_far_r",
+      "view": "front",
+      "parts": [
+        "petal_far_l",
+        "petal_far_r"
+      ],
+      "bones": [
+        "petal_far_l",
+        "petal_far_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 28,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_tendril_high_r_tendril_low_r",
+      "view": "front",
+      "parts": [
+        "tendril_high_r",
+        "tendril_low_r"
+      ],
+      "bones": [
+        "tendril_high_r",
+        "tendril_low_r"
+      ],
+      "depths": [
+        2,
+        2
+      ],
+      "shared_boundary_px": 49,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_front_root_tip_l_root_tip_r",
+      "view": "front",
+      "parts": [
+        "root_tip_l",
+        "root_tip_r"
+      ],
+      "bones": [
+        "root_tip_l",
+        "root_tip_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 7,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_core_petal_near_l",
+      "view": "rear",
+      "parts": [
+        "core",
+        "petal_near_l"
+      ],
+      "bones": [
+        "core",
+        "petal_near_l"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 42,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_core_petal_near_r",
+      "view": "rear",
+      "parts": [
+        "core",
+        "petal_near_r"
+      ],
+      "bones": [
+        "core",
+        "petal_near_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 29,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_core_petal_far_l",
+      "view": "rear",
+      "parts": [
+        "core",
+        "petal_far_l"
+      ],
+      "bones": [
+        "core",
+        "petal_far_l"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 40,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_core_petal_far_r",
+      "view": "rear",
+      "parts": [
+        "core",
+        "petal_far_r"
+      ],
+      "bones": [
+        "core",
+        "petal_far_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 62,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_petal_near_l_petal_near_r",
+      "view": "rear",
+      "parts": [
+        "petal_near_l",
+        "petal_near_r"
+      ],
+      "bones": [
+        "petal_near_l",
+        "petal_near_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 7,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_petal_near_l_petal_far_l",
+      "view": "rear",
+      "parts": [
+        "petal_near_l",
+        "petal_far_l"
+      ],
+      "bones": [
+        "petal_near_l",
+        "petal_far_l"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 49,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_petal_near_r_petal_far_r",
+      "view": "rear",
+      "parts": [
+        "petal_near_r",
+        "petal_far_r"
+      ],
+      "bones": [
+        "petal_near_r",
+        "petal_far_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 49,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_tendril_low_l_root_stem_l",
+      "view": "rear",
+      "parts": [
+        "tendril_low_l",
+        "root_stem_l"
+      ],
+      "bones": [
+        "tendril_low_l",
+        "root_stem_l"
+      ],
+      "depths": [
+        2,
+        2
+      ],
+      "shared_boundary_px": 6,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    },
+    {
+      "name": "TODO_DESIGN_seam_parent_rear_root_stem_l_root_stem_r",
+      "view": "rear",
+      "parts": [
+        "root_stem_l",
+        "root_stem_r"
+      ],
+      "bones": [
+        "root_stem_l",
+        "root_stem_r"
+      ],
+      "depths": [
+        2,
+        2
+      ],
+      "shared_boundary_px": 27,
+      "reason": "Equal-depth siblings have no nearer-root part; donor and attachment need a director decision"
+    }
+  ],
+  "reference_body_bones": {
+    "front": "trunk",
+    "rear": "trunk"
+  }
+}

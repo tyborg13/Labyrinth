@@ -1,0 +1,203 @@
+{
+  "player_facing_defaults_chosen": [],
+  "director_thresholds": {
+    "minimum_shared_boundary_px": 3,
+    "separation_margin_px": 1,
+    "interior_erosion_px": 1,
+    "maximum_underlay_protrusion_width_px": 2
+  },
+  "derivation_conventions": {
+    "boundary": "4-neighbour unit grid edges; diagonal contacts have no shared edge length",
+    "band_width": "ceil(max sampled boundary-endpoint separation) + 1 px total width; centred on shared boundary, pixel-centre coverage",
+    "parent": "lesser skeleton depth; same-bone canonical body paint for Wisp veins; equal-depth independent siblings remain TODO_DESIGN",
+    "underlay_order": "beneath all parts, preserving parent material draw order",
+    "paint": "existing feedback6 Euclidean nearest-edge algorithm, stable source row/column ties; features excluded"
+  },
+  "proof_fields": {
+    "reference_frame": "common body bone (trunk/core), including pose alpha; question pending on vacated outer limb regions",
+    "protrusion_width_metric": "max Euclidean distance from exposed underlay texel centre to nearest posed material texel centre",
+    "natural_negative_space": "new enclosed background outside projected rest, original rest holes excluded",
+    "tear_joint_assignment": "nearest shared-boundary midpoint, projected by its first rest owner; spatial attribution, not a proven causal channel"
+  },
+  "native_alpha": {
+    "CANVAS_COLOR_CHANNEL_MAX": 255,
+    "packing_arithmetic": "float32",
+    "IMAGE_PROBE_TIMEOUT_SECONDS": 60,
+    "frozen_frames": [
+      "front_death/0069",
+      "front_death/0070"
+    ]
+  },
+  "unchanged_proof_defaults": {
+    "fps": 60,
+    "step_frames": 6,
+    "canvas_size": 512,
+    "source_offset": 128,
+    "boundary_residual_fraction": 0.01,
+    "transform_tolerance": 0.0001,
+    "bounds_margin_px": 2,
+    "native_raster_fraction": 0.01,
+    "native_raster_edge_pixels": 1
+  },
+  "test_fields": {
+    "FIXTURE_SIZE": 255,
+    "FIXTURE_PARENT_RGBA": [
+      71,
+      42,
+      19,
+      255
+    ],
+    "FIXTURE_CHILD_RGBA": [
+      29,
+      53,
+      91,
+      255
+    ],
+    "FIXTURE_BODY_RECT": [
+      20,
+      20,
+      40,
+      40
+    ],
+    "FIXTURE_BOUNDARY_X": 30,
+    "FIXTURE_SEPARATION_PX": 3,
+    "FIXTURE_FEATURE_RECT": [
+      29,
+      25,
+      31,
+      28
+    ],
+    "FIXTURE_FEATURE_STRIP_RECT": [
+      29,
+      20,
+      30,
+      40
+    ],
+    "FIXTURE_FEATURE_RGBA": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "FIXTURE_MUTATION_YX": [
+      0,
+      0
+    ],
+    "FIXTURE_FOREGROUND_Z": 10,
+    "FIXTURE_GATE_SIZE": 40,
+    "FIXTURE_GATE_BODY_RECT": [
+      5,
+      5,
+      35,
+      35
+    ],
+    "FIXTURE_GATE_INTERIOR_RECT": [
+      6,
+      6,
+      34,
+      34
+    ],
+    "FIXTURE_CRACK_RECT": [
+      19,
+      5,
+      20,
+      20
+    ],
+    "FIXTURE_EXISTING_HOLE_RECT": [
+      15,
+      15,
+      17,
+      17
+    ],
+    "FIXTURE_CURL_BODY_RECT": [
+      35,
+      10,
+      39,
+      20
+    ],
+    "FIXTURE_CURL_HOLE_RECT": [
+      36,
+      12,
+      38,
+      18
+    ],
+    "FIXTURE_ALLOWED_PROTRUSION_YX": [
+      15,
+      3
+    ],
+    "FIXTURE_EXCESS_PROTRUSION_YX": [
+      15,
+      2
+    ],
+    "FIXTURE_NATIVE_BODY_RECT": [
+      20,
+      20,
+      40,
+      40
+    ],
+    "FIXTURE_NATIVE_HOLE_RECT": [
+      25,
+      25,
+      27,
+      27
+    ],
+    "FIXTURE_WIDENED_GAP_PX": 2
+  },
+  "diagnostic_fields": {
+    "PROOF_MASK_RGBA": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "PROOF_CONTACT_BACKGROUND_RGBA": [
+      0,
+      0,
+      0,
+      255
+    ],
+    "PROOF_TILE_SIZE": 256,
+    "PROOF_EXAMPLES": {
+      "shale_bloomer": [
+        [
+          "front",
+          "move",
+          19
+        ],
+        [
+          "front",
+          "shell",
+          17
+        ],
+        [
+          "rear",
+          "death",
+          49
+        ],
+        [
+          "front",
+          "death",
+          77
+        ]
+      ],
+      "lightning_wisp": [
+        [
+          "front",
+          "idle",
+          78
+        ],
+        [
+          "front",
+          "death",
+          65
+        ]
+      ]
+    }
+  },
+  "runner_fields": {
+    "FOCUSED_POLL_SECONDS": 5,
+    "INTERNAL_GODOT_BUDGET_SECONDS": 900,
+    "REPORT_GRACE_SECONDS": 60,
+    "outer_timeout_seconds": 960
+  }
+}

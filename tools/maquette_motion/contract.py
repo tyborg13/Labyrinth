@@ -8,7 +8,42 @@ import hashlib
 import math
 import numpy as np
 from maquette_cutout import projected, shape_center
-from cutout_pipeline.cases import read_json
+from cutout_pipeline.cases import read_json, digest, CutoutError
+from pathlib import Path
+
+DIRECTOR_SOURCE = Path(__file__).resolve().parents[2] / 'spec/peer_benchmark/staged/rr-04/motion_tracks.json'
+
+
+def approved_source(case):
+    """Validate a case-local director amendment without recopying other rigs.
+
+    The amendment records the exact supplied old/new value and base digest.
+    Every other field, including other creatures, remains protected.
+    """
+    path = case / 'director_amendments.json'
+    if not path.exists():
+        if (case / 'director_motion.json').read_bytes() != DIRECTOR_SOURCE.read_bytes():
+            raise CutoutError('Protected motion copy differs')
+        return DIRECTOR_SOURCE
+    amendment = read_json(path)
+    if amendment['base_sha256'] != digest(DIRECTOR_SOURCE):
+        raise CutoutError('Director amendment base differs')
+    expected = read_json(DIRECTOR_SOURCE)
+    creature = read_json(case / 'cutout.json')['character_id']
+    for edit in amendment['edits']:
+        if edit['path'][0] != creature:
+            raise CutoutError('Director amendment changes another creature')
+        parent = expected
+        for field in edit['path'][:-1]:
+            parent = parent[field]
+        field = edit['path'][-1]
+        if parent[field] != edit['before']:
+            raise CutoutError('Director amendment old value differs')
+        parent[field] = edit['after']
+    source = case / 'director_motion.json'
+    if read_json(source) != expected:
+        raise CutoutError('Protected motion copy differs beyond director amendment')
+    return source
 
 ANGLE_EPSILON = 1e-12
 

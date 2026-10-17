@@ -1,0 +1,225 @@
+KEEP output/contextual-animation-polish: tests/contextual_creature_keypose_probe.gd:39: res://output/contextual-animation-polish/creatures/cases/; tests/contextual_creature_motion_test.gd:9: res://output/contextual-animation-polish/creatures/cases/; tests/crawler_cutout_asset_probe.gd:6: res://output/contextual-animation-polish/creatures/cases/crawler/cutout.json
+KEEP output/rr-01: tests/crawler_recolour_probe.gd:9: res://output/rr-01/before
+KEEP output/rr-04: experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:10: res://output/rr-04/shale-rest; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:11: res://output/rr-04/wisp-rest; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:14: res://output/rr-04/shale-native; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:15: res://output/rr-04/wisp-native; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:20: res://output/rr-04/shale-samples.json; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:21: res://output/rr-04/wisp-samples.json; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:37: res://output/rr-04/shale-production; experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh:38: res://output/rr-04/wisp-production; experiments/cutouts/shale_bloomer/mq3/proof/round1/production_proof.sh:4: res://output/rr-04/round1-owner/shale-production; experiments/cutouts/shale_bloomer/mq3/proof/round1/production_proof.sh:5: res://output/rr-04/round1-owner/wisp-production; experiments/cutouts/shale_bloomer/mq3/proof/round1/results.json:107: res://output/rr-04/round1/shale-logic; experiments/cutouts/shale_bloomer/mq3/proof/round1/results.json:109: res://output/rr-04/round1/shale-production; experiments/cutouts/shale_bloomer/mq3/proof/round1/results.json:110: res://output/rr-04/round1/wisp-logic; experiments/cutouts/shale_bloomer/mq3/proof/round1/results.json:112: res://output/rr-04/round1/wisp-production
+OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)
+Running task-local command:
+  task: rr-05
+  run: rr-05-1792253316503789000-7214
+  HOME: /private/tmp/labyrinth-godot-home/rr-05-1792253316503789000-7214
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-05-1792253316503789000-7214/godot.log --headless --path . --script tests/maquette_cutout/pixel_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/shale_bloomer/mq3 --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pixel_samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+MAQUETTE PIXEL SAMPLES: PASS (1008 poses; headless transforms only)
+Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
+Running visual probe:
+  namespace: rr-05-1792253317911722000-7217-native_capture-1
+  HOME: /private/tmp/labyrinth-godot-home/rr-05-1792253317911722000-7217-native_capture-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-05-1792253317911722000-7217-native_capture-1/godot.log --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-05 --script tests/maquette_cutout/native_capture.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/shale_bloomer/mq3 --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple M5 Pro (Apple9)
+
+MAQUETTE NATIVE CAPTURE: PASS
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/rest_pair.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/front_rest.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/rear_rest.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0033.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0067.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0100.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0134.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0167.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0011.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0021.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0032.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0042.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0053.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0012.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0024.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0035.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0047.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0059.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0009.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0019.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0028.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0038.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0047.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0012.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0024.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0035.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0047.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0059.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0007.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0014.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0021.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0028.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0035.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0015.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0031.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0046.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0062.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0077.png
+Validated 45 screenshot(s):
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/front_rest.png 255x255 luma=21.4 range=223.4 stdev=36.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.4
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0012.png 1920x1080 luma=32.5 range=255.0 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0024.png 1920x1080 luma=32.4 range=254.7 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0035.png 1920x1080 luma=32.6 range=254.9 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0047.png 1920x1080 luma=32.6 range=254.9 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_burst/frame_0059.png 1920x1080 luma=32.6 range=254.1 stdev=13.4
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0015.png 1920x1080 luma=32.5 range=254.1 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0031.png 1920x1080 luma=32.4 range=254.7 stdev=12.7
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0046.png 1920x1080 luma=32.3 range=253.9 stdev=12.5
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0062.png 1920x1080 luma=32.3 range=255.0 stdev=12.5
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_death/frame_0077.png 1920x1080 luma=32.3 range=254.0 stdev=12.4
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0007.png 1920x1080 luma=32.6 range=253.2 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0014.png 1920x1080 luma=32.6 range=254.9 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0021.png 1920x1080 luma=32.6 range=255.0 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0028.png 1920x1080 luma=32.6 range=254.9 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_hit/frame_0035.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0033.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0067.png 1920x1080 luma=32.5 range=255.0 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0100.png 1920x1080 luma=32.5 range=255.0 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0134.png 1920x1080 luma=32.5 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_idle/frame_0167.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0011.png 1920x1080 luma=32.5 range=254.9 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0021.png 1920x1080 luma=32.5 range=254.7 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0032.png 1920x1080 luma=32.5 range=254.7 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0042.png 1920x1080 luma=32.5 range=254.1 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_move/frame_0053.png 1920x1080 luma=32.6 range=254.1 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0012.png 1920x1080 luma=32.5 range=254.9 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0024.png 1920x1080 luma=32.4 range=254.1 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0035.png 1920x1080 luma=32.4 range=254.1 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0047.png 1920x1080 luma=32.5 range=254.9 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shell/frame_0059.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0000.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0009.png 1920x1080 luma=32.6 range=254.9 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0019.png 1920x1080 luma=32.6 range=253.9 stdev=13.4
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0028.png 1920x1080 luma=32.5 range=254.1 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0038.png 1920x1080 luma=32.5 range=254.9 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/pair_shot/frame_0047.png 1920x1080 luma=32.6 range=254.1 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/rear_rest.png 255x255 luma=17.3 range=244.9 stdev=32.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/shale-native/rest_pair.png 1920x1080 luma=32.5 range=227.8 stdev=13.2
+MAQUETTE REVIEW: PASS (1212 frames, 20.2s at 60fps): output/rr-05/shale_bloomer_review.mp4
+Running task-local command:
+  task: rr-05
+  run: rr-05-1792253553775333000-9821
+  HOME: /private/tmp/labyrinth-godot-home/rr-05-1792253553775333000-9821
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-05-1792253553775333000-9821/godot.log --headless --path . --script tests/maquette_cutout/pixel_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/lightning_wisp/mq4 --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pixel_samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+MAQUETTE PIXEL SAMPLES: PASS (750 poses; headless transforms only)
+Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
+Running visual probe:
+  namespace: rr-05-1792253554814113000-9826-native_capture-1
+  HOME: /private/tmp/labyrinth-godot-home/rr-05-1792253554814113000-9826-native_capture-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-05-1792253554814113000-9826-native_capture-1/godot.log --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-05 --script tests/maquette_cutout/native_capture.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/lightning_wisp/mq4 --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple M5 Pro (Apple9)
+
+MAQUETTE NATIVE CAPTURE: PASS
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/rest_pair.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/front_rest.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/rear_rest.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0026.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0052.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0079.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0105.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0131.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0009.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0019.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0028.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0038.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0047.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0008.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0016.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0025.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0033.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0041.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0009.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0019.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0028.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0038.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0047.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0006.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0013.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0019.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0026.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0032.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0000.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0014.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0028.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0043.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0057.png
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0071.png
+Validated 39 screenshot(s):
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/front_rest.png 255x255 luma=12.1 range=255.0 stdev=35.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0000.png 1920x1080 luma=32.0 range=248.6 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0009.png 1920x1080 luma=32.0 range=251.5 stdev=12.7
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0019.png 1920x1080 luma=32.2 range=249.3 stdev=13.5
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0028.png 1920x1080 luma=31.9 range=249.9 stdev=12.4
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0038.png 1920x1080 luma=31.9 range=249.9 stdev=12.6
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_cast/frame_0047.png 1920x1080 luma=32.0 range=248.6 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0000.png 1920x1080 luma=32.0 range=248.6 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0014.png 1920x1080 luma=32.1 range=253.9 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0028.png 1920x1080 luma=32.2 range=248.6 stdev=13.6
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0043.png 1920x1080 luma=32.2 range=250.0 stdev=13.8
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0057.png 1920x1080 luma=30.7 range=237.1 stdev=5.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_death/frame_0071.png 1920x1080 luma=30.5 range=224.6 stdev=2.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0000.png 1920x1080 luma=32.0 range=248.6 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0006.png 1920x1080 luma=32.0 range=255.0 stdev=12.9
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0013.png 1920x1080 luma=32.0 range=251.1 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0019.png 1920x1080 luma=32.0 range=246.2 stdev=12.8
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0026.png 1920x1080 luma=32.0 range=248.4 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_hit/frame_0032.png 1920x1080 luma=32.0 range=248.6 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0000.png 1920x1080 luma=32.0 range=249.5 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0026.png 1920x1080 luma=32.0 range=248.6 stdev=12.9
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0052.png 1920x1080 luma=32.0 range=250.0 stdev=12.6
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0079.png 1920x1080 luma=32.0 range=249.5 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0105.png 1920x1080 luma=32.0 range=252.4 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_idle/frame_0131.png 1920x1080 luma=32.0 range=249.5 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0000.png 1920x1080 luma=32.0 range=248.6 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0009.png 1920x1080 luma=32.0 range=249.3 stdev=12.8
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0019.png 1920x1080 luma=32.0 range=250.3 stdev=12.8
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0028.png 1920x1080 luma=32.0 range=253.9 stdev=12.9
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0038.png 1920x1080 luma=32.0 range=251.4 stdev=13.1
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_move/frame_0047.png 1920x1080 luma=32.0 range=249.6 stdev=13.2
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0000.png 1920x1080 luma=32.0 range=248.6 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0008.png 1920x1080 luma=32.0 range=249.9 stdev=12.8
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0016.png 1920x1080 luma=32.0 range=255.0 stdev=13.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0025.png 1920x1080 luma=32.0 range=251.1 stdev=12.9
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0033.png 1920x1080 luma=32.0 range=250.3 stdev=12.7
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/pair_strike/frame_0041.png 1920x1080 luma=32.0 range=248.6 stdev=13.3
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/rear_rest.png 255x255 luma=10.1 range=255.0 stdev=30.0
+  /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/wisp-native/rest_pair.png 1920x1080 luma=32.0 range=248.6 stdev=13.1
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/tools/maquette_cutout_review.py", line 61, in <module>
+    if __name__=='__main__':main()
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/tools/maquette_cutout_review.py", line 60, in main
+    compose(a.case,a.capture,a.output)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/tools/maquette_cutout_review.py", line 30, in compose
+    if not pixel_report['ok']:raise ValueError('Pixel/feature verification failed: '+str(pixel_report['errors'][:10]))
+ValueError: Pixel/feature verification failed: ['front/feature_eye/0: native part does not match its source transform', 'front/feature_eye/1: native part does not match its source transform', 'front/feature_eye/2: native part does not match its source transform', 'front/feature_eye/3: native part does not match its source transform', 'front/feature_eye/4: native part does not match its source transform', 'front/feature_eye/5: native part does not match its source transform', 'rear/arc_left/12: native part does not match its source transform', 'rear/arc_left/12: unexplained shimmer (13px, 0.017568)', 'rear/arc_left/13: native part does not match its source transform', 'rear/arc_left/14: native part does not match its source transform']

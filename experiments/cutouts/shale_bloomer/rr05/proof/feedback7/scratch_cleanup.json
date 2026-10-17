@@ -1,0 +1,20 @@
+{
+  "removed": [
+    {
+      "path": "output/rr-05/feedback7/without-backing",
+      "bytes_removed": 676129,
+      "reason": "Recreatable CPU scratch/prototype metrics; final reports, bound samples and diagnosis PNGs retained"
+    },
+    {
+      "path": "output/rr-05/feedback7/shale-initial.json",
+      "bytes_removed": 739628,
+      "reason": "Recreatable CPU scratch/prototype metrics; final reports, bound samples and diagnosis PNGs retained"
+    },
+    {
+      "path": "output/rr-05/feedback7/wisp-initial.json",
+      "bytes_removed": 531387,
+      "reason": "Recreatable CPU scratch/prototype metrics; final reports, bound samples and diagnosis PNGs retained"
+    }
+  ],
+  "native_captures_or_videos_removed": []
+}

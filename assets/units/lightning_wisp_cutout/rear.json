@@ -39,7 +39,7 @@
       "bbox": [
         66,
         82,
-        186,
+        190,
         180
       ],
       "logical_part": "core",
@@ -52,11 +52,11 @@
       "file": "segmented/rear/crown.png",
       "offset": [
         98,
-        85
+        82
       ],
       "bbox": [
         98,
-        85,
+        82,
         153,
         119
       ],
@@ -125,11 +125,17 @@
       "hidden_material": true,
       "file": "hidden/rear/core.png",
       "offset": [
-        79,
-        84
+        66,
+        82
       ],
       "bone": "core",
-      "z_index": -3
+      "z_index": -3,
+      "bbox": [
+        66,
+        82,
+        190,
+        182
+      ]
     },
     {
       "name": "hidden_crown",
@@ -137,11 +143,17 @@
       "hidden_material": true,
       "file": "hidden/rear/crown.png",
       "offset": [
-        99,
-        84
+        66,
+        82
       ],
       "bone": "core",
-      "z_index": -1
+      "z_index": -1,
+      "bbox": [
+        66,
+        82,
+        190,
+        182
+      ]
     },
     {
       "name": "hidden_tail",
@@ -149,11 +161,17 @@
       "hidden_material": true,
       "file": "hidden/rear/tail.png",
       "offset": [
-        94,
+        80,
         138
       ],
       "bone": "tail",
-      "z_index": -5
+      "z_index": -5,
+      "bbox": [
+        80,
+        138,
+        152,
+        246
+      ]
     },
     {
       "name": "hidden_arc_left",
@@ -161,11 +179,17 @@
       "hidden_material": true,
       "file": "hidden/rear/arc_left.png",
       "offset": [
-        94,
-        87
+        66,
+        82
       ],
       "bone": "core",
-      "z_index": -2
+      "z_index": -2,
+      "bbox": [
+        66,
+        82,
+        190,
+        182
+      ]
     },
     {
       "name": "hidden_arc_right",
@@ -173,11 +197,17 @@
       "hidden_material": true,
       "file": "hidden/rear/arc_right.png",
       "offset": [
-        82,
-        98
+        66,
+        82
       ],
       "bone": "core",
-      "z_index": -4
+      "z_index": -4,
+      "bbox": [
+        66,
+        82,
+        190,
+        182
+      ]
     }
   ],
   "rest_source": "rear/rest.png",

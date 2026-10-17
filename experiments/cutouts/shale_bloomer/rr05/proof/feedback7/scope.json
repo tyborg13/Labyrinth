@@ -1,0 +1,9 @@
+{
+  "branch": "codex/rr-05",
+  "tracked_changed": 254,
+  "untracked": 34036,
+  "shrike_changes": [],
+  "worker_production_writes": false,
+  "owner_adoption_outputs_preserved": "preservation.json",
+  "uncommitted": true
+}

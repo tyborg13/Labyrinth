@@ -2,6 +2,7 @@ extends Node
 
 const CommonRig = preload("rig.gd")
 const Motion = preload("motion.gd")
+const Pixels = preload("pixel_presentation.gd")
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
@@ -21,6 +22,7 @@ var step_distance_px: float = 0.0
 var _idle_seconds: float = 0.0
 var _recovering_hit: bool = false
 var _pose_signature: Array = []
+var _render_signature: Array = []
 
 func _ready() -> void:
 	viewport = SubViewport.new()
@@ -89,9 +91,12 @@ func _apply_pose() -> void:
 	if rigs.is_empty(): return
 	var shown: String = _shown_clip()
 	var progress: float = _shown_phase()
-	var signature: Array = [facing, mirrored, shown, progress, screen_pixel_scale, step_distance_px]
-	if signature == _pose_signature: return
-	_pose_signature = signature
+	# Preserve the requested director/seed clock for existing consumers. The
+	# actual painted cache uses the stepped clock; held frames need no redraw.
+	_pose_signature = [facing, mirrored, shown, progress, screen_pixel_scale, step_distance_px]
+	var signature: Array = [facing, mirrored, shown, Pixels.phase_for(motion_data(), shown, progress), screen_pixel_scale, step_distance_px]
+	if signature == _render_signature: return
+	_render_signature = signature
 	for view: String in rigs:
 		var rig: Node2D = rigs[view]
 		rig.visible = view == facing
@@ -113,6 +118,7 @@ func source_socket() -> Vector2:
 
 func snapshot() -> Dictionary:
 	return {"art": character_id + "_maquette", "clip": clip, "shown_clip": _shown_clip(), "phase": _shown_phase(),
+		"presented_phase": Pixels.phase_for(motion_data(), _shown_clip(), _shown_phase()),
 		"facing": facing, "mirrored": mirrored, "active": active, "rig_count": rigs.size(),
 		"reduced_motion": reduced_motion,
 		"screen_pixel_scale": screen_pixel_scale, "step_distance_px": step_distance_px,

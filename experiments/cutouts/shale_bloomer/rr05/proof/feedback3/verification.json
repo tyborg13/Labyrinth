@@ -1,0 +1,1055 @@
+{
+  "feedback": 3,
+  "basis": "Current headless runtime/gates and suites; historical native pixels replayed without rebinding or modifying their manifests",
+  "requirements": [
+    {
+      "number": 1,
+      "status": "PASS headless",
+      "result": "Whole features, exact source RGBA, single painted node, declared bone and sampled poses; split mutations rejected"
+    },
+    {
+      "number": 2,
+      "status": "PASS headless",
+      "result": "10 Hz loops, full-rate action phases, owner translation/rotation snapping, shared core mapping, integral board canvas and unchanged shimmer thresholds"
+    },
+    {
+      "number": 3,
+      "status": "PASS",
+      "result": "Both creatures wired; protected art/masks/owners/reasons, director motion and compiled tracks preserved"
+    },
+    {
+      "number": 4,
+      "status": "OWNER WINDOWED PROOF PENDING",
+      "result": "Director Bloomer native review passes and preserved; corrected Wisp native review/MP4 and production adoption/captures await owner; filtered ordered script ready"
+    }
+  ],
+  "focused": [
+    {
+      "name": "output_gdignore",
+      "command": [
+        "python3",
+        "tools/output_gdignore.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.3,
+      "result_lines": [
+        "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+      ],
+      "log": "output/rr-05/feedback3/output_gdignore.log"
+    },
+    {
+      "name": "shale_pixels",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/pixel_samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-pixels.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.76,
+      "result_lines": [
+        "MAQUETTE PIXEL SAMPLES: PASS (1008 poses; headless transforms only)"
+      ],
+      "log": "output/rr-05/feedback3/shale_pixels.log"
+    },
+    {
+      "name": "shale_pixel_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_polish.py",
+        "gate",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-pixels.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-pixel-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 9.086,
+      "result_lines": [
+        "MAQUETTE PIXEL GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback3/shale_pixel_gate.log"
+    },
+    {
+      "name": "shale_authored",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-authored.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.356,
+      "result_lines": [
+        "MAQUETTE MOTION SAMPLES: PASS (276 bone poses)"
+      ],
+      "log": "output/rr-05/feedback3/shale_authored.log"
+    },
+    {
+      "name": "shale_authored_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-authored.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-authored-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.273,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback3/shale_authored_gate.log"
+    },
+    {
+      "name": "shale_native_parse",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/native_capture.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-native",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.343,
+      "result_lines": [
+        "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+      ],
+      "log": "output/rr-05/feedback3/shale_native_parse.log"
+    },
+    {
+      "name": "shale_logic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/production_capture.gd",
+        "--",
+        "--type",
+        "bile_bloomer",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "seconds": 34.527,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1171 frames)"
+      ],
+      "log": "output/rr-05/feedback3/shale_logic.log"
+    },
+    {
+      "name": "shale_logic_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--production",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-logic/logic_frames.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/shale-logic-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.153,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback3/shale_logic_gate.log"
+    },
+    {
+      "name": "wisp_pixels",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/pixel_samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-pixels.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.476,
+      "result_lines": [
+        "MAQUETTE PIXEL SAMPLES: PASS (750 poses; headless transforms only)"
+      ],
+      "log": "output/rr-05/feedback3/wisp_pixels.log"
+    },
+    {
+      "name": "wisp_pixel_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_polish.py",
+        "gate",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-pixels.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-pixel-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 2.998,
+      "result_lines": [
+        "MAQUETTE PIXEL GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback3/wisp_pixel_gate.log"
+    },
+    {
+      "name": "wisp_authored",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-authored.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.356,
+      "result_lines": [
+        "MAQUETTE MOTION SAMPLES: PASS (180 bone poses)"
+      ],
+      "log": "output/rr-05/feedback3/wisp_authored.log"
+    },
+    {
+      "name": "wisp_authored_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-authored.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-authored-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.137,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback3/wisp_authored_gate.log"
+    },
+    {
+      "name": "wisp_native_parse",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/native_capture.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-native",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.36,
+      "result_lines": [
+        "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+      ],
+      "log": "output/rr-05/feedback3/wisp_native_parse.log"
+    },
+    {
+      "name": "wisp_logic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/production_capture.gd",
+        "--",
+        "--type",
+        "lightning_wisp",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "seconds": 33.9,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1149 frames)"
+      ],
+      "log": "output/rr-05/feedback3/wisp_logic.log"
+    },
+    {
+      "name": "wisp_logic_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--production",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-logic/logic_frames.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback3/wisp-logic-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.115,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback3/wisp_logic_gate.log"
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout_test.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 17.096,
+      "result_lines": [
+        "MAQUETTE CUTOUT: PASS (16430 checks, 0 failures; headless logic only)"
+      ],
+      "log": "output/rr-05/feedback3/runtime.log"
+    },
+    {
+      "name": "living_foes",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/pre_battle_living_foes_test.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 5.932,
+      "result_lines": [
+        "PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)",
+        "TEST RESULT: PASS"
+      ],
+      "log": "output/rr-05/feedback3/living_foes.log"
+    },
+    {
+      "name": "pixel_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_maquette_pixel_polish.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 31.025,
+      "result_lines": [
+        "Ran 12 tests in 30.828s",
+        "OK",
+        "MAQUETTE PIXEL MUTATION: split_feature rejected in both views",
+        "MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)",
+        "MAQUETTE SHIMMER CPU: shale_bloomer: {'before': {'held_unexplained_pixels': 322359, 'boundary_unexplained_pixels': 30000}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}",
+        "MAQUETTE PIXEL MUTATION: shale_bloomer/unstepped_paint rejected",
+        "MAQUETTE SHIMMER CPU: lightning_wisp: {'before': {'held_unexplained_pixels': 297165, 'boundary_unexplained_pixels': 13618}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 4}}",
+        "MAQUETTE PIXEL MUTATION: lightning_wisp/unstepped_paint rejected",
+        "MAQUETTE PIXEL MUTATION: independent core-crop snapping rejected in both views"
+      ],
+      "log": "output/rr-05/feedback3/pixel_tests.log"
+    },
+    {
+      "name": "semantic_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_semantic_maquette_motion.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 55.318,
+      "result_lines": [
+        "Ran 7 tests in 55.151s",
+        "OK",
+        "MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle",
+        "MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle",
+        "MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views",
+        "MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views",
+        "MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views",
+        "MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views",
+        "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd",
+        "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd"
+      ],
+      "log": "output/rr-05/feedback3/semantic_tests.log"
+    },
+    {
+      "name": "native_regression",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_maquette_native_raster.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 0.228,
+      "result_lines": [
+        "Ran 3 tests in 0.081s",
+        "OK"
+      ],
+      "log": "output/rr-05/feedback3/native_regression.log"
+    },
+    {
+      "name": "owner_script_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_maquette_owner_proof.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 1.318,
+      "result_lines": [
+        "Ran 3 tests in 1.274s",
+        "OK"
+      ],
+      "log": "output/rr-05/feedback3/owner_script_tests.log"
+    },
+    {
+      "name": "integration",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/integration_test.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 29.882,
+      "result_lines": [
+        "REDUCED DRAGON AREA: static fully revealed claw marks; PASS",
+        "ENEMY SOURCE CACHE: palettes/seeds, facing, variants, target distance, resolved reuse, zero envelopes and empty retries; PASS",
+        "SHARED ATTACK FEEDBACK: 438 kind/element/dragon fixtures; PASS",
+        "MAQUETTE INTEGRATION: PASS (0 failures)"
+      ],
+      "log": "output/rr-05/feedback3/integration.log"
+    }
+  ],
+  "suites": [
+    {
+      "name": "godot_full",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--timeout",
+        "900",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/run_tests.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 872.863,
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)",
+        "EN05 ENEMIES TEST RESULT: PASS (179 checks, 0 failures)",
+        "EN06 ENEMIES TEST RESULT: PASS (176 checks, 0 failures)",
+        "STATIC FACING TEST RESULT: PASS (50 checks, 0 failures)",
+        "FLOATING COMBAT TEXT TEST RESULT: PASS",
+        "COMBAT FEEL TEST RESULT: PASS",
+        "HEALTH GHOST TEST RESULT: PASS",
+        "THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)",
+        "RUN SCORE TEST RESULT: PASS",
+        "SFX BANK TEST RESULT: PASS (0 failures)",
+        "SFX SYNC BANK TEST RESULT: PASS (0 failures)",
+        "EN01 ENEMIES TEST RESULT: PASS",
+        "EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)",
+        "EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)",
+        "TEST RESULT: PASS",
+        "RUN END RECAP TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "FULL SUITE RUNTIME: 868.307 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ],
+      "log": "output/rr-05/feedback3/godot_full.log"
+    },
+    {
+      "name": "python_full",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 537.472,
+      "result_lines": [
+        "GAOLER REBUILD: PASS (882 files)",
+        "Ran 635 tests in 536.887s",
+        "OK (skipped=61)"
+      ],
+      "log": "output/rr-05/feedback3/python_full.log"
+    }
+  ],
+  "features": {
+    "shale_bloomer": [
+      {
+        "feature": "crown_gem",
+        "view": "front",
+        "mask_pixels": 1167,
+        "preserved_pixels": 1167,
+        "painted_nodes": [
+          "feature_crown_gem"
+        ],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_upper",
+        "view": "front",
+        "mask_pixels": 242,
+        "preserved_pixels": 242,
+        "painted_nodes": [
+          "feature_amber_upper"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_right",
+        "view": "front",
+        "mask_pixels": 295,
+        "preserved_pixels": 295,
+        "painted_nodes": [
+          "feature_amber_right"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_left",
+        "view": "front",
+        "mask_pixels": 595,
+        "preserved_pixels": 595,
+        "painted_nodes": [
+          "feature_amber_left"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_left",
+        "view": "front",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the back of the trunk; hidden from the front view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_low",
+        "view": "front",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the back of the trunk; hidden from the front view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "crown_gem",
+        "view": "rear",
+        "mask_pixels": 161,
+        "preserved_pixels": 161,
+        "painted_nodes": [
+          "feature_crown_gem"
+        ],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_upper",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_right",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_left",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_left",
+        "view": "rear",
+        "mask_pixels": 328,
+        "preserved_pixels": 328,
+        "painted_nodes": [
+          "feature_amber_rear_left"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_low",
+        "view": "rear",
+        "mask_pixels": 178,
+        "preserved_pixels": 178,
+        "painted_nodes": [
+          "feature_amber_rear_low"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      }
+    ],
+    "lightning_wisp": [
+      {
+        "feature": "eye",
+        "view": "front",
+        "mask_pixels": 166,
+        "preserved_pixels": 166,
+        "painted_nodes": [
+          "feature_eye"
+        ],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 375,
+        "poses_by_clip": {
+          "cast": 48,
+          "death": 72,
+          "hit": 33,
+          "idle": 132,
+          "move": 48,
+          "strike": 42
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "eye",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 375,
+        "poses_by_clip": {
+          "cast": 48,
+          "death": 72,
+          "hit": 33,
+          "idle": 132,
+          "move": 48,
+          "strike": 42
+        },
+        "occluded_reason": "The single eye is on the front of the cloud; the rear view shows its back.",
+        "errors": [],
+        "ok": true
+      }
+    ]
+  },
+  "headless_shimmer": {
+    "shale_bloomer": {
+      "totals": {
+        "before": {
+          "held_unexplained_pixels": 322359,
+          "boundary_unexplained_pixels": 30000
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0
+        }
+      },
+      "maximum_after_boundary_fraction": 0.0
+    },
+    "lightning_wisp": {
+      "totals": {
+        "before": {
+          "held_unexplained_pixels": 297165,
+          "boundary_unexplained_pixels": 13618
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 4
+        }
+      },
+      "maximum_after_boundary_fraction": 0.004120879120879121
+    }
+  },
+  "attachment_and_preservation": {
+    "director_features_unchanged": 12,
+    "bloomer_output_files_unchanged": 25376,
+    "bloomer_headless_poses_byte_equal_to_director_run2": 1008,
+    "wisp_core_source_mapping": {
+      "poses": 750,
+      "node_pose_checks": 6375,
+      "maximum_difference": 3.4570693671298613e-05,
+      "unchanged_tolerance": 0.0001
+    },
+    "stale_wisp_native_absent": true
+  },
+  "raster_regression_before": {
+    "result": "FAILED (failures=2)",
+    "pixels": {
+      "front_eye_0": 4,
+      "rear_arc_left_12": 13
+    },
+    "log": "output/rr-05/feedback3/native_regression_before.log"
+  },
+  "attachment_regression_before": {
+    "result": "FAILED (failures=5366)",
+    "log": "output/rr-05/feedback3/core_regression_before.log"
+  },
+  "historical_bloomer_native_replay": {
+    "errors": 0,
+    "after": {
+      "held_unexplained_pixels": 0,
+      "boundary_unexplained_pixels": 0
+    }
+  },
+  "historical_wisp_native_replay": {
+    "errors": 0,
+    "after": {
+      "held_unexplained_pixels": 0,
+      "boundary_unexplained_pixels": 9
+    },
+    "limitation": "Corrected coverage only, original per-crop runtime/oracle; not proof of corrected core attachment"
+  },
+  "final_checks": {
+    "shale_bloomer_current_inputs_and_baseline": "PASS",
+    "lightning_wisp_current_inputs_and_baseline": "PASS",
+    "director_declarations_and_masks_unchanged": 12,
+    "bloomer_capture_and_video_files_unchanged": 25376,
+    "stale_wisp_native_absent": true,
+    "branch": "codex/rr-05",
+    "git_diff_check_and_owner_script_syntax": "PASS",
+    "legacy_builder_shrike_and_production_assets_unchanged": true,
+    "approved_art_and_director_motion_unchanged": true,
+    "output_gdignore": "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)",
+    "all_tracked_and_untracked_changes_in_owned_paths": "RR-05 SOURCE SCOPE: PASS",
+    "final_documentation_diff_check": "FINAL DIFF CHECK: PASS"
+  },
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "COMMAND_STUB_TIMEOUT_SECONDS": 10,
+    "existing_proof_defaults_unchanged": {
+      "fps": 60,
+      "step_frames": 6,
+      "canvas_size": 512,
+      "source_offset": 128,
+      "boundary_residual_fraction": 0.01,
+      "transform_tolerance": 0.0001,
+      "bounds_margin_px": 2,
+      "native_raster_fraction": 0.01,
+      "native_raster_edge_pixels": 1
+    },
+    "existing_native_vertex_subpixel_bits": 8
+  },
+  "owner_command": "bash experiments/cutouts/shale_bloomer/rr05/proof_for_design_owner.sh --from-native --creature lightning_wisp",
+  "open_issues": [
+    "Corrected Wisp runtime requires fresh director windowed native verification and MP4.",
+    "Promotion, production adoption, native rest rebake and production captures remain owner-owned; inspection is separate."
+  ],
+  "git_operations": "No commits, publication, branch changes, peer review, signoff or queue mutations performed"
+}

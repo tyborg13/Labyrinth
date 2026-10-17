@@ -1,0 +1,6374 @@
+[
+  {
+    "view": "front",
+    "part": "tendril_high_l",
+    "frame": 98,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_l",
+    "frame": 98,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_l",
+    "frame": 98,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_l",
+    "frame": 98,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_l",
+    "frame": 98,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_l",
+    "frame": 98,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 35,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 35,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 35,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 35,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 35,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 35,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 133,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 133,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 133,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 133,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 133,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_high_r",
+    "frame": 133,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 53,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 53,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 53,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 53,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 53,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 53,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 61,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 9,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 61,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 9,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 61,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 61,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 61,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_l",
+    "frame": 61,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 24,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 19,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 24,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 19,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 24,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 24,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 24,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 24,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 73,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 73,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 73,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 73,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 73,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "tendril_low_r",
+    "frame": 73,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 35,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 35,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 35,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 35,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 35,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 35,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 40,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 40,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 40,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 40,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 40,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 40,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 41,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 8,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 41,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 9,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 41,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 41,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 41,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 41,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 44,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 44,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 44,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 44,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 44,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 44,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 61,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 61,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 61,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 61,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 61,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 61,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 63,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 63,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 63,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 63,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 63,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 63,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 105,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 105,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 105,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 105,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 105,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 105,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 107,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 107,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 107,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 107,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 107,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 107,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 124,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 124,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 124,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 124,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 124,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 124,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 127,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 8,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 127,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 9,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 127,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 127,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 127,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 127,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 128,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 128,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 11,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 128,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 128,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 128,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 128,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 133,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 133,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 133,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 133,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 133,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_r",
+    "frame": 133,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 46,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 46,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 46,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 46,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 46,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 46,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 58,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 58,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 58,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 58,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 58,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 58,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 110,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 110,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 110,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 110,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 110,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 110,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 122,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 122,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 122,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 122,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 122,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_stem_c",
+    "frame": 122,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 38,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 14,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 38,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 13,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 38,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 38,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 38,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 38,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 130,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 14,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 130,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 13,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 130,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 130,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 130,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 130,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 132,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 132,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 132,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 132,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 132,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_r",
+    "frame": 132,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 12,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 13,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 126,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 12,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 126,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 13,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 126,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 126,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 126,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 126,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 132,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 132,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 132,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 132,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 132,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "root_tip_c",
+    "frame": 132,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "frame": 22,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "frame": 22,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "frame": 22,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "frame": 22,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "frame": 22,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "frame": 22,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 41,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 41,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 41,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 41,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 41,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 41,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 44,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 44,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 44,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 44,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 44,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 44,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 50,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 50,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 50,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 50,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 50,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 50,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 51,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 51,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 51,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 51,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 51,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 51,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 118,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 118,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 118,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 118,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 118,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 118,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 124,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 124,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 124,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 124,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 124,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 124,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 127,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 127,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 127,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 127,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 127,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "frame": 127,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 54,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 54,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 54,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 54,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 54,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 54,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 114,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 114,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 114,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 114,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 114,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_upper",
+    "frame": 114,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 53,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 53,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 53,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 53,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 53,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 53,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 57,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 57,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 57,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 57,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 57,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 57,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 67,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 67,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 67,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 67,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 67,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 67,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 72,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 72,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 72,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 72,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 72,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 72,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 77,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 77,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 77,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 77,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 77,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 77,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 78,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 78,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 78,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 78,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 78,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 78,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 90,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 90,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 90,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 90,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 90,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 90,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 91,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 91,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 91,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 91,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 91,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 91,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 96,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 96,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 96,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 96,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 96,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 96,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 101,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 101,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 101,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 101,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 101,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 101,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 111,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 111,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 111,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 111,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 111,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 111,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 115,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 115,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 115,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 115,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 115,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_right",
+    "frame": 115,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 53,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 53,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 53,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 53,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 53,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 53,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 68,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 68,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 68,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 68,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 68,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 68,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 100,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 100,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 100,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 100,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 100,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 100,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 115,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 115,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 115,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 115,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 115,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "front",
+    "part": "feature_amber_left",
+    "frame": 115,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_l",
+    "frame": 70,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 8,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_l",
+    "frame": 70,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 8,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_l",
+    "frame": 70,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_l",
+    "frame": 70,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_l",
+    "frame": 70,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_l",
+    "frame": 70,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_r",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 13,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_r",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 13,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_r",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_r",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_r",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_near_r",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 2,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 2,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 2,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 2,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 2,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 2,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 32,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 32,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 32,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 32,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 32,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 32,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 110,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 110,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 110,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 110,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 110,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 110,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 27,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 27,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 151,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 151,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 151,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 151,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 151,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_l",
+    "frame": 151,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_r",
+    "frame": 21,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_r",
+    "frame": 21,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 20,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_r",
+    "frame": 21,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_r",
+    "frame": 21,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_r",
+    "frame": 21,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "petal_far_r",
+    "frame": 21,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_l",
+    "frame": 96,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 10,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_l",
+    "frame": 96,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 10,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_l",
+    "frame": 96,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_l",
+    "frame": 96,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_l",
+    "frame": 96,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_l",
+    "frame": 96,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 31,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 16,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 31,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 16,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 31,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 31,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 31,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 31,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 137,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 16,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 137,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 16,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 137,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 137,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 137,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_high_r",
+    "frame": 137,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_l",
+    "frame": 57,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_l",
+    "frame": 57,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_l",
+    "frame": 57,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_l",
+    "frame": 57,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_l",
+    "frame": 57,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_l",
+    "frame": 57,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 85,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 85,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 85,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 85,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 85,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 85,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 87,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 87,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 87,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 87,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 87,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "tendril_low_r",
+    "frame": 87,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 8,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 36,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 8,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 36,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 36,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 38,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 12,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 38,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 12,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 38,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 38,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 38,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 38,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 65,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 65,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 65,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 65,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 65,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 65,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 68,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 9,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 68,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 9,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 68,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 68,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 68,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 68,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 71,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 71,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 71,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 71,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 71,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 71,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 76,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 76,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 76,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 76,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 76,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 76,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 92,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 92,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 92,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 92,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 92,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 92,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 97,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 97,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 97,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 97,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 97,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 97,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 100,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 9,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 100,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 9,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 100,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 100,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 100,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 100,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 103,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 103,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 103,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 103,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 103,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 103,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 126,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 126,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 126,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 126,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 126,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 126,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 130,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 12,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 130,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 12,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 130,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 130,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 130,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 130,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 132,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 8,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 132,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 8,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 132,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 132,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 132,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_l",
+    "frame": 132,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 51,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 64,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 64,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 64,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 64,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 64,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 64,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 104,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 104,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 104,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 104,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 104,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 104,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_stem_r",
+    "frame": 117,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 42,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 42,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 42,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 48,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 48,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 48,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 48,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 48,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 48,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 49,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 49,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 49,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 49,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 49,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 49,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 52,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 52,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 52,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 52,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 52,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 52,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 116,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 116,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 116,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 116,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 116,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 116,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 119,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 119,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 119,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 119,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 119,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 119,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 120,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 120,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 10,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 120,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 120,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 120,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 120,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 126,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 126,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 126,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 126,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 126,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_l",
+    "frame": 126,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 37,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 37,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 37,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 37,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 37,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 37,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 131,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 131,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 131,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 131,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 131,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_c",
+    "frame": 131,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 37,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 37,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 37,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 37,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 37,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 37,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 76,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 76,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 76,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 76,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 76,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 76,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 144,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 144,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 144,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 144,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 144,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "frame": 144,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 12,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 12,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 12,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 12,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 12,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 12,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 25,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 25,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 5,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 25,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 25,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 25,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 25,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 27,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 27,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 27,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 27,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 27,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "frame": 27,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 29,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 29,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 29,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 29,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 29,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 29,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 1,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 139,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 139,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 4,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 139,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 139,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 139,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "frame": 139,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "frame": 120,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 2,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "frame": 120,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 2,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "frame": 120,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "frame": 120,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "frame": 120,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "frame": 120,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 57,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 57,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 57,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 57,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 57,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 57,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 111,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 111,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 6,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 111,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 111,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 111,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "frame": 111,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 66,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 66,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 66,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 66,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 66,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 66,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 102,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 102,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 3,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 102,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 102,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 102,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "frame": 102,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 66,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 66,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 66,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 66,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 66,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 66,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 102,
+    "kind": "before",
+    "dtype": "float64",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 102,
+    "kind": "before",
+    "dtype": "float32",
+    "diff": 7,
+    "matches": false
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 102,
+    "kind": "after",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 102,
+    "kind": "after",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 102,
+    "kind": "ideal",
+    "dtype": "float64",
+    "diff": 0,
+    "matches": true
+  },
+  {
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "frame": 102,
+    "kind": "ideal",
+    "dtype": "float32",
+    "diff": 0,
+    "matches": true
+  }
+]

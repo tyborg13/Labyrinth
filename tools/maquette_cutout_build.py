@@ -13,6 +13,7 @@ from PIL import Image
 import maquette_cutout as builder
 from cutout_pipeline.cases import read_json, write_json, digest, baseline
 from maquette_motion.compiler import compile_creature
+from maquette_motion.contract import approved_source
 
 PROJECT = Path(__file__).resolve().parents[1]
 SOURCE = PROJECT / 'spec/peer_benchmark/staged/rr-04/motion_tracks.json'
@@ -86,6 +87,19 @@ def build(creature, renders, front_raw, rear_raw):
 
 def promote(creature):
     root = case_for(creature)
+    from maquette_motion.joint_seams import definition_errors
+    if definition_errors(root, read_json(root / 'proof/continuity_samples.json')):
+        raise builder.CutoutError('Missing or invalid joint seam underlays; derive before promotion')
+    from maquette_motion.silhouette import part_report
+    if not part_report(root)['ok']:
+        raise builder.CutoutError('Disconnected part; derive connected ownership before promotion')
+    continuity_path = root/'proof/continuity.json'
+    if not continuity_path.exists() or read_json(continuity_path).get('TODO_DESIGN'):
+        raise builder.CutoutError('Resolve derive-time silhouette TODO_DESIGN before promotion')
+    if (root/'features.json').exists():
+        from maquette_motion.features import declarations
+        for view in ('front','rear'): declarations(root,view)
+        if not read_json(root/'recipes/rig.json').get('features'): raise builder.CutoutError('Derive feature ownership before promotion')
     config = read_json(root/'cutout.json')
     if read_json(root/'hidden_fills/index.json').get('pending_design'): raise builder.CutoutError('Unfilled hidden material; production refused')
     destination = PROJECT/'assets/units'/ (creature+'_cutout')
@@ -104,8 +118,15 @@ def promote(creature):
         layout['motion_data'] = 'res://' + str((destination/'compiled_motion.json').relative_to(PROJECT))
         write_json(destination/(view+'.json'),layout)
     shutil.copyfile(root/'compiled_motion.json', destination/'compiled_motion.json')
+    shutil.copyfile(root/'seams.json', destination/'seams.json')
+    if (root/'features.json').exists():
+        shutil.copyfile(root/'features.json',destination/'features.json')
+        for feature in read_json(root/'features.json')['features']:
+            for definition in feature['views'].values():
+                target=destination/definition['mask'];target.parent.mkdir(parents=True,exist_ok=True)
+                shutil.copyfile(root/definition['mask'],target)
     write_json(destination/'integration.json', {'ready': True, 'case': str(root.relative_to(PROJECT)),
-        'director_sha256': digest(SOURCE), 'native_proof': 'pending design-owner windowed proof',
+        'director_sha256': digest(approved_source(root)), 'native_proof': 'pending design-owner windowed proof',
         'rest_identity': builder.rest_identity(root), 'files': {str(p.relative_to(destination)):digest(p) for p in destination.rglob('*') if p.is_file() and p.name!='integration.json'}})
     return {'ok': True, 'production':str(destination)}
 
@@ -156,6 +177,6 @@ def main():
     elif a.command=='seal-density': result=seal_density(a.creature)
     elif a.command=='record-derived-rests': update_rest_identity_ledger(a.creature); result={'ok':True}
     else:
-        root=case_for(a.creature); result=compile_creature(SOURCE,a.creature,read_json(root/'source/spec.json'), read_json(a.rig_recipe) if a.rig_recipe else None);write_json(root/'compiled_motion.json',result)
+        root=case_for(a.creature); result=compile_creature(approved_source(root),a.creature,read_json(root/'source/spec.json'), read_json(a.rig_recipe) if a.rig_recipe else None);write_json(root/'compiled_motion.json',result)
     print(json.dumps(result,indent=2))
 if __name__=='__main__': main()

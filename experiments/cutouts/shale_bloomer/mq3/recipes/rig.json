@@ -237,5 +237,6 @@
   "proof_defaults": {
     "native_fps": 60,
     "render_size": 1024
-  }
+  },
+  "features": "features.json"
 }

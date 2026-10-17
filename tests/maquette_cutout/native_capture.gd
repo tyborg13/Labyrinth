@@ -21,6 +21,8 @@ var _canvas: SubViewport
 var _views: Dictionary = {}
 var _rigs: Dictionary = {}
 var _label: Label
+var _pixels := preload("pixel_capture.gd").new()
+var _seams := preload("seam_capture.gd").new()
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -81,6 +83,9 @@ func _run() -> void:
 		display.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		_canvas.add_child(display)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
+	if not args.has("--rest-only"):
+		_pixels.setup(self, _rigs, output)
+		_seams.setup(self, _rigs, output)
 	for view: String in _rigs: _rigs[view].apply_pose("rest", 0.0)
 	await draw_frame()
 	for view: String in _rigs:
@@ -99,10 +104,20 @@ func _run() -> void:
 			DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output.path_join("pair_" + clip)))
 			for frame: int in range(count):
 				var phase: float = float(frame) / float(count if bool(data["clips"][clip].get("loop", false)) else count - 1)
-				for view: String in _rigs: _rigs[view].apply_pose(clip, phase)
+				for view: String in _rigs:
+					var rig: Node2D = _rigs[view]
+					var before: Dictionary = {}
+					if clip == "idle":
+						rig.apply_authored_pose(clip, phase)
+						before = preload("pixel_samples.gd").raw_parts(rig)
+					rig.apply_pose(clip, phase)
+					_seams.stage(view, rig)
+					if clip == "idle": _pixels.stage(view, rig, before, frame, phase, rig.Pixels.phase_for(data, clip, phase))
 				await draw_frame()
 				for view: String in _rigs:
 					var path: String = view + "_" + clip + "/pose_%04d.png" % frame
+					if clip == "idle": _pixels.capture(view, frame)
+					_seams.capture(view, clip, frame)
 					(_views[view] as SubViewport).get_texture().get_image().save_png(output.path_join(path))
 					records.append({"view": view, "clip": clip, "frame": frame, "phase": phase, "file": path, "sha256": FileAccess.get_sha256(output.path_join(path))})
 				var pair_file: String = "pair_" + clip + "/frame_%04d.png" % frame
@@ -110,6 +125,9 @@ func _run() -> void:
 				pairs.append({"clip": clip, "frame": frame, "file": pair_file, "sha256": FileAccess.get_sha256(output.path_join(pair_file))})
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"ok": failures.is_empty(), "size": [1920, 1080], "ui_scale": 1.0, "fps": FPS, "native_pixels": true, "compiled_sha256": FileAccess.get_sha256(directory.path_join("compiled_motion.json")), "frames": records, "pairs": pairs, "inputs": preload("proof_inputs.gd").bindings(directory), "errors": failures}))
+	if not args.has("--rest-only"):
+		_pixels.finish(preload("proof_inputs.gd").bindings(directory))
+		_seams.finish(preload("proof_inputs.gd").bindings(directory))
 	print("MAQUETTE NATIVE CAPTURE: " + ("PASS" if failures.is_empty() else "FAIL"))
 	print("Saved " + ProjectSettings.globalize_path(output))
 	# The generic screenshot runner validates opaque pair views. Transparent

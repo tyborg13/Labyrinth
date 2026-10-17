@@ -1,0 +1,119 @@
+{
+  "director_feature_inputs": {
+    "ok": true,
+    "files": 12
+  },
+  "wisp_owner_outputs": {
+    "ok": true,
+    "files": 7898
+  },
+  "bloomer_original_outputs": {
+    "ok": true,
+    "files": 25376
+  },
+  "bloomer_existing_paint": {
+    "ok": true,
+    "files": 75
+  },
+  "wisp_existing_paint": {
+    "ok": true,
+    "files": 25
+  },
+  "shale_bloomer": {
+    "ok": true,
+    "parts": 73,
+    "rest": {
+      "front": {
+        "pixel_identical": true,
+        "different_pixels": 0,
+        "rgba_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95"
+      },
+      "rear": {
+        "pixel_identical": true,
+        "different_pixels": 0,
+        "rgba_sha256": "268796019d74c2550b114f899dd3db3708b9810216d0c40cf1fa289affa24c86"
+      },
+      "ok": true
+    },
+    "sample_binding": true,
+    "baseline": true
+  },
+  "lightning_wisp": {
+    "ok": true,
+    "parts": 23,
+    "rest": {
+      "front": {
+        "pixel_identical": true,
+        "different_pixels": 0,
+        "rgba_sha256": "0ce85fb5a6eb9e828b9a4734df2be96496c680efd1166ec379085ed2434f70ef"
+      },
+      "rear": {
+        "pixel_identical": true,
+        "different_pixels": 0,
+        "rgba_sha256": "c6f1ec05ecd16d8978df4d56979af801fc98762e1b7cd81f6211a4ec69cfb6cd"
+      },
+      "ok": true
+    },
+    "sample_binding": true,
+    "baseline": true
+  },
+  "bleed": {
+    "ok": true,
+    "new_texels": 1376,
+    "features_excluded": true,
+    "inside_rest_alpha": true,
+    "under_higher_neighbour": true,
+    "original_rgba_preserved": true
+  },
+  "independent_colour_percentile": {
+    "ok": true,
+    "views": {
+      "shale_bloomer/front": {
+        "luma_integer": 119908,
+        "interior_pixels": 21736,
+        "colour_rgba": [
+          16,
+          11,
+          10,
+          255
+        ]
+      },
+      "shale_bloomer/rear": {
+        "luma_integer": 118596,
+        "interior_pixels": 19695,
+        "colour_rgba": [
+          11,
+          12,
+          13,
+          255
+        ]
+      },
+      "lightning_wisp/front": {
+        "luma_integer": 312812,
+        "interior_pixels": 10239,
+        "colour_rgba": [
+          38,
+          28,
+          44,
+          255
+        ]
+      },
+      "lightning_wisp/rear": {
+        "luma_integer": 264950,
+        "interior_pixels": 9402,
+        "colour_rgba": [
+          32,
+          24,
+          35,
+          255
+        ]
+      }
+    }
+  },
+  "bash_syntax": {
+    "ok": true
+  },
+  "git_diff_check": {
+    "ok": true
+  }
+}

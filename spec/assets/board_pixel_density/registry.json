@@ -409,6 +409,14 @@
     "assets/units/shale_bloomer_cutout/rear/rest.png": {
       "category": "other",
       "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/lightning_wisp_cutout/features/front_eye.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/lightning_wisp_cutout/features/empty.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
     }
   },
   "entries": [
@@ -1257,6 +1265,7 @@
         "assets/units/lightning_wisp_cutout/segmented/front/arc_right.png",
         "assets/units/lightning_wisp_cutout/segmented/front/core.png",
         "assets/units/lightning_wisp_cutout/segmented/front/crown.png",
+        "assets/units/lightning_wisp_cutout/segmented/front/feature_eye.png",
         "assets/units/lightning_wisp_cutout/segmented/front/tail.png",
         "assets/units/lightning_wisp_cutout/segmented/rear/arc_left.png",
         "assets/units/lightning_wisp_cutout/segmented/rear/arc_right.png",

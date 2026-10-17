@@ -1,0 +1,338 @@
+[
+  {
+    "feature": "crown_gem",
+    "view": "front",
+    "mask_pixels": 1167,
+    "preserved_pixels": 1167,
+    "painted_nodes": [
+      "feature_crown_gem"
+    ],
+    "owner": "core",
+    "owner_bone": "core",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_upper",
+    "view": "front",
+    "mask_pixels": 242,
+    "preserved_pixels": 242,
+    "painted_nodes": [
+      "feature_amber_upper"
+    ],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_right",
+    "view": "front",
+    "mask_pixels": 295,
+    "preserved_pixels": 295,
+    "painted_nodes": [
+      "feature_amber_right"
+    ],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_left",
+    "view": "front",
+    "mask_pixels": 595,
+    "preserved_pixels": 595,
+    "painted_nodes": [
+      "feature_amber_left"
+    ],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_rear_left",
+    "view": "front",
+    "mask_pixels": 0,
+    "preserved_pixels": 0,
+    "painted_nodes": [],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": "On the back of the trunk; hidden from the front view.",
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_rear_low",
+    "view": "front",
+    "mask_pixels": 0,
+    "preserved_pixels": 0,
+    "painted_nodes": [],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": "On the back of the trunk; hidden from the front view.",
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "crown_gem",
+    "view": "rear",
+    "mask_pixels": 161,
+    "preserved_pixels": 161,
+    "painted_nodes": [
+      "feature_crown_gem"
+    ],
+    "owner": "core",
+    "owner_bone": "core",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_upper",
+    "view": "rear",
+    "mask_pixels": 0,
+    "preserved_pixels": 0,
+    "painted_nodes": [],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_right",
+    "view": "rear",
+    "mask_pixels": 0,
+    "preserved_pixels": 0,
+    "painted_nodes": [],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_left",
+    "view": "rear",
+    "mask_pixels": 0,
+    "preserved_pixels": 0,
+    "painted_nodes": [],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_rear_left",
+    "view": "rear",
+    "mask_pixels": 328,
+    "preserved_pixels": 328,
+    "painted_nodes": [
+      "feature_amber_rear_left"
+    ],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "amber_rear_low",
+    "view": "rear",
+    "mask_pixels": 178,
+    "preserved_pixels": 178,
+    "painted_nodes": [
+      "feature_amber_rear_low"
+    ],
+    "owner": "trunk",
+    "owner_bone": "trunk",
+    "sampled_poses": 504,
+    "poses_by_clip": {
+      "burst": 60,
+      "death": 78,
+      "hit": 36,
+      "idle": 168,
+      "move": 54,
+      "shell": 60,
+      "shot": 48
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "shale_bloomer"
+  },
+  {
+    "feature": "eye",
+    "view": "front",
+    "mask_pixels": 166,
+    "preserved_pixels": 166,
+    "painted_nodes": [
+      "feature_eye"
+    ],
+    "owner": "core",
+    "owner_bone": "core",
+    "sampled_poses": 375,
+    "poses_by_clip": {
+      "cast": 48,
+      "death": 72,
+      "hit": 33,
+      "idle": 132,
+      "move": 48,
+      "strike": 42
+    },
+    "occluded_reason": null,
+    "errors": [],
+    "ok": true,
+    "creature": "lightning_wisp"
+  },
+  {
+    "feature": "eye",
+    "view": "rear",
+    "mask_pixels": 0,
+    "preserved_pixels": 0,
+    "painted_nodes": [],
+    "owner": "core",
+    "owner_bone": "core",
+    "sampled_poses": 375,
+    "poses_by_clip": {
+      "cast": 48,
+      "death": 72,
+      "hit": 33,
+      "idle": 132,
+      "move": 48,
+      "strike": 42
+    },
+    "occluded_reason": "The single eye is on the front of the cloud; the rear view shows its back.",
+    "errors": [],
+    "ok": true,
+    "creature": "lightning_wisp"
+  }
+]

@@ -1,0 +1,183 @@
+{
+  "TODO_DESIGN": [
+    {
+      "name": "TODO_DESIGN_silhouette_front_idle_0012",
+      "view": "front",
+      "clip": "idle",
+      "frame": 12,
+      "phase": 0.0714285714285714,
+      "presented_phase": 0.0714285714285714,
+      "unfillable_pixels": 4,
+      "coordinates": [
+        [
+          319,
+          291
+        ],
+        [
+          319,
+          292
+        ],
+        [
+          319,
+          293
+        ],
+        [
+          319,
+          294
+        ]
+      ],
+      "contributors": [
+        {
+          "part": "tendril_high_r",
+          "bone": "tendril_high_r",
+          "boundary_pixels": 18
+        },
+        {
+          "part": "tendril_low_r",
+          "bone": "tendril_low_r",
+          "boundary_pixels": 12
+        },
+        {
+          "part": "hidden_trunk",
+          "bone": "trunk",
+          "boundary_pixels": 4
+        },
+        {
+          "part": "hidden_tendril_high_r",
+          "bone": "tendril_high_r",
+          "boundary_pixels": 18
+        },
+        {
+          "part": "hidden_tendril_low_r",
+          "bone": "tendril_low_r",
+          "boundary_pixels": 12
+        }
+      ],
+      "channels_and_keys": [
+        {
+          "source": "tendril_high_r.raise_deg",
+          "bone": "tendril_high_r",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -5.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tendril_low_r.raise_deg",
+          "bone": "tendril_low_r",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "trunk.lean_deg",
+          "bone": "trunk",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -1.2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "reason": "An enclosed background component remains even with all approved opaque rest pixels available to every currently painted bone. Static underlay extension cannot fill this component at the fixed cleaned ownership and authored transforms. A motion/visible-ownership decision is required.",
+      "authored_source_keys": {
+        "tendril_high_r.raise_deg": [
+          [
+            0,
+            -3
+          ],
+          [
+            0.5,
+            5
+          ],
+          [
+            1,
+            -3
+          ]
+        ],
+        "tendril_low_r.raise_deg": [
+          [
+            0,
+            3
+          ],
+          [
+            0.3,
+            -3
+          ],
+          [
+            0.75,
+            4
+          ],
+          [
+            1,
+            3
+          ]
+        ],
+        "trunk.lean_deg": [
+          [
+            0,
+            0
+          ],
+          [
+            0.5,
+            1.2
+          ],
+          [
+            1,
+            0
+          ]
+        ]
+      }
+    }
+  ]
+}

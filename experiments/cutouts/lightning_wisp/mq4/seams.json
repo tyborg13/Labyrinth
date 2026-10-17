@@ -1,0 +1,159 @@
+{
+  "policy": "Feedback 8: local seam bands, never a whole-creature backing.\n\nRest ownership, including features assigned to their logical owners, supplies\nthe regions (hidden fills/bleed are not ownership). Feature pixels supply\nneither band paint nor band coverage.\nBoundary length is the number of shared unit pixel edges. Band width is the\ntotal width, centred on those edges. Distances are Euclidean source pixels.\nEqual-depth, independently moving siblings require a director-supplied owner.\n",
+  "minimum_shared_boundary_px": 3,
+  "width": "total width centred on boundary; ceil(max sampled separation) + 1 px",
+  "paint": "nearest approved parent texel, excluding features; stable row/column distance ties",
+  "views": {
+    "front": [
+      {
+        "name": "seam_core_crown",
+        "parts": [
+          "core",
+          "crown"
+        ],
+        "shared_boundary_px": 166,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "band_width_px": 1,
+        "pixels": 252,
+        "parent_z_index": 1,
+        "file": "seams/front/seam_core_crown.png",
+        "sha256": "9cd9263e890c337a1edb09ba3397d22c885b6820e40dc2ceb29d3818ef2783ee"
+      },
+      {
+        "name": "seam_core_tail",
+        "parts": [
+          "core",
+          "tail"
+        ],
+        "shared_boundary_px": 71,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 22.970719297853943,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 67
+        },
+        "band_width_px": 24,
+        "pixels": 1499,
+        "parent_z_index": 1,
+        "file": "seams/front/seam_core_tail.png",
+        "sha256": "d1d293701b00e4dfe0ea02d0ee13ea185407ec0d6710c5cae7b5c2e1643aa273"
+      },
+      {
+        "name": "seam_core_arc_left",
+        "parts": [
+          "core",
+          "arc_left"
+        ],
+        "shared_boundary_px": 136,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "band_width_px": 1,
+        "pixels": 184,
+        "parent_z_index": 1,
+        "file": "seams/front/seam_core_arc_left.png",
+        "sha256": "aee5ab996553354f1bef0d76d89ba9dbfc2bbcbdddd1ac0c830d9b8204e3b5bd"
+      },
+      {
+        "name": "seam_core_arc_right",
+        "parts": [
+          "core",
+          "arc_right"
+        ],
+        "shared_boundary_px": 52,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "band_width_px": 1,
+        "pixels": 82,
+        "parent_z_index": 1,
+        "file": "seams/front/seam_core_arc_right.png",
+        "sha256": "db4aa8d92fcf88000b43da6771daa9ff1b95c3389984496644397fbca268e7b2"
+      }
+    ],
+    "rear": [
+      {
+        "name": "seam_core_crown",
+        "parts": [
+          "core",
+          "crown"
+        ],
+        "shared_boundary_px": 94,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "band_width_px": 1,
+        "pixels": 151,
+        "parent_z_index": 2,
+        "file": "seams/rear/seam_core_crown.png",
+        "sha256": "cd46d085bed7f99b9f1a4c923567a004898c2295a3d877d6299a6cab90affd64"
+      },
+      {
+        "name": "seam_core_tail",
+        "parts": [
+          "core",
+          "tail"
+        ],
+        "shared_boundary_px": 71,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 22.21451333172354,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 66
+        },
+        "band_width_px": 24,
+        "pixels": 1239,
+        "parent_z_index": 2,
+        "file": "seams/rear/seam_core_tail.png",
+        "sha256": "ffd89bc2c251823898e8eb90117d973e3cf7a14d5109471e6707c2d766927b79"
+      },
+      {
+        "name": "seam_core_arc_left",
+        "parts": [
+          "core",
+          "arc_left"
+        ],
+        "shared_boundary_px": 170,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "band_width_px": 1,
+        "pixels": 244,
+        "parent_z_index": 2,
+        "file": "seams/rear/seam_core_arc_left.png",
+        "sha256": "4eb06e6b1fcb24a2e1dc35baebf8588a46625f9f92b03f59e6d4e27171be393c"
+      },
+      {
+        "name": "seam_core_arc_right",
+        "parts": [
+          "core",
+          "arc_right"
+        ],
+        "shared_boundary_px": 27,
+        "parent": "core",
+        "bone": "core",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "band_width_px": 1,
+        "pixels": 39,
+        "parent_z_index": 2,
+        "file": "seams/rear/seam_core_arc_right.png",
+        "sha256": "2aa3b3630c9aa67f780a71c2c082aad44d247bb6d637f6d93712918be7c8e70c"
+      }
+    ]
+  },
+  "TODO_DESIGN": [],
+  "reference_body_bones": {
+    "front": "core",
+    "rear": "core"
+  }
+}

@@ -1,0 +1,1539 @@
+{
+  "ok": false,
+  "errors": [
+    "front/tendril_high_l/98: native part does not match its source transform",
+    "front/tendril_high_r/35: native part does not match its source transform",
+    "front/tendril_high_r/133: native part does not match its source transform",
+    "front/tendril_low_l/53: native part does not match its source transform",
+    "front/tendril_low_l/61: native part does not match its source transform",
+    "front/tendril_low_r/24: native part does not match its source transform",
+    "front/tendril_low_r/73: native part does not match its source transform",
+    "front/root_stem_r/35: native part does not match its source transform",
+    "front/root_stem_r/40: native part does not match its source transform",
+    "front/root_stem_r/41: native part does not match its source transform",
+    "front/root_stem_r/44: native part does not match its source transform",
+    "front/root_stem_r/51: native part does not match its source transform",
+    "front/root_stem_r/61: native part does not match its source transform",
+    "front/root_stem_r/63: native part does not match its source transform",
+    "front/root_stem_r/105: native part does not match its source transform",
+    "front/root_stem_r/107: native part does not match its source transform",
+    "front/root_stem_r/117: native part does not match its source transform",
+    "front/root_stem_r/124: native part does not match its source transform",
+    "front/root_stem_r/127: native part does not match its source transform",
+    "front/root_stem_r/128: native part does not match its source transform",
+    "front/root_stem_r/133: native part does not match its source transform",
+    "front/root_stem_c/46: native part does not match its source transform",
+    "front/root_stem_c/58: native part does not match its source transform",
+    "front/root_stem_c/110: native part does not match its source transform",
+    "front/root_stem_c/122: native part does not match its source transform",
+    "front/root_tip_r/36: native part does not match its source transform",
+    "front/root_tip_r/38: native part does not match its source transform",
+    "front/root_tip_r/130: native part does not match its source transform",
+    "front/root_tip_r/132: native part does not match its source transform",
+    "front/root_tip_c/36: native part does not match its source transform",
+    "front/root_tip_c/42: native part does not match its source transform",
+    "front/root_tip_c/126: native part does not match its source transform",
+    "front/root_tip_c/132: native part does not match its source transform",
+    "front/hidden_petal_far_r/22: native part does not match its source transform",
+    "front/hidden_root_tip_r/41: native part does not match its source transform",
+    "front/hidden_root_tip_r/44: native part does not match its source transform",
+    "front/hidden_root_tip_r/50: native part does not match its source transform",
+    "front/hidden_root_tip_r/51: native part does not match its source transform",
+    "front/hidden_root_tip_r/117: native part does not match its source transform",
+    "front/hidden_root_tip_r/118: native part does not match its source transform",
+    "front/hidden_root_tip_r/124: native part does not match its source transform",
+    "front/hidden_root_tip_r/127: native part does not match its source transform",
+    "front/feature_amber_upper/54: native part does not match its source transform",
+    "front/feature_amber_upper/114: native part does not match its source transform",
+    "front/feature_amber_right/53: native part does not match its source transform",
+    "front/feature_amber_right/57: native part does not match its source transform",
+    "front/feature_amber_right/67: native part does not match its source transform",
+    "front/feature_amber_right/72: native part does not match its source transform",
+    "front/feature_amber_right/77: native part does not match its source transform",
+    "front/feature_amber_right/78: native part does not match its source transform",
+    "front/feature_amber_right/90: native part does not match its source transform",
+    "front/feature_amber_right/91: native part does not match its source transform",
+    "front/feature_amber_right/96: native part does not match its source transform",
+    "front/feature_amber_right/101: native part does not match its source transform",
+    "front/feature_amber_right/111: native part does not match its source transform",
+    "front/feature_amber_right/115: native part does not match its source transform",
+    "front/feature_amber_left/53: native part does not match its source transform",
+    "front/feature_amber_left/68: native part does not match its source transform",
+    "front/feature_amber_left/100: native part does not match its source transform",
+    "front/feature_amber_left/115: native part does not match its source transform",
+    "rear/petal_near_l/70: native part does not match its source transform",
+    "rear/petal_near_r/42: native part does not match its source transform",
+    "rear/petal_far_l/2: native part does not match its source transform",
+    "rear/petal_far_l/32: native part does not match its source transform",
+    "rear/petal_far_l/110: native part does not match its source transform",
+    "rear/petal_far_l/117: native part does not match its source transform",
+    "rear/petal_far_l/151: native part does not match its source transform",
+    "rear/petal_far_r/21: native part does not match its source transform",
+    "rear/tendril_high_l/96: native part does not match its source transform",
+    "rear/tendril_high_r/31: native part does not match its source transform",
+    "rear/tendril_high_r/137: native part does not match its source transform",
+    "rear/tendril_low_l/57: native part does not match its source transform",
+    "rear/tendril_low_r/36: native part does not match its source transform",
+    "rear/tendril_low_r/85: native part does not match its source transform",
+    "rear/tendril_low_r/87: native part does not match its source transform",
+    "rear/root_stem_l/36: native part does not match its source transform",
+    "rear/root_stem_l/38: native part does not match its source transform",
+    "rear/root_stem_l/42: native part does not match its source transform",
+    "rear/root_stem_l/65: native part does not match its source transform",
+    "rear/root_stem_l/68: native part does not match its source transform",
+    "rear/root_stem_l/71: native part does not match its source transform",
+    "rear/root_stem_l/76: native part does not match its source transform",
+    "rear/root_stem_l/92: native part does not match its source transform",
+    "rear/root_stem_l/97: native part does not match its source transform",
+    "rear/root_stem_l/100: native part does not match its source transform",
+    "rear/root_stem_l/103: native part does not match its source transform",
+    "rear/root_stem_l/126: native part does not match its source transform",
+    "rear/root_stem_l/130: native part does not match its source transform",
+    "rear/root_stem_l/132: native part does not match its source transform",
+    "rear/root_stem_r/51: native part does not match its source transform",
+    "rear/root_stem_r/64: native part does not match its source transform",
+    "rear/root_stem_r/104: native part does not match its source transform",
+    "rear/root_stem_r/117: native part does not match its source transform",
+    "rear/root_tip_l/42: native part does not match its source transform",
+    "rear/root_tip_l/48: native part does not match its source transform",
+    "rear/root_tip_l/49: native part does not match its source transform",
+    "rear/root_tip_l/52: native part does not match its source transform",
+    "rear/root_tip_l/116: native part does not match its source transform",
+    "rear/root_tip_l/119: native part does not match its source transform",
+    "rear/root_tip_l/120: native part does not match its source transform",
+    "rear/root_tip_l/126: native part does not match its source transform",
+    "rear/root_tip_c/37: native part does not match its source transform",
+    "rear/root_tip_c/131: native part does not match its source transform",
+    "rear/hidden_petal_far_l/37: native part does not match its source transform",
+    "rear/hidden_petal_far_l/76: native part does not match its source transform",
+    "rear/hidden_petal_far_l/144: native part does not match its source transform",
+    "rear/hidden_petal_far_r/12: native part does not match its source transform",
+    "rear/hidden_petal_far_r/25: native part does not match its source transform",
+    "rear/hidden_petal_far_r/27: native part does not match its source transform",
+    "rear/hidden_tendril_high_r/29: native part does not match its source transform",
+    "rear/hidden_tendril_high_r/139: native part does not match its source transform",
+    "rear/hidden_tendril_mid_l/120: native part does not match its source transform",
+    "rear/hidden_root_tip_l/57: native part does not match its source transform",
+    "rear/hidden_root_tip_l/111: native part does not match its source transform",
+    "rear/feature_crown_gem/66: native part does not match its source transform",
+    "rear/feature_crown_gem/102: native part does not match its source transform",
+    "rear/feature_amber_rear_left/66: native part does not match its source transform",
+    "rear/feature_amber_rear_left/102: native part does not match its source transform"
+  ],
+  "feature_errors": [],
+  "features": [
+    {
+      "feature": "crown_gem",
+      "view": "front",
+      "mask_pixels": 1167,
+      "preserved_pixels": 1167,
+      "painted_nodes": [
+        "feature_crown_gem"
+      ],
+      "owner": "core",
+      "owner_bone": "core",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_upper",
+      "view": "front",
+      "mask_pixels": 242,
+      "preserved_pixels": 242,
+      "painted_nodes": [
+        "feature_amber_upper"
+      ],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_right",
+      "view": "front",
+      "mask_pixels": 295,
+      "preserved_pixels": 295,
+      "painted_nodes": [
+        "feature_amber_right"
+      ],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_left",
+      "view": "front",
+      "mask_pixels": 595,
+      "preserved_pixels": 595,
+      "painted_nodes": [
+        "feature_amber_left"
+      ],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_rear_left",
+      "view": "front",
+      "mask_pixels": 0,
+      "preserved_pixels": 0,
+      "painted_nodes": [],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": "On the back of the trunk; hidden from the front view.",
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_rear_low",
+      "view": "front",
+      "mask_pixels": 0,
+      "preserved_pixels": 0,
+      "painted_nodes": [],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": "On the back of the trunk; hidden from the front view.",
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "crown_gem",
+      "view": "rear",
+      "mask_pixels": 161,
+      "preserved_pixels": 161,
+      "painted_nodes": [
+        "feature_crown_gem"
+      ],
+      "owner": "core",
+      "owner_bone": "core",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_upper",
+      "view": "rear",
+      "mask_pixels": 0,
+      "preserved_pixels": 0,
+      "painted_nodes": [],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_right",
+      "view": "rear",
+      "mask_pixels": 0,
+      "preserved_pixels": 0,
+      "painted_nodes": [],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_left",
+      "view": "rear",
+      "mask_pixels": 0,
+      "preserved_pixels": 0,
+      "painted_nodes": [],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_rear_left",
+      "view": "rear",
+      "mask_pixels": 328,
+      "preserved_pixels": 328,
+      "painted_nodes": [
+        "feature_amber_rear_left"
+      ],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    },
+    {
+      "feature": "amber_rear_low",
+      "view": "rear",
+      "mask_pixels": 178,
+      "preserved_pixels": 178,
+      "painted_nodes": [
+        "feature_amber_rear_low"
+      ],
+      "owner": "trunk",
+      "owner_bone": "trunk",
+      "sampled_poses": 504,
+      "poses_by_clip": {
+        "burst": 60,
+        "death": 78,
+        "hit": 36,
+        "idle": 168,
+        "move": 54,
+        "shell": 60,
+        "shot": 48
+      },
+      "occluded_reason": null,
+      "errors": [],
+      "ok": true
+    }
+  ],
+  "shimmer": {
+    "native_pixels": true,
+    "metric": "changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored",
+    "defaults": {
+      "fps": 60,
+      "step_frames": 6,
+      "canvas_size": 512,
+      "source_offset": 128,
+      "boundary_residual_fraction": 0.01,
+      "transform_tolerance": 0.0001,
+      "bounds_margin_px": 2,
+      "native_raster_fraction": 0.01,
+      "native_raster_edge_pixels": 1
+    },
+    "parts": [
+      {
+        "view": "front",
+        "part": "trunk",
+        "before": {
+          "held_unexplained_pixels": 15739,
+          "boundary_unexplained_pixels": 2409,
+          "max_boundary_fraction": 0.0428869145552265
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 9.974067424695791e-05
+        }
+      },
+      {
+        "view": "front",
+        "part": "core",
+        "before": {
+          "held_unexplained_pixels": 2656,
+          "boundary_unexplained_pixels": 79,
+          "max_boundary_fraction": 0.027896995708154508
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 14,
+          "max_boundary_fraction": 0.006369426751592357
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 10150,
+          "boundary_unexplained_pixels": 917,
+          "max_boundary_fraction": 0.207953603976802
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 5,
+          "max_boundary_fraction": 0.0016051364365971107
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 13180,
+          "boundary_unexplained_pixels": 823,
+          "max_boundary_fraction": 0.07905366416618581
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 11,
+          "max_boundary_fraction": 0.0016556291390728477
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 12485,
+          "boundary_unexplained_pixels": 1828,
+          "max_boundary_fraction": 0.16626065773447016
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 6,
+          "max_boundary_fraction": 0.0011737089201877935
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 23886,
+          "boundary_unexplained_pixels": 986,
+          "max_boundary_fraction": 0.0982335200344679
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 6,
+          "max_boundary_fraction": 0.00041511000415110004
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 22979,
+          "boundary_unexplained_pixels": 1643,
+          "max_boundary_fraction": 0.45428015564202334
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 1,
+          "max_boundary_fraction": 0.0009319664492078285
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 9937,
+          "boundary_unexplained_pixels": 569,
+          "max_boundary_fraction": 0.14069767441860465
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 4,
+          "max_boundary_fraction": 0.0010857763300760044
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 6650,
+          "boundary_unexplained_pixels": 982,
+          "max_boundary_fraction": 0.256043956043956
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 0.0010660980810234541
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 15993,
+          "boundary_unexplained_pixels": 568,
+          "max_boundary_fraction": 0.10339622641509434
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 5,
+          "max_boundary_fraction": 0.0007199424046076314
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 1882,
+          "boundary_unexplained_pixels": 262,
+          "max_boundary_fraction": 0.0727580372250423
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_stem_c",
+        "before": {
+          "held_unexplained_pixels": 324,
+          "boundary_unexplained_pixels": 38,
+          "max_boundary_fraction": 0.13580246913580246
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 116,
+          "boundary_unexplained_pixels": 30,
+          "max_boundary_fraction": 0.4444444444444444
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_tip_r",
+        "before": {
+          "held_unexplained_pixels": 4607,
+          "boundary_unexplained_pixels": 796,
+          "max_boundary_fraction": 0.14908456843940715
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 2707,
+          "boundary_unexplained_pixels": 313,
+          "max_boundary_fraction": 0.20134228187919462
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 4,
+          "max_boundary_fraction": 0.0012658227848101266
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_trunk",
+        "before": {
+          "held_unexplained_pixels": 2259,
+          "boundary_unexplained_pixels": 353,
+          "max_boundary_fraction": 0.013217023526301877
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 4,
+          "max_boundary_fraction": 0.00024770869457517957
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_core",
+        "before": {
+          "held_unexplained_pixels": 520,
+          "boundary_unexplained_pixels": 54,
+          "max_boundary_fraction": 0.04186046511627907
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 1010,
+          "boundary_unexplained_pixels": 150,
+          "max_boundary_fraction": 0.041968162083936326
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 881,
+          "boundary_unexplained_pixels": 105,
+          "max_boundary_fraction": 0.05263157894736842
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 0.0035460992907801418
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 1346,
+          "boundary_unexplained_pixels": 194,
+          "max_boundary_fraction": 0.029831387808041506
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 1391,
+          "boundary_unexplained_pixels": 157,
+          "max_boundary_fraction": 0.03838383838383838
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 4764,
+          "boundary_unexplained_pixels": 466,
+          "max_boundary_fraction": 0.06424870466321243
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 8,
+          "max_boundary_fraction": 0.001899335232668566
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 1436,
+          "boundary_unexplained_pixels": 106,
+          "max_boundary_fraction": 0.027906976744186046
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 10,
+          "max_boundary_fraction": 0.004291845493562232
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_mid_l",
+        "before": {
+          "held_unexplained_pixels": 1311,
+          "boundary_unexplained_pixels": 148,
+          "max_boundary_fraction": 0.026813880126182965
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 587,
+          "boundary_unexplained_pixels": 83,
+          "max_boundary_fraction": 0.027559055118110236
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 707,
+          "boundary_unexplained_pixels": 115,
+          "max_boundary_fraction": 0.04666666666666667
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_stem_l",
+        "before": {
+          "held_unexplained_pixels": 195,
+          "boundary_unexplained_pixels": 29,
+          "max_boundary_fraction": 0.010380622837370242
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 874,
+          "boundary_unexplained_pixels": 143,
+          "max_boundary_fraction": 0.02724177071509648
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_stem_c",
+        "before": {
+          "held_unexplained_pixels": 1340,
+          "boundary_unexplained_pixels": 187,
+          "max_boundary_fraction": 0.02663230240549828
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 0.0008285004142502071
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 166,
+          "boundary_unexplained_pixels": 22,
+          "max_boundary_fraction": 0.02368421052631579
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_tip_r",
+        "before": {
+          "held_unexplained_pixels": 369,
+          "boundary_unexplained_pixels": 63,
+          "max_boundary_fraction": 0.07262569832402235
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 461,
+          "boundary_unexplained_pixels": 77,
+          "max_boundary_fraction": 0.088
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_crown_gem",
+        "before": {
+          "held_unexplained_pixels": 10731,
+          "boundary_unexplained_pixels": 301,
+          "max_boundary_fraction": 0.056006493506493504
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 10,
+          "max_boundary_fraction": 0.0016260162601626016
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_amber_upper",
+        "before": {
+          "held_unexplained_pixels": 338,
+          "boundary_unexplained_pixels": 24,
+          "max_boundary_fraction": 0.06995884773662552
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_amber_right",
+        "before": {
+          "held_unexplained_pixels": 578,
+          "boundary_unexplained_pixels": 68,
+          "max_boundary_fraction": 0.0777027027027027
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_amber_left",
+        "before": {
+          "held_unexplained_pixels": 412,
+          "boundary_unexplained_pixels": 53,
+          "max_boundary_fraction": 0.03859060402684564
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "trunk",
+        "before": {
+          "held_unexplained_pixels": 25735,
+          "boundary_unexplained_pixels": 3255,
+          "max_boundary_fraction": 0.03917940466613033
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 10,
+          "max_boundary_fraction": 0.00039522567385977394
+        }
+      },
+      {
+        "view": "rear",
+        "part": "core",
+        "before": {
+          "held_unexplained_pixels": 5090,
+          "boundary_unexplained_pixels": 412,
+          "max_boundary_fraction": 0.1580547112462006
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 4,
+          "max_boundary_fraction": 0.0029585798816568047
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 10027,
+          "boundary_unexplained_pixels": 844,
+          "max_boundary_fraction": 0.1546162402669633
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 1,
+          "max_boundary_fraction": 0.0010638297872340426
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 8264,
+          "boundary_unexplained_pixels": 552,
+          "max_boundary_fraction": 0.08418367346938775
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 4,
+          "max_boundary_fraction": 0.0011890606420927466
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 2915,
+          "boundary_unexplained_pixels": 207,
+          "max_boundary_fraction": 0.11159737417943107
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 4342,
+          "boundary_unexplained_pixels": 304,
+          "max_boundary_fraction": 0.10638297872340426
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 0.0018552875695732839
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 45236,
+          "boundary_unexplained_pixels": 4446,
+          "max_boundary_fraction": 0.1954828660436137
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 1,
+          "max_boundary_fraction": 0.0003673769287288758
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 10255,
+          "boundary_unexplained_pixels": 570,
+          "max_boundary_fraction": 0.09225874867444327
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 16,
+          "max_boundary_fraction": 0.004940711462450593
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_mid_l",
+        "before": {
+          "held_unexplained_pixels": 4825,
+          "boundary_unexplained_pixels": 550,
+          "max_boundary_fraction": 0.20368098159509201
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 91,
+          "boundary_unexplained_pixels": 6,
+          "max_boundary_fraction": 0.5
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 3982,
+          "boundary_unexplained_pixels": 452,
+          "max_boundary_fraction": 0.5083056478405316
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 6,
+          "max_boundary_fraction": 0.0058997050147492625
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_stem_l",
+        "before": {
+          "held_unexplained_pixels": 816,
+          "boundary_unexplained_pixels": 108,
+          "max_boundary_fraction": 0.10689655172413794
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 78,
+          "boundary_unexplained_pixels": 16,
+          "max_boundary_fraction": 0.42105263157894735
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 946,
+          "boundary_unexplained_pixels": 175,
+          "max_boundary_fraction": 0.1906474820143885
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 86,
+          "boundary_unexplained_pixels": 20,
+          "max_boundary_fraction": 0.37735849056603776
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_trunk",
+        "before": {
+          "held_unexplained_pixels": 2477,
+          "boundary_unexplained_pixels": 383,
+          "max_boundary_fraction": 0.0216
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_core",
+        "before": {
+          "held_unexplained_pixels": 982,
+          "boundary_unexplained_pixels": 121,
+          "max_boundary_fraction": 0.045584045584045586
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 2071,
+          "boundary_unexplained_pixels": 231,
+          "max_boundary_fraction": 0.04105571847507331
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 1382,
+          "boundary_unexplained_pixels": 181,
+          "max_boundary_fraction": 0.045454545454545456
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 10,
+          "max_boundary_fraction": 0.0017421602787456446
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 556,
+          "boundary_unexplained_pixels": 70,
+          "max_boundary_fraction": 0.1308411214953271
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 565,
+          "boundary_unexplained_pixels": 74,
+          "max_boundary_fraction": 0.09615384615384616
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 5900,
+          "boundary_unexplained_pixels": 477,
+          "max_boundary_fraction": 0.12525252525252525
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 708,
+          "boundary_unexplained_pixels": 59,
+          "max_boundary_fraction": 0.03365384615384615
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_mid_l",
+        "before": {
+          "held_unexplained_pixels": 462,
+          "boundary_unexplained_pixels": 59,
+          "max_boundary_fraction": 0.14705882352941177
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 2099,
+          "boundary_unexplained_pixels": 238,
+          "max_boundary_fraction": 0.032329988851727984
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 1,
+          "max_boundary_fraction": 0.001088139281828074
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 2679,
+          "boundary_unexplained_pixels": 361,
+          "max_boundary_fraction": 0.14037122969837587
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 6,
+          "max_boundary_fraction": 0.0011273957158962795
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_stem_l",
+        "before": {
+          "held_unexplained_pixels": 928,
+          "boundary_unexplained_pixels": 150,
+          "max_boundary_fraction": 0.03147953830010493
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 338,
+          "boundary_unexplained_pixels": 45,
+          "max_boundary_fraction": 0.009442870632672332
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 0.0009216589861751152
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_stem_c",
+        "before": {
+          "held_unexplained_pixels": 596,
+          "boundary_unexplained_pixels": 100,
+          "max_boundary_fraction": 0.01651376146788991
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 564,
+          "boundary_unexplained_pixels": 106,
+          "max_boundary_fraction": 0.06741573033707865
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_tip_r",
+        "before": {
+          "held_unexplained_pixels": 310,
+          "boundary_unexplained_pixels": 40,
+          "max_boundary_fraction": 0.024282560706401765
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 348,
+          "boundary_unexplained_pixels": 66,
+          "max_boundary_fraction": 0.034261241970021415
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "feature_crown_gem",
+        "before": {
+          "held_unexplained_pixels": 1258,
+          "boundary_unexplained_pixels": 79,
+          "max_boundary_fraction": 0.11931818181818182
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 2,
+          "max_boundary_fraction": 0.005988023952095809
+        }
+      },
+      {
+        "view": "rear",
+        "part": "feature_amber_rear_left",
+        "before": {
+          "held_unexplained_pixels": 153,
+          "boundary_unexplained_pixels": 39,
+          "max_boundary_fraction": 0.04242424242424243
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "feature_amber_rear_low",
+        "before": {
+          "held_unexplained_pixels": 315,
+          "boundary_unexplained_pixels": 69,
+          "max_boundary_fraction": 0.0893854748603352
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      }
+    ],
+    "totals": {
+      "before": {
+        "held_unexplained_pixels": 322346,
+        "boundary_unexplained_pixels": 30006
+      },
+      "after": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 161
+      }
+    }
+  },
+  "inputs": {
+    "compiled_motion.json": "bc59d6c190f72eb774940a11665d503d841309bb1c4667a87c906be264043867",
+    "cutout.json": "7cd8cc435b48a86caf00f288af795bd688fb67fd586f2ea51b003831edf0922b",
+    "director_motion.json": "9afd85fda216b122522a38825cd8c82d3c154fb48ebb432f1eee0a3c01f4f0de",
+    "features.json": "832acf36dfc2b2599bf5de22063cce6e3990c886374bd77f8de5bfdaf4680d6c",
+    "features/empty.png": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+    "features/front_amber_left.png": "af556f51f9616fb84a2ac2c83558da6a0dba8ea503ef1524d87f83a4e0e9ea52",
+    "features/front_amber_right.png": "bf3a4ad425e5b6e6477c603fb56f03af2126d9bef27c795a3ab6f5600c8cfd23",
+    "features/front_amber_upper.png": "e687682d874819a85035d78eedd1e862f6cf4b6a1a94846e606dc0a01fb57619",
+    "features/front_crown_gem.png": "63df1b4c886c762d9f229eaa083c1871e2770895c48761dc646e58df28303679",
+    "features/rear_amber_rear_left.png": "6f8e2165ac2fd2812655742069a6bdd9ca04f52db76895c7465b0865576f5ada",
+    "features/rear_amber_rear_low.png": "03e02b50ed9db94a8f0bf4de04bff6e6673cda6a0d4ddaa287d6b4c3372f948e",
+    "features/rear_crown_gem.png": "d43472b06ce4e56aba24d4f127e6fd2bc91ae681d886511359004c4a4c0d2c17",
+    "hidden/front/core.png": "9b97c99d66d29f2518c78a702f7349c6888f700f2f027a9e5dec37417e97af87",
+    "hidden/front/petal_far_l.png": "04fb5518b0d9f50be541d5402a920d5a5e3813f97d46e8d5f74905115bbe2eb1",
+    "hidden/front/petal_far_r.png": "3fcd52cd1e7788e6b0ed0e33152e75c2dc4047454b3370731548c6731e723101",
+    "hidden/front/petal_near_l.png": "339cf5767f0f6f2d5cc136a4613fac81a1e45da5a6ccb45328c8bfc2286e9ea2",
+    "hidden/front/petal_near_r.png": "046f6737d2c5c4355824200b5d26acae813496c35bfe06945a3ed2fadbdfde39",
+    "hidden/front/root_stem_c.png": "34f15d8b5471f1ff96dc3a818fc7aa9b954e02965cb77e0c4f32ada553e4914c",
+    "hidden/front/root_stem_l.png": "cd9481d5bc35f4d70059a3f332730041d52d7daf86bc1054645916f6d13c6e79",
+    "hidden/front/root_stem_r.png": "b79633f233c2ad4a9a3eea76c586f55cbbc65dc4e86ee22a3b5c4c14c21a27a3",
+    "hidden/front/root_tip_c.png": "c33b717d41a59111cd148a90c0c3b6a7e9d45a6274f57bccbf40fed79491d8a2",
+    "hidden/front/root_tip_l.png": "645f8a1e5d4374c2aea3f6227ad3cbdf7a9f1e8432962effde9ec802469d0bb2",
+    "hidden/front/root_tip_r.png": "db89fb13ca5eeb92fd9f664f03d2fcef45b1a5b7d0ada6998e02b0fe696c1509",
+    "hidden/front/tendril_high_l.png": "f36274c764cf0c2aa35eb9a9f5a8478558d2cc4dabea6234fe6e600b679f8fa7",
+    "hidden/front/tendril_high_r.png": "4c467a853ba6a61207a15583dd8113aef363819fdff8f570682e924470bf3e6a",
+    "hidden/front/tendril_low_l.png": "18fb0d210b80acbeedc50bbb4fa66330adeaee6a5f56bc29f907a42ff9936b10",
+    "hidden/front/tendril_low_r.png": "31066097235c87c7d7f9dd926f0dddc6a42b4153b928c424853bcc14fda73f49",
+    "hidden/front/tendril_mid_l.png": "5807143f5fa1f947e2319c8dc1ae208e4b83ca0c53672229c3ee079ce73fa2cb",
+    "hidden/front/trunk.png": "5215f830e8d83c3e20e6a3c3c6063f5fdfa957adfb76494343bdeaf559c85988",
+    "hidden/rear/core.png": "bf9507e11a3e8edac5938169ff0b03e4ce45ac4e73c10df82a3733e8908ccf71",
+    "hidden/rear/petal_far_l.png": "3bb08c256213b0b2342c97b9865ec9337dce221da99ffaea46f0bedb9366355d",
+    "hidden/rear/petal_far_r.png": "c69ebca92e03178231ca87c8a2ce18698b4faa090b1f17986cb547345e6aff1b",
+    "hidden/rear/petal_near_l.png": "c7b8027e32fd786ed3c734c1c78dbc3c17f75b98ceab708697d6b3ecd4dc45cc",
+    "hidden/rear/petal_near_r.png": "392def5a18da086b93c0d078d3b26c683e14af244dbf6f729fc8ea51f727f393",
+    "hidden/rear/root_stem_c.png": "a83d1636befd08d9039708d1b14cb07711734cb0c292b1e9519beb9ab546f58f",
+    "hidden/rear/root_stem_l.png": "d6d64a5e2eaf1ea56d6db2910011331a9170ce92b4f4d0f336ca12224e070fd4",
+    "hidden/rear/root_stem_r.png": "b3c2e1196e39b574264e4c7a0958ee54d79dc6ba50ce61cf14eceba9cb1f3455",
+    "hidden/rear/root_tip_c.png": "e6c618f26e30c221fb260351ede2c3b3323924612d3bf221eed35934e5adaaa8",
+    "hidden/rear/root_tip_l.png": "64da73cc0064bcf8a4c7ba1c55c04ee54cd2e650e3062c1857cc3eb472d65215",
+    "hidden/rear/root_tip_r.png": "6f66c4afad73a2a3473609879fe9637574666e5a746da724b1c6453abaefe329",
+    "hidden/rear/tendril_high_l.png": "4e597096754caa88f96f894a9278ec87679a0d5abb5879bfc5a3e67861885358",
+    "hidden/rear/tendril_high_r.png": "d39e08e172e15cd45897380be87da89678d88b755e069c9aecbe9817ba066823",
+    "hidden/rear/tendril_low_l.png": "1124df2189f42a9419583e984222191f8db50cbb96d2f49b678c59f97b444944",
+    "hidden/rear/tendril_low_r.png": "b80e621e62186891247f104a5dbf3aee71ec63e35f166e277862a4115bccf8ef",
+    "hidden/rear/tendril_mid_l.png": "062d9f3c98e8d94bee812bd65276a23c26f2c696e4552a8a3e2ff0f60a44a5e8",
+    "hidden/rear/trunk.png": "03a9e6b8024f54b6f16303aa546e88fcb87ae868b1611d49c2ce6753efbbe457",
+    "layouts/front.json": "b86ae2654cefe1730949e33839e28a5c57c62960ef087a0b7d5162ea1586f556",
+    "layouts/rear.json": "85b899c347e80836b2b5eba388bd924ea29177493b1e9680a356cf6042ec6fbc",
+    "motion.gd": "da435764f5c5c099c611db8e219938ba0c65f6d4582febba56b1d53e4133eb68",
+    "runtime:data/enemies.json": "70b38e79506ca2d8da9a424f93a2b5cff29d0f74642d96ff1af3b1c76c5515d3",
+    "runtime:scripts/actor_presentation.gd": "71fdeec12638906b4411b0a1477743d23349fe4210769ab5233e7c3ebf4ffb00",
+    "runtime:scripts/combat_board_view.gd": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+    "runtime:scripts/cutout_context.gd": "4785ba97a545143f279a66bb430cbda46f6562a4211a22eecfbae6d514b0f160",
+    "runtime:scripts/maquette_cutout_runtime/action.gd": "1af746fc9bd5194340c9f65dbe0e576fee642c3116df4ad70ec23a1fbd3d0400",
+    "runtime:scripts/maquette_cutout_runtime/motion.gd": "53d60f8a9f5b1808273fce3ac991c5cf39fc3ec41ed9628b93a4565ce8ecd061",
+    "runtime:scripts/maquette_cutout_runtime/pixel_presentation.gd": "db99c93ce3f979c28bf018d8618f2b24e2bf52efcbf3e59ca22eabd428821630",
+    "runtime:scripts/maquette_cutout_runtime/portrait.gd": "dd8f0c440048bbf8ca779246256a1a01af493407671fedd97ff465d18f24bca3",
+    "runtime:scripts/maquette_cutout_runtime/presentation.gd": "5e3cfdda523d4f74f434742b28594ca6de246e0a1d29006a92065e6b8aae7d0f",
+    "runtime:scripts/maquette_cutout_runtime/renderer.gd": "acee92c9a05bf0926fa8678829895a5ee0c24a55f0cfdad43d0d54ce56d9a6ce",
+    "runtime:scripts/maquette_cutout_runtime/rig.gd": "5592439db5a1fe152cc8de6ca201201f26034df6a966057654bdd6b06e99723c",
+    "runtime:scripts/run_scene.gd": "bf26636d59a8f845d020131f84a29cd916ac23f4e03de4572763477e727e472f",
+    "runtime:tests/maquette_cutout/native_capture.gd": "f5534363e5892aa230d71dade8ae637d68545c12ff6f45bfb3fdbf9492f94966",
+    "runtime:tests/maquette_cutout/pixel_capture.gd": "b30ea8abffd2d437bac87040ff0078cf26c983ffa84f63533e986d2f25524e74",
+    "runtime:tests/maquette_cutout/pixel_samples.gd": "a32fab05f22a73b8dedcb093d33b75b74227b1a265edd3e9016d22328060228d",
+    "runtime:tests/maquette_cutout/proof_inputs.gd": "d90e9e35a2750c7f8334cb94d06d4bc51773f185403914a278d861f6dd2dafea",
+    "runtime:tools/maquette_cutout_polish.py": "4e1b0be66e11117dc8e322e7128b565554d780bd68442819e2bd35930b2bcb5c",
+    "runtime:tools/maquette_motion/compiler.py": "c10459aec26ab5c6ecd4ccc675a1afa65c246d25b7b7f172a3f5e5ece393bf38",
+    "runtime:tools/maquette_motion/features.py": "e54cc8978fa555b092416fa41b5f6aace30ec887c1cb94d4320616e1200cbcf2",
+    "runtime:tools/maquette_motion/pixels.py": "b7f990cd16b8a758a756ca7af59f5bb46bad24a9a24536b146ee3067a4665bf7",
+    "segmented/front/core.png": "508a6b9a30413e7b398f6a76d050d7db27ff47b4381aebc81546b1031927492d",
+    "segmented/front/feature_amber_left.png": "55d4a47848e3098ecf1dd54b54de9ef9481d1d7533ae931200757f74a902503f",
+    "segmented/front/feature_amber_right.png": "71ae89b5feaf624bd908b4ef2bfcf37b89e8204bd75f3484c6ffdcf75327af8d",
+    "segmented/front/feature_amber_upper.png": "f65ca1943064b0fdc8dc10d3f5ffa4d18fa1b357cca6a3fe36f9b83af165ca57",
+    "segmented/front/feature_crown_gem.png": "6c06d3efc85b584a9a14395ffe62e29d98ee68dfd96b38225c0cb660c7852fe7",
+    "segmented/front/petal_far_l.png": "c16526463535d9716616c56237ed129d3c23b78a81b9a3e52c38dac4f8691f78",
+    "segmented/front/petal_far_r.png": "8c0631f368ce8697ad59ba21eb76bce3c0bdebc4d49a6a3b0077ce98aef534df",
+    "segmented/front/petal_near_l.png": "71e065f6bc30bf64f33d611cac25910c9d0c81b85013d753ce43cd2f55d4f8d2",
+    "segmented/front/petal_near_r.png": "458ccae0894465cf30c0c70759822e4f20b3c28f352508b1229adebccd5b9e73",
+    "segmented/front/root_stem_c.png": "95e42b240d232f055353c24b522248674c1a23e7cf271a0d3ed8d5b643977be0",
+    "segmented/front/root_stem_r.png": "540c4501d458b871657ee885db47a3f8c37503982e7f51562abb847751431ac5",
+    "segmented/front/root_tip_c.png": "99affa54c603991058a2894e028889aaf6b3a19a2adf002593cdb05bb8a37182",
+    "segmented/front/root_tip_l.png": "a3604f31d237f7fd3e05c141fc97e44687624c0253f12c09a34ea4f69c615c02",
+    "segmented/front/root_tip_r.png": "779f5fbd8e8c364ef82adf9322cfad36055f3c0cffe3172eb081e4278cda3b9b",
+    "segmented/front/tendril_high_l.png": "c6c8114e53664288ab80101c2099147b092ead7b9073c70a4f72a2a117c03fec",
+    "segmented/front/tendril_high_r.png": "35efdb4e8aadb4ad6f8da4df938fea41de5eb2bf4869d1693d818261e10a3728",
+    "segmented/front/tendril_low_l.png": "aa70cdce1dc72ef583aff39c1cf1a29f2f708cc1433fe4f5ab6ef7183496869a",
+    "segmented/front/tendril_low_r.png": "1ef9e5325e829fff143a9d651dcc7d8555e0d31affd9f010ffed663e5cd7cc62",
+    "segmented/front/trunk.png": "7ce0d9b3f943e11f2eec9853ca67019a0247a6c044b314ef10d58ee98d34aef5",
+    "segmented/rear/core.png": "b58d27307a5ce08d8fe44bb52b2708feba9afa38aa6063b63c242c13e95e0d83",
+    "segmented/rear/feature_amber_rear_left.png": "9d07e2837be2e0a181480a337eb5d946ceb7a8c5f54786cf1f1730816aa8495d",
+    "segmented/rear/feature_amber_rear_low.png": "b098794edc89c046eefb7e52d378ea8aba51e67c9b787f0d506d7f7f7772f9bf",
+    "segmented/rear/feature_crown_gem.png": "5ae224387f325aeaf2cf299120cdcb22eeb270cde5692f82fc7687dc5341965c",
+    "segmented/rear/petal_far_l.png": "100156cfdb067f0b4da1cdbd20a3dd79a5fed8a58ca4ccca69b3489d309eaf7a",
+    "segmented/rear/petal_far_r.png": "c0fd45cf65f2f05d80d822298015b1e270264ab5c72a9f0f747c3a49b29fd427",
+    "segmented/rear/petal_near_l.png": "b074896235e5643f95910b7770f76d40b91b763271e9fe9c53afe4b82ffabd59",
+    "segmented/rear/petal_near_r.png": "16c610c16a9ed180a6b3b2d6dea923c314d2a19a642ff237fef81ab99dcdad03",
+    "segmented/rear/root_stem_l.png": "8855a93ac50de770fb72fb968aa725fded7048d49f00cd29303261fd6c561363",
+    "segmented/rear/root_stem_r.png": "0ba12d3d3a494c8e812cbd78c6408aac0f30fccc3811f48e7983f7d43b9b5a81",
+    "segmented/rear/root_tip_c.png": "06ea153777fb28c7ad0e00b2c34d12aa1d8e8d052cc8d966ea52afd6addce856",
+    "segmented/rear/root_tip_l.png": "a039e7277a83f993936e7e73b456da7556e61103de62e962cd2f46a398b80d02",
+    "segmented/rear/tendril_high_l.png": "933be7537ae1001b5823070e95824067f953da716179cbb1e61b4a4bf8cfe83b",
+    "segmented/rear/tendril_high_r.png": "08ef2c60adce59eb303c1faf4dcb1e98621e16a606623a472088e56ae12acddc",
+    "segmented/rear/tendril_low_l.png": "ad342433dc0c3923c3c4c3646d1e93457d8569f5f96dc14344109154385af426",
+    "segmented/rear/tendril_low_r.png": "7c66766b44dc1ff02eb8f4c8e41e514cffd5150e7c0766022f7f1225294a9af3",
+    "segmented/rear/tendril_mid_l.png": "a60c1f002143676c97e02e20f1baa0aadbc0180ef3f2b2c076dd68f359967e3d",
+    "segmented/rear/trunk.png": "e5d34ed6b1a2f682198abba392e3d93ec3f41becc10c333c8c51d15d5fbb0e81",
+    "source/front/processed.png": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
+    "source/rear/processed.png": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
+    "source/spec.json": "46945670c513940ab54f6d02e6c0a1fe0b762384c78d0417378a7c1e24a991ce"
+  },
+  "samples_sha256": "7cfe5b32c85e4961729b0e29ba1e138242f58f38480a8b77b70cd45b3a30c2ef",
+  "native_manifest_sha256": "53cfa7e688e64577d91fbbaaf73fb9d9a795109e63768fdd8aa309349e1edd6a",
+  "proof_basis": "native isolated part pixels"
+}

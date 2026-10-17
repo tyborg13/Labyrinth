@@ -1,0 +1,1982 @@
+{
+  "task_id": "rr-05",
+  "feedback": 2,
+  "branch": "codex/rr-05",
+  "head": "3ee8cc2fb86d84f99232c227971a5149188775a1",
+  "uncommitted": true,
+  "peer_review_performed": false,
+  "windowed_runs_attempted_by_worker": false,
+  "promote_or_production_adoption_run_by_worker": false,
+  "feedback_acceptance": {
+    "1_root_cause": "CPU model mismatch: Pillow inverse-affine rounding/crop dependence versus native 8-fractional-bit sprite-quad vertices and triangle UV sampling; native staging matrices must be used rather than a separate headless rig. Retained exact native fixtures and before/fix regression evidence.",
+    "2_fix": "Corrected CPU model and native-matrix selection. Full saved replay source matches all 11928 pairs within unchanged tolerances, after held/boundary residuals both zero. All features and player runtime unchanged.",
+    "3_resume": "--from-native skips derives; normal stage order verified with logging stubs. Inspection command removed from script.",
+    "4_cleanup": {
+      "deleted_directory": "output/rr-05/shale-native",
+      "files_removed": 25375,
+      "bytes_removed": 228347498,
+      "retained": "Director manifests/log and diagnosis under rr05/proof/feedback2; immutable small PNG fixtures under tests/maquette_cutout/native_fixtures"
+    }
+  },
+  "unit_acceptance": {
+    "features": "All current per-feature gates PASS; 504 poses per Bloomer view, 375 per Wisp view; exact mask pixels and single visible feature nodes unchanged.",
+    "presentation": "15374 runtime checks PASS; native replay and current CPU diagnostics have zero after residuals; no runtime changes in feedback 2.",
+    "director_data": "All supplied masks, owners, reasons, approved art, motion and production assets unchanged.",
+    "new_windowed_proof": "Exact resumable script provided. Fresh owner captures, both MP4s, promotion, density adoption, rest rebake and production captures remain pending; inspection is separate."
+  },
+  "root_cause_evidence": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/README.md",
+  "native_fixture_manifest": "tests/maquette_cutout/native_fixtures/manifest.json",
+  "saved_native_replay": {
+    "ok": true,
+    "errors": [],
+    "shimmer": {
+      "native_pixels": true,
+      "metric": "changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored",
+      "defaults": {
+        "fps": 60,
+        "step_frames": 6,
+        "canvas_size": 512,
+        "source_offset": 128,
+        "boundary_residual_fraction": 0.01,
+        "transform_tolerance": 0.0001,
+        "bounds_margin_px": 2,
+        "native_raster_fraction": 0.01,
+        "native_raster_edge_pixels": 1
+      },
+      "parts": [
+        {
+          "view": "front",
+          "part": "trunk",
+          "before": {
+            "held_unexplained_pixels": 15739,
+            "boundary_unexplained_pixels": 2409,
+            "max_boundary_fraction": 0.0428869145552265
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "core",
+          "before": {
+            "held_unexplained_pixels": 2656,
+            "boundary_unexplained_pixels": 78,
+            "max_boundary_fraction": 0.027896995708154508
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "petal_near_l",
+          "before": {
+            "held_unexplained_pixels": 10150,
+            "boundary_unexplained_pixels": 917,
+            "max_boundary_fraction": 0.207953603976802
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "petal_near_r",
+          "before": {
+            "held_unexplained_pixels": 13180,
+            "boundary_unexplained_pixels": 824,
+            "max_boundary_fraction": 0.07905366416618581
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "petal_far_l",
+          "before": {
+            "held_unexplained_pixels": 12485,
+            "boundary_unexplained_pixels": 1828,
+            "max_boundary_fraction": 0.16626065773447016
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "petal_far_r",
+          "before": {
+            "held_unexplained_pixels": 23886,
+            "boundary_unexplained_pixels": 986,
+            "max_boundary_fraction": 0.0982335200344679
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "tendril_high_l",
+          "before": {
+            "held_unexplained_pixels": 22979,
+            "boundary_unexplained_pixels": 1642,
+            "max_boundary_fraction": 0.45428015564202334
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "tendril_high_r",
+          "before": {
+            "held_unexplained_pixels": 9937,
+            "boundary_unexplained_pixels": 569,
+            "max_boundary_fraction": 0.14069767441860465
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "tendril_low_l",
+          "before": {
+            "held_unexplained_pixels": 6650,
+            "boundary_unexplained_pixels": 982,
+            "max_boundary_fraction": 0.256043956043956
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "tendril_low_r",
+          "before": {
+            "held_unexplained_pixels": 15993,
+            "boundary_unexplained_pixels": 568,
+            "max_boundary_fraction": 0.10339622641509434
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "root_stem_r",
+          "before": {
+            "held_unexplained_pixels": 1882,
+            "boundary_unexplained_pixels": 262,
+            "max_boundary_fraction": 0.0727580372250423
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "root_stem_c",
+          "before": {
+            "held_unexplained_pixels": 324,
+            "boundary_unexplained_pixels": 38,
+            "max_boundary_fraction": 0.13580246913580246
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "root_tip_l",
+          "before": {
+            "held_unexplained_pixels": 116,
+            "boundary_unexplained_pixels": 30,
+            "max_boundary_fraction": 0.4444444444444444
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "root_tip_r",
+          "before": {
+            "held_unexplained_pixels": 4607,
+            "boundary_unexplained_pixels": 796,
+            "max_boundary_fraction": 0.14908456843940715
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "root_tip_c",
+          "before": {
+            "held_unexplained_pixels": 2707,
+            "boundary_unexplained_pixels": 313,
+            "max_boundary_fraction": 0.20134228187919462
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_trunk",
+          "before": {
+            "held_unexplained_pixels": 2259,
+            "boundary_unexplained_pixels": 353,
+            "max_boundary_fraction": 0.013217023526301877
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_core",
+          "before": {
+            "held_unexplained_pixels": 520,
+            "boundary_unexplained_pixels": 54,
+            "max_boundary_fraction": 0.04186046511627907
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_petal_near_l",
+          "before": {
+            "held_unexplained_pixels": 1010,
+            "boundary_unexplained_pixels": 150,
+            "max_boundary_fraction": 0.041968162083936326
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_petal_near_r",
+          "before": {
+            "held_unexplained_pixels": 881,
+            "boundary_unexplained_pixels": 105,
+            "max_boundary_fraction": 0.05263157894736842
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_petal_far_l",
+          "before": {
+            "held_unexplained_pixels": 1346,
+            "boundary_unexplained_pixels": 194,
+            "max_boundary_fraction": 0.029831387808041506
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_petal_far_r",
+          "before": {
+            "held_unexplained_pixels": 1391,
+            "boundary_unexplained_pixels": 157,
+            "max_boundary_fraction": 0.03838383838383838
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_tendril_high_l",
+          "before": {
+            "held_unexplained_pixels": 4764,
+            "boundary_unexplained_pixels": 466,
+            "max_boundary_fraction": 0.06424870466321243
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_tendril_high_r",
+          "before": {
+            "held_unexplained_pixels": 1436,
+            "boundary_unexplained_pixels": 104,
+            "max_boundary_fraction": 0.027906976744186046
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "tendril_mid_l",
+          "before": {
+            "held_unexplained_pixels": 1311,
+            "boundary_unexplained_pixels": 148,
+            "max_boundary_fraction": 0.026813880126182965
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_tendril_low_l",
+          "before": {
+            "held_unexplained_pixels": 587,
+            "boundary_unexplained_pixels": 83,
+            "max_boundary_fraction": 0.027559055118110236
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_tendril_low_r",
+          "before": {
+            "held_unexplained_pixels": 707,
+            "boundary_unexplained_pixels": 115,
+            "max_boundary_fraction": 0.04666666666666667
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "root_stem_l",
+          "before": {
+            "held_unexplained_pixels": 195,
+            "boundary_unexplained_pixels": 29,
+            "max_boundary_fraction": 0.010380622837370242
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_root_stem_r",
+          "before": {
+            "held_unexplained_pixels": 874,
+            "boundary_unexplained_pixels": 143,
+            "max_boundary_fraction": 0.02724177071509648
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_root_stem_c",
+          "before": {
+            "held_unexplained_pixels": 1340,
+            "boundary_unexplained_pixels": 187,
+            "max_boundary_fraction": 0.02663230240549828
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_root_tip_l",
+          "before": {
+            "held_unexplained_pixels": 166,
+            "boundary_unexplained_pixels": 22,
+            "max_boundary_fraction": 0.02368421052631579
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_root_tip_r",
+          "before": {
+            "held_unexplained_pixels": 369,
+            "boundary_unexplained_pixels": 63,
+            "max_boundary_fraction": 0.07262569832402235
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "hidden_root_tip_c",
+          "before": {
+            "held_unexplained_pixels": 461,
+            "boundary_unexplained_pixels": 77,
+            "max_boundary_fraction": 0.088
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "feature_crown_gem",
+          "before": {
+            "held_unexplained_pixels": 10731,
+            "boundary_unexplained_pixels": 302,
+            "max_boundary_fraction": 0.056006493506493504
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "feature_amber_upper",
+          "before": {
+            "held_unexplained_pixels": 338,
+            "boundary_unexplained_pixels": 24,
+            "max_boundary_fraction": 0.06995884773662552
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "feature_amber_right",
+          "before": {
+            "held_unexplained_pixels": 578,
+            "boundary_unexplained_pixels": 68,
+            "max_boundary_fraction": 0.0777027027027027
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "front",
+          "part": "feature_amber_left",
+          "before": {
+            "held_unexplained_pixels": 412,
+            "boundary_unexplained_pixels": 53,
+            "max_boundary_fraction": 0.03859060402684564
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "trunk",
+          "before": {
+            "held_unexplained_pixels": 25735,
+            "boundary_unexplained_pixels": 3255,
+            "max_boundary_fraction": 0.03917940466613033
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "core",
+          "before": {
+            "held_unexplained_pixels": 5090,
+            "boundary_unexplained_pixels": 412,
+            "max_boundary_fraction": 0.1580547112462006
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "petal_near_l",
+          "before": {
+            "held_unexplained_pixels": 10027,
+            "boundary_unexplained_pixels": 844,
+            "max_boundary_fraction": 0.1546162402669633
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "petal_near_r",
+          "before": {
+            "held_unexplained_pixels": 8264,
+            "boundary_unexplained_pixels": 552,
+            "max_boundary_fraction": 0.08418367346938775
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "petal_far_l",
+          "before": {
+            "held_unexplained_pixels": 2915,
+            "boundary_unexplained_pixels": 207,
+            "max_boundary_fraction": 0.11159737417943107
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "petal_far_r",
+          "before": {
+            "held_unexplained_pixels": 4342,
+            "boundary_unexplained_pixels": 304,
+            "max_boundary_fraction": 0.10638297872340426
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "tendril_high_l",
+          "before": {
+            "held_unexplained_pixels": 45236,
+            "boundary_unexplained_pixels": 4447,
+            "max_boundary_fraction": 0.1954828660436137
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "tendril_high_r",
+          "before": {
+            "held_unexplained_pixels": 10255,
+            "boundary_unexplained_pixels": 570,
+            "max_boundary_fraction": 0.09225874867444327
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "tendril_mid_l",
+          "before": {
+            "held_unexplained_pixels": 4825,
+            "boundary_unexplained_pixels": 550,
+            "max_boundary_fraction": 0.20368098159509201
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "tendril_low_l",
+          "before": {
+            "held_unexplained_pixels": 91,
+            "boundary_unexplained_pixels": 6,
+            "max_boundary_fraction": 0.5
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "tendril_low_r",
+          "before": {
+            "held_unexplained_pixels": 3982,
+            "boundary_unexplained_pixels": 453,
+            "max_boundary_fraction": 0.5083056478405316
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "root_stem_l",
+          "before": {
+            "held_unexplained_pixels": 816,
+            "boundary_unexplained_pixels": 108,
+            "max_boundary_fraction": 0.10689655172413794
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "root_stem_r",
+          "before": {
+            "held_unexplained_pixels": 78,
+            "boundary_unexplained_pixels": 16,
+            "max_boundary_fraction": 0.42105263157894735
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "root_tip_l",
+          "before": {
+            "held_unexplained_pixels": 946,
+            "boundary_unexplained_pixels": 175,
+            "max_boundary_fraction": 0.1906474820143885
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "root_tip_c",
+          "before": {
+            "held_unexplained_pixels": 86,
+            "boundary_unexplained_pixels": 20,
+            "max_boundary_fraction": 0.37735849056603776
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_trunk",
+          "before": {
+            "held_unexplained_pixels": 2477,
+            "boundary_unexplained_pixels": 383,
+            "max_boundary_fraction": 0.0216
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_core",
+          "before": {
+            "held_unexplained_pixels": 982,
+            "boundary_unexplained_pixels": 121,
+            "max_boundary_fraction": 0.045584045584045586
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_petal_near_l",
+          "before": {
+            "held_unexplained_pixels": 2071,
+            "boundary_unexplained_pixels": 231,
+            "max_boundary_fraction": 0.04105571847507331
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_petal_near_r",
+          "before": {
+            "held_unexplained_pixels": 1382,
+            "boundary_unexplained_pixels": 181,
+            "max_boundary_fraction": 0.045454545454545456
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_petal_far_l",
+          "before": {
+            "held_unexplained_pixels": 556,
+            "boundary_unexplained_pixels": 70,
+            "max_boundary_fraction": 0.1308411214953271
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_petal_far_r",
+          "before": {
+            "held_unexplained_pixels": 565,
+            "boundary_unexplained_pixels": 74,
+            "max_boundary_fraction": 0.09615384615384616
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_tendril_high_l",
+          "before": {
+            "held_unexplained_pixels": 5900,
+            "boundary_unexplained_pixels": 477,
+            "max_boundary_fraction": 0.12525252525252525
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_tendril_high_r",
+          "before": {
+            "held_unexplained_pixels": 708,
+            "boundary_unexplained_pixels": 59,
+            "max_boundary_fraction": 0.03365384615384615
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_tendril_mid_l",
+          "before": {
+            "held_unexplained_pixels": 462,
+            "boundary_unexplained_pixels": 59,
+            "max_boundary_fraction": 0.14705882352941177
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_tendril_low_l",
+          "before": {
+            "held_unexplained_pixels": 2099,
+            "boundary_unexplained_pixels": 238,
+            "max_boundary_fraction": 0.032329988851727984
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_tendril_low_r",
+          "before": {
+            "held_unexplained_pixels": 2679,
+            "boundary_unexplained_pixels": 361,
+            "max_boundary_fraction": 0.14037122969837587
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_root_stem_l",
+          "before": {
+            "held_unexplained_pixels": 928,
+            "boundary_unexplained_pixels": 150,
+            "max_boundary_fraction": 0.03147953830010493
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_root_stem_r",
+          "before": {
+            "held_unexplained_pixels": 338,
+            "boundary_unexplained_pixels": 45,
+            "max_boundary_fraction": 0.009442870632672332
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "root_stem_c",
+          "before": {
+            "held_unexplained_pixels": 596,
+            "boundary_unexplained_pixels": 100,
+            "max_boundary_fraction": 0.01651376146788991
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_root_tip_l",
+          "before": {
+            "held_unexplained_pixels": 564,
+            "boundary_unexplained_pixels": 106,
+            "max_boundary_fraction": 0.06741573033707865
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "root_tip_r",
+          "before": {
+            "held_unexplained_pixels": 310,
+            "boundary_unexplained_pixels": 40,
+            "max_boundary_fraction": 0.024282560706401765
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "hidden_root_tip_c",
+          "before": {
+            "held_unexplained_pixels": 348,
+            "boundary_unexplained_pixels": 66,
+            "max_boundary_fraction": 0.034261241970021415
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "feature_crown_gem",
+          "before": {
+            "held_unexplained_pixels": 1258,
+            "boundary_unexplained_pixels": 79,
+            "max_boundary_fraction": 0.11931818181818182
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "feature_amber_rear_left",
+          "before": {
+            "held_unexplained_pixels": 153,
+            "boundary_unexplained_pixels": 39,
+            "max_boundary_fraction": 0.04242424242424243
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        },
+        {
+          "view": "rear",
+          "part": "feature_amber_rear_low",
+          "before": {
+            "held_unexplained_pixels": 315,
+            "boundary_unexplained_pixels": 69,
+            "max_boundary_fraction": 0.0893854748603352
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0,
+            "max_boundary_fraction": 0.0
+          }
+        }
+      ],
+      "totals": {
+        "before": {
+          "held_unexplained_pixels": 322346,
+          "boundary_unexplained_pixels": 30006
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0
+        }
+      }
+    },
+    "seconds": 21.755,
+    "basis": "Headless replay of saved director run 1 pixels through corrected CPU quad model and the matrices used to stage those native surfaces; original manifests retained, not fresh renderer proof"
+  },
+  "saved_native_transform_oracle": {
+    "basis": "Unmodified archived manifests; independent authored-transform oracle. The old closure is deliberately rejected after verifier changes, while every sampled matrix still passes. No manifest bindings were rewritten.",
+    "binding_errors": [
+      "Stale or incomplete pixel samples"
+    ],
+    "geometry_errors": [],
+    "native_idle_poses": 336,
+    "all_sampled_poses": 1008
+  },
+  "features": {
+    "shale": [
+      {
+        "feature": "crown_gem",
+        "view": "front",
+        "mask_pixels": 1167,
+        "preserved_pixels": 1167,
+        "painted_nodes": [
+          "feature_crown_gem"
+        ],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_upper",
+        "view": "front",
+        "mask_pixels": 242,
+        "preserved_pixels": 242,
+        "painted_nodes": [
+          "feature_amber_upper"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_right",
+        "view": "front",
+        "mask_pixels": 295,
+        "preserved_pixels": 295,
+        "painted_nodes": [
+          "feature_amber_right"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_left",
+        "view": "front",
+        "mask_pixels": 595,
+        "preserved_pixels": 595,
+        "painted_nodes": [
+          "feature_amber_left"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_left",
+        "view": "front",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the back of the trunk; hidden from the front view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_low",
+        "view": "front",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the back of the trunk; hidden from the front view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "crown_gem",
+        "view": "rear",
+        "mask_pixels": 161,
+        "preserved_pixels": 161,
+        "painted_nodes": [
+          "feature_crown_gem"
+        ],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_upper",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_right",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_left",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_left",
+        "view": "rear",
+        "mask_pixels": 328,
+        "preserved_pixels": 328,
+        "painted_nodes": [
+          "feature_amber_rear_left"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "amber_rear_low",
+        "view": "rear",
+        "mask_pixels": 178,
+        "preserved_pixels": 178,
+        "painted_nodes": [
+          "feature_amber_rear_low"
+        ],
+        "owner": "trunk",
+        "owner_bone": "trunk",
+        "sampled_poses": 504,
+        "poses_by_clip": {
+          "burst": 60,
+          "death": 78,
+          "hit": 36,
+          "idle": 168,
+          "move": 54,
+          "shell": 60,
+          "shot": 48
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      }
+    ],
+    "wisp": [
+      {
+        "feature": "eye",
+        "view": "front",
+        "mask_pixels": 166,
+        "preserved_pixels": 166,
+        "painted_nodes": [
+          "feature_eye"
+        ],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 375,
+        "poses_by_clip": {
+          "cast": 48,
+          "death": 72,
+          "hit": 33,
+          "idle": 132,
+          "move": 48,
+          "strike": 42
+        },
+        "occluded_reason": null,
+        "errors": [],
+        "ok": true
+      },
+      {
+        "feature": "eye",
+        "view": "rear",
+        "mask_pixels": 0,
+        "preserved_pixels": 0,
+        "painted_nodes": [],
+        "owner": "core",
+        "owner_bone": "core",
+        "sampled_poses": 375,
+        "poses_by_clip": {
+          "cast": 48,
+          "death": 72,
+          "hit": 33,
+          "idle": 132,
+          "move": 48,
+          "strike": 42
+        },
+        "occluded_reason": "The single eye is on the front of the cloud; the rear view shows its back.",
+        "errors": [],
+        "ok": true
+      }
+    ]
+  },
+  "focused": [
+    {
+      "name": "output_gdignore",
+      "command": [
+        "python3",
+        "tools/output_gdignore.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.77,
+      "result_lines": [
+        "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+      ]
+    },
+    {
+      "name": "shale_pixels",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/pixel_samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-pixels.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.714,
+      "result_lines": [
+        "MAQUETTE PIXEL SAMPLES: PASS (1008 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "shale_pixel_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_polish.py",
+        "gate",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-pixels.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-pixel-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 8.337,
+      "result_lines": [
+        "MAQUETTE PIXEL GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "shale_authored",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-authored.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.354,
+      "result_lines": [
+        "MAQUETTE MOTION SAMPLES: PASS (276 bone poses)"
+      ]
+    },
+    {
+      "name": "shale_authored_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-authored.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-authored-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.269,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "shale_native_parse",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/native_capture.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-native",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.353,
+      "result_lines": [
+        "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+      ]
+    },
+    {
+      "name": "shale_logic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/production_capture.gd",
+        "--",
+        "--type",
+        "bile_bloomer",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "seconds": 34.251,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1171 frames)"
+      ]
+    },
+    {
+      "name": "shale_logic_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/shale_bloomer/mq3",
+        "--production",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-logic/logic_frames.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/shale-logic-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.159,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "wisp_pixels",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/pixel_samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-pixels.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.466,
+      "result_lines": [
+        "MAQUETTE PIXEL SAMPLES: PASS (750 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "wisp_pixel_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_polish.py",
+        "gate",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-pixels.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-pixel-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 2.367,
+      "result_lines": [
+        "MAQUETTE PIXEL GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "wisp_authored",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/samples.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-authored.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.354,
+      "result_lines": [
+        "MAQUETTE MOTION SAMPLES: PASS (180 bone poses)"
+      ]
+    },
+    {
+      "name": "wisp_authored_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-authored.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-authored-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.122,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "wisp_native_parse",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/native_capture.gd",
+        "--",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-native",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.355,
+      "result_lines": [
+        "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+      ]
+    },
+    {
+      "name": "wisp_logic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/production_capture.gd",
+        "--",
+        "--type",
+        "lightning_wisp",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "seconds": 33.919,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1149 frames)"
+      ]
+    },
+    {
+      "name": "wisp_logic_gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "experiments/cutouts/lightning_wisp/mq4",
+        "--production",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-logic/logic_frames.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback2/wisp-logic-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.111,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "runtime",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout_test.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 16.793,
+      "result_lines": [
+        "MAQUETTE CUTOUT: PASS (15374 checks, 0 failures; headless logic only)"
+      ]
+    },
+    {
+      "name": "living_foes",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/pre_battle_living_foes_test.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 6.714,
+      "result_lines": [
+        "PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "pixel_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_maquette_pixel_polish.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 29.83,
+      "result_lines": [
+        "Ran 10 tests in 29.592s",
+        "OK",
+        "MAQUETTE PIXEL MUTATION: split_feature rejected in both views",
+        "MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)",
+        "MAQUETTE SHIMMER CPU: shale_bloomer: {'before': {'held_unexplained_pixels': 322367, 'boundary_unexplained_pixels': 30000}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}",
+        "MAQUETTE PIXEL MUTATION: shale_bloomer/unstepped_paint rejected",
+        "MAQUETTE SHIMMER CPU: lightning_wisp: {'before': {'held_unexplained_pixels': 297169, 'boundary_unexplained_pixels': 14167}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}",
+        "MAQUETTE PIXEL MUTATION: lightning_wisp/unstepped_paint rejected"
+      ]
+    },
+    {
+      "name": "semantic_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_semantic_maquette_motion.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 56.663,
+      "result_lines": [
+        "Ran 7 tests in 56.496s",
+        "OK",
+        "MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle",
+        "MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle",
+        "MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views",
+        "MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views",
+        "MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views",
+        "MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views",
+        "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd",
+        "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd"
+      ]
+    },
+    {
+      "name": "native_regression",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_maquette_native_raster.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 0.214,
+      "result_lines": [
+        "Ran 3 tests in 0.056s",
+        "OK"
+      ]
+    },
+    {
+      "name": "integration",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/integration_test.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 28.937,
+      "result_lines": [
+        "MAQUETTE INTEGRATION: PASS (0 failures)"
+      ]
+    }
+  ],
+  "suites": [
+    {
+      "name": "godot_full",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--timeout",
+        "900",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/run_tests.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 879.336,
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)",
+        "EN05 ENEMIES TEST RESULT: PASS (179 checks, 0 failures)",
+        "EN06 ENEMIES TEST RESULT: PASS (176 checks, 0 failures)",
+        "STATIC FACING TEST RESULT: PASS (50 checks, 0 failures)",
+        "FLOATING COMBAT TEXT TEST RESULT: PASS",
+        "COMBAT FEEL TEST RESULT: PASS",
+        "HEALTH GHOST TEST RESULT: PASS",
+        "THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)",
+        "RUN SCORE TEST RESULT: PASS",
+        "SFX BANK TEST RESULT: PASS (0 failures)",
+        "SFX SYNC BANK TEST RESULT: PASS (0 failures)",
+        "EN01 ENEMIES TEST RESULT: PASS",
+        "EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)",
+        "EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)",
+        "TEST RESULT: PASS",
+        "RUN END RECAP TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "FULL SUITE RUNTIME: 874.253 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    {
+      "name": "python_full",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "seconds": 522.615,
+      "result_lines": [
+        "CHECK-OK",
+        "CHECK-OK",
+        "GAOLER REBUILD: PASS (882 files)",
+        "Ran 630 tests in 522.085s",
+        "OK (skipped=61)"
+      ]
+    }
+  ],
+  "python_full_summary": {
+    "tests": 630,
+    "seconds": 522.085,
+    "result": "OK (skipped=61)"
+  },
+  "final_checks": {
+    "director_feature_inputs_unchanged": 12,
+    "player_runtime_and_case_inputs_unchanged_since_director_run1": true,
+    "tolerances_unchanged": true,
+    "current_case_gates_and_bindings": "PASS both",
+    "case_baseline_protection": "PASS both",
+    "source_scope": "PASS",
+    "stale_capture_directory_absent": true,
+    "git_diff_check": "PASS",
+    "script_bash_syntax": "PASS",
+    "legacy_builder_and_shrike_unchanged": true,
+    "output_gdignore": "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+  },
+  "TODO_DESIGN": [],
+  "chosen_model_constants": {
+    "SUBPIXEL_BITS": 8,
+    "SUBPIXEL_SCALE": 256,
+    "QUAD_TRIANGLES": [
+      [
+        0,
+        1,
+        2
+      ],
+      [
+        0,
+        2,
+        3
+      ]
+    ],
+    "basis": "Native Metal capture; no tolerances changed"
+  },
+  "owner_command": "bash experiments/cutouts/shale_bloomer/rr05/proof_for_design_owner.sh --from-native"
+}

@@ -1,0 +1,1027 @@
+{
+  "ok": true,
+  "errors": [],
+  "shimmer": {
+    "native_pixels": true,
+    "metric": "changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored",
+    "defaults": {
+      "fps": 60,
+      "step_frames": 6,
+      "canvas_size": 512,
+      "source_offset": 128,
+      "boundary_residual_fraction": 0.01,
+      "transform_tolerance": 0.0001,
+      "bounds_margin_px": 2,
+      "native_raster_fraction": 0.01,
+      "native_raster_edge_pixels": 1
+    },
+    "parts": [
+      {
+        "view": "front",
+        "part": "trunk",
+        "before": {
+          "held_unexplained_pixels": 15739,
+          "boundary_unexplained_pixels": 2409,
+          "max_boundary_fraction": 0.0428869145552265
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "core",
+        "before": {
+          "held_unexplained_pixels": 2656,
+          "boundary_unexplained_pixels": 78,
+          "max_boundary_fraction": 0.027896995708154508
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 10150,
+          "boundary_unexplained_pixels": 917,
+          "max_boundary_fraction": 0.207953603976802
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 13180,
+          "boundary_unexplained_pixels": 824,
+          "max_boundary_fraction": 0.07905366416618581
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 12485,
+          "boundary_unexplained_pixels": 1828,
+          "max_boundary_fraction": 0.16626065773447016
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 23886,
+          "boundary_unexplained_pixels": 986,
+          "max_boundary_fraction": 0.0982335200344679
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 22979,
+          "boundary_unexplained_pixels": 1642,
+          "max_boundary_fraction": 0.45428015564202334
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 9937,
+          "boundary_unexplained_pixels": 569,
+          "max_boundary_fraction": 0.14069767441860465
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 6650,
+          "boundary_unexplained_pixels": 982,
+          "max_boundary_fraction": 0.256043956043956
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 15993,
+          "boundary_unexplained_pixels": 568,
+          "max_boundary_fraction": 0.10339622641509434
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 1882,
+          "boundary_unexplained_pixels": 262,
+          "max_boundary_fraction": 0.0727580372250423
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_stem_c",
+        "before": {
+          "held_unexplained_pixels": 324,
+          "boundary_unexplained_pixels": 38,
+          "max_boundary_fraction": 0.13580246913580246
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 116,
+          "boundary_unexplained_pixels": 30,
+          "max_boundary_fraction": 0.4444444444444444
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_tip_r",
+        "before": {
+          "held_unexplained_pixels": 4607,
+          "boundary_unexplained_pixels": 796,
+          "max_boundary_fraction": 0.14908456843940715
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 2707,
+          "boundary_unexplained_pixels": 313,
+          "max_boundary_fraction": 0.20134228187919462
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_trunk",
+        "before": {
+          "held_unexplained_pixels": 2259,
+          "boundary_unexplained_pixels": 353,
+          "max_boundary_fraction": 0.013217023526301877
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_core",
+        "before": {
+          "held_unexplained_pixels": 520,
+          "boundary_unexplained_pixels": 54,
+          "max_boundary_fraction": 0.04186046511627907
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 1010,
+          "boundary_unexplained_pixels": 150,
+          "max_boundary_fraction": 0.041968162083936326
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 881,
+          "boundary_unexplained_pixels": 105,
+          "max_boundary_fraction": 0.05263157894736842
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 1346,
+          "boundary_unexplained_pixels": 194,
+          "max_boundary_fraction": 0.029831387808041506
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 1391,
+          "boundary_unexplained_pixels": 157,
+          "max_boundary_fraction": 0.03838383838383838
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 4764,
+          "boundary_unexplained_pixels": 466,
+          "max_boundary_fraction": 0.06424870466321243
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 1436,
+          "boundary_unexplained_pixels": 104,
+          "max_boundary_fraction": 0.027906976744186046
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "tendril_mid_l",
+        "before": {
+          "held_unexplained_pixels": 1311,
+          "boundary_unexplained_pixels": 148,
+          "max_boundary_fraction": 0.026813880126182965
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 587,
+          "boundary_unexplained_pixels": 83,
+          "max_boundary_fraction": 0.027559055118110236
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 707,
+          "boundary_unexplained_pixels": 115,
+          "max_boundary_fraction": 0.04666666666666667
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "root_stem_l",
+        "before": {
+          "held_unexplained_pixels": 195,
+          "boundary_unexplained_pixels": 29,
+          "max_boundary_fraction": 0.010380622837370242
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 874,
+          "boundary_unexplained_pixels": 143,
+          "max_boundary_fraction": 0.02724177071509648
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_stem_c",
+        "before": {
+          "held_unexplained_pixels": 1340,
+          "boundary_unexplained_pixels": 187,
+          "max_boundary_fraction": 0.02663230240549828
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 166,
+          "boundary_unexplained_pixels": 22,
+          "max_boundary_fraction": 0.02368421052631579
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_tip_r",
+        "before": {
+          "held_unexplained_pixels": 369,
+          "boundary_unexplained_pixels": 63,
+          "max_boundary_fraction": 0.07262569832402235
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "hidden_root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 461,
+          "boundary_unexplained_pixels": 77,
+          "max_boundary_fraction": 0.088
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_crown_gem",
+        "before": {
+          "held_unexplained_pixels": 10731,
+          "boundary_unexplained_pixels": 302,
+          "max_boundary_fraction": 0.056006493506493504
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_amber_upper",
+        "before": {
+          "held_unexplained_pixels": 338,
+          "boundary_unexplained_pixels": 24,
+          "max_boundary_fraction": 0.06995884773662552
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_amber_right",
+        "before": {
+          "held_unexplained_pixels": 578,
+          "boundary_unexplained_pixels": 68,
+          "max_boundary_fraction": 0.0777027027027027
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "front",
+        "part": "feature_amber_left",
+        "before": {
+          "held_unexplained_pixels": 412,
+          "boundary_unexplained_pixels": 53,
+          "max_boundary_fraction": 0.03859060402684564
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "trunk",
+        "before": {
+          "held_unexplained_pixels": 25735,
+          "boundary_unexplained_pixels": 3255,
+          "max_boundary_fraction": 0.03917940466613033
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "core",
+        "before": {
+          "held_unexplained_pixels": 5090,
+          "boundary_unexplained_pixels": 412,
+          "max_boundary_fraction": 0.1580547112462006
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 10027,
+          "boundary_unexplained_pixels": 844,
+          "max_boundary_fraction": 0.1546162402669633
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 8264,
+          "boundary_unexplained_pixels": 552,
+          "max_boundary_fraction": 0.08418367346938775
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 2915,
+          "boundary_unexplained_pixels": 207,
+          "max_boundary_fraction": 0.11159737417943107
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 4342,
+          "boundary_unexplained_pixels": 304,
+          "max_boundary_fraction": 0.10638297872340426
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 45236,
+          "boundary_unexplained_pixels": 4447,
+          "max_boundary_fraction": 0.1954828660436137
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 10255,
+          "boundary_unexplained_pixels": 570,
+          "max_boundary_fraction": 0.09225874867444327
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_mid_l",
+        "before": {
+          "held_unexplained_pixels": 4825,
+          "boundary_unexplained_pixels": 550,
+          "max_boundary_fraction": 0.20368098159509201
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 91,
+          "boundary_unexplained_pixels": 6,
+          "max_boundary_fraction": 0.5
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 3982,
+          "boundary_unexplained_pixels": 453,
+          "max_boundary_fraction": 0.5083056478405316
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_stem_l",
+        "before": {
+          "held_unexplained_pixels": 816,
+          "boundary_unexplained_pixels": 108,
+          "max_boundary_fraction": 0.10689655172413794
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 78,
+          "boundary_unexplained_pixels": 16,
+          "max_boundary_fraction": 0.42105263157894735
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 946,
+          "boundary_unexplained_pixels": 175,
+          "max_boundary_fraction": 0.1906474820143885
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 86,
+          "boundary_unexplained_pixels": 20,
+          "max_boundary_fraction": 0.37735849056603776
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_trunk",
+        "before": {
+          "held_unexplained_pixels": 2477,
+          "boundary_unexplained_pixels": 383,
+          "max_boundary_fraction": 0.0216
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_core",
+        "before": {
+          "held_unexplained_pixels": 982,
+          "boundary_unexplained_pixels": 121,
+          "max_boundary_fraction": 0.045584045584045586
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_near_l",
+        "before": {
+          "held_unexplained_pixels": 2071,
+          "boundary_unexplained_pixels": 231,
+          "max_boundary_fraction": 0.04105571847507331
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_near_r",
+        "before": {
+          "held_unexplained_pixels": 1382,
+          "boundary_unexplained_pixels": 181,
+          "max_boundary_fraction": 0.045454545454545456
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_far_l",
+        "before": {
+          "held_unexplained_pixels": 556,
+          "boundary_unexplained_pixels": 70,
+          "max_boundary_fraction": 0.1308411214953271
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_petal_far_r",
+        "before": {
+          "held_unexplained_pixels": 565,
+          "boundary_unexplained_pixels": 74,
+          "max_boundary_fraction": 0.09615384615384616
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_high_l",
+        "before": {
+          "held_unexplained_pixels": 5900,
+          "boundary_unexplained_pixels": 477,
+          "max_boundary_fraction": 0.12525252525252525
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_high_r",
+        "before": {
+          "held_unexplained_pixels": 708,
+          "boundary_unexplained_pixels": 59,
+          "max_boundary_fraction": 0.03365384615384615
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_mid_l",
+        "before": {
+          "held_unexplained_pixels": 462,
+          "boundary_unexplained_pixels": 59,
+          "max_boundary_fraction": 0.14705882352941177
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_low_l",
+        "before": {
+          "held_unexplained_pixels": 2099,
+          "boundary_unexplained_pixels": 238,
+          "max_boundary_fraction": 0.032329988851727984
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_tendril_low_r",
+        "before": {
+          "held_unexplained_pixels": 2679,
+          "boundary_unexplained_pixels": 361,
+          "max_boundary_fraction": 0.14037122969837587
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_stem_l",
+        "before": {
+          "held_unexplained_pixels": 928,
+          "boundary_unexplained_pixels": 150,
+          "max_boundary_fraction": 0.03147953830010493
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_stem_r",
+        "before": {
+          "held_unexplained_pixels": 338,
+          "boundary_unexplained_pixels": 45,
+          "max_boundary_fraction": 0.009442870632672332
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_stem_c",
+        "before": {
+          "held_unexplained_pixels": 596,
+          "boundary_unexplained_pixels": 100,
+          "max_boundary_fraction": 0.01651376146788991
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_tip_l",
+        "before": {
+          "held_unexplained_pixels": 564,
+          "boundary_unexplained_pixels": 106,
+          "max_boundary_fraction": 0.06741573033707865
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "root_tip_r",
+        "before": {
+          "held_unexplained_pixels": 310,
+          "boundary_unexplained_pixels": 40,
+          "max_boundary_fraction": 0.024282560706401765
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "hidden_root_tip_c",
+        "before": {
+          "held_unexplained_pixels": 348,
+          "boundary_unexplained_pixels": 66,
+          "max_boundary_fraction": 0.034261241970021415
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "feature_crown_gem",
+        "before": {
+          "held_unexplained_pixels": 1258,
+          "boundary_unexplained_pixels": 79,
+          "max_boundary_fraction": 0.11931818181818182
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "feature_amber_rear_left",
+        "before": {
+          "held_unexplained_pixels": 153,
+          "boundary_unexplained_pixels": 39,
+          "max_boundary_fraction": 0.04242424242424243
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      },
+      {
+        "view": "rear",
+        "part": "feature_amber_rear_low",
+        "before": {
+          "held_unexplained_pixels": 315,
+          "boundary_unexplained_pixels": 69,
+          "max_boundary_fraction": 0.0893854748603352
+        },
+        "after": {
+          "held_unexplained_pixels": 0,
+          "boundary_unexplained_pixels": 0,
+          "max_boundary_fraction": 0.0
+        }
+      }
+    ],
+    "totals": {
+      "before": {
+        "held_unexplained_pixels": 322346,
+        "boundary_unexplained_pixels": 30006
+      },
+      "after": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 0
+      }
+    }
+  },
+  "seconds": 21.755,
+  "basis": "Headless replay of saved director run 1 pixels through corrected CPU quad model and the matrices used to stage those native surfaces; original manifests retained, not fresh renderer proof"
+}

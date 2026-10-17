@@ -1,0 +1,8 @@
+test_crop_preserves_fixed_canvas_sampling (test_maquette_native_raster.NativeRasterTests) ... ok
+test_native_replay_uses_the_matrices_that_staged_its_surfaces (test_maquette_native_raster.NativeRasterTests) ... ok
+test_saved_native_surfaces_match_source_transform (test_maquette_native_raster.NativeRasterTests) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.056s
+
+OK

@@ -1,0 +1,31 @@
+{
+  "removed_bytes": 176290467,
+  "retained_seed_cache_files": 75,
+  "archived_diagnostics": [
+    {
+      "file": "bleed-samples.json",
+      "sha256": "fadd14ec9821bcb2367dc2402b68f447e72fb11d0bdd4fbb427aad1602c995cc",
+      "bytes_before": 9324399,
+      "bytes_after": 1248074
+    },
+    {
+      "file": "key-samples.json",
+      "sha256": "637348f96bda1f49ae2b62e365fee06779ca0f959af89a2b7da7355be1c4210a",
+      "bytes_before": 9325601,
+      "bytes_after": 1258937
+    },
+    {
+      "file": "complete-donors-pixels.json",
+      "sha256": "83a98a5d2bb2eedf151635963914f20a0d9f80b32dd8f1df38987e6f69fbc6b0",
+      "bytes_before": 9329279,
+      "bytes_after": 1261181
+    },
+    {
+      "file": "stable-anchor-pixels.json",
+      "sha256": "8afabd2900c212ef209efce3b748499cf6e028f0241501edbaff922a21add50d",
+      "bytes_before": 9339944,
+      "bytes_after": 1267060
+    }
+  ],
+  "original_director_captures_or_videos_removed": false
+}

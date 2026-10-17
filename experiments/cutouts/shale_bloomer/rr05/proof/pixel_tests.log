@@ -1,0 +1,21 @@
+test_hidden_overlap_must_be_behind_and_wrong_sample_bone_fails (__main__.FeatureTests) ... ok
+test_one_feature_node_passes_and_split_pixel_mutation_fails (__main__.FeatureTests) ... ok
+test_reassignment_rederives_hidden_support_for_stolen_visible_pixels (__main__.FeatureTests) ... ok
+test_unresolved_design_never_certifies (__main__.FeatureTests) ... ok
+test_versioned_adapter_rebuilds_whole_feature_and_hidden_support (__main__.FeatureTests) ... ok
+test_actual_painted_nodes_snap_and_keep_full_rate_actions (__main__.PixelPresentationTests) ... ok
+test_clock_wrap_and_all_looping_clips (__main__.PixelPresentationTests) ... ok
+test_feature_derivation_runs_end_to_end_on_isolated_approved_paint_fixture (__main__.PixelPresentationTests) ... ok
+test_idle_before_after_and_unstepped_mutation (__main__.PixelPresentationTests) ... ok
+test_native_residual_rejects_a_changed_held_pixel (__main__.PixelPresentationTests) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 13.024s
+
+OK
+MAQUETTE PIXEL MUTATION: split_feature rejected in both views
+MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)
+MAQUETTE SHIMMER CPU: shale_bloomer: {'before': {'held_unexplained_pixels': 320251, 'boundary_unexplained_pixels': 30240}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 11}}
+MAQUETTE PIXEL MUTATION: shale_bloomer/unstepped_paint rejected
+MAQUETTE SHIMMER CPU: lightning_wisp: {'before': {'held_unexplained_pixels': 297082, 'boundary_unexplained_pixels': 14203}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 32}}
+MAQUETTE PIXEL MUTATION: lightning_wisp/unstepped_paint rejected

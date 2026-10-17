@@ -1,0 +1,41 @@
+# rr-05 feedback 7 implementation and evidence
+
+The exact static rest-alpha backing is implemented on both authoring cases. **Acceptance is blocked by the director-prescribed outline and hole gates.** Bloomer has 957 outside-outline poses and 514 new-hole poses; Wisp has 707 outside-outline poses and 15 new-hole poses. This is the unmodified full-rest shape moving with the supplied body bone, not a transform mismatch. No shape clipping, amplitude edits or tolerance changes were made.
+
+1. **Shape/colour implemented.** One node per view contains the exact approved rest alpha. `backing.json` records the actual approved RGB texel at nearest-rank 10th-percentile Rec.709 encoded-RGB luma, excluding an 8-neighbour one-pixel outline ring and every protected feature mask. This matches the repository visual-probe luma convention. Bloomer front/rear: `#100b0a` / `#0b0c0d`; Wisp: `#261c2c` / `#201823`. Each record includes sample count, rank, source coordinate, luma, source hash and PNG hash. No new palette/taste value was chosen.
+2. **Placement/motion implemented.** Nodes are below every painted node and share `trunk` (Bloomer) or `core` (Wisp), through the existing shared source anchor. Actual Godot transforms agree with their body owner in all 1,758 sampled poses within the existing 0.0001 tolerance. All motion keys now match the protected source byte for byte. Wisp’s 7,875 pre-existing node poses are exactly unchanged across 750 samples; see `wisp_runtime_equivalence.json`.
+3. **Identity/features/continuity.** All four rests differ by 0 RGBA pixels. Existing painted PNGs, including all 1,376 bleed texels, are unchanged. Every part, including each backing, has one 8-connected component. No detached component occurs in any pose. All seven protected features retain unchanged pixels, one painted node per visible view and their declared bone; see [per-feature results](features.md).
+4. **Strict new gates implemented, failing data reported.** [Per-clip maxima](per_clip.md) report inside visibility, outside protrusions and remaining holes. The inside limit passes: maximum Bloomer 0.15973%, Wisp 0.01693%, both below 3%. The outside tolerance remains 0 px. All remaining holes are outside the posed approved rest-alpha backing. Exact clip/frame/pixel counts are in [Bloomer TODO_DESIGN](shale-TODO_DESIGN.json) and [Wisp TODO_DESIGN](wisp-TODO_DESIGN.json); these are also recorded in each case's `proof/continuity.json`. Native after proof is pending.
+5. **Generic integration/proof.** The generic derive path installs this backing after ownership cleanup, underlays and bleed. Derivation reports material/rest success separately from pose acceptance; promotion refuses missing/invalid backing or unresolved continuity TODOs. Native proof now captures independent parts/backing layers for every pose, checks their alpha union against the composed native body, and measures actual native protrusions/visibility. Each file and helper is source-bound. Tests include colour/owner mutations, an orphan backing pixel, a widened gap exceeding 3%, a CPU hole closed by backing, and real body/shared-transform checks.
+6. **Cleanup/scope.** Restored `idle/tendril_high_r.raise_deg` at 0.5 from 4 to 5, removed the local amendment file/reference, recompiled from the unchanged protected motion source. The 1,376 bleed texels are retained exactly. Wisp adoption completed first (`director_windowed_run5_wisp_adopt.log` ends `MAQUETTE MOTION GATES: PASS (0 errors)`). Its production assets, captures and MP4 were pinned after that run and left untouched by this implementation. No promote/adoption, commit, review or windowed command was run by the worker.
+
+The diagnostic example `front_move/0019` retains 113 new enclosed background pixels outside the backing. The worst Bloomer protrusion is `front_death/0075`, 4,191 px; the Wisp worst is `front_death/0066`, 2,866 px. The exact worst pose IDs are authoritative in the per-clip table. Source-rendered before/after PNGs and binary outside/hole masks are in `output/rr-05/feedback7/cpu-evidence/`. These are CPU diagnostics, not native renderer proof.
+
+## Tests and probes
+
+Focused Python: 45 tests pass. Full Python: `Ran 655 tests in 714.082s` / `OK (skipped=61)`, including `GAOLER REBUILD: PASS (882 files)`. The previous 24 adoption failures are resolved. Full Godot: `TEST RESULT: FAIL (2 failure(s))` in 907.297s: section-map v2 was limited to the final 28 seconds (exit 124), then the unchanged 900-second budget prevented EN01 from starting. All seven interrupted/unstarted programs pass individually at the existing 180-second per-program timeout, including `Section map v2 suite: 0 failures (64 seeds x 6 sections)`. This repeats the feedback 6 budget failure; no assertion/timeout limit inside the suite was changed. [Exact commands, exit codes and result lines](verification.json); raw logs and repeatable helpers are in `output/rr-05/feedback7/`. Pixel gates must remain FAIL while the recorded TODOs exist. No acceptance success is claimed for those rigs. [CPU shimmer before/after](shimmer.md) is 0 held/0 boundary unexplained pixels after presentation for both creatures. Independent Pillow/NumPy percentile probes verify all four recorded colours. Historical native before counts remain in feedback 4/6; accepted native Wisp run 4 contains no detached components/new holes, and none of its outputs was overwritten. New backing native numbers require a fresh owner run.
+
+## Proof for the design owner
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-05
+bash experiments/cutouts/shale_bloomer/rr05/proof_for_design_owner.sh --from-native --creature shale_bloomer
+```
+
+The script retains derive → native review MP4 → promote → density adopt → rest rebake → production capture order, the `--from-native`, `--from-adopt`, and creature filters, and no inspection launch. **At present this command stops at the strict headless gate, before windowed capture, because the static backing fails the prescribed limits.** After a design resolution, it creates `output/rr-05/shale-native/**`, `shale_bloomer_review.mp4`, and `shale-production/**`. The equivalent Wisp command uses `--creature lightning_wisp`; its accepted production outputs were preserved. Full expanded windowed commands remain in the script and are duplicated in `owner_commands.md`.
+
+## TODO_DESIGN and chosen defaults
+
+`TODO_DESIGN_backing_outline` (both cases) records every protruding pose. `TODO_DESIGN_silhouette_<view>_<clip>_<frame>` records every remaining hole pose. No visibility-limit TODO is needed. A static rest outline cannot track independently moving tendrils, petals, root tips or Wisp's tail: the absent parts expose the backing's own rest shape. The colour, body attachment, mask, motion and acceptance limits remain exactly as prescribed pending that decision.
+
+[Chosen defaults](chosen_defaults.json) are only proof/test geometry, timeouts and diagnostic encoding. The luma definition and deterministic nearest-rank/source-coordinate tie rule are recorded beside the derivation. No new player-facing default was chosen. Full Godot's existing 900-second assertion is preserved; any budget failure is reported rather than rewritten.
+
+## Files changed for feedback 7
+
+- `tools/maquette_motion/backing.py`: derivation, data validation, CPU/native visibility metrics, native-layer consistency and exact TODO records.
+- `tools/maquette_cutout_polish.py`, `tools/maquette_cutout_build.py`: generic derive/gate/promote integration.
+- `features.py`, `feature_builder.py`, `silhouette.py`, `gates.py`: backing remains behind protected features, excluded from painted ownership/rest-hole donor assignment, included in silhouette and proof bindings.
+- `tests/maquette_cutout/backing_capture.gd`, `native_capture.gd`, `proof_inputs.gd`: every-pose native layers and input closure.
+- `tests/test_maquette_backing.py`, `tests/test_semantic_maquette_motion.py`: new backing regressions and restored protected motion contract.
+- Both creature cases: two backing PNGs, `backing.json`, layout nodes, generated provenance/baselines/continuity reports. Bloomer additionally restores its director copy/compiled motion and removes `director_amendments.json`.
+- This handoff, tables, TODOs, result records and root rr05 README. Earlier feedback evidence remains historical.
