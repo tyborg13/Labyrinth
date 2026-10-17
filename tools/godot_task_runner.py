@@ -15,6 +15,8 @@ import threading
 import time
 from typing import TextIO
 
+from windows_process_job import close_owned_job, spawn_owned_process
+
 
 FAILURE_MARKERS = (
     "SCRIPT ERROR:",
@@ -96,9 +98,17 @@ class RunnerInterrupted(BaseException):
 
 
 def terminate_windows_process_tree(process: subprocess.Popen[str]) -> None:
-    # Terminate the tree while its root still exists. TerminateProcess on the
-    # wrapper first would bypass Python's finally block and orphan Godot.
+    # Close even when the root already exited: the job still owns descendants.
+    # taskkill is the PID-specific fallback for legacy/unowned Popen instances
+    # or a job-close error, and must run before terminating a live root.
     deadline = time.monotonic() + WINDOWS_TREE_CLEANUP_SECONDS
+    try:
+        if close_owned_job(process):
+            process.wait(timeout=WINDOWS_TREE_CLEANUP_SECONDS)
+            return
+    except OSError:
+        if process.poll() is not None:
+            raise
     result = subprocess.run(
         ["taskkill", "/PID", str(process.pid), "/T", "/F"],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
@@ -112,8 +122,7 @@ def terminate_windows_process_tree(process: subprocess.Popen[str]) -> None:
 def terminate_process_tree(process: subprocess.Popen[str], *, platform: str | None = None) -> None:
     # The group may still contain descendants after its leader has exited.
     if (platform or os.name) == "nt":
-        if process.poll() is None:
-            terminate_windows_process_tree(process)
+        terminate_windows_process_tree(process)
         return
     else:
         try:
@@ -169,7 +178,7 @@ def run_task_command(command: list[str], project: Path, env: dict[str, str], tim
     threads: list[threading.Thread] = []
     timed_out = False
     try:
-        process = subprocess.Popen(
+        process = spawn_owned_process(
             command, cwd=str(project), env=env, text=True,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
             start_new_session=(os.name != "nt"),

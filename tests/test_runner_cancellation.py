@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Exercise Windows tree cancellation natively, or with taskkill semantics on POSIX."""
+"""Exercise launch-owned Windows jobs natively or through a Win32 simulation."""
 
 from __future__ import annotations
 
 from contextlib import nullcontext
+import ctypes
 import json
 import os
 from pathlib import Path
@@ -20,16 +21,19 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import godot_task_runner
 import program_suite_runner
+import windows_process_job as jobs
 
 FIXTURE_SLEEP_SECONDS = 60
 STARTUP_TIMEOUT_SECONDS = 5
 CLEANUP_TIMEOUT_SECONDS = 5
 POLL_SECONDS = 0.02
+SIMULATED_JOB_HANDLE = 100
+SIMULATED_SNAPSHOT_HANDLE = 101
+SIMULATED_THREAD_HANDLE = 102
 
 
 def process_alive(pid):
     if os.name == "nt":
-        import ctypes
         from ctypes import wintypes
         kernel = ctypes.WinDLL("kernel32", use_last_error=True)
         kernel.OpenProcess.restype = wintypes.HANDLE
@@ -51,25 +55,151 @@ def process_alive(pid):
         return False
 
 
+def kill_pids(pids):
+    for pid in reversed(pids):
+        try:
+            os.kill(pid, signal.SIGTERM if os.name == "nt" else signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+
+
+class SimulatedKernel:
+    """Simulate the Win32 boundary, retaining membership after the root exits.
+
+    The fixture is gated until ResumeThread. Its PID file represents the OS's
+    inherited job membership, independent of whether its root is still alive.
+    The implementation above this boundary is the actual ctypes job code.
+    """
+    def __init__(self, case, gate, pid_file):
+        self.case, self.gate, self.pid_file = case, gate, pid_file
+        self.events = []
+        self.pid = None
+
+    def CreateJobObjectW(self, security, name):
+        self.case.assertIsNone(security)  # Non-inheritable owner handle.
+        self.case.assertIsNone(name)
+        self.events.append("create")
+        return SIMULATED_JOB_HANDLE
+
+    def SetInformationJobObject(self, handle, kind, pointer, size):
+        self.case.assertEqual(handle, SIMULATED_JOB_HANDLE)
+        self.case.assertEqual(kind, jobs.JOB_OBJECT_EXTENDED_LIMIT_INFORMATION)
+        limits = ctypes.cast(pointer, ctypes.POINTER(jobs.ExtendedLimitInformation)).contents
+        self.case.assertEqual(limits.BasicLimitInformation.LimitFlags, jobs.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE)
+        self.case.assertEqual(size, ctypes.sizeof(jobs.ExtendedLimitInformation))
+        self.events.append("kill-on-close")
+        return True
+
+    def AssignProcessToJobObject(self, handle, process_handle):
+        self.case.assertEqual(handle, SIMULATED_JOB_HANDLE)
+        self.case.assertFalse(self.gate.exists(), "Child must not execute before assignment")
+        self.pid = process_handle
+        self.events.append("assign")
+        return True
+
+    def CreateToolhelp32Snapshot(self, flags, pid):
+        self.case.assertEqual((flags, pid), (jobs.TH32CS_SNAPTHREAD, 0))
+        return SIMULATED_SNAPSHOT_HANDLE
+
+    def Thread32First(self, snapshot, pointer):
+        self.case.assertEqual(snapshot, SIMULATED_SNAPSHOT_HANDLE)
+        # Include an unrelated thread to exercise PID filtering and Thread32Next.
+        entry = ctypes.cast(pointer, ctypes.POINTER(jobs.ThreadEntry)).contents
+        entry.th32OwnerProcessID = self.pid + 1
+        return True
+
+    def Thread32Next(self, snapshot, pointer):
+        entry = ctypes.cast(pointer, ctypes.POINTER(jobs.ThreadEntry)).contents
+        entry.th32OwnerProcessID = self.pid
+        entry.th32ThreadID = self.pid
+        return True
+
+    def OpenThread(self, access, inherit, thread):
+        self.case.assertEqual((access, inherit, thread), (jobs.THREAD_SUSPEND_RESUME, False, self.pid))
+        return SIMULATED_THREAD_HANDLE
+
+    def ResumeThread(self, thread):
+        self.case.assertEqual(thread, SIMULATED_THREAD_HANDLE)
+        self.case.assertEqual(self.events, ["create", "kill-on-close", "launch-suspended", "assign"])
+        self.events.append("resume")
+        self.gate.touch()
+        return 1
+
+    def CloseHandle(self, handle):
+        if handle == SIMULATED_JOB_HANDLE:
+            self.events.append("close-job")
+            members = json.loads(self.pid_file.read_text()) if self.pid_file.exists() else [self.pid]
+            kill_pids([pid for pid in members if pid is not None])
+        else:
+            self.case.assertIn(handle, (SIMULATED_THREAD_HANDLE, SIMULATED_SNAPSHOT_HANDLE))
+        return True
+
+
 class WindowsTreeCancellationTests(unittest.TestCase):
-    def test_windows_cancellation_paths_leave_no_child_or_grandchild(self):
+    def test_assignment_failure_never_resumes_an_unowned_child(self):
+        process = mock.Mock(pid=123, _handle=456)
+        job = mock.Mock()
+        job.assign.side_effect = OSError("assignment denied")
+        with mock.patch.object(jobs.subprocess, "Popen", return_value=process) as launch:
+            with self.assertRaisesRegex(OSError, "assignment denied"):
+                jobs.spawn_owned_process(["unused"], platform="nt", job_factory=lambda: job)
+        self.assertEqual(launch.call_args.kwargs["creationflags"], jobs.CREATE_SUSPENDED)
+        job.resume.assert_not_called()
+        process.kill.assert_called_once_with()
+        process.wait.assert_called_once_with()
+        job.close.assert_called_once_with()
+
+    def test_launch_owned_jobs_clean_alive_and_exited_roots(self):
+        for entry in (program_suite_runner.stop_wrapper, godot_task_runner.terminate_process_tree):
+            for root_exits in (False, True):
+                with self.subTest(entry=entry.__name__, root_exits=root_exits), tempfile.TemporaryDirectory() as directory:
+                    self.assert_tree_cleanup(entry, Path(directory), root_exits, owned=True)
+
+    def test_taskkill_fallback_requires_owned_pid_tree_and_force_and_spares_unrelated(self):
         for entry in (program_suite_runner.stop_wrapper, godot_task_runner.terminate_process_tree):
             with self.subTest(entry=entry.__name__), tempfile.TemporaryDirectory() as directory:
-                self.assert_tree_cleanup(entry, Path(directory))
+                self.assert_tree_cleanup(entry, Path(directory), False, owned=False)
 
-    def assert_tree_cleanup(self, entry, directory):
-        pid_file = directory / "pids.json"
-        # Ignore SIGCHLD on POSIX so the simulated utility doesn't leave zombies
-        # in the process-liveness assertions. Windows uses its real taskkill.
+    def assert_tree_cleanup(self, entry, directory, root_exits, owned):
+        pid_file, gate = directory / "pids.json", directory / "resume"
+        # SIGCHLD=IGN avoids zombies in the POSIX liveness simulation.
         setup = "import os,signal,subprocess,sys,time,json\nif hasattr(signal,'SIGCHLD'): signal.signal(signal.SIGCHLD,signal.SIG_IGN)\n"
         leaf = "import time;time.sleep(%d)" % FIXTURE_SLEEP_SECONDS
         child = (setup + "p=subprocess.Popen([sys.executable,'-c',%r])\n" % leaf
                  + "open(%r,'w').write(json.dumps([os.getppid(),os.getpid(),p.pid]))\n" % str(pid_file)
                  + "time.sleep(%d)\n" % FIXTURE_SLEEP_SECONDS)
-        parent = setup + "p=subprocess.Popen([sys.executable,'-c',%r])\ntime.sleep(%d)\n" % (child, FIXTURE_SLEEP_SECONDS)
-        process = subprocess.Popen([sys.executable, "-c", parent], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        parent = setup
+        if owned and os.name != "nt":
+            parent += "while not os.path.exists(%r): time.sleep(%r)\n" % (str(gate), POLL_SECONDS)
+        parent += "p=subprocess.Popen([sys.executable,'-c',%r])\n" % child
+        if root_exits:
+            parent += "while not os.path.exists(%r) or not os.path.getsize(%r): time.sleep(%r)\n" % (str(pid_file), str(pid_file), POLL_SECONDS)
+        else:
+            parent += "time.sleep(%d)\n" % FIXTURE_SLEEP_SECONDS
+        command = [sys.executable, "-c", parent]
+        real_popen = subprocess.Popen
+        unrelated = real_popen([sys.executable, "-c", leaf])
+        kernel = SimulatedKernel(self, gate, pid_file)
+
+        def simulated_popen(command, **kwargs):
+            self.assertEqual(kwargs.pop("creationflags"), jobs.CREATE_SUSPENDED)
+            kernel.events.append("launch-suspended")
+            process = real_popen(command, **kwargs)
+            process._handle = process.pid
+            return process
+
         pids = []
+        process = None
         try:
+            kwargs = dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            if not owned:
+                process = real_popen(command, **kwargs)
+            elif os.name == "nt":
+                process = jobs.spawn_owned_process(command, **kwargs)
+            else:
+                with mock.patch.object(jobs.subprocess, "Popen", side_effect=simulated_popen):
+                    process = jobs.spawn_owned_process(command, platform="nt",
+                                                       job_factory=lambda: jobs.WindowsJob(kernel), **kwargs)
             deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
             while time.monotonic() < deadline:
                 if pid_file.exists() and pid_file.stat().st_size:
@@ -78,17 +208,16 @@ class WindowsTreeCancellationTests(unittest.TestCase):
                 time.sleep(POLL_SECONDS)
             self.assertEqual(len(pids), 3, "Fixture tree did not start")
             self.assertEqual(pids[0], process.pid)
+            if root_exits:
+                self.assertEqual(process.wait(timeout=STARTUP_TIMEOUT_SECONDS), 0)
+            else:
+                self.assertIsNone(process.poll())
 
             def simulated_taskkill(command, **_kwargs):
-                # Emulate /T faithfully: without it, only the wrapper dies and
-                # the descendant-liveness assertions below fail.
-                self.assertEqual(command[:3], ["taskkill", "/PID", str(process.pid)])
-                targets = reversed(pids) if "/T" in command else [process.pid]
-                for pid in targets:
-                    try:
-                        os.kill(pid, signal.SIGKILL)
-                    except ProcessLookupError:
-                        pass
+                # No substring/prefix checks: losing /F, /T or the owned PID
+                # must fail before this simulation sends any signal.
+                self.assertEqual(command, ["taskkill", "/PID", str(process.pid), "/T", "/F"])
+                kill_pids(pids)
                 return subprocess.CompletedProcess(command, 0, "", "")
 
             context = nullcontext() if os.name == "nt" else mock.patch.object(
@@ -99,13 +228,19 @@ class WindowsTreeCancellationTests(unittest.TestCase):
             while any(process_alive(pid) for pid in pids) and time.monotonic() < deadline:
                 time.sleep(POLL_SECONDS)
             self.assertEqual([pid for pid in pids if process_alive(pid)], [])
+            self.assertIsNone(unrelated.poll(), "Cancellation must spare unrelated processes")
+            if owned and os.name != "nt":
+                self.assertEqual(kernel.events[-1], "close-job")
+                entry(process, platform="nt")  # Idempotent after root/job exit.
+                self.assertEqual(kernel.events.count("close-job"), 1)
         finally:
-            for pid in reversed(pids):
-                if process_alive(pid):
-                    os.kill(pid, signal.SIGTERM if os.name == "nt" else signal.SIGKILL)
-            if process.poll() is None:
-                process.kill()
-            process.wait(timeout=CLEANUP_TIMEOUT_SECONDS)
+            kill_pids(pids)
+            if process is not None:
+                if process.poll() is None:
+                    process.kill()
+                process.wait(timeout=CLEANUP_TIMEOUT_SECONDS)
+            unrelated.kill()
+            unrelated.wait(timeout=CLEANUP_TIMEOUT_SECONDS)
 
 
 if __name__ == "__main__":

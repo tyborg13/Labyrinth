@@ -24,7 +24,11 @@ CASE_SLEEP_SECONDS = 0.25
 TEST_TIMEOUT_SECONDS = 15
 STARTUP_TIMEOUT_SECONDS = 5
 POLL_SECONDS = 0.02
-EXTRACTED_PROGRAMS = ["suites/full_scene_presentation_program", "suites/full_scene_interaction_program"]
+EXTRACTED_PROGRAMS = [
+    "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
+    "suites/full_scene_clock_program",
+    "suites/full_scene_interaction_program",
+]
 DEADLINE_BUDGET_SECONDS = 0.3
 DEADLINE_CLEANUP_SECONDS = 0.04
 
@@ -96,8 +100,8 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
     def test_manifest_preserves_all_existing_children_and_order(self):
         self.assert_complete_manifest(runner.SUITES)
 
-    def test_removing_either_or_both_extracted_programs_fails_manifest_guard(self):
-        for removed in ([EXTRACTED_PROGRAMS[0]], [EXTRACTED_PROGRAMS[1]], EXTRACTED_PROGRAMS):
+    def test_removing_any_extracted_program_fails_manifest_guard(self):
+        for removed in ([name] for name in EXTRACTED_PROGRAMS):
             with self.subTest(removed=removed), self.assertRaises(AssertionError):
                 self.assert_complete_manifest([name for name in runner.SUITES if name not in removed])
 
@@ -262,6 +266,11 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # Intentionally omit namespace initialization, as en02/en04 used to do.
         (project / "tests/early_storage.gd").write_text('''extends SceneTree
 func _initialize() -> void:
+\tvar requested: String = OS.get_environment("LABYRINTH_USER_DIR_NAME")
+\tif requested.is_empty() or preload("res://scripts/parallel_runtime.gd").current_namespace() != requested or ProjectSettings.get_setting("application/config/custom_user_dir_name", "") != requested:
+\t\tprint("TEST RESULT: FAIL namespace not initialized before persistence")
+\t\tquit(1)
+\t\treturn
 \tvar path: String = ProjectSettings.globalize_path("user://early-storage.json")
 \tFileAccess.open(path, FileAccess.WRITE).store_string("isolated")
 \tprint("EARLY STORAGE: " + path)
@@ -286,6 +295,26 @@ func _initialize() -> void:
             resolved.append(paths)
         for field in ("user_data", "user_file", "log_file"):
             self.assertEqual(len({row[field] for row in resolved}), 2, field)
+
+        original = runner.write_child_bootstrap
+
+        def omit_namespace_initialization(path, suite):
+            original(path, suite)
+            path.write_text(path.read_text().replace(
+                '\tpreload("res://scripts/parallel_runtime.gd").apply_from_environment()\n', ""))
+
+        args = argparse.Namespace(project=project, task_id="namespace-mutation", godot=shutil.which("godot"),
+                                  result_file=self.directory / "mutation.json", jobs=1, timeout=5,
+                                  budget=10, suite=["early_storage"])
+        with mock.patch.object(runner, "write_child_bootstrap", side_effect=omit_namespace_initialization):
+            report = runner.run_suites(args, threading.Event())
+        self.assertTrue(report["failed"], "Removing bootstrap initialization must fail before persistence")
+        self.assertEqual(report["results"][0]["name"], "early_storage")
+        log = Path(report["results"][0]["log_path"]).read_text()
+        self.assertIn("FAIL namespace not initialized before persistence", log)
+        self.assertNotIn("EARLY STORAGE:", log)
+        paths = json.loads(re.search(r"^PROGRAM SUITE PATHS: (.+)$", log, re.M)[1])
+        self.assertFalse((Path(paths["user_data"]) / "early-storage.json").exists())
 
     def run_godot_fixture(self, cases, timeout=5):
         command = [sys.executable, str(ROOT / "tools/godot_task_runner.py"), "--task-id", "qa-07",

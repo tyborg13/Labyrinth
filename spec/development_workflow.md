@@ -62,11 +62,16 @@ order, regardless of completion order. Any child failure, script failure marker,
 launch error or timeout fails the full run and names the child. Closing the
 parent pipe cancels the scheduler and terminates its children.
 
-On Windows, cancellation uses [`taskkill /PID <wrapper> /T /F`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/taskkill) while the wrapper
-still exists, so the whole descendant tree is terminated before any separate
-wrapper termination can bypass its cleanup. The task runner uses the same tree
-operation for its own Windows cleanup, with a five-second cleanup limit.
-POSIX retains process-group termination and its parent-death watchdog.
+On Windows, both runners create a non-inheritable, kill-on-close Job Object
+with `ctypes`, launch each child suspended, assign it to the job, then resume
+its initial thread. The owner retains the job handle until cleanup, including
+after the root exits; owner death closes the handle too. Descendants inherit
+membership and cannot break away. Nested jobs require Windows 8 or later.
+Assignment/resume failures kill the suspended child and fail the launch.
+[`taskkill /PID <owned-pid> /T /F`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/taskkill)
+remains the fallback for unowned processes or a job-close error while the root
+is alive. POSIX retains process-group termination and its parent-death watchdog.
+See [Windows Job Object semantics](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects).
 
 `tools/program_suite_runner.py:SUITES` contains the complete program manifest:
 en04/en05/en06 and static_facing first, then combat_feel (including
@@ -74,8 +79,11 @@ combat_pacing_regression), event_view, event_rules, biome, health_ghost,
 movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank,
 sfx_sync_bank, sfx_sync_harness (with onset assertions), section_map_v2,
 en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The final
-two children under `tests/suites/` run the former in-process live scene
-presentation and interaction blocks, inheriting their unchanged test bodies.
+four children under `tests/suites/` run scene presentation/cutouts, live
+audio/map/card controls, turn-clock/card-pool presentation, and scene
+interaction, inheriting their unchanged test bodies. Presentation was split
+into three coherent children to keep each well below the 180-second cap under
+concurrent suite load.
 Keep coherent domains in focused suites rather than adding to the main body.
 
 Use the unchanged 900-second hard cap for the complete command (each child also
@@ -99,15 +107,26 @@ separate from content assertions.
 `tests/test_program_suite_runner.py` exercises concurrency, isolation, ordered
 output, named failures, timeouts, the overall deadline and parent cancellation,
 including a real headless Godot parent fixture. Its manifest guard requires the
-complete ordered list, including both extracted programs. Its deadline guard
+complete ordered list, including all four extracted programs. Its deadline guard
 uses a controlled monotonic clock and bounded simulated cleanup; a doubled
-budget must fail the guard. `tests/test_runner_cancellation.py` runs the Windows
-tree-cancellation branches natively on Windows, or simulates `taskkill` on POSIX
-while checking real child/grandchild liveness. The qa-07 verification was native
-macOS headless Godot and POSIX cancellation; Windows tree semantics and Windows
-executable spellings were simulated. APPDATA and XDG environment roots were
-checked in child processes; native Windows/Linux Godot path resolution remains
-unverified by that proof.
+budget must fail the guard. The native early-storage fixture asserts the
+requested namespace before its first write; deleting bootstrap initialization
+must fail without creating that file. `tests/test_runner_cancellation.py`
+exercises the Windows ctypes job implementation through a simulated Win32 API
+on POSIX, checking suspended launch, assignment before resume, kill-on-close,
+and real child/grandchild liveness with both alive and already-exited roots.
+It also asserts the complete fallback command (owned PID, `/T`, `/F`) and that
+an unrelated process survives. On Windows those same tree fixtures use native
+Job Objects and taskkill instead of the simulation.
+
+The qa-07 proof is native macOS headless Godot and POSIX cancellation. Windows
+Win32 calls and taskkill semantics were simulated on POSIX; native Windows Job
+Objects/taskkill and Windows/Linux Godot path resolution remain unverified.
+APPDATA/XDG root creation and isolation are checked in actual child environments.
+The load proof runs three consecutive complete suites with a separate Godot
+program continuously running alongside them; the full runner still owns at
+most four Godot processes, plus the independent load process. Keep the 180/900
+second caps when repeating this proof.
 
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
 

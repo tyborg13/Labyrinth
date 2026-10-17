@@ -14,6 +14,7 @@ import threading
 import time
 
 from godot_task_runner import TIMEOUT_RETURN_CODE, slugify, terminate_windows_process_tree
+from windows_process_job import spawn_owned_process
 
 
 # Keep the historical order, including the static-facing additions that ran first.
@@ -25,7 +26,9 @@ SUITES = (
     "sfx_sync_harness", "section_map_v2_test", "en01_enemies_test",
     "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test",
     "run_end_recap_tests", "main_menu_resume_test",
-    "suites/full_scene_presentation_program", "suites/full_scene_interaction_program",
+    "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
+    "suites/full_scene_clock_program",
+    "suites/full_scene_interaction_program",
 )
 MAX_CHILDREN = 3  # The owning main-body Godot occupies the fourth process slot.
 SUITE_TIMEOUT_SECONDS = 180.0
@@ -69,10 +72,10 @@ def write_report(path: Path, report: dict) -> None:
 
 def stop_wrapper(process: subprocess.Popen, *, platform: str | None = None) -> None:
     # The wrapper handles TERM and cleans its own Godot session and descendants.
+    if (platform or os.name) == "nt":
+        terminate_windows_process_tree(process)
+        return
     if process.poll() is None:
-        if (platform or os.name) == "nt":
-            terminate_windows_process_tree(process)
-            return
         process.terminate()
         try:
             process.wait(timeout=WRAPPER_CLEANUP_SECONDS)
@@ -129,7 +132,7 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event, *, clock=ti
                 child_start = clock()
                 timeout = min(args.timeout, deadline - child_start)
                 try:
-                    process = subprocess.Popen(
+                    process = spawn_owned_process(
                         child_command(args, suites[index], timeout, bootstrap, child_directory / "godot.log"), cwd=args.project,
                         stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
                     )
@@ -148,6 +151,7 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event, *, clock=ti
                     code = TIMEOUT_RETURN_CODE
                     reason = "task wrapper timed out"
                 if code is not None:
+                    stop_wrapper(process)
                     log.close()
                     finish(index, code, clock() - child_start, log_path, reason)
                     del active[index]
