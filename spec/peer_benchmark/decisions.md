@@ -96,3 +96,6 @@
 - 2026-10-17 Roster wave 1 (the 11 new enemies) keeps their owner-approved art-02 paintings: they are already in the
   3/4 board facing and the house hand. Maquettes are fitted to that art to give the rigs parts and joints. They are
   repainted only if a fit or pose fails. Batch A = the four humanoids (mq-04); director part lists are in the brief.
+- 2026-10-17 Gale Herald banners: both approved paintings trail the banners screen-right, which reads as one consistent
+  wind direction on screen. The maquette gets a per-view cloth pose for the banners only; the body, joints and other
+  parts stay one model turned 180°. The rule applies to any figure whose approved views share a wind direction.
