@@ -1,0 +1,76 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "frostglass_lancer",
+  "job_id": "mq-lancer-rear-r4",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "a6bf0fc5bddf312874efcc6e3fd8436d136d635b0df94c739c1cd010571ebcc2",
+  "method": "maquette paint-over r4 rear from the r3c maquette (matches mq4_front)",
+  "peers": [
+    "glacial_mirror_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "888dc053872c391e349fb59252ae4c6aac05550b4b1789636771a2631c4ff838",
+  "prompt_source": "spec/art_identity/maquettes/frostglass_lancer/prompt_rear_r3.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_r4.json",
+          "sha256": "354f46b1afe148a233ccf8ad4e2b3c28a5a3a2a0c3aaf4e62d6e351e599af91d"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "5108b36a4697d6e3ff47b5bad7f2757f3219c937ac1a2a25108ad307c543f09d"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "9f2423cef1ed630c809c2d270dd9c9a1af243b4578271f604a40941482a62f4f",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_r3c",
+      "file": "refs/01_maquette_rear_parts_r3c.png",
+      "pixel_sha256": "c5fa6241eafe76c5c4b805bf770afbfb55d4493264392dcf7b17e6c139a7321d",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r4/refs/01_rear_parts_r3c.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_r3c",
+      "file": "refs/02_maquette_rear_clay_r3c.png",
+      "pixel_sha256": "f80962db56c69ad3574ce81002d270274bcee7a05350656afc3742a428cb69b6",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r4/refs/02_rear_clay_r3c.png"
+    },
+    {
+      "canon_id": "lancer_front_r4_raw",
+      "file": "refs/03_lancer_front_r4_raw.png",
+      "pixel_sha256": "a756b22e61e24c03a15c030a211798c7c6176a617bc0e3e001c5d0747f4171ba",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r4/refs/03_lancer_front_r4.png"
+    },
+    {
+      "canon_id": "glacial_mirror_rear",
+      "file": "refs/04_glacial_mirror_rear.png",
+      "pixel_sha256": "00f8011727f155d8f97a9ac174b49c5347a6b064fee872484f6926cd55dfcb87",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r4/refs/04_glacial_mirror_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r4/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 240,
+  "view": "creature_rear"
+}

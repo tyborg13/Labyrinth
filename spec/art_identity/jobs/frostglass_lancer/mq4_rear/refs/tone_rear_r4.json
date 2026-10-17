@@ -1,0 +1,24 @@
+[
+ {
+  "name": "rear warm metal/leather/shaft -> front's duller steel and brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.1,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   1.0,
+   0.65,
+   0.65
+  ],
+  "box": [
+   0,
+   0,
+   1024,
+   1024
+  ],
+  "seed": null
+ }
+]
