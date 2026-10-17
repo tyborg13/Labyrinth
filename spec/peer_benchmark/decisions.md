@@ -61,3 +61,19 @@
 - Spell/magic slot limit: dropped entirely. Spells go straight into the deck (no equipping after fights); deck
   dilution is the cost, so card removal must be available.
 - 2026-10-17 Opening boons list approved by the owner (review inbox item boons-list) exactly as proposed → boon-01.
+- 2026-10-17 Roster plan posted to the review inbox (item roster-plan, awaiting the owner): waves 1–5 (static 11 →
+  frequent regulars → other regulars/helpers → guardians → dragons), per enemy: Codex maquette via the bridge,
+  director review, front/rear paint-over, rig, 60 fps clip to the inbox in batches of ~4.
+- 2026-10-17 Frostglass Lancer r4 front painting approved by the owner (3/4 board facing). The rear r4 is held for one
+  fix: it painted ~8% shorter than the front (hood tip 17 canvas px lower) with the cloak dragging on the ground. The
+  repaint matches the front height (hood tip y 84, soles y 980 in the 1024 frame) and has a mid-calf hem with the
+  boots visible. A front/rear height mismatch pops when a rig turns.
+- 2026-10-17 rr-05 feature masks (director data, staged/rr-05/features): Bloomer crown gem → core (both views);
+  amber nodules → trunk (front 3, rear 2, explicit occlusion otherwise); Wisp eye → core (rear occluded). Masks are the
+  gem/eye body + 1 px rim (eye 2 px), holes filled.
+- 2026-10-17 boon-01 decisions: Armory = random **rare** piece (no uncommon equipment tier exists; one step above the
+  starters, as intended); Vitality +6 max and +6 current HP; resume label `CHOOSING AN HEIRLOOM`; secondary back
+  label `Back`. Offer screen uses the post-combat reward idiom (three 300x400 cards with column tags, a `Take nothing`
+  pill styled like SKIP & RECOVER, NPC dialogue box at the bottom); spell picks reuse the reward banner and card row.
+- 2026-10-17 mq-03 cloak ownership: the cloth cloak splits per view by depth around the torso centre plane
+  (far → cape_far, near/tie → cape_near), so cutout rigs keep two cape parts.
