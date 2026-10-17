@@ -85,6 +85,11 @@ static func payout(state: Dictionary) -> Dictionary:
 	return {"hp": state["player_hp"], "embers": Run.new().held_embers(state), "relics": state["relics"].duplicate(), "shards": state["progression"]["moltshards"]}
 
 static func run(expect: Callable) -> void:
+	var probe := RichTextLabel.new()
+	probe.name = "PlaceholderProbe"
+	probe.add_text("TODO_DESIGN_LEGACY_REWARD_RULES")
+	expect.call(placeholder_labels(probe, false).has("PlaceholderProbe"), "Placeholder guard reads parsed rich text, not only .text")
+	probe.free()
 	var pose: Dictionary = Transition.presentation_at(0.24, false)
 	expect.call(is_zero_approx(float(pose["reward_alpha"])) and is_zero_approx(float(pose["camera_y"])), "Reward fades first for 0.24 seconds")
 	pose = Transition.presentation_at(0.7, false)
@@ -454,11 +459,25 @@ static func assert_reward_screen(host: Node, boss_id: String, relic_id: String, 
 	for row: String in ["DragonRewardPayout", "DragonRewardShard"]:
 		var label: Label = host.find_child(row, true, false)
 		expect.call(label != null and label.is_visible_in_tree() if totals else label == null, "Totals row visible only for a complete recorded summary: " + row)
-	for node: Node in host.find_children("*", "", true, false):
-		if (node is Label or node is RichTextLabel) and (node as Control).is_visible_in_tree():
-			expect.call(not str(node.get("text")).contains("TODO_DESIGN"), "No visible label contains internal design placeholders: " + str(node.name))
+	var placeholders: Array[String] = placeholder_labels(host)
+	expect.call(placeholders.is_empty(), "No visible label contains internal design placeholders: " + ", ".join(placeholders))
 	var button: Button = host.find_child("DragonRewardContinue", true, false)
 	expect.call(button != null and button.is_visible_in_tree() and button.text == "CONTINUE", "Known-only legacy reward retains CONTINUE")
+
+static func placeholder_labels(root: Node, require_visible: bool = true) -> Array[String]:
+	# Rich labels built with add_text() keep .text empty, so read their parsed text.
+	var found: Array[String] = []
+	var nodes: Array = [root]
+	nodes.append_array(root.find_children("*", "", true, false))
+	for node: Node in nodes:
+		if not (node is Label or node is RichTextLabel):
+			continue
+		if require_visible and not (node as Control).is_visible_in_tree():
+			continue
+		var shown: String = (node as RichTextLabel).get_parsed_text() if node is RichTextLabel else (node as Label).text
+		if shown.contains("TODO_DESIGN"):
+			found.append(str(node.name))
+	return found
 
 static func _skip_input(kind: String) -> InputEvent:
 	if kind == "click":
