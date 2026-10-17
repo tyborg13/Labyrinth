@@ -1,12 +1,13 @@
 # boon-01 implementation and proof
 
-**Current handoff: feedback 3.** The appended feedback-3 section supersedes
+**Current handoff: feedback 4.** The appended feedback-4 section supersedes
+the terminal resume repair and two recovery guard tests. Feedback 3 supersedes
 earlier persistence recovery and relic rules fitting. Feedback 2 supersedes
 round-1 secondary layout and tooltip behavior.
 The director inspected and approved the round-1 offer composition.
 
 Design authority: `spec/peer_benchmark/briefs/boon-01.md` (2026-10-17), plus
-**boon-01 feedback 1, 2 and 3** supplied in the implementation conversation. Feedback 1
+**boon-01 feedback 1–4** supplied in the implementation conversation. Feedback 1
 resolves all five original design placeholders. No approved art, fonts, audio,
 card/equipment definitions, task queue or Git history was changed. All changes
 remain uncommitted on `codex/boon-01`. Risk: **high** (run state, progression,
@@ -499,3 +500,111 @@ The runner prints exact PNG paths beneath isolated
 `user://opening_boon_probe/1920x1080/`. It retains all 11 captures, including
 `offer_with_heirloom.png` and `secondary_open_no_tooltip.png`. Headless metrics
 are not renderer proof. No inspection-fixture command is required by feedback 3.
+
+## Feedback 4 — terminal resume wallet and recovery guard coverage
+
+The delta review is
+`codex/peer-benchmark:spec/peer_benchmark/feedback/boon-01_review_c67fa8aa6.md`.
+Its two findings are addressed in the recovery/settlement path:
+
+1. `_authoritative_profile_progression` repairs a strictly newer, settled
+   terminal snapshot's wallet together with its result receipt. The terminal
+   mode and existing `heirloom_terminal_wallet` marker identify settlement;
+   the existing revision comparison still makes equal/newer disk profiles
+   authoritative. Active runs retain the existing held-versus-banked policy.
+   The regression fails profile writes during victory settlement and Leave
+   nothing, restores writes, destroys the old scene, resumes through the
+   production startup path in a fresh scene, and checks **120 banked Embers**
+   before replacement and **120 held Embers** in the next descent.
+2. Recovery's acknowledgment writer defaults to `ProgressionStore.save_data`.
+   The focused test substitutes a callback that fails exactly one write and
+   immediately restores the normal writer. Later profile writes are available,
+   so new-descent persistence cannot mask a missing acknowledgment guard.
+   Rollback fixtures now start from durable **unprocessed** victory and defeat
+   snapshots with 120 held Embers, for both Leave nothing and leaving a piece.
+   They assert unchanged gameplay, live/durable progression, run/analytics
+   receipts and all four terminal bookkeeping fields after the failed save.
+
+Changed files for this delta: `scripts/run_scene.gd`,
+`scripts/opening_boon_recovery.gd`, `tests/opening_boon_recovery_test.gd`, and
+this report. No new checks, waits or scene startups enter the serial full
+Godot suite; the expanded recovery runner remains focused-only.
+
+### Feedback-4 TODOs, chosen defaults and proof scope
+
+No TODO_DESIGN placeholders or new player-facing values. The only new test
+default is `_acknowledgment_failures=0`, a counter verifying the single
+injected failure. The production writer defaults to the existing profile save
+function. Wallet, paths, coordinates, settle timing and focused/full budgets
+reuse the existing named fixtures and limits. No perceptible design changed.
+
+No windowed run was attempted: this delta changes recovery and tests only.
+There are no new captures. The existing owner-run proof command above and
+the 11-capture contract remain available; no new fixture command is required.
+
+### Feedback-4 verification
+
+All Godot invocations use `tools/godot_task_runner.py --task-id boon-01
+--stream -- godot --headless --path . --script <script>`, with a 120-second
+focused budget and unchanged 900-second full-suite budget.
+
+- Focused boons, `tests/opening_boon_test.gd`: exit **0**,
+  `/private/tmp/boon-01-r4-focused.log`:
+  `OPENING BOON TEST RESULT: PASS`, `TEST RESULT: PASS`.
+- Final recovery, `tests/opening_boon_recovery_test.gd`: exit **0**,
+  `/private/tmp/boon-01-r4-recovery-final.log`:
+  `BOON RECOVERY: failed victory settlement / Leave nothing / fresh-scene resume bank=120 / next descent held=120 checked`,
+  `OPENING BOON RECOVERY TEST RESULT: PASS`, `TEST RESULT: PASS`.
+  Deliberately injected persistence failures print expected errors.
+- Guard-removal experiments: `/private/tmp/boon-01-r4-mutations.json`,
+  `BOON DELTA MUTATIONS: 3 caught, 0 survived; source restored`.
+  The two reviewed guards and the new wallet repair each fail their intended
+  regression assertion when removed, with no parser or script runtime error.
+  The first experiment pass exposed an unsafe direct test lookup after a
+  deliberately incorrect replacement; the test now uses `get`, and all three
+  final experiments fail through assertions. All mutations were reverted.
+- Supplemental `tests/skill_progression_analytics_test.gd`: exit **1**,
+  `/private/tmp/boon-01-r4-skill-analytics.log`:
+  `TEST RESULT: FAIL (2 failures)` — `Terminal outbox fixture should reach the
+  final victory boundary` and `A terminal boundary should clear the resumable
+  run`. Both failures reproduce with the two changed runtime files restored
+  temporarily to unchanged HEAD `c67fa8aa6`:
+  `/private/tmp/boon-01-r4-skill-analytics-baseline.log`, same result line and
+  assertions. The held-versus-banked Ember assertions pass in both versions.
+  No existing assertion or unrelated fixture was rewritten. Feedback-4 source
+  was restored byte-for-byte before broader verification.
+- Python discovery: exit **0**, `python3 -m unittest discover -s tests
+  -p 'test_*.py' -v`, `/private/tmp/boon-01-r4-full-python.log`:
+  `Ran 670 tests in 659.888s`, `OK (skipped=63)`.
+- Full Godot, `tests/run_tests.gd`: exit **124**,
+  `/private/tmp/boon-01-r4-full-godot.log`:
+  `error: command timed out after 900 seconds.`,
+  `FULL GODOT COMMAND WALL TIME: 900.147 seconds`,
+  `FULL GODOT COMMAND EXIT: 124`.
+  The last completed program was `PROGRAM SUITE sfx_sync_harness: PASS`
+  (`SFX SYNC HARNESS RESULT: PASS (4010 observations, 0 failures)`). No
+  assertion failure, `TEST RESULT: FAIL`, parser error or script error appears
+  before timeout. The remaining full-suite tail did not complete; this is
+  **not a full-suite PASS**. As explicitly allowed in feedback 4, the budget
+  timeout alone is not a blocker. No budget increase or second attempt.
+
+The two pre-existing supplemental skill-analytics failures and the incomplete
+full-suite run remain reported open issues. This delta adds no full-suite
+program or wait and does not alter those unrelated assertions. All changes
+remain uncommitted. No peer review, agent delegation, task queue change,
+commit, branch change, publication action or director-capture edit performed.
+Final `git diff --check`: exit **0**.
+
+### Feedback-4 proof for the design owner
+
+No new renderer proof is needed for the recovery-only delta; existing captures
+were preserved. If rerunning the unchanged 1920×1080, 100% scale contract:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/boon-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/opening_boon_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/boon-01-r4-visual.json tests/opening_boon_probe.gd --task-id boon-01
+```
+
+The exact capture directory is printed beneath isolated
+`user://opening_boon_probe/1920x1080/`; the contract retains all 11 captures.
+This command was not run by this worker. No inspection-fixture command is
+required for feedback 4.

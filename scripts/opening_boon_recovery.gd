@@ -5,6 +5,9 @@ extends RefCounted
 const Store = preload("res://scripts/progression_store.gd")
 const Rules = preload("res://scripts/opening_boon_rules.gd")
 const Run = preload("res://scripts/run_engine.gd")
+# Keep acknowledgment persistence injectable without changing other profile
+# writes; focused recovery tests replace this for exactly one failed attempt.
+static var profile_writer: Callable = Store.save_data
 
 static func retaining_events(host: Node, state: Dictionary, profile: Dictionary) -> Dictionary:
 	var next: Dictionary = Store.merge_progression_analytics_outbox(profile, Store.load_data())
@@ -30,7 +33,7 @@ static func acknowledge_before_replacement(host: Node, state: Dictionary) -> boo
 	else:
 		profile = Store.set_embers(profile, int(disk.get("embers", 0)))
 	profile = retaining_events(host, state, profile)
-	if profile != disk and not Store.save_data(profile): return false
+	if profile != disk and not profile_writer.call(profile): return false
 	host.set("_progression", profile)
 	return true
 

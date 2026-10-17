@@ -4,6 +4,7 @@ extends "res://tests/pre_battle_fixture.gd"
 const Boons = preload("res://scripts/opening_boon_rules.gd")
 const Fixture = preload("res://tests/helpers/opening_boon_fixture.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
+const Recovery = preload("res://scripts/opening_boon_recovery.gd")
 const PROFILE_PATH: String = "user://pre_battle_probe_progression.json"
 const RUN_PATH: String = "user://pre_battle_probe_run.save"
 const ANALYTICS_PATH: String = "user://opening_boon_recovery_analytics"
@@ -11,6 +12,7 @@ const WRITE_BLOCKER: String = "user://opening_boon_write_blocker"
 const FAILED_WRITE_PATH: String = WRITE_BLOCKER + "/unwritable"
 const SETTLED_WALLET: int = 120
 const RECOVERY_COORD: Vector2i = Vector2i(2, 0)
+var _acknowledgment_failures: int = 0
 
 func _initialize() -> void:
 	_setup()
@@ -28,6 +30,7 @@ func _run() -> void:
 	_equal_revision_profile(scene)
 	_terminal_wallet_replacement(scene)
 	_failed_terminal_profile(scene)
+	scene = await _resumed_victory_wallet(scene)
 	for quit_first: bool in [true, false]: _terminal_receipts(scene, quit_first)
 	_failed_choices(scene)
 	scene.queue_free()
@@ -55,15 +58,21 @@ func _consumed_heirloom_replacement(scene: Node) -> void:
 	_expect(ProgressionStore.heirloom(ProgressionStore.load_saved_run()["progression"]).is_empty(), "The durable run records Rapier consumption despite deferred profile write")
 	_expect(scene.get("_run_state")["equipped_equipment"]["weapon"] == Fixture.PROOF_HEIRLOOM, "Taking the Rapier committed gameplay before the failed profile write")
 	var previous: Dictionary = ProgressionStore.load_saved_run()
-	_block_profile_writes()
+	Recovery.profile_writer = _fail_acknowledgment_once
 	scene.call("_start_run")
+	_expect(_acknowledgment_failures == 1, "Exactly one acknowledgment write failed; later writes are available")
 	_expect(ProgressionStore.load_saved_run() == previous, "Failed durable acknowledgment refuses to replace the saved run")
-	_restore_profile_writes()
+	_expect(scene.get("_run_state")[Boons.STATE_KEY].get("chosen", "") == "heirloom", "One-shot acknowledgment failure retains the consumed-heirloom descent")
 	scene.call("_start_run")
 	var replacement: Dictionary = scene.get("_run_state")
 	_expect(ProgressionStore.heirloom(ProgressionStore.load_data()).is_empty(), "Replacement durably acknowledges consumed heirloom")
 	_expect(replacement[Boons.STATE_KEY]["offers"][0]["boon"] != "heirloom", "The next descent cannot offer the consumed Rapier again")
 	print("BOON RECOVERY: failed profile write / consumed Rapier / replacement checked")
+
+func _fail_acknowledgment_once(_profile: Dictionary) -> bool:
+	Recovery.profile_writer = ProgressionStore.save_data
+	_acknowledgment_failures += 1
+	return false
 
 func _terminal_wallet_replacement(scene: Node) -> void:
 	var profile: Dictionary = Fixture.profile()
@@ -112,6 +121,35 @@ func _failed_terminal_profile(scene: Node) -> void:
 			else:
 				_expect(scene.get("_run_engine").held_embers(replacement) == 0 and int(ProgressionStore.recovery_marker(replacement["progression"]).get("amount", 0)) == SETTLED_WALLET, "Replacement recovers failed terminal death loss once, presented=" + str(presented))
 	print("BOON RECOVERY: failed terminal profile writes before/after presentation preserve victory bank and death marker")
+
+func _resumed_victory_wallet(scene: Node) -> Node:
+	var living: Dictionary = Fixture.force_boon("vitality")
+	_prepare(scene, living)
+	var terminal: Dictionary = living.duplicate(true)
+	terminal["mode"] = "victory"
+	terminal["held_embers"] = SETTLED_WALLET
+	terminal["unbanked_embers"] = SETTLED_WALLET
+	_block_profile_writes()
+	scene.call("_load_run_state", terminal)
+	scene.get("_opening_boon_flow").leave_heirloom(scene, "")
+	var fallback: Dictionary = ProgressionStore.load_saved_run()
+	_restore_profile_writes()
+	_expect(int(fallback["progression"]["embers"]) == SETTLED_WALLET and fallback.has("heirloom_terminal_wallet"), "Failed settlement and Leave nothing save the settled victory wallet")
+	_expect(int(ProgressionStore.load_data()["embers"]) == 0, "Failed settlement leaves the old bank on disk before resume")
+	scene.queue_free()
+	await process_frame
+	await process_frame
+	root.set_meta("labyrinth_resume_saved_run", true)
+	var resumed: Node = load("res://scenes/run_scene.tscn").instantiate()
+	_viewport.add_child(resumed)
+	await _settle()
+	_expect(resumed.get("_run_state")["mode"] == "victory", "A fresh scene resumes the terminal save before replacement")
+	_expect(int(ProgressionStore.load_data()["embers"]) == SETTLED_WALLET, "Resume repairs the settled 120-Ember bank with its terminal receipt")
+	_expect(int(resumed.get("_progression")["embers"]) == SETTLED_WALLET, "The resumed live profile retains the settled victory bank")
+	resumed.call("_start_run")
+	_expect(resumed.get("_run_engine").held_embers(resumed.get("_run_state")) == SETTLED_WALLET, "The descent after fresh-scene resume receives all 120 banked Embers")
+	print("BOON RECOVERY: failed victory settlement / Leave nothing / fresh-scene resume bank=120 / next descent held=120 checked")
+	return resumed
 
 func _terminal_receipts(scene: Node, quit_first: bool) -> void:
 	Analytics.clear_storage()
@@ -164,14 +202,20 @@ func _failed_choices(scene: Node) -> void:
 	for id: String in ["vitality", "heirloom"]:
 		_prepare(scene, Boons.offer(Fixture.force_boon(id)))
 		_assert_failed_commit(scene, false, id)
-	for leave_item: bool in [false, true]:
-		var terminal: Dictionary = Fixture.force_boon("heirloom")
-		terminal["mode"] = "defeat"
-		terminal["player_hp"] = 0
-		_prepare(scene, terminal)
-		scene.call("_persist_committed_boundary", "boon_rollback_terminal")
-		var item: String = str(terminal["equipped_equipment"]["offhand"]) if leave_item else ""
-		_assert_failed_commit(scene, true, item)
+	for outcome: String in ["victory", "defeat"]:
+		for leave_item: bool in [false, true]:
+			var living: Dictionary = Fixture.force_boon("heirloom")
+			_prepare(scene, living)
+			var terminal: Dictionary = living.duplicate(true)
+			terminal["mode"] = outcome
+			terminal["held_embers"] = SETTLED_WALLET
+			terminal["unbanked_embers"] = SETTLED_WALLET
+			terminal["current_room"] = RECOVERY_COORD
+			scene.set("_run_state", terminal)
+			_expect(not scene.get("_victory_carry_processed") and not scene.get("_defeat_loss_processed"), "Rollback starts before terminal wallet bookkeeping is processed")
+			_expect(ProgressionStore.save_run_state(terminal), "Unprocessed terminal rollback fixture is durable")
+			var item: String = str(terminal["equipped_equipment"]["offhand"]) if leave_item else ""
+			_assert_failed_commit(scene, true, item)
 	print("BOON RECOVERY: injected run-save failures roll back build, progression, terminal flags and receipts")
 
 func _assert_failed_commit(scene: Node, terminal: bool, id: String) -> void:

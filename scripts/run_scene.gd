@@ -30170,6 +30170,10 @@ func _authoritative_profile_progression() -> Dictionary:
 	var active_progression: Dictionary = ProgressionStore.normalized_data(_progression)
 	if int(active_progression.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
 		return persisted_profile
+	# A terminal receipt and its settled wallet must be repaired together.
+	# Otherwise replacement sees the result acknowledged with the old balance.
+	if str(_run_state.get("mode", "")) in ["victory", "defeat"] and _run_state.has("heirloom_terminal_wallet"):
+		return active_progression
 	# Embers belong to the active run until a normal banking/level boundary. A
 	# newer embedded revision may repair skills or Moltshards, but must never
 	# turn the run's held embers into banked profile currency.
