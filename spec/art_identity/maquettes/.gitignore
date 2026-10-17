@@ -1,0 +1,3 @@
+# Python build products are never maquette source or evidence.
+__pycache__/
+*.py[cod]

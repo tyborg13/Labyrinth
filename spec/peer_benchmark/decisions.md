@@ -77,3 +77,19 @@
   pill styled like SKIP & RECOVER, NPC dialogue box at the bottom); spell picks reuse the reward banner and card row.
 - 2026-10-17 mq-03 cloak ownership: the cloth cloak splits per view by depth around the torso centre plane
   (far → cape_far, near/tie → cape_near), so cutout rigs keep two cape parts.
+- 2026-10-17 OWNER approved the roster plan, ordered by need (inbox roster-plan): new enemies first, then the ones
+  least matching the style and/or with a wrong pose, then decide on the good ones (Stone Warden, the cultist =
+  Dust/Veilbound Acolyte: lowest). Director order (10-13 legacy audit severity + view failures):
+  1) 11 new static: Ember Tick, Hoarfrost Seer, Gale Herald, Arc Thrall, Gloam Stalker, Burrow Grub, Storm Capacitor,
+     Hollow Mimic, Briar Weaver, Slag Mortar, Glacial Mirror;
+  2) High + wrong pose first: Chainbound Gaoler (re-pose only), Ashen Reaver, Storm Cantor, Last Lamplighter,
+     Gallows Roc, Rimejaw;
+  3) dragons (all High; Noctyrax wrong view), started alongside 4 because wing maquettes take longest;
+  4) Medium + wrong pose: Wick Shade, Ash Hound, Roc Fledgling, Stoneback Mite, Cinder Ooze, Bell Tender;
+  5) Medium, style only: Bone Harrier, Rime Whelp, Craghide;
+  owner decides later (likely keep): Stone Warden, Dust + Veilbound Acolyte, Grave Surgeon, Cinder Droplet,
+  Tunnel Crawler, Rime Spitter.
+- 2026-10-17 CORRECTION (mq-03 cloak): the depth split put the whole cloak in one part per view (it hangs behind the
+  torso in front, in front of it in rear). The cloak now splits by body side in body space: faces on the
+  shoulder_near side of the sagittal plane are cape_near, the rest cape_far (ties near), the same in both views, like
+  the limb labels (hand_far = spear hand in both views). Feedback 5 also requires deterministic cloth-cache replay hashes.

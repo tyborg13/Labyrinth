@@ -1,7 +1,7 @@
 # Frostglass Lancer mq4 pair — director acceptance (2026-10-17)
 
 Front: owner-approved r4 painting (review inbox lancer-r4-facing, "Middle looks great").
-Rear: img-mq-lancer-rear-r4, round 2 (height and hem fix, then the 3/4 turn restored), plus the recorded tone step
+Rear: img-mq-lancer-rear-r4, round 2 (palette-matched to the front through the kit's `match_reference`) (height and hem fix, then the 3/4 turn restored), plus the recorded tone step
 `refs/tone_rear_r4.json` (warm hue 0–40°, chroma ×0.65), which removes the copper cast so the plates, shaft and
 leather match the front (rear_consistency chroma delta 0.0024).
 
