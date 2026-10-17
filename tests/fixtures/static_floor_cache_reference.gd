@@ -2594,6 +2594,14 @@ func _any_idle_animation_active() -> bool:
 	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	# Freeze the renderer, not the later enemy presentation adapters. Feed the
+	# same current contract to both renderers, including explicit empty derived
+	# collections, while retaining the independent original floor/layer paths.
+	next_presentation = preload("res://scripts/enemy_mechanics/mimic_view.gd").presentation_for(next_state, next_presentation)
+	next_presentation = preload("res://scripts/enemy_mechanics/capacitor_view.gd").presentation_for(next_state, next_presentation)
+	next_presentation = preload("res://scripts/enemy_mechanics/tether_view.gd").presentation_for(next_state, next_presentation)
+	next_presentation = preload("res://scripts/enemy_mechanics/dive_view.gd").presentation_for(next_state, next_presentation)
+	next_presentation = preload("res://scripts/static_enemy_facing.gd").presentation_for(self, next_state, next_presentation, presentation)
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;

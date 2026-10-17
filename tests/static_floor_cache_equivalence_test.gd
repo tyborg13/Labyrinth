@@ -2,6 +2,12 @@ extends SceneTree
 const Board = preload("res://scripts/combat_board_view.gd")
 const Reference = preload("res://tests/fixtures/static_floor_cache_reference.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const PROOF_SIZE := Vector2i(1920, 1080)
+const PROOF_UI_SCALE: float = 1.0
+const PROOF_AMBIENT_SECONDS: float = 12.0
+const PROOF_IDLE_SECONDS: float = 2.0
+const RESTORE_PROOF_SETTLE_FRAMES: int = 3
 
 # Freeze only the original wall-clock torch particles for pixel comparison.
 # Both subclasses inherit their complete production/frozen floor paths.
@@ -61,6 +67,11 @@ var _shadow_meshes: Dictionary
 var _exits: Dictionary = {}
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	Settings.set_storage_path("user://bug_01_floor_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = PROOF_UI_SCALE
+	settings["fullscreen"] = false
+	Settings.apply_settings(settings, null, false)
 	_native = DisplayServer.get_name() != "headless"
 	if _native: DisplayServer.window_set_size(Vector2i(1920, 1080))
 	root.size = Vector2i(1920, 1080)
@@ -129,6 +140,7 @@ func _initialize() -> void:
 	_state["grid"] = (_state["grid"] as Array).slice(0, 7)
 	await _show({"trap_effects": [{"pos": Vector2i(5,3), "element": "ice", "effect_progress": 0.42}]}, "new room")
 	_check(_actual._scene_back_effect_render_layers_by_tile.size() == 63, "A smaller room must retire stale effect canvases")
+	await _test_restored_empty_board()
 	_actual_view.queue_free(); _reference_view.queue_free()
 	await process_frame; await process_frame
 	print("STATIC FLOOR CACHE RESULT: " + JSON.stringify({"cases": _cases, "checks": _checks, "pixel_differences": _differences, "native": _native, "errors": _errors, "orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))}))
@@ -363,3 +375,53 @@ func _test_retained_geometry_and_bindings() -> void:
 	await _show({}, "retained new canvases initialized")
 	for layer: Control in _actual._retained_render_layers():
 		_check(is_same(layer._prop_textures, _actual._prop_textures), "New canvases must be initialized even when source bindings stay equal")
+
+# Restore after an actual room/effect/empty-state transition, then compare to a
+# freshly constructed production board as well as the independent frozen floor.
+# A caller can run this entire program with the visual runner for native proof.
+func _test_restored_empty_board() -> void:
+	for board: Control in [_actual, _reference]:
+		board.set_combat_state({})
+		board.reset_navigation()
+		board.set_controller_focus_tile(Vector2i(-1, -1))
+	_state = _room()
+	_exits.clear()
+	await _show({}, "restored empty board")
+	var fresh_view: SubViewport = _viewport()
+	var fresh: Control = ClockedBoard.new()
+	fresh_view.add_child(fresh)
+	fresh.size = Vector2(PROOF_SIZE)
+	fresh.set_process(false)
+	fresh.set_art_treatment_enabled(_actual._art_treatment_enabled)
+	_check(fresh.set_art_treatment_preset(_actual._art_treatment.preset), "Fresh proof must use the restored board's authored lighting preset")
+	fresh._idle_elapsed = PROOF_IDLE_SECONDS
+	var display: Dictionary = {
+		"ambient_time_seconds": PROOF_AMBIENT_SECONDS,
+		"damage_preview_time_seconds": PROOF_AMBIENT_SECONDS,
+		"umbra_time_seconds": PROOF_AMBIENT_SECONDS,
+		"board_framing_mode": "combat",
+	}
+	fresh.set_combat_state(_state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, display)
+	if is_instance_valid(fresh._protagonist_renderer): fresh._protagonist_renderer.set_process(false)
+	_check(_actual.presentation == fresh.presentation, "Restored empty board must have the complete fresh presentation")
+	_check(_actual.combat_state == fresh.combat_state, "Restored empty board must preserve the fresh authoritative room")
+	_check(_actual._art_treatment._parameters == fresh._art_treatment._parameters, "Fresh proof must use identical complete lighting inputs")
+	if _native:
+		# Let the new nested floor-cache viewport finish before comparing it
+		# with the already warmed retained board. All motion clocks are frozen.
+		for _frame: int in range(RESTORE_PROOF_SETTLE_FRAMES):
+			await RenderingServer.frame_post_draw
+		var restored_image: Image = _actual_view.get_texture().get_image()
+		var fresh_image: Image = fresh_view.get_texture().get_image()
+		var reference_image: Image = _reference_view.get_texture().get_image()
+		_check(restored_image.get_data() == fresh_image.get_data(), "Restored empty board pixels must match a fresh production board")
+		_check(restored_image.get_data() == reference_image.get_data(), "Restored empty board pixels must match the frozen floor renderer")
+		for entry: Array in [["restored", restored_image], ["fresh", fresh_image], ["reference", reference_image]]:
+			var path: String = "user://bug_01_floor_%s.png" % entry[0]
+			_check((entry[1] as Image).save_png(path) == OK, "Restored empty board capture must save: " + path)
+			print(ProjectSettings.globalize_path(path))
+		print("RESTORED EMPTY BOARD NATIVE: %s (1920x1080 ui_scale=1.0)" % ("PASS" if _errors.is_empty() else "FAIL"))
+	else:
+		await process_frame
+		print("RESTORED EMPTY BOARD LOGIC: %s (native pixel proof requires window server)" % ("PASS" if _errors.is_empty() else "FAIL"))
+	fresh_view.free()
