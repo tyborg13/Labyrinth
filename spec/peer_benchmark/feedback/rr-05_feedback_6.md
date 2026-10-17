@@ -28,3 +28,17 @@ motion edit I authorise. Any other unfillable pose goes under TODO_DESIGN with t
 ## Then
 Re-run the Bloomer gates (detached + holes, CPU), the focused suites and the full suites. Hand back the
 `--from-native --creature shale_bloomer` command for my windowed run.
+
+## Wisp windowed run 4 (done) — one script bug
+`output/rr-05/director_windowed_run4_wisp.log` shows:
+- `MAQUETTE PIXEL GATES: PASS`, `NATIVE CAPTURE: PASS`, and `MAQUETTE REVIEW: PASS` (918 frames,
+  `output/rr-05/lightning_wisp_review.mp4`);
+- promote wrote `assets/units/lightning_wisp_cutout`.
+
+The density-adoption heredoc in `proof_for_design_owner.sh` then crashed:
+`cutout_pipeline/cases.py:20 read_json → AttributeError: 'str' object has no attribute 'read_text'`. The script passes
+`base + view + '.json'` as a str.
+- Fix it with `Path(...)`, or make `read_json` accept str.
+- Add a stub test that runs the adoption block.
+- Make the script resumable from the adoption stage (`--from-adopt`). I'll then run the Wisp's remaining stages and
+  the Bloomer's full run.
