@@ -2087,7 +2087,8 @@ func _physics_process(delta: float) -> void:
 		_controller_stick = Vector2.ZERO
 		_controller_reset_stick_repeat()
 		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		if not preload("res://scripts/movement_target_keyboard.gd").preserve_focus(self):
+			_controller_clear_board_focus()
 		return
 	if not _controller_custom_navigation_available():
 		_controller_stick = Vector2.ZERO
@@ -2117,6 +2118,7 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	preload("res://scripts/movement_target_keyboard.gd").observe_input(self, event)
 	if is_instance_valid(_magic_purge_overlay):
 		if InputRouterScript.is_controller_event(event):
 			var router: Node = get_node_or_null("/root/InputRouter")
@@ -3500,7 +3502,8 @@ func _refresh_controller_interface() -> void:
 	_refresh_controller_prompts()
 	if not _controller_is_active():
 		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		if not preload("res://scripts/movement_target_keyboard.gd").preserve_focus(self):
+			_controller_clear_board_focus()
 		return
 	if not _controller_custom_navigation_available():
 		_controller_suspend_custom_navigation()
@@ -8101,7 +8104,7 @@ func _click_card_targeting_active() -> bool:
 func _controller_card_targeting_active(candidate: Dictionary = {}) -> bool:
 	if (
 		not _targeted_card_aiming_active()
-		or not _controller_is_active()
+		or not (_controller_is_active() or preload("res://scripts/movement_target_keyboard.gd").active(self))
 		or _drag_card_index >= 0
 		or _controller_region != "board"
 		or _controller_modal_visible()
@@ -31988,6 +31991,7 @@ func _reset_card_resolution() -> void:
 	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
+	preload("res://scripts/movement_target_keyboard.gd").clear(self)
 	_surface_preview_cache_key = ""
 	_selected_card_index = -1
 	_card_targeting_pointer_position = Vector2(-1.0, -1.0)

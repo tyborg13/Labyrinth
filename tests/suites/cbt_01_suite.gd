@@ -12,6 +12,8 @@ const HERO := Vector2i(4, 3)
 const FIXTURE_PLAYER_HP: int = 30
 const FIXTURE_ENEMY_HP: int = 40
 const SETTLE_FRAMES: int = 3
+const KEYBOARD_SETTLE_PHYSICS_FRAMES: int = 10
+const ARROW_ENDPOINT_TOLERANCE_PX: float = 1.0
 const KEYBOARD_APPROACH_OFFSET := Vector2i(-1, -1)
 const NO_TARGET := Vector2i(-1, -1)
 
@@ -19,6 +21,7 @@ static func run(expect: Callable) -> void:
 	_test_support_cards(expect)
 	_test_movement_triggers(expect)
 	_test_eligibility_and_restrictions(expect)
+	_test_successive_stay_analytics(expect)
 	_test_immolation(expect)
 
 static func _test_support_cards(expect: Callable) -> void:
@@ -104,6 +107,36 @@ static func _test_eligibility_and_restrictions(expect: Callable) -> void:
 	expect.call(not payload.has("stayed") and payload["move_distance"] == 0, "Returning to the origin through real moves never reports Stay")
 	scene.free()
 
+static func _test_successive_stay_analytics(expect: Callable) -> void:
+	var engine := CombatEngine.new()
+	var scene: Node = preload("res://scripts/run_scene.gd").new()
+	var initial: Dictionary = fixture(engine, "guarded_step")
+	initial["deck"]["hand"] = ["guarded_step", "guarded_step"]
+	var live_states: Array[Dictionary]
+	var live_payloads: Array[Dictionary]
+	for replay: bool in [false, true]:
+		var before: Dictionary = bytes_to_var(var_to_bytes(initial)) if replay else initial
+		for play: int in range(2):
+			# The production save uses the same Variant codec. Restore between plays
+			# too, so the second event must compare against a persisted nonzero counter.
+			if replay:
+				before = (bytes_to_var(var_to_bytes({"combat_state": before})) as Dictionary)["combat_state"]
+			var prepared: Dictionary = engine.prepare_player_card(before, 0)
+			var actions: Array = engine.card_play_actions("guarded_step", prepared)
+			var after: Dictionary = engine.finish_player_card(_resolve(engine, prepared, actions), 0)
+			var targets: Array[Vector2i] = _tiles([HERO])
+			var payload: Dictionary = scene.call("_analytics_card_play_payload", "guarded_step", before, after, actions, targets)
+			expect.call(payload.get("stayed", false) == true and payload["move_distance"] == 0, "Successive Stay %d reports stayed (serialized replay: %s)" % [play + 1, replay])
+			expect.call(engine.card_keyword_play_summary("guarded_step", before, after, actions).get("stayed", false), "Successive Stay %d also reaches headless analytics (serialized replay: %s)" % [play + 1, replay])
+			expect.call(int(after.get("card_stay_sequence", 0)) == play + 1 and after["deck"]["discard"].size() == play + 1, "Each successive Stay advances the sequence and finishes its own card")
+			if replay:
+				expect.call(after == live_states[play] and payload == live_payloads[play], "Serialized Stay %d replays the exact state and analytics payload" % (play + 1))
+			else:
+				live_states.append(after)
+				live_payloads.append(payload)
+			before = after
+	scene.free()
+
 static func _test_immolation(expect: Callable) -> void:
 	var engine := CombatEngine.new()
 	for fire: bool in [false, true]:
@@ -135,13 +168,24 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	scene.call("_on_board_tile_hovered", HERO)
 	await settle(tree)
 	assert_stay_preview(scene, expect)
-	scene.set("_controller_region", "board")
-	scene.call("_controller_set_board_tile", HERO + KEYBOARD_APPROACH_OFFSET)
-	var down := InputEventKey.new()
-	down.keycode = KEY_DOWN
-	down.pressed = true
-	await scene.call("_input", down)
-	expect.call(scene.get("_controller_board_tile") == HERO, "Keyboard cursor can navigate onto the hero")
+	var router: Node = tree.root.get_node_or_null("InputRouter")
+	if router != null: router.call("set_forced_state_for_test", "pointer", "steam_deck")
+	await keyboard_focus_hero(scene)
+	await settle_keyboard(tree)
+	assert_keyboard_stay_focus(scene, expect)
+	assert_stay_preview(scene, expect)
+	var neutral_stick := InputEventJoypadMotion.new()
+	neutral_stick.axis = JOY_AXIS_LEFT_X
+	neutral_stick.axis_value = 0.0
+	await scene.call("_input", neutral_stick)
+	assert_keyboard_stay_focus(scene, expect)
+	var pointer := InputEventMouseMotion.new()
+	pointer.position = scene.call("_controller_board_point", HERO)
+	await scene.call("_input", pointer)
+	expect.call(not preload("res://scripts/movement_target_keyboard.gd").active(scene) and (scene.get("board_view") as Control).get("_controller_focus_tile") == NO_TARGET, "Pointer input releases keyboard-owned focus")
+	await keyboard_focus_hero(scene)
+	await settle_keyboard(tree)
+	assert_keyboard_stay_focus(scene, expect)
 	var confirm := InputEventKey.new()
 	confirm.keycode = KEY_ENTER
 	confirm.pressed = true
@@ -149,7 +193,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var after: Dictionary = scene.get("_combat_state")
 	expect.call(after["player"]["pos"] == HERO and after["player"]["block"] == 3 and after["deck"]["discard"].has("guarded_step"), "Keyboard confirm commits Stay and support effects")
 	expect.call(int(scene.get("cbt_01_walk_presentations")) == 0, "Move Stay presents no walk animation")
-	var router: Node = tree.root.get_node_or_null("InputRouter")
+	expect.call(not preload("res://scripts/movement_target_keyboard.gd").active(scene), "Keyboard targeting ends with its card selection")
 	if router != null:
 		router.call("set_forced_state_for_test", "controller", "steam_deck")
 		install(scene, "trapdoor")
@@ -192,6 +236,31 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	assert_stay_preview(scene, expect)
 	scene.queue_free()
 	await tree.process_frame
+
+static func keyboard_focus_hero(scene: Node) -> void:
+	scene.set("_controller_region", "board")
+	scene.call("_controller_set_board_tile", HERO + KEYBOARD_APPROACH_OFFSET)
+	var down := InputEventKey.new()
+	down.keycode = KEY_DOWN
+	down.pressed = true
+	await scene.call("_input", down)
+
+static func settle_keyboard(tree: SceneTree) -> void:
+	for frame: int in range(KEYBOARD_SETTLE_PHYSICS_FRAMES): await tree.physics_frame
+	await settle(tree)
+
+static func assert_keyboard_stay_focus(scene: Node, expect: Callable) -> void:
+	var board: Control = scene.get("board_view")
+	expect.call(not scene.call("_controller_is_active"), "Stay regression uses keyboard/pointer modality")
+	expect.call(scene.get("_controller_board_tile") == HERO and scene.get("_hovered_board_tile") == HERO, "Keyboard focus and hover remain on (4,3) after physics frames")
+	expect.call(board.get("_controller_focus_tile") == HERO, "Rendered board focus remains on (4,3) after physics frames")
+	assert_arrow_at_hero(scene, expect)
+
+static func assert_arrow_at_hero(scene: Node, expect: Callable) -> void:
+	var arrow: Control = scene.get("_drag_target_arrow")
+	var arrow_endpoint: Vector2 = arrow.get_global_transform_with_canvas() * (arrow.call("targeting_end") as Vector2)
+	var hero_point: Vector2 = scene.call("_controller_board_point", HERO)
+	expect.call(arrow.is_visible_in_tree() and arrow_endpoint.distance_to(hero_point) <= ARROW_ENDPOINT_TOLERANCE_PX, "Targeting arrow remains visible and ends on the hero (visible: %s, endpoint: %s, hero: %s)" % [arrow.is_visible_in_tree(), arrow_endpoint, hero_point])
 
 static func assert_stay_preview(scene: Node, expect: Callable) -> void:
 	var board: Control = scene.get("board_view")
