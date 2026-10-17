@@ -105,3 +105,9 @@
 - 2026-10-17 flow-01 section-entry save failure: the transition reverses to the cleared boss room with the dragon
   reward screen and the existing notice "Could not save. Your rewards are still here; try Continue again."; CONTINUE
   retries. The title card gets a 50% dark band, an accent-gold 24 px label and the reward-banner text shadow.
+- 2026-10-17 REVERSAL: roster wave 1 is NOT rigged from the approved art-02 paintings. Owner (on the Lancer): mixing
+  maquette-based and original-art enemies keeps the style inconsistent, so every enemy gets maquette → paint-over
+  (approved art as the identity reference) → rig. The fit gate relaxes to IoU ≥ 0.70 front / ≥ 0.65 rear (proportion
+  guidance). The maquette quality bar is the Lancer r3: cloth hood, robe and cloak, real anatomy and plates, no
+  primitive cones or cylinders for cloth. mq-04 r1 delivered primitive shapes (rejected); r2 does Seer + Thrall first,
+  then a director clay review.

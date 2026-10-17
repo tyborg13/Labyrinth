@@ -72,7 +72,7 @@
 | flow-01 | Automatic next section after the dragon reward + descent/title-card transition (no map step) | fixing r1 queued (save-failure decision, banner fade, title legibility, demo pacing) | codex/peer-benchmark | briefs/flow-01.md |
 | rr-06 | Frostglass Lancer cutout rig from the Blender-native maquette (director motion staged/rr-06) | ready (launch after mq-03 + rr-05 land) | codex/peer-benchmark | briefs/rr-06.md |
 | qa-07 | Full Godot suite under budget with headroom: profile + parallel program sub-suites (target ≤ 450 s) | fixing r2 queued (delta review: presentation program flake under load, Windows Job Object, 2 guards) | codex/peer-benchmark | briefs/qa-07.md |
-| mq-04 | Fitted Blender maquettes, roster wave 1 batch A (Hoarfrost Seer, Gale Herald, Arc Thrall, Gloam Stalker); approved art kept | fixing r1 (bridge timeout clarified; per-view banner cloth) | codex/peer-benchmark | briefs/mq-04.md |
+| mq-04 | Fitted Blender maquettes, roster wave 1 batch A (Hoarfrost Seer, Gale Herald, Arc Thrall, Gloam Stalker); approved art kept | fixing r2 queued (direction change: Lancer-bar maquettes + paint-over; Seer + Thrall first, clay review gate) | codex/peer-benchmark | briefs/mq-04.md |
 | qa-08 | Orphaned supplemental tests: skill_progression_analytics failing (root cause), audit + wire orphans into the suite, guard test | running | codex/peer-benchmark | briefs/qa-08.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
