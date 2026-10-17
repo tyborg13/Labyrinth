@@ -144,6 +144,7 @@ func _initialize() -> void:
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	PlayerMovementSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/cbt_01_suite.gd").run(Callable(self, "_assert"))
 	InitiativeOrderSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/turn_clock_wait_suite.gd").run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
@@ -462,6 +463,7 @@ func _initialize() -> void:
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
 	await MapUiSuite.run_live(self, Callable(self, "_assert"))
 	await CardDragPlaySuite.run_live(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/cbt_01_suite.gd").run_live(self, Callable(self, "_assert"))
 	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
 	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/turn_clock_copy_suite.gd").run(self, Callable(self, "_assert"))
@@ -495,7 +497,7 @@ func _initialize() -> void:
 	await _test_run_scene_aoe_aim_rotates_before_click()
 	await _test_run_scene_line_aoe_push_preserves_orientation()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
-	await _test_run_scene_block_card_skips_dead_move()
+	await _test_run_scene_block_card_offers_stay_when_enclosed()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
@@ -10194,10 +10196,10 @@ func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_block_card_skips_dead_move() -> void:
+func _test_run_scene_block_card_offers_stay_when_enclosed() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for dead-move skip coverage")
+		_failures.append("Run scene should load for enclosed Stay coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -10218,9 +10220,22 @@ func _test_run_scene_block_card_skips_dead_move() -> void:
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	_set_run_scene_combat_state_for_test(instance, combat_state)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["current_room"] = Vector2i(2, 2)
+	run_state["current_room_layout"] = _dead_hand_room_layout()
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_ui")
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
-	_assert(bool(preview.get("playable", false)), "Cards with a self effect should remain playable when their move step has no target")
-	_assert(bool(preview.get("complete", false)), "Dead move steps should auto-skip into the card's self effect")
+	_assert(bool(preview.get("playable", false)), "Cards with a self effect remain playable when enclosed")
+	var origin: Vector2i = combat_state["player"]["pos"]
+	var stay_targets: Array = preview.get("target_tiles", [])
+	_assert(not bool(preview.get("complete", false)) and stay_targets.size() == 1 and stay_targets[0] == origin, "An enclosed Guarded Step offers the explicit Stay choice")
+	await instance.call("_on_card_pressed", 0)
+	await instance.call("_on_board_tile_clicked", origin)
+	var stayed: Dictionary = instance.get("_combat_state")
+	_assert(stayed["player"]["pos"] == origin and int(stayed["player"].get("block", 0)) == 3 and stayed["deck"]["discard"].has("guarded_step"), "Enclosed Stay commits Block and consumes the card only after confirmation")
 	instance.queue_free()
 	await process_frame
 

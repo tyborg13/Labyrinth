@@ -1046,3 +1046,14 @@ than an `enemy_status_tick`; its status-shaped animation does not make it a
 turn-start status decrement. Discharge and Mirror use the existing ranged/area
 classification. Event types, local JSONL storage and source attribution stay
 unchanged; no new enemy-mechanic analytics event is introduced.
+
+### Card Stay (cbt-01)
+
+`card_played.payload` in RunScene and headless playtests includes additive
+`stayed: true` when at least one Move or
+Blink action actually resolves on the hero's own tile as Stay. It is omitted
+otherwise, including skipped, blocked and invalid actions. The resolver's
+monotonic `card_stay_sequence` distinguishes Stay from a move that returns to
+its origin or a zero-distance interruption. Preview copies never write events.
+Stay spends the ordinary card costs and grants its non-movement effects, but
+adds no movement distance and fires no movement or arrival triggers.
