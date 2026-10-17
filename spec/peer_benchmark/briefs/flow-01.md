@@ -8,7 +8,10 @@
   - The map then offers "Next section" (`section_map_panel.gd:643`), which plays the ordinary door sequence
     (`run_scene.gd:22107`, `:27318`).
   - Section entry has no authored presentation (`start_room_map_flow.gd:9`).
-- Launch after boon-01 and map-02 land, since both touch the run flow and the map panel. Base `codex/peer-benchmark`.
+- boon-01 (opening boons, run_scene overlay host + run-end flow) and map-02 (section map rev 5: generator + node
+  layout in section_map_panel.gd) are accepted-pending and will land on `codex/peer-benchmark` while you work; the
+  director merges them into your branch. Keep your section_map_panel.gd edits to the onward action only, and your
+  run_scene.gd edits to the dragon-reward continue path, to keep conflicts small. Base `codex/peer-benchmark`.
   Owned: the dragon-reward continue path and section change in `scripts/run_scene.gd`, the onward action in
   `scripts/section_map_panel.gd`, `scripts/start_room_map_flow.gd`, a new `scripts/section_transition.gd`, tests, and
   `spec/analytics.md` (additive field).
