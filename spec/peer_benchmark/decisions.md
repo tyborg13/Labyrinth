@@ -156,3 +156,12 @@
   5b12d3630e7d488ab541132e63de5e9e1ca25034.
 - 2026-10-17 rr-05 fb12: the dark-slab gate blocks derived (pipeline-generated) texels only. Exposures of approved
   painted fills are reported, not blocked: the Wisp's original tail shadow (29,18,26) is approved paint.
+
+## 2026-10-17 qa-08 review resolution (fecdbf24e)
+- The registration audit is a conservative heuristic. These are documented limits, not fixed, because none of the
+  patterns occur in tests/ and a fifth round isn't worth it:
+  - a never-invoked lambda body counts as reachable;
+  - StringName/NodePath literal arguments aren't read;
+  - \U escapes aren't decoded.
+- The last two fail loudly as orphans, so the fix is to use a plain string.
+- Every other item in that review was verified. qa-08 is accepted at eec098b526aaf8f61af80fab786c91d6e06c59a3 (fecdbf24e plus the limits docstring).
