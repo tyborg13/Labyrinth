@@ -130,3 +130,5 @@
   back to the board before going to the new map section. We should cut that. Otherwise, looks good." → flow-01
   feedback 3: the title card cross-fades straight into the section map (same painting); the board stays hidden until
   the map closes.
+- 2026-10-17 section-transition APPROVED (owner) on the updated clip (title card → section map, no board flash). No
+  sound sting added. flow-01 is accepted and waits for owner publication approval with the rest of integration.
