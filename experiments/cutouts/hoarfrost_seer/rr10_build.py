@@ -23,6 +23,7 @@ from tools.humanoid_cutout.seams import build_masks
 from tools.humanoid_cutout.ownership import read_mask, apply_override
 from tools.humanoid_cutout.occluded_surface import bind as bind_occluded, derive as derive_occluded
 from tools.humanoid_cutout.tucks import TUCK_DEPTHS_PX, TUCK_COVERS, required_tuck
+from tools.humanoid_cutout.covered_surfaces import sleeve_domains, hem_domain
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 ASSETS = PROJECT / 'assets/units/hoarfrost_seer_cutout/humanoid_v2'
@@ -39,6 +40,11 @@ GROUPS = {'upper_body': ['torso', 'head', 'sleeve_near', 'hand_near'],
 # fusion does not change any rest pixel; underlays always precede visible paint.
 DEPTH_SOURCE = {'torso': 'collar', 'sleeve_near': 'upper_near',
                 'sleeve_far': 'upper_far', 'staff': 'staff_shaft', 'robe': 'skirt_far'}
+# These detached native pairs are original opaque painting texels, not fill.
+# Trimming them contradicts the brief's zero-pixel rest identity. Keep their
+# source intact pending the design owner's choice; never exempt the gate.
+TODO_DESIGN_detached_robe_tip_rest_identity = {
+    'front': [[153, 236], [153, 237]], 'rear': [[101, 229], [101, 230]]}
 
 
 def copy_protected(source, target):
@@ -97,7 +103,7 @@ def build_view(view, inputs):
     (CASE / ('source/' + view)).mkdir(parents=True, exist_ok=True)
     for name in ('processed.png', 'processed.json'):
         shutil.copyfile(PROJECT / inputs[view + '_job'] / name, CASE / 'source' / view / name)
-    visible, hidden = {}, {}
+    visible, hidden, solos = {}, {}, {}
     for name, labels in PIECES.items():
         image = np.zeros_like(paint)
         for part in old['parts']:
@@ -119,6 +125,7 @@ def build_view(view, inputs):
         native_silhouette = np.zeros(paint.shape[:2],dtype=bool)
         for label in labels:
             native_silhouette |= np.asarray(Image.open(base / f'registered/{view}_solo_{label}.png').convert('RGBA'))[...,3] > 128
+        solos[name] = native_silhouette
         fill[(paint[..., 3] == 0) | (image[..., 3] > 0) | ~native_silhouette] = 0
         hidden[name] = fill
     rope = dict(inputs['rope_masks'][view])
@@ -205,6 +212,19 @@ def build_view(view, inputs):
         donors[hidden[name][..., 3] > 0] = hidden[name][hidden[name][..., 3] > 0]
         continuation = edge_texels(donors, missing, rules(base, view))
         hidden[name][missing] = continuation[missing]
+    # rr-13: continue the actual surfaces beneath the entire sleeve and boot
+    # footprints, rather than growing only the currently visible cut edge.
+    covered = sleeve_domains(visible, solos)
+    covered['hem'] = hem_domain(surfaces, solos['robe'])
+    for domain, required in covered.items():
+        name = 'robe' if domain == 'hem' else domain
+        missing = required & (hidden[name][..., 3] == 0)
+        continuation = edge_texels(visible[name], missing, material_rules)
+        hidden[name][missing] = continuation[missing]
+        tuck_masks[name] |= required
+        path = CASE / f'continuations/{view}_{domain}.png'
+        path.parent.mkdir(exist_ok=True)
+        Image.fromarray(required.astype('uint8') * 255).save(path)
     # One deterministic cloth field across both old fills and new tucks. This
     # prevents a flat seed band ending in a horizontal seam below the belt.
     hidden['robe'] = clean_continuation(visible['robe'], hidden['robe'], material_rules, replace_all=True)
@@ -269,6 +289,7 @@ def build_view(view, inputs):
               'held_item_depth': inputs['held_item_depth'],
               'continuation_policy': {'robe': 'rr05_visible_cloth_edge_texels'},
               'source_labels': PIECES, 'ownership_overrides': [rope],
+              'covered_surface_masks': {name: f'continuations/{view}_{name}.png' for name in covered},
               'rest_source': 'source/' + view + '/processed.png', 'motion_data': 'res://' +
               str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     if donor_records: layout['occluded_surfaces'] = donor_records
@@ -368,7 +389,9 @@ def build():
     report = dict(reports['front'], views=reports, director_sha256=digest(DIRECTOR), production_promoted=True,
         front_delivery=reports['front']['delivery'],
         front_delivery_joints_sha256=reports['front']['delivery']['joints_px.json'],
-        hidden_fill_index_sha256=digest(PROJECT / inputs['baseline'] / 'hidden_fills/index.json'), rear='ready')
+        hidden_fill_index_sha256=digest(PROJECT / inputs['baseline'] / 'hidden_fills/index.json'), rear='ready',
+        rr13_design_placeholders={'TODO_DESIGN_detached_robe_tip_rest_identity':
+            TODO_DESIGN_detached_robe_tip_rest_identity})
     write_json(CASE / 'proof/build.json', report)
     for root in (CASE, ASSETS):
         for path in root.rglob('*.png'):

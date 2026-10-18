@@ -1,5 +1,6 @@
 """Feedback 4 source contracts, all-pose attachments and native seam mutations."""
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -20,6 +21,7 @@ from humanoid_cutout.tucks import TUCK_DEPTHS_PX
 CASE=PROJECT/'experiments/cutouts/hoarfrost_seer/rr10'
 FIXTURES=PROJECT/'tests/rr10/feedback4'
 PROOF_TIMEOUT_SECONDS=180
+PROOF_TASK_ID=os.environ.get('LABYRINTH_TASK_ID', 'rr-13')
 
 
 def read(path):return json.loads(path.read_bytes())
@@ -33,7 +35,7 @@ class TuckTests(unittest.TestCase):
         cls.fixtures=read(FIXTURES/'captures.json')
         with tempfile.TemporaryDirectory(prefix='rr10-tuck-bones-') as folder:
             output=Path(folder)/'samples.json'
-            process=subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id','rr-10','--stream','--',
+            process=subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id',PROOF_TASK_ID,'--stream','--',
                 'godot','--headless','--path','.','--script','tests/rr10/samples.gd','--','--output',str(output)],
                 cwd=PROJECT,capture_output=True,text=True,timeout=PROOF_TIMEOUT_SECONDS)
             if process.returncode:raise AssertionError(process.stdout+process.stderr)

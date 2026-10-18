@@ -19,7 +19,7 @@ def promote(project, case, assets, layouts):
             part['file'] = str(target.relative_to(assets))
         # Proof/source ownership lives in the editable case. The shipped rig
         # needs only its paint, mesh topology, joints and protected motion.
-        for key in ('proof_layers', 'proof_joint_seams', 'proof_rest_holes', 'ownership_overrides', 'features', 'occluded_surfaces'):
+        for key in ('proof_layers', 'proof_joint_seams', 'proof_rest_holes', 'ownership_overrides', 'features', 'occluded_surfaces', 'covered_surface_masks'):
             layout.pop(key, None)
         rest = assets / view / 'rest.png'
         shutil.copyfile(case / source['rest_source'], rest)

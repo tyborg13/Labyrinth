@@ -12,7 +12,7 @@
       "minimum_px": 4,
       "required_mask": "tucks/front_torso.png",
       "missing_pixels": 0,
-      "required_pixels": 1021
+      "required_pixels": 1700
     },
     {
       "piece": "head",
@@ -76,7 +76,7 @@
       "minimum_px": 5,
       "required_mask": "tucks/front_robe.png",
       "missing_pixels": 0,
-      "required_pixels": 2286
+      "required_pixels": 2329
     }
   ],
   "ownership_overrides": [
@@ -131,7 +131,7 @@
           "minimum_px": 4,
           "required_mask": "tucks/front_torso.png",
           "missing_pixels": 0,
-          "required_pixels": 1021
+          "required_pixels": 1700
         },
         {
           "piece": "head",
@@ -195,7 +195,7 @@
           "minimum_px": 5,
           "required_mask": "tucks/front_robe.png",
           "missing_pixels": 0,
-          "required_pixels": 2286
+          "required_pixels": 2329
         }
       ],
       "ownership_overrides": [
@@ -250,7 +250,7 @@
           "minimum_px": 4,
           "required_mask": "tucks/rear_torso.png",
           "missing_pixels": 0,
-          "required_pixels": 875
+          "required_pixels": 1266
         },
         {
           "piece": "head",
@@ -314,7 +314,7 @@
           "minimum_px": 5,
           "required_mask": "tucks/rear_robe.png",
           "missing_pixels": 0,
-          "required_pixels": 1979
+          "required_pixels": 1988
         }
       ],
       "ownership_overrides": [
@@ -381,5 +381,29 @@
   },
   "front_delivery_joints_sha256": "39b2333c5b8cd0b5614b853d91447b253554e4784ab935b541c10f401f6b96ac",
   "hidden_fill_index_sha256": "567ebadc551510072ad0646528d447b1cdff9c502a1ca73c312f5736690a8f75",
-  "rear": "ready"
+  "rear": "ready",
+  "rr13_design_placeholders": {
+    "TODO_DESIGN_detached_robe_tip_rest_identity": {
+      "front": [
+        [
+          153,
+          236
+        ],
+        [
+          153,
+          237
+        ]
+      ],
+      "rear": [
+        [
+          101,
+          229
+        ],
+        [
+          101,
+          230
+        ]
+      ]
+    }
+  }
 }

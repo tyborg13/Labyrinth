@@ -1,6 +1,7 @@
 """Two-view v2 evidence and planted regressions. Never launches a GUI."""
 import copy
 import json
+import os
 import math
 from pathlib import Path
 import subprocess
@@ -20,6 +21,7 @@ from humanoid_cutout.compiler import compile_motion
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-10/motion_tracks.json'
 PROOF_TIMEOUT_SECONDS = 180
+PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-13')
 
 
 def read(path):
@@ -34,7 +36,7 @@ class HumanoidTests(unittest.TestCase):
         cls.build = read(CASE / 'proof/build.json')
         with tempfile.TemporaryDirectory(prefix='rr10-bones-') as folder:
             target = Path(folder) / 'samples.json'
-            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-10', '--stream', '--',
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream', '--',
                        'godot', '--headless', '--path', '.', '--script', 'tests/rr10/samples.gd', '--', '--output', str(target)]
             process = subprocess.run(command, cwd=PROJECT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)
             if process.returncode:
@@ -246,7 +248,7 @@ class HumanoidTests(unittest.TestCase):
     def test_runtime_seed_portrait_units_and_native_input_bindings(self):
         with tempfile.TemporaryDirectory(prefix='rr10-runtime-') as folder:
             target=Path(folder)/'bindings.json'
-            command=[sys.executable,'tools/godot_task_runner.py','--task-id','rr-10','--stream','--',
+            command=[sys.executable,'tools/godot_task_runner.py','--task-id',PROOF_TASK_ID,'--stream','--',
                      'godot','--headless','--path','.','--script','tests/rr10/runtime_checks.gd','--','--bindings-output',str(target)]
             process=subprocess.run(command,cwd=PROJECT,capture_output=True,text=True,timeout=PROOF_TIMEOUT_SECONDS)
             self.assertEqual(process.returncode,0,process.stdout+process.stderr)
@@ -254,7 +256,7 @@ class HumanoidTests(unittest.TestCase):
 
     def test_real_production_callbacks_use_v2_and_exact_contacts(self):
         with tempfile.TemporaryDirectory(prefix='rr10-production-') as folder:
-            command=[sys.executable,'tools/godot_task_runner.py','--task-id','rr-10','--stream','--',
+            command=[sys.executable,'tools/godot_task_runner.py','--task-id',PROOF_TASK_ID,'--stream','--',
                      'godot','--headless','--path','.','--script','tests/rr10/production_capture.gd','--',
                      '--type','hoarfrost_seer','--output',folder,'--logic-only']
             process=subprocess.run(command,cwd=PROJECT,capture_output=True,text=True,timeout=PROOF_TIMEOUT_SECONDS)
