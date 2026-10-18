@@ -1,0 +1,206 @@
+test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) ... test_real_crawlers_are_exempt_by_measurement_labels_and_reported_by_name (tests.test_maquette_rear_turn.RearTurnTests) ... FAIL
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near', 'foot_far'), missing='front_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near', 'foot_far'), missing='front_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near', 'foot_far'), missing='rear_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near', 'foot_far'), missing='rear_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near',), missing='front_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near',), missing='front_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near',), missing='rear_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_near',), missing='rear_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_far',), missing='front_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_far',), missing='front_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_far',), missing='rear_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=False, labels=('foot_far',), missing='rear_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near', 'foot_far'), missing='front_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near', 'foot_far'), missing='front_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near', 'foot_far'), missing='rear_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near', 'foot_far'), missing='rear_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near',), missing='front_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near',), missing='front_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near',), missing='rear_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_near',), missing='rear_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_far',), missing='front_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_far',), missing='front_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_far',), missing='rear_solo_foot_near.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) (incorrect_rear=True, labels=('foot_far',), missing='rear_solo_foot_far.png')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 442, in test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear
+    deliveries()
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_real_crawlers_are_exempt_by_measurement_labels_and_reported_by_name (tests.test_maquette_rear_turn.RearTurnTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 457, in test_real_crawlers_are_exempt_by_measurement_labels_and_reported_by_name
+    self.assertIn('MAQUETTE_REAR_TURN_EXEMPT: ' + name + '/delivery; crawler', output.getvalue())
+AssertionError: 'MAQUETTE_REAR_TURN_EXEMPT: burrow_grub/delivery; crawler' not found in ''
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.824s
+
+FAILED (failures=25)

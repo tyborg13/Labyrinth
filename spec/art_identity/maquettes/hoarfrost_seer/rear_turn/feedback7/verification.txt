@@ -1,0 +1,36 @@
+mq-06 feedback 7: spec-based crawler exemption
+Merged director HEAD preserved: d0fc5906b
+Changes remain uncommitted.
+
+omissions_before.log
+Ran 2 tests in 0.824s
+FAILED (failures=25)
+
+focused.log
+Ran 100 tests in 18.424s
+OK (skipped=2)
+
+art_identity.log
+Ran 111 tests in 35.621s
+OK
+
+full_python.log
+Ran 881 tests in 840.802s
+OK (skipped=63)
+
+MQ06_CRAWLER_IDENTITY: PASS; measurements.json labels determine exemption
+MQ06_BIPED_SOLOS: PASS; all four files required when either foot label exists
+MQ06_REQUIRED_ROSTER: PASS; glacial_mirror included; six bipeds checked
+MQ06_OMISSION_REGRESSION: PASS; 24 correct/incorrect rear and label-inventory cases
+MQ06_REAL_CRAWLERS: PASS; burrow_grub and ember_tick reported as exempt by name
+MQ06_FRONT_FREEZE: PASS; files=21; joint displacement=0 px
+MQ06_STAGED_REAR_HASHES: PASS; unchanged files=34
+MQ06_DELIVERY_AND_INPUT_BYTES: PASS; all figures unchanged from merged HEAD d0fc5906b
+
+No .gd, native build, capture or windowed command applies.
+TODO_DESIGN: none. Chosen numeric defaults: none. Named test variants only.
+Open implementation issues: none. Review file absent; quoted finding implemented.
+Final curation: see curation.log for complete retained bytes and file count.
+
+OUTPUT GDIGNORE: PASS (13 folders; 3 referenced roots)
+git diff --check: exit=0

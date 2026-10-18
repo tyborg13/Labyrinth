@@ -1,0 +1,14 @@
+spec/art_identity/maquettes/blender/floor_contact.py
+spec/art_identity/maquettes/blender/view_delivery.py
+spec/art_identity/maquettes/hoarfrost_seer/COMMIT_MANIFEST.txt
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/README.md
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/art_identity.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/curation.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/final_file_list.txt
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/focused.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/full_python.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/omissions_before.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/rear_turn.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/validation.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback6/verification.txt
+tests/test_maquette_rear_turn.py

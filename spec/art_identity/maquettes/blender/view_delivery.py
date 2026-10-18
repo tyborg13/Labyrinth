@@ -109,10 +109,11 @@ def validate_override(spec, folder, manifest, reports, proof):
     if load(certificate / 'capture_frame.json') != load(folder / 'capture_frame.json'):
         raise ValueError('Rear certificate differs from staged camera framing')
     if rear.get('rear_body'):
-        from .floor_contact import contact_guard
+        from .floor_contact import contact_guard, expected_contact_names
         floor = load(certificate / 'build_report.json')['geometry_details']['floor_contact']
         checked = contact_guard({name: row['height_m'] for name, row in floor['points'].items()},
-                                rear['joints']['ankle_near'][2], rear['rear_body']['exceptions'])
+                                rear['joints']['ankle_near'][2], rear['rear_body']['exceptions'],
+                                required_contacts=expected_contact_names(rear, 'rear'))
         if not checked['passed'] or floor.get('hem_on_or_above_floor') is not True or checked['points']['hem_min']['above_floor_m'] < 0:
             raise ValueError('Rear floor contact guard failed')
     policy_path = local(folder.parent, sources['fit_policy'])
