@@ -24,7 +24,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - **Owner rejected the rr-07 Seer rig (2026-10-18):** the rear is mirrored, the idle ripples instead of the
   protagonist's cut-out bob, and the pieces cut apart in actions. → humanoid rig v2, binding spec
   `spec/peer_benchmark/humanoid_cutout_rig.md` (decisions 2026-10-18). All humanoids follow it.
-- Running: mq-05 (batch B maquettes, r2), rr-06 (Lancer rig, OLD style), rr-08 (Herald + Gloam rigs, OLD style).
+- Running: mq-05 (batch B maquettes, r2), rr-10 (Seer v2), mq-06 (Seer rear turn). Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), both old style; resume them for v2 after rr-10.
   Don't kill them (owner rule). When the rr-06/rr-08 results arrive, review them only for reusable pipeline parts.
   Don't post their clips. Each figure moves to v2 after rr-10.
 - Blender bridge: a tracked director job, `bridge.py mq-05 rr-06` (add mq-06 when it launches).
