@@ -27,7 +27,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Running / state:
   - Seer v2 = rr-10 + rr-13 on `codex/rr-13` (HEAD 4c3f86339, synced with integration). Director windowed proof all
     PASS (native gates with the reviewed exception list, sheets, review MP4, idle beside the protagonist). Posted to the
-    inbox as `seer-rig-v2`: OWNER APPROVED 18:40. Codex review asked for gate/test fixes: rr-13 resumed with feedback 2.
+    inbox as `seer-rig-v2`: OWNER APPROVED 18:40. Review fixes and 8 of 12 seam pinholes done (r3 3fc921d7c); the 2 px front death 27-30 waist hole is a director-approved exception; windowed proof PASS at b576159d4; Codex re-review running.
   - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; convert to v2 later.
 - Usage discipline (memory `codex-usage-discipline`): at most 3 fix rounds per session, then a fresh unit; workers run
   focused tests in fix rounds; full suites only at merge.
