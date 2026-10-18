@@ -29,6 +29,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     974 OK. rr-10/rr-13 worktrees removed.
   - rr-14 (humanoid foundations: foot IK, case-driven anatomy, Thrall-shaped fixture) running.
   - det-02 merged (test-only); the full Godot/Python suites cover it at the rr-14 merge.
+  - 2026-10-18 cleanup: removed 15 merged worktrees (93 GB). Kept: anim-01/02 (shelved, unmerged), rr-06/rr-08 (parked),
+    qa-05 (merged, but 2 uncommitted edits: scripts/asset_loader.gd, tests/helpers/program_sub_suites.gd; inspect
+    before removing), peer-benchmark-playtest-10 (frozen playtest), gear-devlog-capture.
   - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; convert to v2 later.
 - Usage discipline (memory `codex-usage-discipline`): at most 3 fix rounds per session, then a fresh unit; workers run
   focused tests in fix rounds; full suites only at merge.
