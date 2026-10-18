@@ -18,35 +18,29 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight (2026-10-18 late morning; humanoid rig v2 + roster wave 1)
+## In flight (2026-10-18 afternoon; humanoid rig v2 + roster wave 1)
 - Merged on integration since playtest 10: map-02, cbt-01, boon-01, fix-05, flow-01, qa-07, qa-08, bug-01, mq-04,
-  rr-05, det-01, rr-07, mq-05 (d2560b9c9). Owner approved: section transition, Bloomer rr-05 clip, roster plan, Lancer
-  look.
-- **The owner rejected the rr-07 Seer and Thrall rigs (2026-10-18).** → humanoid rig v2, binding spec
-  `spec/peer_benchmark/humanoid_cutout_rig.md`, decisions 2026-10-18. Seer and Thrall inbox items are answered and
-  closed.
+  rr-05, det-01, rr-07, mq-05 (d2560b9c9), rr-12 (9fdb6462f), mq-06 (78d87f474), mq-07 (663a8e84e). Owner approved:
+  section transition, Bloomer rr-05 clip, roster plan, Lancer look, Burrow Grub and Ember Tick rigs (rr-12).
+- **Humanoid rig v2** (owner rejected the rr-07 Seer and Thrall rigs) — binding spec
+  `spec/peer_benchmark/humanoid_cutout_rig.md`, decisions 2026-10-18.
 - Running / state:
-  - rr-10 (Seer v2): front r1 checkpoint a65f89a25; resumed with the director rope mask (feedback 2). Next: the
-    director runs `rest`, `native` and `sheets`; the rear waits for mq-06 and the repaint.
-  - mq-06 (Seer rear): root cause found (the fit lifted the far ankle 0.157 m). Fixing via the front view ray;
-    feedback 3 covers the bridge deadline, robe contact, rear frame and fit.
-  - mq-07 (Thrall maquette r2, checkpoint 881aae937): the shoulder and tube are accepted. Waits for mq-06 to land.
-    Then: the floor fix for the far ankle (+0.070 m), promote r2 to delivery, and the director repaints the Thrall.
-    Its brief also says "120 s"; clarify as in mq-06 feedback 3.
-  - rr-12 (Grub + Tick rigs, rr-05 pipeline): running after the director recorded the task contract.
-  - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; resume them for v2 after rr-10.
-- Done 2026-10-18: rr-10 and rr-12 branches squashed without proof captures (477e6d24a, 624f80f93); unreachable objects pruned (1.28 GB). Proof dirs now gitignore native/, production_native/, contact_sheets/, logs/ and *.mp4.
+  - Seer v2 = rr-10 + rr-13 on `codex/rr-13` (HEAD 4c3f86339, synced with integration). Director windowed proof all
+    PASS (native gates with the reviewed exception list, sheets, review MP4, idle beside the protagonist). Posted to the
+    inbox as `seer-rig-v2` (awaiting owner verdict). Codex peer review of `5b486cfb5..4c3f86339` running.
+  - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; convert to v2 later.
+- Usage discipline (memory `codex-usage-discipline`): at most 3 fix rounds per session, then a fresh unit; workers run
+  focused tests in fix rounds; full suites only at merge.
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - Next (in order):
-  1. mq-06 lands → repaint the Seer rear (job `jobs/hoarfrost_seer/mq6_rear`, identity gate, rope mask for the rear)
-     → resume rr-10 for the rear → windowed proof → post the Seer to the inbox (idle beside the protagonist, plus the
-     full clip).
-  2. mq-07 floor fix + promotion → Thrall repaint (mq7_front, mq7_rear) → rr-11 (Thrall v2, motion
-     `staged/rr-11`).
+  1. rr-13 review signoff → merge `codex/rr-13` into integration (import, Godot suite, Python suite) → remove the rr-10
+     and rr-13 worktrees and branches (rr-10 case has ~390 MB of ignored captures).
+  2. rr-11 (Thrall v2; motion `staged/rr-11`, maquette and mq7 paintings on integration): contract + preflight, launch.
   3. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
-     conversions (resume rr-06/rr-08).
-  4. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01.
+     conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
+  4. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
+     fixtures); mq-07 floor-guard note for the Herald and Lancer exceptions.
 - Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,
   gloam_stalker}/mq5_{front,rear}`. Motion data: `staged/rr-07`, `staged/rr-08`.
 - Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10 (owner's call).
