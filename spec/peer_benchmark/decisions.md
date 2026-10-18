@@ -171,3 +171,10 @@
   committed and curation deleted them, so their bytes can't be restored.
 - Pixels are verified identical to the paint-over kits' references, and pixels are what downstream consumes. Accepted;
   staging now preserves bytes from here on.
+
+## 2026-10-17 roster wave 1 batch B
+- Storm Capacitor skips the maquette and paint-over. Its body is rotationally symmetric, so the current painting is
+  already correct from every angle. It is rigged straight from its current art (base, glass core with arcs, bands,
+  cap) in a later rig unit.
+- Glacial Mirror is rebuilt from irregular, chipped boulders with modelled relief, never clean cubes (owner: no "toy
+  soldier" shapes).
