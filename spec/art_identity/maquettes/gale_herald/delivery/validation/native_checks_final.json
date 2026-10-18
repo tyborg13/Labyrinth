@@ -1,0 +1,87 @@
+{
+  "passed": true,
+  "figures": {
+    "hoarfrost_seer": {
+      "passed": true,
+      "spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true
+      },
+      "details": {}
+    },
+    "gale_herald": {
+      "passed": true,
+      "spec_hash": "c6bcc0f7ef16787d27d5bdc5d09bf996ae0fb6d53a271ec50a05ccc85b08bc08",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true,
+        "closed_cowl_without_aperture": true,
+        "hood_no_open_boundaries": true,
+        "one_closed_mask": true
+      },
+      "details": {
+        "hood_topology": {
+          "connected": true,
+          "nonmanifold_edges": 0,
+          "boundary_loops": 0
+        },
+        "mask_topology": {
+          "connected": true,
+          "nonmanifold_edges": 0,
+          "boundary_loops": 0
+        }
+      }
+    },
+    "arc_thrall": {
+      "passed": true,
+      "spec_hash": "631ab2fd4ef2c4e6f2461d2a51fdd6107450e1e693e6786e057462ffee791bf8",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true
+      },
+      "details": {}
+    },
+    "gloam_stalker": {
+      "passed": true,
+      "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true,
+        "carapace_own_part_on_torso": true,
+        "carapace_closed_plates": true,
+        "two_attached_single_piece_claws": true,
+        "carapace_cloth_collisions": true
+      },
+      "details": {
+        "carapace_topology": {
+          "connected": false,
+          "nonmanifold_edges": 0,
+          "boundary_loops": 0
+        },
+        "blade_attachments": {
+          "claw_near_render": {
+            "region": "fore_near",
+            "root_displacement": 0.09992022154176865,
+            "root_contact_gap": 0.0,
+            "passed": true
+          },
+          "claw_far_render": {
+            "region": "fore_far",
+            "root_displacement": 0.28835195126428115,
+            "root_contact_gap": 0.0,
+            "passed": true
+          }
+        }
+      }
+    }
+  },
+  "evidence_sha256": {
+    "native_checks_release.json": "671d6b163bc6b0f6a094d49fb44b13f99778503e69008c3569622f4231eed69b",
+    "native_checks_clear_cowl.json": "91df838121c0a5190581d47216dfd7cdfc637e55b2365fa4affc5df72e280682"
+  }
+}

@@ -55,13 +55,17 @@ def stabilise_collision(obj, body, piece):
     # Concave shoulder and hip contacts can alternate nearest sides across
     # a single cloth quad. A Blender convex regional contact surface prevents
     # tunnelling while the final gate still checks the complete posed anatomy.
-    if piece['kind'] in ('collar', 'tabard', 'cloak') and 'face_owners' in body:
+    if (piece.get('contact_regions') or piece['kind'] in ('collar', 'tabard', 'cloak')) and 'face_owners' in body:
         from .conformance import regional_body
-        regions = (['torso', 'head', 'upper_near', 'upper_far'] if piece['kind'] == 'collar'
+        regions = piece.get('contact_regions', (['torso', 'head', 'upper_near', 'upper_far'] if piece['kind'] == 'collar'
                    else ['pelvis', 'thigh_near', 'thigh_far'] if piece['kind'] == 'tabard'
-                   else [])
+                   else []))
         body = regional_body(body, {'id': 'cloth_contact_' + piece['id'],
             'body_regions': regions, 'contact_hull': True})
+    project_constraints(obj, body, piece)
+
+
+def project_constraints(obj, body, piece):
     body_data = mesh_payload(body)
     tree = BVHTree.FromPolygons([Vector(p) for p in body_data['vertices']], body_data['faces'])
     inverse = obj.matrix_world.inverted()

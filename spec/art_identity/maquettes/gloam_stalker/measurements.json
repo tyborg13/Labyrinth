@@ -1,0 +1,2267 @@
+{
+  "schema": 1,
+  "id": "gloam_stalker",
+  "sources": {
+    "front": "spec/art_identity/jobs/gloam_stalker/front/processed.png",
+    "rear": "spec/art_identity/jobs/gloam_stalker/rear/processed.png"
+  },
+  "source_sha256": {
+    "front": "7211f9dc1bcd40057b0231a02d53026776f5af428a241b40ffe37655ba21663a",
+    "rear": "a0613d31859963e1f5fd8a66e106d0ececccdcd6e18f6e332faa136f630881a4"
+  },
+  "labels": {
+    "head": [
+      1.0,
+      0.85,
+      0.1
+    ],
+    "torso": [
+      0.85,
+      0.15,
+      0.15
+    ],
+    "cape_near": [
+      0.95,
+      0.55,
+      0.1
+    ],
+    "cape_far": [
+      0.6,
+      0.35,
+      0.05
+    ],
+    "upper_near": [
+      0.2,
+      0.4,
+      1.0
+    ],
+    "fore_near": [
+      0.45,
+      0.62,
+      1.0
+    ],
+    "claw_near": [
+      0.40328803902500004,
+      0.255,
+      0.85
+    ],
+    "upper_far": [
+      0.5,
+      0.1,
+      0.8
+    ],
+    "fore_far": [
+      0.72,
+      0.3,
+      0.9
+    ],
+    "claw_far": [
+      0.255,
+      0.6275679414624998,
+      0.85
+    ],
+    "thigh_near": [
+      0.1,
+      0.7,
+      0.7
+    ],
+    "shin_near": [
+      0.3,
+      0.85,
+      0.85
+    ],
+    "foot_near": [
+      0.6,
+      0.95,
+      0.95
+    ],
+    "thigh_far": [
+      0.05,
+      0.4,
+      0.4
+    ],
+    "shin_far": [
+      0.15,
+      0.55,
+      0.55
+    ],
+    "foot_far": [
+      0.3,
+      0.65,
+      0.65
+    ],
+    "carapace": [
+      0.2,
+      0.75,
+      0.15
+    ]
+  },
+  "joints_px": {
+    "pelvis": [
+      [
+        133,
+        151
+      ],
+      [
+        131,
+        150
+      ]
+    ],
+    "torso": [
+      [
+        136,
+        109
+      ],
+      [
+        135,
+        104
+      ]
+    ],
+    "head": [
+      [
+        114,
+        73
+      ],
+      [
+        139,
+        72
+      ]
+    ],
+    "head_tip": [
+      [
+        118,
+        46
+      ],
+      [
+        143,
+        45
+      ]
+    ],
+    "shoulder_near": [
+      [
+        164,
+        96
+      ],
+      [
+        92,
+        97
+      ]
+    ],
+    "shoulder_far": [
+      [
+        83,
+        110
+      ],
+      [
+        172,
+        101
+      ]
+    ],
+    "elbow_near": [
+      [
+        192,
+        132
+      ],
+      [
+        58,
+        127
+      ]
+    ],
+    "elbow_far": [
+      [
+        52,
+        135
+      ],
+      [
+        193,
+        133
+      ]
+    ],
+    "hand_near": [
+      [
+        205,
+        163
+      ],
+      [
+        50,
+        154
+      ]
+    ],
+    "hand_far": [
+      [
+        41,
+        163
+      ],
+      [
+        202,
+        159
+      ]
+    ],
+    "hand_tip_near": [
+      [
+        199,
+        216
+      ],
+      [
+        58,
+        201
+      ]
+    ],
+    "hand_tip_far": [
+      [
+        51,
+        180
+      ],
+      [
+        209,
+        194
+      ]
+    ],
+    "hip_near": [
+      [
+        152,
+        153
+      ],
+      [
+        111,
+        151
+      ]
+    ],
+    "hip_far": [
+      [
+        111,
+        151
+      ],
+      [
+        149,
+        151
+      ]
+    ],
+    "knee_near": [
+      [
+        164,
+        181
+      ],
+      [
+        80,
+        167
+      ]
+    ],
+    "knee_far": [
+      [
+        100,
+        172
+      ],
+      [
+        145,
+        185
+      ]
+    ],
+    "ankle_near": [
+      [
+        177,
+        222
+      ],
+      [
+        68,
+        188
+      ]
+    ],
+    "ankle_far": [
+      [
+        91,
+        188
+      ],
+      [
+        150,
+        221
+      ]
+    ],
+    "foot_tip_near": [
+      [
+        159,
+        240
+      ],
+      [
+        84,
+        199
+      ]
+    ],
+    "foot_tip_far": [
+      [
+        76,
+        202
+      ],
+      [
+        174,
+        236
+      ]
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "hood",
+      "part": "head",
+      "kind": "hood",
+      "shape": "cowl",
+      "joint": "head",
+      "rings": [
+        [
+          30,
+          0.5,
+          0.5
+        ],
+        [
+          27,
+          9,
+          8
+        ],
+        [
+          21,
+          15,
+          14
+        ],
+        [
+          13,
+          21,
+          19
+        ],
+        [
+          3,
+          23,
+          20
+        ],
+        [
+          -7,
+          20,
+          19
+        ],
+        [
+          -18,
+          26,
+          27
+        ],
+        [
+          -30,
+          37,
+          39
+        ]
+      ],
+      "angles": [
+        0.7853981633974483,
+        5.497787143782138
+      ],
+      "closed": false,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "head",
+        "torso"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1,
+          2
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "pin_filled_spans": [
+          [
+            0,
+            2
+          ]
+        ],
+        "pin_opening_rows": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "solver_margin": 0.015,
+        "native_hood": {
+          "revision": 1,
+          "opening_width_ratio": 0.6,
+          "opening_height_px": 26
+        }
+      },
+      "opening_half_angles": [
+        0,
+        0,
+        0.1,
+        0.32,
+        0.34,
+        0.23,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "torso_cloth",
+      "part": "torso",
+      "kind": "skirt",
+      "shape": "cowl",
+      "joint": "torso",
+      "rings": [
+        [
+          25,
+          13,
+          16
+        ],
+        [
+          14,
+          27,
+          30
+        ],
+        [
+          0,
+          26,
+          29
+        ],
+        [
+          -19,
+          24,
+          27
+        ],
+        [
+          -37,
+          20,
+          23
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "head",
+        "upper_near",
+        "upper_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          4
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "native_rest": {
+          "revision": 1,
+          "waist_joint": "pelvis",
+          "cuffs": [],
+          "neckline_px": [
+            [
+              129,
+              100
+            ],
+            [
+              126,
+              100
+            ]
+          ]
+        }
+      },
+      "sewn_parts": [
+        "torso"
+      ]
+    },
+    {
+      "id": "claw_near",
+      "part": "claw_near",
+      "shape": "crescent",
+      "front_outline_px": [
+        [
+          190,
+          123
+        ],
+        [
+          200,
+          125
+        ],
+        [
+          208,
+          148
+        ],
+        [
+          214,
+          160
+        ],
+        [
+          222,
+          169
+        ],
+        [
+          227,
+          184
+        ],
+        [
+          224,
+          199
+        ],
+        [
+          215,
+          213
+        ],
+        [
+          195,
+          228
+        ],
+        [
+          204,
+          209
+        ],
+        [
+          207,
+          191
+        ],
+        [
+          206,
+          174
+        ],
+        [
+          197,
+          159
+        ],
+        [
+          192,
+          144
+        ]
+      ],
+      "rear_outline_px": [
+        [
+          59,
+          113
+        ],
+        [
+          53,
+          116
+        ],
+        [
+          44,
+          128
+        ],
+        [
+          38,
+          140
+        ],
+        [
+          36,
+          151
+        ],
+        [
+          40,
+          162
+        ],
+        [
+          49,
+          170
+        ],
+        [
+          60,
+          176
+        ],
+        [
+          59,
+          172
+        ],
+        [
+          56,
+          164
+        ],
+        [
+          53,
+          154
+        ],
+        [
+          51,
+          145
+        ],
+        [
+          53,
+          132
+        ],
+        [
+          56,
+          120
+        ]
+      ],
+      "thick": 0.006,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      },
+      "root_depth_px": 3,
+      "outer_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "inner_indices": [
+        0,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8
+      ],
+      "root_joint": "elbow_near"
+    },
+    {
+      "id": "claw_far",
+      "part": "claw_far",
+      "shape": "crescent",
+      "front_outline_px": [
+        [
+          70,
+          101
+        ],
+        [
+          76,
+          109
+        ],
+        [
+          61,
+          118
+        ],
+        [
+          54,
+          133
+        ],
+        [
+          48,
+          146
+        ],
+        [
+          47,
+          158
+        ],
+        [
+          53,
+          176
+        ],
+        [
+          43,
+          173
+        ],
+        [
+          35,
+          163
+        ],
+        [
+          30,
+          150
+        ],
+        [
+          29,
+          136
+        ],
+        [
+          37,
+          119
+        ],
+        [
+          49,
+          103
+        ],
+        [
+          62,
+          105
+        ]
+      ],
+      "rear_outline_px": [
+        [
+          185,
+          120
+        ],
+        [
+          191,
+          124
+        ],
+        [
+          201,
+          138
+        ],
+        [
+          205,
+          153
+        ],
+        [
+          208,
+          170
+        ],
+        [
+          208,
+          189
+        ],
+        [
+          201,
+          207
+        ],
+        [
+          212,
+          199
+        ],
+        [
+          220,
+          185
+        ],
+        [
+          223,
+          170
+        ],
+        [
+          217,
+          155
+        ],
+        [
+          209,
+          143
+        ],
+        [
+          196,
+          133
+        ],
+        [
+          188,
+          124
+        ]
+      ],
+      "thick": 0.006,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      },
+      "root_depth_px": 3,
+      "outer_indices": [
+        0,
+        13,
+        12,
+        11,
+        10,
+        9,
+        8,
+        7,
+        6
+      ],
+      "inner_indices": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "root_joint": "elbow_far"
+    },
+    {
+      "id": "cloak",
+      "part": "cape_near",
+      "shape": "back_sheet",
+      "kind": "cloak",
+      "joint": "torso",
+      "drape": {
+        "row_subdivisions": 20,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "rag": {
+          "count": 12,
+          "depth": 0.015,
+          "seed": 45
+        },
+        "back_sheet": {
+          "revision": 2,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ],
+          "width_px": 117,
+          "height_px": 115,
+          "columns": 64,
+          "hem_px": {
+            "rear": [
+              [
+                72,
+                131
+              ],
+              [
+                85,
+                147
+              ],
+              [
+                101,
+                137
+              ],
+              [
+                116,
+                163
+              ],
+              [
+                128,
+                202
+              ],
+              [
+                141,
+                177
+              ],
+              [
+                151,
+                160
+              ],
+              [
+                166,
+                175
+              ],
+              [
+                185,
+                147
+              ]
+            ]
+          }
+        },
+        "gather_frames": 24
+      },
+      "side_parts": [
+        "cape_near",
+        "cape_far"
+      ]
+    },
+    {
+      "id": "front_cloak",
+      "part": "cape_near",
+      "shape": "back_sheet",
+      "kind": "cloak",
+      "joint": "torso",
+      "drape": {
+        "row_subdivisions": 20,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "rag": {
+          "count": 12,
+          "depth": 0.015,
+          "seed": 45
+        },
+        "back_sheet": {
+          "revision": 2,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ],
+          "width_px": 117,
+          "height_px": 115,
+          "columns": 64,
+          "hem_px": {
+            "front": [
+              [
+                65,
+                143
+              ],
+              [
+                80,
+                155
+              ],
+              [
+                96,
+                148
+              ],
+              [
+                111,
+                177
+              ],
+              [
+                121,
+                164
+              ],
+              [
+                136,
+                211
+              ],
+              [
+                150,
+                171
+              ],
+              [
+                163,
+                161
+              ],
+              [
+                179,
+                179
+              ],
+              [
+                190,
+                163
+              ]
+            ]
+          },
+          "side": "front"
+        },
+        "gather_frames": 24
+      },
+      "side_parts": [
+        "cape_near",
+        "cape_far"
+      ]
+    },
+    {
+      "id": "back_carapace",
+      "part": "carapace",
+      "shape": "ridged_shell",
+      "joint": "torso",
+      "layers": [
+        {
+          "front_rim_px": [
+            [
+              105,
+              47
+            ],
+            [
+              120,
+              34
+            ],
+            [
+              140,
+              48
+            ],
+            [
+              150,
+              55
+            ],
+            [
+              133,
+              70
+            ],
+            [
+              111,
+              66
+            ],
+            [
+              96,
+              59
+            ]
+          ],
+          "rear_rim_px": [
+            [
+              154,
+              48
+            ],
+            [
+              145,
+              36
+            ],
+            [
+              127,
+              50
+            ],
+            [
+              112,
+              59
+            ],
+            [
+              132,
+              73
+            ],
+            [
+              151,
+              69
+            ],
+            [
+              164,
+              59
+            ]
+          ],
+          "ridge_px": [
+            [
+              128,
+              51
+            ],
+            [
+              138,
+              54
+            ]
+          ],
+          "thickness_px": 3
+        },
+        {
+          "front_rim_px": [
+            [
+              92,
+              59
+            ],
+            [
+              110,
+              53
+            ],
+            [
+              142,
+              59
+            ],
+            [
+              164,
+              58
+            ],
+            [
+              178,
+              72
+            ],
+            [
+              159,
+              80
+            ],
+            [
+              132,
+              78
+            ],
+            [
+              108,
+              76
+            ],
+            [
+              82,
+              79
+            ]
+          ],
+          "rear_rim_px": [
+            [
+              169,
+              64
+            ],
+            [
+              154,
+              59
+            ],
+            [
+              122,
+              64
+            ],
+            [
+              99,
+              70
+            ],
+            [
+              82,
+              78
+            ],
+            [
+              101,
+              94
+            ],
+            [
+              131,
+              90
+            ],
+            [
+              153,
+              85
+            ],
+            [
+              180,
+              89
+            ]
+          ],
+          "ridge_px": [
+            [
+              135,
+              67
+            ],
+            [
+              131,
+              75
+            ]
+          ],
+          "thickness_px": 3
+        },
+        {
+          "front_rim_px": [
+            [
+              81,
+              77
+            ],
+            [
+              105,
+              70
+            ],
+            [
+              137,
+              78
+            ],
+            [
+              172,
+              73
+            ],
+            [
+              189,
+              88
+            ],
+            [
+              173,
+              93
+            ],
+            [
+              138,
+              93
+            ],
+            [
+              107,
+              90
+            ],
+            [
+              72,
+              89
+            ]
+          ],
+          "rear_rim_px": [
+            [
+              183,
+              82
+            ],
+            [
+              155,
+              75
+            ],
+            [
+              129,
+              81
+            ],
+            [
+              91,
+              79
+            ],
+            [
+              68,
+              95
+            ],
+            [
+              87,
+              110
+            ],
+            [
+              126,
+              104
+            ],
+            [
+              154,
+              99
+            ],
+            [
+              193,
+              103
+            ]
+          ],
+          "ridge_px": [
+            [
+              137,
+              83
+            ],
+            [
+              132,
+              90
+            ]
+          ],
+          "thickness_px": 3
+        },
+        {
+          "front_rim_px": [
+            [
+              74,
+              90
+            ],
+            [
+              99,
+              85
+            ],
+            [
+              140,
+              91
+            ],
+            [
+              181,
+              87
+            ],
+            [
+              202,
+              108
+            ],
+            [
+              182,
+              104
+            ],
+            [
+              142,
+              106
+            ],
+            [
+              104,
+              104
+            ],
+            [
+              69,
+              104
+            ]
+          ],
+          "rear_rim_px": [
+            [
+              192,
+              99
+            ],
+            [
+              161,
+              91
+            ],
+            [
+              129,
+              96
+            ],
+            [
+              77,
+              98
+            ],
+            [
+              60,
+              116
+            ],
+            [
+              84,
+              116
+            ],
+            [
+              127,
+              116
+            ],
+            [
+              165,
+              116
+            ],
+            [
+              197,
+              112
+            ]
+          ],
+          "ridge_px": [
+            [
+              140,
+              98
+            ],
+            [
+              130,
+              103
+            ]
+          ],
+          "thickness_px": 3
+        }
+      ],
+      "clearance_parts": [
+        "hood",
+        "torso_cloth",
+        "cloak",
+        "front_cloak"
+      ]
+    }
+  ],
+  "bone_scales": {
+    "pelvis": [
+      1,
+      1
+    ],
+    "torso": [
+      1,
+      1
+    ],
+    "head": [
+      1,
+      1
+    ],
+    "hip_near": [
+      1.3,
+      1.2
+    ],
+    "hip_far": [
+      1.3,
+      1.2
+    ],
+    "shoulder_near": [
+      0.6,
+      0.6
+    ],
+    "shoulder_far": [
+      0.6,
+      0.6
+    ],
+    "elbow_near": [
+      0.6,
+      0.6
+    ],
+    "elbow_far": [
+      0.6,
+      0.6
+    ],
+    "hand_near": [
+      0.25,
+      0.25
+    ],
+    "hand_far": [
+      0.25,
+      0.25
+    ],
+    "knee_near": [
+      1,
+      1
+    ],
+    "knee_far": [
+      1,
+      1
+    ]
+  },
+  "region_map": {
+    "pelvis": "torso",
+    "hand_near": "claw_near",
+    "hand_far": "claw_far"
+  },
+  "weapon_parts": [],
+  "fit": {
+    "front": {
+      "source_frame": {
+        "head_top": 33,
+        "sole_bottom": 246,
+        "ground_x": 164.5
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.29577464788732394,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.5539906103286385,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.6948356807511737,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.8873239436619719,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.7,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    },
+    "rear": {
+      "source_frame": {
+        "head_top": 36,
+        "sole_bottom": 246,
+        "ground_x": 143.0
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.2904761904761905,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.5428571428571428,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.6238095238095238,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.7238095238095238,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.65,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    }
+  },
+  "features": {
+    "eyes": {
+      "part": "head",
+      "whole": true
+    },
+    "purple_drips": {
+      "rule": "Retain each whole drip in its painted surface; no generated or split paint."
+    }
+  },
+  "occlusions": {
+    "front": {},
+    "rear": {}
+  },
+  "unresolved_design": {},
+  "measurement_basis": "Art-02 identity/proportion reference. Native crouched anatomy, shoulder/back cloth with free tattered drapes; measured crescent contours lofted with a 3-source-pixel root depth from the visible root bevel.",
+  "covered_body_regions": [
+    "claw_near",
+    "claw_far",
+    "torso"
+  ],
+  "body_source_profiles": {
+    "foot_near": {
+      "front": [
+        [
+          165,
+          219
+        ],
+        [
+          166,
+          220
+        ],
+        [
+          164,
+          221
+        ],
+        [
+          164,
+          222
+        ],
+        [
+          161,
+          223
+        ],
+        [
+          161,
+          224
+        ],
+        [
+          159,
+          225
+        ],
+        [
+          159,
+          226
+        ],
+        [
+          157,
+          227
+        ],
+        [
+          157,
+          228
+        ],
+        [
+          157,
+          229
+        ],
+        [
+          157,
+          230
+        ],
+        [
+          157,
+          231
+        ],
+        [
+          155,
+          232
+        ],
+        [
+          155,
+          233
+        ],
+        [
+          155,
+          234
+        ],
+        [
+          155,
+          235
+        ],
+        [
+          155,
+          236
+        ],
+        [
+          155,
+          237
+        ],
+        [
+          155,
+          238
+        ],
+        [
+          155,
+          239
+        ],
+        [
+          155,
+          240
+        ],
+        [
+          155,
+          241
+        ],
+        [
+          157,
+          242
+        ],
+        [
+          157,
+          243
+        ],
+        [
+          159,
+          244
+        ],
+        [
+          159,
+          246
+        ],
+        [
+          170,
+          246
+        ],
+        [
+          170,
+          244
+        ],
+        [
+          183,
+          243
+        ],
+        [
+          183,
+          242
+        ],
+        [
+          187,
+          241
+        ],
+        [
+          187,
+          240
+        ],
+        [
+          189,
+          239
+        ],
+        [
+          191,
+          238
+        ],
+        [
+          191,
+          237
+        ],
+        [
+          192,
+          236
+        ],
+        [
+          192,
+          235
+        ],
+        [
+          192,
+          234
+        ],
+        [
+          192,
+          233
+        ],
+        [
+          192,
+          232
+        ],
+        [
+          192,
+          231
+        ],
+        [
+          192,
+          230
+        ],
+        [
+          193,
+          229
+        ],
+        [
+          193,
+          228
+        ],
+        [
+          193,
+          227
+        ],
+        [
+          193,
+          226
+        ],
+        [
+          193,
+          225
+        ],
+        [
+          193,
+          224
+        ],
+        [
+          193,
+          223
+        ],
+        [
+          193,
+          222
+        ],
+        [
+          193,
+          221
+        ],
+        [
+          193,
+          220
+        ],
+        [
+          193,
+          219
+        ]
+      ]
+    },
+    "foot_far": {
+      "rear": [
+        [
+          136,
+          218
+        ],
+        [
+          136,
+          219
+        ],
+        [
+          136,
+          220
+        ],
+        [
+          136,
+          221
+        ],
+        [
+          134,
+          222
+        ],
+        [
+          134,
+          223
+        ],
+        [
+          134,
+          224
+        ],
+        [
+          134,
+          225
+        ],
+        [
+          134,
+          226
+        ],
+        [
+          134,
+          227
+        ],
+        [
+          134,
+          228
+        ],
+        [
+          133,
+          229
+        ],
+        [
+          133,
+          230
+        ],
+        [
+          132,
+          231
+        ],
+        [
+          132,
+          232
+        ],
+        [
+          132,
+          233
+        ],
+        [
+          132,
+          234
+        ],
+        [
+          132,
+          235
+        ],
+        [
+          132,
+          236
+        ],
+        [
+          132,
+          237
+        ],
+        [
+          132,
+          238
+        ],
+        [
+          132,
+          239
+        ],
+        [
+          132,
+          240
+        ],
+        [
+          132,
+          241
+        ],
+        [
+          133,
+          242
+        ],
+        [
+          133,
+          243
+        ],
+        [
+          136,
+          244
+        ],
+        [
+          136,
+          246
+        ],
+        [
+          150,
+          246
+        ],
+        [
+          150,
+          244
+        ],
+        [
+          171,
+          243
+        ],
+        [
+          171,
+          242
+        ],
+        [
+          177,
+          241
+        ],
+        [
+          177,
+          240
+        ],
+        [
+          180,
+          239
+        ],
+        [
+          180,
+          238
+        ],
+        [
+          181,
+          237
+        ],
+        [
+          181,
+          236
+        ],
+        [
+          181,
+          235
+        ],
+        [
+          181,
+          234
+        ],
+        [
+          181,
+          233
+        ],
+        [
+          181,
+          232
+        ],
+        [
+          181,
+          231
+        ],
+        [
+          181,
+          230
+        ],
+        [
+          180,
+          229
+        ],
+        [
+          180,
+          228
+        ],
+        [
+          180,
+          227
+        ],
+        [
+          178,
+          226
+        ],
+        [
+          178,
+          225
+        ],
+        [
+          176,
+          224
+        ],
+        [
+          176,
+          223
+        ],
+        [
+          172,
+          222
+        ],
+        [
+          171,
+          221
+        ],
+        [
+          165,
+          220
+        ],
+        [
+          165,
+          219
+        ],
+        [
+          165,
+          218
+        ]
+      ]
+    },
+    "shin_near": {
+      "front": [
+        [
+          154,
+          177
+        ],
+        [
+          172,
+          178
+        ],
+        [
+          183,
+          200
+        ],
+        [
+          181,
+          221
+        ],
+        [
+          168,
+          228
+        ],
+        [
+          157,
+          211
+        ],
+        [
+          152,
+          190
+        ]
+      ],
+      "rear": [
+        [
+          72,
+          161
+        ],
+        [
+          92,
+          164
+        ],
+        [
+          86,
+          180
+        ],
+        [
+          74,
+          194
+        ],
+        [
+          61,
+          193
+        ],
+        [
+          60,
+          182
+        ],
+        [
+          65,
+          169
+        ]
+      ]
+    },
+    "shin_far": {
+      "front": [
+        [
+          91,
+          166
+        ],
+        [
+          107,
+          168
+        ],
+        [
+          105,
+          181
+        ],
+        [
+          96,
+          195
+        ],
+        [
+          82,
+          197
+        ],
+        [
+          80,
+          185
+        ],
+        [
+          83,
+          174
+        ]
+      ],
+      "rear": [
+        [
+          135,
+          177
+        ],
+        [
+          154,
+          181
+        ],
+        [
+          164,
+          200
+        ],
+        [
+          159,
+          220
+        ],
+        [
+          146,
+          231
+        ],
+        [
+          134,
+          217
+        ],
+        [
+          130,
+          194
+        ]
+      ]
+    },
+    "thigh_near": {
+      "front": [
+        [
+          139,
+          146
+        ],
+        [
+          157,
+          143
+        ],
+        [
+          171,
+          154
+        ],
+        [
+          176,
+          175
+        ],
+        [
+          167,
+          189
+        ],
+        [
+          151,
+          181
+        ],
+        [
+          139,
+          164
+        ]
+      ],
+      "rear": [
+        [
+          107,
+          143
+        ],
+        [
+          123,
+          153
+        ],
+        [
+          112,
+          170
+        ],
+        [
+          94,
+          180
+        ],
+        [
+          76,
+          173
+        ],
+        [
+          85,
+          155
+        ]
+      ]
+    },
+    "thigh_far": {
+      "front": [
+        [
+          105,
+          144
+        ],
+        [
+          121,
+          152
+        ],
+        [
+          117,
+          168
+        ],
+        [
+          105,
+          181
+        ],
+        [
+          88,
+          176
+        ],
+        [
+          86,
+          162
+        ]
+      ],
+      "rear": [
+        [
+          139,
+          144
+        ],
+        [
+          155,
+          146
+        ],
+        [
+          167,
+          161
+        ],
+        [
+          169,
+          180
+        ],
+        [
+          155,
+          194
+        ],
+        [
+          135,
+          185
+        ],
+        [
+          129,
+          162
+        ]
+      ]
+    }
+  },
+  "hidden_anatomy_note": "The hood supplies the complete head silhouette; concealed anatomy is narrowed only for cloth clearance. Visible anatomy and source cloth measurements are unchanged.",
+  "contact_policy": "Existing native regional contact solver; original-anatomy collision validation remains mandatory. Whole-body projection experiments were rejected because they distorted source fits without clearing the real-model gate.",
+  "grounded_profile_measurements": {
+    "regions": {
+      "foot_near": [
+        "front",
+        [
+          140,
+          219,
+          193,
+          247
+        ]
+      ],
+      "foot_far": [
+        "rear",
+        [
+          125,
+          218,
+          181,
+          247
+        ]
+      ]
+    },
+    "alpha_threshold": 128,
+    "row_step_px": 1,
+    "method": "Observed full ground-contact foot contour; retain native depth for the occluded opposite view."
+  },
+  "design_direction": "Feedback 3: all four native maquettes reviewed together before paint-over.",
+  "cloth_registration": "One continuous free back sheet with measured fabric width, gathered to the native shoulder seam under gravity. Body-side cape ownership is stable in both views. The two identity hem contours bound its sewn rest hem.",
+  "simulation_basis": "Native Cloth uses the Lancer r3 stiffness preset with the fixed per-garment pre-roll recorded in drape.frames, free fabric, self-collision, measured attachments and the native anatomy collision skin. Sampling, solver timing and tolerances are implementation fields; source extents and director metric dimensions are retained.",
+  "head_face_axis_px": [
+    [
+      103,
+      97
+    ],
+    [
+      96,
+      65
+    ]
+  ],
+  "head_pose_basis": "Native head pitch derived from the painted forehead/chin axis, not an invented angle. Head remains one posed CC0 skull in both views; the painted eyes are owned by head.",
+  "cloak_basis": "Feedback 4: free front and back cloth panels overlap the rounded shoulder cowl. Each panel hem is traced from its visible identity view; both panels remain in the same model in both captures. Source central tattered points extend below the waist, without modelling painted purple drips.",
+  "implementation_issues": {},
+  "carapace_basis": "Feedback 4: one rigid upper-torso carapace; four overlapping jagged shoulder/back layers traced from both paintings, with each source spike preserved in the measured rims. One carapace rig part owns every plate.",
+  "cloth_obstacles": [
+    [
+      "hood",
+      "back_carapace"
+    ],
+    [
+      "torso_cloth",
+      "back_carapace"
+    ],
+    [
+      "cloak",
+      "back_carapace"
+    ],
+    [
+      "front_cloak",
+      "back_carapace"
+    ]
+  ],
+  "carapace_layering": "Four closed curved carapace plates retain their measured outer spike rims. Native exact boolean cutouts clear expanded convex envelopes of the solved cloth; clothing stays unchanged. Every pair is measured against the same 3 mm gate as anatomy."
+}

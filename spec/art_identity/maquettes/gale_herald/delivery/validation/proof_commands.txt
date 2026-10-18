@@ -1,0 +1,37 @@
+Run from the mq-04 worktree root. Blender launches are bridge-only.
+
+# Clean input-only clay regeneration; exact canonical PNG SHA-256 comparison.
+python3 -B -m spec.art_identity.maquettes.blender.regenerate_delivery spec/art_identity/maquettes/arc_thrall --out spec/art_identity/maquettes/gale_herald/regenerated_arc --verify --preview --discard-build
+
+# Regenerate full native deliveries (including solos) and fresh cold/replay proof.
+for mq04_figure in hoarfrost_seer gale_herald arc_thrall gloam_stalker; do
+  python3 -B -m spec.art_identity.maquettes.blender.regenerate_delivery "spec/art_identity/maquettes/$mq04_figure" --out "spec/art_identity/maquettes/gale_herald/regenerated/$mq04_figure" --verify
+  python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/recipe_proof.py -- "$PWD/spec/art_identity/maquettes/gale_herald/regenerated/$mq04_figure/clean_project/spec/art_identity/maquettes/$mq04_figure/spec_native.json" "$PWD/spec/art_identity/maquettes/gale_herald/regenerated/$mq04_figure/determinism"
+  python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/exact_native_replay.py -- "$PWD/spec/art_identity/maquettes/gale_herald/regenerated/$mq04_figure/determinism" "$PWD/spec/art_identity/maquettes/gale_herald/regenerated/$mq04_figure/exact_native_replay.json"
+done
+
+# Build the native ownership/surface probe job from those clean outputs.
+python3 -B - <<'NATIVE_JOB'
+from pathlib import Path
+import json
+root = Path.cwd() / 'spec/art_identity/maquettes/gale_herald/regenerated'
+jobs = []
+for figure in ('hoarfrost_seer','gale_herald','arc_thrall','gloam_stalker'):
+    native = root / figure / 'clean_project/spec/art_identity/maquettes' / figure
+    jobs.append({'spec': str(native / 'spec_native.json'), 'build': str(native / 'capture')})
+(root / 'native_jobs.json').write_text(json.dumps(jobs, indent=2) + '\n')
+NATIVE_JOB
+python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/native_delivery_checks.py -- "$PWD/spec/art_identity/maquettes/gale_herald/regenerated/native_jobs.json" "$PWD/spec/art_identity/maquettes/gale_herald/regenerated/native_checks.json"
+
+# Rebuild the same-scale comparison and 40% overlays from the curated inputs.
+python3 -B spec/art_identity/maquettes/blender/quality_delivery.py spec/art_identity/maquettes/hoarfrost_seer spec/art_identity/maquettes/gale_herald spec/art_identity/maquettes/arc_thrall spec/art_identity/maquettes/gloam_stalker --capture-subdir delivery --lancer spec/art_identity/maquettes/gloam_stalker/delivery/reference/lancer_r3 --out spec/art_identity/maquettes/gale_herald/delivery/review
+# The delivered comparison is stored in arc_thrall/delivery/review to share the per-figure commit budget.
+
+python3 -B -m unittest spec.art_identity.maquettes.blender.test_source_recipe spec.art_identity.maquettes.blender.test_drape spec.art_identity.maquettes.blender.test_round3 spec.art_identity.maquettes.blender.test_delivery -v
+python3 -B -m unittest tests.test_maquette_blender tests.test_maquette_cutout tests.test_maquette_geometry tests.test_maquette_regressions
+python3 -B tests/test_art_identity_gate.py
+python3 -B spec/art_identity/maquettes/blender/mutation_proof.py --out spec/art_identity/maquettes/gale_herald/regenerated_mutations
+python3 -B tools/maquette_fit.py compat --out spec/art_identity/maquettes/gale_herald/regenerated_compat
+python3 -B -m unittest discover -s tests -p 'test_*.py' -v
+
+No windowed command or inspection-fixture command applies: this unit changes only offline Blender maquettes and Python tooling. No GDScript, game scene or player UI changed.

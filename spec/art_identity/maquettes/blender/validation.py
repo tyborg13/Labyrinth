@@ -4,7 +4,7 @@ import json
 from mathutils import Vector
 
 from .contract import BUILD_DEFAULTS
-from .ownership import materials_match, weights_match
+from .ownership import materials_match, weights_match, expected_materials
 
 
 def geometry_report(spec, objects, cloth_reports, details=None):
@@ -13,7 +13,14 @@ def geometry_report(spec, objects, cloth_reports, details=None):
     epsilon = BUILD_DEFAULTS['collision_epsilon']
     labelled = all(o.get('part') in spec['labels'] and len(o.data.polygons) for o in objects)
     expected = {b['region'] for b in spec['armature']['bones']} | {p['part'] for p in spec['pieces']}
-    represented = {o['part'] for o in objects}
+    import bpy
+    forward = bpy.data.objects['maquette_armature']['posed_forward']
+    assignments = {o.name: expected_materials(o, spec, forward) for o in objects}
+    represented = {list(spec['labels'])[i] for values in assignments.values() for i in values}
+    from .view_states import active_in_view, view_parts
+    views_ok = all(view_parts(spec, view) <= {list(spec['labels'])[i] for o in objects
+                   if active_in_view(o, view) for i in assignments[o.name]}
+                   for view in ('front', 'rear'))
     collar_ok = True
     for obj in objects:
         if obj.get('cloth_kind') != 'collar':
@@ -30,9 +37,8 @@ def geometry_report(spec, objects, cloth_reports, details=None):
     corners_ok = True
     conform_ok = True
     from .conformance import body_tree
-    import bpy
     body = bpy.data.objects.get('posed_body')
-    material_ok = all(materials_match(o, [list(spec['labels']).index(o['part'])] * len(o.data.polygons)) for o in objects)
+    material_ok = all(materials_match(o, assignments[o.name]) for o in objects)
     weighted_ok = True
     if body and 'face_owners' in body:
         source = bpy.data.objects['body']
@@ -74,6 +80,11 @@ def geometry_report(spec, objects, cloth_reports, details=None):
                      min(((v.co.x - x * scale[0]) ** 2 + (v.co.z - z * scale[1]) ** 2) ** 0.5 for v in obj.data.vertices))
             a = Vector((outline[index - 1][0] - x, outline[index - 1][1] - z)).normalized()
             b = Vector((outline[(index + 1) % len(outline)][0] - x, outline[(index + 1) % len(outline)][1] - z)).normalized()
+            if 'outline_3d' in piece:
+                spatial = [Vector(p) for p in (conformed or piece['outline_3d'])]
+                error = min((v.co - spatial[index]).length for v in obj.data.vertices)
+                a = (spatial[index - 1] - spatial[index]).normalized()
+                b = (spatial[(index + 1) % len(spatial)] - spatial[index]).normalized()
             if conformed:
                 a = (Vector(conformed[index - 1]) - Vector(conformed[index])).normalized()
                 b = (Vector(conformed[(index + 1) % len(outline)]) - Vector(conformed[index])).normalized()
@@ -81,12 +92,13 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             # Native bevel cuts an acute corner farther along its bisector.
             # Compare with the exact geometric bound, not a right-angle-only width.
             erosion = piece['bevel']['width'] / max(math.sin(half_angle), epsilon)
-            if conformed:
+            if conformed or 'outline_3d' in piece:
                 erosion += piece['thick'] / 2
             corners_ok &= error <= erosion + epsilon
             if error > erosion + epsilon:
                 details['corner_errors'].setdefault(obj['piece_id'], []).append({'error': error, 'allowed': erosion, 'corner': [x, z]})
     return {'labels_cover_every_face': bool(labelled and expected <= represented),
+            'view_piece_ownership': bool(views_ok),
             'polygon_material_ownership': bool(material_ok),
             'body_weight_ownership': bool(weighted_ok),
             'cloth_collision_margin': all(r['passed'] for r in cloth_reports.values()),

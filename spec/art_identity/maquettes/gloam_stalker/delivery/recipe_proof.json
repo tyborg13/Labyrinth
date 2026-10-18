@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 18,
+  "joint_errors": {
+    "pelvis": 6.999185021242475e-08,
+    "torso": 1.2310379476739693e-07,
+    "head": 7.450580596923828e-09,
+    "shoulder_near": 2.1696418193818683e-07,
+    "elbow_near": 1.228781230931777e-07,
+    "hand_near": 1.769414855098414e-07,
+    "hip_near": 4.438545429233374e-06,
+    "knee_near": 3.749056346836425e-07,
+    "ankle_near": 1.2401636318651815e-07,
+    "shoulder_far": 1.9082797281243946e-07,
+    "elbow_far": 1.1920928955078125e-07,
+    "hand_far": 1.0323827311807139e-07,
+    "hip_far": 1.7546235945172944e-06,
+    "knee_far": 5.954203866054471e-07,
+    "ankle_far": 2.443972150513042e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
+    "replay": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
+    "independent_cold": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb"
+  }
+}

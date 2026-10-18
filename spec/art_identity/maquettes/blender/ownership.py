@@ -59,3 +59,35 @@ def require_solos(labels, counts):
     missing = [name for name in labels if counts.get(name, 0) <= 0]
     if missing:
         raise ValueError('Required rig labels have empty solos: ' + ', '.join(missing))
+def uses_body_side_ownership(obj):
+    return 'side_parts' in obj or (obj.get('cloth_kind') == 'cloak' and obj.get('ownership_mode') != 'whole_piece')
+
+
+def expected_materials(obj, spec, forward):
+    """Audit real cloth faces on each body side, including covered anatomy."""
+    if 'sewn_parts' in obj:
+        attribute = obj.data.attributes.get('sewn_owner')
+        if attribute is None or len(attribute.data) != len(obj.data.polygons):
+            raise ValueError('Sewn cloth lost its source-face ownership')
+        owners = [a.value for a in attribute.data]
+        allowed = {list(spec['labels']).index(name) for name in obj['sewn_parts']}
+        if any(i not in allowed for i in owners):
+            raise ValueError('Sewn cloth has an unregistered source-face owner')
+        return owners
+    if 'joint_parts' in obj:
+        first, joint, last = (np.array(spec['joints'][name], float) for name in obj['joint_chain'])
+        before, after = joint - first, last - joint
+        normal = before / np.linalg.norm(before) + after / np.linalg.norm(after)
+        pair = list(obj['joint_parts'])
+        centres = [np.mean([list(obj.matrix_world @ obj.data.vertices[i].co) for i in p.vertices], axis=0)
+                   for p in obj.data.polygons]
+        return [list(spec['labels']).index(pair[0 if np.dot(p - joint, normal) <= 0 else 1]) for p in centres]
+    if not uses_body_side_ownership(obj):
+        return [list(spec['labels']).index(obj['part'])] * len(obj.data.polygons)
+    midpoint = (np.array(spec['joints']['shoulder_near']) + spec['joints']['shoulder_far']) / 2
+    centroids = [np.mean([list(obj.matrix_world @ obj.data.vertices[i].co) for i in p.vertices], axis=0)
+                 for p in obj.data.polygons]
+    sides = cloak_owners(centroids, midpoint, forward, ARMATURE_UP_AXIS,
+                         spec['joints']['shoulder_near'], spec['joints']['shoulder_far'])
+    pair = list(obj.get('side_parts', ['cape_near', 'cape_far']))
+    return [list(spec['labels']).index(pair[0 if side == 'cape_near' else 1]) for side in sides]

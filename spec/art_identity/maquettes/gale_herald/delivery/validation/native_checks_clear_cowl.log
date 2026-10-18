@@ -1,0 +1,7 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-61ac1cb72cd84f87a913b82562d47a26
+BLENDER_BRIDGE_STARTED: mq03-61ac1cb72cd84f87a913b82562d47a26
+00:00.301  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-04/spec/art_identity/maquettes/gale_herald/candidates/quality_r4_clear_cowl/capture/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+NATIVE_DELIVERY_CHECKS: PASS; actual_material_mutations_caught=1
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=1.4; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-61ac1cb72cd84f87a913b82562d47a26.log

@@ -1,0 +1,87 @@
+{
+  "gates": {
+    "front_iou_min": 0.7,
+    "rear_iou_min": 0.65,
+    "collision_margin_m": 0.003
+  },
+  "figures": {
+    "hoarfrost_seer": {
+      "spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+      "iou": {
+        "front": 0.7394081955012834,
+        "rear": 0.7550728331405493
+      },
+      "visible_part_views": 30,
+      "all_solos_unclipped": true,
+      "native_build_passed": true,
+      "unrounded_native_replay_passed": true,
+      "mesh_count": 14,
+      "max_joint_error_m": 1.2765358287887502e-06
+    },
+    "gale_herald": {
+      "spec_hash": "c6bcc0f7ef16787d27d5bdc5d09bf996ae0fb6d53a271ec50a05ccc85b08bc08",
+      "iou": {
+        "front": 0.7357913796776255,
+        "rear": 0.6802944538667802
+      },
+      "visible_part_views": 38,
+      "all_solos_unclipped": true,
+      "native_build_passed": true,
+      "unrounded_native_replay_passed": true,
+      "mesh_count": 41,
+      "max_joint_error_m": 3.607720072018032e-06
+    },
+    "arc_thrall": {
+      "spec_hash": "631ab2fd4ef2c4e6f2461d2a51fdd6107450e1e693e6786e057462ffee791bf8",
+      "iou": {
+        "front": 0.722267224204742,
+        "rear": 0.7035146694952339
+      },
+      "visible_part_views": 34,
+      "all_solos_unclipped": true,
+      "native_build_passed": true,
+      "unrounded_native_replay_passed": true,
+      "mesh_count": 21,
+      "max_joint_error_m": 4.1370787026869986e-06
+    },
+    "gloam_stalker": {
+      "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
+      "iou": {
+        "front": 0.7161269405278199,
+        "rear": 0.7188129514076549
+      },
+      "visible_part_views": 34,
+      "all_solos_unclipped": true,
+      "native_build_passed": true,
+      "unrounded_native_replay_passed": true,
+      "mesh_count": 18,
+      "max_joint_error_m": 4.438545429233374e-06
+    }
+  },
+  "unresolved_design": [],
+  "open_failing_gates": [],
+  "no_gdscript_changes": true,
+  "coverage_note": "Gloam front fore_near is mostly occluded by its attached claw: 1 pure part-colour pixel remains; its full unoccluded solo is included. All 136 part-views meet the requested presence gate.",
+  "acceptance": {
+    "1_blender_native_specs": "Canonical measured inputs compile to native v2 specs using the approved CC0 base and armature. All clothing is simulated; source 45-degree facing retained. Seer and Thrall accepted geometry and clay RGBA frozen.",
+    "2_fit_and_coverage": "All eight IoUs pass the director feedback-2 gates; 136/136 part-views present and no clipped solos.",
+    "3_delivery": "Eight native 1024 clays; full part maps and solos; joints; capture manifests; 40-percent side-by-side overlays; four-figure contact sheet and 1:1 five-figure Lancer comparison.",
+    "4_native_gates": "Cold/cache replay/independent cold, unrounded float32 geometry and joint matrices, per-view ownership, native material mutations, and the four mq-03 mutations pass.",
+    "feedback4_herald": "Closed cowl has no boundary or nonmanifold edges; mask is one closed piece. Two broad simulated folds and refitted per-view banner hems. Horn, plates, legs and body meshes match r3.",
+    "feedback4_gloam": "Separate torso-attached carapace part with four closed source-rim plate layers; native cloth clearance cutouts; fitted thigh and foot profiles; two attached single-piece crescent claws; source-measured ragged cloak hems."
+  },
+  "removed_obsolete_builder_tools": [
+    {
+      "path": "spec/art_identity/maquettes/blender/round3_native_checks.py",
+      "sha256": "ac5bb4cb7ab432f9a6443fef4d27ca7273d0bc0fd746480cf4f05365892ece02",
+      "reason": "Superseded by native_delivery_checks.py; historical r3-only expectations require deleted r2 proof and an obsolete mask aperture."
+    }
+  ],
+  "file_allocation_normalization": {
+    "path": "spec/art_identity/maquettes/arc_thrall/delivery/review/clay_comparison_lancer_r3.png",
+    "sha256_unchanged": "bdebc320f50e176d8985e828905e4fb22a31fcd09de23346ac94fb4c5e66bed7",
+    "allocated_bytes_before": 3936256,
+    "allocated_bytes_after": 3137536,
+    "copy_chunk_bytes": 65536
+  }
+}

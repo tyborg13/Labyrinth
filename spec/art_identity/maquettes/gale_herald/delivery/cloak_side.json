@@ -1,0 +1,50 @@
+{
+  "rule": "body_sagittal_plane",
+  "pieces": {
+    "shoulder_yoke_render": {
+      "torso_midpoint_body": [
+        0.08617864549160004,
+        -0.03314564377069473,
+        1.1957770586013794
+      ],
+      "normal_toward_shoulder_near": [
+        0.006740124011934953,
+        0.9999772851061687,
+        -0.0
+      ],
+      "forward_body": [
+        0.9979227185249329,
+        -0.006726275663822889,
+        -0.06407010555267334
+      ],
+      "up_body": [
+        0,
+        0,
+        1
+      ],
+      "shoulder_near_body": [
+        -0.11600970628841781,
+        0.1557844627301616,
+        1.3960455974562895
+      ],
+      "shoulder_far_body": [
+        0.2585359168713315,
+        -0.23201941257683617,
+        1.4122835737772481
+      ],
+      "face_owner_hash": "97af410730d479b326b87e1283de64d10deb632da0586c746885a2cd0bf3bcf4",
+      "faces": {
+        "cape_near": 13180,
+        "cape_far": 11844
+      }
+    }
+  },
+  "view_owner_hashes": {
+    "front": {
+      "shoulder_yoke_render": "97af410730d479b326b87e1283de64d10deb632da0586c746885a2cd0bf3bcf4"
+    },
+    "rear": {
+      "shoulder_yoke_render": "97af410730d479b326b87e1283de64d10deb632da0586c746885a2cd0bf3bcf4"
+    }
+  }
+}
