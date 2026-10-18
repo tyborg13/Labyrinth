@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "arc_thrall",
+  "job_id": "mq-thrall-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "2f500dff59580223cb71c39c785a7ed335e2beb5571508ca2a9b04903302c3f7",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/arc_thrall/mq5_front/kit.json",
+    "pixel_sha256": "cdcd69b3b7b2b933530cca5d5b7be3e3e735943d5c01257314f2aa791c950cd3"
+  },
+  "method": "maquette paint-over r1 rear from the mq-04 r3 maquette (matches mq5_front); fix1+fix2 resumes reshaped the head into a round skull; the image tool returned 1254x1254, so the director resized it to 1024 with Lanczos (refs/raw_1024_lanczos.png) before processing; palette matched to mq5_front by match_reference, so no tone step",
+  "peers": [
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "030d5727a4f1d97fb2bf7719bba27cfae8ec2489048b768b9c426f22bd568934",
+  "prompt_source": "spec/art_identity/maquettes/arc_thrall/prompt_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq04r3",
+      "file": "refs/01_maquette_rear_parts_mq04r3.png",
+      "pixel_sha256": "f3def346f792c4fe3ccbaa9e037df9f289b5a73da9493bcbe3b7f2c857ef6d4b",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r1/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq04r3",
+      "file": "refs/02_maquette_rear_clay_mq04r3.png",
+      "pixel_sha256": "efa6252f81e5fb20bbb4c8119d05b4b9c5e59ebbb0de665f90aeb15a3526ca94",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r1/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "thrall_front_mq5_approved",
+      "file": "refs/03_thrall_front_mq5_approved.png",
+      "pixel_sha256": "c8e461ee15502b4346cc711192d523ab765632128b3429e0125d2797dd5b7481",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r1/refs/03_thrall_front_approved.png"
+    },
+    {
+      "canon_id": "approved_lightning_wisp_mq4_rear",
+      "file": "refs/04_approved_lightning_wisp_mq4_rear.png",
+      "pixel_sha256": "11ef16dc695101ac784958ead2b42866d9ce3a10783a9c2d9e156b66ec59e0ec",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r1/refs/04_wisp_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r1/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 205,
+  "view": "creature_rear"
+}
