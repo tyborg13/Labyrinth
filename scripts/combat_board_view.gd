@@ -3663,7 +3663,7 @@ func _foreground_obstruction_candidates() -> Array:
 			var prop: Dictionary = prop_var as Dictionary
 			var prop_texture: Texture2D = _texture_for_scene_prop(prop)
 			if prop_texture != null:
-				candidates.append({"tile": tile, "rect": _scene_prop_rect(prop_texture, prop)})
+				candidates.append({"tile": tile, "rect": _scene_prop_rect(prop_texture, prop), "tile_id": "scene_prop"})
 		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
 		if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
 			tile_id = "pillar"
@@ -3671,14 +3671,14 @@ func _foreground_obstruction_candidates() -> Array:
 			"pillar":
 				var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 				if pillar_texture != null:
-					candidates.append({"tile": tile, "rect": _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))})
+					candidates.append({"tile": tile, "rect": _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile)), "tile_id": "pillar"})
 			"wall":
 				for segment: Dictionary in _boundary_prop_segments(tile_id, grid, tile):
-					candidates.append({"tile": tile, "rect": segment.get("draw_rect", Rect2())})
+					candidates.append({"tile": tile, "rect": segment.get("draw_rect", Rect2()), "tile_id": "wall"})
 			"door":
 				var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
 				if door_texture != null:
-					candidates.append({"tile": tile, "rect": _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))})
+					candidates.append({"tile": tile, "rect": _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid)), "tile_id": "door"})
 		for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
 			if typeof(terrain_var) != TYPE_DICTIONARY:
 				continue
@@ -3691,7 +3691,8 @@ func _foreground_obstruction_candidates() -> Array:
 			if terrain_texture != null:
 				candidates.append({
 					"tile": tile,
-					"rect": _terrain_rect_for_tile(tile, terrain_texture, str(terrain.get("kind", "")))
+					"rect": _terrain_rect_for_tile(tile, terrain_texture, str(terrain.get("kind", ""))),
+					"tile_id": "terrain"
 				})
 	_foreground_obstruction_candidates_source_snapshot = source.duplicate(true)
 	_foreground_obstruction_candidates_cache = candidates
@@ -7169,15 +7170,18 @@ func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
 	var bottom_y: float = center.y + _tile_height() * baseline_scale
 	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
 
-func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[Dictionary]:
-	var entries: Array[Dictionary] = []
+func _foreground_obstruction_entries(units_to_draw: Array[Dictionary], scene_props_override: Variant = null) -> Array[Dictionary]:
+	var entries: Array[Dictionary]
 	for unit: Dictionary in units_to_draw:
 		entries.append({
 			"actor_key": str(unit.get("key", "")),
 			"tile": _effective_unit_tile(unit),
 			"rect": _unit_draw_rect(unit)
 		})
-	for prop_var: Variant in presentation.get("scene_props", []):
+	# Redraw invalidation supplies the previous/next prop snapshot while all
+	# other obstruction sources use the same geometry as the draw path.
+	var source_props: Array = presentation.get("scene_props", []) if scene_props_override == null else scene_props_override
+	for prop_var: Variant in source_props:
 		if typeof(prop_var) != TYPE_DICTIONARY:
 			continue
 		var prop: Dictionary = prop_var

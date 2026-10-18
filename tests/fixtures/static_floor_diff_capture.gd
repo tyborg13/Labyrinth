@@ -6,7 +6,6 @@ const ShaderTime = preload("res://tests/fixtures/static_floor_shader_time.gd")
 const CaptureIO = preload("res://tests/fixtures/static_floor_capture_io.gd")
 const SETTLE_FRAMES: int = 3
 const TIME_EVIDENCE_SECONDS: float = 0.25
-const NATIVE_DUMP_TIMEOUT_SECONDS: int = 600
 const FIXTURE_INPUTS: Array = ["_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants", "_prop_textures", "_pillar_torch_light_texture", "_floor_variant_by_tile", "_moss_tiles_by_surface", "_static_render_cache_enabled", "_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_hover_tile", "_controller_focus_tile"]
 
 static func fresh_view(tree: SceneTree, source: Control, pin_shader_time: bool = true) -> SubViewport:

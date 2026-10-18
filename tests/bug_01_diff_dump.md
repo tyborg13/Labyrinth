@@ -21,7 +21,8 @@ command exit 1; their classification remains open. The diagnostic mode now dumps
 **all 106 cases**, including cases whose differences might disappear with shader
 time controlled. Absolute artifact paths are printed, beginning with
 `user://bug_01_diff/index.json` and its per-case reports. The native execution cap
-is `DiffCapture.NATIVE_DUMP_TIMEOUT_SECONDS = 600`; startup timeouts are unchanged.
+is supplied by the runner's actual `--timeout 600` CLI argument above; startup
+timeouts are unchanged. No GDScript constant enforces this cap.
 
 ## Shader TIME evidence
 

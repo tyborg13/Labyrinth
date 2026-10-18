@@ -10,6 +10,7 @@ const DiffChecks = preload("res://tests/fixtures/static_floor_diff_dump_checks.g
 const DiffSmoke = preload("res://tests/fixtures/static_floor_diff_capture_smoke.gd")
 const ShaderTime = preload("res://tests/fixtures/static_floor_shader_time.gd")
 const FreshChecks = preload("res://tests/fixtures/static_floor_fresh_checks.gd")
+const ScenePropChecks = preload("res://tests/fixtures/static_floor_scene_prop_checks.gd")
 const PROOF_ENCOUNTER_TYPES: Array = ["warden"]
 const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
@@ -382,9 +383,12 @@ func _test_floor_inputs() -> void:
 	_actual.queued_scene_tiles.clear()
 	await _show({"scene_props": [{"kind": "watch_brazier_lit", "tile": Vector2i(5,4), "width_scale": 0.60, "baseline_scale": 0.36}]}, "floor light changed")
 	_check(_actual.queued_scene_tiles.has(Vector2i(6,6)), "Scene prop onset must redraw its obstructing pillar")
+	ScenePropChecks.check_unaffected(_actual, _check, "onset")
 	_actual.queued_scene_tiles.clear()
 	await _show({}, "floor light cleared")
 	_check(_actual.queued_scene_tiles.has(Vector2i(6,6)), "Scene prop removal must redraw its obstructing pillar")
+	ScenePropChecks.check_unaffected(_actual, _check, "removal")
+	ScenePropChecks.check_already_obstructed(self, _actual, _check)
 	for enabled: bool in [false, true]:
 		for board: Control in [_actual, _reference]: board.set_art_treatment_enabled(enabled)
 		await _draw_and_compare("floor art enabled " + str(enabled))

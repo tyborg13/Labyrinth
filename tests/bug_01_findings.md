@@ -5,15 +5,24 @@ foreground-pillar redraw bug, five HP-ghost cases, and 38 obsolete-baseline or
 fixture-input cases. The 62 other cases are equal controls. All 212 temporal
 pairs are equal, rejecting shader TIME as the cause. See the complete
 [case classification](bug_01_native_classification.md) and
-[current verification/native handoff](bug_01_feedback_4.md).
+[feedback-4 verification/native handoff](bug_01_feedback_4.md). Current review-fix
+verification is in [bug_01_feedback_5.md](bug_01_feedback_5.md).
 
-Production now redraws obstructing pillars when scene props change. No authored
+Production now redraws foreground candidates only when the draw path's complete
+effective alpha changes, including unchanged actors and objects. No authored
 opacity, timing, assets, mechanics, analytics, saves or input paths change.
 Native comparisons retain strict pixel equality against independently fresh
 production with equivalent complete inputs and settled HP transients. Original
 pixels are asserted only for explicit unchanged submissions; structural reference
 and cached-floor assertions stay. Changes are uncommitted
-on `codex/bug-01`, based on integration HEAD `b37559721`.
+on `codex/bug-01`, based on owner-merged integration HEAD `aa3a6bf58`.
+
+For feedback 5, the four focused programs and dump-enabled headless floor program pass, and the
+unconditional-candidate-redraw mutation now fails the new negative assertions.
+Full Godot recheck: `TEST RESULT: PASS`, 352.703 seconds; full Python:
+`Ran 702 tests in 864.347s` / `OK (skipped=63)`. The first full Godot run had one
+unmodified map-generation timing failure under concurrent Python load; both that
+failure and the successful same-limits recheck are retained in the feedback-5 handoff.
 
 ## Root-cause table
 
@@ -91,6 +100,9 @@ or registration replaces them; focused commands use qa-07's runner directly.
   targeted invalidation of foreground candidates obstructing changed props.
 - `tests/fixtures/static_floor_fresh_checks.gd`: independent geometry, HUD,
   obstruction, settled-ghost and complete floor-input regressions in every case.
+- `tests/fixtures/static_floor_scene_prop_checks.gd`: unaffected-pillar and
+  already-actor-obstructed-pillar onset/removal negatives, with real alpha checks.
+- `tests/bug_01_feedback_5.md`: review aa3a6bf58 fixes and current verification.
 - `tests/bug_01_native_classification.md`: all 106 owner-run case classifications.
 - `tests/bug_01_feedback_4.md`: current commands, verification and open issues.
 - `tests/prepared_other_character_view_test.gd`: real deck mutation, actual
@@ -247,6 +259,11 @@ python3 tools/godot_task_runner.py --task-id bug-01 --stream -- godot --headless
 
 ## Proof for the design owner
 
+The native diagnostic execution cap is the runner's real `--timeout 600` CLI
+argument in the current proof and mutation commands. It is not enforced by a
+GDScript constant; the unused `NATIVE_DUMP_TIMEOUT_SECONDS` was removed in
+feedback 5. The native commands and strict pixel contract remain unchanged.
+
 The next requested runs are the feedback-4 proof and mutation commands in
 [bug_01_feedback_4.md](bug_01_feedback_4.md). The two feedback-1 commands below
 were run by the owner and failed; they are not evidence of a native pass.
@@ -319,7 +336,7 @@ Only test/proof/execution inputs were chosen:
 - The full suite prints ObjectDB leak warnings despite passing; the three instrumented equivalence
   programs report zero orphan nodes.
 - Task contracts are in `output/bug-01/contract.md` and
-  `output/bug-01/feedback-{1,2,3,4}-contract.md`; owner-managed metadata is untouched.
+  `output/bug-01/feedback-{1,2,3,4,5}-contract.md`; owner-managed metadata is untouched.
 
 No commit, push, merge, rebase, stash, branch switch, peer review, signoff, queue
 edit, or `tests/quarantine.json` edit was performed.
