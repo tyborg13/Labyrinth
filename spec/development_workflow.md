@@ -96,7 +96,7 @@ invocations retain their order across the partitions; the split keeps each
 child below the 110-second load target without dropping cases.
 Keep coherent domains in focused suites rather than adding to the main body.
 
-The same manifest appends the 116 supplemental entries from
+The same manifest appends the supplemental entries from
 `tests/headless_test_programs.json`, preserving their order and fixture modes.
 These use the shared scheduler, not a nested supplemental worker pool. The
 boon-recovery and revision-5 map programs are also registered. A serial package
@@ -107,6 +107,10 @@ override. Every Godot stage gets the same namespace bootstrap and task-runner
 HOME/APPDATA/XDG isolation, plus an explicit stage log. The child retains one
 outer 180-second deadline across all its stages. The manifest guard includes
 every supplemental entry, its invocation mode, and the merged headless additions.
+Fixture modes are pinned independently in `tests/test_program_suite_runner.py`;
+using another recognized mode still fails. Fixture bootstraps preload
+`res://scripts/parallel_runtime.gd` inside the repository project and the absolute
+runtime path only inside foreign stage projects, avoiding a duplicate class.
 
 `suites/section_map_performance_program` owns the complete fix-05 regression,
 including the hang seed and 20 slowest seed cases; the v5 aggregate no longer
@@ -181,6 +185,11 @@ second caps when repeating this proof.
 also run by both full suites. It follows executed calls, including inherited
 constants, nested suite aliases, partitioned encounter programs, and exact shared
 wrapper methods, for every `tests/**/*_test.gd`, `*_suite.gd` and `*_probe.gd`.
+The call reader tokenizes comments and string literals separately from code.
+Literal paths and deferred method names are arguments, never scanned as source.
+Function-local `var`/`const` aliases belong only to that function; class aliases
+remain available through inheritance. Untyped, explicitly typed and inferred
+(`:=`) assignments are supported.
 Native-only checks require an exact path and reason in
 `tests/windowed_test_allowlist.json`. Every other script must execute in the full
 suite or have an entry in `tests/quarantine.json`. The scheduler's injected-child

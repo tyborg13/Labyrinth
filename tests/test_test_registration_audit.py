@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 SPEC = importlib.util.spec_from_file_location("test_registration_audit", Path(__file__).resolve().parents[1] / "tools/test_registration_audit.py")
 audit = importlib.util.module_from_spec(SPEC)
@@ -57,6 +58,133 @@ func _run():
 ''')
         self.write("tests/nested_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
         self.assertEqual(self.rows()["tests/nested_suite.gd"], "full suite")
+
+    def test_function_local_aliases_do_not_leak_from_uncalled_functions(self):
+        for keyword in ("var", "const"):
+            with self.subTest(keyword=keyword):
+                self.write("tests/run_tests.gd", f'''extends SceneTree
+func _initialize():
+    {keyword} suite = preload("res://tests/a_suite.gd")
+    suite.run()
+func _unused():
+    {keyword} suite = preload("res://tests/b_suite.gd")
+    suite.run()
+''')
+                for name in ("a", "b"):
+                    self.write(f"tests/{name}_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
+                self.assertEqual(self.rows()["tests/a_suite.gd"], "full suite")
+                self.assertEqual(self.rows()["tests/b_suite.gd"], "orphaned")
+
+    def test_local_alias_does_not_replace_class_constant_in_another_method(self):
+        self.write("tests/run_tests.gd", '''extends SceneTree
+const Suite = preload("res://tests/a_suite.gd")
+func _initialize():
+    _run()
+func _run():
+    Suite.run()
+func _unused():
+    const Suite = preload("res://tests/b_suite.gd")
+''')
+        for name in ("a", "b"):
+            self.write(f"tests/{name}_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
+        self.assertEqual(self.rows()["tests/a_suite.gd"], "full suite")
+        self.assertEqual(self.rows()["tests/b_suite.gd"], "orphaned")
+
+    def test_strings_do_not_register_inline_alias_local_or_deferred_calls(self):
+        examples = ('preload("res://tests/ghost_suite.gd").run()', 'Ghost.run()',
+                    '_uncalled()', 'call_deferred("_uncalled")', 'Callable(self, "_uncalled")')
+        for example in examples:
+            for literal in (json.dumps(example), repr(example), '"""\n' + example + '\n"""',
+                            "'''\n" + example + "\n'''"):
+                with self.subTest(literal=literal):
+                    self.write("tests/run_tests.gd", f'''extends SceneTree
+const Ghost = preload("res://tests/ghost_suite.gd")
+func _initialize():
+    print({literal}) # Ghost.run()
+func _uncalled():
+    Ghost.run()
+''')
+                    self.write("tests/ghost_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(false)\n')
+                    self.assertEqual(self.rows()["tests/ghost_suite.gd"], "orphaned")
+
+    def test_untyped_typed_and_inferred_aliases_in_class_and_function_scope(self):
+        for keyword, loader in (("var", "load"), ("const", "preload")):
+            for assignment in (" = ", ": Variant = ", " := "):
+                for class_scope in (True, False):
+                    with self.subTest(keyword=keyword, assignment=assignment, class_scope=class_scope):
+                        declaration = f'{keyword} Suite{assignment}{loader}("res://tests/active_suite.gd")\n'
+                        self.write("tests/run_tests.gd", "extends SceneTree\n" +
+                                   (declaration if class_scope else "") + "func _initialize():\n" +
+                                   ("" if class_scope else "    " + declaration) + "    Suite.run()\n")
+                        self.write("tests/active_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
+                        self.assertEqual(self.rows()["tests/active_suite.gd"], "full suite")
+
+    def test_nested_alias_lookup_uses_class_scope_only(self):
+        self.write("tests/run_tests.gd", '''extends SceneTree
+const Outer = preload("res://tests/outer.gd")
+func _initialize():
+    Outer.Inner.run()
+''')
+        self.write("tests/outer.gd", '''extends RefCounted
+const Inner = preload("res://tests/a_suite.gd")
+static func unused():
+    const Inner = preload("res://tests/b_suite.gd")
+''')
+        for name in ("a", "b"):
+            self.write(f"tests/{name}_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
+        self.assertEqual(self.rows()["tests/a_suite.gd"], "full suite")
+        self.assertEqual(self.rows()["tests/b_suite.gd"], "orphaned")
+
+    def assert_mutation_rejected(self, name, test_name, patcher):
+        result = unittest.TestResult()
+        with patcher:
+            type(self)(test_name).run(result)
+        self.assertFalse(result.errors, result.errors)
+        self.assertGreater(len(result.failures), 0, name + " survived its regression")
+        print("AUDIT MUTATION REJECTED: %s (%d assertion failures)" % (name, len(result.failures)))
+
+    def test_global_alias_collection_fails_scope_regression(self):
+        path = Path(audit.__file__)
+        source = path.read_text()
+        class_aliases = "gd.aliases(parsed.class_tokens)"
+        local_aliases = '        aliases.update({a: resource_path(owner, p) for a, p in gd.aliases(body).items()})\n'
+        self.assertIn(class_aliases, source)
+        self.assertIn(local_aliases, source)
+        mutated = {"__file__": str(path), "__name__": "scope_mutation"}
+        source = source.replace(class_aliases, "gd.aliases(parsed.class_tokens + [t for body in parsed.methods.values() for t in body])")
+        exec(compile(source.replace(local_aliases, ""), str(path), "exec"), mutated)
+        self.assert_mutation_rejected("aliases collected across functions",
+                                     "test_function_local_aliases_do_not_leak_from_uncalled_functions",
+                                     mock.patch.object(audit, "execution_graph", mutated["execution_graph"]))
+
+    def test_scanning_string_contents_fails_call_regression(self):
+        original = audit.gd.calls
+
+        def scan_strings(tokens):
+            edges = original(tokens)
+            for token in tokens:
+                if token.kind == "string":
+                    extra = original(audit.gd.tokenize(token.value))
+                    edges = audit.gd.Calls(*(a + b for a, b in zip(edges, extra)))
+            return edges
+
+        self.assert_mutation_rejected("string contents scanned as calls",
+                                     "test_strings_do_not_register_inline_alias_local_or_deferred_calls",
+                                     mock.patch.object(audit.gd, "calls", side_effect=scan_strings))
+
+    def test_omitting_inferred_aliases_fails_assignment_regression(self):
+        original = audit.gd.aliases
+
+        def omit_inferred(tokens):
+            result = original(tokens)
+            for index, token in enumerate(tokens[:-3]):
+                if token.value in ("var", "const") and [t.value for t in tokens[index + 2:index + 4]] == [":", "="]:
+                    result.pop(tokens[index + 1].value, None)
+            return result
+
+        self.assert_mutation_rejected("inferred aliases omitted",
+                                     "test_untyped_typed_and_inferred_aliases_in_class_and_function_scope",
+                                     mock.patch.object(audit.gd, "aliases", side_effect=omit_inferred))
 
     def test_relative_nested_suite_calls_are_followed(self):
         self.write("tests/run_tests.gd", '''extends SceneTree

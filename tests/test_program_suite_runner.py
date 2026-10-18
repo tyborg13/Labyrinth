@@ -37,6 +37,19 @@ MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section
                    "suites/section_map_performance_program"]
 SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
+# Independent of the manifest: recognized but incorrect modes must fail too.
+REQUIRED_FIXTURE_MODES = {
+    **{name + "_cutout_pack_test": "cutout_pack" for name in (
+        "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "crawler",
+        "frostglass_lancer", "grave_surgeon", "gust_shrike", "harrier", "iskaldra", "noctyrax",
+        "protagonist", "stone_warden", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion",
+    )},
+    **{name + "_cutout_pack_test": "roster_pack" for name in (
+        "graftwright", "guardian", "scavenger",
+    )},
+    "enemy_cutout_roster_pack_test": "roster_pack",
+    "demo_capture_settings_test": "capture_settings",
+}
 SPLIT_PROGRAMS = {
     "forced_movement_query_equivalence_test": [
         "suites/forced_movement_query_%s_program" % fixture
@@ -55,6 +68,7 @@ DEADLINE_CLEANUP_SECONDS = 0.04
 
 sys.path.insert(0, str(ROOT / "tools"))
 import program_suite_runner as runner
+import program_suite_fixture as fixture
 
 FAKE_GODOT = '''#!/usr/bin/env python3
 import json, os, sys, time
@@ -151,12 +165,60 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
             with self.subTest(removed=name), self.assertRaises(AssertionError):
                 self.assert_complete_manifest([suite for suite in runner.SUITES if suite != name])
 
+    def assert_supplemental_modes(self, programs):
+        self.assertLessEqual(REQUIRED_FIXTURE_MODES.keys(), programs.keys())
+        for name, program in programs.items():
+            self.assertEqual(program["path"], "tests/" + name + ".gd")
+            self.assertTrue((ROOT / program["path"]).is_file())
+            self.assertIn(program.get("mode", "script"), ("script", "cutout_pack", "roster_pack", "capture_settings"))
+            self.assertEqual(program.get("mode", "script"), REQUIRED_FIXTURE_MODES.get(name, "script"), name)
+
     def test_supplemental_modes_and_paths_are_guarded(self):
+        self.assert_supplemental_modes(runner.SUPPLEMENTAL_BY_NAME)
+
+    def test_changing_any_supplemental_fixture_mode_fails_guard(self):
         for name, program in runner.SUPPLEMENTAL_BY_NAME.items():
-            with self.subTest(name=name):
-                self.assertEqual(program["path"], "tests/" + name + ".gd")
-                self.assertTrue((ROOT / program["path"]).is_file())
-                self.assertIn(program.get("mode", "script"), ("script", "cutout_pack", "roster_pack", "capture_settings"))
+            with self.subTest(name=name), self.assertRaises(AssertionError):
+                changed = dict(program, mode="script" if program.get("mode", "script") != "script" else "cutout_pack")
+                self.assert_supplemental_modes(dict(runner.SUPPLEMENTAL_BY_NAME, **{name: changed}))
+        print("RUNNER MUTATION REJECTED: all %d supplemental mode changes (including Bile Bloomer to script)" % len(runner.SUPPLEMENTAL_BY_NAME))
+
+    def assert_fixture_runtime_paths(self, execute):
+        directory = self.directory / "runtime-paths"
+        directory.mkdir()
+        foreign = self.directory / "foreign-project"
+        foreign.mkdir()
+        script = "tests/acolyte_cutout_pack_test.gd"
+        stages = [(ROOT, script, []), (foreign, str(ROOT / script), [])]
+        with mock.patch.object(fixture, "fixture_stages", return_value=stages), \
+                mock.patch.object(fixture.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)), \
+                mock.patch.object(runner, "task_command", return_value=["unused"]):
+            result = execute(["--project", str(ROOT), "--suite", "acolyte_cutout_pack_test",
+                              "--directory", str(directory), "--godot", "unused", "--task-id", "runtime-paths",
+                              "--timeout", str(FIXTURE_TEST_TIMEOUT_SECONDS)])
+        self.assertEqual(result, 0)
+        root_bootstrap = (directory / "acolyte_cutout_pack_test.gd").read_text()
+        foreign_bootstrap = (directory / "stage-1/acolyte_cutout_pack_test.gd").read_text()
+        resource = 'preload("res://scripts/parallel_runtime.gd")'
+        absolute = 'preload(' + json.dumps(str(ROOT / "scripts/parallel_runtime.gd")) + ')'
+        self.assertIn(resource, root_bootstrap)
+        self.assertNotIn(absolute, root_bootstrap)
+        self.assertIn(absolute, foreign_bootstrap)
+        self.assertNotIn(resource, foreign_bootstrap)
+
+    def test_fixture_runtime_uses_resource_path_only_in_repository_project(self):
+        self.assert_fixture_runtime_paths(fixture.main)
+
+    def test_absolute_runtime_in_root_fails_bootstrap_path_guard(self):
+        path = ROOT / "tools/program_suite_fixture.py"
+        source = path.read_text()
+        original = 'project.resolve() == root'
+        self.assertIn(original, source)
+        mutated = {"__file__": str(path), "__name__": "runtime_path_mutation"}
+        exec(compile(source.replace(original, "False", 1), str(path), "exec"), mutated)
+        with self.assertRaises(AssertionError):
+            self.assert_fixture_runtime_paths(mutated["main"])
+        print("RUNNER MUTATION REJECTED: absolute runtime preload in repository project")
 
     def test_map_performance_regression_has_an_exclusive_program_slot(self):
         self.assertIn("suites/section_map_performance_program", runner.SUITES)

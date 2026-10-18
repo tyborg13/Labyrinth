@@ -15,11 +15,18 @@ static func run(expect: Callable) -> void:
 	print(rejection["log"])
 	var seeds: Array = JSON.parse_string(FileAccess.get_file_as_string(Benchmark.FAST_SEED_PATH))
 	var report: Dictionary = Benchmark.measure(seeds, false)
-	for failure: String in report["failures"]: expect.call(false, failure)
+	# Wall-clock thresholds belong to the standalone sweep, where load is
+	# controlled. The committed regression bounds deterministic search work.
+	var fallback_within_limit: bool = report["fallback"] <= seeds.size() * Graph.ROOM_COUNTS.size() * Benchmark.FALLBACK_LIMIT
+	expect.call(fallback_within_limit, "Fallback rate stays within the sweep's limit")
 	expect.call(report["max_attempt_nodes"] <= Graph.V5_TYPE_NODE_BUDGET, "Every type assignment respects its deterministic node budget")
 	# Exercise the ordinary public call too: diagnostics must not enter saves or
 	# influence the generated graph, and all 21 cases retain complete map rules.
 	for sample: Dictionary in report["samples"]:
+		var max_nodes: int = 0
+		for stats: Dictionary in sample["diagnostics"]:
+			max_nodes = maxi(max_nodes, int(stats.get("max_attempt_nodes", 0)))
+		print("SECTION MAP NODE BUDGET: seed=%d max_attempt_nodes=%d" % [int(sample["seed"]), max_nodes])
 		var first: Dictionary = {"seed": int(sample["seed"]), "current_room": Vector2i.ZERO, "mode": "room"}
 		var diagnostics: Dictionary = {"enabled": true}
 		Graph.initialize(first, diagnostics)
@@ -27,7 +34,7 @@ static func run(expect: Callable) -> void:
 		Graph.initialize(second)
 		expect.call(var_to_str(first) == var_to_str(second), "Same 32-bit seed gives a byte-identical graph with or without diagnostics: %d" % int(sample["seed"]))
 		for index: int in range(6): _test_rules(first, index, expect)
-	print("Section map fast performance: %s (%d seeds x 6 sections; max section %.3fms; max run %.3fms; fallback %d)" % ["PASS" if report["failures"].is_empty() else "FAIL", seeds.size(), report["all_sections"]["max_ms"], report["runs"]["max_ms"], report["fallback"]])
+	print("Section map fast performance: %s (%d seeds x 6 sections; max attempt %d/%d nodes; fallback %d; max section %.3fms; max run %.3fms)" % ["PASS" if fallback_within_limit and report["max_attempt_nodes"] <= Graph.V5_TYPE_NODE_BUDGET else "FAIL", seeds.size(), report["max_attempt_nodes"], Graph.V5_TYPE_NODE_BUDGET, report["fallback"], report["all_sections"]["max_ms"], report["runs"]["max_ms"]])
 
 static func _test_seed_fixtures(expect: Callable) -> void:
 	var seeds: Array = JSON.parse_string(FileAccess.get_file_as_string(Benchmark.SEED_PATH))

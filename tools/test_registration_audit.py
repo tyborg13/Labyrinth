@@ -22,6 +22,7 @@ import tempfile
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import gdscript_test_calls as gd
 from program_suite_fixture import CAPTURE_VIDEO_QUALITY, PACK_TIMEOUT_SECONDS, fixture_stages
 from test_execution_sources import python_program_coverage, PARTITIONED_PROGRAMS, program_paths
 
@@ -43,13 +44,6 @@ PROGRAM_HELPERS = ("tests/helpers/program_sub_suites.gd", "tests/static_facing_p
 TEST_SUFFIXES = ("_test.gd", "_suite.gd", "_probe.gd")
 PROGRAM_TIMEOUT_SECONDS = 180
 SUPPLEMENTAL_WORKERS = 4
-FUNCTION = re.compile(r"^(?:static )?func (\w+)\(", re.M)
-# A typed local (`var suite: Variant = load(...)`) is an alias too; mutation harnesses load late.
-ALIAS = re.compile(r'(?:const|var)\s+(\w+)\s*(?::[^=\n]+)?=\s*(?:preload|load)\("([^"\n]+\.gd)"\)')
-INLINE_CALL = re.compile(r'(?:preload|load)\("([^"\n]+\.gd)"\)\.(\w+)\(')
-ALIAS_CALL = re.compile(r'\b(\w+(?:\.\w+)*)\.(\w+)\(')
-LOCAL_CALL = re.compile(r'(?<![\w.])([A-Za-z_]\w*)\(')
-DEFERRED_CALL = re.compile(r'(?:call_deferred\(|Callable\(self,\s*)"(\w+)"|\b(_\w+)\.call_deferred\(')
 
 
 def read_json(root: Path, relative: str, default):
@@ -74,15 +68,7 @@ def source(root: Path, path: str) -> str:
     file = root / path
     if not file.is_file():
         return ""
-    # Comments may mention old commands/registrations. Preserve hashes in strings.
-    return "\n".join(re.split(r'#(?=(?:[^"\n]*"[^"\n]*")*[^"\n]*$)', line, maxsplit=1)[0]
-                     for line in file.read_text(encoding="utf-8").splitlines())
-
-
-def functions(text: str) -> dict[str, str]:
-    matches = list(FUNCTION.finditer(text))
-    return {m[1]: text[m.end(): matches[i + 1].start() if i + 1 < len(matches) else len(text)]
-            for i, m in enumerate(matches)}
+    return file.read_text(encoding="utf-8")
 
 
 def resource_path(owner: str, path: str) -> str:
@@ -91,11 +77,12 @@ def resource_path(owner: str, path: str) -> str:
     return posixpath.normpath(relative)
 
 
-def alias_path(root: Path, aliases: dict, chain: str) -> str:
+def alias_path(root: Path, aliases: dict, chain: str, read_script=None) -> str:
     first, *nested = chain.split(".")
     path = aliases.get(first, "")
     for name in nested:
-        constants = {a: resource_path(path, p) for a, p in ALIAS.findall(source(root, path))}
+        parsed = read_script(path) if read_script else gd.script(source(root, path))
+        constants = {a: resource_path(path, p) for a, p in gd.aliases(parsed.class_tokens).items()}
         path = constants.get(name, "")
     return path
 
@@ -105,23 +92,24 @@ def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[t
 
     def info(path):
         if path not in cache:
-            text = source(root, path)
-            parent = re.search(r'^extends "res://([^"\n]+\.gd)"', text, re.M)
-            cache[path] = (functions(text), {a: resource_path(path, p) for a, p in ALIAS.findall(text)}, parent[1] if parent else "")
+            cache[path] = gd.script(source(root, path))
         return cache[path]
 
     def resolve(receiver, method):
         path = receiver
         aliases = {}
         visited = set()
-        owner, body = "", ""
+        owner, body = "", []
         while path and path not in visited:
             visited.add(path)
-            methods, constants, parent = info(path)
+            parsed = info(path)
+            constants = {a: resource_path(path, p) for a, p in gd.aliases(parsed.class_tokens).items()}
             aliases.update({k: v for k, v in constants.items() if k not in aliases})
-            if not owner and method in methods:
-                owner, body = path, methods[method]
-            path = parent
+            if not owner and method in parsed.methods:
+                owner, body = path, parsed.methods[method]
+            path = resource_path(path, parsed.parent) if parsed.parent else ""
+        # A method's locals shadow class constants only for that invocation.
+        aliases.update({a: resource_path(owner, p) for a, p in gd.aliases(body).items()})
         return owner, body, aliases
 
     entrypoints = ["tests/run_tests.gd"] if entrypoints is None else entrypoints
@@ -143,48 +131,51 @@ def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[t
             pending += [(p["path"], "_initialize") for p in programs]
             reached.update((p["path"], "__program__") for p in programs)
         if owner in PROGRAM_HELPERS and method == "run":
-            match = re.search(r'const SUITES:.*?=\s*\[(.*?)\]', source(root, owner), re.S)
-            if match:
-                pending += [("tests/" + name + ".gd", "_initialize")
-                            for name in re.findall(r'"(\w+)"', match[1])]
-                reached.update(("tests/" + name + ".gd", "__program__")
-                               for name in re.findall(r'"(\w+)"', match[1]))
-        pending += [(resource_path(owner, p), m) for p, m in INLINE_CALL.findall(body)
+            names = gd.suite_names(info(owner).class_tokens)
+            pending += [("tests/" + name + ".gd", "_initialize") for name in names]
+            reached.update(("tests/" + name + ".gd", "__program__") for name in names)
+        calls = gd.calls(body)
+        pending += [(resource_path(owner, p), m) for p, m in calls.inline
                     if resource_path(owner, p).startswith("tests/") or resource_path(owner, p) == PROGRAM_DISPATCHER]
-        for alias, called_method in ALIAS_CALL.findall(body):
-            path = alias_path(root, aliases, alias)
+        for alias, called_method in calls.aliases:
+            path = alias_path(root, aliases, alias, info)
             if path.startswith("tests/") or path == PROGRAM_DISPATCHER:
                 pending.append((path, called_method))
         if owner in ("tests/suites/section_map_regression_suite.gd",
                      "tests/suites/section_map_performance_suite.gd"):
-            children = re.findall(r'_run_child\("([^"\n]+\.gd)"', body)
-            pending += [("tests/" + child, "_initialize") for child in children]
-            reached.update(("tests/" + child, "__program__") for child in children)
-        pending += [(receiver, name) for name in LOCAL_CALL.findall(body)]
-        pending += [(receiver, a or b) for a, b in DEFERRED_CALL.findall(body)]
+            pending += [("tests/" + child, "_initialize") for child in calls.children]
+            reached.update(("tests/" + child, "__program__") for child in calls.children)
+        pending += [(receiver, name) for name in calls.local + calls.deferred]
     return reached
 
 
 def shared_wrapper(root: Path, path: str, reached: set[tuple[str, str]]) -> list[str]:
     """Recognize small dispatch-only wrappers; never discard local assertions."""
     text = source(root, path)
-    methods = functions(text)
+    parsed = gd.script(text)
+    methods = parsed.methods
     if len(text.splitlines()) > 70 or not methods or {name for name in methods if not name.startswith("_run_")} - {
         "_initialize", "_run", "_expect", "_assert", "_finish", "_check"
     }:
         return []
-    body = "\n".join(v for k, v in methods.items() if k not in {"_expect", "_assert", "_check"})
-    if re.search(r'(?<![\w.])(?:_expect|_assert|_check|assert)\s*\(', body):
-        return []
-    aliases = {a: resource_path(path, p) for a, p in ALIAS.findall(text)}
-    calls = [(resource_path(path, p), m) for p, m in INLINE_CALL.findall(body)
-             if resource_path(path, p).startswith("tests/")]
-    calls += [(alias_path(root, aliases, a), m) for a, m in ALIAS_CALL.findall(body)
-              if alias_path(root, aliases, a).startswith("tests/")]
-    # Inherited focused aliases of run_tests call its already-run assertions.
-    parent = re.search(r'^extends "res://(tests/run_tests.gd)"', text, re.M)
-    if parent:
-        calls += [(parent[1], m) for m in LOCAL_CALL.findall(body) if m.startswith("_test_")]
+    class_aliases = {a: resource_path(path, p) for a, p in gd.aliases(parsed.class_tokens).items()}
+    calls = []
+    for name, body in methods.items():
+        if name in {"_expect", "_assert", "_check"}:
+            continue
+        edges = gd.calls(body)
+        if set(edges.local) & {"_expect", "_assert", "_check", "assert"}:
+            return []
+        aliases = dict(class_aliases)
+        aliases.update({a: resource_path(path, p) for a, p in gd.aliases(body).items()})
+        calls += [(resource_path(path, p), m) for p, m in edges.inline
+                  if resource_path(path, p).startswith("tests/")]
+        calls += [(alias_path(root, aliases, a), m) for a, m in edges.aliases
+                  if alias_path(root, aliases, a).startswith("tests/")]
+        # Inherited focused aliases of run_tests call its already-run assertions.
+        if parsed.parent == "res://tests/run_tests.gd":
+            calls += [("tests/run_tests.gd", m) for m in edges.local if m.startswith("_test_")]
+
     if not calls or any(call not in reached for call in calls):
         return []
     return sorted({f"{p}::{m}" for p, m in calls})
