@@ -30,7 +30,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   - rr-14 (humanoid foundations: foot IK, case-driven anatomy, Thrall-shaped fixture) running.
   - det-02 and pace-01 merged; integration green at 4e874c34f (Godot PASS, Python 978 OK). The rr-05 owner-proof
     script and det-02's helper were fixed after the first full-suite run caught them.
-  - purge-01 (Purge screen redesign, playtest 10) fixing the confirm step; rr-14 in final review.
+  - rr-14 merged e08e4e296 (green). rr-11 (Thrall v2) running on it. purge-01 signed off, merging.
   - 2026-10-18 cleanup: removed 15 merged worktrees (93 GB). Kept: anim-01/02 (shelved, unmerged), rr-06/rr-08 (parked),
     qa-05 (merged, but 2 uncommitted edits: scripts/asset_loader.gd, tests/helpers/program_sub_suites.gd; inspect
     before removing), peer-benchmark-playtest-10 (frozen playtest), gear-devlog-capture.
@@ -40,8 +40,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - Next (in order):
-  1. rr-14 (humanoid foundations: foot IK, case-driven anatomy; brief `briefs/rr-14.md`) → merge → rr-11 (Thrall v2;
-     motion `staged/rr-11`, maquette and mq7 paintings on integration). Contract + preflight before each launch.
+  1. rr-11 (Thrall v2) review → windowed proof → inbox. purge-01 merge → inbox (Purge screens). Owner verdicts on
+     enemy-pacing and Purge.
   2. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
      conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
   3. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
