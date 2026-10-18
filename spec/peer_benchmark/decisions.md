@@ -135,7 +135,7 @@
 ## 2026-10-17 rr-05 final-proof review
 - Native check: an exact texel tie (snapped `u` or `v` within 1e-6 of an integer) may resolve to either neighbour, because
   the Metal sampler's tie direction isn't reproducible on the CPU. Every other pixel keeps the 1 px + 1% rule, and held
-  shimmer stays 0. Guard: ≤ 2% tied pixels per part per frame.
+  shimmer stays 0. No percentage guard: whole scanlines tie, and non-tie pixels still catch broken transforms. Tie counts are reported.
 - Hidden support must never read as dark slabs.
   - New blocking gate: in every posed frame, exposed hidden or seam material may not contain an outline-class component
     with a full 3×3 block.

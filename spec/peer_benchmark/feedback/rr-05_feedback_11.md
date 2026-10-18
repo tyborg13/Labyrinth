@@ -1,11 +1,19 @@
 # rr-05 feedback 11: dark slabs from hidden support (director review of the Bloomer native frames)
 
-Do this after feedback 10 (exact texel ties), in the same worktree. Evidence is in
+Round 10 (exact texel ties) is done; build on it in the same worktree. Evidence is in
 `spec/peer_benchmark/feedback/rr-05_fb11/` in the integration worktree:
 - `bloomer_rear_shell_strip.png`: rear Shell frames 0–54.
 - `bloomer_rear_left.png`, `bloomer_rear_top.png`: zoom on rest, idle 0, Shell 14 and Burst 22.
 - `hidden_dark_parts.png`: rear `root_stem_c`, rear `root_tip_r`, front `root_stem_c` and front `root_tip_r` hidden
   textures at 4x.
+
+## 0. TODO_DESIGN_exact_tie_guard_scope (from round 10): drop the percentage guard
+- Exact ties come in whole scanlines or columns, so legitimate frames reach 13% (front `arc_right` 0090). Remove the
+  2% tied-pixel guard.
+- A tied pixel still accepts only its two geometric candidates, and every non-tie pixel keeps the strict rule. A broken
+  transform still fails there, so the guard adds nothing.
+- Keep the per-part tie report (total and max per frame) in the gate JSON and README.
+- The three retained fixtures must pass.
 
 ## What the owner would see
 The gem is fixed and the front view reads well. In the **rear** view during Shell (frames ≈12–48) and Burst:
