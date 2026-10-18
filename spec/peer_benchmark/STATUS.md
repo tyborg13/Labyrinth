@@ -35,6 +35,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     Its brief also says "120 s"; clarify as in mq-06 feedback 3.
   - rr-12 (Grub + Tick rigs, rr-05 pipeline): running after the director recorded the task contract.
   - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; resume them for v2 after rr-10.
+- Pending cleanup: rr-10's checkpoint a65f89a25 swept 20.9k proof capture files into `codex/rr-10`. When the current
+  round finishes, squash from 963d00f61, add `rr10/proof/.gitignore` and recommit. Then prune the unreachable objects
+  (rr-12's dropped 1558535d8 too): `git reflog expire --expire-unreachable=now --all && git prune`, at a quiet time
+  with no runs active.
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - Next (in order):
