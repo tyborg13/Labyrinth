@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "arc_thrall",
+  "job_id": "mq-thrall-rear-r2",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "690fe37cc40ea32810855a26e9755f7efa44849814a81954810cdb4ba635de70",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/arc_thrall/mq7_front/kit.json",
+    "pixel_sha256": "509138b0af60170c209b557c1ee5055830f738de7ddb5b588a1a45f578fda9c4"
+  },
+  "method": "maquette paint-over r2 (rear) from the mq-07 maquette (true 180 turn, planted feet, capped tube); palette matched to the approved mq7 front job",
+  "peers": [
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "0d043d8e6ed9a887c8fd2a7e981e3cf1fa933a38b0a3ffeaae881d812daf0509",
+  "prompt_source": "spec/art_identity/maquettes/arc_thrall/prompt_rear_r2.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq07",
+      "file": "refs/01_maquette_rear_parts_mq07.png",
+      "pixel_sha256": "55c395c68b7ed3e059d0aebe618e1ebbbb9ddf184c68b1479a25906e0a408f98",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r2/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq07",
+      "file": "refs/02_maquette_rear_clay_mq07.png",
+      "pixel_sha256": "4d95be95216a5a98370e413d2e600fd183069cb4c95398ff8d4efc30950f4308",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r2/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "arc_thrall_front_mq7_raw",
+      "file": "refs/03_arc_thrall_front_mq7_raw.png",
+      "pixel_sha256": "53e7d45c1a092af2e7fda13fccdc92b5b1d2b957c6df0f7cb568207e9ea6876d",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r2/refs/03_arc_thrall_front_approved.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_rear",
+      "file": "refs/04_approved_frostglass_lancer_mq4_rear.png",
+      "pixel_sha256": "8936a3ed4156a5c7962658fd31ddcfaf67b3d063b960117e99e17436aea4c2fa",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r2/refs/04_peer_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-rear-r2/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 217,
+  "view": "creature_rear"
+}

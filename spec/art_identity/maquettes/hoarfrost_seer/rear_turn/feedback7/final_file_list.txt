@@ -1,0 +1,11 @@
+spec/art_identity/maquettes/hoarfrost_seer/COMMIT_MANIFEST.txt
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/README.md
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/art_identity.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/curation.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/final_file_list.txt
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/focused.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/full_python.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/omissions_before.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/output_gdignore.log
+spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback7/verification.txt
+tests/test_maquette_rear_turn.py

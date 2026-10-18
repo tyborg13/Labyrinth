@@ -1,0 +1,4 @@
+MQ06_FLOOR_INVENTORY: PASS; rear=ankle_far, ankle_near, hem_max, hem_min, staff_shaft.prop_foot; exceptions=[]
+MQ06_DELIVERY_VALIDATION: PASS; strict frozen-front and planted-rear certificates
+MQ06_FRONT_FREEZE: PASS; files=21; joint displacement=0 px
+MQ06_STAGED_REAR_HASHES: PASS; unchanged files=34

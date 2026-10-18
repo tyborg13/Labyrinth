@@ -1,12 +1,13 @@
 # mq-07 feedback 2 — plant the far foot, then promote r2 to the delivery
 
 Your r1 (checkpoint 881aae937) is accepted: the raised far shoulder and the 17 px capped tube with the open banded
-mouth. mq-06 has landed on `codex/peer-benchmark` with:
+mouth. mq-06 (merged into your branch by the director; it lands on integration after its review) brings:
 - the floor-contact guard and documented exceptions (Thrall listed: far ankle +0.070 m, "mq-07");
 - the planted-leg re-pose through real hip/knee/ankle bones, plus the robe-settle tooling;
 - the turn regression.
 
-Merge `codex/peer-benchmark` into your branch first. Unlike the Seer, the Thrall will be repainted in BOTH views from
+The director has already merged `codex/peer-benchmark` and `codex/mq-06` into your branch, with builder conflicts resolved
+(34f3c5e38 and the following merge commit); don't merge again. Unlike the Seer, the Thrall will be repainted in BOTH views from
 your clays, so neither view is frozen.
 
 1. **Plant the far foot.**

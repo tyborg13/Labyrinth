@@ -55,6 +55,54 @@ class DeliveryValidationTests(unittest.TestCase):
     def test_valid_current_delivery(self):
         validate_delivery(self.spec, self.capture)
 
+    def test_socket_proof_is_required_before_and_after_resealing(self):
+        cases = [('build_report.json', ('checks', 'native_socket_tucks')),
+                 ('capture_checks.json', ('geometry_checks', 'native_socket_tucks')),
+                 ('build_report.json', ('geometry_details', 'socket_tucks'))]
+        for name, keys in cases:
+            with self.subTest(report=name, missing=keys):
+                path = self.capture / name
+                original = path.read_bytes()
+                proof_path = self.capture / 'recipe_proof.json'
+                original_proof = proof_path.read_bytes()
+                data = json.loads(original)
+                parent = data
+                for key in keys[:-1]:
+                    parent = parent[key]
+                del parent[keys[-1]]
+                path.write_text(json.dumps(data))
+                try:
+                    with self.assertRaises(ValueError):
+                        validate_delivery(self.spec, self.capture, require_binding=False)
+                    with self.assertRaises(ValueError):
+                        seal_delivery(self.spec, self.capture)
+                    self.assertEqual(proof_path.read_bytes(), original_proof)
+                    # Even a freshly forged byte seal cannot waive semantic proof.
+                    proof = json.loads(original_proof)
+                    proof['delivery_binding']['report_sha256'][name] = sha(path)
+                    proof_path.write_text(json.dumps(proof))
+                    with self.assertRaises(ValueError):
+                        validate_delivery(self.spec, self.capture)
+                finally:
+                    path.write_bytes(original)
+                    proof_path.write_bytes(original_proof)
+
+    def test_each_socket_detail_is_mandatory_before_sealing(self):
+        path = self.capture / 'build_report.json'
+        original = path.read_bytes()
+        reports = json.loads(original)['geometry_details']['socket_tucks']
+        for name, row in reports.items():
+            for field in row:
+                with self.subTest(socket=name, missing=field):
+                    data = json.loads(original)
+                    del data['geometry_details']['socket_tucks'][name][field]
+                    path.write_text(json.dumps(data))
+                    try:
+                        with self.assertRaises(ValueError):
+                            seal_delivery(self.spec, self.capture)
+                    finally:
+                        path.write_bytes(original)
+
     def test_staging_preserves_native_png_bytes_including_stamps(self):
         from PIL.PngImagePlugin import PngInfo
         names = load(self.capture / 'capture_manifest.json')['images']

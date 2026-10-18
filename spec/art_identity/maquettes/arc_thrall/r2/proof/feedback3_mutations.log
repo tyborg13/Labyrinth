@@ -1,0 +1,24 @@
+test_fit_repose_split_and_socket_tuck_order (tests.test_maquette_builder_wiring.BuilderWiringTests) ... BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+ok
+test_procedural_chain_dispatch_skips_appended_body_and_fitting (tests.test_maquette_builder_wiring.BuilderWiringTests) ... BUILD_STAGE: append anatomy
+ok
+test_foot_exception_is_rejected_even_with_a_valid_support_path (tests.test_maquette_builder_wiring.InvalidNativeContracts) ... ok
+test_invalid_socket_contracts_are_rejected (tests.test_maquette_builder_wiring.InvalidNativeContracts) ... ok
+test_each_reviewed_removal_fails_its_regression (tests.test_maquette_builder_wiring.ReviewedRemovalTests) ... BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: procedural_chain
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+MQ07_REVIEW_MUTATION_REJECTED: repose
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 0 anatomy vertices
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.243s
+
+OK
+MQ07_REVIEW_MUTATION_REJECTED: append_tucks
+MQ07_REVIEW_MUTATION_REJECTED: socket_contract
+MQ07_REVIEW_MUTATION_REJECTED: foot_exception

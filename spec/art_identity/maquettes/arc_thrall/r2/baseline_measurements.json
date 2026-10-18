@@ -1,0 +1,2142 @@
+{
+  "schema": 1,
+  "id": "arc_thrall",
+  "sources": {
+    "front": "spec/art_identity/jobs/arc_thrall/front/processed.png",
+    "rear": "spec/art_identity/jobs/arc_thrall/rear_v2/processed.png"
+  },
+  "source_sha256": {
+    "front": "9de84d7cf39e86454b529b97b38eea547283d1227b8720d64f6b2207b10c57bc",
+    "rear": "6cb68f4041695b212808951bd8611240cf3716b41315b7e23ba30a44d0c84047"
+  },
+  "labels": {
+    "head": [
+      1.0,
+      0.85,
+      0.1
+    ],
+    "collar": [
+      0.22,
+      0.65,
+      0.08
+    ],
+    "torso": [
+      0.85,
+      0.15,
+      0.15
+    ],
+    "loincloth": [
+      0.85,
+      0.255,
+      0.7758559804874999
+    ],
+    "upper_near": [
+      0.2,
+      0.4,
+      1.0
+    ],
+    "fore_near": [
+      0.45,
+      0.62,
+      1.0
+    ],
+    "hand_near": [
+      0.75,
+      0.82,
+      1.0
+    ],
+    "upper_far": [
+      0.5,
+      0.1,
+      0.8
+    ],
+    "fore_far": [
+      0.72,
+      0.3,
+      0.9
+    ],
+    "hand_far": [
+      0.92,
+      0.62,
+      1.0
+    ],
+    "club": [
+      0.8011866016249977,
+      0.85,
+      0.255
+    ],
+    "thigh_near": [
+      0.1,
+      0.7,
+      0.7
+    ],
+    "shin_near": [
+      0.3,
+      0.85,
+      0.85
+    ],
+    "foot_near": [
+      0.6,
+      0.95,
+      0.95
+    ],
+    "thigh_far": [
+      0.05,
+      0.4,
+      0.4
+    ],
+    "shin_far": [
+      0.15,
+      0.55,
+      0.55
+    ],
+    "foot_far": [
+      0.3,
+      0.65,
+      0.65
+    ]
+  },
+  "joints_px": {
+    "pelvis": [
+      [
+        132,
+        146
+      ],
+      [
+        135,
+        143
+      ]
+    ],
+    "torso": [
+      [
+        133,
+        108
+      ],
+      [
+        137,
+        101
+      ]
+    ],
+    "head": [
+      [
+        96,
+        73
+      ],
+      [
+        155,
+        62
+      ]
+    ],
+    "head_tip": [
+      [
+        94,
+        53
+      ],
+      [
+        158,
+        48
+      ]
+    ],
+    "shoulder_near": [
+      [
+        158,
+        88
+      ],
+      [
+        106,
+        86
+      ]
+    ],
+    "shoulder_far": [
+      [
+        87,
+        101
+      ],
+      [
+        174,
+        88
+      ]
+    ],
+    "elbow_near": [
+      [
+        181,
+        124
+      ],
+      [
+        81,
+        123
+      ]
+    ],
+    "elbow_far": [
+      [
+        64,
+        131
+      ],
+      [
+        192,
+        123
+      ]
+    ],
+    "hand_near": [
+      [
+        194,
+        148
+      ],
+      [
+        67,
+        148
+      ]
+    ],
+    "hand_far": [
+      [
+        49,
+        159
+      ],
+      [
+        206,
+        162
+      ]
+    ],
+    "hand_tip_near": [
+      [
+        198,
+        160
+      ],
+      [
+        62,
+        157
+      ]
+    ],
+    "hand_tip_far": [
+      [
+        49,
+        175
+      ],
+      [
+        205,
+        178
+      ]
+    ],
+    "hip_near": [
+      [
+        149,
+        151
+      ],
+      [
+        111,
+        148
+      ]
+    ],
+    "hip_far": [
+      [
+        112,
+        150
+      ],
+      [
+        149,
+        150
+      ]
+    ],
+    "knee_near": [
+      [
+        160,
+        191
+      ],
+      [
+        99,
+        173
+      ]
+    ],
+    "knee_far": [
+      [
+        102,
+        168
+      ],
+      [
+        156,
+        184
+      ]
+    ],
+    "ankle_near": [
+      [
+        164,
+        223
+      ],
+      [
+        88,
+        194
+      ]
+    ],
+    "ankle_far": [
+      [
+        91,
+        184
+      ],
+      [
+        151,
+        220
+      ]
+    ],
+    "foot_tip_near": [
+      [
+        149,
+        240
+      ],
+      [
+        111,
+        200
+      ]
+    ],
+    "foot_tip_far": [
+      [
+        73,
+        196
+      ],
+      [
+        178,
+        236
+      ]
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "collar_ring",
+      "part": "collar",
+      "shape": "neck_collar",
+      "centre_px": [
+        [
+          121,
+          65
+        ],
+        [
+          142,
+          69
+        ]
+      ],
+      "neck_region": "torso",
+      "neck_clearance": 0.01,
+      "tube_diameter": 0.035,
+      "tilt_degrees": 10,
+      "chain": {
+        "count": 3,
+        "length": 0.06,
+        "width": 0.035,
+        "wire_diameter": 0.012,
+        "alternate_degrees": 90
+      }
+    },
+    {
+      "id": "loincloth_front",
+      "part": "loincloth",
+      "kind": "tabard",
+      "shape": "panel",
+      "rows_px": [
+        [
+          [
+            108,
+            133
+          ],
+          [
+            145,
+            137
+          ]
+        ],
+        [
+          [
+            111,
+            152
+          ],
+          [
+            145,
+            154
+          ]
+        ],
+        [
+          [
+            120,
+            174
+          ],
+          [
+            136,
+            181
+          ]
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": 0.3,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "drape": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 160,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.014062499999999999,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.009375,
+          -0.014062499999999999,
+          0.0,
+          0.009375,
+          0.0
+        ],
+        "smooth_normals": true,
+        "gather_frames": 32,
+        "waist_anchor_px": [
+          [
+            126.5,
+            135.0
+          ],
+          [
+            127.0,
+            136.0
+          ]
+        ],
+        "waist_side": "front",
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      }
+    },
+    {
+      "id": "loincloth_back",
+      "part": "loincloth",
+      "kind": "tabard",
+      "shape": "panel",
+      "rows_px": [
+        [
+          [
+            109,
+            132
+          ],
+          [
+            145,
+            140
+          ]
+        ],
+        [
+          [
+            106,
+            148
+          ],
+          [
+            146,
+            153
+          ]
+        ],
+        [
+          [
+            112,
+            165
+          ],
+          [
+            143,
+            171
+          ]
+        ],
+        [
+          [
+            120,
+            182
+          ],
+          [
+            135,
+            185
+          ]
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.4,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "source_view": "rear",
+      "drape": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 160,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.014062499999999999,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.009375,
+          -0.014062499999999999,
+          0.0,
+          0.009375,
+          0.0
+        ],
+        "smooth_normals": true,
+        "gather_frames": 32,
+        "waist_anchor_px": [
+          [
+            126.5,
+            135.0
+          ],
+          [
+            127.0,
+            136.0
+          ]
+        ],
+        "waist_side": "rear",
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      }
+    },
+    {
+      "id": "club",
+      "part": "club",
+      "shape": "tube",
+      "path_px": [
+        [
+          185,
+          119
+        ],
+        [
+          189,
+          136
+        ],
+        [
+          193,
+          151
+        ],
+        [
+          199,
+          168
+        ],
+        [
+          203,
+          189
+        ],
+        [
+          210,
+          211
+        ]
+      ],
+      "radius_px": 10,
+      "taper": [
+        0.45,
+        0.55,
+        0.85,
+        0.95,
+        1.1,
+        1.05
+      ],
+      "plane_axis": 1,
+      "plane_coordinate": 0.37,
+      "closed": false,
+      "rear_path_px": [
+        [
+          72,
+          137
+        ],
+        [
+          67,
+          155
+        ],
+        [
+          60,
+          174
+        ],
+        [
+          57,
+          185
+        ],
+        [
+          49,
+          203
+        ],
+        [
+          44,
+          218
+        ]
+      ],
+      "sides": 16,
+      "wall_px": 1.5,
+      "bands": [
+        {
+          "at": 0.31,
+          "thickness_px": 1.3
+        },
+        {
+          "at": 0.67,
+          "thickness_px": 1.3
+        },
+        {
+          "at": 0.93,
+          "thickness_px": 1.3
+        }
+      ],
+      "radial_profile": [
+        [
+          1,
+          0.98,
+          1.03,
+          1,
+          0.97,
+          1.02,
+          1,
+          0.98,
+          1.04,
+          1,
+          0.98,
+          1.01,
+          1,
+          0.97,
+          1.02,
+          1
+        ],
+        [
+          1.02,
+          0.97,
+          1,
+          1.05,
+          0.98,
+          1.02,
+          0.96,
+          1,
+          1.03,
+          0.97,
+          1.04,
+          1,
+          0.96,
+          1,
+          1.02,
+          0.98
+        ],
+        [
+          1,
+          0.94,
+          1.08,
+          1.02,
+          0.96,
+          1.07,
+          1,
+          0.93,
+          1.06,
+          0.98,
+          1.04,
+          1.08,
+          0.94,
+          1,
+          0.98,
+          1.05
+        ],
+        [
+          1.1,
+          1,
+          0.92,
+          1.05,
+          1.12,
+          0.98,
+          1.04,
+          0.93,
+          1.08,
+          1,
+          0.95,
+          1.12,
+          1.02,
+          0.94,
+          1.07,
+          1
+        ],
+        [
+          0.97,
+          1.12,
+          1.03,
+          0.94,
+          1.08,
+          1,
+          0.91,
+          1.07,
+          1.14,
+          0.97,
+          1.04,
+          0.93,
+          1.09,
+          1,
+          0.95,
+          1.05
+        ],
+        [
+          1.02,
+          0.96,
+          1.04,
+          1,
+          0.98,
+          1.04,
+          0.96,
+          1.03,
+          1,
+          0.97,
+          1.05,
+          0.98,
+          1.02,
+          0.96,
+          1.04,
+          1
+        ]
+      ]
+    }
+  ],
+  "bone_scales": {
+    "pelvis": [
+      1.2,
+      1.15
+    ],
+    "torso": [
+      1.45,
+      1.4
+    ],
+    "head": [
+      1.1,
+      1.15
+    ],
+    "shoulder_near": [
+      1.15,
+      1.2
+    ],
+    "shoulder_far": [
+      1.15,
+      1.2
+    ],
+    "elbow_near": [
+      1.15,
+      1.15
+    ],
+    "elbow_far": [
+      1.15,
+      1.15
+    ],
+    "hip_near": [
+      1.15,
+      1.2
+    ],
+    "hip_far": [
+      1.15,
+      1.2
+    ],
+    "ankle_near": [
+      1.5,
+      1.3
+    ],
+    "ankle_far": [
+      1.5,
+      1.3
+    ]
+  },
+  "region_map": {
+    "pelvis": "torso"
+  },
+  "weapon_parts": [
+    "club"
+  ],
+  "fit": {
+    "front": {
+      "source_frame": {
+        "head_top": 44,
+        "sole_bottom": 246,
+        "ground_x": 156.77777777777777
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.21782178217821782,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.504950495049505,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.7277227722772277,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.8861386138613861,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.7,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    },
+    "rear": {
+      "source_frame": {
+        "head_top": 42,
+        "sole_bottom": 246,
+        "ground_x": 143.2391304347826
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.21568627450980393,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.4950980392156863,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.6421568627450981,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.7450980392156863,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.65,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    }
+  },
+  "features": {
+    "lightning_cracks": {
+      "part": "club",
+      "whole": true
+    },
+    "club_hand": "hand_near"
+  },
+  "occlusions": {
+    "front": {},
+    "rear": {}
+  },
+  "unresolved_design": {},
+  "measurement_basis": "Art-02 paintings are identity and proportion references. Preserve the approved bare anatomy. Waist-pinned cloth is simulated under gravity; the paint-over follows this maquette (director feedback 2). Club centreline and taper follow the painted gnarled club; raised bands remain owned by club.",
+  "body_source_profiles": {
+    "head": {
+      "front": [
+        [
+          74,
+          61
+        ],
+        [
+          80,
+          49
+        ],
+        [
+          100,
+          44
+        ],
+        [
+          113,
+          48
+        ],
+        [
+          116,
+          63
+        ],
+        [
+          108,
+          85
+        ],
+        [
+          92,
+          101
+        ],
+        [
+          79,
+          92
+        ],
+        [
+          73,
+          78
+        ]
+      ],
+      "rear": [
+        [
+          148,
+          44
+        ],
+        [
+          163,
+          42
+        ],
+        [
+          176,
+          51
+        ],
+        [
+          180,
+          65
+        ],
+        [
+          169,
+          78
+        ],
+        [
+          152,
+          76
+        ],
+        [
+          142,
+          62
+        ]
+      ]
+    },
+    "torso": {
+      "front": [
+        [
+          116,
+          64
+        ],
+        [
+          144,
+          66
+        ],
+        [
+          162,
+          82
+        ],
+        [
+          161,
+          117
+        ],
+        [
+          145,
+          141
+        ],
+        [
+          151,
+          151
+        ],
+        [
+          115,
+          154
+        ],
+        [
+          99,
+          139
+        ],
+        [
+          96,
+          117
+        ],
+        [
+          107,
+          99
+        ]
+      ],
+      "rear": [
+        [
+          137,
+          63
+        ],
+        [
+          156,
+          65
+        ],
+        [
+          169,
+          83
+        ],
+        [
+          162,
+          113
+        ],
+        [
+          155,
+          137
+        ],
+        [
+          148,
+          148
+        ],
+        [
+          112,
+          147
+        ],
+        [
+          99,
+          123
+        ],
+        [
+          99,
+          95
+        ],
+        [
+          111,
+          73
+        ]
+      ]
+    },
+    "upper_near": {
+      "front": [
+        [
+          148,
+          73
+        ],
+        [
+          162,
+          76
+        ],
+        [
+          179,
+          94
+        ],
+        [
+          183,
+          120
+        ],
+        [
+          168,
+          128
+        ],
+        [
+          155,
+          110
+        ],
+        [
+          145,
+          92
+        ]
+      ],
+      "rear": [
+        [
+          109,
+          70
+        ],
+        [
+          122,
+          78
+        ],
+        [
+          112,
+          101
+        ],
+        [
+          94,
+          120
+        ],
+        [
+          77,
+          117
+        ],
+        [
+          81,
+          99
+        ],
+        [
+          96,
+          82
+        ]
+      ]
+    },
+    "fore_near": {
+      "front": [
+        [
+          177,
+          114
+        ],
+        [
+          191,
+          120
+        ],
+        [
+          199,
+          148
+        ],
+        [
+          190,
+          155
+        ],
+        [
+          180,
+          142
+        ],
+        [
+          172,
+          127
+        ]
+      ],
+      "rear": [
+        [
+          81,
+          113
+        ],
+        [
+          94,
+          119
+        ],
+        [
+          79,
+          145
+        ],
+        [
+          70,
+          153
+        ],
+        [
+          60,
+          147
+        ],
+        [
+          67,
+          127
+        ]
+      ]
+    },
+    "hand_near": {
+      "front": [
+        [
+          184,
+          141
+        ],
+        [
+          195,
+          140
+        ],
+        [
+          202,
+          148
+        ],
+        [
+          199,
+          159
+        ],
+        [
+          193,
+          165
+        ],
+        [
+          186,
+          157
+        ]
+      ],
+      "rear": [
+        [
+          63,
+          137
+        ],
+        [
+          76,
+          141
+        ],
+        [
+          79,
+          151
+        ],
+        [
+          70,
+          158
+        ],
+        [
+          60,
+          154
+        ],
+        [
+          57,
+          144
+        ]
+      ]
+    },
+    "upper_far": {
+      "front": [
+        [
+          84,
+          91
+        ],
+        [
+          99,
+          106
+        ],
+        [
+          89,
+          122
+        ],
+        [
+          68,
+          140
+        ],
+        [
+          57,
+          130
+        ],
+        [
+          68,
+          110
+        ]
+      ],
+      "rear": [
+        [
+          170,
+          82
+        ],
+        [
+          182,
+          94
+        ],
+        [
+          194,
+          112
+        ],
+        [
+          187,
+          129
+        ],
+        [
+          174,
+          119
+        ],
+        [
+          163,
+          101
+        ]
+      ]
+    },
+    "fore_far": {
+      "front": [
+        [
+          64,
+          126
+        ],
+        [
+          77,
+          135
+        ],
+        [
+          59,
+          159
+        ],
+        [
+          44,
+          168
+        ],
+        [
+          34,
+          160
+        ],
+        [
+          44,
+          143
+        ]
+      ],
+      "rear": [
+        [
+          188,
+          121
+        ],
+        [
+          200,
+          128
+        ],
+        [
+          209,
+          151
+        ],
+        [
+          201,
+          162
+        ],
+        [
+          191,
+          151
+        ],
+        [
+          179,
+          135
+        ]
+      ]
+    },
+    "hand_far": {
+      "front": [
+        [
+          40,
+          143
+        ],
+        [
+          56,
+          143
+        ],
+        [
+          66,
+          154
+        ],
+        [
+          71,
+          167
+        ],
+        [
+          63,
+          166
+        ],
+        [
+          57,
+          155
+        ],
+        [
+          49,
+          157
+        ],
+        [
+          49,
+          170
+        ],
+        [
+          40,
+          167
+        ],
+        [
+          34,
+          155
+        ]
+      ],
+      "rear": [
+        [
+          200,
+          146
+        ],
+        [
+          214,
+          152
+        ],
+        [
+          225,
+          174
+        ],
+        [
+          219,
+          190
+        ],
+        [
+          213,
+          193
+        ],
+        [
+          211,
+          176
+        ],
+        [
+          202,
+          177
+        ],
+        [
+          199,
+          190
+        ],
+        [
+          192,
+          179
+        ],
+        [
+          190,
+          162
+        ]
+      ]
+    },
+    "thigh_near": {
+      "front": [
+        [
+          139,
+          145
+        ],
+        [
+          154,
+          145
+        ],
+        [
+          167,
+          164
+        ],
+        [
+          170,
+          185
+        ],
+        [
+          156,
+          201
+        ],
+        [
+          142,
+          183
+        ],
+        [
+          133,
+          165
+        ]
+      ],
+      "rear": [
+        [
+          108,
+          145
+        ],
+        [
+          124,
+          152
+        ],
+        [
+          116,
+          172
+        ],
+        [
+          105,
+          187
+        ],
+        [
+          89,
+          187
+        ],
+        [
+          84,
+          177
+        ],
+        [
+          91,
+          159
+        ]
+      ]
+    },
+    "shin_near": {
+      "front": [
+        [
+          153,
+          182
+        ],
+        [
+          170,
+          182
+        ],
+        [
+          177,
+          206
+        ],
+        [
+          178,
+          226
+        ],
+        [
+          157,
+          233
+        ],
+        [
+          149,
+          214
+        ],
+        [
+          148,
+          197
+        ]
+      ],
+      "rear": [
+        [
+          88,
+          172
+        ],
+        [
+          106,
+          179
+        ],
+        [
+          101,
+          194
+        ],
+        [
+          93,
+          204
+        ],
+        [
+          80,
+          207
+        ],
+        [
+          78,
+          194
+        ]
+      ]
+    },
+    "thigh_far": {
+      "front": [
+        [
+          108,
+          142
+        ],
+        [
+          122,
+          147
+        ],
+        [
+          123,
+          165
+        ],
+        [
+          110,
+          177
+        ],
+        [
+          93,
+          176
+        ],
+        [
+          88,
+          166
+        ],
+        [
+          93,
+          153
+        ]
+      ],
+      "rear": [
+        [
+          145,
+          146
+        ],
+        [
+          161,
+          150
+        ],
+        [
+          174,
+          166
+        ],
+        [
+          169,
+          182
+        ],
+        [
+          154,
+          189
+        ],
+        [
+          143,
+          174
+        ]
+      ]
+    },
+    "shin_far": {
+      "front": [
+        [
+          93,
+          163
+        ],
+        [
+          108,
+          168
+        ],
+        [
+          104,
+          181
+        ],
+        [
+          94,
+          193
+        ],
+        [
+          81,
+          192
+        ],
+        [
+          80,
+          181
+        ]
+      ],
+      "rear": [
+        [
+          147,
+          178
+        ],
+        [
+          165,
+          183
+        ],
+        [
+          166,
+          205
+        ],
+        [
+          160,
+          226
+        ],
+        [
+          145,
+          231
+        ],
+        [
+          139,
+          218
+        ],
+        [
+          141,
+          197
+        ]
+      ]
+    },
+    "foot_near": {
+      "front": [
+        [
+          155,
+          220
+        ],
+        [
+          153,
+          221
+        ],
+        [
+          153,
+          222
+        ],
+        [
+          152,
+          223
+        ],
+        [
+          152,
+          224
+        ],
+        [
+          149,
+          225
+        ],
+        [
+          149,
+          226
+        ],
+        [
+          147,
+          227
+        ],
+        [
+          147,
+          228
+        ],
+        [
+          145,
+          229
+        ],
+        [
+          145,
+          230
+        ],
+        [
+          145,
+          231
+        ],
+        [
+          145,
+          232
+        ],
+        [
+          143,
+          233
+        ],
+        [
+          143,
+          234
+        ],
+        [
+          144,
+          235
+        ],
+        [
+          143,
+          236
+        ],
+        [
+          143,
+          237
+        ],
+        [
+          143,
+          238
+        ],
+        [
+          143,
+          239
+        ],
+        [
+          143,
+          240
+        ],
+        [
+          143,
+          241
+        ],
+        [
+          143,
+          242
+        ],
+        [
+          143,
+          243
+        ],
+        [
+          145,
+          244
+        ],
+        [
+          145,
+          246
+        ],
+        [
+          168,
+          246
+        ],
+        [
+          168,
+          244
+        ],
+        [
+          175,
+          243
+        ],
+        [
+          176,
+          242
+        ],
+        [
+          179,
+          241
+        ],
+        [
+          179,
+          240
+        ],
+        [
+          181,
+          239
+        ],
+        [
+          182,
+          238
+        ],
+        [
+          182,
+          237
+        ],
+        [
+          184,
+          236
+        ],
+        [
+          184,
+          235
+        ],
+        [
+          184,
+          234
+        ],
+        [
+          184,
+          233
+        ],
+        [
+          184,
+          232
+        ],
+        [
+          184,
+          231
+        ],
+        [
+          184,
+          230
+        ],
+        [
+          184,
+          229
+        ],
+        [
+          184,
+          228
+        ],
+        [
+          184,
+          227
+        ],
+        [
+          184,
+          226
+        ],
+        [
+          184,
+          225
+        ],
+        [
+          182,
+          224
+        ],
+        [
+          182,
+          223
+        ],
+        [
+          182,
+          222
+        ],
+        [
+          182,
+          221
+        ],
+        [
+          182,
+          220
+        ]
+      ]
+    },
+    "foot_far": {
+      "rear": [
+        [
+          137,
+          216
+        ],
+        [
+          137,
+          217
+        ],
+        [
+          137,
+          218
+        ],
+        [
+          137,
+          219
+        ],
+        [
+          137,
+          220
+        ],
+        [
+          138,
+          221
+        ],
+        [
+          138,
+          222
+        ],
+        [
+          138,
+          223
+        ],
+        [
+          138,
+          224
+        ],
+        [
+          136,
+          225
+        ],
+        [
+          136,
+          226
+        ],
+        [
+          136,
+          227
+        ],
+        [
+          135,
+          228
+        ],
+        [
+          135,
+          229
+        ],
+        [
+          135,
+          230
+        ],
+        [
+          135,
+          231
+        ],
+        [
+          133,
+          232
+        ],
+        [
+          133,
+          233
+        ],
+        [
+          133,
+          234
+        ],
+        [
+          133,
+          235
+        ],
+        [
+          133,
+          236
+        ],
+        [
+          133,
+          237
+        ],
+        [
+          133,
+          238
+        ],
+        [
+          133,
+          239
+        ],
+        [
+          133,
+          240
+        ],
+        [
+          135,
+          241
+        ],
+        [
+          135,
+          242
+        ],
+        [
+          135,
+          243
+        ],
+        [
+          137,
+          244
+        ],
+        [
+          138,
+          246
+        ],
+        [
+          149,
+          246
+        ],
+        [
+          149,
+          244
+        ],
+        [
+          175,
+          243
+        ],
+        [
+          178,
+          242
+        ],
+        [
+          180,
+          241
+        ],
+        [
+          184,
+          240
+        ],
+        [
+          184,
+          239
+        ],
+        [
+          186,
+          238
+        ],
+        [
+          186,
+          237
+        ],
+        [
+          188,
+          236
+        ],
+        [
+          188,
+          235
+        ],
+        [
+          188,
+          234
+        ],
+        [
+          188,
+          233
+        ],
+        [
+          188,
+          232
+        ],
+        [
+          188,
+          231
+        ],
+        [
+          188,
+          230
+        ],
+        [
+          186,
+          229
+        ],
+        [
+          186,
+          228
+        ],
+        [
+          184,
+          227
+        ],
+        [
+          183,
+          226
+        ],
+        [
+          183,
+          225
+        ],
+        [
+          180,
+          224
+        ],
+        [
+          180,
+          223
+        ],
+        [
+          176,
+          222
+        ],
+        [
+          176,
+          221
+        ],
+        [
+          168,
+          220
+        ],
+        [
+          162,
+          219
+        ],
+        [
+          162,
+          218
+        ],
+        [
+          162,
+          217
+        ],
+        [
+          162,
+          216
+        ]
+      ]
+    }
+  },
+  "contact_policy": "Native cloth: free waist-hung fabric, isolated complete-body collision collection plus a closed regional support, self-collision, fixed pre-roll, final complete-anatomy collision gate.",
+  "grounded_profile_measurements": {
+    "regions": {
+      "foot_near": [
+        "front",
+        [
+          135,
+          220,
+          192,
+          247
+        ]
+      ],
+      "foot_far": [
+        "rear",
+        [
+          125,
+          216,
+          190,
+          247
+        ]
+      ]
+    },
+    "alpha_threshold": 128,
+    "row_step_px": 1,
+    "method": "Observed full ground-contact foot contour; retain native depth for the occluded opposite view."
+  },
+  "design_direction": "mq-04 feedback 3: metric horizontal neck ring and three gravity-hanging oval links; unchanged approved native anatomy.",
+  "cloth_registration": "The paired front/rear waist-line midpoints anchor both panels on the actual native waist surface. Front/rear here mean anatomical anterior/posterior panels, both always present in one model; they are not per-view states.",
+  "collar_dimensions": "Feedback 3 dimensions are outer link length/width and round wire/tube diameters. Native neck section determines the radius; ring inner radius adds exactly 0.01 m.",
+  "simulation_basis": "Native Cloth uses the Lancer r3 stiffness preset with the fixed per-garment pre-roll recorded in drape.frames, free fabric, self-collision, measured attachments and the native anatomy collision skin. Sampling, solver timing and tolerances are implementation fields; source extents and director metric dimensions are retained."
+}

@@ -1,0 +1,48 @@
+{
+  "front": {
+    "iou": 0.722267224204742,
+    "maquette_frame": {
+      "head_top": 176.0,
+      "sole_bottom": 984.0,
+      "ground_x": 625.8505154639175
+    },
+    "source_frame": {
+      "head_top": 44.0,
+      "sole_bottom": 246.0,
+      "ground_x": 156.77777777777777
+    },
+    "checks": {
+      "iou": true,
+      "median_band_error": false,
+      "max_band_error": false,
+      "landmark_error": true,
+      "design_complete": true
+    },
+    "dynamic_iou": 0.722267224204742,
+    "fixed_original_iou": 0.722267224204742,
+    "native_silhouette_sha256": "eded5d0e483c4a31a7e1c7ed6924a08b6d273b16e4776696b518c74fb5b5d7e6"
+  },
+  "rear": {
+    "iou": 0.7035146694952339,
+    "maquette_frame": {
+      "head_top": 168.0,
+      "sole_bottom": 984.0,
+      "ground_x": 580.7631578947369
+    },
+    "source_frame": {
+      "head_top": 42.0,
+      "sole_bottom": 246.0,
+      "ground_x": 143.2391304347826
+    },
+    "checks": {
+      "iou": true,
+      "median_band_error": true,
+      "max_band_error": false,
+      "landmark_error": true,
+      "design_complete": true
+    },
+    "dynamic_iou": 0.7035146694952339,
+    "fixed_original_iou": 0.7035146694952339,
+    "native_silhouette_sha256": "3b2039f8198409e500e5c0133d227d0cbf971c4799fc13d2fb868a310090194c"
+  }
+}

@@ -24,7 +24,8 @@ from rr07_geometry import projection_for
 
 class DeliveryTests(unittest.TestCase):
     def test_both_committed_deliveries_have_every_label_and_joint(self):
-        for creature, count in (('hoarfrost_seer', 35), ('arc_thrall', 39)):
+        # mq-07 removes hand_near and club: four fewer per-view solo files.
+        for creature, count in (('hoarfrost_seer', 35), ('arc_thrall', 35)):
             with self.subTest(creature=creature):
                 report = inputs.audit(creature)
                 self.assertTrue(report['ok'])

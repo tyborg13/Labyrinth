@@ -20,16 +20,16 @@
   "board_axis_cosine": 0.9999991954660427,
   "passed": true,
   "torso_three_quarter": {
-    "left_area_px": 44000,
-    "right_area_px": 35782,
-    "area_imbalance": 0.10300569050663057,
-    "mirror_difference": 0.6814200244603841
+    "left_area_px": 43507,
+    "right_area_px": 35783,
+    "area_imbalance": 0.09741455416824316,
+    "mirror_difference": 0.686653691664251
   },
   "torso_frontal_control": {
-    "left_area_px": 36206,
-    "right_area_px": 21848,
-    "area_imbalance": 0.24732145933096772,
-    "mirror_difference": 0.7526937166306789
+    "left_area_px": 41214,
+    "right_area_px": 21850,
+    "area_imbalance": 0.30705315235316505,
+    "mirror_difference": 0.6987588853697037
   },
   "torso_asymmetry_passed": true,
   "frontal_axis_rejected": true

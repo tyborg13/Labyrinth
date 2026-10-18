@@ -160,3 +160,7 @@
   - → Thrall repaint r2 (both views: a capped tube sheathing the forearm, the arm entering at the elbow, no hand, both
     shoulders at the real shoulder). Spec additions: knee-bend walking and shoulder attachment. Then the Thrall v2 rig
     after rr-10.
+- 2026-10-18 grub-rig APPROVED (owner): "Excellent work, this is perfect." Burrow Grub maquette painting (stubby legs
+  kept) and its rr-12 rig (two-group idle, inchworm crawl, gnaw, burrow into the mound, erupt) are accepted.
+- 2026-10-18 tick-rig APPROVED (owner), with no notes. The Ember Tick painting (standing legs kept, near-black shell,
+  ember cracks) and its rr-12 rig are accepted. Both are on integration (rr-12 merged 9fdb6462f).

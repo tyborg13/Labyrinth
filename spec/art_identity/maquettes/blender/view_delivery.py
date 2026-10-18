@@ -9,6 +9,7 @@ import math
 from copy import deepcopy
 from pathlib import Path
 import shutil
+import struct
 
 from .capture_manifest import sha256
 from .compile_recipe import compile_recipe
@@ -48,7 +49,19 @@ def spec_for_view(base, folder, view):
     folder = Path(folder)
     path = folder / 'view_sources.json'
     if not path.is_file():
-        return deepcopy(base)
+        spec = deepcopy(base)
+        if view == 'rear' and spec.get('rear_capture'):
+            frame = load(folder / 'capture_frame.json')[view]
+            scale = struct.unpack('f', struct.pack('f', spec['ortho_scale']))[0]
+            if (frame.get('passed') is not True or frame.get('camera_rotation_unchanged') is not True or
+                    frame.get('ortho_scale') != scale or
+                    frame.get('required_margin_px') != spec['rear_capture']['edge_margin_px']):
+                raise ValueError('Invalid native pan-only framing for per-view projection')
+            if 'view_transforms' in spec:
+                spec['view_transforms'][view]['target'] = frame['target']
+            else:
+                spec['target'] = frame['target']
+        return spec
     sources = load(path)
     if sources['base_spec_hash'] != digest(base):
         raise ValueError('Stale base specification for per-view projection')
@@ -96,10 +109,11 @@ def validate_override(spec, folder, manifest, reports, proof):
     if load(certificate / 'capture_frame.json') != load(folder / 'capture_frame.json'):
         raise ValueError('Rear certificate differs from staged camera framing')
     if rear.get('rear_body'):
-        from .floor_contact import contact_guard
+        from .floor_contact import contact_guard, expected_contact_names
         floor = load(certificate / 'build_report.json')['geometry_details']['floor_contact']
         checked = contact_guard({name: row['height_m'] for name, row in floor['points'].items()},
-                                rear['joints']['ankle_near'][2], rear['rear_body']['exceptions'])
+                                rear['joints']['ankle_near'][2], rear['rear_body']['exceptions'],
+                                required_contacts=expected_contact_names(rear, 'rear'))
         if not checked['passed'] or floor.get('hem_on_or_above_floor') is not True or checked['points']['hem_min']['above_floor_m'] < 0:
             raise ValueError('Rear floor contact guard failed')
     policy_path = local(folder.parent, sources['fit_policy'])
