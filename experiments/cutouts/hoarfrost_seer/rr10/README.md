@@ -1,8 +1,10 @@
 # rr-10 front handoff
 
-**rr-13 implementation:** see [last-reveal handoff](rr13.md). It supersedes
-the historical status below for the two-view hidden fills. The painted-tip
-rest-identity conflict remains an explicit design TODO; native proof is pending.
+**rr-13 current handoff:** [director-reviewed exceptions](rr13_feedback1.md).
+The director approved the negative space, tiny move slivers and painted robe
+tips. Exact case-owned exceptions replace the resolved design TODO; fresh
+native/sheets/review proof remains the director's next step. The historical
+[last-reveal handoff](rr13.md) records the original fill implementation.
 
 **Current handoff:** [director feedback 4](feedback4.md), with exact results
 in [feedback verification](proof/feedback4_verification.md). Wrist, foot and

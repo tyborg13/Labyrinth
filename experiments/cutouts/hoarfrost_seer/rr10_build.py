@@ -40,11 +40,6 @@ GROUPS = {'upper_body': ['torso', 'head', 'sleeve_near', 'hand_near'],
 # fusion does not change any rest pixel; underlays always precede visible paint.
 DEPTH_SOURCE = {'torso': 'collar', 'sleeve_near': 'upper_near',
                 'sleeve_far': 'upper_far', 'staff': 'staff_shaft', 'robe': 'skirt_far'}
-# These detached native pairs are original opaque painting texels, not fill.
-# Trimming them contradicts the brief's zero-pixel rest identity. Keep their
-# source intact pending the design owner's choice; never exempt the gate.
-TODO_DESIGN_detached_robe_tip_rest_identity = {
-    'front': [[153, 236], [153, 237]], 'rear': [[101, 229], [101, 230]]}
 
 
 def copy_protected(source, target):
@@ -390,8 +385,7 @@ def build():
         front_delivery=reports['front']['delivery'],
         front_delivery_joints_sha256=reports['front']['delivery']['joints_px.json'],
         hidden_fill_index_sha256=digest(PROJECT / inputs['baseline'] / 'hidden_fills/index.json'), rear='ready',
-        rr13_design_placeholders={'TODO_DESIGN_detached_robe_tip_rest_identity':
-            TODO_DESIGN_detached_robe_tip_rest_identity})
+        rr13_design_placeholders={})
     write_json(CASE / 'proof/build.json', report)
     for root in (CASE, ASSETS):
         for path in root.rglob('*.png'):

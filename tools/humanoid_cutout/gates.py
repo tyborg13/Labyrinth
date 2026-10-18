@@ -303,6 +303,12 @@ def native_errors(case, capture, failure_output=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     errors = list(manifest.get('errors', []))
+    from .native_exceptions import load as load_exceptions, frame_errors
+    try:
+        approved = load_exceptions(case)
+    except ValueError as error:
+        errors.append('invalid native gate exceptions: ' + str(error))
+        approved = frozenset()
     if not manifest.get('ok'): errors.append('native capture did not complete successfully')
     if not manifest['native_pixels'] or manifest['size'] != [1920,1080] or manifest['ui_scale'] != 1:
         errors.append('native renderer / 1920x1080 / 100% proof required')
@@ -406,14 +412,9 @@ def native_errors(case, capture, failure_output=None):
             actual=np.asarray(Image.open(capture / native_frames[key]['file']).convert('RGBA'))
             from maquette_motion.pixels import changed
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
-        if metric['outside_pixels']: errors.append(str(key) + ': outside own silhouette/tuck')
-        if metric['exposed_outline_pixels']: errors.append(str(key) + ': outline in exposed continuation')
-        if metric['dark_slab_blocks']: errors.append(str(key) + ': exposed dark slab')
-        if metric['stray_components']: errors.append(str(key) + ': detached opaque component outside outline exemption')
-        if metric['outline_outside_pixels']: errors.append(str(key) + ': outline more than 1px outside posed silhouettes')
-        if new_holes: errors.append(str(key) + ': new joint-seam hole larger than 1px')
-        if any(metric[k] for k in ('outside_pixels','exposed_outline_pixels','dark_slab_blocks',
-                                   'stray_components','outline_outside_pixels')) or new_holes:
+        rejected = frame_errors(key, metric, new_holes, approved)
+        errors += rejected
+        if rejected:
             # Save renderer crops for the director's weight/coverage diagnosis.
             folder = failure_output if failure_output is not None else case / 'proof/native_failures'
             target = folder / ('%s_%s_%04d.png' % key)

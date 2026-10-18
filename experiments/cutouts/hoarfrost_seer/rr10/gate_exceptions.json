@@ -1,0 +1,51 @@
+[
+  {
+    "view": "front",
+    "clip": "bolt",
+    "frames": [20],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-13 feedback 1: natural negative space outside the body between the robe side and raised staff arm; the sleeve-footprint fill is correct."
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frames": [62],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-13 feedback 1: natural negative space outside the body between the robe side and displaced torso/arm; the sleeve-footprint fill is correct."
+  },
+  {
+    "view": "front",
+    "clip": "hit",
+    "frames": [4, 8, 9],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-13 feedback 1: background legitimately shows outside the body between the robe side and knocked-back torso, where the sleeve hung at rest."
+  },
+  {
+    "view": "front",
+    "clip": "move",
+    "frames": [7],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-13 feedback 1: scattered 1-3 px slivers, 12 px total, are not visible at board scale."
+  },
+  {
+    "view": "front",
+    "clip": "move",
+    "frames": [11, 12, 15],
+    "rule": "detached opaque component outside outline exemption",
+    "reason": "Director rr-13 feedback 1: the approved painting's own ragged robe-tip pixels separate for a frame during the step; retain them to preserve exact rest identity."
+  },
+  {
+    "view": "rear",
+    "clip": "mark",
+    "frames": [10, 19, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 51],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-13 feedback 1: natural negative space outside the body between the robe side and raised staff arm, where the sleeve hung at rest; the sleeve-footprint fill is correct."
+  },
+  {
+    "view": "rear",
+    "clip": "move",
+    "frames": [10],
+    "rule": "detached opaque component outside outline exemption",
+    "reason": "Director rr-13 feedback 1: the approved painting's own ragged robe-tip pixels separate for a frame during the step; retain them to preserve exact rest identity."
+  }
+]
