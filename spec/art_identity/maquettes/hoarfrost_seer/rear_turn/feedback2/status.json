@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "delivery_replaced": false,
+  "native_work_stopped": true,
+  "reason": "Bridge job timed out at 120 seconds; no retry permitted by mq-06 brief.",
+  "bridge_job": "mq03-f8a2c749685741c5ac41f75383443b86",
+  "front_gate_passed": true,
+  "native_build_passed": false,
+  "TODO_DESIGN_REAR_FRAME": "Pending: corrected robe reaches the lower canvas edge with the fixed camera. Earlier diagnostic did not move the actual foot; a certified corrected rear is still required. Do not reframe without design-owner direction.",
+  "TODO_DESIGN_REAR_FIT_REGISTRATION": "Pending: mq-04 dynamic ground-centroid registration changes when the corrected hem reaches the floor; fixed original registration gave a different diagnostic result. No corrected-body rear IoU has been certified.",
+  "proofs": {
+    "front": "native_front8",
+    "front_gate": "native_front8_gate.json",
+    "all_figure_floor": "floor_guard.json"
+  },
+  "tests": {
+    "focused_builder": "Ran 43 tests in 3.660s; OK",
+    "focused_turn": "Ran 6 tests in 2.799s; FAILED (failures=1)",
+    "art_identity": "Ran 111 tests in 49.087s; OK",
+    "full_python": "Ran 845 tests in 844.514s; FAILED (failures=1, skipped=63)",
+    "sole_full_failure": "unchanged hoarfrost_seer/delivery rear lower foot is screen-left"
+  },
+  "superseded_by": "../feedback4/status.json; front gate removed, planted rear collision and pixel framing pass",
+  "historical_body_robe_contact": "Last completed corrected native body intersects the lowered robe: 59 face pairs and 113 cloth samples below the existing 0.003 m margin."
+}

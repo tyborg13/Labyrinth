@@ -1,0 +1,25 @@
+--- a/experiments/cutouts/hoarfrost_seer/rr07_inputs.py
++++ b/experiments/cutouts/hoarfrost_seer/rr07_inputs.py
+@@ -16,6 +16,7 @@
+ from cutout_pipeline.cases import CutoutError, digest, read_json, write_json
+ from maquette_cutout import Registration, projected, registration
+ from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
++from spec.art_identity.maquettes.blender.view_delivery import spec_for_view
+ 
+ CREATURES = ('hoarfrost_seer', 'arc_thrall')
+ VIEWS = ('front', 'rear')
+@@ -68,10 +69,11 @@
+     joints = read_json(folder / 'joints_px.json')
+     joint_errors = {}
+     for view in VIEWS:
+-        if set(joints[view]) != set(spec['joints']):
++        view_spec = spec_for_view(spec, folder, view)
++        if set(joints[view]) != set(view_spec['joints']):
+             raise CutoutError('Committed joint names differ: ' + view)
+-        joint_errors[view] = max(float(np.linalg.norm(np.subtract(projected(spec, p, view), joints[view][n])))
+-                                 for n, p in spec['joints'].items())
++        joint_errors[view] = max(float(np.linalg.norm(np.subtract(projected(view_spec, p, view), joints[view][n])))
++                                 for n, p in view_spec['joints'].items())
+         if joint_errors[view] > PROOF_DEFAULTS['registration_joint_tolerance_px']:
+             raise CutoutError('Compiled camera differs from committed joints: ' + view)
+         job = job_for(creature, view)

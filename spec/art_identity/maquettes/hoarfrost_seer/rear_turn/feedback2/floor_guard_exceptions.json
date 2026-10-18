@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "figures": {
+    "hoarfrost_seer": [],
+    "gloam_stalker": [],
+    "arc_thrall": [
+      {
+        "point": "ankle_far",
+        "reason": "Existing 0.070 m fitted lift is assigned to mq-07; do not change the Thrall in mq-06.",
+        "authority": "mq-06 feedback 2, Guard findings"
+      }
+    ],
+    "gale_herald": [
+      {
+        "point": "ankle_far",
+        "reason": "Existing 0.049 m fitted lift is deferred to the Herald humanoid rig v2 unit.",
+        "authority": "mq-06 feedback 2, Guard findings"
+      }
+    ],
+    "frostglass_lancer": [
+      {
+        "point": "spear_shaft.prop_foot",
+        "reason": "Existing 0.270 m spear butt lift may be intentional; defer its decision to the Lancer humanoid rig v2 unit.",
+        "authority": "mq-06 feedback 2, Guard findings"
+      }
+    ]
+  }
+}

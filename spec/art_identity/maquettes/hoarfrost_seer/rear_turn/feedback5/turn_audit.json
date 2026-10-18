@@ -1,0 +1,217 @@
+{
+  "passed": true,
+  "deliveries": {
+    "arc_thrall/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            650.9663096831772,
+            932.2087609698051
+          ],
+          "far": [
+            381.8303324099723,
+            766.4987688519544
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 7334,
+          "far": 0
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            365.31380597014925,
+            799.718407960199
+          ],
+          "far": [
+            639.8638645264493,
+            926.7352308456065
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 0,
+          "far": 6161
+        }
+      }
+    },
+    "frostglass_lancer/proof_r2": {
+      "front": {
+        "feet": {
+          "near": [
+            592.9711770552321,
+            936.5219366747125
+          ],
+          "far": [
+            393.8564532159591,
+            879.163850631833
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 16542,
+          "far": 187
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            430.0423175234308,
+            855.0790968474865
+          ],
+          "far": [
+            629.1768214742224,
+            912.3647209203239
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 419,
+          "far": 30227
+        }
+      }
+    },
+    "gale_herald/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            593.3348993974058,
+            932.537534470432
+          ],
+          "far": [
+            358.0113908872902,
+            805.4586330935252
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 29652,
+          "far": 0
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            295.37894736842105,
+            851.7421052631579
+          ],
+          "far": [
+            543.2776779026217,
+            932.0721348314606
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 17277,
+          "far": 26684
+        }
+      }
+    },
+    "gloam_stalker/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            693.2576363345594,
+            928.6296977450824
+          ],
+          "far": [
+            395.11584340725324,
+            787.3172684332719
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 38937,
+          "far": 5600
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            328.4305154142582,
+            774.1776252408478
+          ],
+          "far": [
+            627.3874012833169,
+            928.3783316880553
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 5702,
+          "far": 47143
+        }
+      }
+    },
+    "hoarfrost_seer/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            688.8261385199241,
+            950.7903225806451
+          ],
+          "far": [
+            423.7324824824825,
+            863.3228228228228
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 1107,
+          "far": 341
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            336.8793774319066,
+            934.2506485084306
+          ],
+          "far": [
+            598.7137254901961,
+            984.8564705882353
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 4170,
+          "far": 4580
+        }
+      }
+    }
+  },
+  "seer_facing": {
+    "forward_world": [
+      0.999474823474884,
+      0.0006958505255170166,
+      0.0
+    ],
+    "anatomical_forward_world": [
+      0.999474823474884,
+      0.0006958505255170166,
+      -0.032399509102106094
+    ],
+    "front_forward_screen": [
+      -0.7062433846790327,
+      0.35361373296480164
+    ],
+    "rear_forward_screen": [
+      0.7062433846790327,
+      -0.35361373296480164
+    ],
+    "board_axis_cosine": 0.9999998447609452,
+    "passed": true
+  }
+}

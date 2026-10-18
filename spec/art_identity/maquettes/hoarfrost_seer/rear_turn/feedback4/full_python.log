@@ -1,0 +1,978 @@
+test_absent_standard_inputs_still_reject_legacy_sidecar_byte_fields (test_art_identity_gate.GateTests) ... ok
+test_alpha_bbox_uses_strict_128 (test_art_identity_gate.GateTests) ... ok
+test_board_row_labels_survive_real_backdrop_crop (test_art_identity_gate.GateTests) ... ok
+test_bright_green_key_residue_is_not_protected (test_art_identity_gate.GateTests) ... ok
+test_canon_sheet_covers_both_views_objects_scales_and_exact_doubling (test_art_identity_gate.GateTests) ... ok
+test_changed_legacy_pixels_fail_and_readoption_refused (test_art_identity_gate.GateTests) ... ok
+test_committed_jobs_replay_approved_pixels_without_external_inputs (test_art_identity_gate.GateTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+ok
+test_committed_registry_has_no_pending_warnings_even_in_strict_mode (test_art_identity_gate.GateTests) ... ok
+test_composite_rejects_extra_parameters_and_out_of_bounds_boxes (test_art_identity_gate.GateTests) ... ok
+test_composite_resizes_edit_and_preserves_outside_box (test_art_identity_gate.GateTests) ... ok
+test_coverage_missing_duplicate_and_unknown_id_fail (test_art_identity_gate.GateTests) ... ok
+test_derived_match_reference_binds_source_config_and_output_digests (test_art_identity_gate.GateTests) ... ok
+test_diamond_passes_and_square_fails_base_v (test_art_identity_gate.GateTests) ... ok
+test_direct_match_reference_and_json_descriptor_cli (test_art_identity_gate.GateTests) ... ok
+test_director_regression_fixtures (test_art_identity_gate.GateTests) ... ok
+test_disk_symmetry_and_border_safe_opening (test_art_identity_gate.GateTests) ... ok
+test_dominant_accent_hues_use_pixel_weighted_bins_with_inclusive_five_percent (test_art_identity_gate.GateTests) ... ok
+test_edge_light_and_rear_consistency_bands (test_art_identity_gate.GateTests) ... ok
+test_existing_rear_palette_parameter_defaults_are_all_preserved (test_art_identity_gate.GateTests) ... ok
+test_explicit_match_front_conflict_cannot_override_kit (test_art_identity_gate.GateTests) ... ok
+test_fit_premultiplication_excludes_transparent_green (test_art_identity_gate.GateTests) ... ok
+test_front_job_path_requires_exact_identity_job_shape_and_no_self_reference (test_art_identity_gate.GateTests) ... ok
+test_front_job_reference_rejects_extra_keys (test_art_identity_gate.GateTests) ... ok
+test_front_job_reference_requires_scoped_path_matching_id_and_valid_view (test_art_identity_gate.GateTests) ... ok
+test_historical_rears_with_retained_raws_reprocess_to_approved_pixels (test_art_identity_gate.GateTests) ... ok
+test_hue_protection_requires_absolute_chroma_floor_and_own_percentile (test_art_identity_gate.GateTests) ... ok
+test_irrecoverable_historical_version_uses_bound_recorded_field (test_art_identity_gate.GateTests) ... ok
+test_job_certification_ignores_regenerable_reference_files_and_current_clauses (test_art_identity_gate.GateTests) ... ok
+test_kit_determinism_and_pixel_digest_binding (test_art_identity_gate.GateTests) ... ok
+test_kit_entry_requires_judge_and_landmarks_and_hard_limits (test_art_identity_gate.GateTests) ... ok
+test_kit_provenance_rejects_changed_prompt_refs_and_version (test_art_identity_gate.GateTests) ... ok
+test_kit_rejects_noncanon_wrong_kind_and_missing_rear_front (test_art_identity_gate.GateTests) ... ok
+test_lancer_and_wisp_rear_match_preserves_bright_cores_on_copies (test_art_identity_gate.GateTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+ok
+test_legacy_direct_png_must_be_repo_relative_and_maquette_job_local (test_art_identity_gate.GateTests) ... ok
+test_legacy_output_byte_fields_require_rerecording (test_art_identity_gate.GateTests) ... ok
+test_maquette_job_id_is_nonempty_and_matches_registry (test_art_identity_gate.GateTests) ... ok
+test_maquette_keeps_prompt_sidecar_approval_and_landmark_checks (test_art_identity_gate.GateTests) ... ok
+test_maquette_reference_paths_roles_and_ids_are_enforced (test_art_identity_gate.GateTests) ... ok
+test_maquette_reference_pixels_are_checked_even_when_record_bindings_match (test_art_identity_gate.GateTests) ... ok
+test_maquette_requires_mq_folder_prompt_source_and_string_ref_files (test_art_identity_gate.GateTests) ... ok
+test_maquette_resolved_inputs_reject_symlinks_outside_allowed_folders (test_art_identity_gate.GateTests) ... ok
+test_maquette_version_rejects_reordered_refs_and_matching_but_unreproducible_fields (test_art_identity_gate.GateTests) ... ok
+test_missing_inputs_do_not_bypass_empty_body_skip_record_validation (test_art_identity_gate.GateTests) ... ok
+test_missing_maquette_inputs_fail_and_standard_still_checks_present_inputs (test_art_identity_gate.GateTests) ... ok
+test_missing_standard_inputs_do_not_allow_a_direct_reference_without_digests (test_art_identity_gate.GateTests) ... ok
+test_missing_standard_inputs_do_not_bypass_post_step_structure_guards (test_art_identity_gate.GateTests) ... ok
+test_missing_standard_inputs_do_not_bypass_reference_or_final_raw_guards (test_art_identity_gate.GateTests) ... ok
+test_non_object_front_kit_is_a_clean_cli_error (test_art_identity_gate.GateTests) ... ok
+test_object_kit_guide_and_factor_boundary (test_art_identity_gate.GateTests) ... ok
+test_one_pixel_lines_are_thin (test_art_identity_gate.GateTests) ... ok
+test_pair_consistency_is_enforced_for_each_registered_view (test_art_identity_gate.GateTests) ... ok
+test_palette_accent_hue_wrap_boundaries_and_lightness_boundary (test_art_identity_gate.GateTests) ... ok
+test_palette_match_all_bright_pixels_has_no_body_to_transfer (test_art_identity_gate.GateTests) ... ok
+test_palette_match_and_outline_are_pixel_identical_to_prototypes (test_art_identity_gate.GateTests) ... ok
+test_palette_match_preserves_pale_cores_and_reference_accent_hues (test_art_identity_gate.GateTests) ... ok
+test_palette_match_zero_opaque_samples_precede_body_statistics (test_art_identity_gate.GateTests) ... ok
+test_plain_front_job_reference_checks_pixels_and_front_job_path (test_art_identity_gate.GateTests) ... ok
+test_plain_match_reference_rejects_existing_file_outside_maquette_input_folders (test_art_identity_gate.GateTests) ... ok
+test_post_steps_order_parameters_and_pre_step_digests (test_art_identity_gate.GateTests) ... ok
+test_process_cli_defaults_to_recorded_palette_and_requires_explicit_upgrade (test_art_identity_gate.GateTests) ... ok
+test_process_coverage_failure_is_atomic_and_override_is_recorded (test_art_identity_gate.GateTests) ... ok
+test_process_empty_body_requires_override_and_records_replayable_skip (test_art_identity_gate.GateTests) ... ok
+test_process_exact_k_size_placement_and_determinism (test_art_identity_gate.GateTests) ... ok
+test_process_fully_masked_reference_requires_override_and_replays_skip (test_art_identity_gate.GateTests) ... ok
+test_process_matches_prototype_premultiplied_box (test_art_identity_gate.GateTests) ... process.py:22: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+ok
+test_process_noninteger_factor_and_nonsquare_rejection (test_art_identity_gate.GateTests) ... ok
+test_process_off_size_1280_canvas_uses_effective_factor (test_art_identity_gate.GateTests) ... ok
+test_process_uniformly_fits_tall_sprite_without_clipping_paint (test_art_identity_gate.GateTests) ... ok
+test_process_uniformly_fits_wide_sprite (test_art_identity_gate.GateTests) ... ok
+test_process_unmixes_key_blends_instead_of_olive_fringe (test_art_identity_gate.GateTests) ... ok
+test_prompt_reconstructs_generation_version_for_both_factors (test_art_identity_gate.GateTests) ... ok
+test_protected_body_guard_is_inclusive_and_applies_to_both_images (test_art_identity_gate.GateTests) ... ok
+test_prototype_parity_three_canon_files (test_art_identity_gate.GateTests) ... ok
+test_raw_step_pixels_match_legacy_scripts_and_wrappers (test_art_identity_gate.GateTests) ... ok
+test_raw_steps_reject_changed_file_bytes_for_every_input_kind (test_art_identity_gate.GateTests) ... ok
+test_raw_steps_reject_output_chain_and_parameter_tampering (test_art_identity_gate.GateTests) ... ok
+test_raw_steps_replay_process_and_check_are_deterministic_and_read_only (test_art_identity_gate.GateTests) ... ok
+test_real_bodies_keep_at_least_ninety_percent_of_transfer_samples (test_art_identity_gate.GateTests) ... ok
+test_rear_consistency_uses_the_palette_match_non_accent_mask (test_art_identity_gate.GateTests) ... ok
+test_rear_front_reference_is_unchanged_and_peers_match_view (test_art_identity_gate.GateTests) ... ok
+test_rear_maquette_requires_identity (test_art_identity_gate.GateTests) ... ok
+test_recipe_exception_preserves_entry_failures_before_and_after_replay (test_art_identity_gate.GateTests) ... ok
+test_recipe_paths_cannot_escape_job_or_maquette_input_folders (test_art_identity_gate.GateTests) ... ok
+test_recipe_replay_uses_recorded_palette_parameters (test_art_identity_gate.GateTests) ... ok
+test_record_steps_ascii_stdout_keeps_input_changed_line_and_escapes_paths (test_art_identity_gate.GateTests) ... ok
+test_record_steps_cli_migrates_legacy_digests_and_is_idempotent (test_art_identity_gate.GateTests) ... ok
+test_record_steps_missing_inputs_never_partially_write_kit (test_art_identity_gate.GateTests) ... ok
+test_record_steps_refreshes_all_outputs_and_previous_output_links (test_art_identity_gate.GateTests) ... ok
+test_record_steps_refreshes_plain_and_masked_front_job_bindings (test_art_identity_gate.GateTests) ... ok
+test_record_steps_rejects_unsafe_paths_invalid_parameters_and_broken_legacy_chain (test_art_identity_gate.GateTests) ... ok
+test_record_steps_reports_changed_valid_input_hashes_separately_from_migration (test_art_identity_gate.GateTests) ... ok
+test_region_all_limits_are_finite_unit_numbers_and_ordered (test_art_identity_gate.GateTests) ... ok
+test_region_hue_wrap_and_seed_connectivity (test_art_identity_gate.GateTests) ... ok
+test_region_maximum_filters_are_inclusive_and_validate_limits (test_art_identity_gate.GateTests) ... ok
+test_registry_check_replays_recipe_in_addition_to_existing_certification (test_art_identity_gate.GateTests) ... ok
+test_registry_check_verifies_empty_body_skip_and_rejects_tampering (test_art_identity_gate.GateTests) ... ok
+test_registry_check_verifies_fully_masked_reference_even_without_raw_inputs (test_art_identity_gate.GateTests) ... ok
+test_registry_raw_steps_reject_legacy_raw_digest_even_with_valid_pixel_digest (test_art_identity_gate.GateTests) ... ok
+test_registry_warns_when_standard_recipe_inputs_are_absent (test_art_identity_gate.GateTests) ... ok
+test_replay_accepts_processed_png_reencoding_and_rejects_recipe_sidecar_changes (test_art_identity_gate.GateTests) ... ok
+test_retired_canon_resolves_for_provenance_but_not_for_new_kits (test_art_identity_gate.GateTests) ... ok
+test_sheet_backdrop_uses_real_capture_and_slot_contract (test_art_identity_gate.GateTests) ... ok
+test_sheet_fit_scale_info_matches_bound_process_sidecar (test_art_identity_gate.GateTests) ... ok
+test_sheet_synthetic_backdrop_front_rear_and_landmarks (test_art_identity_gate.GateTests) ... ok
+test_shrike_maquette_versions_reproduce_from_protected_jobs (test_art_identity_gate.GateTests) ... ok
+test_source_cannot_be_redirected_to_another_job (test_art_identity_gate.GateTests) ... ok
+test_source_digest_and_post_steps_are_verified_separately_from_production (test_art_identity_gate.GateTests) ... ok
+test_subject_rear_is_used_and_recorded_without_changing_front_subject (test_art_identity_gate.GateTests) ... ok
+test_tone_max_chroma_excludes_amber_while_toning_brown (test_art_identity_gate.GateTests) ... ok
+test_unknown_recorded_parameters_fail_instead_of_silently_using_current (test_art_identity_gate.GateTests) ... ok
+test_valid_maquette_front_and_rear_allow_active_and_retired_hand_references (test_art_identity_gate.GateTests) ... ok
+test_approved_per_facing_results_and_overrides (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_board_prop_and_room_png_coverage (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_calibration_fixtures_fail_closed_without_git_history (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_conditional_cutout_cannot_evade_density_roster (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_crawler_calibration_binds_pre_recolour_paint_and_preserves_grid (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_density_check_refuses_incorrect_calibration_evidence (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_door_regions_match_code (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_draw_scales_follow_live_code_including_trimmed_pillar (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_entries_without_calibration_notes_still_sample_current_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_every_output_preserves_size_alpha_hidden_rgb_and_frame_edges (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_every_resampled_frame_preserves_mean_source_alpha (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_gear_outputs_remain_current (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_grid_rule_and_measurement_use_untouched_native_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_new_board_png_names_registry_and_adopt (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_painted_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_resampled_outputs_size_alpha_silhouette_and_fringe (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_rig_coverage_names_adoption_command_for_new_art (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_rig_rest_rule_uses_declared_assemblies_only (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_shrike_case_pins_all_untreated_density_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_silhouette_probe_cases_pin_density_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_static_sheet_families_and_independent_elemental_overlays (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_adoption_refuses_existing_sources_before_any_copy (test_board_pixel_density.DensityOperationTest) ... ok
+test_alpha_classification_counts_only_nonzero_pixels_and_uses_strict_threshold (test_board_pixel_density.DensityOperationTest) ... ok
+test_alpha_family_links_reject_missing_sources_and_cycles (test_board_pixel_density.DensityOperationTest) ... ok
+test_alpha_hidden_colour_and_edge_restore_with_partial_alpha (test_board_pixel_density.DensityOperationTest) ... ok
+test_boundary_distance_uses_chebyshev_and_catches_interior_changes (test_board_pixel_density.DensityOperationTest) ... ok
+test_changed_parts_require_rebake_even_when_paint_is_current (test_board_pixel_density.DensityOperationTest) ... ok
+test_changed_rest_pixels_require_rebake (test_board_pixel_density.DensityOperationTest) ... ok
+test_check_ignores_png_compression_for_outputs_sources_and_rests (test_board_pixel_density.DensityOperationTest) ... ok
+test_check_requires_rest_record_after_processing (test_board_pixel_density.DensityOperationTest) ... ok
+test_cli_only_restore_and_stale_manifest (test_board_pixel_density.DensityOperationTest) ... ok
+test_continuous_strength_knots_and_clamps (test_board_pixel_density.DensityOperationTest) ... ok
+test_family_class_comes_from_static_measurement_even_with_only (test_board_pixel_density.DensityOperationTest) ... ok
+test_frames_are_independent_and_rect_gaps_are_untouched (test_board_pixel_density.DensityOperationTest) ... ok
+test_metrics_exclude_isolated_pixels_and_count_runs (test_board_pixel_density.DensityOperationTest) ... ok
+test_normalized_bilinear_preserves_uniform_paint_on_sparse_support (test_board_pixel_density.DensityOperationTest) ... ok
+test_per_axis_cli_records_scales_and_reports_both_pixel_ratios (test_board_pixel_density.DensityOperationTest) ... ok
+test_per_axis_sheet_resampling_keeps_frame_sizes_and_local_grid (test_board_pixel_density.DensityOperationTest) ... ok
+test_premultiplied_box_does_not_bleed_hidden_rgb (test_board_pixel_density.DensityOperationTest) ... ok
+test_reject_invalid_frames_grid_and_mode (test_board_pixel_density.DensityOperationTest) ... ok
+test_resample_cli_reruns_from_sources_are_idempotent (test_board_pixel_density.DensityOperationTest) ... ok
+test_resample_frames_are_independent_and_share_the_first_frame_class (test_board_pixel_density.DensityOperationTest) ... ok
+test_soft_resample_alpha_is_normalized_bilinear_support_limited_and_fringe_is_nearest (test_board_pixel_density.DensityOperationTest) ... ok
+test_solid_hybrid_keeps_faint_halo_and_restores_the_body_outline (test_board_pixel_density.DensityOperationTest) ... ok
+test_trap_preview_uses_current_canvas_and_fits_legacy_floors (test_board_pixel_density.DensityOperationTest) ... ok
+test_unpremultiplied_colour_rounds_to_nearest_integer (test_board_pixel_density.DensityOperationTest) ... ok
+test_approved_art_is_unchanged (test_boot_splash.BootSplashTests) ... ok
+test_desktop_staging_copies_readable_notice (test_boot_splash.BootSplashTests) ... ok
+test_import_metadata_uses_canonical_asset_path (test_boot_splash.BootSplashTests) ... ok
+test_logo_attribution (test_boot_splash.BootSplashTests) ... ok
+test_native_splash_settings (test_boot_splash.BootSplashTests) ... ok
+test_raw_frontend_art_uses_godot_keep_file_export_mode (test_boot_splash.BootSplashTests) ... ok
+test_startup_and_menu_art_use_clean_cache_safe_loading (test_boot_splash.BootSplashTests) ... ok
+test_legacy_button_assets_are_removed (test_button_system_inventory.ButtonSystemInventoryTests) ... ok
+test_no_player_facing_legacy_button_references_remain (test_button_system_inventory.ButtonSystemInventoryTests) ... ok
+test_shared_button_builder_is_code_native (test_button_system_inventory.ButtonSystemInventoryTests) ... ok
+test_parser_rejects_zero_repetitions_before_capture (test_card_completion_stall.CaptureValidationTests) ... ok
+test_reject_invalid_raw_evidence (test_card_completion_stall.CaptureValidationTests) ... ok
+test_reject_node_growth (test_card_completion_stall.CaptureValidationTests) ... ok
+test_valid_capture (test_card_completion_stall.CaptureValidationTests) ... ok
+test_accept_valid_matched_blocks (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_200ms_stall_in_deferred_tail (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_archived_failed_capture (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_different_tool_between_blocks (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_displaced_200ms_stall_outside_completion_window (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_mixed_baseline_sources (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_mixed_candidate_sources (test_card_completion_stall.ComparisonTests) ... ok
+test_reject_wrong_target (test_card_completion_stall.ComparisonTests) ... ok
+test_revalidate_failed_process_despite_valid_flag (test_card_completion_stall.ComparisonTests) ... ok
+test_flanking_placement_and_ranged_origin_are_control (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_own_illusion_actions_depend_on_an_illusion_being_present (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_reflection_is_capped_by_the_illusion_health (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_refraction_adds_expected_extra_targets (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_retort_is_damage_discounted_by_trigger_chance (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_ring_scores_the_expected_number_of_illusions (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_terrain_bursts_and_outcrop_kinds (test_card_heuristic_illusions_terrain.IllusionTerrainHeuristicTests) ... ok
+test_conditional_state_bonus_is_worth_less_than_printed_damage (test_card_heuristic_keywords.KeywordHeuristicTests) ... ok
+test_empower_subtracts_its_cost_before_the_share (test_card_heuristic_keywords.KeywordHeuristicTests) ... ok
+test_follow_up_adds_share_of_the_bonus_score (test_card_heuristic_keywords.KeywordHeuristicTests) ... ok
+test_scale_bonus_uses_expected_points_capped_at_max (test_card_heuristic_keywords.KeywordHeuristicTests) ... ok
+test_stagger_is_priced_per_point_by_playability_and_targets (test_card_heuristic_keywords.KeywordHeuristicTests) ... ok
+test_area_force_has_no_rotate_bonus (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_area_force_scales_with_radius_and_distance (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_consumed_center_needs_its_surface (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_defensive_conversions (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_move_and_blink_riders (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_petrify_pays_for_the_block_it_grants (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_self_flags (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_swap_and_force_trail (test_card_heuristic_maneuver.ManeuverHeuristicTests) ... ok
+test_assumptions_keep_skills_outside_intrinsic_card_scores (test_card_heuristic_progression_context.CardHeuristicProgressionContextTests) ... ok
+test_connected_conductors_have_more_setup_value_than_equal_disconnected_cells (test_card_heuristic_surfaces.SurfaceHeuristicTests) ... ok
+test_explicit_repaint_restores_each_detonate_but_unpaid_fuel_does_not (test_card_heuristic_surfaces.SurfaceHeuristicTests) ... ok
+test_flurry_reuses_electrified_network_for_each_copy (test_card_heuristic_surfaces.SurfaceHeuristicTests) ... ok
+test_freeze_payoff_cannot_refresh_on_every_flurry_copy (test_card_heuristic_surfaces.SurfaceHeuristicTests) ... ok
+test_new_fire_is_available_to_a_paid_detonate (test_card_heuristic_surfaces.SurfaceHeuristicTests) ... ok
+test_new_ice_does_not_make_instant_freeze_more_available (test_card_heuristic_surfaces.SurfaceHeuristicTests) ... ok
+test_adjacent_surface_uses_expected_adjacent_tiles (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_consume_bonus_is_conditional_and_pays_fuel (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_convert_and_discharge_need_their_setup (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_ignore_los_raises_playability_only (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_meteor_marks_score_delayed_damage_and_surface (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_on_result_reward_is_discounted_by_availability (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_per_tile_reward_uses_expected_tiles_and_cap (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_required_consume_scales_the_whole_attack (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_rubble_detonate_leaving_fire_adds_surface_value (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_selector_strike_is_targetless_and_white_silence_freezes (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_spare_player_removes_shared_hazard_cost (test_card_heuristic_wave4_surfaces.Wave4SurfaceHeuristicTests) ... ok
+test_badge_constants_match_processed_watch (test_card_time_watch_asset.CardTimeWatchAsset) ... ok
+test_source_painting_is_recorded (test_card_time_watch_asset.CardTimeWatchAsset) ... ok
+test_v04_immutability_ignores_only_import_sidecars (test_chopin_death_music.ChopinDeathMusicApprovedIntegrationTests) ... ok
+test_v05_builder_proves_v04_remains_immutable (test_chopin_death_music.ChopinDeathMusicApprovedIntegrationTests) ... ok
+test_v05_is_strictly_verified_and_promoted_without_byte_drift (test_chopin_death_music.ChopinDeathMusicApprovedIntegrationTests) ... ok
+test_v05_preserves_the_owner_approved_v04_music_byte_for_byte (test_chopin_death_music.ChopinDeathMusicApprovedIntegrationTests) ... ok
+test_v05_reproducibility_inputs_match_pinned_hashes (test_chopin_death_music.ChopinDeathMusicApprovedIntegrationTests) ... ok
+test_bank_generator_is_deterministic (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'
+test_checked_in_bank_has_approved_sample_hashes (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... ok
+test_normalizer_writes_full_score_and_separate_parts (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'
+test_provenance_gate_rejects_mismatches_and_placeholder_licenses (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'
+test_reference_render_and_verifier_match_approved_outputs (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'
+test_scaffold_is_rights_locked_and_non_overwriting (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'
+test_string_track_can_request_a_slow_attack_without_changing_the_default (test_classical_soundtrack_pipeline.ClassicalSoundtrackPipelineTests) ... skipped 'requires pinned Python 3.12 audio environment'
+test_failed_retried_or_duplicate_runs_are_rejected (test_combat_feel_measurements.CombatFeelMeasurementTests) ... ok
+test_headless_timeline_or_missing_offset_cannot_be_recorded_as_native (test_combat_feel_measurements.CombatFeelMeasurementTests) ... ok
+test_three_native_runs_update_only_owned_measurement_block (test_combat_feel_measurements.CombatFeelMeasurementTests) ... ok
+test_art_protection_allows_motion_but_rejects_paint_and_layout_changes (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_draw_order_declares_live_paint_and_rejects_replaced_parts (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_fork_has_no_dependency_on_source_or_old_proofs (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_manual_segmentation_preserves_partial_alpha_and_reports_unassigned_pixels (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_missing_fork_input_fails_before_creating_output (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_new_anatomy_is_unbuilt_until_painted_and_does_not_assume_humanoid (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_pack_retains_full_non_60fps_cycles_and_recovery (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_paths_cannot_escape_even_through_symlinks (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_render_proof_detects_generated_resource_changes (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_rigid_replacement_preserves_pixels_and_invalidates_rest (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_seed_matches_production_and_copies_portable_sources (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_shared_skin_reproduces_all_six_approved_rear_leg_meshes (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_skin_collision_does_not_leave_a_half_written_layout (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_skin_records_sources_replaces_mesh_once_and_refuses_rigid_swap (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_structural_failures_reject_cycles_bad_uvs_and_nonshared_weights (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_verification_rejects_changed_inputs_or_tampered_proof (test_cutout_workflow.CutoutWorkflowTests) ... ok
+test_caption_changes_preserve_take_hashes_but_recording_changes_do_not (test_demo_clips.DemoDirectorTests) ... ok
+test_determinism_compares_actions_cues_and_frames (test_demo_clips.DemoDirectorTests) ... ok
+test_missing_caption_style_position_fails_without_a_fallback (test_demo_clips.DemoDirectorTests) ... ok
+test_probe_tile_centre_reaches_production_gui_input_under_retina_stretch (test_demo_clips.DemoDirectorTests) ... ok
+test_protected_import_and_complete_clip_inventory (test_demo_clips.DemoDirectorTests) ... ok
+test_record_command_is_windowed_movie_maker_and_runner_owned (test_demo_clips.DemoDirectorTests) ... ok
+test_visual_probe_uses_project_compatible_renderer_defaults (test_demo_clips.DemoDirectorTests) ... ok
+test_clip_and_reel_probe_failure_preserve_existing_deliveries_atomically (test_demo_clips.DemoEncodingTests) ... ok
+test_synthetic_avi_pcm_caption_trim_and_reel (test_demo_clips.DemoEncodingTests) ... ok
+test_wrong_intermediate_codec_and_short_pcm_fail (test_demo_clips.DemoEncodingTests) ... ok
+test_ffmpeg_wrappers_keep_two_threads (test_demo_clips.DemoMediaWrapperTests) ... ok
+test_audit_flags_only_measured_desync_and_reports_unknown_contact (test_demo_clips.DemoSyncTests) ... ok
+test_broad_cue_distinct_local_maxima_are_ambiguous_in_locate (test_demo_clips.DemoSyncTests) ... ok
+test_broad_cue_distinct_local_maxima_are_unmeasured_in_audit (test_demo_clips.DemoSyncTests) ... ok
+test_competing_peak_at_exactly_half_correlation_is_ambiguous (test_demo_clips.DemoSyncTests) ... ok
+test_competing_peak_below_identification_threshold_is_still_ambiguous (test_demo_clips.DemoSyncTests) ... ok
+test_contact_is_from_visual_state_not_audio_peak (test_demo_clips.DemoSyncTests) ... ok
+test_distinct_peaks_closer_than_five_ms_are_ambiguous (test_demo_clips.DemoSyncTests) ... ok
+test_identical_repeated_hits_are_unmeasured_without_false_offset_flags (test_demo_clips.DemoSyncTests) ... ok
+test_lightning_trap_duration_is_independent_of_contact_ambiguity (test_demo_clips.DemoSyncTests) ... ok
+test_local_maxima_deduplicate_only_flat_plateaus (test_demo_clips.DemoSyncTests) ... ok
+test_locates_individual_cue_despite_louder_overlapping_sound (test_demo_clips.DemoSyncTests) ... ok
+test_low_correlation_has_a_reason_and_no_invented_measurement_or_flag (test_demo_clips.DemoSyncTests) ... ok
+test_mixed_repeated_hits_with_unequal_correlations_are_unmeasured (test_demo_clips.DemoSyncTests) ... ok
+test_one_flat_correlation_plateau_is_measurable (test_demo_clips.DemoSyncTests) ... ok
+test_overlap_seeds_1_through_20_never_produce_a_false_measured_offset (test_demo_clips.DemoSyncTests) ... ok
+test_peak_uses_sfx04_window_and_earliest_near_maximum (test_demo_clips.DemoSyncTests) ... ok
+test_periodic_side_peaks_are_ambiguous_even_with_one_cue (test_demo_clips.DemoSyncTests) ... ok
+test_seed_7_repeated_hits_cannot_drop_the_contaminated_occurrence (test_demo_clips.DemoSyncTests) ... ok
+test_silence_is_failure_not_zero_offset (test_demo_clips.DemoSyncTests) ... ok
+test_status_duration_gate_uses_minus_40_dbfs_tail (test_demo_clips.DemoSyncTests) ... ok
+test_stereo_phase_cancellation_does_not_hide_a_cue (test_demo_clips.DemoSyncTests) ... ok
+test_trap_removal_is_a_rendered_contact (test_demo_clips.DemoSyncTests) ... ok
+test_two_flat_correlation_plateaus_are_ambiguous (test_demo_clips.DemoSyncTests) ... ok
+test_all_reels_must_be_probed_and_source_hashes_match_before_deletion (test_demo_recording.DemoAVICleanupTests) ... ok
+test_movie_writer_path_activates_real_scene_quality_verification (test_demo_recording.DemoCaptureSetupTests) ... ok
+test_override_is_loaded_by_godot_before_scene_startup (test_demo_recording.DemoCaptureSetupTests) ... ok
+test_project_view_preserves_original_settings_resources_and_size_accounting (test_demo_recording.DemoCaptureSetupTests) ... ok
+test_renderer_and_active_quality_are_required_in_log (test_demo_recording.DemoCaptureSetupTests) ... ok
+test_capture_exit_120_keeps_avi_and_logs_without_extraction (test_demo_recording.DemoDiskGuardTests) ... ok
+test_eight_gb_boundary_and_no_writes_below_it (test_demo_recording.DemoDiskGuardTests) ... ok
+test_failed_avi_inspection_keeps_source_and_unrelated_images (test_demo_recording.DemoDiskGuardTests) ... ok
+test_size_result_includes_all_artifacts_and_itself (test_demo_recording.DemoDiskGuardTests) ... ok
+test_constant_two_frame_lead_or_lag_preserves_native_sync_times (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_director_float_tolerance_accepts_clock_roundoff_not_state_drift (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_lag_can_increase_twice_to_two_frames (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_native_lead_and_lag_over_two_frames_are_rejected (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_non_frame_payload_and_sequence_differences_are_rejected (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_one_zero_zero_one_board_profile_passes (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_real_source_bytes_must_match_reviewed_fingerprints (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_reviewed_weaver_pairs_report_presentation_exemptions (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_weaver_exemption_does_not_allow_other_frames_clips_or_payloads (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_weaver_exemption_rejects_each_source_fingerprint_and_each_frame_coordinate (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_weaver_exemptions_survive_record_compare_and_encode_reports (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_zero_startup_then_one_frame_lag_from_first_effect_cue_passes (test_demo_recording.DemoNativeComparisonTests) ... ok
+test_all_twenty_one_clips_are_attempted_and_all_failures_reported (test_demo_recording.DemoStreamingTests) ... ok
+test_disk_guard_rechecks_before_second_clip_without_writing_it (test_demo_recording.DemoStreamingTests) ... ok
+test_encode_keeps_good_clips_when_another_take_is_missing (test_demo_recording.DemoStreamingTests) ... ok
+test_encode_reports_findings_and_replaces_deliverables_without_blocking (test_demo_recording.DemoStreamingTests) ... ok
+test_native_event_drift_fails_and_cleans_up_frames (test_demo_recording.DemoStreamingTests) ... ok
+test_native_offset_is_reported_without_retiming_sync_or_duration (test_demo_recording.DemoStreamingTests) ... ok
+test_rerecord_replaces_only_its_own_outputs_and_cleans_interrupted_frames (test_demo_recording.DemoStreamingTests) ... ok
+test_single_avi_take_is_audited_and_retained_until_delivery (test_demo_recording.DemoStreamingTests) ... ok
+test_sync_flags_and_unmeasured_rows_do_not_block_any_take (test_demo_recording.DemoStreamingTests) ... ok
+test_wrong_renderer_fails_clip_and_next_clip_is_still_attempted (test_demo_recording.DemoStreamingTests) ... ok
+test_approved_sources_and_dimensions (test_en05_assets.En05Assets) ... ok
+test_density_registry_additions (test_en05_assets.En05Assets) ... ok
+test_protected_data (test_en05_assets.En05Assets) ... ok
+test_registered_art_and_portraits (test_en05_assets.En05Assets) ... ok
+test_every_registered_gear_file_is_a_derived_output (test_gear_visual_assets.GearVisualAssetTest) ... ok
+test_shipped_textures_are_current_derivations (test_gear_visual_assets.GearVisualAssetTest) ... ok
+test_sources_match_recorded_digests (test_gear_visual_assets.GearVisualAssetTest) ... ok
+test_absolute_capitalized_and_windows_executables_get_explicit_logs (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_allow_steam_removes_the_forced_disable_flag (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_appdata_and_xdg_roots_are_created_and_isolated (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_editor_scan_guard_also_covers_absolute_Godot_exe (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_editor_scan_requires_explicit_opt_in (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_killing_runner_mid_godot_test_leaves_no_godot_child (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_nonzero_exit_is_returned (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_normal_exit_cleans_up_descendants_holding_output_pipes (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_runner_disables_steam_initialization (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_runner_signals_leave_no_child_or_grandchild (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_streaming_output_still_triggers_failure_marker_scan (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_success_preserves_task_namespace (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_timeout_kills_a_term_ignoring_descendant (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_timeout_terminates_command (test_godot_task_runner.GodotTaskRunnerTests) ... ok
+test_approved_processed_paint_still_matches_protected_record (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_bird_recipe_keeps_six_groups_and_head_materials_together (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_cpu_gate_rejects_missing_authored_tail_hold_after_resampling (test_gust_shrike_cutout.ShrikeCutoutTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+ok
+test_cpu_gate_rejects_negated_applied_tail_with_correct_channels (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_cpu_gate_rejects_reversed_projected_tail_after_resampling (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_director_dive_recovery_keys_keep_the_six_frame_clock (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_director_round2_snap_starts_at_key_then_holds (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_frozen_production_hover_fails_focused_test_and_real_recorder (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_island_rest_bridge_does_not_keep_wrong_moving_owner (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_missing_inputs_fail_before_creating_or_mutating_a_case (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_missing_or_changed_hashes_cannot_pass_proof (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_native_and_cpu_gates_reject_failed_or_incomplete_samples (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_native_capture_contract_keeps_action_coverage_regressions (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_non_1024_raw_registration_scales_all_render_coordinates_once (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_pixel_gates_reject_empty_magenta_specks_and_clipping (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_redundant_underlay_requires_identical_rigid_bone_and_complete_cover (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_reel_resolves_only_a_unique_successful_native_capture (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_semantic_directions_come_from_each_exported_view (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_sparse_reference_stays_in_view_and_material_and_uses_nearest (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_step2_interpolation_uses_two_frames_without_changing_director_data (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_thin_hidden_fill_keeps_midtones_without_changing_visible_pixels (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_card_widget_consumes_the_central_role_emblem_inventory (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_distinct_player_facing_concepts_own_distinct_assets (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_en01_approved_enemy_icon_identities (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_every_data_action_resolves_through_the_central_icon_inventory (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_grimoire_icons_are_registered_and_semantically_exact (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_next_attack_owns_its_purpose_built_icon (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_policy_is_mandatory_for_ui_work (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_banked_skill_points_survive_the_self_healing_command (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_deepest_route_depth_generates_a_verified_room_with_live_moves (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_handoff_command_is_self_healing_and_verified (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_route_depth_rejects_invalid_values_semantically (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_route_depth_rejects_non_start_scenarios_semantically (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_route_depth_survives_the_self_healing_command (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_self_healing_launch_can_enable_steam_for_interactive_inspection (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_skill_progression_options_survive_the_self_healing_command (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_trap_gallery_options_survive_the_self_healing_command (test_inspection_fixture.InspectionFixtureTests) ... ok
+test_item_card_art_has_canonical_size_mask_and_unique_content (test_item_card_art_quality.ItemCardArtQualityTests) ... ok
+test_item_card_art_retains_crisp_local_contrast (test_item_card_art_quality.ItemCardArtQualityTests) ... ok
+test_item_cards_keep_the_reviewed_art_inventory (test_item_card_art_quality.ItemCardArtQualityTests) ... ok
+test_distress_is_exterior_only_and_recedes_with_reading_size (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_family_contains_three_optical_cuts_with_complete_project_coverage (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_interactive_controls_and_card_title_fitting_use_the_ui_cut (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_large_identity_text_and_card_scan_values_keep_readable_emphasis (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_player_facing_sources_have_no_legacy_font_references (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_shared_typography_maps_every_role_to_the_intended_cut (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_source_attribution_and_license_are_vendored (test_labyrinth_font_family.LabyrinthFontFamilyTests) ... ok
+test_api_archive_query_uses_server_default (test_labyrinth_queue_board.LabyrinthQueueBoardTests) ... ok
+test_archive_inclusion_can_be_disabled (test_labyrinth_queue_board.LabyrinthQueueBoardTests) ... ok
+test_snapshot_groups_lanes_and_marks_stale_ready_conflicts (test_labyrinth_queue_board.LabyrinthQueueBoardTests) ... ok
+test_snapshot_reports_invalid_queue_files (test_labyrinth_queue_board.LabyrinthQueueBoardTests) ... ok
+test_complete_rejects_hand_authored_applicable_fixture_fields (test_labyrinth_task_queue.LabyrinthTaskQueueTests) ... ok
+test_handoff_rejects_boolean_only_fixture_manifest (test_labyrinth_task_queue.LabyrinthTaskQueueTests) ... ok
+test_ready_task_requires_acceptance_and_proof (test_labyrinth_task_queue.LabyrinthTaskQueueTests) ... ok
+test_verified_handoff_file_completes_queue_without_flag_bridge (test_labyrinth_task_queue.LabyrinthTaskQueueTests) ... ok
+test_menu_uses_one_full_logo_gradient (test_main_menu_steam_branding.MainMenuSteamBrandingTests) ... ok
+test_title_face_colors_match_steam_palette (test_main_menu_steam_branding.MainMenuSteamBrandingTests) ... ok
+test_title_layers_match_steam_palette (test_main_menu_steam_branding.MainMenuSteamBrandingTests) ... ok
+test_generated_button_states_are_aligned_rgba_sprites (test_main_menu_umbra_assets.MainMenuUmbraAssetTests) ... ok
+test_generated_rasters_are_exported_as_raw_files (test_main_menu_umbra_assets.MainMenuUmbraAssetTests) ... ok
+test_generated_side_widgets_are_separate_mirrored_rgba_sprites (test_main_menu_umbra_assets.MainMenuUmbraAssetTests) ... ok
+test_umbra_renderer_uses_rasters_not_procedural_fractures (test_main_menu_umbra_assets.MainMenuUmbraAssetTests) ... ok
+test_margin_edge_replication_draw_order_and_protected_features (test_maquette_bleed.BleedTests) ... ok
+test_real_repair_closes_a_joint_gap_without_changing_rest (test_maquette_bleed.BleedTests) ... ADOPTED 1 source file(s)
+ADOPTED 1 source file(s)
+ADOPTED 3 source file(s)
+PROCESSED 2 file(s)
+CHECK-OK
+WROTE-ORIGINALS 1 file(s)
+stale: paint/a.png
+PROCESSED 1 file(s)
+CHECK-OK
+stale: paint/b.png
+DEMO VISUAL PROOF: PASS (1 clips)
+Running task-local command:
+  task: mq-06
+  run: executable-0
+  HOME: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp9r7h2odq/executable-0
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --log-file /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp9r7h2odq/executable-0/godot.log --headless
+  timeout: 300s
+Running task-local command:
+  task: mq-06
+  run: executable-1
+  HOME: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp9r7h2odq/executable-1
+  Steam: disabled
+  command: 'C:\Tools\Godot.exe' --log-file /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp9r7h2odq/executable-1/godot.log --headless
+  timeout: 300s
+SHRIKE CPU MUTATION: missing_hold rejected
+SHRIKE CPU MUTATION: applied_tail rejected
+SHRIKE CPU MUTATION: reversed_tail rejected
+SHRIKE FROZEN HOVER MUTATION: caught by tests/gust_shrike_cutout_test.gd
+SHRIKE FROZEN HOVER MUTATION: caught by tests/gust_shrike_cutout_probe.gd
+MAQUETTE SEAM BLEED: {'view': 'front', 'added_pixels': 54, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'front', 'added_pixels': 0, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'rear', 'added_pixels': 54, 'new_hole_pixels': 0}
+MAQUETTE SEAM BLEED: {'view': 'rear', 'added_pixels': 0, 'new_hole_pixels': 0}
+ok
+test_replication_uses_euclidean_nearest_edge (test_maquette_bleed.BleedTests) ... ok
+test_seam_extension_connects_requested_texels_without_crossing_protection (test_maquette_bleed.BleedTests) ... ok
+test_board_facing_normalizes_asset_and_rest_rig_without_moving_pose_paths (test_maquette_blender.NativeContractTests) ... ok
+test_bone_cycles_and_zero_length_fail_before_launch (test_maquette_blender.NativeContractTests) ... ok
+test_bridge_protocol_is_atomic_and_returns_director_log (test_maquette_blender.NativeContractTests) ... ok
+test_bridge_rejects_other_scripts_and_excessive_timeouts (test_maquette_blender.NativeContractTests) ... ok
+test_collar_pattern_is_closed_and_symmetric_before_simulation (test_maquette_blender.NativeContractTests) ... ok
+test_command_disables_autorun_and_selects_cpu_backend (test_maquette_blender.NativeContractTests) ... ok
+test_fit_never_changes_accessory_design_or_joint_xy (test_maquette_blender.NativeContractTests) ... ok
+test_heat_weight_regions_cover_each_face_or_fail (test_maquette_blender.NativeContractTests) ... ok
+test_lancer_r3_contains_every_brief_piece_as_source_measured_proposal (test_maquette_blender.NativeContractTests) ... ok
+test_mesh_hash_uses_coordinates_topology_and_ownership (test_maquette_blender.NativeContractTests) ... ok
+test_real_blender_build_and_geometry_gates (test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'
+test_real_lancer_cloth_cache_replay_has_identical_raw_hashes (test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'
+test_render_adapter_rejects_stale_spec_hash (test_maquette_blender.NativeContractTests) ... ok
+test_render_adapter_uses_solo_alpha_and_actual_joints (test_maquette_blender.NativeContractTests) ... ok
+test_round2_conformance_and_preserved_director_features (test_maquette_blender.NativeContractTests) ... ok
+test_seeded_rag_notches_only_change_the_hem_before_simulation (test_maquette_blender.NativeContractTests) ... ok
+test_shared_authoring_rotations_do_not_turn_other_attachments (test_maquette_blender.NativeContractTests) ... ok
+test_tabard_is_one_connected_pattern_with_four_lower_strips (test_maquette_blender.NativeContractTests) ... ok
+test_v2_cannot_silently_use_v1_rasteriser (test_maquette_blender.NativeContractTests) ... ok
+test_valid_contract_and_unknown_labels (test_maquette_blender.NativeContractTests) ... ok
+test_inputs_cannot_change_during_gate_then_receive_a_new_binding (test_maquette_certificates.CertificateTests) ... ok
+test_layout_tool_report_and_certificate_changes_all_reject (test_maquette_certificates.CertificateTests) ... ok
+test_recoloured_support_rejects_promotion_and_fresh_material_gate (test_maquette_certificates.CertificateTests) ... ok
+test_all_labels_have_measured_requests_and_seven_clip_exposure (test_maquette_cutout.GaolerCaseTests) ... ok
+test_chain_reel_has_three_painted_links_at_production_fractions (test_maquette_cutout.GaolerCaseTests) ... ok
+test_complete_gaoler_rebuild_and_authored_motion_parameters (test_maquette_cutout.GaolerCaseTests) ... MAQUETTE CERTIFICATE MUTATION: stale support rejected before copying; fresh material gate: ["rear/shell/0014: exposed derived dark slab (1239px; {'hidden_trunk': 375, 'hidden_core': 189, 'hidden_petal_near_l': 113, 'hidden_petal_near_r': 132, 'hidden_petal_far_l': 15, 'hidden_petal_far_r': 243, 'hidden_tendril_high_r': 22, 'hidden_tendril_low_r': 37, 'root_stem_c': 17, 'hidden_root_tip_c': 96})"]
+GAOLER REBUILD: PASS (882 files)
+ok
+test_complete_render_manifest_matches_every_provided_input (test_maquette_cutout.GaolerCaseTests) ... ok
+test_joint_registration_uses_cached_projection_without_manual_refitting (test_maquette_cutout.GaolerCaseTests) ... ok
+test_material_and_speck_cleanup_is_reproducible_and_preserves_rest_depth (test_maquette_cutout.GaolerCaseTests) ... ok
+test_motion_gate_scopes_logical_owners_and_uses_strict_threshold (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_capture_collects_only_accepted_data_and_forwards_timeout (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_capture_pose_path_includes_rest_headlessly (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_capture_timeout_and_screenshot_contract (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_collector_publishes_success_only_after_motion_gates (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_gates_rejects_checksum_refreshed_surface_size_mutations (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_gates_rejects_checksum_refreshed_zero_and_unknown_opaque_ids (test_maquette_cutout.GaolerCaseTests) ... ok
+test_native_mask_output_is_data_but_real_screenshots_still_validate (test_maquette_cutout.GaolerCaseTests) ... ok
+test_new_dark_region_gate_requires_same_part_rest_provenance (test_maquette_cutout.GaolerCaseTests) ... ok
+test_production_motion_and_approved_paint_are_untouched_copies (test_maquette_cutout.GaolerCaseTests) ... ok
+test_rear_arm_constraint_preserves_front_and_non_arm_motion (test_maquette_cutout.GaolerCaseTests) ... ok
+test_rear_lean_and_shoulder_follow_authorized_envelopes (test_maquette_cutout.GaolerCaseTests) ... ok
+test_registered_rest_is_exact_rgba_including_hidden_underlays (test_maquette_cutout.GaolerCaseTests) ... ok
+test_rendered_hidden_owners_measure_pixels_and_reject_runtime_palette_mismatch (test_maquette_cutout.GaolerCaseTests) ... ok
+test_rigid_cloth_matches_production_bones_and_parenting (test_maquette_cutout.GaolerCaseTests) ... ok
+test_trouser_fill_gate_and_rear_arm_draw_order_in_all_samples (test_maquette_cutout.GaolerCaseTests) ... ok
+test_value_gate_measures_runtime_hidden_pixels_and_rejects_stale_previews (test_maquette_cutout.GaolerCaseTests) ... ok
+test_case_fill_is_idempotent_and_refuses_to_erase_artist_changes (test_maquette_cutout.HiddenFillTests) ... ok
+test_cross_view_fallback_preserves_local_donor_precedence_and_threshold (test_maquette_cutout.HiddenFillTests) ... ok
+test_cross_view_fallback_uses_only_same_part_visible_paint (test_maquette_cutout.HiddenFillTests) ... ok
+test_diffusion_is_repeatable_palette_limited_and_preserves_visible_rgba (test_maquette_cutout.HiddenFillTests) ... ok
+test_new_shadow_floor_preserves_rest_and_discloses_unusable_midtones (test_maquette_cutout.HiddenFillTests) ... ok
+test_palette_preserves_frequency_and_is_independent_of_input_order (test_maquette_cutout.HiddenFillTests) ... ok
+test_small_part_palette_uses_only_same_material_neighbours (test_maquette_cutout.HiddenFillTests) ... ok
+test_value_matching_contains_visible_midtones_and_preserves_outline (test_maquette_cutout.HiddenFillTests) ... ok
+test_core_uses_euclidean_distance_and_excludes_border (test_maquette_cutout.OwnershipCleanupTests) ... ok
+test_material_constrained_fill_uses_sampled_colors_and_preserves_visible (test_maquette_cutout.OwnershipCleanupTests) ... ok
+test_occlusion_shadow_uses_six_pixel_geometry_and_preserves_paint (test_maquette_cutout.OwnershipCleanupTests) ... ok
+test_specks_use_eight_connectivity_largest_exemption_and_shared_edges (test_maquette_cutout.OwnershipCleanupTests) ... ok
+test_unattached_hidden_only_speck_is_deleted_without_changing_visible_partition (test_maquette_cutout.OwnershipCleanupTests) ... ok
+test_camera_depth_and_projection_reverse_on_rear (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_complete_wing_tail_case_uses_explicit_views_and_keeps_all_source_bytes (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_decode_uses_registered_palette_and_keeps_background_unowned (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_hidden_neighbours_report_occluders_and_four_connected_border (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_hidden_requires_another_painted_owner_not_empty_canvas (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_nearest_is_euclidean_and_depth_breaks_diagonal_ties (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_noninteger_reduction_and_fit_match_gate_alpha_bounds (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_reassignment_limit_is_strictly_above_fifteen_percent (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_registration_recovers_crop_and_placement_from_gate (test_maquette_cutout.SyntheticMaquetteTests) ... ok
+test_band_fit_improves_a_wider_source (test_maquette_geometry.FitTests) ... ok
+test_cli_never_overwrites_input (test_maquette_geometry.FitTests) ... ok
+test_director_render_comparison_requires_every_solo (test_maquette_geometry.FitTests) ... ok
+test_exact_source_passes_all_metrics (test_maquette_geometry.FitTests) ... ok
+test_green_key_and_transparent_masks (test_maquette_geometry.FitTests) ... ok
+test_landmark_fit_is_deterministic_monotonic_and_preserves_types (test_maquette_geometry.FitTests) ... ok
+test_missing_annotations_and_design_todos_never_pass (test_maquette_geometry.FitTests) ... ok
+test_width_map_moves_mesh_and_joint_in_the_same_camera_plane (test_maquette_geometry.FitTests) ... ok
+test_capsule_bounds_retain_endpoint_spheres (test_maquette_geometry.GeometryTests) ... ok
+test_cloak_is_deterministic_anchored_and_notched (test_maquette_geometry.GeometryTests) ... ok
+test_concave_plate_does_not_fill_the_notch (test_maquette_geometry.GeometryTests) ... ok
+test_legacy_specs_build_without_mutation (test_maquette_geometry.GeometryTests) ... ok
+test_limb_profile_midpoint_is_not_an_endpoint_sphere (test_maquette_geometry.GeometryTests) ... ok
+test_shell_is_open_cap_with_thickness (test_maquette_geometry.GeometryTests) ... ok
+test_torso_has_waist_and_lean (test_maquette_geometry.GeometryTests) ... ok
+test_unknown_primitive_is_an_error (test_maquette_geometry.GeometryTests) ... ok
+test_voxel_union_is_welded_closed_and_repeatable (test_maquette_geometry.GeometryTests) ... ok
+test_clipping_handles_off_canvas_and_degenerate_triangles (test_maquette_geometry.RasterTests) ... ok
+test_committed_solo_silhouettes_clear_back_compat_gate (test_maquette_geometry.RasterTests) ... ok
+test_depth_ownership_and_solos (test_maquette_geometry.RasterTests) ... ok
+test_joint_projection_matches_committed_blender_for_both_views (test_maquette_geometry.RasterTests) ... ok
+test_both_replication_paths_exclude_nearby_outline_donors (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_full_three_by_three_block_is_blocking (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_promotion_cannot_use_a_pre_gate_or_failing_material_certificate (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_same_dark_block_blocks_derived_texels_but_only_reports_approved_paint (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_seam_and_hidden_painters_share_the_same_component_gate (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_support_search_restarts_at_original_fill_without_foreign_seed_growth (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_texel_provenance_uses_original_mask_rgba_and_the_posed_transform (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_two_pixel_lines_and_visible_paint_are_not_slabs (test_maquette_hidden_material.HiddenMaterialTests) ... ok
+test_disconnected_bands_become_single_component_nodes_and_specks_are_dropped (test_maquette_joint_seams.JointSeamTests) ... ok
+test_exact_boundary_length_per_side_reach_cap_and_parent_edge_colours (test_maquette_joint_seams.JointSeamTests) ... ok
+test_feature_hole_is_never_target_or_donor (test_maquette_joint_seams.JointSeamTests) ... ok
+test_feature_owned_region_contributes_to_parent_boundary_without_donating_paint (test_maquette_joint_seams.JointSeamTests) ... ok
+test_install_preserves_rest_and_paint_and_has_no_full_backing (test_maquette_joint_seams.JointSeamTests) ... ok
+test_interior_tear_is_measured_even_when_open_to_exterior (test_maquette_joint_seams.JointSeamTests) ... ok
+test_native_layers_must_match_composition_and_dimensions (test_maquette_joint_seams.JointSeamTests) ... ok
+test_negative_space_and_protrusion_are_measured_without_clamping (test_maquette_joint_seams.JointSeamTests) ... ok
+test_paint_attachment_and_order_mutations_are_rejected (test_maquette_joint_seams.JointSeamTests) ... ok
+test_report_only_metrics_do_not_block_promotion_prerequisites (test_maquette_joint_seams.JointSeamTests) ... ok
+test_rest_identity_checks_current_paint_without_writing_proof (test_maquette_joint_seams.JointSeamTests) ... ok
+test_same_bone_paint_has_zero_joint_separation (test_maquette_joint_seams.JointSeamTests) ... ok
+test_sibling_owner_and_paint_are_the_lower_drawn_part (test_maquette_joint_seams.JointSeamTests) ... ok
+test_widen_joint_mutation_is_report_only_but_native_agreement_still_blocks (test_maquette_joint_seams.JointSeamTests) ... ok
+test_eroded_rest_reference_uses_the_same_canvas_alpha_packing (test_maquette_native_alpha.NativeAlphaTests) ... ok
+test_godot_reference_erosion_matches_independent_pillow_masks (test_maquette_native_alpha.NativeAlphaTests) ... ok
+test_native_late_fade_matches_model_without_phantom_body_pixels (test_maquette_native_alpha.NativeAlphaTests) ... ok
+test_crop_preserves_fixed_canvas_sampling (test_maquette_native_raster.NativeRasterTests) ... ok
+test_invalid_ties_are_reported_per_part_and_frame_without_counting_wrap_twice (test_maquette_native_raster.NativeRasterTests) ... ok
+test_native_loop_rejects_a_held_flip_between_valid_candidates (test_maquette_native_raster.NativeRasterTests) ... ok
+test_native_replay_uses_the_matrices_that_staged_its_surfaces (test_maquette_native_raster.NativeRasterTests) ... ok
+test_rr07_outer_edge_fixture_passes_as_one_counted_invalid_tie (test_maquette_native_raster.NativeRasterTests) ... ok
+test_rr07_rotated_before_fixtures_require_the_subtexel_band (test_maquette_native_raster.NativeRasterTests) ... ok
+test_saved_native_surfaces_match_source_transform (test_maquette_native_raster.NativeRasterTests) ... ok
+test_seam_fixture_exercises_the_opposite_exact_tie_choice (test_maquette_native_raster.NativeRasterTests) ... ok
+test_both_axes_allow_independent_adjacent_choices (test_maquette_native_ties.NativeTieTests) ... ok
+test_high_tie_occupancy_is_report_only_in_the_pixel_gate (test_maquette_native_ties.NativeTieTests) ... ok
+test_invalid_tie_is_counted_under_the_existing_edge_allowance (test_maquette_native_ties.NativeTieTests) ... ok
+test_native_choice_is_explained_at_boundary_but_never_during_hold (test_maquette_native_ties.NativeTieTests) ... ok
+test_non_ties_keep_the_existing_rule_and_allowance (test_maquette_native_ties.NativeTieTests) ... ok
+test_other_neighbour_at_001_texel_is_not_a_candidate (test_maquette_native_ties.NativeTieTests) ... ok
+test_report_counts_only_occupied_ties_even_for_whole_scanlines (test_maquette_native_ties.NativeTieTests) ... ok
+test_saved_capture_keeps_render_bindings_exact_across_oracle_revision (test_maquette_native_ties.NativeTieTests) ... ok
+test_texture_edge_ties_never_accept_nonexistent_transparent_texels (test_maquette_native_ties.NativeTieTests) ... ok
+test_two_invalid_ties_exceed_a_small_parts_one_pixel_allowance (test_maquette_native_ties.NativeTieTests) ... ok
+test_adoption_heredoc_reads_layouts_and_calls_density (test_maquette_owner_proof.OwnerProofTests) ... ok
+test_default_stage_order (test_maquette_owner_proof.OwnerProofTests) ... ok
+test_invalid_filter_stops_before_tools (test_maquette_owner_proof.OwnerProofTests) ... ok
+test_resume_adoption_only (test_maquette_owner_proof.OwnerProofTests) ... ok
+test_resume_each_creature_only_in_either_argument_order (test_maquette_owner_proof.OwnerProofTests) ... ok
+test_hidden_overlap_must_be_behind_and_wrong_sample_bone_fails (test_maquette_pixel_polish.FeatureTests) ... ok
+test_one_feature_node_passes_and_split_pixel_mutation_fails (test_maquette_pixel_polish.FeatureTests) ... ok
+test_reassignment_rederives_hidden_support_for_stolen_visible_pixels (test_maquette_pixel_polish.FeatureTests) ... ok
+test_unresolved_design_never_certifies (test_maquette_pixel_polish.FeatureTests) ... ok
+test_versioned_adapter_rebuilds_whole_feature_and_hidden_support (test_maquette_pixel_polish.FeatureTests) ... ok
+test_actual_painted_nodes_snap_and_keep_full_rate_actions (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_clock_wrap_and_all_looping_clips (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_expanding_a_hidden_only_crop_preserves_its_source_anchor (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_feature_derivation_runs_end_to_end_on_isolated_approved_paint_fixture (test_maquette_pixel_polish.PixelPresentationTests) ... MAQUETTE SEAM MUTATION: CPU/native gap reported; independent native reference rejected
+MAQUETTE REFERENCE MASKS: PASS (8 Godot image-operation masks = independent Pillow; no renderer claim)
+MAQUETTE NATIVE ALPHA: PASS (death/0069 and /0070: 0px mask diff; old /0070 model invented 13007px)
+MAQUETTE PIXEL MUTATION: split_feature rejected in both views
+MAQUETTE CROP ANCHOR: PASS (504 front poses; maximum source-affine residual 0.000027135)
+MAQUETTE CONTINUITY SEARCH: {'margin': 0, 'errors': 0, 'max_detached_pixels': 0, 'max_new_hole_pixels': 5}
+ok
+test_idle_before_after_and_unstepped_mutation (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_independent_crop_snapping_mutation_is_rejected (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_native_residual_rejects_a_changed_held_pixel (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_wisp_painted_veins_and_eye_share_core_source_transform (test_maquette_pixel_polish.PixelPresentationTests) ... ok
+test_all_committed_deliveries_turn_feet_and_depth_order (test_maquette_rear_turn.RearTurnTests) ... test_documented_floor_exceptions_are_scoped_and_do_not_hide_heights (test_maquette_rear_turn.RearTurnTests) ... ok
+test_floor_binding_requires_bone_names_not_region_labels (test_maquette_rear_turn.RearTurnTests) ... ok
+test_floor_correction_preserves_projection_and_guard_detects_lift (test_maquette_rear_turn.RearTurnTests) ... ok
+test_hem_dependency_interpolation_obeys_fixed_boundary (test_maquette_rear_turn.RearTurnTests) ... ok
+test_minimum_ray_exit_uses_both_sides_and_reports_no_clear_interval (test_maquette_rear_turn.RearTurnTests) ... ok
+test_packed_delivery_reseals_without_changing_visible_pixels (test_maquette_rear_turn.RearTurnTests) ... ok
+test_rear_only_pose_keeps_frozen_front_and_uses_real_leg_bones (test_maquette_rear_turn.RearTurnTests) ... ok
+test_rear_pan_preserves_scale_direction_and_margin (test_maquette_rear_turn.RearTurnTests) ... ok
+test_v2_union_gate_accepts_boundary_change_and_only_records_clay (test_maquette_rear_turn.RearTurnTests) ... ok
+test_cache_protects_native_edge_loop_and_polygon_order (test_maquette_regressions.CacheTests) ... ok
+test_context_piece_blender_and_revision_invalidate_cache (test_maquette_regressions.CacheTests) ... ok
+test_corrupt_cached_coordinates_and_topology_are_rejected (test_maquette_regressions.CacheTests) ... ok
+test_bridge_stops_after_120_seconds_even_for_long_job_budget (test_maquette_regressions.CaptureTests) ... ok
+test_fit_inputs_require_names_spec_mode_and_byte_hashes (test_maquette_regressions.CaptureTests) ... ok
+test_full_capture_rejects_stale_500_pixel_fit_mattes (test_maquette_regressions.CaptureTests) ... ok
+test_poly_and_bezier_project_each_control_and_both_handles (test_maquette_regressions.CurveTests) ... ok
+test_sloped_centreline_is_sampled_at_row_centres (test_maquette_regressions.FacingTests) ... ok
+test_symmetric_frontal_rectangle_has_zero_mirror_difference_and_fails (test_maquette_regressions.FacingTests) ... ok
+test_cloak_body_sides_survive_view_turn_and_ties_are_near (test_maquette_regressions.OwnershipTests) ... ok
+test_material_assignment_and_zero_index_mutation (test_maquette_regressions.OwnershipTests) ... ok
+test_multiple_weight_winners_and_stable_alphabetical_tie (test_maquette_regressions.OwnershipTests) ... ok
+test_connectivity_is_eight_and_single_pixel_is_not_ignored (test_maquette_silhouette.SilhouetteTests) ... ok
+test_derive_gate_rejects_orphan_and_cleanup_preserves_rest (test_maquette_silhouette.SilhouetteTests) ... ok
+test_director_native_examples_match_supplied_counts (test_maquette_silhouette.SilhouetteTests) ... ok
+test_existing_rest_hole_remains_allowed_but_new_hole_fails (test_maquette_silhouette.SilhouetteTests) ... ok
+test_saved_surface_orphan_pixel_is_rejected (test_maquette_silhouette.SilhouetteTests) ... ok
+test_widened_joint_gap_fails_cpu_and_native_paths (test_maquette_silhouette.SilhouetteTests) ... ok
+test_complete_movement_boundaries_and_source_counts (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_config_uses_cc0_symbolic_source_and_no_omr_inputs (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_every_printed_system_and_opening_lament_are_anchored (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_five_voice_reduction_counts_and_range (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_generated_musicxml_has_stable_unique_part_ids_and_107_measures (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_v01_audition_is_byte_for_byte_unchanged (test_old_castle_full_arrangement.OldCastleFullArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_v07_builder_keeps_every_prior_version_immutable (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_v07_is_strictly_verified_and_promoted_without_byte_drift (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_v07_preserves_the_approved_v06_music_byte_for_byte (test_old_castle_main_menu_arrangement.OldCastleApprovedIntegrationTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_every_base_event_is_an_exact_v02_crop (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_high_strings_are_sparse_exact_octave_doublings (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_midi_tracks_channels_counts_tempo_and_loop_markers (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_normalized_score_and_config_are_audition_only (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_percussion_is_quiet_regular_six_eight_background (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_prior_audition_trees_remain_byte_for_byte_unchanged (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_selection_is_the_requested_contiguous_measure_span (test_old_castle_main_menu_arrangement.OldCastleMainMenuArrangementTests) ... skipped 'Missing optional modules: mido, music21; run with .venv-classical-soundtrack/bin/python (tools/classical_soundtrack_requirements.txt).'
+test_approved_tracks_are_exact_copies_of_verified_auditions (test_original_soundtrack_assets.OriginalSoundtrackAssets) ... ok
+test_dragon_themes_and_stingers_are_exact_copies_of_verified_renders (test_original_soundtrack_assets.OriginalSoundtrackAssets) ... ok
+test_main_menu_and_defeat_remain_exactly_preserved (test_original_soundtrack_assets.OriginalSoundtrackAssets) ... ok
+test_audited_output_sink_does_not_exempt_a_new_consumer (test_output_gdignore.OutputGdignoreTests) ... ok
+test_dynamic_top_level_resource_path_requires_review (test_output_gdignore.OutputGdignoreTests) ... ok
+test_existing_custom_marker_is_preserved (test_output_gdignore.OutputGdignoreTests) ... ok
+test_marks_tracked_and_local_output_folders_idempotently (test_output_gdignore.OutputGdignoreTests) ... ok
+test_new_reference_to_ignored_folder_fails_without_deleting_marker (test_output_gdignore.OutputGdignoreTests) ... ok
+test_output_proposal_is_not_a_live_resource_consumer (test_output_gdignore.OutputGdignoreTests) ... ok
+test_output_resolving_outside_repo_is_rejected_before_scanning (test_output_gdignore.OutputGdignoreTests) ... ok
+test_preserves_resource_inputs_and_dynamic_relative_dependencies (test_output_gdignore.OutputGdignoreTests) ... ok
+test_symlinked_output_directory_is_not_written (test_output_gdignore.OutputGdignoreTests) ... ok
+test_symlinked_output_root_is_rejected_before_scanning (test_output_gdignore.OutputGdignoreTests) ... ok
+test_changed_integration_blocks_repeated_push_until_reauthorized (test_parallel_task.ParallelTaskTests) ... ok
+test_integrate_without_memento_in_a_legacy_checkout (test_parallel_task.ParallelTaskTests) ... ok
+test_integration_preserves_approval_when_task_patch_is_unchanged (test_parallel_task.ParallelTaskTests) ... ok
+test_preflight_proves_and_restores_git_index (test_parallel_task.ParallelTaskTests) ... ok
+test_preflight_rejects_dirty_and_non_task_worktrees (test_parallel_task.ParallelTaskTests) ... ok
+test_preflight_reports_stale_task_branch (test_parallel_task.ParallelTaskTests) ... ok
+test_prepare_worker_creates_branch_at_requested_base (test_parallel_task.ParallelTaskTests) ... ok
+test_push_requires_authorization_for_exact_head (test_parallel_task.ParallelTaskTests) ... ok
+test_action_cpu_rejects_different_hands (test_performance_pass.PerformancePassTest) ... ok
+test_animation_matrix_rejects_different_cases_or_vsync (test_performance_pass.PerformancePassTest) ... ok
+test_different_cpu_profiles_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_forecast_semantic_changes_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_gpu_metrics_require_positive_timing_evidence (test_performance_pass.PerformancePassTest) ... ok
+test_native_enemy_round_changes_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_process_clock_reports_cannot_compare_to_post_draw_reports (test_performance_pass.PerformancePassTest) ... ok
+test_profile_wraps_only_child_command (test_performance_pass.PerformancePassTest) ... ok
+test_representative_combat_requires_matching_enemy_outcomes (test_performance_pass.PerformancePassTest) ... ok
+test_representative_combat_requires_matching_fixture_and_mode (test_performance_pass.PerformancePassTest) ... ok
+test_runtime_measurement_modes_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_surface_cpu_route_changes_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_surface_target_or_preview_changes_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_targeted_native_selection_requires_native_flag (test_performance_pass.PerformancePassTest) ... ok
+test_ui_trade_semantics_reject_comparison (test_performance_pass.PerformancePassTest) ... ok
+test_player_ui_does_not_enable_visible_horizontal_scrollbars (test_player_ui_scrollbars.PlayerUiScrollbarTests) ... ok
+test_skill_tree_surface_is_scrollbar_free (test_player_ui_scrollbars.PlayerUiScrollbarTests) ... ok
+test_all_approved_outputs_determinism_alpha_density_sheet_and_mirror (test_process_biome_art.BiomeArtTests) ... ok
+test_idle_flicker_only_changes_glow_and_alternate_jitter (test_process_biome_art.BiomeArtTests) ... ok
+test_key_removes_green_and_antialiased_fringe (test_process_biome_art.BiomeArtTests) ... ok
+test_nearest_fill_and_template_alpha (test_process_biome_art.BiomeArtTests) ... ok
+test_spark_flashes_only_approved_frames_four_and_eleven (test_process_biome_art.BiomeArtTests) ... ok
+test_variant_matching_and_raw_grade (test_process_biome_art.BiomeArtTests) ... ok
+test_approved_outputs_and_provenance (test_process_event_art.EventArtTest) ... ok
+test_key_unmix_and_determinism (test_process_event_art.EventArtTest) ... ok
+test_rebuild_matches_pinned_hashes_when_sources_available (test_process_event_art.EventArtTest) ... ok
+test_absolute_runtime_in_root_fails_bootstrap_path_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_budget_names_active_and_unstarted_children (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_cancels_at_requested_deadline_with_bounded_cleanup (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_changing_any_supplemental_fixture_mode_fails_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_children_overlap_but_never_exceed_limit_and_keep_namespaces_separate (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_children_resolve_distinct_user_storage_and_explicit_engine_logs (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_doubling_budget_fails_controlled_deadline_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_fixture_runtime_uses_resource_path_only_in_repository_project (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_fixture_stages_keep_one_slot_and_preserve_build_verify_arguments (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_full_harness_waits_for_coroutine_tests_before_reporting (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_hung_child_times_out_and_process_is_gone (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_manifest_preserves_all_existing_children_and_order (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_map_performance_regression_has_an_exclusive_program_slot (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_nonzero_child_fails_scheduler_and_names_child (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_onset_arguments_are_preserved (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_parent_pipe_eof_cancels_active_package_stage (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_parent_pipe_eof_cancels_children (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_real_fixture_stages_initialize_namespaces_and_run_complete_contracts (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_real_parent_failure_and_timeout_fail_whole_run_and_name_child (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_real_parent_prints_whole_logs_in_manifest_order (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_removing_any_extracted_program_fails_manifest_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_removing_any_supplemental_or_merged_program_fails_manifest_guard (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_reused_report_path_gets_fresh_placement_transport (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_reusing_fixture_report_path_keeps_staging_fresh (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_slots_above_worker_limit_are_rejected (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_supplemental_modes_and_paths_are_guarded (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_worker_limit_follows_requested_logical_cpu_formula (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_zero_exit_script_failure_still_fails (test_program_suite_runner.ProgramSuiteRunnerTests) ... ok
+test_cli_dry_run_write_and_batch_refusal (test_recolour_lab.RecolourLabTests) ... ok
+test_cli_requires_explicit_transform_or_fixed_baseline (test_recolour_lab.RecolourLabTests) ... ok
+test_empty_paint_retains_hidden_pixels_and_reports_null (test_recolour_lab.RecolourLabTests) ... ok
+test_force_override_is_explicit_and_only_exercised_on_fixture (test_recolour_lab.RecolourLabTests) ... ok
+test_known_rounding_reference_and_determinism (test_recolour_lab.RecolourLabTests) ... ok
+test_pixel_identical_to_director_prototype (test_recolour_lab.RecolourLabTests) ... ok
+test_real_crawler_direct_and_source_paths_refuse_second_pass (test_recolour_lab.RecolourLabTests) ... ok
+test_real_repo_crawler_replay (test_recolour_lab.RecolourLabTests) ... ok
+test_record_refuses_stale_rests_before_registry_write (test_recolour_lab.RecolourLabTests) ... ok
+test_registry_records_replay_and_keeps_adoption_and_other_entries (test_recolour_lab.RecolourLabTests) ... ok
+test_registry_refuses_substituted_previous_digest (test_recolour_lab.RecolourLabTests) ... ok
+test_reject_modes_and_invalid_scales (test_recolour_lab.RecolourLabTests) ... ok
+test_source_replay_and_density_derivation_reject_unrecorded_edits (test_recolour_lab.RecolourLabTests) ... ok
+test_both_committed_deliveries_have_every_label_and_joint (test_rr07_delivery.DeliveryTests) ... ok
+test_changed_actual_bone_and_missing_contact_sample_fail (test_rr07_delivery.DeliveryTests) ... ok
+test_changed_solo_is_rejected (test_rr07_delivery.DeliveryTests) ... ok
+test_director_hierarchy_and_every_signed_key_match_independent_oracle (test_rr07_delivery.DeliveryTests) ... ok
+test_every_authored_key_midpoint_and_contact_reaches_real_bones (test_rr07_delivery.DeliveryTests) ... ok
+test_extra_runtime_sources_are_bound_in_python_and_godot (test_rr07_delivery.DeliveryTests) ... ok
+test_features_preserve_opaque_source_and_fill_holes (test_rr07_delivery.DeliveryTests) ... ok
+test_joint_mutation_is_rejected_after_refreshing_checksum (test_rr07_delivery.DeliveryTests) ... ok
+test_missing_raw_never_accepts_an_unbound_image (test_rr07_delivery.DeliveryTests) ... ok
+test_missing_solo_is_rejected (test_rr07_delivery.DeliveryTests) ... ok
+test_protected_director_copies_remain_byte_identical (test_rr07_delivery.DeliveryTests) ... ok
+test_raw_step_replay_matches_approved_pixels (test_rr07_delivery.DeliveryTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+ok
+test_transparent_feature_mutation_is_rejected (test_rr07_delivery.DeliveryTests) ... ok
+test_wrong_compiler_sign_is_rejected_by_independent_oracle (test_rr07_delivery.DeliveryTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/experiments/cutouts/hoarfrost_seer/rr07_geometry.py:112: DeprecationWarning: Arrays of 2-dimensional vectors are deprecated. Use arrays of 3-dimensional vectors instead. (deprecated in NumPy 2.0)
+  item = {'lean_deg': float(np.sign(np.cross(up, forward))), 'joint_3d': pivot}
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/experiments/cutouts/hoarfrost_seer/rr07_geometry.py:116: DeprecationWarning: Arrays of 2-dimensional vectors are deprecated. Use arrays of 3-dimensional vectors instead. (deprecated in NumPy 2.0)
+  cross = float(np.cross(ray, up))
+ok
+test_frozen_idle_is_rejected (test_rr07_production.ProductionTests) ... ok
+test_icefall_marks_begin_at_contact (test_rr07_production.ProductionTests) ... ok
+test_real_callbacks_have_six_changing_frames_and_contact (test_rr07_production.ProductionTests) ... ok
+test_removed_contact_and_missing_action_are_rejected (test_rr07_production.ProductionTests) ... ok
+test_tether_animates_only_the_actor_and_vfx_begins_at_contact (test_rr07_production.ProductionTests) ... ok
+test_assignment_failure_never_resumes_an_unowned_child (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_cleanup_skips_dead_pids_and_accepts_exit_races (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_launch_owned_jobs_clean_alive_and_exited_roots (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_retained_handle_exit_race_is_reaped (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_simulated_job_close_honours_recorded_limit_flags (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_taskkill_fallback_requires_owned_pid_tree_and_force_and_spares_unrelated (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_unrelated_sleeper_is_reaped_even_if_owned_cleanup_raises (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_win32_flag_values_are_independent_of_implementation (test_runner_cancellation.WindowsTreeCancellationTests) ... ok
+test_encode_retains_logged_clip_bounds_and_pcm_sample_alignment (test_section_transition_clip.SectionTransitionClipTests) ... ok
+test_extension_uses_director_format_and_proof_has_requested_strip (test_section_transition_clip.SectionTransitionClipTests) ... ok
+test_native_and_headless_commands_use_task_runner (test_section_transition_clip.SectionTransitionClipTests) ... ok
+test_receipt_requires_full_transition_and_two_second_tail (test_section_transition_clip.SectionTransitionClipTests) ... ok
+test_bad_compiler_sign_cannot_certify_itself_after_recompilation (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_compiler_accepts_an_explicit_graph_for_another_maquette (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_feedback7_restores_the_protected_bloomer_idle_key (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_flip_raise_sign_and_drop_key_fail_after_actual_resampling (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_fraction_step_squash_alpha_and_review_plan (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_frozen_idle_fails_focused_test_and_actual_production_recorder (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_protected_keys_and_byte_copies (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_real_bones_at_all_authored_keys_and_midpoints (test_semantic_maquette_motion.SemanticMotionTests) ... ok
+test_bytes_peak_provenance_source_preservation_and_no_deletions (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_designed_multi_root_cli_pipeline_and_relocation (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_excluded_recipe_paths_and_ambiguous_take (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_layer_without_trim_renders_full_take (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_licence_derivation_and_missing_or_invalid_sidecar_before_index (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_master_order_filters_peak_fade_length_and_errors (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_sample_exact_offset_mono_stereo_sum_and_default_length (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_trim_pitch_reverse_filters_and_layer_fades (test_sfx_lab.LayeredDesignTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_ceiling_linked_channels_boundary_peaks_and_input_gain (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_determinism_silence_and_short_file (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_invalid_limiter_settings_fail (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_lookahead_attack_starts_early_and_is_linear (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_release_is_one_pole_exponential (test_sfx_lab.LimiterTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_approved_defaults_and_invalid_inputs (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_attack_decay_and_antiphase_spectrum (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_audition_two_cues_html_audio_and_provenance (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_build_deterministic_bytes_loudness_manifest (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_capped_take_passes_below_loudness_target (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_cli_index_slice_features_query_audition_build (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_equal_power_fades_linear_fade_in_and_crossfade (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_features_sine_noise_bands_and_short_rms (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_index_all_formats_license_hash_and_skips (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_index_and_analysis_deterministic_across_workers (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_limiter_build_stage_manifest_encoded_ceiling_and_determinism (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_lowpass_before_normalization_and_short_boundary (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_multichannel_front_pair_in_audition_and_build (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_normalize_no_clip_cap_is_recorded (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_page_javascript_offline_export_play_and_shortcuts (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_query_all_ranges_and_sort (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_refuse_excluded_paths_symlinks_and_forged_provenance (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_short_peak_caps_and_processing_parameters (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_slice_boundaries_and_identity (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_slice_silence_tiny_take_tail_floor_and_cap (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_stereo_policy_and_loop_seam (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_uncapped_take_outside_tolerance_fails_even_near_ceiling (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_unknown_ambiguous_modified_take_and_unsafe_cue (test_sfx_lab.SfxLabTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance (test_sfx_lab.WindowMeasureTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops (test_sfx_lab.WindowMeasureTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_short_padding_and_window_validation (test_sfx_lab.WindowMeasureTests) ... skipped 'Missing optional modules: soundfile, scipy, pyloudnorm; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python.'
+test_comment_preload_and_parse_only_load_do_not_register (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_complete_owned_quarantine_covers_headless_test (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_deleted_duplicate_and_windowed_quarantines_fail (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_each_quarantine_field_is_required_and_nonempty (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_follow_deferred_and_inline_suite_call (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_function_local_aliases_do_not_leak_from_uncalled_functions (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_global_alias_collection_fails_scope_regression (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_invalid_quarantine_document_fails (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_local_alias_does_not_replace_class_constant_in_another_method (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_map_performance_child_requires_its_executed_regression_call (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_nested_alias_lookup_uses_class_scope_only (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_new_headless_test_fails_guard (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_omitting_inferred_aliases_fails_assignment_regression (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_overridden_initializer_follows_inherited_and_nested_aliases (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_partition_requires_every_program_before_shared_wrapper_coverage (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_program_registration_executes_whole_entrypoint (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_python_driver_requires_a_reachable_executed_script_command (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_quarantine_category_and_owner_must_match (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_quarantine_evidence_path_is_relative_without_requiring_local_artifact (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_quarantined_library_requires_an_executed_entrypoint (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_registered_test_cannot_stay_quarantined (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_relative_nested_suite_calls_are_followed (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_repository_headless_registration_guard (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_scanning_string_contents_fails_call_regression (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_slow_guard_flags_passing_quarantine (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_slow_guard_runs_shared_suite_assertions_once (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_stale_and_duplicate_program_entries_fail (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_strings_do_not_register_inline_alias_local_or_deferred_calls (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_subclass_entrypoint_does_not_register_overridden_base_test (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_untyped_typed_and_inferred_aliases_in_class_and_function_scope (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_windowed_allowlist_is_exact_and_requires_a_reason (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_wrapper_requires_same_executed_methods_and_no_local_assertions (test_test_registration_audit.RegistrationAuditTests) ... ok
+test_duration_skills_match_the_approved_glossary (text_budget_test.TextBudgetTest) ... ok
+test_every_explicit_concept_resolves (text_budget_test.TextBudgetTest) ... ok
+test_glossary_matches_approved_copy_and_budget (text_budget_test.TextBudgetTest) ... ok
+test_relics_match_approved_copy_and_budget (text_budget_test.TextBudgetTest) ... ok
+test_token_validation_rejects_punctuation_whitespace_and_malformed_cases (text_budget_test.TextBudgetTest) ... ok
+test_token_word_count_includes_inflections_as_one_word (text_budget_test.TextBudgetTest) ... ok
+test_check_fails_on_temporary_copy_with_new_raw_box (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_check_passes_on_repository_tree (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_check_reports_insertions_before_existing_sites_and_all_rule_helpers (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_exception_counts_are_additive_and_require_a_reason (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_invalid_policy_counts_fail_closed (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_lower_counts_pass_and_remind_to_tighten (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_new_file_can_only_use_an_explicit_exception_allowance (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_policy_is_mandatory_for_ui_work (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_scan_includes_scenes_and_themes_for_r1_only (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_scan_json_is_deterministic_with_totals_top_files_and_sites (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_tighten_lowers_only_and_removes_zero_entries (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_write_baseline_refuses_existing_unless_forced (test_ui_identity_lint.UiIdentityRatchetTests) ... ok
+test_allowlists_are_exact_paths_and_do_not_hide_other_rules (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_comments_strings_and_neutral_modulates_are_excluded (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_neutral_alpha_can_contain_a_separately_counted_literal (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_palette_matches_are_separate_information_not_extra_sites (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r1_raw_boxes (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r1_serialized_resources_count_definitions_only (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r2_colour_literals (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r3_only_outline_argument_counts (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r4_bare_bars (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r5_font_loading_variation_and_fallback (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_r6_caption_argument_positions_and_assignments (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_two_calls_on_one_line_remain_distinct_sites (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_unfinished_calls_do_not_stop_later_sites (test_ui_identity_lint.UiIdentityRuleTests) ... ok
+test_approved_sources_match_readme (test_visual_pass_4_assets.VisualPass4Assets) ... ok
+test_production_alpha_and_sizes (test_visual_pass_4_assets.VisualPass4Assets) ... ok
+test_replacement_ring_geometry_is_measured_from_alpha (test_visual_pass_4_assets.VisualPass4Assets) ... ok
+test_ring_metadata_matches_shipped_alpha (test_visual_pass_4_assets.VisualPass4Assets) ... ok
+test_runtime_geometry_is_in_every_export_preset (test_visual_pass_4_assets.VisualPass4Assets) ... ok
+test_signage_matches_keyed_cropped_premultiplied_pipeline (test_visual_pass_4_assets.VisualPass4Assets) ... ok
+test_exact_sizes_and_semantic_regions_are_enforced (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_explicit_headless_msaa_probe_fails_with_capability_error (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_generated_metadata_diff_reports_added_and_modified_paths (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_interruption_reaps_the_spawned_process (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_macos_gui_probes_default_to_angle_with_native_fallback (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_macos_host_defaults_to_angle_without_display_driver_flag (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_missing_exact_size_fails (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_project_msaa_automatically_selects_native_macos_gpu (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_project_without_msaa_retains_headless_default (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_result_manifest_requires_fresh_path_by_default (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_semantic_region_cannot_be_supplied_by_wrong_resolution (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_semantic_region_skips_smaller_matching_images (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_short_fail_fast_defaults_remain_configurable (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_startup_watchdog_stops_process_before_total_timeout (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_total_watchdog_stops_an_initialized_hung_process (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+test_windows_tree_termination_uses_taskkill (test_visual_probe_runner.VisualProbeRunnerTests) ... ok
+
+======================================================================
+FAIL: test_all_committed_deliveries_turn_feet_and_depth_order (test_maquette_rear_turn.RearTurnTests) (delivery='hoarfrost_seer/delivery')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/tests/test_maquette_rear_turn.py", line 226, in test_all_committed_deliveries_turn_feet_and_depth_order
+    def test_floor_correction_preserves_projection_and_guard_detects_lift(self):
+AssertionError: False is not true : hoarfrost_seer/delivery/rear: lower foot must be screen-right; {'near': [336.8793774319066, 959.2506485084306], 'far': [599.2188649500788, 893.0578034682081]}
+
+----------------------------------------------------------------------
+Ran 849 tests in 723.780s
+
+FAILED (failures=1, skipped=63)
+MAQUETTE FEATURE DERIVATION: PASS (isolated one-pixel fixture; both approved views reconstruct exactly)
+MAQUETTE SHIMMER CPU: shale_bloomer: {'before': {'held_unexplained_pixels': 693731, 'boundary_unexplained_pixels': 64585}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}
+MAQUETTE PIXEL MUTATION: shale_bloomer/unstepped_paint rejected
+MAQUETTE SHIMMER CPU: lightning_wisp: {'before': {'held_unexplained_pixels': 952496, 'boundary_unexplained_pixels': 41126}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 0}}
+MAQUETTE PIXEL MUTATION: lightning_wisp/unstepped_paint rejected
+MAQUETTE PIXEL MUTATION: independent core-crop snapping rejected in both views
+MAQUETTE_REAR_TURN: arc_thrall/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 7334}, "feet": {"far": [381.8303324099723, 766.4987688519544], "near": [650.9663096831772, 932.2087609698051]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6161, "near": 0}, "feet": {"far": [639.8638645264493, 926.7352308456065], "near": [365.31380597014925, 799.718407960199]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: frostglass_lancer/proof_r2; {"front": {"body_side_pixels_over_torso": {"far": 187, "near": 16542}, "feet": {"far": [393.8564532159591, 879.163850631833], "near": [592.9711770552321, 936.5219366747125]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 30227, "near": 419}, "feet": {"far": [629.1768214742224, 912.3647209203239], "near": [430.0423175234308, 855.0790968474865]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gale_herald/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 29652}, "feet": {"far": [358.0113908872902, 805.4586330935252], "near": [593.3348993974058, 932.537534470432]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 26684, "near": 17277}, "feet": {"far": [543.2776779026217, 932.0721348314606], "near": [295.37894736842105, 851.7421052631579]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gloam_stalker/delivery; {"front": {"body_side_pixels_over_torso": {"far": 5600, "near": 38937}, "feet": {"far": [395.11584340725324, 787.3172684332719], "near": [693.2576363345594, 928.6296977450824]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 47143, "near": 5702}, "feet": {"far": [627.3874012833169, 928.3783316880553], "near": [328.4305154142582, 774.1776252408478]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hoarfrost_seer/delivery; {"front": {"body_side_pixels_over_torso": {"far": 341, "near": 1107}, "feet": {"far": [423.7324824824825, 863.3228228228228], "near": [688.8261385199241, 950.7903225806451]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 4570, "near": 4188}, "feet": {"far": [599.2188649500788, 893.0578034682081], "near": [336.8793774319066, 959.2506485084306]}, "lower_foot": "near", "lower_foot_right": false}}
+DELIVERY_STAGE: PASS; tmpgloxi3vo
+MAQUETTE SILHOUETTE MUTATION: orphan pixel rejected; connected reassignment preserves rest
+MAQUETTE SILHOUETTE MUTATION: widened joint gap rejected by legacy CPU and saved-surface gates; feedback8 hard gate in seam tests
+RUNNER MUTATION REJECTED: absolute runtime preload in repository project
+RUNNER MUTATION REJECTED: all 122 supplemental mode changes (including Bile Bloomer to script)
+MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views
+MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd
+AUDIT MUTATION REJECTED: aliases collected across functions (2 assertion failures)
+AUDIT MUTATION REJECTED: inferred aliases omitted (4 assertion failures)
+AUDIT MUTATION REJECTED: string contents scanned as calls (20 assertion failures)
+Visual proof result manifest: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpeiyhdvjw/report.json

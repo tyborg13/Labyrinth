@@ -1,0 +1,118 @@
+{
+  "limits": {
+    "changed_figure_fraction": 0.005,
+    "label_displacement_px": 2,
+    "joint_displacement_px": 1,
+    "alpha_threshold": 128
+  },
+  "images": {
+    "clay": {
+      "changed_figure_pixels": 49018,
+      "figure_pixels": 252861,
+      "changed_fraction": 0.1938535400872416,
+      "alpha_changed_pixels": 131,
+      "passed": false
+    },
+    "parts": {
+      "changed_figure_pixels": 5641,
+      "figure_pixels": 248934,
+      "changed_fraction": 0.022660624904593186,
+      "alpha_changed_pixels": 24,
+      "passed": false
+    },
+    "silhouette": {
+      "changed_figure_pixels": 837,
+      "figure_pixels": 248934,
+      "changed_fraction": 0.003362337004989274,
+      "alpha_changed_pixels": 24,
+      "passed": true
+    }
+  },
+  "labels": {
+    "collar": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "foot_far": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "foot_near": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "fore_far": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "fore_near": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "hand_far": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "hand_near": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "head": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "skirt_far": {
+      "max_displacement_px": 2,
+      "passed": true
+    },
+    "skirt_near": {
+      "max_displacement_px": ">2",
+      "passed": false
+    },
+    "staff_crystal": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "staff_shaft": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "torso": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "upper_far": {
+      "max_displacement_px": 0,
+      "passed": true
+    },
+    "upper_near": {
+      "max_displacement_px": 0,
+      "passed": true
+    }
+  },
+  "joints": {
+    "root": 0.0,
+    "pelvis": 0.0,
+    "torso": 0.0,
+    "head": 0.0,
+    "head_tip": 0.0,
+    "shoulder_near": 0.0,
+    "shoulder_far": 0.0,
+    "elbow_near": 0.0,
+    "elbow_far": 0.0,
+    "hand_near": 0.0,
+    "hand_far": 0.0,
+    "hand_tip_near": 0.0,
+    "hand_tip_far": 0.0,
+    "hip_near": 0.0,
+    "hip_far": 0.0,
+    "knee_near": 0.0,
+    "knee_far": 0.0,
+    "ankle_near": 0.0,
+    "ankle_far": 0.0,
+    "foot_tip_near": 0.0,
+    "foot_tip_far": 0.0
+  },
+  "max_joint_displacement_px": 0.0,
+  "passed": false
+}

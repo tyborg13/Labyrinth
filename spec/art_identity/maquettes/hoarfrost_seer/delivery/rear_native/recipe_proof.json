@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "1b2d2d50598b78cac94c0a80d513c472904f5991f25fada4584a71fdcde9a099",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 14,
+  "joint_errors": {
+    "pelvis": 1.2323055347072402e-07,
+    "torso": 1.1780402218251435e-08,
+    "head": 4.4134958821960876e-08,
+    "shoulder_near": 7.450580596923828e-08,
+    "elbow_near": 8.940696716308594e-08,
+    "hand_near": 8.940696716308594e-08,
+    "hip_near": 3.931196319542205e-07,
+    "knee_near": 6.72352979839236e-07,
+    "ankle_near": 5.819089469244073e-08,
+    "shoulder_far": 1.4057727354849284e-07,
+    "elbow_far": 1.0745380149674383e-07,
+    "hand_far": 5.960464477539063e-08,
+    "hip_far": 3.501882977994828e-06,
+    "knee_far": 7.123223619094547e-07,
+    "ankle_far": 7.893748618817736e-08
+  },
+  "combined_mesh_hashes": {
+    "cold": "ed7927dc9b8f6441d2803e194163e12bdd0028f476c7265810f609d98fe539a7",
+    "replay": "ed7927dc9b8f6441d2803e194163e12bdd0028f476c7265810f609d98fe539a7",
+    "independent_cold": "ed7927dc9b8f6441d2803e194163e12bdd0028f476c7265810f609d98fe539a7"
+  },
+  "delivery_binding": {
+    "spec_hash": "1b2d2d50598b78cac94c0a80d513c472904f5991f25fada4584a71fdcde9a099",
+    "cold_mesh_hash": "ed7927dc9b8f6441d2803e194163e12bdd0028f476c7265810f609d98fe539a7",
+    "report_sha256": {
+      "build_report.json": "194f15ee4cd14bea4ffe08ffe7ca78429c816fd2265a193e7fbc83a3ac4e02e2",
+      "capture_checks.json": "52c86d6d6e0aaf45470049da33a7ce348bd16d3965f5daf22456d63bda6103cd",
+      "ownership_validation.json": "1f1c9a12e44584763fc98cccfaa34892c071daa2082550e60c399c7b48af2d46",
+      "solo_coverage.json": "bc640c3d24917e68b1083f92dc0a7cc51d94f745d1ed2f497f5d30c415d1d154",
+      "capture_manifest.json": "21e253b490f008222663667966f26f7bb652e4dfaccd9e76fcc3917761c3c31c",
+      "capture_frame.json": "232b4f6aa27a3cc3451f29fdd04eed5b15a14df8c5e8f3207288e6943469a9a8",
+      "cloak_side.json": "dfa0599cd45d85cf46faf7b10745331790a56f1f70cd3c7ed4a99033b67ab0eb",
+      "native_capture_manifest.json": "3991d568c1638b41dddb2a0f9a5edb2e7535c2905c61f4177367294a51fd181a"
+    },
+    "exact_native_replay_sha256": "069cefe835a6db31cb9b37863bfe16a68b7a232454494d452b34066d6cff40d0",
+    "views": [
+      "rear"
+    ]
+  }
+}

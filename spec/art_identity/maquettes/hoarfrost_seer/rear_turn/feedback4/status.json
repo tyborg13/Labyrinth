@@ -1,0 +1,15 @@
+{
+  "authority": "mq-06 feedback 4",
+  "production_staged": false,
+  "front_frozen": true,
+  "front_alpha_union_gate": "dropped per feedback 4",
+  "native_build_passed": true,
+  "floor_guard_passed": true,
+  "native_collision_passed": true,
+  "rear_height_px": 942.6409114024216,
+  "rear_dynamic_iou": 0.20540387838762533,
+  "rear_dynamic_iou_min": 0.6,
+  "resolved_registration_conflict": "Standard mq-04 dynamic registration gives 0.2054038784: protected source ground_x=81.0217391 is at the left robe edge, while the planted rear ground_x=609.8204748 is at the lower right foot. Fixed-original IoU is 0.7609076185. No gate, source annotation or pose was changed to hide this failure. A design-owner decision is required before staging.",
+  "resolution": "mq-06 feedback 5 accepts fixed original registration at 0.7609076185 >= 0.60; rear staged with front frozen",
+  "superseded_by": "../feedback5/README.md"
+}

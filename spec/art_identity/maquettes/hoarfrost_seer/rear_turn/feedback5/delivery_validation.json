@@ -1,0 +1,23 @@
+{
+  "passed": true,
+  "binding": {
+    "spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+    "cold_mesh_hash": "9d19087cf57e5a081466d9c4b4632f118d525b8b53bad3c9690a9384c1734620",
+    "report_sha256": {
+      "build_report.json": "751db585ae70e3e1e00ddb8da1b2c56fe69bdbafccf495a0913d7f6d0478613a",
+      "capture_checks.json": "7efb83a907ef3882d8c12343b84a4191e73dd308c95e920ff7f6e4184e1ea44f",
+      "facing_report.json": "b694671a946fc1ae5d764658d30bbc0ee59dddd05c29ed5206313bef61bc3425",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "8da9b6f917b4ace06ec3d49a6683bb8fae0ebdf91434b711a8dd0c78f45d57ec",
+      "capture_manifest.json": "1704dab639b3c057f52afef1aa454c76993753c728c5482becf198150e54bbad"
+    },
+    "exact_native_replay_sha256": "27beecf77ede4327286577fb96d5549a1c3dc42dc4916b1e985a475090dd7644",
+    "view_sources": {
+      "manifest_sha256": "b7e0580cfed8f838f226992c4d5a50a1575778dd667db252ea04695ab73e35db",
+      "rear_recipe_sha256": "985dd8fab402ad5fb3983f9a873bf01d4e30879822d509673f209dbc94ef7790",
+      "rear_cold_certificate_sha256": "3999d5a71c770591843f1156d22e5f1ed8135fbaf21f7403317be73a0942b46f",
+      "fit_policy_sha256": "c90c061901ea96dc3a391d5575660e0213179552b7519f839dea71539e00f043",
+      "fit_report_sha256": "fe72c0ff7d958b216aafaebc486f45ed25f65056b7d4a07edf49df63e51a6501"
+    }
+  }
+}

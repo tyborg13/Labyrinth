@@ -1,0 +1,62 @@
+mq-06 feedback 4 observed verification; production staging held on dynamic rear IoU.
+Full discovery: 849 tests; final added native candidate method is also covered by the 11-test focused run.
+
+focused_tests.log
+Ran 82 tests in 3.041s
+OK (skipped=2)
+
+turn_regression.log
+FAIL: test_all_committed_deliveries_turn_feet_and_depth_order (tests.test_maquette_rear_turn.RearTurnTests) (delivery='hoarfrost_seer/delivery')
+Ran 11 tests in 5.723s
+FAILED (failures=1)
+
+art_identity.log
+Ran 111 tests in 44.978s
+OK
+
+full_python.log
+FAIL: test_all_committed_deliveries_turn_feet_and_depth_order (test_maquette_rear_turn.RearTurnTests) (delivery='hoarfrost_seer/delivery')
+Ran 849 tests in 723.780s
+FAILED (failures=1, skipped=63)
+
+build2.log
+BLENDER_MAQUETTE: PASS
+BLENDER_BRIDGE_RESULT: exit=0; seconds=34.6; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-7ce52505b51c472db3b3f0ea504a0f40.log
+
+rear_extent.log
+MQ06_REAR_EXTENT: PASS; height_px=942.6409114024216; limit_px=1008
+BLENDER_BRIDGE_RESULT: exit=0; seconds=0.8; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-2f3230c446fb476eb434d6b83136239c.log
+
+rear_capture.log
+FITTED_VIEW_CAPTURE: PASS; view=rear
+BLENDER_BRIDGE_RESULT: exit=0; seconds=75.5; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-505e4cc056df49d387d3a0c835c4d0db.log
+
+recipe_proof.log
+FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=3.501882977994828e-06
+BLENDER_BRIDGE_RESULT: exit=0; seconds=65.5; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-343c26b936084f49b5717ec30033fd83.log
+
+exact_native_replay.log
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=14
+BLENDER_BRIDGE_RESULT: exit=0; seconds=1.1; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-5bb152764f92460da16ef2c015ed935b.log
+
+proof.log
+MQ06_FRONT_FREEZE: PASS; files=21; joints unchanged=True
+MQ06_REAR_FIT: dynamic=0.20540387838762533; fixed_original=0.7609076185083125; before=0.7550728331405493
+MQ06_PROOF: FAIL
+
+audit.log
+MQ06_CANDIDATE_TURN: PASS
+MQ06_FLOOR_GUARD: PASS; Seer exceptions=[]
+FLOOR_CONTACT_GUARD: arc_thrall; documented exceptions=['ankle_far']
+FLOOR_CONTACT_GUARD: frostglass_lancer; documented exceptions=['spear_shaft.prop_foot']
+FLOOR_CONTACT_GUARD: gale_herald; documented exceptions=['ankle_far']
+FLOOR_CONTACT_GUARD: gloam_stalker; documented exceptions=[]
+FLOOR_CONTACT_GUARD: hoarfrost_seer; documented exceptions=[]
+MQ06_PROTECTED_BYTES: PASS; checked=533
+
+output_gdignore.log
+OUTPUT GDIGNORE: PASS (13 folders; 3 referenced roots)
+
+git diff --check: exit=0 (empty diff_check.log)
+Curation: see curation.log for stable final byte count and budget result.
+No windowed commands apply; native commands are in README.md.

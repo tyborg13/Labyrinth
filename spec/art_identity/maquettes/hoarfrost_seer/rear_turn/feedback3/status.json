@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "native_work_stopped": true,
+  "stop_authority": "mq-06 feedback 3 decision 2: front whole-figure alpha must change by 0 px; otherwise stop and report",
+  "delivery_replaced": false,
+  "native_build_passed": true,
+  "front_capture_passed": true,
+  "front_unit_gate_passed": false,
+  "whole_front_alpha_changed_pixels": 95,
+  "robe_union_changed_pixels": 2217,
+  "robe_union_changed_fraction": 0.020286221473930787,
+  "design_decisions": "All four feedback 3 decisions are recorded in decisions.json; no new player-facing value was selected.",
+  "tests": {
+    "focused_builder": "Ran 43 tests in 2.420s; OK",
+    "focused_turn": "Ran 9 tests in 5.186s; FAILED (failures=1)",
+    "art_identity": "Ran 111 tests in 36.579s; OK",
+    "full_python": "Ran 848 tests in 775.486s; FAILED (failures=1, skipped=63)",
+    "sole_full_failure": "unchanged hoarfrost_seer/delivery rear lower foot is screen-left"
+  },
+  "historical_contact_alpha": "The normal fallback clears the native collision checks but changes 95 front alpha pixels and exceeds the v2 robe-union gate. No further native job was issued after this gate failed.",
+  "historical_rear_pixel_frame": "Pan preflight on the ray-only candidate rejected projected bounds [[235.63301255741675,97.35907896096893],[839.0796490532354,1117.082874759138]]. No uncropped pixel proof or certified corrected rear was captured before the front stop.",
+  "superseded_by": "../feedback4/status.json; front gate removed, planted rear collision and pixel framing pass"
+}

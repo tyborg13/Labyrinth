@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "task": "mq-06",
+  "status": "incomplete; native bridge stopped at 120 s",
+  "source_recipe": "correction_recipe.json",
+  "native_geometry_required": "All existing build checks pass, including body/cloth collision; no assertion exemptions.",
+  "front_gate": "gate_contract.json",
+  "rear": {
+    "root_rotation_degrees": 180,
+    "camera": "identical to the front; no override without design authority",
+    "body_side_labels": "unchanged from front fit",
+    "resolution_px": [
+      1024,
+      1024
+    ],
+    "required_images": [
+      "rear_clay.png",
+      "rear_parts.png",
+      "rear_silhouette.png",
+      "rear_solo_<each label>.png"
+    ],
+    "required_data": [
+      "joints_px.json rear entries",
+      "facing_report.json",
+      "solo_coverage.json",
+      "ownership_validation.json"
+    ],
+    "forward_screen": [
+      "positive x",
+      "negative y"
+    ],
+    "rear_iou_min": 0.65,
+    "coverage": "Every label has genuine part-colour pixels or an explicit recorded occlusion.",
+    "sheet_order": [
+      "corrected rear clay",
+      "corrected rear part map",
+      "old approved rear painting"
+    ],
+    "sheet_cell_px": 1024
+  },
+  "tests": [
+    "focused builder",
+    "front v2 gate",
+    "all-figure floor guard with scoped exceptions",
+    "rear turn regression",
+    "art identity gate",
+    "full Python suite"
+  ],
+  "delivery_budget_bytes": 6000000,
+  "protected": "Original paintings, original measurement values, and every other figure delivery."
+}

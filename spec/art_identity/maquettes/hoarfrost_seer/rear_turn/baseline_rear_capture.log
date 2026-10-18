@@ -1,0 +1,26 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-fbee0f7ce4aa4d849f4e0599277b56c3
+BLENDER_BRIDGE_STARTED: mq03-fbee0f7ce4aa4d849f4e0599277b56c3
+00:00.573  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/build/maquette.blend"
+00:05.456  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_parts.png'
+00:16.384  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_clay.png'
+00:20.016  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:23.549  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:27.462  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:31.713  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:36.110  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:40.066  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:44.095  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:48.030  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:51.980  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+00:56.192  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:00.381  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:04.138  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:08.130  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:11.751  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:15.347  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:19.345  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+01:23.610  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline/rear/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+FITTED_VIEW_CAPTURE: PASS; view=rear
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=84.6; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-fbee0f7ce4aa4d849f4e0599277b56c3.log

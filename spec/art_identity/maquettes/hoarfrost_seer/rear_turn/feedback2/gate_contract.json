@@ -1,0 +1,19 @@
+{
+  "authority": "mq-06 feedback 2; spec/peer_benchmark/humanoid_cutout_rig.md sections 1 and 5",
+  "whole_alpha_changed_pixels": 0,
+  "piece_displacement_px": 2,
+  "piece_changed_fraction": 0.005,
+  "joint_displacement_px": 1,
+  "pieces": {
+    "head": ["head"],
+    "torso": ["torso", "collar"],
+    "arm_near": ["upper_near", "fore_near"],
+    "arm_far": ["upper_far", "fore_far"],
+    "hand_near": ["hand_near"],
+    "hand_far": ["hand_far"],
+    "staff": ["staff_shaft", "staff_crystal"],
+    "robe": ["skirt_near", "skirt_far"],
+    "foot_near": ["foot_near"],
+    "foot_far": ["foot_far"]
+  }
+}
