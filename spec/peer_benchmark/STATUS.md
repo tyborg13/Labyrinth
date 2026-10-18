@@ -25,22 +25,20 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - **Humanoid rig v2** (owner rejected the rr-07 Seer and Thrall rigs) — binding spec
   `spec/peer_benchmark/humanoid_cutout_rig.md`, decisions 2026-10-18.
 - Running / state:
-  - Seer v2 = rr-10 + rr-13 on `codex/rr-13` (HEAD 4c3f86339, synced with integration). Director windowed proof all
-    PASS (native gates with the reviewed exception list, sheets, review MP4, idle beside the protagonist). Posted to the
-    inbox as `seer-rig-v2`: OWNER APPROVED 18:40. Review fixes and 8 of 12 seam pinholes done (r3 3fc921d7c); the 2 px front death 27-30 waist hole is a director-approved exception; windowed proof PASS at b576159d4; Codex re-review running.
+  - Seer v2 (rr-10 + rr-13) MERGED 66d07be81: owner approved; Codex SIGNOFF 3c6363908; integration Godot PASS, Python
+    974 OK. rr-10/rr-13 worktrees removed.
+  - rr-14 (humanoid foundations: foot IK, case-driven anatomy, Thrall-shaped fixture) running.
   - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; convert to v2 later.
 - Usage discipline (memory `codex-usage-discipline`): at most 3 fix rounds per session, then a fresh unit; workers run
   focused tests in fix rounds; full suites only at merge.
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - Next (in order):
-  1. rr-13 review signoff → merge `codex/rr-13` into integration (import, Godot suite, Python suite) → remove the rr-10
-     and rr-13 worktrees and branches (rr-10 case has ~390 MB of ignored captures).
-  2. rr-14 (humanoid foundations: foot IK, case-driven anatomy; brief `briefs/rr-14.md`) → merge → rr-11 (Thrall v2;
+  1. rr-14 (humanoid foundations: foot IK, case-driven anatomy; brief `briefs/rr-14.md`) → merge → rr-11 (Thrall v2;
      motion `staged/rr-11`, maquette and mq7 paintings on integration). Contract + preflight before each launch.
-  3. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
+  2. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
      conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
-  4. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
+  3. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
      fixtures); mq-07 floor-guard note for the Herald and Lancer exceptions.
 - Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,
   gloam_stalker}/mq5_{front,rear}`. Motion data: `staged/rr-07`, `staged/rr-08`.
