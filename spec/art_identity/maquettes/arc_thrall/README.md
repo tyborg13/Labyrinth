@@ -1,32 +1,33 @@
-# arc_thrall — mq-04 curated maquette
+# Arc Thrall — mq-07 planted r2 delivery
 
-Director feedback 4 accepts and freezes the r3 clay. No modeling changes in round 4. A clean input-only rebuild reproduces both clay pixel streams and canonical PNG hashes.
+`measurements.json` is the canonical build input, identical to
+`r2/measurements.json`. `delivery/` contains both native 1024 clay views, part
+maps, complete unoccluded solos, projected joints, native geometry/collision/
+ownership reports, fit reports and bound cold/replay proofs.
 
-`measurements.json` is the canonical build specification and measured input. It records the protected identity references, their SHA-256 values, source contours, part labels and native solver settings. `spec_native.json` is generated compiler output: it is **not tracked** and is regenerated inside the clean build tree. The builder does not need a pre-existing generated specification.
+The accepted raised claw shoulder and feedback-1 tube are retained. Feedback 2
+plants the far ankle at the near ankle's floor height through the actual
+hip/knee/ankle bones, using mq-06's projection-preserving correction before the
+loincloth settles. Both views show one body turned exactly 180 degrees. Rear
+framing pans only, preserving the original camera direction and 2.4 m scale.
+The Thrall has no floor-guard exception.
 
-`COMMIT_MANIFEST.txt` is the complete list to track in this figure tree. `delivery/` contains native 1024 front/rear clays, part maps, unoccluded part solos, joints, capture manifests and compact native proof. `discarded_proof_sha256.json` records the exact hashes and byte lengths of deleted historical builds, caches, replay copies, candidates and old proof. No saved Blender model is required as an input.
+The immutable old mq-04 input and original fit registrations are
+`r2/baseline_measurements.json` and `r2/baseline_fit.json`. Its clay PNGs remain
+in `r2/proof/baseline/`. They supply the old cells in the native 1024 sheet;
+they are comparison evidence, not the current delivery.
 
-Feedback 5: staging copies native PNG bytes unchanged. Regeneration canonicalises temporary copies of both front/rear clays and part maps; it never rewrites delivery PNGs. Existing round-4 PNG files are retained unchanged. Delivery verification requires passing build, capture, facing, collision and ownership reports, with their exact file hashes sealed into the matching cold-build proof. Native source-file hashes remain in provenance.
+See [r2/README.md](r2/README.md) for acceptance, exact bridge commands, proof
+paths, chosen proof defaults, results and the far-leg length changes required
+by the supplied planting method. No design TODO remains. Other figures'
+deliveries and the protected original Thrall paintings are unchanged.
 
-From the worktree root, regenerate from an empty, input-only project:
+The shared packer preserves every clay RGBA value, all mask alpha and visible
+mask RGBA values; original native PNG byte hashes are in `delivery/provenance.json`.
+`COMMIT_MANIFEST.txt` lists the entire curated figure (at most 6,000,000 bytes).
+`discarded_proof_sha256.json` records removed proof before deletion.
 
-```sh
-python3 -B -m spec.art_identity.maquettes.blender.regenerate_delivery spec/art_identity/maquettes/arc_thrall --out spec/art_identity/maquettes/arc_thrall/regenerated --verify --preview --discard-build
-```
-
-Omit `--preview` to regenerate all solos and maps. Every Blender invocation goes through `bridge_client.py`, with a 900 s execution budget and the bridge's separate 120 s start deadline. The approved external CC0 base bundle is the binary dependency named in `blender/contract.py`; its hash is recorded by regeneration. Cloth uses the native Blender solver and the Lancer collision margins. No Godot/GDScript or windowed proof is involved.
-
-The current design-owner gates are front IoU >= 0.70 and rear >= 0.65 (feedback 2). Per-part visible/solo pixel coverage is in the shared review CSV; every label must have genuine part-colour pixels or a recorded occlusion. Review sheets compare all four clays with the protected Lancer r3 at the same 2.4 m orthographic scale, copying native 1024 cells without rescaling.
-
-Shared review: `../gale_herald/delivery/review/fit_table.md`, `fit_overlay_contact_sheet.png` and `per_part_coverage.csv`. The same-scale five-figure clay comparison is `../arc_thrall/delivery/review/clay_comparison_lancer_r3.png`. Approved Lancer comparison inputs are retained byte-for-byte in `../gloam_stalker/delivery/reference/lancer_r3/`.
-
-Original r3 PNG byte restoration is pending an original-file backup. The eight Seer/Thrall clay/map pixel streams exactly match the paint-over kit refs after green compositing; see `../gale_herald/delivery/validation/feedback5_pixels.json`. The recorded original r3 file hashes remain in `delivery/provenance.json`; no replacement encoding is presented as the original file.
-
-Fresh feedback-5 regeneration: `delivery/regeneration.json` compares all four clay/map images and validates native build/capture/facing/collision/ownership against the retained cold proof. Clean input hashes, native discarded-build hashes and bridge log are shared at `../gale_herald/delivery/validation/feedback5_regeneration/arc_thrall/`.
-
-mq-07 feedback-1 candidate: see `r2/README.md`, `r2/measurements.json` and
-`r2/proof/shoulder_tube_sheet.png`. The owner has resolved the tube dimensions,
-open elbow mouth and single band; no design TODO remains. The mq-04 inputs and
-native captures above remain the unchanged comparison baseline. Curation
-replaces the historical multi-figure clay comparison with the native old/new
-shoulder sheet and 3× elbow crops, recording all discarded hashes.
+No Godot/GDScript or game runtime changes. Native Blender proof runs only via
+the director's bridge: 120 seconds for pickup, up to 900 seconds once running.
+No local windowed command or inspection fixture is required for this offline
+maquette unit. The design owner handles commits, review and publication.

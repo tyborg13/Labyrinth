@@ -1998,5 +1998,24 @@
       "socket": "forearm_sheath",
       "end_joint": "elbow_near"
     }
-  ]
+  ],
+  "planted_leg": {
+    "joint_chain": [
+      "hip_far",
+      "knee_far",
+      "ankle_far"
+    ],
+    "floor_joint": "ankle_near",
+    "translate_with_ankle": [
+      "foot_tip_far"
+    ],
+    "leg_bones": [
+      "hip_far",
+      "knee_far",
+      "ankle_far"
+    ]
+  },
+  "rear_capture": {
+    "edge_margin_px": 8
+  }
 }

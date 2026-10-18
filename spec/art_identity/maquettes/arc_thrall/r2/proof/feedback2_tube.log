@@ -1,0 +1,7 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-86eb298ef84c4fb8bb31824d22177375
+BLENDER_BRIDGE_STARTED: mq03-86eb298ef84c4fb8bb31824d22177375
+00:00.273  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ07_TUBE_ENTRY: PASS
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=0.6; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-86eb298ef84c4fb8bb31824d22177375.log

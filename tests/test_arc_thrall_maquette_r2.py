@@ -22,18 +22,19 @@ from spec.art_identity.maquettes.arc_thrall.r2.proof import joints, pose_gates, 
 ROOT = Path(__file__).resolve().parents[1] / 'spec/art_identity/maquettes'
 TEST_DEFAULTS = {'cylinder_start': [0, 0, 0], 'cylinder_tip': [0, 0, 3],
                  'cylinder_radius': .5, 'sides': 16, 'cap_rings': 4,
+                 'scale_mutation_multiplier': 2,
                  'old_cell_rgba': (40, 50, 60, 255), 'new_cell_rgba': (70, 80, 90, 255)}
 
 
 class ThrallRevisionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.original_recipe = json.loads((ROOT / 'arc_thrall/measurements.json').read_text())
+        cls.original_recipe = json.loads((ROOT / 'arc_thrall/r2/baseline_measurements.json').read_text())
         cls.recipe = json.loads((ROOT / 'arc_thrall/r2/measurements.json').read_text())
         cls.old = compile_recipe(cls.original_recipe)
         cls.new = compile_recipe(cls.recipe)
 
-    def test_shoulder_and_turn_rules_and_every_original_bone_length(self):
+    def test_shoulder_turn_and_lengths_outside_the_new_leg_plant(self):
         report = pose_gates(self.old, self.new)
         self.assertTrue(report['passed'], report)
         self.assertAlmostEqual(report['joints_px']['front']['shoulder_far'][0], 338)
@@ -54,13 +55,66 @@ class ThrallRevisionTests(unittest.TestCase):
                                    np.subtract(old['hand_tip_far'], old['hand_far']))
 
     def test_unchanged_joints_and_original_source_anatomy_are_preserved(self):
-        moved = {'shoulder_far', 'elbow_far', 'hand_far', 'hand_tip_far'}
+        moved = {'shoulder_far', 'elbow_far', 'hand_far', 'hand_tip_far', 'knee_far', 'ankle_far', 'foot_tip_far'}
         for name in set(self.old['joints']) - moved:
             self.assertEqual(self.old['joints'][name], self.new['joints'][name], name)
         self.assertEqual(self.new['source_fit_joints'], self.old['joints'])
         for key in ('body_source_profiles', 'sources', 'source_sha256', 'bone_scales'):
             self.assertEqual(self.recipe[key], self.original_recipe[key], key)
         self.assertEqual(self.recipe['surfaces'][:-1], self.original_recipe['surfaces'][:-1])
+
+    def test_floor_plant_uses_merged_bone_method_and_keeps_front_projection(self):
+        from spec.art_identity.maquettes.blender.floor_contact import spec_contacts
+        old, new = self.old['joints'], self.new['joints']
+        self.assertAlmostEqual(new['ankle_far'][2], new['ankle_near'][2])
+        self.assertEqual(new['hip_far'], old['hip_far'])
+        report = spec_contacts(self.new)
+        self.assertTrue(report['passed'])
+        self.assertEqual(report['excepted_offenders'], [])
+        config = self.recipe['planted_leg']
+        self.assertEqual(config['leg_bones'], ['hip_far', 'knee_far', 'ankle_far'])
+        np.testing.assert_allclose(np.subtract(new['foot_tip_far'], new['ankle_far']),
+                                   np.subtract(old['foot_tip_far'], old['ankle_far']))
+        from spec.art_identity.maquettes.raster import project
+        for name in [*config['joint_chain'], *config['translate_with_ankle']]:
+            np.testing.assert_allclose(project(self.old, old[name], 'front')[:2],
+                                       project(self.new, new[name], 'front')[:2], atol=1e-10)
+        from spec.art_identity.maquettes.blender.delivery_validation import geometry_checks
+        self.assertIn('floor_contact_correction', geometry_checks(self.new))
+        invalid = deepcopy(self.recipe)
+        invalid['planted_leg']['leg_bones'] = ['thigh_far']
+        with self.assertRaisesRegex(ValueError, 'not region labels'):
+            compile_recipe(invalid)
+
+    def test_canonical_delivery_is_the_planted_r2(self):
+        canonical = json.loads((ROOT / 'arc_thrall/measurements.json').read_text())
+        self.assertEqual(canonical, self.recipe)
+        build = json.loads((ROOT / 'arc_thrall/delivery/build_report.json').read_text())
+        self.assertEqual(build['spec_hash'], digest(self.new))
+        self.assertTrue(build['geometry_details']['floor_contact']['passed'])
+        exceptions = json.loads((ROOT / 'hoarfrost_seer/rear_turn/feedback2/floor_guard_exceptions.json').read_text())
+        self.assertEqual(exceptions['figures']['arc_thrall'], [])
+
+    def test_single_body_reader_uses_native_pan_and_rejects_changed_scale(self):
+        from spec.art_identity.maquettes.blender.view_delivery import spec_for_view
+        from spec.art_identity.maquettes.raster import project
+        from spec.art_identity.maquettes.arc_thrall.r2.assemble import ASSEMBLY_DEFAULTS
+        folder = ROOT / 'arc_thrall/delivery'
+        recorded = json.loads((folder / 'joints_px.json').read_text())
+        self.assertEqual(spec_for_view(self.new, folder, 'front'), self.new)
+        rear = spec_for_view(self.new, folder, 'rear')
+        self.assertEqual(rear['joints'], self.new['joints'])
+        self.assertEqual(rear['ortho_scale'], self.new['ortho_scale'])
+        for name, point in rear['joints'].items():
+            np.testing.assert_allclose(project(rear, point, 'rear')[:2], recorded['rear'][name],
+                                       atol=ASSEMBLY_DEFAULTS['joint_tolerance_px'])
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary)
+            frame = json.loads((folder / 'capture_frame.json').read_text())
+            frame['rear']['ortho_scale'] *= TEST_DEFAULTS['scale_mutation_multiplier']
+            (target / 'capture_frame.json').write_text(json.dumps(frame))
+            with self.assertRaisesRegex(ValueError, 'pan-only framing'):
+                spec_for_view(self.new, target, 'rear')
 
     def test_only_removed_labels_are_hand_and_club_and_anatomy_is_hidden(self):
         self.assertEqual(set(self.old['labels']) - set(self.new['labels']), {'hand_near', 'club'})

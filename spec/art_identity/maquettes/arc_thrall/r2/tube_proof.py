@@ -78,6 +78,9 @@ def geometry_dimensions(spec, recipe):
 def raster_widths(spec, recipe, raster, view):
     elbow, tip, direction, _ = frame(spec, recipe)
     a, b = project(spec, [elbow, tip], view)[:, :2]
+    # Native joints include the renderer's fixed-scale framing pan.
+    pan = np.subtract(raster.joints['elbow_near'], project(spec, elbow, view)[:2])
+    a, b = a + pan, b + pan
     axis = (b - a) / np.linalg.norm(b - a)
     normal = np.array([-axis[1], axis[0]])
     owner = raster.names.index('fore_near')

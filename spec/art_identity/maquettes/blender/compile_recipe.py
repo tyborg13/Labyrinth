@@ -72,6 +72,11 @@ def compile_recipe(recipe):
     for bone in spec['armature']['bones']:
         bone['region'] = recipe.get('region_map', {}).get(bone['region'], bone['region'])
         bone['scale'] = recipe['bone_scales'].get(bone['name'], [1, 1])
+    if recipe.get('planted_leg'):
+        from spec.art_identity.maquettes.blender.planted_leg import corrected_joints as plant
+        spec['planted_leg'] = deepcopy(recipe['planted_leg'])
+        spec['planted_leg']['fitted_joints'] = deepcopy(spec['joints'])
+        spec['joints'] = plant(spec, spec['planted_leg'])
     for item in recipe['surfaces']:
         first_piece = len(spec['pieces'])
         kind = item['shape']

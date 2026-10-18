@@ -1,0 +1,8 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-c24d71043885416c97a71a3650773959
+00:00.243  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism/cold/maquette.blend"
+00:00.355  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism/replay/maquette.blend"
+00:00.462  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=17
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=0.8; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-c24d71043885416c97a71a3650773959.log

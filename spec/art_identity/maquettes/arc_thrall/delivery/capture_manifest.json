@@ -1,31 +1,24 @@
 {
   "schema": 1,
-  "spec_hash": "631ab2fd4ef2c4e6f2461d2a51fdd6107450e1e693e6786e057462ffee791bf8",
+  "spec_hash": "540ff35963d668b0a047a0440eb1b7a097aa908babdc921dc4126f2585014093",
   "mode": "full",
   "images": {
     "front_clay.png": {
-      "sha256": "83ebf2860499ab419fb3859b8b82cb9372f719789a9e4d9c40a964739795301c",
+      "sha256": "0a159e96ef99f1b069bcd5406298d3edab29e6f592b300a23700932b1bb32a74",
       "size": [
         1024,
         1024
       ]
     },
     "front_parts.png": {
-      "sha256": "755d2d30fda3d278912b83888b8f0c8981813c2c609252dd36bb3b3bed02fc95",
+      "sha256": "f438fc494a0136a8ee6b527fdf54a7f6ed0319990d1fe665d4d5f975faeb15a7",
       "size": [
         1024,
         1024
       ]
     },
     "front_silhouette.png": {
-      "sha256": "eded5d0e483c4a31a7e1c7ed6924a08b6d273b16e4776696b518c74fb5b5d7e6",
-      "size": [
-        1024,
-        1024
-      ]
-    },
-    "front_solo_club.png": {
-      "sha256": "40d079719660b14e3820a96a967034ccb1ac7a34f35b1f26394e347f118101cc",
+      "sha256": "3e80b7a390ea177347a69a4c332c74f065563e8b8d59960b0729e1c78efb65be",
       "size": [
         1024,
         1024
@@ -39,7 +32,7 @@
       ]
     },
     "front_solo_foot_far.png": {
-      "sha256": "dbd41659e05ea9ed247280e3c75b0f7c6a2eaa678231d9d1c29797806de54ca4",
+      "sha256": "24952c0148c35362739ddc2ae8361b7bbca4b34ed415973c7251cb792e72b844",
       "size": [
         1024,
         1024
@@ -53,28 +46,21 @@
       ]
     },
     "front_solo_fore_far.png": {
-      "sha256": "e7ca0c96a3f067aba693fe7219c8bd7f20ca0e4b0d440ac9d886d0870d360caf",
+      "sha256": "7f883c34728c3622579c73f8688ef83ec973763a288efb379923e6c4e709b725",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_fore_near.png": {
-      "sha256": "251bdb2c8c302fbae899b3b8098ecfa0811424c168e46bab77b3ce2373cb3b2a",
+      "sha256": "6df3d8c5b9d16f451907ff63d6216c753a9e891a817fa311062f3b98f37c9b70",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_hand_far.png": {
-      "sha256": "6c59f73aae8fb57844e0874128cc30dc272568192b98316d38418d2c55e9afd5",
-      "size": [
-        1024,
-        1024
-      ]
-    },
-    "front_solo_hand_near.png": {
-      "sha256": "23fdd5506923c314a98f49d2317727f72fe79d4f83e52fbc1d845a02c7f29e61",
+      "sha256": "51370738e79ad6d9d2bc0ece55790bf87729f9b586c2de36c76323e5515f8e94",
       "size": [
         1024,
         1024
@@ -88,14 +74,14 @@
       ]
     },
     "front_solo_loincloth.png": {
-      "sha256": "2cb4c3c0d71940756d9f1f652966c6812489d00532a92efdb5afd6d6a56222a0",
+      "sha256": "3e0be7d0b8a3fd2bc5e0d6d5e6dff64c2071e3a532175d484afc2350c7598e46",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_shin_far.png": {
-      "sha256": "7f305acc4db55ad77ffb16edbf954091eaee91711e5e4b467086b6635e679ac9",
+      "sha256": "f77f6f428ba64bdb3ed824188582bbd54c2d3ae3cd33a1cfc8a8e4c061f92523",
       "size": [
         1024,
         1024
@@ -109,194 +95,180 @@
       ]
     },
     "front_solo_thigh_far.png": {
-      "sha256": "c783aea1aa38e8e1bbae8e5195640d7304c7c0bbdd27e68f49a8714ecf8b1d12",
+      "sha256": "2345820d65a6c1cca86d9eda7124aa95c44ad3b746eca7be5bb3236018f21f7e",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_thigh_near.png": {
-      "sha256": "4f572401c629e3d190c8ade70ac40ddcef6299909ed6ead86647ca301f456adb",
+      "sha256": "6712d66d5bba13514da19332b0f2ded5c690e1faebf78bd58b86b06ba3325161",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_torso.png": {
-      "sha256": "d4185fe021a8bd1567704086682604e0f30e1a1969606ee17a11b997ec63953e",
+      "sha256": "79520bdae8984ddfb0299febf4a152d49c1286ac577e03a8ab87c9acc3138fb9",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_upper_far.png": {
-      "sha256": "2d31e8ce3eeda6c718e47908dd1430fb9c1919537991209f11efefd8c5c39760",
+      "sha256": "51e75c6ae5eb194a763d08a2a61cb9ee3a02601f6ae265c4322add9348d5933a",
       "size": [
         1024,
         1024
       ]
     },
     "front_solo_upper_near.png": {
-      "sha256": "8f7386468f97712f51f7a8e90a4c45cf821f0d2b1d9fa296585e8ef32d9a5390",
+      "sha256": "d82512ccfb1165acfb5a2f88681c1a9feb8ed609e3660eadc6f033c348db50d0",
       "size": [
         1024,
         1024
       ]
     },
     "front_torso.png": {
-      "sha256": "d4185fe021a8bd1567704086682604e0f30e1a1969606ee17a11b997ec63953e",
+      "sha256": "79520bdae8984ddfb0299febf4a152d49c1286ac577e03a8ab87c9acc3138fb9",
       "size": [
         1024,
         1024
       ]
     },
     "front_torso_frontal_control.png": {
-      "sha256": "c033584f6873723d934acddf9ac04779efdddd9209d51362018ad5eaab1cb640",
+      "sha256": "ee9227e36cae3f9d640ff336c21f04d8ebde64e8a354398a57edc6060e47a931",
       "size": [
         1024,
         1024
       ]
     },
     "rear_clay.png": {
-      "sha256": "4a17cde56036cd13c819dab0ddbafee9dc5c49001a3a8e3faeb9946cd5034a68",
+      "sha256": "be13c2d285eaf1ff42661db0dee75a64b821dbb8d760119634356e940624cd5d",
       "size": [
         1024,
         1024
       ]
     },
     "rear_parts.png": {
-      "sha256": "9777220a390dc4913e5e16b8555d46c8bfda71bbdbfdc50192b2ce7a5121d6a3",
+      "sha256": "1ef1fc2d3bbcdb016b822ebb972a1f55873b5aa97302b987859bab7c47ebb9fd",
       "size": [
         1024,
         1024
       ]
     },
     "rear_silhouette.png": {
-      "sha256": "3b2039f8198409e500e5c0133d227d0cbf971c4799fc13d2fb868a310090194c",
-      "size": [
-        1024,
-        1024
-      ]
-    },
-    "rear_solo_club.png": {
-      "sha256": "ab76f8ee4f333ce202b5391d2c711462a59ce3f1d91ce63f03fa95d4b5430bba",
+      "sha256": "42c954f8e7900d52b250aa3a3200a537c9b6e91556daf11123f0e40c33d235e7",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_collar.png": {
-      "sha256": "3a7df43b7984df12e0b959321dd3aa2a9395676a7a87efed9bc9481164df6338",
+      "sha256": "377ceffbab25b04291b3554f3116894cce8f2ac3ce314e88a98e7d38dfcfe373",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_foot_far.png": {
-      "sha256": "7b1902e76e2e0e46fb539baccfb26c3350bd4f731b9dce53078f0d147da7ccfa",
+      "sha256": "57b9aa6775222db3e8ebb4becd635b26116c80a7eabb49e44b53307a68439ede",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_foot_near.png": {
-      "sha256": "970351f391899978e76be67a022b55cf57ed25d7d7313a7f861f0155f83b2928",
+      "sha256": "d4b924de559f0fb9d9be6db309f802b18f92f781a0468bffa18cfab7beaa2395",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_fore_far.png": {
-      "sha256": "88bb834cee80e6eda15187caf9ba01aed111c84a9d9ebd43c25a5d4df0609341",
+      "sha256": "7e0255e432fdadbff8d2dd45f066b9ab6c5618eb48f8de28e0a0abfd1d53c4a3",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_fore_near.png": {
-      "sha256": "3d732c21975a3c6bd03cc1644fca7409ab9016759164e716bd37790a0ea4713e",
+      "sha256": "561641642f354b1b0667fd072185bf4dda86e31c68f5433800538ba575497331",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_hand_far.png": {
-      "sha256": "8d3f4314c9e83751e50ce9bb038234d608ad6901d09b3eb1fcf71862a7fac559",
-      "size": [
-        1024,
-        1024
-      ]
-    },
-    "rear_solo_hand_near.png": {
-      "sha256": "8dbb803470a46119a586ce6f25d79b942a9b51be09c6f45499590f22ba7191ea",
+      "sha256": "0f984fd70401b15385e17075648656ba043951be6496d3752b853d84d7140101",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_head.png": {
-      "sha256": "4a39d17c5a2fcf7cb519bb0886cb800d11be2236cd5017cabdf8f6e4be2eb708",
+      "sha256": "c811ef80ec0767a5ea285d8182b287b3cda6e9e19fae5dc0f5817adf0c40e8e6",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_loincloth.png": {
-      "sha256": "1d28c7f2c03344d73e0d5afb23676bbc0b338d2417dbdc4f7bd800b9018c7b56",
+      "sha256": "b04309c056d06b3dcf295ae5dafbe6cf01cebe0d0421197d86ea2507b69d8652",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_shin_far.png": {
-      "sha256": "60bd91a97dc4b3d1f10aa9c2090ee400fc8054851333c5184ba2f6836c22d1b3",
+      "sha256": "90d4b91e6352f033ee87556947a1099b4443ef04f75868c614b0ca281dfeb049",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_shin_near.png": {
-      "sha256": "7a96693c567fe35cafd4a6b8edb64da5a201a3688499af964ecaf3b7dd6e527c",
+      "sha256": "12f8c5aa52e74152531973bcf39e22e5ece11cc7b38ebe77b608a4d1de627aab",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_thigh_far.png": {
-      "sha256": "d5b7f24320a8e5887c2aeb198f3373298813f8b95d21411d3237663a5b4cb74f",
+      "sha256": "fd11403a4ee4c2e5465ad6f3a3c3f2a3e22fd3be0a056515a841108ddfe7d75c",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_thigh_near.png": {
-      "sha256": "48af10db3e1b6548be82c72cde6799d57f32e037156dd59a4c65847f710b97ad",
+      "sha256": "b4c89902d9319db4b4115b1b71aa1b6a5792484baf10c078f5b0caa7e048d662",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_torso.png": {
-      "sha256": "5cbc7b06444b55eeebc41acb9ec960f1f112191d16d339ad1bcababa996e2d2a",
+      "sha256": "080136dc055f3ea2dec0444060acb99139921a7e2713e52c36fd0472774ffded",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_upper_far.png": {
-      "sha256": "f0708ce0ec00e88ee7b99fd4449c6713157b36da394e75200c8b1befbff501ae",
+      "sha256": "310a14a9ab1364168deee579b7e3989a1e00169c49303b11e4ad7f8b92efe2db",
       "size": [
         1024,
         1024
       ]
     },
     "rear_solo_upper_near.png": {
-      "sha256": "fda4a214b421c5fcf5520a9d770b926d5e623916b1f99068306306a079249776",
+      "sha256": "a05b6f329d4fb4656c616d644480ef8992aa81da20ab992c768dea96e672ce35",
       "size": [
         1024,
         1024
       ]
     }
   },
-  "joints_sha256": "9e926473471bf35e427d31c78b7630cd8c2e732db90914d359daa9afdb0217b0"
+  "joints_sha256": "57dabbc7568e724c1c935506a3edb1fba8190d7780e9c31d3904476e4b1f3265"
 }

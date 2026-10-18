@@ -34,6 +34,8 @@ def build(spec, output, bundle, cache):
         spec['joints'] = deepcopy(spec['floor_contact_correction']['fitted_joints'])
     if spec.get('rear_body'):
         spec['joints'] = deepcopy(spec['rear_body']['fitted_joints'])
+    if spec.get('planted_leg'):
+        spec['joints'] = deepcopy(spec['planted_leg']['fitted_joints'])
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     write(output / 'source_spec.json', input_spec)
@@ -42,6 +44,7 @@ def build(spec, output, bundle, cache):
     bpy.context.scene.gravity = spec['simulation']['gravity']
     bpy.context.scene.render.fps = spec['simulation']['fps']
     print('BUILD_STAGE: append anatomy', flush=True)
+    planted_pose = None
     if spec['base']['asset'] == 'procedural_chain':
         from spec.art_identity.maquettes.blender.creature_rig import create
         rig, posed, owners = create(spec)
@@ -58,6 +61,9 @@ def build(spec, output, bundle, cache):
         source_fit = fit_body(fitting_spec, body, rig, posed)
         from spec.art_identity.maquettes.blender.pose_adjustment import repose
         repose(spec, body, rig, posed)
+        if spec.get('planted_leg'):
+            from spec.art_identity.maquettes.blender.rear_body import pose_leg
+            planted_pose = pose_leg(spec, body, rig, posed, target_joints, config=spec['planted_leg'])
     posed['face_owners'] = json.dumps(owners)
     rear_pose = None
     context_key = digest({'spec': spec, 'bundle_sha256': hashlib.sha256(Path(bundle).read_bytes()).hexdigest()})
@@ -138,6 +144,13 @@ def build(spec, output, bundle, cache):
     from spec.art_identity.maquettes.blender.socket_tuck import append_tucks
     append_tucks(spec, posed, owners, objects)
     floor_contact = None
+    if spec.get('planted_leg'):
+        from spec.art_identity.maquettes.blender.floor_contact import spec_contacts
+        from spec.art_identity.maquettes.blender.rear_body import REAR_POSE_DEFAULTS
+        floor_contact = spec_contacts(spec)
+        floor_contact['pose'] = planted_pose
+        floor_contact['passed'] &= (planted_pose['maximum_bone_endpoint_error_m'] <=
+                                    REAR_POSE_DEFAULTS['bone_endpoint_error_max_m'])
     if rear_pose is not None:
         from spec.art_identity.maquettes.blender.rear_body import floor_report
         from spec.art_identity.maquettes.blender.cloth_contacts import collision_report

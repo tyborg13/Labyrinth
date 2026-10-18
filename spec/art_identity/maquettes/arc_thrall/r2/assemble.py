@@ -1,7 +1,7 @@
 """Assemble mq-07's bridge captures and bind their native determinism proof.
 
-This prepares a candidate only. It never changes the approved mq-04 delivery,
-accepts a stale report, or converts unresolved design fields into approval.
+This prepares a candidate for gated promotion. It never accepts a stale
+report or converts unresolved design fields into approval.
 """
 import json
 from pathlib import Path
@@ -34,10 +34,14 @@ def main():
     output = root / 'capture'
     output.mkdir(exist_ok=True)
     projected = joints(spec)
-    names, joint_table, counts, captures = [], {}, {}, {}
+    names, joint_table, counts, captures, frames = [], {}, {}, {}, {}
     native = read(root / 'native/build_report.json')
     if native['spec_hash'] != current or not native['passed']:
         raise ValueError('Missing current passing native build')
+    cold = read(root / 'determinism/cold/build_report.json')
+    if cold['spec_hash'] != current or cold['mesh_hashes'] != native['mesh_hashes'] or not cold['passed']:
+        raise ValueError('Capture geometry differs from current independently cold-built geometry')
+    native = cold
     for view in ('front', 'rear'):
         folder = root / view
         manifest = read_manifest(folder, current, ('full',))
@@ -45,9 +49,12 @@ def main():
         if capture['spec_hash'] != current or not capture['passed'] or not capture['geometry_unchanged']:
             raise ValueError('Missing passing invariant capture: ' + view)
         table = read(folder / 'joints_px.json')
+        frame = read(folder / 'capture_frame.json') if (folder / 'capture_frame.json').exists() else {}
+        frames.update(frame)
+        pan = frame.get(view, {}).get('pan_px', [0, 0])
         if set(table) != {view} or set(table[view]) != set(spec['joints']):
             raise ValueError('Incomplete native joint table: ' + view)
-        if any(not np.allclose(value, projected[view][name], atol=ASSEMBLY_DEFAULTS['joint_tolerance_px'], rtol=0)
+        if any(not np.allclose(value, np.asarray(projected[view][name]) + pan, atol=ASSEMBLY_DEFAULTS['joint_tolerance_px'], rtol=0)
                for name, value in table[view].items()):
             raise ValueError('Native joints differ from compiled pose: ' + view)
         for name in manifest['images']:
@@ -62,6 +69,7 @@ def main():
     native['passed'] = all(native['checks'].values())
     write(output / 'build_report.json', native)
     write(output / 'joints_px.json', joint_table)
+    write(output / 'capture_frame.json', frames)
     write(output / 'solo_coverage.json', counts)
     write(output / 'facing_report.json', facing)
     write(output / 'capture_checks.json', {'passed': native['passed'], 'geometry_unchanged': True,

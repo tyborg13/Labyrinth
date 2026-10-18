@@ -21,6 +21,8 @@ BUILDS = ('cold', 'replay', 'independent_cold')
 
 def geometry_checks(spec):
     required = GEOMETRY_CHECKS
+    if spec.get('planted_leg'):
+        required += ('floor_contact_correction',)
     if any(p.get('rig_bone') for p in spec['pieces']):
         required += ('native_rigid_bindings',)
     if any(p['type'] == 'sculpted_mass' for p in spec['pieces']):
@@ -45,6 +47,9 @@ def passing(value, path):
     if isinstance(value, dict):
         for key, item in value.items():
             if (key == 'passed' or key.endswith('_passed')) and item is not True:
+                raise ValueError('Failed delivery check: ' + path + '.' + key)
+            if key in ('checks', 'geometry_checks') and isinstance(item, dict) and any(
+                    result is not True for result in item.values()):
                 raise ValueError('Failed delivery check: ' + path + '.' + key)
             passing(item, path + '.' + key)
     elif isinstance(value, list):

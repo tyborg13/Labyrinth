@@ -1,9 +1,9 @@
-# mq-07 — Arc Thrall r2, feedback 1
+# mq-07 — Arc Thrall planted r2, feedback 2
 
 Offline Blender implementation. The accepted raised shoulder is unchanged in
 both views. Feedback 1 replaces the 1.4× upper-arm rule and resolves all three
 design TODOs. Exact owner values are recorded in `feedback_1.json`; the complete
-candidate input is `measurements.json`.
+input is `measurements.json`, promoted unchanged to `../measurements.json` after the gates pass.
 
 ## Acceptance
 
@@ -15,7 +15,7 @@ candidate input is `measurements.json`.
 3. One mouth band: 3 source px / 12 native px tall, raised 1 source px / 4 native
    px radially. No other bands or rivets. Tube and band belong to `fore_near`;
    the inserted arm end stays `upper_near`.
-4. Keep the accepted shoulder, all bone lengths and every other figure's
+4. Keep the accepted shoulder and all bones outside the newly planted far leg, and every other figure's
    delivery. Pass front IoU ≥0.70, rear ≥0.65, native facing/collision/ownership,
    unchanged capture geometry, cold/cache replay and bit-exact native replay.
    The camera-near lower foot must remain right of the other in both views.
@@ -62,32 +62,80 @@ RGBA values are (40,50,60,255)/(70,80,90,255). Native renderer settings are reus
 
 ## Proof for the design owner
 
-Blender runs only through the director bridge with 120 s per job. Stop if a job
-is unanswered. No windowed Godot or inspection_fixture.py command applies to
+Blender runs only through the director bridge: stop if pickup exceeds 120 s;
+allow up to 900 s after pickup. No windowed Godot or inspection_fixture.py command applies to
 this offline-only unit. Exact rebuild commands:
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m spec.art_identity.maquettes.blender.compile_recipe spec/art_identity/maquettes/arc_thrall/r2/measurements.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 120 spec/art_identity/maquettes/blender/build.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native --build-only
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 120 spec/art_identity/maquettes/arc_thrall/r2/tube_proof.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/tube_geometry.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 120 spec/art_identity/maquettes/blender/capture_view.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/front front
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 120 spec/art_identity/maquettes/blender/capture_view.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear rear
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 120 spec/art_identity/maquettes/blender/recipe_proof.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 120 spec/art_identity/maquettes/blender/exact_native_replay.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism/exact_native_replay.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/build.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native --build-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/arc_thrall/r2/tube_proof.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/tube_geometry.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/capture_view.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/front front
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/capture_view.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear rear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/recipe_proof.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/blender/exact_native_replay.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/determinism/exact_native_replay.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B spec/art_identity/maquettes/blender/bridge_client.py --timeout 900 spec/art_identity/maquettes/arc_thrall/r2/tube_proof.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/spec_native.json /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend /Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/tube_geometry.json
 cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m spec.art_identity.maquettes.arc_thrall.r2.assemble
 cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m spec.art_identity.maquettes.arc_thrall.r2.proof --capture spec/art_identity/maquettes/arc_thrall/r2/proof/capture
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m unittest discover -s tests -p 'test_arc_thrall_maquette_r2.py' -v
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m spec.art_identity.maquettes.arc_thrall.r2.curate
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m unittest tests.test_arc_thrall_maquette_r2 tests.test_rr07_delivery.DeliveryTests.test_both_committed_deliveries_have_every_label_and_joint -v
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m unittest tests.test_maquette_rear_turn -v
 cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m unittest spec.art_identity.maquettes.blender.test_source_recipe spec.art_identity.maquettes.blender.test_delivery spec.art_identity.maquettes.blender.test_delivery_validation -v
 cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B tests/test_art_identity_gate.py
 cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m unittest discover -s tests -p 'test_*.py' -v
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m spec.art_identity.maquettes.arc_thrall.r2.curate
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-07 && python3 -B -m spec.art_identity.maquettes.blender.curate_delivery verify spec/art_identity/maquettes/arc_thrall
 ```
 
-After passing native proof, curation retains the native cells and 3× elbow
-crops in `proof/shoulder_tube_sheet.png`, compact `native_*.json` reports,
-`tube_geometry.json`, `gates.json` and validation/bridge logs. Temporary PNGs,
-blends and caches are hash-inventoried before deletion. Original mq-04 inputs
-and native captures stay the comparison baseline.
+After passing native proof, curation promotes both complete views into
+`../delivery/`, preserving clay RGBA and all mask alpha/visible RGBA through the
+shared lossless packer. It retains the native cells and 3× elbow crops in
+`proof/shoulder_tube_sheet.png`, the original clays in `proof/baseline/`, compact
+native delivery reports, `tube_geometry.json`, `gates.json`, `height_table.json`
+and test/bridge logs. Every discarded blend, cache and duplicate capture is
+hash-inventoried before deletion. `baseline_measurements.json` and
+`baseline_fit.json` preserve the immutable mq-04 comparison and registrations.
+
+## Feedback-2 planting and promotion
+
+The actual far hip/knee/ankle bones are re-posed before the native cloth solve,
+using mq-06's front-ray height correction. The hip and every front joint pixel
+stay fixed; ankle height becomes the near ankle's 0.2485619374 m floor plane
+(previously 0.3189265015 m, a 0.0703645641 m lift). The loincloth uses its existing
+native collision settings; it is not converted into a floor-length robe.
+The Thrall entry in mq-06's shared floor-guard exceptions is cleared explicitly.
+
+The earlier fixed-length planting attempt was rejected: its front IoU was
+0.6790656031, below 0.70. The supplied mq-06 planting method preserves the
+front projection and changes the real far-leg segment lengths as follows.
+This supersedes the initial brief's unchanged-leg requirement for feedback 2;
+the accepted shoulder and all other limb lengths remain unchanged.
+
+| Far-leg bone | Before m | Planted m |
+|---|---:|---:|
+| hip_far | 0.3287382662 | 0.3887234969 |
+| knee_far | 0.3393611876 | 0.4034519023 |
+| ankle_far | 0.2624302363 | 0.2624302363 |
+
+Shared builder edits for this feedback are small and opt-in: `planted_leg.py`
+uses the merged floor helpers; `compile_recipe.py` retains the fitted joints;
+`build.py` invokes the existing real-bone reposer and records floor/endpoint
+checks; `rear_body.pose_leg` accepts an explicit config; `delivery_validation.py`
+requires the floor gate for a planted recipe and rejects failed nested checks.
+`view_delivery.py` applies the recorded pan when readers request a view of a
+single planted body. Other recipes take unchanged paths.
+
+No new visual tuning is chosen. The only new fixture value is `TEST_DEFAULTS.scale_mutation_multiplier = 2`,
+used to prove that a changed camera scale is rejected. No new visual defaults
+are introduced. The existing mq-06 native bone
+endpoint tolerance is 1e-4 m (`REAR_POSE_DEFAULTS`). All previous proof
+settings remain as documented. Native framing uses the owner's 8 px margin.
+
+The exact commands above regenerate proof. Before a fresh run, compile the
+canonical input (the r2 input is byte-identical), then run build, both captures,
+recipe proof, exact replay, tube entry, assembly, numerical proof and curation.
+The old clay files and baseline registration are retained, so the sheet can be
+recreated after curation. No local windowed commands or inspection-fixture
+commands apply; the director bridge supplies native Blender rendering.
 
 ## Feedback-1 native results
 
@@ -129,18 +177,68 @@ director retains the visual verdict. Existing maximum-band fit guidance is
 false in both old and new views; the required IoU gates pass. No threshold or
 existing master assertion was changed.
 
-## Feedback-1 validation
+## Feedback-2 native gate results
 
-- Focused: `Ran 13 tests in 0.359s`, `OK`.
-- Builder/source/delivery: `Ran 43 tests in 2.917s`, `OK`.
-- Art identity: `Ran 111 tests in 39.709s`, `OK`.
-- Full Python: `Ran 852 tests in 721.352s`, `OK (skipped=63)`.
-- Curation: `COMMIT_CURATION: PASS`, within the 6,000,000-byte limit.
-- `git diff --check`: PASS. All authored changes remain within the owned figure,
-  shared Blender helpers and focused test. No .gd files changed.
+| Contact / joint | Before m | After m |
+|---|---:|---:|
+| hip_far | 0.8818430140 | 0.8818430140 |
+| knee_far | 0.6003847577 | 0.5652024757 |
+| ankle_far | 0.3189265015 | 0.2485619374 |
+| ankle_near | 0.2485619374 | 0.2485619374 |
+| foot_tip_far | 0.1673720558 | 0.0970074918 |
 
-No design TODO or implementation blocker remains. The existing maximum-band
-fit guidance and the design-owner-owned empty task-helper metadata remain as
-previously reported; neither required threshold nor an existing assertion was
-rewritten. The original mq-04 delivery stays the comparison baseline, while
-this complete r2 input/proof is ready for the owner's next inspection step.
+The ankle floor is 0.2485619374 m; no offender or exception remains.
+
+| Painting registration | Before | Planted r2 | Minimum |
+|---|---:|---:|---:|
+| front / dynamic_iou | 0.7222672242 | 0.7081009476 | 0.7 |
+| front / fixed_original_iou | 0.7222672242 | 0.7081009476 | 0.7 |
+| rear / dynamic_iou | 0.7035146695 | 0.7047716117 | 0.65 |
+| rear / fixed_original_iou | 0.7035146695 | 0.6921367394 | 0.65 |
+
+Rear camera pan: (0, −20.9999880572) native px; unchanged direction and
+2.4 m scale. Native clay margins (left/top/right/bottom): 154 / 146 / 149 / 8 px.
+Every required solo is nonempty, every part has genuine visible owner pixels,
+and neither loincloth panel has a sample below its collision margin or an
+intersecting face pair. Raised front shoulders: far (338, 310.3), near (616, 352).
+The complete before/after front/rear shoulder table is in `proof/gates.json`.
+
+Native receipts: `BLENDER_MAQUETTE: PASS`; both `FITTED_VIEW_CAPTURE: PASS`;
+`FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=4.140378204781795e-06`;
+`EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=17`;
+`MQ07_TUBE_ENTRY: PASS`; `MQ07_POSE: PASS`; `MQ07_FLOOR: PASS; exceptions=[]`;
+`MQ07_TUBE: PASS`; `MQ07_DELIVERY: PASS; native_capture=true`.
+
+Art identity verification: `Ran 111 tests in 35.991s`, `OK`. Fresh focused and
+full-suite results follow below.
+The existing delivery assertions detected the nested per-view geometry-check
+gap; the validator now rejects those failures before sealing. No assertions
+were weakened. The full-suite result and final byte budget follow below.
+
+The first full run reported `Ran 891 tests in 832.937s`,
+`FAILED (errors=1, skipped=63)`: rr-07 did not apply the single-body rear framing
+pan when checking native joints. The shared reader now applies that measured
+pan and rejects changed scale/direction metadata. The live-input test's exact
+Thrall file count changes from 39 to 35 because the approved removal of
+`hand_near` and `club` removes four solo PNGs across the two views. All provenance,
+joint and missing-input assertions remain. The failed run's hash is archived
+before replacing its log with the fresh complete run.
+
+## Final feedback-2 verification
+
+- mq-07 and live rr-07 input integration: `Ran 17 tests in 0.434s`, `OK`.
+- Builder/source/delivery: `Ran 43 tests in 3.351s`, `OK`.
+- Turn regression: `Ran 13 tests in 10.278s`, `OK`.
+- Art identity: `Ran 111 tests in 35.991s`, `OK`.
+- Full Python: `Ran 892 tests in 838.554s`, `OK (skipped=63)`, exit 0.
+- Rechecking the packed delivery: `MQ07_POSE: PASS`;
+  `MQ07_FLOOR: PASS; exceptions=[]`; `MQ07_TUBE: PASS`;
+  `MQ07_DELIVERY: PASS; native_capture=true`. The regenerated sheet is
+  byte-identical to the inspected native-cell sheet.
+
+The final curation check verifies the complete manifest, current cold-proof
+binding, unchanged native clay RGBA and the 6,000,000-byte limit.
+No TODO_DESIGN remains. Non-gating maximum-band and rear source-landmark
+diagnostics remain visible in the fit reports for the director's repaint.
+No .gd or runtime changes; no separate Godot suite, local windowed capture or
+inspection fixture is applicable. All changes remain uncommitted.

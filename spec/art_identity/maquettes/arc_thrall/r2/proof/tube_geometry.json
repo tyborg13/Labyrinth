@@ -15,12 +15,12 @@
   "dimensions": {
     "mouth_offset_front_px": -8.000000000000032,
     "shaft_diameter_front_px": 67.9217819215068,
-    "band_height_front_px": 12.000000000000014,
+    "band_height_front_px": 12.000000000000016,
     "band_raise_native_px": 3.999999999999986,
-    "dome_height_front_px": 23.79999999999998,
+    "dome_height_front_px": 23.80000000000002,
     "inner_radius_native_px": 27.999999999999954
   },
-  "spec_hash": "faf29b4fa11898565ecdd3715ef7881c686fb8486499af05fe487abbdf979524",
+  "spec_hash": "540ff35963d668b0a047a0440eb1b7a097aa908babdc921dc4126f2585014093",
   "native_entry": {
     "passed": true,
     "centre_ray_hit_distance_m": 1.0444515943527222,

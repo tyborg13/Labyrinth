@@ -44,7 +44,7 @@ test_valid_current_delivery (spec.art_identity.maquettes.blender.test_delivery_v
 test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests) ... ok
 
 ----------------------------------------------------------------------
-Ran 43 tests in 2.917s
+Ran 43 tests in 3.351s
 
 OK
 DELIVERY_STAGE: PASS; staged

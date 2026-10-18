@@ -1,10 +1,10 @@
-BLENDER_BRIDGE_SUBMITTED: mq03-a280b5b175134497bfdbd1a76c8b2a6f
-BLENDER_BRIDGE_STARTED: mq03-a280b5b175134497bfdbd1a76c8b2a6f
+BLENDER_BRIDGE_SUBMITTED: mq03-a5d4a8962c3c4f8ba45124c132c9d475
+BLENDER_BRIDGE_STARTED: mq03-a5d4a8962c3c4f8ba45124c132c9d475
 BUILD_STAGE: append anatomy
 BUILD_STAGE: bind 10582 anatomy vertices
 BUILD_STAGE: collar_ring
 BUILD_STAGE: loincloth_front
-CLOTH_PATTERN: loincloth_front; vertices=271; pins=16
+CLOTH_PATTERN: loincloth_front; vertices=272; pins=16
 CLOTH_FRAME: loincloth_front; 8/160
 CLOTH_FRAME: loincloth_front; 16/160
 CLOTH_FRAME: loincloth_front; 24/160
@@ -26,7 +26,7 @@ CLOTH_FRAME: loincloth_front; 144/160
 CLOTH_FRAME: loincloth_front; 152/160
 CLOTH_FRAME: loincloth_front; 160/160
 BUILD_STAGE: loincloth_back
-CLOTH_PATTERN: loincloth_back; vertices=399; pins=16
+CLOTH_PATTERN: loincloth_back; vertices=398; pins=16
 CLOTH_FRAME: loincloth_back; 8/160
 CLOTH_FRAME: loincloth_back; 16/160
 CLOTH_FRAME: loincloth_back; 24/160
@@ -60,7 +60,7 @@ BUILD_STAGE: append anatomy
 BUILD_STAGE: bind 10582 anatomy vertices
 BUILD_STAGE: collar_ring
 BUILD_STAGE: loincloth_front
-CLOTH_PATTERN: loincloth_front; vertices=271; pins=16
+CLOTH_PATTERN: loincloth_front; vertices=272; pins=16
 CLOTH_FRAME: loincloth_front; 8/160
 CLOTH_FRAME: loincloth_front; 16/160
 CLOTH_FRAME: loincloth_front; 24/160
@@ -82,7 +82,7 @@ CLOTH_FRAME: loincloth_front; 144/160
 CLOTH_FRAME: loincloth_front; 152/160
 CLOTH_FRAME: loincloth_front; 160/160
 BUILD_STAGE: loincloth_back
-CLOTH_PATTERN: loincloth_back; vertices=399; pins=16
+CLOTH_PATTERN: loincloth_back; vertices=398; pins=16
 CLOTH_FRAME: loincloth_back; 8/160
 CLOTH_FRAME: loincloth_back; 16/160
 CLOTH_FRAME: loincloth_back; 24/160
@@ -108,4 +108,4 @@ Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
 Info: Saved as "maquette.blend"
 FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=4.140378204781795e-06
 
-BLENDER_BRIDGE_RESULT: exit=0; seconds=23.0; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-a280b5b175134497bfdbd1a76c8b2a6f.log
+BLENDER_BRIDGE_RESULT: exit=0; seconds=21.3; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-a5d4a8962c3c4f8ba45124c132c9d475.log
