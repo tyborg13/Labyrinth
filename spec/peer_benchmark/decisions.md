@@ -231,3 +231,7 @@
   threshold mutations, and the layout-copy parity.
 - **Deferred to rr-11**, the second humanoid, which needs both: foot IK with knee bend, and moving Seer specifics out
   of the generic modules. The Seer wears a robe; its feet ride the hem, so neither finding changes what the Seer shows.
+- 2026-10-18 rr-13 final: the 2 px front death 27-30 robe/torso waist pinhole is a director-approved exception (its
+  mapped texels are transparent in the approved painting; closing it would change the approved rest silhouette; it is
+  in the owner-approved clip). Re-review Low 2 (direct tests for the continuation generator's guards) moves to rr-11,
+  which generalizes that module.
