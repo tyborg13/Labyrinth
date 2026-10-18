@@ -143,3 +143,14 @@
   - Hidden-only parts are limited to their painted fill plus the joint margin.
   - The rear trunk socket may be recoloured where it's exposed.
   - Cause: the 7 px dilation filled from the outline in `continuity.underlays()`.
+
+## 2026-10-17 bug-01 review resolution (5b12d3630)
+- Scene-prop changes (rare) invalidate exactly, by comparing the effective alpha through the draw path's tint for every
+  tinted rectangle, moss included.
+- Actor movement (every interpolation frame) stays conservative on purpose. It queues a tile when a moving actor's
+  overlap with any tinted rectangle changes, even if a stationary actor already fixes the alpha.
+- An occasional extra tile redraw is cheaper than recomputing every candidate's full tint on every frame, and it can't
+  produce a stale frame.
+- So review finding M1 on 5b12d3630 (redundant moss redraw while a warden walks past a hero-obstructed pillar) is
+  accepted as by design. Every other check in that review passed, and bug-01 is signed off at
+  5b12d3630e7d488ab541132e63de5e9e1ca25034.
