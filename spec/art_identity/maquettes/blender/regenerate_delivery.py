@@ -87,6 +87,10 @@ def main():
     (output / 'bridge.log').write_text(result['stdout'])
     if result['exit']:
         raise ValueError('Clean native build failed: ' + str(result['exit']))
+    spec = json.loads((clean_figure / 'spec_native.json').read_text())
+    if spec.get('native_solid_revision'):
+        from .compact_capture import compact_capture
+        compact_capture(spec, capture)
     views = compare_captures(capture, figure / 'delivery', output, args.verify)
     passed = all(r['passed'] for view in views.values() for r in view.values())
     binding = None

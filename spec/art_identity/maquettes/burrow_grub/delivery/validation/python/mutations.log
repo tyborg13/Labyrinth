@@ -1,0 +1,5 @@
+MUTATION_CAUGHT: constant_torso; assertion_failures=1; errors=0
+MUTATION_CAUGHT: material_index_zero; assertion_failures=1; errors=0
+MUTATION_CAUGHT: omitted_cloth_context; assertion_failures=1; errors=0
+MUTATION_CAUGHT: disabled_cache_integrity; assertion_failures=1; errors=0
+MQ03_MUTATIONS: PASS; caught=4; survived=0

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "figures": {
+    "glacial_mirror": {
+      "passed": true,
+      "spec_hash": "3246cbe99d4274d88a9e19dd6c5d43c6c1d77182b68fb54d49f212c7e0e680e3",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true
+      },
+      "details": {}
+    }
+  }
+}

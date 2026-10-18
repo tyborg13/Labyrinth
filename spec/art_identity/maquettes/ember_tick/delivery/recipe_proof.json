@@ -1,0 +1,52 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "e46ac41a30de3bf6d7b5b23a23e505eb74b0a39918d17e9517bf6702755a255f",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 30,
+  "joint_errors": {
+    "shell": 0.0,
+    "head": 0.0,
+    "leg_near_1_upper": 2.9802322387695312e-08,
+    "leg_near_1_lower": 5.960464477539063e-08,
+    "leg_near_2_upper": 5.960464477539063e-08,
+    "leg_near_2_lower": 5.960464477539063e-08,
+    "leg_near_3_upper": 6.143906154658885e-08,
+    "leg_near_3_lower": 6.143906154658885e-08,
+    "leg_near_4_upper": 2.9802322387695312e-08,
+    "leg_near_4_lower": 2.9802322387695312e-08,
+    "leg_far_1_upper": 4.2146848510894035e-08,
+    "leg_far_1_lower": 6.828569911354542e-08,
+    "leg_far_2_upper": 1.4901161193847656e-08,
+    "leg_far_2_lower": 2.9802322387695312e-08,
+    "leg_far_3_upper": 5.960464477539063e-08,
+    "leg_far_3_lower": 6.664001874625056e-08,
+    "leg_far_4_upper": 5.960464477539063e-08,
+    "leg_far_4_lower": 8.429369702178807e-08
+  },
+  "combined_mesh_hashes": {
+    "cold": "de321f60d10af41147d988c5e966fbd47f8517c6c4673ececf4637546df527ac",
+    "replay": "de321f60d10af41147d988c5e966fbd47f8517c6c4673ececf4637546df527ac",
+    "independent_cold": "de321f60d10af41147d988c5e966fbd47f8517c6c4673ececf4637546df527ac"
+  },
+  "delivery_binding": {
+    "spec_hash": "e46ac41a30de3bf6d7b5b23a23e505eb74b0a39918d17e9517bf6702755a255f",
+    "cold_mesh_hash": "de321f60d10af41147d988c5e966fbd47f8517c6c4673ececf4637546df527ac",
+    "report_sha256": {
+      "build_report.json": "8de0b3cf8c719c7e49b9d705986736c6e4755229326bc3637aeebd3fb06b0f0b",
+      "capture_checks.json": "ca7df863b62d6e3cde60bb6ff08531afa4c4a3197b24d72ae2d81589d2521771",
+      "facing_report.json": "1063c894c321294f55248a66cc1938b2a6700f99c4a1c99c678e88ce4a47c707",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "d524de2420948563345bd9960ea13bfd6a86bdf5bd1b903fe73cf1276c80b273",
+      "capture_packing.json": "945790c86034a4b7dcb0b304bc239ec4ceeaddd67b66275951fcd519262456cf",
+      "capture_manifest.json": "6d110b0e26f91f19b882203ddff62ab08b484a83917e30b670d96cec23a16ce9",
+      "native_render_manifest.json": "7bce2e9111758b4714f8ea908c41b1322e33f6cd08004c7f2ab19eb3bc22f5a7"
+    },
+    "exact_native_replay_sha256": "11ad67999f4c0c2ff8e504120a7b822c973dcb37ef268a26355c52923429044b"
+  }
+}

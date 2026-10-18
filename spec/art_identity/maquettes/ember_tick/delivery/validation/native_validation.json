@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "figures": {
+    "ember_tick": {
+      "passed": true,
+      "spec_hash": "e46ac41a30de3bf6d7b5b23a23e505eb74b0a39918d17e9517bf6702755a255f",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true
+      },
+      "details": {}
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "figures": {
+    "burrow_grub": {
+      "passed": true,
+      "spec_hash": "d48e160b33033b4026b9db93097d985def98189159a98f66444a237e79dc9253",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true
+      },
+      "details": {}
+    }
+  }
+}

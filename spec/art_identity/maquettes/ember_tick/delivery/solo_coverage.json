@@ -1,0 +1,42 @@
+{
+  "front": {
+    "head": 11807,
+    "shell": 165181,
+    "leg_near_1_upper": 12022,
+    "leg_near_1_lower": 6372,
+    "leg_near_2_upper": 13000,
+    "leg_near_2_lower": 3712,
+    "leg_near_3_upper": 13254,
+    "leg_near_3_lower": 4070,
+    "leg_near_4_upper": 13159,
+    "leg_near_4_lower": 4258,
+    "leg_far_1_upper": 7251,
+    "leg_far_1_lower": 3497,
+    "leg_far_2_upper": 9684,
+    "leg_far_2_lower": 4387,
+    "leg_far_3_upper": 9845,
+    "leg_far_3_lower": 3010,
+    "leg_far_4_upper": 10665,
+    "leg_far_4_lower": 2422
+  },
+  "rear": {
+    "head": 11284,
+    "shell": 164769,
+    "leg_near_1_upper": 12377,
+    "leg_near_1_lower": 4304,
+    "leg_near_2_upper": 11520,
+    "leg_near_2_lower": 2375,
+    "leg_near_3_upper": 10918,
+    "leg_near_3_lower": 3575,
+    "leg_near_4_upper": 10580,
+    "leg_near_4_lower": 4670,
+    "leg_far_1_upper": 8200,
+    "leg_far_1_lower": 4101,
+    "leg_far_2_upper": 10407,
+    "leg_far_2_lower": 4248,
+    "leg_far_3_upper": 11478,
+    "leg_far_3_lower": 3317,
+    "leg_far_4_upper": 11472,
+    "leg_far_4_lower": 3094
+  }
+}

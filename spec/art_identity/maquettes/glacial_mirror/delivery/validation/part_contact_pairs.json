@@ -1,0 +1,1 @@
+[["torso", "head"], ["torso", "pelvis"], ["torso", "upper_near"], ["upper_near", "fore_near"], ["fore_near", "hand_near"], ["pelvis", "thigh_near"], ["thigh_near", "shin_near"], ["shin_near", "foot_near"], ["torso", "upper_far"], ["upper_far", "fore_far"], ["fore_far", "hand_far"], ["pelvis", "thigh_far"], ["thigh_far", "shin_far"], ["shin_far", "foot_far"]]

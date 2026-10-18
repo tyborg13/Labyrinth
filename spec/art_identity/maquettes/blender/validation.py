@@ -49,7 +49,7 @@ def geometry_report(spec, objects, cloth_reports, details=None):
         by_face = {tuple(p.vertices): owner for p, owner in zip(body.data.polygons, source_owners)}
         weighted_ok &= all(by_face.get(tuple(p.vertices)) == o['part'] for o in objects
                            if o.get('piece_type') == 'body' for p in o.data.polygons)
-    tree = body_tree(body) if body else None
+    tree = body_tree(body) if body and len(body.data.polygons) else None
     for obj in objects:
         if obj.get('conforming'):
             contact = body_tree(bpy.data.objects[obj['contact_target']]) if obj.get('contact_target') else tree
@@ -97,7 +97,7 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             corners_ok &= error <= erosion + epsilon
             if error > erosion + epsilon:
                 details['corner_errors'].setdefault(obj['piece_id'], []).append({'error': error, 'allowed': erosion, 'corner': [x, z]})
-    return {'labels_cover_every_face': bool(labelled and expected <= represented),
+    result = {'labels_cover_every_face': bool(labelled and expected <= represented),
             'view_piece_ownership': bool(views_ok),
             'polygon_material_ownership': bool(material_ok),
             'body_weight_ownership': bool(weighted_ok),
@@ -105,3 +105,31 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             'collar_front_no_wider_than_back': bool(collar_ok),
             'plate_corners_preserved': bool(corners_ok),
             'armour_conforms_to_body': bool(conform_ok)}
+    bound = [p for p in spec['pieces'] if p.get('rig_bone')]
+    if bound:
+        # The editable source, not the immutable render copy, owns the binding.
+        # A material-correct but unrigged boulder is not a finished native rig.
+        from .creature_rig import bindings_match
+        result['native_rigid_bindings'] = bindings_match(bound, bpy.data.objects,
+                                                        bpy.data.objects['maquette_armature'])
+    masses = [p for p in spec['pieces'] if p['type'] == 'sculpted_mass']
+    if masses:
+        from .sculpted_mass import native_stack_matches
+        result['native_sculpted_surfaces'] = all(native_stack_matches(p, bpy.data.objects.get(p['id']))
+                                               for p in masses)
+    if spec.get('native_features'):
+        from .solid_features import feature_report
+        details['native_features'] = feature_report(spec, objects)
+        result['whole_native_features'] = all(r['passed'] for r in details['native_features'].values())
+    sections=[p for p in spec['pieces'] if p.get('sculpt')]
+    if sections:
+        result['native_sculpted_sections'] = all(
+            bpy.data.objects[p['id']].get('sculpted_section') and
+            bpy.data.objects[p['id']].get('integral_spine_count') == len(p['sculpt'].get('spines',[])) and
+            all(face.use_smooth for face in bpy.data.objects[p['id']+'_render'].data.polygons)
+            for p in sections)
+    if spec.get('native_contacts') or any('support_z' in p for p in spec['pieces']):
+        from .solid_contacts import report
+        details['native_contacts'] = report(spec,objects)
+        result['native_contacts'] = details['native_contacts']['passed']
+    return result

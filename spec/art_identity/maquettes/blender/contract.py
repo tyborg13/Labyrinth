@@ -14,7 +14,7 @@ BUILD_DEFAULTS = {'schema': 2, 'cache_revision': 8, 'hash_digits': 9,
                   'zero_length_squared_epsilon': 1e-12, 'fit_passes': 6,
                   'fit_scale_min': 0.6,
                   'fit_scale_max': 1.6, 'process_timeout_seconds': 600}
-PIECE_TYPES = {'plate', 'lames', 'cloth', 'curve', 'crystal', 'gem', 'tube', 'neck_collar', 'sculpted_blade', 'rigid_shell'}
+PIECE_TYPES = {'plate', 'lames', 'cloth', 'curve', 'crystal', 'gem', 'tube', 'neck_collar', 'sculpted_blade', 'rigid_shell', 'sculpted_mass'}
 CLOTH_KINDS = {'cloak', 'collar', 'tabard', 'skirt', 'hood'}
 
 
@@ -83,6 +83,9 @@ def validate(spec):
     names = {b['name'] for b in bones}
     if len(names) != len(bones):
         raise ValueError('Duplicate bone names')
+    if 'forward_bones' in spec and (len(spec['forward_bones']) != 2 or
+            len(set(spec['forward_bones'])) != 2 or any(name not in names for name in spec['forward_bones'])):
+        raise ValueError('Native creature facing requires two distinct existing bones')
     rest = spec['armature']['rest_joints']
     for b in bones:
         for field in ('head', 'tail'):
@@ -118,6 +121,11 @@ def validate(spec):
             raise ValueError('Unknown piece attachment: ' + piece['id'])
         vector(piece['offset'], 3, piece['id'] + '.offset')
         vector(piece['rot'], 3, piece['id'] + '.rot')
+        if piece['type'] == 'sculpted_mass':
+            from .sculpted_mass import validate_mass
+            validate_mass(piece)
+        if piece.get('rig_bone') and piece['rig_bone'] not in names:
+            raise ValueError('Unknown rigid mass bone: ' + piece['id'])
         if piece['type'] == 'rigid_shell':
             if piece['rig_joint'] not in spec['joints'] or not piece['faces']:
                 raise ValueError('Rigid shell requires a rig attachment and closed faces')
@@ -194,6 +202,9 @@ def validate(spec):
             if piece['count'] < 1 or any(len(piece[k]) != piece['count'] for k in ('lame_scale', 'lame_drop', 'overlap')):
                 raise ValueError('Lames require positive count and one scale/drop/overlap per lame')
         if piece['type'] == 'curve':
+            if piece.get('sculpt'):
+                from .limb_mesh import validate_sculpt
+                validate_sculpt(piece['sculpt'])
             if piece['spline'] not in ('POLY', 'BEZIER') or len(piece['path']) < 2 or len(piece['taper']) != len(piece['path']):
                 raise ValueError('Curve requires POLY/BEZIER path and matching taper profile')
             if piece['radius'] <= 0 or any(r < 0 for r in piece['taper']):
@@ -217,6 +228,17 @@ def validate(spec):
         if piece['type'] == 'gem' and (piece['sides'] < 3 or min(piece['length'], piece['width'], piece['depth']) <= 0):
             raise ValueError('Invalid bipyramid gem dimensions')
     by_id = {p['id']: p for p in spec['pieces']}
+    for pair in spec.get('native_contacts', []):
+        if len(pair) != 2 or len(set(pair)) != 2 or any(name not in by_id for name in pair):
+            raise ValueError('Native contact requires two distinct existing solids')
+    for feature in spec.get('native_features', {}).values():
+        if not feature.get('objects') or any(
+                name not in by_id or by_id[name]['part'] != feature['part']
+                for name in feature['objects']):
+            raise ValueError('Whole native feature requires existing objects under one owner')
+        if any(view not in ('front', 'rear') or expected not in ('visible', 'occluded')
+               for view, expected in feature.get('visibility', {}).items()):
+            raise ValueError('Unknown native feature visibility expectation')
     for pair in spec.get('cloth_obstacles', []):
         if len(pair) != 2 or any(name not in by_id for name in pair) or by_id[pair[0]]['type'] != 'cloth' or by_id[pair[1]]['type'] != 'rigid_shell':
             raise ValueError('Cloth obstacle pair requires a cloth and a rigid shell')

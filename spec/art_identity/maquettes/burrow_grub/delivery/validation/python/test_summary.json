@@ -1,0 +1,190 @@
+{
+  "schema": 2,
+  "unit": "mq-05 feedback 1",
+  "passed": true,
+  "suites": {
+    "python_full_final.log": {
+      "command": "python3 -B -m unittest discover -s tests -p 'test_*.py' -v",
+      "observed_result": [
+        "Ran 815 tests in 809.489s",
+        "OK (skipped=63)"
+      ]
+    },
+    "blender_delivery.log": {
+      "command": "python3 -B -m unittest discover -s spec/art_identity/maquettes/blender -t . -p 'test_*.py' -v",
+      "observed_result": [
+        "Ran 97 tests in 3.223s",
+        "OK"
+      ]
+    },
+    "maquette.log": {
+      "command": "python3 -B -m unittest discover -s tests -p 'test_maquette*.py' -v",
+      "observed_result": [
+        "Ran 167 tests in 178.799s",
+        "OK (skipped=2)"
+      ]
+    },
+    "art_identity.log": {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "observed_result": [
+        "Ran 111 tests in 47.715s",
+        "OK"
+      ]
+    },
+    "sculpt_forms.log": {
+      "command": "python3 -B -m unittest spec.art_identity.maquettes.blender.test_sculpt_forms -v",
+      "observed_result": [
+        "Ran 7 tests in 0.172s",
+        "OK"
+      ]
+    }
+  },
+  "native_figures": {
+    "burrow_grub": {
+      "passed": true,
+      "spec_hash": "d48e160b33033b4026b9db93097d985def98189159a98f66444a237e79dc9253",
+      "joints_and_labels_unchanged": true,
+      "fit": {
+        "front": {
+          "iou": 0.7309405198045318,
+          "passed": true,
+          "missing_parts": []
+        },
+        "rear": {
+          "iou": 0.6814722227052394,
+          "passed": true,
+          "missing_parts": []
+        }
+      },
+      "fit_report_sha256": "402e29c86a0eeb5b9e6930a13ec8167158d3fe91ff8e91ed9a29291eed6c4eb8",
+      "fresh_regeneration_passed": true,
+      "front_crop_native_sha256": "df287c75556c9abd7d0e609b057c1e76a7f241fed8c4bc0eb0fae3b10812a168"
+    },
+    "ember_tick": {
+      "passed": true,
+      "spec_hash": "e46ac41a30de3bf6d7b5b23a23e505eb74b0a39918d17e9517bf6702755a255f",
+      "joints_and_labels_unchanged": true,
+      "fit": {
+        "front": {
+          "iou": 0.715149324981485,
+          "passed": true,
+          "missing_parts": []
+        },
+        "rear": {
+          "iou": 0.661600158541772,
+          "passed": true,
+          "missing_parts": []
+        }
+      },
+      "fit_report_sha256": "78ab6e984e3a1477d90fdd78cd9b37b828573c6cb8d2237c20d0f7cc3a1f105b",
+      "fresh_regeneration_passed": true,
+      "front_crop_native_sha256": "ac71c42130473b73dc979e28af877e3f3314eaac78c50aac4830fd7117bd0082"
+    },
+    "glacial_mirror": {
+      "passed": true,
+      "spec_hash": "3246cbe99d4274d88a9e19dd6c5d43c6c1d77182b68fb54d49f212c7e0e680e3",
+      "joints_and_labels_unchanged": true,
+      "fit": {
+        "front": {
+          "iou": 0.7693698773653997,
+          "passed": true,
+          "missing_parts": []
+        },
+        "rear": {
+          "iou": 0.7292968549915484,
+          "passed": true,
+          "missing_parts": []
+        }
+      },
+      "fit_report_sha256": "b388987ed125cfe19a68ec02ac85b5f5f4b705dff1e090d963f1c51b114e829a",
+      "fresh_regeneration_passed": true,
+      "front_crop_native_sha256": "bcf27d612450f3ee93d580c3ba54d608a5fe5df2de0170400dcc8b3c03e5be06"
+    }
+  },
+  "batch_a": {
+    "arc_thrall": {
+      "passed": true,
+      "cache_reused": false,
+      "views": {
+        "front": {
+          "clay": true,
+          "parts": true
+        },
+        "rear": {
+          "clay": true,
+          "parts": true
+        }
+      }
+    },
+    "gale_herald": {
+      "passed": true,
+      "cache_reused": false,
+      "views": {
+        "front": {
+          "clay": true,
+          "parts": true
+        },
+        "rear": {
+          "clay": true,
+          "parts": true
+        }
+      }
+    },
+    "gloam_stalker": {
+      "passed": true,
+      "cache_reused": false,
+      "views": {
+        "front": {
+          "clay": true,
+          "parts": true
+        },
+        "rear": {
+          "clay": true,
+          "parts": true
+        }
+      }
+    },
+    "hoarfrost_seer": {
+      "passed": true,
+      "cache_reused": false,
+      "views": {
+        "front": {
+          "clay": true,
+          "parts": true
+        },
+        "rear": {
+          "clay": true,
+          "parts": true
+        }
+      }
+    }
+  },
+  "godot_suite": "Not required: no GDScript changes.",
+  "windowed_proof": "Not applicable: offline Blender maquettes, all native jobs through owner bridge.",
+  "proof_layout": "All comparison cells use 75% of native 1024 clays, common 2.4 m camera scale; per-figure crops enlarge native pixels exactly 2x.",
+  "mutations": [
+    "MQ03_MUTATIONS: PASS; caught=4; survived=0",
+    "DELIVERY_MUTATIONS: PASS; caught=4; survived=0"
+  ],
+  "all_anatomical_contacts": {
+    "surface_intersections": {
+      "torso/head": 474,
+      "torso/pelvis": 916,
+      "torso/upper_near": 900,
+      "upper_near/fore_near": 653,
+      "fore_near/hand_near": 312,
+      "pelvis/thigh_near": 678,
+      "thigh_near/shin_near": 475,
+      "shin_near/foot_near": 2348,
+      "torso/upper_far": 1492,
+      "upper_far/fore_far": 496,
+      "fore_far/hand_far": 433,
+      "pelvis/thigh_far": 522,
+      "thigh_far/shin_far": 189,
+      "shin_far/foot_far": 1261
+    },
+    "passed": true,
+    "blend_sha256": "ede9547ae10219f8537c72c12b0a8473eb1b37f14568afdec60c0eb4a23ec803"
+  },
+  "open_constraint": "The protected paired-art distal joints are not coplanar. Hooked toes retain their painted contact footprint; a common horizontal support plane would require a new joint pose or break the mandated silhouette fit."
+}
