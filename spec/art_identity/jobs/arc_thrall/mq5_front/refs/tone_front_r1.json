@@ -1,0 +1,44 @@
+[
+ {
+  "name": "skin and leather: red-brown cast -> the identity's grey-brown (hue 42 -> ~49), a touch lighter",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [
+   0,
+   70
+  ],
+  "lab_scale": [
+   1.07,
+   0.84,
+   1.1
+  ],
+  "box": [
+   0,
+   0,
+   1024,
+   1024
+  ]
+ },
+ {
+  "name": "loincloth: pale tan -> the identity's dark ragged brown",
+  "min_lum": 0.12,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [
+   21,
+   45
+  ],
+  "lab_scale": [
+   0.78,
+   0.9,
+   0.9
+  ],
+  "box": [
+   339,
+   510,
+   712,
+   755
+  ]
+ }
+]
