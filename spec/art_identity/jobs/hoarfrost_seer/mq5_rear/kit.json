@@ -1,0 +1,61 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hoarfrost_seer",
+  "job_id": "mq-seer-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "864dea3378e3ffbaaa71fc2f63600072624282986809e8a40e2f59b5e451ebc2",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/hoarfrost_seer/mq5_front/kit.json",
+    "pixel_sha256": "41c8a688345d67e2f3286e4b99c13176a454b4f3c3b66470e929d99d8097a351"
+  },
+  "method": "maquette paint-over r1 rear from the mq-04 r3 maquette (matches mq5_front); the image tool returned 1254x1254, so the director resized it to 1024 with Lanczos (refs/raw_1024_lanczos.png) before processing",
+  "peers": [
+    "glacial_mirror_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "75e756987866e7d349831069471cb376c627a2f8b6838d922499a4ae864745ab",
+  "prompt_source": "spec/art_identity/maquettes/hoarfrost_seer/prompt_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq04r3",
+      "file": "refs/01_maquette_rear_parts_mq04r3.png",
+      "pixel_sha256": "76dc22f634074e0b6486f2fa655547cdc50913c5d97e48d494120807e3d2bd74",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-rear-r1/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq04r3",
+      "file": "refs/02_maquette_rear_clay_mq04r3.png",
+      "pixel_sha256": "49f9d2e698aca2777d6e4e71637fea20c006964b738d443515998b69a4e57b9a",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-rear-r1/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "seer_front_r1_raw",
+      "file": "refs/03_seer_front_r1_raw.png",
+      "pixel_sha256": "24f3e7bf2380960d8d2a7b10c481443bf3f8837add2574e368e6a971ba65f61d",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-rear-r1/refs/03_seer_front_r1.png"
+    },
+    {
+      "canon_id": "glacial_mirror_rear",
+      "file": "refs/04_glacial_mirror_rear.png",
+      "pixel_sha256": "00f8011727f155d8f97a9ac174b49c5347a6b064fee872484f6926cd55dfcb87",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-rear-r1/refs/04_glacial_mirror_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-rear-r1/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 210,
+  "view": "creature_rear"
+}
