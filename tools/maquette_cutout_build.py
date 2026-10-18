@@ -101,6 +101,8 @@ def validate_derived_material(root):
         raise builder.CutoutError('Resolve blocking derive-time continuity checks before promotion')
     if not continuity.get('exposed_hidden', {}).get('ok'):
         raise builder.CutoutError('Derive and pass the exposed hidden-material gate before promotion')
+    from maquette_motion.certificates import require_current
+    require_current(root)
     if (root/'features.json').exists():
         from maquette_motion.features import declarations
         for view in ('front','rear'): declarations(root,view)

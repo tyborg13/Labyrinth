@@ -9,7 +9,7 @@ import tempfile
 from types import SimpleNamespace
 from unittest.mock import patch
 from cutout_pipeline.cases import CutoutError, baseline, digest, read_json, write_json
-from maquette_motion import features, pixels, silhouette, joint_seams, seam_pose, hidden_material
+from maquette_motion import features, pixels, silhouette, joint_seams, seam_pose, hidden_material, certificates
 from maquette_motion.gates import bindings_match, verification_bindings
 
 
@@ -143,6 +143,7 @@ def derive(case, task_id='rr-05'):
 
 
 def gate(case, sample_file, native=None):
+    tested_bindings = certificates.bindings(case)
     report = read_json(sample_file)
     errors = pixels.transform_errors(case, report)
     rest = pixels.rest_identity(case)
@@ -215,7 +216,7 @@ def gate(case, sample_file, native=None):
         errors.extend(native_seams['errors'])
     shimmer_errors, metric = pixels.shimmer(case, report, native_report)
     errors.extend(shimmer_errors)
-    return {'ok': not errors, 'errors': errors, 'feature_errors': feature_errors, 'features': feature_results, 'shimmer': metric,
+    result = {'ok': not errors, 'errors': errors, 'feature_errors': feature_errors, 'features': feature_results, 'shimmer': metric,
             'rest_identity': rest,
             'exposed_hidden': material,
             'acceptance': {'blocking': ['detached components', 'feature integrity', 'held/boundary shimmer',
@@ -228,6 +229,8 @@ def gate(case, sample_file, native=None):
             'verification_inputs': verification_bindings(),
             'native_manifest_sha256': digest(native / 'pixel_frames.json') if native else None,
             'proof_basis': 'native isolated part pixels' if native else 'CPU diagnostic from real Godot transforms; native proof still required'}
+    result['certificate'] = certificates.issue(case, result, tested_bindings)
+    return result
 
 
 def main():
@@ -241,6 +244,8 @@ def main():
     args = parser.parse_args()
     try:
         report = derive(args.case.resolve(), args.task_id) if args.command == 'derive' else gate(args.case, args.samples, args.native)
+        if args.command == 'gate' and report['ok']:
+            certificates.save(args.case, report)
     except (CutoutError, OSError, ValueError, KeyError) as error:
         report = {'ok': False, 'errors': [str(error)]}
     write_json(args.output, report)

@@ -8,7 +8,8 @@ native fixtures pin this model without rendering or changing any gate tolerance.
 At an exact integer UV (within 1e-6 in float64 after vertex snapping), native
 interpolation rounding may select either adjacent texel. The default rendering
 is retained for reproducibility; optional per-axis candidates mark only these
-exact ties. No direction of native tie rounding is assumed.
+exact ties. Both neighbours must be real texels: at a texture boundary the
+single in-range texel is the only candidate. No native tie direction is assumed.
 """
 from dataclasses import dataclass
 import numpy as np
@@ -86,14 +87,21 @@ def nearest_quad(image, transform, bounds, with_ties=False):
         # is not a claim about the GPU's choice at an exact integer UV.
         u = np.rint(raw_u.astype(np.float32) - 0.5).astype(int)
         v = np.rint(raw_v.astype(np.float32) - 0.5).astype(int)
+        integer_u, integer_v = np.rint(raw_u).astype(int), np.rint(raw_v).astype(int)
+        tie_u = np.abs(raw_u - integer_u) <= EXACT_TIE_EPSILON
+        tie_v = np.abs(raw_v - integer_v) <= EXACT_TIE_EPSILON
+        # At an outer UV edge there is only one real neighbouring texel.
+        # Neither the default nor an alternative may invent transparent paint
+        # by sampling a nonexistent row/column. Non-tie sampling is unchanged.
+        u = np.where(tie_u, np.clip(u, 0, width - 1), u)
+        v = np.where(tie_v, np.clip(v, 0, height - 1), v)
         valid = inside & (u >= 0) & (v >= 0) & (u < width) & (v < height)
         target[valid] = paint[v[valid], u[valid]]
         if with_ties:
-            integer_u, integer_v = np.rint(raw_u).astype(int), np.rint(raw_v).astype(int)
-            tie_u = np.abs(raw_u - integer_u) <= EXACT_TIE_EPSILON
-            tie_v = np.abs(raw_v - integer_v) <= EXACT_TIE_EPSILON
             other_u = np.where(tie_u, np.where(u == integer_u - 1, integer_u, integer_u - 1), u)
             other_v = np.where(tie_v, np.where(v == integer_v - 1, integer_v, integer_v - 1), v)
+            other_u = np.where((other_u >= 0) & (other_u < width), other_u, u)
+            other_v = np.where((other_v >= 0) & (other_v < height), other_v, v)
             samples.ties[roi] |= inside & (tie_u | tie_v)
             for surface, source_u, source_v in ((samples.alternative_u, other_u, v),
                                                (samples.alternative_v, u, other_v),

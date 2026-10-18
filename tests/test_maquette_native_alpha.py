@@ -50,7 +50,7 @@ class NativeAlphaTests(unittest.TestCase):
         self.assertEqual(pixels.modulated_alpha(np.asarray([255]), np.float32(1 / 255)).tolist(), [1])
 
     def test_godot_reference_erosion_matches_independent_pillow_masks(self):
-        with tempfile.TemporaryDirectory(dir=PROJECT / 'output/rr-05', prefix='reference-mask-test-') as temporary:
+        with tempfile.TemporaryDirectory(prefix='reference-mask-test-') as temporary:
             command = ['python3', 'tools/godot_task_runner.py', '--task-id', 'rr-05', '--stream', '--',
                        'godot', '--headless', '--path', '.', '--script', 'tests/maquette_cutout/reference_mask_test.gd',
                        '--', '--output', temporary]

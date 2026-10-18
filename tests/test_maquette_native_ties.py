@@ -14,6 +14,7 @@ from maquette_motion.raster import QuadSamples
 SYNTHETIC_SIZE = 12
 SYNTHETIC_BOUNDS = (0, 0, SYNTHETIC_SIZE + 2, SYNTHETIC_SIZE + 2)
 SYNTHETIC_THIRD_COLOUR = (251, 7, 199, 255)
+SYNTHETIC_OPAQUE_COLOUR = (80, 100, 120, 255)
 
 
 class NativeTieTests(unittest.TestCase):
@@ -40,6 +41,27 @@ class NativeTieTests(unittest.TestCase):
         # The old 1px + 1% rule alone would accept this single bad pixel.
         self.assertTrue(pixels.native_frame_matches(actual, samples.default))
         self.assertFalse(pixels.native_frame_matches(actual, samples.default, samples))
+
+    def test_texture_edge_ties_never_accept_nonexistent_transparent_texels(self):
+        paint = np.full((SYNTHETIC_SIZE, SYNTHETIC_SIZE, 4), SYNTHETIC_OPAQUE_COLOUR, np.uint8)
+        transform = np.eye(3)
+        transform[:2, 2] = 0.5
+        samples = nearest_quad(paint, transform, SYNTHETIC_BOUNDS, with_ties=True)
+        actual = samples.default.copy()
+        actual[0, :] = 0
+        actual[:, 0] = 0
+        self.assertEqual(int(pixels.changed(actual, samples.default).sum()), 23)
+        self.assertFalse(pixels.native_frame_matches(actual, samples.default))
+        self.assertFalse(pixels.native_frame_matches(actual, samples.default, samples))
+        for candidate in samples.candidates:
+            np.testing.assert_array_equal(candidate[0, :SYNTHETIC_SIZE], samples.default[0, :SYNTHETIC_SIZE])
+            np.testing.assert_array_equal(candidate[:SYNTHETIC_SIZE, 0], samples.default[:SYNTHETIC_SIZE, 0])
+        # Reversed axes include the maximum UV edge under top-left coverage.
+        transform[:2, :2] *= -1
+        transform[:2, 2] = SYNTHETIC_SIZE + 0.5
+        reversed_samples = nearest_quad(paint, transform, SYNTHETIC_BOUNDS, with_ties=True)
+        for candidate in reversed_samples.candidates:
+            self.assertEqual(int((candidate[..., 3] > 0).sum()), SYNTHETIC_SIZE ** 2)
 
     def test_non_ties_keep_the_existing_rule_and_allowance(self):
         samples = self.samples(offset=(0, 0))

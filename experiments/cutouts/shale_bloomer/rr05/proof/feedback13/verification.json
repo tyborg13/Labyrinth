@@ -1,0 +1,24 @@
+{
+  "status": "stopped_at_gate_change",
+  "head": "c87609f84",
+  "completed": [
+    {"command": "python3 -m unittest discover -s tests -p 'test_maquette_native*.py' -v", "result_lines": ["Ran 16 tests in 1.005s", "OK"], "log": "output/rr-05/feedback13/native-tests.log"},
+    {"command": "python3 -m unittest discover -s tests -p 'test_maquette_certificates.py' -v", "result_lines": ["Ran 3 tests in 6.327s", "OK"], "log": "output/rr-05/feedback13/certificate-tests.log"},
+    {"command": "python3 -m unittest discover -s tests -p 'test_maquette_joint_seams.py' -v", "result_lines": ["Ran 14 tests in 1.346s", "OK"], "log": "output/rr-05/feedback13/seam-tests.log"},
+    {"check": "shale_bloomer CPU gate", "result_lines": ["MAQUETTE PIXEL GATES: FAIL (1 errors)", "Stale or incomplete pixel samples"], "log": "output/rr-05/feedback13/shale-recheck.log"},
+    {"check": "lightning_wisp CPU gate", "result_lines": ["MAQUETTE PIXEL GATES: FAIL (1 errors)", "Stale or incomplete pixel samples"], "log": "output/rr-05/feedback13/wisp-recheck.log"},
+    {"command": "git diff --check", "exit_code": 0}
+  ],
+  "mutations": {
+    "recoloured_hidden_support": "Promotion refused before destination creation; fresh rear/shell/0014 material check rejected a 1239-pixel derived slab",
+    "texture_edge_erasure": "23 erased pixels rejected by tie-aware match; three retained native fixtures pass"
+  },
+  "not_run_after_stop": [
+    "Complete native pixel gate and native_errors for both creatures",
+    "All tests/test_maquette_*.py from clean output",
+    "Full Godot suite through godot_task_runner.py",
+    "Full Python suite"
+  ],
+  "windowed_runs": 0,
+  "assets_or_capture_metadata_changed": false
+}

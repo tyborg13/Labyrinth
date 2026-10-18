@@ -1,0 +1,87 @@
+{
+  "status": "Stopped at director feedback 13 gate-change condition",
+  "head": "c87609f84",
+  "reason": "Existing saved samples/native manifests are stale against two runtime files already at HEAD; no binding exemptions or capture edits applied.",
+  "mismatches": {
+    "shale_bloomer": {
+      "case_samples": {
+        "runtime:scripts/combat_board_view.gd": {
+          "recorded": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+          "current": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02"
+        },
+        "runtime:scripts/run_scene.gd": {
+          "recorded": "b1ce4ae819387ec5502351ea47ff665d86fe118c9ae3b6dff16f939d3186f0e2",
+          "current": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7"
+        }
+      },
+      "native_samples": {
+        "runtime:scripts/combat_board_view.gd": {
+          "recorded": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+          "current": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02"
+        },
+        "runtime:scripts/run_scene.gd": {
+          "recorded": "b1ce4ae819387ec5502351ea47ff665d86fe118c9ae3b6dff16f939d3186f0e2",
+          "current": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7"
+        }
+      },
+      "native_frames": {
+        "runtime:scripts/combat_board_view.gd": {
+          "recorded": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+          "current": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02"
+        },
+        "runtime:scripts/run_scene.gd": {
+          "recorded": "b1ce4ae819387ec5502351ea47ff665d86fe118c9ae3b6dff16f939d3186f0e2",
+          "current": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7"
+        }
+      }
+    },
+    "lightning_wisp": {
+      "case_samples": {
+        "runtime:scripts/combat_board_view.gd": {
+          "recorded": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+          "current": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02"
+        },
+        "runtime:scripts/run_scene.gd": {
+          "recorded": "b1ce4ae819387ec5502351ea47ff665d86fe118c9ae3b6dff16f939d3186f0e2",
+          "current": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7"
+        }
+      },
+      "native_samples": {
+        "runtime:scripts/combat_board_view.gd": {
+          "recorded": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+          "current": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02"
+        },
+        "runtime:scripts/run_scene.gd": {
+          "recorded": "b1ce4ae819387ec5502351ea47ff665d86fe118c9ae3b6dff16f939d3186f0e2",
+          "current": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7"
+        }
+      },
+      "native_frames": {
+        "runtime:scripts/combat_board_view.gd": {
+          "recorded": "76b9aa121fed23a1331cad1b6efb9ec86d7adb524827270d347ecf18c260436b",
+          "current": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02"
+        },
+        "runtime:scripts/run_scene.gd": {
+          "recorded": "b1ce4ae819387ec5502351ea47ff665d86fe118c9ae3b6dff16f939d3186f0e2",
+          "current": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7"
+        }
+      }
+    }
+  },
+  "baseline": {
+    "scripts/run_scene.gd": {
+      "head_sha256": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7",
+      "current_sha256": "584d23a1707014a11c95814181d1535ba826c65ca0c3b2cd0d6d73876aefc2d7",
+      "unchanged_from_HEAD": true
+    },
+    "scripts/combat_board_view.gd": {
+      "head_sha256": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02",
+      "current_sha256": "bb7eb7124539fb8500594dd6d158b1d2ffc6418847a8774440e6bda1ba3bbb02",
+      "unchanged_from_HEAD": true
+    }
+  },
+  "logs": [
+    "output/rr-05/feedback13/shale-recheck.log",
+    "output/rr-05/feedback13/wisp-recheck.log"
+  ]
+}

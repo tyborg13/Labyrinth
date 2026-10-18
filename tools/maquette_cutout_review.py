@@ -8,6 +8,7 @@ from PIL import Image
 from cutout_pipeline.cases import read_json, write_json, digest
 from maquette_motion.gates import native_errors
 from maquette_cutout_polish import gate as pixel_gate
+from maquette_motion import certificates
 FPS = 60
 SIZE = (1920,1080)
 DEATH_HOLD_FRAMES = FPS
@@ -26,6 +27,8 @@ def compose(case, capture, output):
     errors=native_errors(case,capture)
     if errors:raise ValueError('Native verification failed: '+str(errors[:10]))
     pixel_report=pixel_gate(case,capture/'pixel_samples.json',capture)
+    if pixel_report['ok']:
+        certificates.save(case, pixel_report)
     write_json(capture/'pixel_gates.json',pixel_report)
     if not pixel_report['ok']:raise ValueError('Pixel/feature verification failed: '+str(pixel_report['errors'][:10]))
     compiled=read_json(case/'compiled_motion.json')

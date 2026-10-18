@@ -346,6 +346,7 @@ class JointSeamTests(unittest.TestCase):
     def test_report_only_metrics_do_not_block_promotion_prerequisites(self):
         from maquette_cutout_build import validate_derived_material
         from cutout_pipeline.cases import CutoutError
+        from unittest.mock import patch
         with tempfile.TemporaryDirectory() as temporary:
             case = Path(temporary)
             _, samples = self.fixture(case)
@@ -357,7 +358,11 @@ class JointSeamTests(unittest.TestCase):
                 'fixture': {'interior_tear_pixels': FIXTURE_LARGE_SEPARATION_PX,
                             'underlay_protrusion_width_px': FIXTURE_LARGE_SEPARATION_PX}}}}
             write_json(case / 'proof/continuity.json', proof)
-            validate_derived_material(case)
+            # This fixture isolates seam acceptance; freshness has its own
+            # case-copy mutation tests and is prevalidated here.
+            with patch('maquette_motion.certificates.require_current') as current:
+                validate_derived_material(case)
+                current.assert_called_once_with(case)
             proof['ok'] = False
             write_json(case / 'proof/continuity.json', proof)
             with self.assertRaisesRegex(CutoutError, 'blocking derive-time'):

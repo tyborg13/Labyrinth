@@ -146,7 +146,8 @@ def bindings_match(case, recorded):
 
 
 def verification_bindings():
-    paths = (*VERIFICATION_ONLY_PATHS, 'tools/maquette_motion/native_ties.py', 'tools/maquette_motion/gates.py')
+    paths = (*VERIFICATION_ONLY_PATHS, 'tools/maquette_motion/native_ties.py', 'tools/maquette_motion/gates.py',
+             'tools/maquette_motion/certificates.py')
     return {p: digest(PROJECT / p) for p in paths}
 
 def native_errors(case, capture):
