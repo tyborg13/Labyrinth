@@ -224,3 +224,10 @@
   the far leg planted. The small 3D mismatch at the far foot is hidden under the robe in the front view.
 - Rear capture is pan-only framing, never rescaled. The rear IoU gate drops to ≥ 0.60 against the old painting
   because the corrected stance legitimately differs; the director repaints the rear anyway.
+
+## 2026-10-18 rr-13 review split
+- The Codex review of Seer v2 (`feedback/rr-13_review_4c3f86339.md`) found four Medium and two Low issues.
+- **rr-13 fixes now** (feedback 2): the hole-gate locality gap, empty bone evidence passing, surviving limit and
+  threshold mutations, and the layout-copy parity.
+- **Deferred to rr-11**, the second humanoid, which needs both: foot IK with knee bend, and moving Seer specifics out
+  of the generic modules. The Seer wears a robe; its feet ride the hem, so neither finding changes what the Seer shows.
