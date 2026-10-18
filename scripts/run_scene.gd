@@ -7272,8 +7272,7 @@ func _build_pile_overlay() -> void:
 	dialog_style.corner_radius_bottom_right = 14
 	dialog_style.corner_radius_bottom_left = 14
 	dialog_style.shadow_size = 12
-	_pile_dialog.add_theme_stylebox_override("panel", dialog_style)
-	_ui_skin.apply_outer_panel_frame(_pile_dialog, UiSkin.SURFACE_DIALOG)
+	preload("res://scripts/pile_dialog_view.gd").finish_panel(_pile_dialog, dialog_style)
 	center.add_child(_pile_dialog)
 
 	var margin := MarginContainer.new()
@@ -34694,6 +34693,7 @@ func _refresh_event_view() -> void:
 		_event_view.dismiss()
 
 func _open_magic_purge(source: String) -> void:
+	if preload("res://scripts/magic_deck_list.gd").entries(_run_state.get("attuned_magic_cards", []) as Array).is_empty(): return
 	if is_instance_valid(_magic_purge_overlay) or _animation_lock or _merchant_trade_animation_active or not _run_engine.can_purge_magic(_run_state, source): return
 	_layout_progression_dialog()
 	_magic_purge_overlay = preload("res://scripts/magic_purge_overlay.gd").new()
@@ -34718,20 +34718,24 @@ func _confirm_magic_purge(card_id: String, source: String) -> void:
 	var before: Dictionary = _run_state
 	var next: Dictionary = _run_engine.purge_magic_card(before, card_id, source)
 	if int(next.get("magic_purges_this_run", 0)) == int(before.get("magic_purges_this_run", 0)):
-		_magic_purge_overlay.get("_confirm").disabled = false
+		_magic_purge_overlay.retry_confirmation()
 		return
 	var persisted: Dictionary = _persist_run_state_snapshot(next, false, "magic_purged")
 	if not bool(persisted.get("saved", false)):
-		_magic_purge_overlay.get("_confirm").disabled = false
+		_magic_purge_overlay.retry_confirmation()
 		push_error("Could not persist magic purge; ownership and Embers are unchanged.")
 		return
 	_run_state = next
 	_ensure_sfx_bank()
 	_sfx_router.card_exhaust()
+	# Exhaust now awaits its card animation before the final UI refresh. Publish
+	# the committed room's audio context on this frame, not at animation end.
+	_update_ambient_sfx_for_context(str(next.get("mode", "room")))
 	_analytics_store.write_event("magic_purged", _analytics_context_from_states(next, _combat_state, card_id), {
 		"card_id": card_id, "source": source, "price": next["last_magic_purge"]["price"],
 		"purge_index": next["magic_purges_this_run"], "held_embers_before": _run_engine.held_embers(before),
 		"held_embers_after": _run_engine.held_embers(next), "deck_cards": next["deck_cards"].duplicate(),
 		"attuned_magic_cards": next["attuned_magic_cards"].duplicate(),
 	})
+	await _magic_purge_overlay.play_exhaust()
 	_close_magic_purge()
