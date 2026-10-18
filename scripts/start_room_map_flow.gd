@@ -5,6 +5,7 @@ const Router = preload("res://scripts/input_router.gd")
 const Glyph = preload("res://scripts/input_glyph.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const Transition = preload("res://scripts/section_transition.gd")
 
 # Later section thresholds currently have no NPC/narration. The owner supplies
 # any opening script here; an empty script preserves their existing map handoff.
@@ -54,14 +55,55 @@ func dialogue_closed(host: Node) -> void:
 	host.set("_section_map_presented_key", "")
 	host.call("_queue_section_map_presentation")
 
-func allows_auto_open(host: Node) -> bool:
-	if not _first_visit(host): return true
+func allows_auto_open(host: Node, prospective: Dictionary = {}) -> bool:
+	var state: Dictionary = host.get("_run_state") if prospective.is_empty() else prospective
+	if next_section_destination(state, host.get("_run_engine")) != Graph.INVALID: return false
+	if not _first_visit_state(state): return true
 	# The generic post-encounter scheduler must not open behind narration or
 	# bypass the service overlay. Its existing modal gate handles level-up.
-	for npc: Dictionary in _room(host).get("npcs", []):
+	for npc: Dictionary in host.get("_run_engine").room_metadata(state, state.get("current_room")).get("npcs", []):
 		if str(npc.get("id", "")) == "emaciated_man":
-			return _pending_visit == _visit(host)
+			return _pending_visit == _visit_state(state)
 	return true
+
+# Predict only presentation eligibility; do not move, claim or save the run.
+func transition_opens_map(host: Node, destination: Vector2i) -> bool:
+	var prospective: Dictionary = Transition.claimed_state(host.get("_run_state"))
+	prospective["current_room"] = destination
+	return allows_auto_open(host, prospective)
+
+func present_transition_map(host: Node) -> void:
+	var state: Dictionary = host.get("_run_state")
+	host.set("_section_map_presented_key", "%s:%s" % [str(state.get("current_room")), str(state.get("mode"))])
+	map_presented(host)
+	host.call("_open_large_map")
+
+# A claimed dragon milestone is already durable in the cleared boss room.
+# Resume uses the same destination check without consuming/reissuing rewards.
+static func next_section_destination(state: Dictionary, engine: RefCounted) -> Vector2i:
+	# Recover saves written after the older failure path had already restored an
+	# empty reward screen. The cleared-boss and unentered-section gates below
+	# still validate the actual continuation before any migration or movement.
+	var empty_reward: bool = str(state.get("mode", "")) == "reward" and (state.get("pending_reward", {}) as Dictionary).is_empty()
+	var claimed: Dictionary = Transition.claimed_state(state) if state.has(Transition.CLAIMED_REWARD_KEY) or empty_reward else state
+	if not Graph.enabled(claimed) or str(claimed.get("mode", "")) != "room": return Graph.INVALID
+	var current: Dictionary = Graph.room(state, state.get("current_room", Graph.INVALID))
+	if str(current.get("type", "")) != "boss" or not bool(current.get("cleared", false)): return Graph.INVALID
+	var index: int = int(current.get("section_index", -1)) + 1
+	var info: Dictionary = Graph.section(state, index)
+	if info.is_empty() or bool(info.get("entered", false)): return Graph.INVALID
+	var destination: Vector2i = info.get("entry", Graph.INVALID)
+	return destination if engine.available_moves(claimed).has(destination) else Graph.INVALID
+
+static func transition_entry(state: Dictionary, engine: RefCounted, destination: Vector2i, entry: String) -> Dictionary:
+	if destination == Graph.INVALID or destination != next_section_destination(state, engine): return state.duplicate(true)
+	var next: Dictionary = engine.move_to_room(Transition.claimed_state(state), destination)
+	next.erase(Transition.CLAIMED_REWARD_KEY)
+	# Annotate the newly staged event before the normal save/JSONL boundary.
+	for event: Dictionary in next.get("map_events", []):
+		if int(event.get("revision", 0)) <= int(state.get("map_event_revision", 0)): continue
+		if str(event.get("type", "")) == "section_entered": event["payload"]["entry"] = entry
+	return next
 
 func map_presented(host: Node) -> void:
 	if not _first_visit(host): return
@@ -141,12 +183,16 @@ func _room(host: Node) -> Dictionary:
 	return host.get("_run_engine").room_metadata(host.get("_run_state"), host.get("_run_state").get("current_room", Vector2i.ZERO))
 
 func _visit(host: Node) -> String:
-	var state: Dictionary = host.get("_run_state")
+	return _visit_state(host.get("_run_state"))
+
+func _visit_state(state: Dictionary) -> String:
 	return "%s:%s:%d" % [str(state.get("run_result_id", state.get("seed", ""))), str(state.get("current_room", Vector2i.ZERO)), int(state.get("turns_spent", 0))]
 
 func _first_visit(host: Node) -> bool:
-	var state: Dictionary = host.get("_run_state")
-	if not Graph.enabled(state) or str(state.get("mode", "")) != "room" or str(_room(host).get("type", "")) != "start": return false
+	return _first_visit_state(host.get("_run_state"))
+
+func _first_visit_state(state: Dictionary) -> bool:
+	if not Graph.enabled(state) or str(state.get("mode", "")) != "room" or str(Graph.room(state, state.get("current_room", Graph.INVALID)).get("type", "")) != "start": return false
 	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
 	for event: Dictionary in state.get("map_events", []):
 		if str(event.get("type", "")) == "route_choice_committed" and event.get("payload", {}).get("origin") == current: return false

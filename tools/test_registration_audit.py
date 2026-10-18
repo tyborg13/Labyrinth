@@ -44,7 +44,8 @@ TEST_SUFFIXES = ("_test.gd", "_suite.gd", "_probe.gd")
 PROGRAM_TIMEOUT_SECONDS = 180
 SUPPLEMENTAL_WORKERS = 4
 FUNCTION = re.compile(r"^(?:static )?func (\w+)\(", re.M)
-ALIAS = re.compile(r'const\s+(\w+)\s*(?::[^=\n]+)?=\s*(?:preload|load)\("([^"\n]+\.gd)"\)')
+# A typed local (`var suite: Variant = load(...)`) is an alias too; mutation harnesses load late.
+ALIAS = re.compile(r'(?:const|var)\s+(\w+)\s*(?::[^=\n]+)?=\s*(?:preload|load)\("([^"\n]+\.gd)"\)')
 INLINE_CALL = re.compile(r'(?:preload|load)\("([^"\n]+\.gd)"\)\.(\w+)\(')
 ALIAS_CALL = re.compile(r'\b(\w+(?:\.\w+)*)\.(\w+)\(')
 LOCAL_CALL = re.compile(r'(?<![\w.])([A-Za-z_]\w*)\(')

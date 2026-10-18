@@ -31,6 +31,7 @@ BASE_SUITES = (
     "section_map_v2_test", "en01_enemies_test",
     "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test",
     "opening_boon_test", "run_end_recap_tests", "main_menu_resume_test",
+    "section_transition_test",
     "suites/full_scene_presentation_program", "suites/full_scene_cutouts_program",
     "suites/full_scene_creature_cutouts_program", "suites/full_scene_audio_program",
     "suites/full_scene_navigation_program", "suites/full_scene_card_drag_program",

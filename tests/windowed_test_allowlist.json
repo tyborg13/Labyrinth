@@ -257,6 +257,7 @@
   "tests/section_map_flow_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/section_map_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/section_map_review_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
+  "tests/section_transition_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/selection_prompt_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/selective_ui_salvage_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/settings_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",

@@ -1311,6 +1311,7 @@ var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
 var _opening_boon_flow = OpeningBoonFlow.new()
 var _start_room_map = preload("res://scripts/start_room_map_flow.gd").new()
+var _section_transition: CanvasLayer
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
 var _progression: Dictionary = {}
@@ -2122,6 +2123,10 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_section_transition):
+		_section_transition.contain_input(event)
+		get_viewport().set_input_as_handled()
+		return
 	preload("res://scripts/movement_target_keyboard.gd").observe_input(self, event)
 	if _opening_boon_flow.handle_input(self, event): return
 	if is_instance_valid(_magic_purge_overlay):
@@ -10488,6 +10493,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	if is_instance_valid(_section_transition): _section_transition.cancel()
 	_opening_boon_flow.begin_load(self)
 	if is_instance_valid(_magic_purge_overlay): _close_magic_purge(false)
 	_ensure_sfx_bank()
@@ -10591,7 +10597,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 		call_deferred("_prepare_known_grimoire_rows")
 
 func _queue_loaded_run_continuation() -> void:
-	if _has_pending_combat_checkpoints():
+	if _start_room_map.next_section_destination(_run_state, _run_engine) != SectionMapGraph.INVALID:
+		_begin_section_transition("resume_transition")
+	elif _has_pending_combat_checkpoints():
 		call_deferred("_resume_pending_combat_checkpoints")
 	elif _reward_intro_suppressed:
 		call_deferred("_play_loaded_reward_intro")
@@ -15988,32 +15996,39 @@ func _add_dragon_reward_stack() -> void:
 	margin.add_child(content)
 	var dragon_name: String = str(GameData.enemy_def(str(reward.get("boss_id", ""))).get("name", "Dragon"))
 	_dragon_reward_label(content, "DragonRewardDefeated", "%s defeated" % dragon_name, UiTypography.SIZE_BODY_LARGE, Color("f6e4bc"))
-	var icon := TextureRect.new()
-	icon.name = "DragonRewardArtwork"
-	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.custom_minimum_size = Vector2(96, 96)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(icon)
-	_dragon_reward_label(content, "DragonRewardRelic", str(relic.get("name", relic_id)), 30, Color("fff1d5"))
-	_dragon_reward_label(content, "DragonRewardDestination", "FOR YOUR NEXT RUN" if next_descent else "LEGENDARY RELIC ACQUIRED", UiTypography.SIZE_CAPTION, Color("efb35f"))
-	var rules := RichTextLabel.new()
-	rules.name = "DragonRewardRules"
-	rules.fit_content = true
-	rules.scroll_active = false
-	rules.custom_minimum_size.x = 542.0
-	rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
-	rules.add_theme_color_override("default_color", Color("dec9a7"))
-	InlineIconText.apply_to(rules, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
-	content.add_child(rules)
-	if next_descent:
-		_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
-	content.add_child(HSeparator.new())
-	_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers    ·    +%d HP recovered" % [int(reward.get("ember_amount", 0)), int(reward.get("healed_amount", 0))], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
-	_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward.get("moltshards", 0)) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
+	if not relic_id.is_empty() and not relic.is_empty():
+		var icon := TextureRect.new()
+		icon.name = "DragonRewardArtwork"
+		icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(96, 96)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(icon)
+		_dragon_reward_label(content, "DragonRewardRelic", str(relic.get("name", relic_id)), 30, Color("fff1d5"))
+		_dragon_reward_label(content, "DragonRewardDestination", "FOR YOUR NEXT RUN" if next_descent else "LEGENDARY RELIC ACQUIRED", UiTypography.SIZE_CAPTION, Color("efb35f"))
+		var rules := RichTextLabel.new()
+		rules.name = "DragonRewardRules"
+		rules.fit_content = true
+		rules.scroll_active = false
+		rules.custom_minimum_size.x = 542.0
+		rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
+		rules.add_theme_color_override("default_color", Color("dec9a7"))
+		InlineIconText.apply_to(rules, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
+		content.add_child(rules)
+		if next_descent:
+			_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
+	# Missing historical totals are omitted, never replaced with guessed zeroes
+	# or persisted legacy placeholder text. New rewards keep their exact rows.
+	var show_payout: bool = not bool(reward.get("legacy_summary", false)) and reward.has("ember_amount") and reward.has("healed_amount")
+	var show_shards: bool = not bool(reward.get("legacy_summary", false)) and reward.has("moltshards")
+	if show_payout or show_shards: content.add_child(HSeparator.new())
+	if show_payout:
+		_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers    ·    +%d HP recovered" % [int(reward["ember_amount"]), int(reward["healed_amount"])], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
+	if show_shards:
+		_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward["moltshards"]) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
 	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, "Your rewards have been saved.")
 	stack.add_child(button)
 	if _controller_is_active(): button.call_deferred("grab_focus")
@@ -16033,6 +16048,10 @@ func _dragon_reward_label(host: Control, node_name: String, text: String, font_s
 
 func _on_dragon_reward_continue() -> void:
 	if _animation_lock or _treasure_presentation_busy() or not _run_engine.is_dragon_reward(_run_state): return
+	if _run_state.has(preload("res://scripts/section_transition.gd").CLAIMED_REWARD_KEY):
+		_run_state = preload("res://scripts/section_transition.gd").claimed_state(_run_state)
+		_begin_section_transition("auto_transition")
+		return
 	var reward: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	var relic_id: String = str(reward.get("relic_id", ""))
 	var artwork: Control = find_child("DragonRewardArtwork", true, false) as Control
@@ -16042,6 +16061,10 @@ func _on_dragon_reward_continue() -> void:
 	if not _commit_dragon_reward_continue():
 		_relic_claim_in_progress = false
 		_refresh_ui()
+		return
+	if not bool(reward.get("final_boss", false)) and SectionMapGraph.enabled(_run_state):
+		_relic_claim_in_progress = false
+		_begin_section_transition("auto_transition")
 		return
 	var sequence_epoch: int = _treasure_sequence_epoch
 	_relic_delivery_id = relic_id
@@ -16080,8 +16103,37 @@ func _on_dragon_reward_continue() -> void:
 	_treasure_sequence_nodes.clear()
 	call_deferred("_recover_controller_focus")
 
+func _begin_section_transition(entry: String) -> void:
+	if is_instance_valid(_section_transition): return
+	var destination: Vector2i = _start_room_map.next_section_destination(_run_state, _run_engine)
+	if destination == SectionMapGraph.INVALID: return
+	if preload("res://scripts/section_transition_reward.gd").migrate(_run_state):
+		_persist_committed_boundary("section_transition_reward_migrated")
+	_section_transition = preload("res://scripts/section_transition.gd").new()
+	add_child(_section_transition)
+	_section_transition.begin(self, destination, entry)
+
+func _enter_section_from_transition(destination: Vector2i, entry: String) -> bool:
+	if destination == SectionMapGraph.INVALID or destination != _start_room_map.next_section_destination(_run_state, _run_engine): return false
+	var next: Dictionary = _start_room_map.transition_entry(_run_state, _run_engine, destination, entry)
+	if next.get("current_room") != destination: return false
+	var result: Dictionary = _persist_run_state_snapshot(next, false, "section_transition")
+	if not bool(result.get("saved", false)): return false
+	_run_state = result.get("state", next)
+	_sync_progression_from_run()
+	_sync_combat_state_from_run()
+	_board_presentation.clear()
+	_reset_card_resolution()
+	_refresh_ui()
+	# The room's normal framing settles under black; arrival itself only fades.
+	_sync_board_view_rect()
+	if _board_centering_tween != null and _board_centering_tween.is_valid(): _board_centering_tween.kill()
+	if _board_centering_target.is_finite(): board_view.position = _board_centering_target
+	return true
+
 func _stage_dragon_reward_claim(next_state: Dictionary, reward: Dictionary) -> Dictionary:
 	var next: Dictionary = next_state.duplicate(true)
+	preload("res://scripts/section_transition.gd").remember_claim(next, reward)
 	var milestone_id: String = str(reward.get("milestone_id", ""))
 	next["progression"] = ProgressionStore.queue_progression_analytics_event(
 		next.get("progression", _progression) as Dictionary,
@@ -25490,6 +25542,7 @@ func defer_initial_music_until_reveal() -> void:
 	_initial_music_deferred = true
 
 func start_initial_music_after_loading(fade_seconds: float) -> void:
+	if is_instance_valid(_section_transition): return
 	if not _initial_music_deferred:
 		return
 	_initial_music_deferred = false
@@ -33881,7 +33934,10 @@ func _add_surface_skill_choices() -> void:
 	_clear_children_now(_surface_skill_choice_row)
 	_surface_skill_choice_row.visible = _surface_aim.active()
 	var choices: Array[String]
-	choices.append_array(["elemental", "rubble"] if _surface_aim.relocating else ["fire", "ice", "electrified", "rubble"])
+	if _surface_aim.relocating:
+		choices.assign(["elemental", "rubble"])
+	else:
+		choices.assign(["fire", "ice", "electrified", "rubble"])
 	for kind: String in choices:
 		var title: String = "Elemental layer" if kind == "elemental" else BoardSurfacePresentation.title_for(kind)
 		var button := UiTooltipButton.new()
