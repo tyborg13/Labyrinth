@@ -168,3 +168,15 @@
   repaint), the protagonist bob idle, the skinned robe and sleeves, and translation-led actions (rr-10 + rr-13 on humanoid
   rig v2). The rr-13 review round closes 2–6 px seam pinholes with hidden fills only (rest identity unchanged). This
   confirms the humanoid rig v2 spec as the standard for the Thrall, Herald, Gloam, Lancer and Glacial Mirror.
+- 2026-10-18 playtest-10 NEEDS CHANGES (owner, one run): "the new purge interface is well below our visual standards.
+  Looks like something that sol would design, not you. Text not fitting within buttons, huge amounts of dead space,
+  just really far below the rest of our experience. Also, the enemies moving quickly is nice, I like that, but non
+  movement actions may be too sped up, sometimes all the enemies turns play and I can't really keep up with what they
+  are all doing. Spells going straight into the deck is definitely better imo." Follow-up: "This was in the shop btw,
+  never ran across the fire in that run."
+  - → Purge overlay (`scripts/magic_purge_overlay.gd`, shared by the Scavenger and the Campfire; built by deck-01
+    without a director mockup): director redesign with a 1920x1080 mockup on real assets, then an implementation unit
+    and real-renderer inspection before the inbox.
+  - → Enemy phase: keep movement speed (approved); slow attacks/casts to readable speed with a beat between enemies
+    (`scripts/combat_pacing.gd`, feel-01 budget). Clip of a busy enemy round to the inbox.
+  - → Spells straight into the deck: approved, keep.
