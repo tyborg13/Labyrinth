@@ -5,6 +5,7 @@ extends RefCounted
 # and execute their complete standalone coverage, rather than just pure rules.
 const SUITES: Array[String] = [
 	"combat_feel_test", # Includes combat_pacing_regression_suite.
+	"combat_pacing_mutation_test",
 	"event_view_test", "event_rules_test", "biome_test", "health_ghost_test",
 	"movement_undo_test", "threats_at_rest_test", "encounter_tables_test",
 	"run_score_test", "sfx_bank_test", "sfx_sync_bank_test", "sfx_sync_harness", "section_map_v2_test",
