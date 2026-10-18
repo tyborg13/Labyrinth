@@ -14,7 +14,7 @@ BUILD_DEFAULTS = {'schema': 2, 'cache_revision': 8, 'hash_digits': 9,
                   'zero_length_squared_epsilon': 1e-12, 'fit_passes': 6,
                   'fit_scale_min': 0.6,
                   'fit_scale_max': 1.6, 'process_timeout_seconds': 600}
-PIECE_TYPES = {'plate', 'lames', 'cloth', 'curve', 'crystal', 'gem'}
+PIECE_TYPES = {'plate', 'lames', 'cloth', 'curve', 'crystal', 'gem', 'tube', 'neck_collar', 'sculpted_blade', 'rigid_shell'}
 CLOTH_KINDS = {'cloak', 'collar', 'tabard', 'skirt', 'hood'}
 
 
@@ -61,6 +61,14 @@ def validate(spec):
         raise ValueError('base.matrix must be 4x4')
     for row in spec['base']['matrix']:
         vector(row, 4, 'base.matrix')
+    for part, profiles in spec['base'].get('source_profiles', {}).items():
+        if part not in spec['labels'] or not profiles or not set(profiles) <= {'front', 'rear'}:
+            raise ValueError('Source cage requires a registered part and measured front/rear views')
+        for outline in profiles.values():
+            if len(outline) < 3:
+                raise ValueError('Source cage outline requires at least three points')
+            for point in outline:
+                vector(point, 2, 'source cage point')
     for name, p in spec['joints'].items():
         vector(p, 3, 'joint ' + name)
     labels = spec['labels']
@@ -104,25 +112,84 @@ def validate(spec):
         ids.add(piece['id'])
         if piece['type'] not in PIECE_TYPES or piece['part'] not in labels:
             raise ValueError('Unknown piece type or part: ' + piece['id'])
+        if 'capture_view' in piece and (piece['type'] != 'cloth' or piece['capture_view'] not in ('front', 'rear')):
+            raise ValueError('Only cloth may have a front/rear capture_view: ' + piece['id'])
         if piece['at'] not in spec['joints'] or (piece.get('bone') and piece['bone'] not in names):
             raise ValueError('Unknown piece attachment: ' + piece['id'])
         vector(piece['offset'], 3, piece['id'] + '.offset')
         vector(piece['rot'], 3, piece['id'] + '.rot')
+        if piece['type'] == 'rigid_shell':
+            if piece['rig_joint'] not in spec['joints'] or not piece['faces']:
+                raise ValueError('Rigid shell requires a rig attachment and closed faces')
+            for point in piece['vertices']:
+                vector(point, 3, 'rigid shell vertex')
+            from collections import Counter
+            edges = Counter(tuple(sorted((a, b))) for face in piece['faces'] for a, b in zip(face, face[1:] + face[:1]))
+            if any(count != 2 for count in edges.values()):
+                raise ValueError('Rigid shell must have closed manifold plates')
+            for name in piece.get('clearance_parts', []):
+                target = next((p for p in spec['pieces'] if p['id'] == name), None)
+                if target is None or name not in ids - {piece['id']} or target['type'] != 'cloth':
+                    raise ValueError('Rigid backing requires preceding solved cloth')
         if piece.get('conforming'):
             lift = max(piece.get('overlap', [0]))
             if not 0 <= piece['offset_surface'] <= .015 or piece['offset_surface'] + lift > .015:
                 raise ValueError('Conforming armour offset must not exceed 0.015: ' + piece['id'])
             if piece['type'] in ('plate', 'lames') and piece['surface_spacing'] <= 0:
                 raise ValueError('Positive armour surface spacing required')
+        if piece['type'] == 'neck_collar':
+            vector(piece['centre'], 3, 'collar centre')
+            chain = piece['chain']
+            if piece['neck_region'] not in labels or min(piece['neck_clearance'], piece['tube_diameter']) <= 0 or not chain['length'] > chain['width'] > chain['wire_diameter'] > 0 or type(chain['count']) is not int or chain['count'] < 1 or chain.get('alternate_degrees') != 90:
+                raise ValueError('Invalid metric collar or chain dimensions')
         if piece['type'] == 'cloth':
             if piece['kind'] not in CLOTH_KINDS:
                 raise ValueError('Unknown cloth kind')
+            if 'side_parts' in piece and (len(piece['side_parts']) != 2 or
+                    len(set(piece['side_parts'])) != 2 or
+                    any(part not in labels for part in piece['side_parts'])):
+                raise ValueError('Cloth side_parts requires two distinct registered body-side labels')
+            if 'contact_regions' in piece and (not piece['contact_regions'] or
+                    any(part not in labels for part in piece['contact_regions'])):
+                raise ValueError('Cloth contact_regions requires registered body-region labels')
+            if piece.get('ownership_mode', 'body_sagittal') not in ('whole_piece', 'body_sagittal'):
+                raise ValueError('Unknown cloth ownership_mode')
+            if piece.get('ownership_mode') == 'whole_piece' and 'side_parts' in piece:
+                raise ValueError('Whole-piece cloth cannot also partition side_parts')
+            if 'joint_parts' in piece:
+                if (len(piece['joint_parts']) != 2 or len(set(piece['joint_parts'])) != 2 or piece['part'] != piece['joint_parts'][0] or
+                        any(p not in labels for p in piece['joint_parts']) or 'side_parts' in piece or
+                        len(piece.get('joint_chain', [])) != 3 or any(j not in spec['joints'] for j in piece['joint_chain'])):
+                    raise ValueError('Joint-owned cloth requires two labels and a three-joint chain')
             if not piece['pattern']['pins'] or piece['frames'] < 1:
                 raise ValueError('Cloth requires pins and a positive frame count')
+            if piece.get('drape'):
+                from .drape import simulation_contract, DRAPE_DEFAULTS
+                if piece['drape'].get('implementation_revision') != DRAPE_DEFAULTS['implementation_revision']:
+                    raise ValueError('Drape implementation changed; recompile the figure recipe')
+                if not simulation_contract(piece):
+                    raise ValueError('Draped cloth requires free fabric and simulation frames')
+                hood = piece['drape'].get('native_hood', {})
+                if hood.get('opening_width_ratio') == 0 and hood.get('closed_topology_revision') != 2:
+                    raise ValueError('Closed native cowl requires topology revision 2; recompile its recipe')
+                if any(region not in labels for key in ('cutout_regions',)
+                       for region in piece['drape'].get(key, [])):
+                    raise ValueError('Cloth armholes require registered body regions')
+                if 'regional_contact' in piece['drape']:
+                    contact = piece['drape']['regional_contact']
+                    if (not contact.get('regions') or any(r not in labels for r in contact['regions']) or
+                            type(contact.get('refine_levels')) is not int or contact['refine_levels'] < 1 or
+                            ('union_regions' in contact and type(contact['union_regions']) is not bool)):
+                        raise ValueError('Regional cloth contact requires registered regions and positive refinement')
             pattern_mesh(piece['pattern'], piece['rag'])
         if piece['type'] in ('plate', 'lames'):
             if len(piece['outline']) < 3 or piece['thick'] <= 0:
                 raise ValueError('Plate requires polygon and positive thickness')
+            if 'outline_3d' in piece:
+                if len(piece['outline_3d']) != len(piece['outline']) or piece.get('ridge') or piece.get('conforming'):
+                    raise ValueError('Spatial plate requires matching corners and no planar ridge/conformance')
+                for point in piece['outline_3d']:
+                    vector(point, 3, 'spatial plate corner')
         if piece['type'] == 'lames':
             if piece['count'] < 1 or any(len(piece[k]) != piece['count'] for k in ('lame_scale', 'lame_drop', 'overlap')):
                 raise ValueError('Lames require positive count and one scale/drop/overlap per lame')
@@ -131,6 +198,10 @@ def validate(spec):
                 raise ValueError('Curve requires POLY/BEZIER path and matching taper profile')
             if piece['radius'] <= 0 or any(r < 0 for r in piece['taper']):
                 raise ValueError('Invalid curve radius/taper')
+        if piece['type'] == 'tube':
+            from .tube import tube_mesh
+            tube_mesh(piece['path'], [piece['radius'] * t for t in piece['taper']],
+                      piece['wall'], piece['sides'], piece.get('radial_profile'))
         if piece['type'] == 'crystal':
             profile = piece['width_profile']
             if piece['sides'] < 3 or piece['length'] <= 0 or len(profile) < 2 or profile[0][0] != 0 or profile[-1] != [1, 0]:
@@ -145,6 +216,10 @@ def validate(spec):
                 raise ValueError('Crystal continuation bone is unknown')
         if piece['type'] == 'gem' and (piece['sides'] < 3 or min(piece['length'], piece['width'], piece['depth']) <= 0):
             raise ValueError('Invalid bipyramid gem dimensions')
+    by_id = {p['id']: p for p in spec['pieces']}
+    for pair in spec.get('cloth_obstacles', []):
+        if len(pair) != 2 or any(name not in by_id for name in pair) or by_id[pair[0]]['type'] != 'cloth' or by_id[pair[1]]['type'] != 'rigid_shell':
+            raise ValueError('Cloth obstacle pair requires a cloth and a rigid shell')
     return spec
 
 
@@ -156,6 +231,15 @@ def pattern_mesh(pattern, rag):
     cowls without inventing their dimensions. Slits omit lower-row quads while retaining a single connected belt panel.
     Pinned vertex indices are explicit. Ring samples pair front/back exactly.
     """
+    if 'explicit' in pattern:
+        mesh = pattern['explicit']
+        for point in mesh['vertices']:
+            vector(point, 3, 'sewn point')
+        if len(mesh['owners']) != len(mesh['faces']) or any(len(f) < 3 or any(not 0 <= i < len(mesh['vertices']) for i in f) for f in mesh['faces']):
+            raise ValueError('Invalid sewn rest topology')
+        if any(not 0 <= i < len(mesh['vertices']) for i in pattern['pins']):
+            raise ValueError('Pin outside sewn pattern')
+        return mesh['vertices'], mesh['faces']
     n = pattern['columns']
     closed = pattern['closed']
     if n < 4 or (closed and n % 4):

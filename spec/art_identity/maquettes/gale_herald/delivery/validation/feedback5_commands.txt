@@ -1,0 +1,25 @@
+Run from the mq-04 worktree root. All Blender jobs use bridge_client.run_job with timeout_s=900 and a separate 120 s start deadline.
+
+# Each output must be new and empty. Native full capture includes solos, maps and clay.
+for mq04_figure in hoarfrost_seer gale_herald arc_thrall gloam_stalker; do
+  python3 -B -m spec.art_identity.maquettes.blender.regenerate_delivery "spec/art_identity/maquettes/$mq04_figure" --out "spec/art_identity/maquettes/$mq04_figure/feedback5_regeneration" --verify --discard-build
+done
+# Results: each figure/delivery/regeneration.json.
+# Input inventories, discarded native build hashes and bridge logs:
+# gale_herald/delivery/validation/feedback5_regeneration/<figure>/
+
+python3 -B -m unittest spec.art_identity.maquettes.blender.test_source_recipe spec.art_identity.maquettes.blender.test_drape spec.art_identity.maquettes.blender.test_round3 spec.art_identity.maquettes.blender.test_delivery spec.art_identity.maquettes.blender.test_delivery_validation -v
+python3 -B -m unittest tests.test_maquette_blender tests.test_maquette_cutout tests.test_maquette_geometry tests.test_maquette_regressions
+python3 -B tests/test_art_identity_gate.py
+python3 -B -m unittest discover -s tests -p 'test_*.py' -v
+python3 -B -m spec.art_identity.maquettes.blender.delivery_mutations --out spec/art_identity/maquettes/gale_herald/delivery/validation/feedback5_mutations
+python3 -B spec/art_identity/maquettes/blender/mutation_proof.py --out spec/art_identity/maquettes/gale_herald/feedback5_legacy_mutations
+
+# Verify the final curated inventories and bound native reports.
+for mq04_figure in hoarfrost_seer gale_herald arc_thrall gloam_stalker; do
+  python3 -B -m spec.art_identity.maquettes.blender.curate_delivery verify "spec/art_identity/maquettes/$mq04_figure"
+done
+
+Positive quality_delivery proof ran on byte-identical temporary copies under gale_herald/feedback5_quality, so committed PNG files were not rewritten. Output log and summary remain in this validation directory; temporary copies were hashed in discarded_proof_sha256.json before removal.
+
+No windowed command or inspection fixture applies: offline native maquettes and Python validation only; no GDScript, scene or game UI changed.

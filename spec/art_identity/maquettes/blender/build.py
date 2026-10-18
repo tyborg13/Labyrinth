@@ -25,10 +25,12 @@ def build(spec, output, bundle, cache):
 
     validate(spec)
     source_hash = digest(spec)
+    input_spec = spec
     from spec.art_identity.maquettes.blender.facing import board_spec
     spec = board_spec(spec)
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
+    write(output / 'source_spec.json', input_spec)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.context.preferences.filepaths.use_scripts_auto_execute = False
     bpy.context.scene.gravity = spec['simulation']['gravity']
@@ -37,17 +39,25 @@ def build(spec, output, bundle, cache):
     body = append_body(spec, bundle)
     print(f'BUILD_STAGE: bind {len(body.data.vertices)} anatomy vertices', flush=True)
     rig, posed, owners = bind_and_pose(spec, body)
+    from spec.art_identity.maquettes.blender.source_cage import fit_body
+    source_fit = fit_body(spec, body, rig, posed)
     posed['face_owners'] = json.dumps(owners)
     context_key = digest({'spec': spec, 'bundle_sha256': hashlib.sha256(Path(bundle).read_bytes()).hexdigest()})
     objects = []
     cloth_reports = {}
+    simulation_reports = {}
     for piece in spec['pieces']:
         print('BUILD_STAGE: ' + piece['id'], flush=True)
         kind = piece['type']
         if kind == 'cloth':
             obj = cloth(piece, spec, posed, cache, context_key)
             cloth_reports[piece['id']] = json.loads(obj['collision_report'])
+            if 'simulation_report' in obj:
+                simulation_reports[piece['id']] = json.loads(obj['simulation_report'])
             result = [obj]
+        elif kind == 'neck_collar':
+            from spec.art_identity.maquettes.blender.neck_collar import build as collar
+            result = [collar(piece, spec, posed)]
         elif kind == 'lames':
             result = pieces.lames(piece, spec, posed)
         elif kind == 'plate':
@@ -92,14 +102,37 @@ def build(spec, output, bundle, cache):
     for obj in objects:
         for mat in materials:
             obj.data.materials.append(mat)
-        from spec.art_identity.maquettes.blender.ownership import assign_materials
-        assign_materials(obj, [obj['owner_index']] * len(obj.data.polygons))
+        from spec.art_identity.maquettes.blender.ownership import assign_materials, expected_materials
+        assign_materials(obj, expected_materials(obj, spec, rig['posed_forward']))
     # Hash evaluated geometry before camera transforms; rendering never changes it.
     hashes = {o.name: mesh_hash([list(o.matrix_world @ v.co) for v in o.data.vertices],
                                [list(p.vertices) for p in o.data.polygons], o['part']) for o in objects}
     from spec.art_identity.maquettes.blender.validation import geometry_report
-    details = {}
+    details = {'metric_accessories': {o.name: json.loads(o['metric_collar']) for o in objects if 'metric_collar' in o},
+               'rounded_hoods': {o.name: json.loads(o['rounded_hood_report']) for o in objects if 'rounded_hood_report' in o},
+               'sewn_rest': {o.name: json.loads(o['sewn_rest_report']) for o in objects if 'sewn_rest_report' in o}}
+    if spec.get('cloth_obstacles'):
+        from spec.art_identity.maquettes.blender.cloth_contacts import collision_report
+        for cloth_id, obstacle_id in spec['cloth_obstacles']:
+            garment = next(p for p in spec['pieces'] if p['id'] == cloth_id)
+            cloth_reports[cloth_id + '__' + obstacle_id] = collision_report(
+                bpy.data.objects[cloth_id + '_render'], bpy.data.objects[obstacle_id + '_render'], garment['collision_margin'])
+        details['rigid_clearance'] = {o.name: json.loads(o['rigid_clearance_report']) for o in objects if 'rigid_clearance_report' in o}
     checks = geometry_report(spec, objects, cloth_reports, details)
+    details['blade_attachments'] = {o.name: json.loads(o['blade_attachment_report']) for o in objects
+                                    if 'blade_attachment_report' in o}
+    checks['sculpted_blade_roots_attached'] = all(r['passed'] for r in details['blade_attachments'].values())
+    if any(p.get('drape') for p in spec['pieces']):
+        from spec.art_identity.maquettes.blender.drape import simulation_valid, contact_valid
+        checks['native_cloth_drape'] = all(simulation_valid(p, simulation_reports.get(p['id'], {}), spec['ortho_scale'])
+            for p in spec['pieces'] if p.get('drape'))
+        checks['native_cloth_stability'] = all(r['maximum_solver_displacement'] <= spec['ortho_scale']
+                                                for r in simulation_reports.values())
+        checks['native_cloth_contact_stability'] = all(contact_valid(r, spec['ortho_scale']) for r in simulation_reports.values())
+        details['cloth_simulation'] = simulation_reports
+    if source_fit is not None:
+        details['source_outline_fit'] = source_fit
+        checks['source_fit_native_skinning'] = source_fit['maximum_skinning_error'] <= 1e-4
     from spec.art_identity.maquettes.blender.facing import axis_report
     facing = axis_report(spec, rig['posed_forward'])
     checks['board_facing_axis'] = facing['passed']
@@ -138,14 +171,20 @@ def main(argv=None):
     bundle = args.bundle or Path(spec['base'].get('bundle', DEFAULT_BUNDLE)).expanduser()
     objects, report = build(spec, args.out.resolve(), bundle,
                             args.cache or args.out.resolve() / 'cloth_cache')
-    if not args.build_only:
+    if not args.build_only and report['checks'].get('native_cloth_stability', True):
         from spec.art_identity.maquettes.blender.render import render
+        from spec.art_identity.maquettes.blender.capture_view import signature
         from spec.art_identity.maquettes.blender.facing import board_spec
+        before = signature(objects)
         facing = render(board_spec(spec), objects, args.out, args.engine, args.silhouettes_only, args.gallery, args.fit_only, args.preview)
         report = json.loads((args.out / 'build_report.json').read_text())
         report['checks']['rendered_torso_asymmetry'] = facing['passed']
+        report['checks']['capture_geometry_unchanged'] = before == signature(objects)
         report['passed'] = all(report['checks'].values())
         write(args.out / 'build_report.json', report)
+        write(args.out / 'capture_checks.json', {'passed': report['passed'], 'spec_hash': report['spec_hash'],
+            'geometry_unchanged': report['checks']['capture_geometry_unchanged'],
+            'geometry_checks': report['checks'], 'facing': facing})
     print('BLENDER_MAQUETTE: ' + ('PASS' if report['passed'] else 'FAIL'))
     return 0 if report['passed'] else 1
 

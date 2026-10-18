@@ -1,7 +1,7 @@
 {
- "_doc": "Director motion data (rr-07), same semantics as staged/rr-04/motion_tracks.json. Part labels come from each maquette's spec_native.json labels (mq-04 r3). Seer: the staff (staff_shaft, staff_crystal) is held in hand_far and follows it, except where staff_shaft has its own keys (death: it topples about the grip); only the feet show below the robe. Thrall: the iron rod ('club') is fused to the near forearm and follows hand_near. Clips play through the rr-05 stepped, pixel-snapped presentation.",
+ "_doc": "Director motion data (rr-07), same semantics as staged/rr-04/motion_tracks.json. Part labels come from each maquette's measurements.json labels (mq-04 r3). Seer: the staff (staff_shaft, staff_crystal) is held in hand_far and follows it, except where staff_shaft has its own keys (death: it topples about the grip); only the feet show below the robe. Thrall: the iron rod ('club') is fused to the near forearm and follows hand_near. Clips play through the rr-05 stepped, pixel-snapped presentation.",
  "hoarfrost_seer": {
-  "maquette": "spec/art_identity/maquettes/hoarfrost_seer/spec_native.json",
+  "maquette": "spec/art_identity/maquettes/hoarfrost_seer/measurements.json",
   "art": {
    "front": "spec/art_identity/jobs/hoarfrost_seer/mq5_front",
    "rear": "spec/art_identity/jobs/hoarfrost_seer/mq5_rear"
@@ -1214,7 +1214,7 @@
   }
  },
  "arc_thrall": {
-  "maquette": "spec/art_identity/maquettes/arc_thrall/spec_native.json",
+  "maquette": "spec/art_identity/maquettes/arc_thrall/measurements.json",
   "art": {
    "front": "spec/art_identity/jobs/arc_thrall/mq5_front",
    "rear": "spec/art_identity/jobs/arc_thrall/mq5_rear"

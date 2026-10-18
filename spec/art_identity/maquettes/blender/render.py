@@ -43,7 +43,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     from .capture_manifest import write_manifest, prepare_capture
-    from .ownership import assign_materials, materials_match, cloak_owners, require_solos, sagittal_normal, ARMATURE_UP_AXIS
+    from .ownership import assign_materials, materials_match, cloak_owners, require_solos, sagittal_normal, ARMATURE_UP_AXIS, uses_body_side_ownership
     generated = set()
     prepare_capture(output, 'fit' if fit_only else 'preview' if preview else 'full')
     scene = bpy.context.scene
@@ -98,7 +98,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     owners = {o.name: [p.material_index for p in o.data.polygons] for o in objects}
     # Classify once in armature body space, before either camera turn.
     body_side_report = {}
-    if {'cape_near', 'cape_far'} <= set(spec['labels']):
+    if {'cape_near', 'cape_far'} <= set(spec['labels']) or any('side_parts' in o for o in objects):
         from .contract import digest
         rig = bpy.data.objects['maquette_armature']
         spine = next(b for b in spec['armature']['bones'] if b['region'] == 'torso')
@@ -110,18 +110,21 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         normal = sagittal_normal(list(midpoint), forward, up, near, far)
         inverse = rig.matrix_world.inverted()
         for obj in objects:
-            if obj.get('cloth_kind') == 'cloak':
+            if uses_body_side_ownership(obj):
                 centroids = [list(inverse @ obj.matrix_world @ p.center) for p in obj.data.polygons]
                 labels = cloak_owners(centroids, list(midpoint), forward, up, near, far)
+                pair = list(obj.get('side_parts', ['cape_near', 'cape_far']))
+                labels = [pair[0] if label == 'cape_near' else pair[1] for label in labels]
                 owners[obj.name] = [list(spec['labels']).index(label) for label in labels]
                 body_side_report[obj.name] = {
                     'torso_midpoint_body': list(midpoint), 'normal_toward_shoulder_near': normal.tolist(),
                     'forward_body': forward, 'up_body': up, 'shoulder_near_body': near, 'shoulder_far_body': far,
                     'face_owner_hash': digest(owners[obj.name]),
-                    'faces': {label: labels.count(label) for label in ('cape_near', 'cape_far')}}
+                    'faces': {label: labels.count(label) for label in pair}}
     joints = {}
 
     def capture(view, mode, part=None, piece_type=None, included_parts=None, object_names=None):
+        from .view_states import active_in_view
         scene.cycles.samples = RENDER_DEFAULTS['cycles_samples'] if mode == 'clay' else 1
         for obj in objects:
             obj.hide_render = part is not None and not any(
@@ -132,6 +135,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
                 obj.hide_render = obj.get('part') not in included_parts
             if object_names is not None:
                 obj.hide_render = obj.name not in object_names
+            obj.hide_render |= not active_in_view(obj, view)
             obj.data.materials.clear()
             for mat in (parts if mode == 'parts' else [overrides.get(obj.name, clay) if mode == 'clay' else white]):
                 obj.data.materials.append(mat)
@@ -171,21 +175,21 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         if view == 'front':
             from .facing_probe import probe
             facing = probe(spec, objects, output, root, cam, capture)
-        if fit_only and view == 'front':
+        if fit_only:
             capture(view, 'silhouette')
             capture(view, 'silhouette', included_parts=set(spec['labels']) - set(spec['fit']['weapon_parts']))
-            move_capture('front_silhouette.png', 'front_body.png')
+            move_capture(f'{view}_silhouette.png', f'{view}_body.png')
             capture(view, 'silhouette', part=spec['fit'].get('head_part', 'head'))
-            move_capture('front_silhouette.png', 'front_head.png')
+            move_capture(f'{view}_silhouette.png', f'{view}_head.png')
             capture(view, 'silhouette')
         if not fit_only:
             for mode in (('parts',) if ownership_only else (('silhouette',) if silhouettes_only else ('parts', 'clay', 'silhouette'))):
                 capture(view, mode)
-            if preview and view == 'front' and 'fit' in spec:
+            if preview and 'fit' in spec:
                 capture(view, 'silhouette', included_parts=set(spec['labels']) - set(spec['fit']['weapon_parts']))
-                move_capture('front_silhouette.png', 'front_body.png')
+                move_capture(f'{view}_silhouette.png', f'{view}_body.png')
                 capture(view, 'silhouette', part=spec['fit'].get('head_part', 'head'))
-                move_capture('front_silhouette.png', 'front_head.png')
+                move_capture(f'{view}_silhouette.png', f'{view}_head.png')
                 capture(view, 'silhouette')
         # Body is split by weight region before rendering: solos retain hidden anatomy.
             if not preview:

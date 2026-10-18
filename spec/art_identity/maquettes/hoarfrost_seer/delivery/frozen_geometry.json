@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "accepted_mesh_hashes": {
+    "hood_render": "d126d223e07679af3043cd3ba1a088f29f0c5661d56108219a88816a077aeedd",
+    "scarf_render": "ced7db64ad02a69a8bedcff9c7f071572736180c2199426883aa5ed238cb08af",
+    "robe_torso_render": "71aded5cc26b8332e860e6388abef39b61fc2027664f0adb07c9263fa401c872",
+    "robe_skirt_render": "933921f078aa11645cbeca0ba5a2a4363d7e589b502c11c0f86928cdb6f1cc07",
+    "staff_shaft_render": "a922f34bb59921a6e3b411e82f7c4f1d0e17dc4753cbb5f4576a3c42ac710fbf",
+    "staff_shaft_band_0_render": "c9031ecb0c8f5bde0fedc2e0976e81e52650501f4364ea74b05363596360aec9",
+    "ice_crystal_render": "e4d4889e58792f562366dc66f85c59efd3e834d27e700590b46eb3ebb7af7c26",
+    "rope_belt_render": "ea99e488180a2cfe5c30a974ea6bda934c7ddcf788e5a8f51444bc02de8c41b8",
+    "rope_knot_tail_render": "be5e862c6459a5ebc184963bb1ae725d8226e00fe8953963abab3074c7e1559e",
+    "body_foot_far": "d64f3789224fb851906f31b1ceecdea652f66394d0c2def90dde6757318c7809",
+    "body_foot_near": "8195e10c4f17eed01ca3b5ccb436812bc69cf359ed6b51783c890d59fd27739d",
+    "body_hand_far": "6e9d1fcdf115c6c5dc841727963772749bd1e3cd3b4365a6171fce9f520e2fbc",
+    "body_hand_near": "c61015c3155ef5c1619bd9dd8441c3e3e7766dc397f197433e1637159c94429b",
+    "body_head": "a7eb21e977166cb0eb69a3c69b19295e55a97cc42afec4b2a2884a418b9ac16b"
+  },
+  "current_cold_mesh_hashes": {
+    "hood_render": "d126d223e07679af3043cd3ba1a088f29f0c5661d56108219a88816a077aeedd",
+    "scarf_render": "ced7db64ad02a69a8bedcff9c7f071572736180c2199426883aa5ed238cb08af",
+    "robe_torso_render": "71aded5cc26b8332e860e6388abef39b61fc2027664f0adb07c9263fa401c872",
+    "robe_skirt_render": "933921f078aa11645cbeca0ba5a2a4363d7e589b502c11c0f86928cdb6f1cc07",
+    "staff_shaft_render": "a922f34bb59921a6e3b411e82f7c4f1d0e17dc4753cbb5f4576a3c42ac710fbf",
+    "staff_shaft_band_0_render": "c9031ecb0c8f5bde0fedc2e0976e81e52650501f4364ea74b05363596360aec9",
+    "ice_crystal_render": "e4d4889e58792f562366dc66f85c59efd3e834d27e700590b46eb3ebb7af7c26",
+    "rope_belt_render": "ea99e488180a2cfe5c30a974ea6bda934c7ddcf788e5a8f51444bc02de8c41b8",
+    "rope_knot_tail_render": "be5e862c6459a5ebc184963bb1ae725d8226e00fe8953963abab3074c7e1559e",
+    "body_foot_far": "d64f3789224fb851906f31b1ceecdea652f66394d0c2def90dde6757318c7809",
+    "body_foot_near": "8195e10c4f17eed01ca3b5ccb436812bc69cf359ed6b51783c890d59fd27739d",
+    "body_hand_far": "6e9d1fcdf115c6c5dc841727963772749bd1e3cd3b4365a6171fce9f520e2fbc",
+    "body_hand_near": "c61015c3155ef5c1619bd9dd8441c3e3e7766dc397f197433e1637159c94429b",
+    "body_head": "a7eb21e977166cb0eb69a3c69b19295e55a97cc42afec4b2a2884a418b9ac16b"
+  }
+}

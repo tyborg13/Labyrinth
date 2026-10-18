@@ -83,7 +83,7 @@ def plate(piece, spec, body):
             normals.keep_sharp = True
         return obj
     outline = piece['outline']
-    vertices = [(x, 0, z) for x, z in outline]
+    vertices = piece.get('outline_3d', [(x, 0, z) for x, z in outline])
     conform = piece.get('conform_weights')
     if piece.get('conforming'):
         from .conformance import dense_outline
@@ -109,6 +109,31 @@ def plate(piece, spec, body):
         conform_plate(obj, piece, body, origins)
         for polygon in obj.data.polygons:
             polygon.use_smooth = True
+    if piece.get('native_mask'):
+        from .masked_hood import fit_plate
+        fit_plate(obj, piece, spec, body)
+    elif piece.get('face_plane'):
+        import json
+        from .source_recipe import plane_point
+        target = bpy.data.objects[piece['seat_on'] + '_render']
+        hood = json.loads(target['rounded_hood_report'])
+        plane_x = hood['head_bounds'][1][0] + hood['collision_allowance'] + piece['thick']
+        for vertex, pixel in zip(obj.data.vertices, piece['source_outline_px']):
+            vertex.co = plane_point(spec, pixel, 0, plane_x)
+        obj['conformed_corners'] = json.dumps([list(v.co) for v in obj.data.vertices])
+        obj['source_face_plane'] = plane_x
+        obj['seated_on_cloth'] = piece['seat_on']
+    elif piece.get('seat_on'):
+        from .conformance import body_tree
+        target = bpy.data.objects[piece['seat_on'] + '_render']
+        tree = body_tree(target)
+        for vertex in obj.data.vertices:
+            point = obj.matrix_world @ vertex.co
+            hit, _, _, _ = tree.ray_cast(Vector((spec['ortho_scale'], point.y, point.z)), Vector((-1, 0, 0)))
+            if hit is not None:
+                vertex.co.x = hit.x + piece['thick']
+        obj['conformed_corners'] = __import__('json').dumps([list(v.co) for v in obj.data.vertices])
+        obj['seated_on_cloth'] = piece['seat_on']
     solid = obj.modifiers.new('plate_thickness', 'SOLIDIFY')
     solid.thickness = piece['thick']
     solid.offset = 0
@@ -183,6 +208,44 @@ def curve(piece, spec):
     if piece.get('conforming'):
         from .conformance import conform_curve
         conform_curve(obj, piece, bpy.data.objects['posed_body'])
+    return obj
+
+
+def tube(piece, spec):
+    from .tube import tube_mesh
+    vertices, faces = tube_mesh(piece['path'], [piece['radius'] * t for t in piece['taper']],
+                                piece['wall'], piece['sides'], piece.get('radial_profile'))
+    obj = place(mesh_object(piece['id'], vertices, faces), piece, spec)
+    if piece.get('smooth_surface'):
+        for polygon in obj.data.polygons:
+            polygon.use_smooth = True
+    return obj
+
+
+def sculpted_blade(piece, spec):
+    obj = place(mesh_object(piece['id'], piece['vertices'], piece['faces']), piece, spec)
+    if piece.get('root_joint'):
+        from .sculpted_blade import seat_root
+        seat_root(obj, piece, spec)
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
+    return obj
+
+
+def rigid_shell(piece, spec):
+    obj = place(mesh_object(piece['id'], piece['vertices'], piece['faces']), piece, spec)
+    import bmesh
+    topology = bmesh.new()
+    topology.from_mesh(obj.data)
+    bmesh.ops.recalc_face_normals(topology, faces=list(topology.faces))
+    topology.to_mesh(obj.data)
+    topology.free()
+    obj['rig_joint'] = piece['rig_joint']
+    if piece.get('clearance_parts'):
+        from .rigid_clearance import fit
+        fit(obj, piece, spec)
+    for polygon in obj.data.polygons:
+        polygon.use_smooth = True
     return obj
 
 

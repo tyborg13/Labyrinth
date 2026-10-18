@@ -1,0 +1,60 @@
+{
+  "initial": {
+    "hoarfrost_seer": {
+      "files": 829,
+      "bytes": 722831663
+    },
+    "gale_herald": {
+      "files": 585,
+      "bytes": 373970444
+    },
+    "arc_thrall": {
+      "files": 309,
+      "bytes": 322001014
+    },
+    "gloam_stalker": {
+      "files": 539,
+      "bytes": 343704457
+    }
+  },
+  "before_curation": {
+    "hoarfrost_seer": {
+      "files": 906,
+      "bytes": 834622076
+    },
+    "arc_thrall": {
+      "files": 385,
+      "bytes": 412619165
+    },
+    "gloam_stalker": {
+      "files": 853,
+      "bytes": 881531713
+    },
+    "gale_herald": {
+      "files": 1403,
+      "bytes": 1459228066
+    }
+  },
+  "after_curation": {
+    "hoarfrost_seer": {
+      "files": 60,
+      "bytes": 2655084,
+      "allocated_kib": 2728
+    },
+    "gale_herald": {
+      "files": 96,
+      "bytes": 4361135,
+      "allocated_kib": 4512
+    },
+    "arc_thrall": {
+      "files": 64,
+      "bytes": 5838902,
+      "allocated_kib": 5852
+    },
+    "gloam_stalker": {
+      "files": 65,
+      "bytes": 4271268,
+      "allocated_kib": 4332
+    }
+  }
+}

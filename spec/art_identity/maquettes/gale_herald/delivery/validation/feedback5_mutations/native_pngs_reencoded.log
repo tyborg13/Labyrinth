@@ -1,0 +1,18 @@
+DELIVERY_STAGE: PASS; staged
+test_staging_preserves_native_png_bytes_including_stamps (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... FAIL
+
+======================================================================
+FAIL: test_staging_preserves_native_png_bytes_including_stamps (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-04/spec/art_identity/maquettes/blender/test_delivery_validation.py", line 75, in test_staging_preserves_native_png_bytes_including_stamps
+    self.assertEqual(sha(self.capture / name), sha(destination / 'delivery' / name), name)
+AssertionError: '4187c8f5558bab540acfcb976b7a0683616022d71b5eea4ef2f1df2752221e03' != 'ecba4a602fd38f06605b92c4db1b138b446c76e4515b66168f2fb786399570f5'
+- 4187c8f5558bab540acfcb976b7a0683616022d71b5eea4ef2f1df2752221e03
++ ecba4a602fd38f06605b92c4db1b138b446c76e4515b66168f2fb786399570f5
+ : front_clay.png
+
+----------------------------------------------------------------------
+Ran 1 test in 2.807s
+
+FAILED (failures=1)

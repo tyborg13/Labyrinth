@@ -1,0 +1,1460 @@
+{
+  "scope": "Implementation/test/debug fields only. Existing production rendering and facing constants are inherited. Character dimensions and contours are source measurements; metric collar/chain dimensions and fit thresholds are director decisions.",
+  "named_fields": {
+    "back_drape.py": {
+      "BACK_DRAPE_DEFAULTS": {
+        "revision": 1
+      }
+    },
+    "back_sheet.py": {
+      "BACK_SHEET_DEFAULTS": {
+        "revision": 2
+      }
+    },
+    "backend.py": {
+      "BACKEND_DEFAULTS": {
+        "job_timeout_s": 900
+      }
+    },
+    "bridge_client.py": {
+      "BRIDGE_DEFAULTS": {
+        "root": "/private/tmp/labyrinth_codex/blender_bridge",
+        "timeout_s": 120,
+        "start_timeout_s": 120,
+        "result_grace_s": 30,
+        "poll_s": 1
+      }
+    },
+    "cloth.py": {
+      "CLOTH_LOG_DEFAULTS": {
+        "frame_interval": 8
+      },
+      "CONTACT_STABILITY_DEFAULTS": {
+        "clearance_multiplier": 4
+      }
+    },
+    "cloth_attachment.py": {
+      "YOKE_DEFAULTS": {
+        "rest_clearance_fraction": 0.1
+      }
+    },
+    "cloth_contacts.py": {
+      "COLLISION_DEFAULTS": {
+        "ray_epsilon": 1e-05,
+        "constraint_passes": 24,
+        "ray_directions": [
+          [
+            0.381,
+            0.717,
+            0.583
+          ],
+          [
+            -0.819,
+            0.391,
+            0.419
+          ],
+          [
+            0.219,
+            -0.489,
+            0.844
+          ]
+        ]
+      }
+    },
+    "compile_recipe.py": {
+      "COMPILE_DEFAULTS": {
+        "static_drape_frames": 1,
+        "ring_samples": 32,
+        "seam_epsilon": 1e-10
+      }
+    },
+    "conformance.py": {
+      "PROJECT_DEFAULTS": {
+        "fallback_neighbours": 16,
+        "silhouette_slack": 0.005,
+        "bevel_miter_distance_bound": 3
+      }
+    },
+    "contact_crossings.py": {
+      "DIAGNOSTIC_DEFAULTS": {
+        "sample_pairs": 3
+      }
+    },
+    "contract.py": {
+      "BUILD_DEFAULTS": {
+        "schema": 2,
+        "cache_revision": 8,
+        "hash_digits": 9,
+        "collision_epsilon": 1e-06,
+        "triangulation_epsilon": 1e-06,
+        "zero_length_squared_epsilon": 1e-12,
+        "fit_passes": 6,
+        "fit_scale_min": 0.6,
+        "fit_scale_max": 1.6,
+        "process_timeout_seconds": 600
+      }
+    },
+    "curate_delivery.py": {
+      "CURATION_DEFAULTS": {
+        "budget_bytes": 6000000,
+        "png_compression": 9
+      }
+    },
+    "director.py": {
+      "PROOF_DEFAULTS": {
+        "out": "/private/tmp/labyrinth_codex/mq-03/director",
+        "timeout_seconds": 3600,
+        "size": [
+          1024,
+          1024
+        ]
+      }
+    },
+    "drape.py": {
+      "DRAPE_DEFAULTS": {
+        "minimum_free_vertices": 4,
+        "minimum_frames": 8,
+        "implementation_revision": 5,
+        "length_epsilon": 1e-10,
+        "pin_error_max": 0.0001,
+        "solver_displacement_min": 1e-06
+      }
+    },
+    "drape_collision.py": {
+      "COLLIDER_DEFAULTS": {
+        "voxel_size": 0.012,
+        "surface_allowance": 0.025,
+        "initial_clearance": 0.02
+      }
+    },
+    "exact_native_replay.py": {
+      "RAW_PROOF_DEFAULTS": {
+        "float_code": "f",
+        "index_code": "i",
+        "bool_code": "b"
+      }
+    },
+    "facing.py": {
+      "FACING_DEFAULTS": {
+        "native_forward": [
+          0,
+          -1,
+          0
+        ],
+        "board_forward": [
+          1,
+          0,
+          0
+        ],
+        "axis_cosine_min": 0.995,
+        "asymmetry_min": 0.01,
+        "epsilon": 1e-09
+      }
+    },
+    "fit_delivery.py": {
+      "DELIVERY_DEFAULTS": {
+        "overlay_opacity": 0.4,
+        "contact_scale": 2,
+        "caption_height": 20,
+        "contact_columns": 2,
+        "caption_padding": 4,
+        "contact_background": [
+          24,
+          24,
+          24,
+          255
+        ],
+        "caption_colour": "white",
+        "caption_font": "Pillow default"
+      }
+    },
+    "fitted_workflow.py": {
+      "WORKFLOW_DEFAULTS": {
+        "job_timeout_s": 900
+      }
+    },
+    "inspect_build.py": {
+      "INSPECTION_DEFAULTS": {
+        "endpoint_tolerance": 1e-05,
+        "grip_clearance": 0.025
+      }
+    },
+    "inspect_contacts.py": {
+      "DIAGNOSTIC_DEFAULTS": {
+        "minimum_distance": 0.003,
+        "sample_limit": 5,
+        "ray_start_distance": 10,
+        "ray_length": 20
+      }
+    },
+    "integration.py": {
+      "TEST_DEFAULTS": {
+        "radius": 0.2,
+        "body_z_scale": 4,
+        "frames": 8,
+        "margin": 0.001,
+        "pattern_columns": 16,
+        "spatial_tolerance": 1e-06
+      }
+    },
+    "lathe_profile.py": {
+      "LATHE_DEFAULTS": {
+        "axis_subdivisions": 8
+      }
+    },
+    "legacy_capture.py": {
+      "PROOF_DEFAULTS": {
+        "size": 1024,
+        "samples": 1,
+        "threads": 8,
+        "seed": 0
+      }
+    },
+    "legacy_proof.py": {
+      "PROOF_DEFAULTS": {
+        "baseline_ref": "61b0c2f0ba8793db3499038de3d959b1a6f220d4",
+        "root": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility",
+        "timeout_s": 120
+      }
+    },
+    "masked_hood.py": {
+      "MASK_DEFAULTS": {
+        "source_size": 256,
+        "ray_distance": 30
+      }
+    },
+    "native_garment.py": {
+      "NATIVE_REST_DEFAULTS": {
+        "revision": 1,
+        "voxel_size": 0.022,
+        "smoothing_iterations": 4,
+        "smoothing_factor": 0.5,
+        "upper_cuff_pins": 2
+      }
+    },
+    "neck_collar.py": {
+      "COLLAR_DEFAULTS": {
+        "ring_samples": 96,
+        "link_samples": 64,
+        "plane_epsilon": 1e-08,
+        "chest_ray_length": 2.4,
+        "contact_clearance": 0.003
+      }
+    },
+    "pixel_coverage.py": {
+      "COVERAGE_DEFAULTS": {
+        "alpha_threshold": 128,
+        "srgb_channel_tolerance": 1
+      }
+    },
+    "quality_delivery.py": {
+      "QUALITY_DEFAULTS": {
+        "size": 1024,
+        "caption_height": 28,
+        "background": [
+          24,
+          24,
+          24,
+          255
+        ],
+        "caption_colour": "white",
+        "caption_font": "Pillow default",
+        "padding": 4,
+        "overlay_opacity": 0.4,
+        "contact_box_colour": [
+          255,
+          80,
+          80,
+          255
+        ],
+        "contact_box_width": 3,
+        "contact_box_padding": 8
+      }
+    },
+    "recipe_proof.py": {
+      "PROOF_DEFAULTS": {
+        "joint_error_max": 0.0001
+      }
+    },
+    "refine_contact_probe.py": {
+      "PROBE_DEFAULTS": {
+        "extra_refinement_levels": 1
+      }
+    },
+    "regenerate_delivery.py": {
+      "REGENERATE_DEFAULTS": {
+        "job_timeout_s": 900
+      }
+    },
+    "relabel_proof.py": {
+      "PROOF_DEFAULTS": {
+        "baseline": "/private/tmp/labyrinth_codex/mq-03/round3/delivery/lancer_r3",
+        "out": "/private/tmp/labyrinth_codex/mq-03/round5/lancer_r3",
+        "timeout_s": 120
+      }
+    },
+    "render.py": {
+      "RENDER_DEFAULTS": {
+        "size": 1024,
+        "cycles_samples": 32,
+        "distance": 30,
+        "seed": 0,
+        "threads": 8,
+        "clay_colour": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "clay_roughness": 0.8,
+        "ao_distance": 0.15,
+        "studio_energy": 600,
+        "studio_size": 5,
+        "studio_location": [
+          4,
+          -3,
+          6
+        ]
+      }
+    },
+    "ridged_shell.py": {
+      "SHELL_DEFAULTS": {
+        "epsilon": 1e-10,
+        "radial_steps": 6
+      }
+    },
+    "rig.py": {
+      "BIND_DEFAULTS": {
+        "voxel_size": 0.025
+      }
+    },
+    "rigid_clearance.py": {
+      "CLEARANCE_DEFAULTS": {
+        "clearance_in_voxels": 1
+      }
+    },
+    "round3_runner.py": {
+      "RUNNER_DEFAULTS": {
+        "job_timeout_s": 900
+      }
+    },
+    "rounded_hood.py": {
+      "HOOD_DEFAULTS": {
+        "revision": 1,
+        "skull_rows": 25,
+        "columns": 48,
+        "shoulder_rows": 8,
+        "crown_pin_rows": 3
+      }
+    },
+    "sculpted_blade.py": {
+      "BLADE_DEFAULTS": {
+        "sections": 48,
+        "cross_samples": 12,
+        "epsilon": 1e-10
+      },
+      "ATTACHMENT_DEFAULTS": {
+        "root_blend_fraction": 0.25,
+        "contact_tolerance": 1e-05
+      }
+    },
+    "sewn_garment.py": {
+      "SEWN_DEFAULTS": {
+        "revision": 1,
+        "epsilon": 1e-10,
+        "owner_attribute": "sewn_owner"
+      }
+    },
+    "source_cage.py": {
+      "CAGE_DEFAULTS": {
+        "source_size": 256,
+        "profile_bins": 32,
+        "epsilon": 1e-08,
+        "support_weight_min": 0.25
+      }
+    },
+    "source_recipe.py": {
+      "RECIPE_DEFAULTS": {
+        "source_size": 256,
+        "panel_columns": 16,
+        "linear_solve_rcond": null,
+        "length_epsilon": 1e-10
+      }
+    },
+    "test_delivery.py": {
+      "DELIVERY_TEST_DEFAULTS": {
+        "rim": [
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            -1,
+            0
+          ],
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ]
+        ],
+        "ridge": [
+          0,
+          0,
+          0.5
+        ],
+        "thickness": 0.02
+      }
+    },
+    "test_round3.py": {
+      "BACK_SHEET_TEST_DEFAULTS": {
+        "shoulders": [
+          "near",
+          "far"
+        ],
+        "width_px": 100,
+        "height_px": 80,
+        "columns": 12,
+        "pin_rows": [
+          0
+        ]
+      }
+    },
+    "verify.py": {
+      "GALLERY_DEFAULTS": {
+        "columns": 3,
+        "tile_px": 512,
+        "types": [
+          "plate",
+          "lames",
+          "cloth",
+          "curve",
+          "crystal",
+          "gem"
+        ]
+      }
+    }
+  },
+  "debug_part_map": {
+    "gloam_stalker.carapace": [
+      0.2,
+      0.75,
+      0.15
+    ]
+  },
+  "notes": [
+    "Shell radial tessellation: 6 steps",
+    "Rigid clearance padding: one inherited collision voxel plus the unchanged 3 mm gate",
+    "900 s execution budgets; independent 120 s bridge start deadline",
+    "Canonical PNG compression level: 9; native clay RGBA and colour chunks are unchanged"
+  ],
+  "recipe_solver_fields": {
+    "hoarfrost_seer": {
+      "hood": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1,
+          2
+        ],
+        "frames": 8,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "pin_filled_spans": [
+          [
+            0,
+            2
+          ]
+        ],
+        "pin_opening_rows": [
+          3,
+          4,
+          5
+        ],
+        "solver_margin": 0.015,
+        "smooth_rows": true,
+        "native_hood": {
+          "revision": 1,
+          "opening_width_ratio": 0.6,
+          "opening_height_px": 26
+        }
+      },
+      "scarf": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "robe_torso": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          4
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "armhole_clearance": 0,
+        "native_rest": {
+          "waist_joint": "pelvis",
+          "cuffs": [
+            {
+              "regions": [
+                "fore_near"
+              ],
+              "joints": [
+                "elbow_near",
+                "hand_near"
+              ],
+              "fraction": 0.8
+            },
+            {
+              "regions": [
+                "fore_far"
+              ],
+              "joints": [
+                "elbow_far",
+                "hand_far"
+              ],
+              "fraction": 0.95
+            }
+          ]
+        }
+      },
+      "robe_skirt": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "gather_frames": 8,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "sleeve_upper_near": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "armhole_clearance": 0
+      },
+      "sleeve_upper_far": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "armhole_clearance": 0
+      }
+    },
+    "gale_herald": {
+      "masked_hood": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1,
+          2
+        ],
+        "frames": 8,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "self_distance_min": 0.0005,
+        "pin_filled_spans": [
+          [
+            0,
+            2
+          ]
+        ],
+        "pin_opening_rows": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "solver_margin": 0.015,
+        "native_hood": {
+          "revision": 1,
+          "opening_width_ratio": 0,
+          "opening_height_px": 26,
+          "closed_topology_revision": 2,
+          "sewn_topology_note": "One crown vertex and circular seam are already sewn. Do not merge distinct contact vertices after collision projection.",
+          "use_solver_rest_clearance": true
+        },
+        "rag": {
+          "count": 0,
+          "depth": 0,
+          "seed": 0
+        }
+      },
+      "shoulder_yoke": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 8,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "solver_margin": 0.035,
+        "rag": {
+          "count": 14,
+          "depth": 0.035,
+          "seed": 23
+        },
+        "radial_rest": {
+          "joint": "torso"
+        }
+      },
+      "tunic": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          4
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "native_rest": {
+          "revision": 1,
+          "waist_joint": "pelvis",
+          "cuffs": [],
+          "neckline_px": [
+            [
+              120,
+              97
+            ],
+            [
+              113,
+              97
+            ]
+          ]
+        }
+      },
+      "belt": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "tabard": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "banner_near": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "trailing_splits": {
+          "source_row": 4,
+          "columns": [
+            3,
+            8,
+            12
+          ],
+          "gap_columns": 1
+        },
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.013933965477701142,
+          0.018647285538155124,
+          0.011020973480483873,
+          -0.0038983442028329824,
+          -0.01623797632095822,
+          -0.01783230968053413,
+          -0.007626312057671253,
+          0.007626312057671244,
+          0.017832309680534127,
+          0.016237976320958233,
+          0.0038983442028330158,
+          -0.011020973480483864,
+          -0.018647285538155124,
+          -0.01393396547770114,
+          -4.249154173235985e-17
+        ],
+        "back_rest": {
+          "revision": 1,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ]
+        },
+        "rag": {
+          "count": 6,
+          "depth": 0.045,
+          "seed": 33
+        },
+        "gather_frames": 12,
+        "attach_pins_to_support": true,
+        "yoke_seam_joint": "shoulder_near",
+        "smooth_rows": true
+      },
+      "banner_far": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "trailing_splits": {
+          "source_row": 4,
+          "columns": [
+            3,
+            8,
+            12
+          ],
+          "gap_columns": 1
+        },
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.013933965477701142,
+          0.018647285538155124,
+          0.011020973480483873,
+          -0.0038983442028329824,
+          -0.01623797632095822,
+          -0.01783230968053413,
+          -0.007626312057671253,
+          0.007626312057671244,
+          0.017832309680534127,
+          0.016237976320958233,
+          0.0038983442028330158,
+          -0.011020973480483864,
+          -0.018647285538155124,
+          -0.01393396547770114,
+          -4.249154173235985e-17
+        ],
+        "back_rest": {
+          "revision": 1,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ]
+        },
+        "rag": {
+          "count": 6,
+          "depth": 0.045,
+          "seed": 33
+        },
+        "gather_frames": 12,
+        "attach_pins_to_support": true,
+        "yoke_seam_joint": "shoulder_far",
+        "smooth_rows": true
+      },
+      "tabard_back": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "attach_pins_to_support": true,
+        "gather_frames": 8,
+        "rag": {
+          "count": 6,
+          "depth": 0.045,
+          "seed": 33
+        },
+        "waist_anchor_px": [
+          [
+            119,
+            139
+          ],
+          [
+            107,
+            138
+          ]
+        ],
+        "waist_side": "back"
+      }
+    },
+    "arc_thrall": {
+      "loincloth_front": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 160,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.014062499999999999,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.009375,
+          -0.014062499999999999,
+          0.0,
+          0.009375,
+          0.0
+        ],
+        "smooth_normals": true,
+        "gather_frames": 32,
+        "waist_anchor_px": [
+          [
+            126.5,
+            135.0
+          ],
+          [
+            127.0,
+            136.0
+          ]
+        ],
+        "waist_side": "front",
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "loincloth_back": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 160,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.014062499999999999,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.0,
+          -0.01875,
+          0.0,
+          0.01875,
+          0.009375,
+          -0.014062499999999999,
+          0.0,
+          0.009375,
+          0.0
+        ],
+        "smooth_normals": true,
+        "gather_frames": 32,
+        "waist_anchor_px": [
+          [
+            126.5,
+            135.0
+          ],
+          [
+            127.0,
+            136.0
+          ]
+        ],
+        "waist_side": "rear",
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      }
+    },
+    "gloam_stalker": {
+      "hood": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1,
+          2
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "pin_filled_spans": [
+          [
+            0,
+            2
+          ]
+        ],
+        "pin_opening_rows": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "solver_margin": 0.015,
+        "native_hood": {
+          "revision": 1,
+          "opening_width_ratio": 0.6,
+          "opening_height_px": 26
+        }
+      },
+      "torso_cloth": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          4
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "native_rest": {
+          "revision": 1,
+          "waist_joint": "pelvis",
+          "cuffs": [],
+          "neckline_px": [
+            [
+              129,
+              100
+            ],
+            [
+              126,
+              100
+            ]
+          ]
+        }
+      },
+      "cloak": {
+        "row_subdivisions": 20,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "rag": {
+          "count": 12,
+          "depth": 0.015,
+          "seed": 45
+        },
+        "back_sheet": {
+          "revision": 2,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ],
+          "width_px": 117,
+          "height_px": 115,
+          "columns": 64,
+          "hem_px": {
+            "rear": [
+              [
+                72,
+                131
+              ],
+              [
+                85,
+                147
+              ],
+              [
+                101,
+                137
+              ],
+              [
+                116,
+                163
+              ],
+              [
+                128,
+                202
+              ],
+              [
+                141,
+                177
+              ],
+              [
+                151,
+                160
+              ],
+              [
+                166,
+                175
+              ],
+              [
+                185,
+                147
+              ]
+            ]
+          }
+        },
+        "gather_frames": 24
+      },
+      "front_cloak": {
+        "row_subdivisions": 20,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "rag": {
+          "count": 12,
+          "depth": 0.015,
+          "seed": 45
+        },
+        "back_sheet": {
+          "revision": 2,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ],
+          "width_px": 117,
+          "height_px": 115,
+          "columns": 64,
+          "hem_px": {
+            "front": [
+              [
+                65,
+                143
+              ],
+              [
+                80,
+                155
+              ],
+              [
+                96,
+                148
+              ],
+              [
+                111,
+                177
+              ],
+              [
+                121,
+                164
+              ],
+              [
+                136,
+                211
+              ],
+              [
+                150,
+                171
+              ],
+              [
+                163,
+                161
+              ],
+              [
+                179,
+                179
+              ],
+              [
+                190,
+                163
+              ]
+            ]
+          },
+          "side": "front"
+        },
+        "gather_frames": 24
+      }
+    }
+  },
+  "test_fixture_sources": {
+    "test_source_recipe.py": "5dfc504a9dedb9301d16655059eb3ec36fe875f74c109f052398fcf6cfb97207",
+    "test_delivery.py": "e5c02af37ce9a594318069a839ef0426bff7c1f23d9a7b52fa74e04eb540dd50",
+    "test_drape.py": "41b8a744aa8aee198e830eab5b0876883f05671904c28a62872cf57a51ac8219",
+    "test_round3.py": "b3440cd03f560547870c2f69140458cce32243fc5f92462c2997b5b2adc583d8"
+  },
+  "file_io_copy_chunk_bytes": 65536
+}

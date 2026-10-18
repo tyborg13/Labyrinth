@@ -1,0 +1,14 @@
+{
+  "hoarfrost_seer": {
+    "measurements.json": "aa99a62b0b8753a5c8eded9830219471ff9ff3611092e85ea69b5d483dc343eb",
+    "spec_native.json": "6a57fee15a66907441e48f925425e52c3c22fa6582e8b25b951ea64a7e704f4d",
+    "proof/quality_r3/front_clay.png": "cf8e0e1dce4ff27adb499ee5564c5b594740102abaa8c92021e32c6392aeee61",
+    "proof/quality_r3/rear_clay.png": "951f3d48ae5edaa6b3020ae64c52ce585b0e44f66a66f836805e758c7b0ae9e7"
+  },
+  "arc_thrall": {
+    "measurements.json": "8af957612bdc5b5018290b3404a6bb4db445a93c6e68069ef58ebdcd7cbb100f",
+    "spec_native.json": "5e38525e38be50de4ef56cdbacce2cbbfc75fc8a174b5566939b2ee76f91c861",
+    "proof/quality_r3/front_clay.png": "26f0030444d4aef0722207838fa768fbcae4f5e867e0c8c1f5dbd81dedaf19b8",
+    "proof/quality_r3/rear_clay.png": "5ef693dceb279632f83cc53bfdbfa4baccdf753616962b4f1efabbdeff188b71"
+  }
+}

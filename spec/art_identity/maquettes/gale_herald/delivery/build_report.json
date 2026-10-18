@@ -1,0 +1,442 @@
+{
+  "schema": 2,
+  "spec_hash": "c6bcc0f7ef16787d27d5bdc5d09bf996ae0fb6d53a271ec50a05ccc85b08bc08",
+  "board_frame": {
+    "yaw_radians": -0.0,
+    "pivot": [
+      0.06629126073623891,
+      -0.05303300858899103,
+      1.0063341657532925
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "6480b03d310db90129fdd09bbade5cddaa9c44e566cff09b5a092cf827b4de77",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "masked_hood_render": "4951b6a0cef01ee4f62562008c44c4d77591f7ee39b1aea6c64860a5db72ffe9",
+    "shoulder_yoke_render": "a0d8e60bbb67eb1a9d19e61eda3b2ea072fbb2ecf16986d363a7275f6a9f65a3",
+    "tunic_render": "58cd493aaaa2229fb38e4d9b8407fd3c27183233e20bde7410cddac547be3633",
+    "belt_render": "b6e7792c84d180a05e1a12a45ca6c17052b82bdc59729b9f45a0dd2239f3d65d",
+    "tabard_render": "045389d28669f051debf6d56233de0feee2a6bf59b05dc6042ab5064f4549212",
+    "banner_near_front_render": "460617683f50b29a8516c0d639f77f84d55b14cfc9f2b67c63762289aa307bfc",
+    "banner_near_rear_render": "82d665462290ef050e1769359ac186cd3f1a65ce30afb25cd232173d5152bfa0",
+    "banner_far_front_render": "5f4280fcf0f69102f038e5407c0ef876364392d64b7ab5485e7323b47e3ff1ed",
+    "banner_far_rear_render": "3c5959a1eed963633f07211f3777c1f6d5ec9351e3ea93fd7e26aa1e45375953",
+    "horn_render": "78a147f4ea1e083d2a8e93d088282f47166ebb4357ba88a957e100b387f4d2a3",
+    "horn_band_0_render": "192a3b0554f368a0a7d58c04ed2b67421d5b36467a7a7ffb913b600e0e20160f",
+    "horn_band_1_render": "bf568b5567dd13b71f7dcabe581653735d5a8643a974ca468916f9e353d6ab09",
+    "horn_band_2_render": "82dd746f03400799dc86ef573df4b48b0f28002aa26ff56340216431fc2456d3",
+    "horn_band_3_render": "dff31d58a72c8cdefa6249cea008bdd28571a9c05aeeedd6335669fd69ba31cd",
+    "horn_band_4_render": "961100992aca1dda21da76870c96f16e6ea9c0625a77ef9ad340f8cb47f73c05",
+    "crest_mask_render": "120103c808bef23993ee2adbe89462ca43f1ccf38673f23a185bd94469a12145",
+    "upper_plate_near_render": "c2426b22b2ddd024e91308d2cb58ea2cf4cc68f54c3d366940c9fe1f0f690e65",
+    "fore_plate_near_render": "8cfd28fce7311ad732220d6e474ded2b3ae9c2ee32e5244eb168b5ae649b223f",
+    "upper_plate_far_render": "e66119af3ee5f17bf4801bcb43c84ad03f4b9e3689efb0c24393bd980b368b76",
+    "fore_plate_far_render": "8ceda4533707d248a9008cc113a4be6b1708d0606fd87a4f8299c243e710f0ab",
+    "shoulder_lame_near_0_render": "f7c441a98fa88e866ef03dd219794be77de0d742c86917227ab19078ea2b92b8",
+    "shoulder_lame_near_1_render": "22d7c1d37bfbdcae2a9e4189c298fed4af73e35ffcb796a2ba418213106659b6",
+    "shoulder_lame_near_2_render": "8a08267d04650d03b9af61366ca0c547d4b3fd566b9bea2442fb3d0036be138d",
+    "armour_thigh_near_render": "4ddc6529d7bb48730a026b018f9335f346fb5948c00f2deac1e25cb8785afa07",
+    "armour_shin_near_render": "83c1b1f0b238eddaca9244061bb0fd6442b634f7e7d21f8b338675f2f16dfc34",
+    "armour_thigh_far_render": "fe613725f5be093eca8f9806feddcf5992e53fd1a9581541255dc270231166d2",
+    "armour_shin_far_render": "9da69b0056750f55ca3d243ca2af2047f3db334f925a17ac35d07be6f25950cf",
+    "tabard_back_render": "777d4f9f229d7f70b616227b9009493b13633f27e9a32a20d1921699c3e1eeac",
+    "body_foot_far": "f7ff6eb19a05fa0594baecd7c7daf4f0cf348a5669071643c2528be2cb0f425f",
+    "body_foot_near": "b8f046a947643137e76d3e1e8f2ed23ce116198bbb205b46dd280eebe0759be5",
+    "body_fore_far": "9ff9863f879e80bb1c3bf2cf3ee32a7e5f5f72649d5fe0e20bb304e5dbddda52",
+    "body_fore_near": "d24b174f639e3860af33dec788b3f01fc8cc393c69f2b8ad9b2804b675992b68",
+    "body_hand_far": "a96d2ed183b8b87ccee7aa11b0f5d7d37b2b784c154680024db58eea7ff20dcf",
+    "body_hand_near": "1ada5b6e842854fb3f4b63b6e47df5f0199e1d137a1b61ff0d1947daed2325a6",
+    "body_shin_far": "8a76759d0bbf1eae939ac000d817452eeb4f013145e159866d1fd34dd9866e06",
+    "body_shin_near": "d0e6cc7850214d1adeec24b9d71e79f99c0dc5f80bc22e20961244c8563a62ee",
+    "body_thigh_far": "f92a0704913ce657d55804ec38cc378afe5b343d5dd50488a923931b7edaf6ee",
+    "body_thigh_near": "3d023ce5cf2d4bd7fcd3477d3f3cf7157890f152e97974379735a14e322b631f",
+    "body_torso": "bd8e11e74f421a867adcddc2574633170867945e002e6c7a8984a8dab44e13ae",
+    "body_upper_far": "1266e1834810d51cec20e28afa4f5ab2eebe12c2b36d2ffc4427c069d396912c",
+    "body_upper_near": "c895daf038b8667496fab0f260136832c75df5d9dc465147df7a8bf0822d0948"
+  },
+  "combined_mesh_hash": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
+  "checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "sculpted_blade_roots_attached": true,
+    "native_cloth_drape": true,
+    "native_cloth_stability": true,
+    "native_cloth_contact_stability": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "cloth": {
+    "masked_hood": {
+      "minimum_signed_distance": 0.039181508123874664,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "shoulder_yoke": {
+      "minimum_signed_distance": 0.046567708253860474,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "tunic": {
+      "minimum_signed_distance": 0.06043269485235214,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "belt": {
+      "minimum_signed_distance": 0.056917816400527954,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "tabard": {
+      "minimum_signed_distance": 0.07995658367872238,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "banner_near_front": {
+      "minimum_signed_distance": 0.05842030048370361,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "banner_near_rear": {
+      "minimum_signed_distance": 0.059045515954494476,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "banner_far_front": {
+      "minimum_signed_distance": 0.06274547427892685,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "banner_far_rear": {
+      "minimum_signed_distance": 0.0751151368021965,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "tabard_back": {
+      "minimum_signed_distance": 0.05798735469579697,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    }
+  },
+  "geometry_details": {
+    "metric_accessories": {},
+    "rounded_hoods": {
+      "masked_hood_render": {
+        "head_bounds": [
+          [
+            -0.0035092979669570923,
+            -0.11830908060073853,
+            1.781099557876587
+          ],
+          [
+            0.17468763887882233,
+            0.03956574201583862,
+            1.9787472486495972
+          ]
+        ],
+        "head_width": 0.15787482261657715,
+        "opening_width": 0,
+        "opening_width_ratio": 0,
+        "opening_height": 0.24375,
+        "collision_allowance": 0.063,
+        "opening_rows": [],
+        "closed_crown_and_seam": true,
+        "defaults": {
+          "revision": 1,
+          "skull_rows": 25,
+          "columns": 48,
+          "shoulder_rows": 8,
+          "crown_pin_rows": 3
+        }
+      }
+    },
+    "sewn_rest": {
+      "tunic_render": {
+        "connected": true,
+        "nonmanifold_edges": 0,
+        "boundary_loops": 1,
+        "source": "native anatomy union / sewn shoulder rest surface",
+        "regions": [
+          "torso"
+        ],
+        "pins": 246,
+        "vertices": 1361,
+        "removed_sampling_islands": [],
+        "defaults": {
+          "revision": 1,
+          "voxel_size": 0.022,
+          "smoothing_iterations": 4,
+          "smoothing_factor": 0.5,
+          "upper_cuff_pins": 2
+        }
+      }
+    },
+    "collar_widths": {},
+    "corner_errors": {},
+    "conformance": {
+      "upper_plate_near": {
+        "max_distance": 0.01250004954636097,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "fore_plate_near": {
+        "max_distance": 0.01250002346932888,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "upper_plate_far": {
+        "max_distance": 0.012500074692070484,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "fore_plate_far": {
+        "max_distance": 0.012500043027102947,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "armour_thigh_near": {
+        "max_distance": 0.01250002346932888,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "armour_shin_near": {
+        "max_distance": 0.012500022538006306,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "armour_thigh_far": {
+        "max_distance": 0.012500021606683731,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "armour_shin_far": {
+        "max_distance": 0.012500004842877388,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      }
+    },
+    "blade_attachments": {},
+    "cloth_simulation": {
+      "masked_hood": {
+        "frames": 8,
+        "vertices": 1537,
+        "pins": 97,
+        "free_vertices": 1440,
+        "maximum_solver_displacement": 0.09973241999323805,
+        "maximum_free_solver_displacement": 0.09973241999323805,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.008240057155489922,
+        "maximum_contact_displacement_allowed": 0.17200000000000001
+      },
+      "shoulder_yoke": {
+        "frames": 8,
+        "vertices": 829,
+        "pins": 64,
+        "free_vertices": 765,
+        "maximum_solver_displacement": 0.11577463516003413,
+        "maximum_free_solver_displacement": 0.11577463516003413,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.04005521908402443,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "tunic": {
+        "frames": 24,
+        "vertices": 1316,
+        "pins": 239,
+        "free_vertices": 1077,
+        "maximum_solver_displacement": 0.021493066503167717,
+        "maximum_free_solver_displacement": 0.021493066503167717,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.004859474487602711,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "belt": {
+        "frames": 64,
+        "vertices": 221,
+        "pins": 64,
+        "free_vertices": 157,
+        "maximum_solver_displacement": 0.12702763919900953,
+        "maximum_free_solver_displacement": 0.12702763919900953,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.01353487093001604,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "tabard": {
+        "frames": 64,
+        "vertices": 208,
+        "pins": 16,
+        "free_vertices": 192,
+        "maximum_solver_displacement": 0.19105043573394973,
+        "maximum_free_solver_displacement": 0.19105043573394973,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.0031850910745561123,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "banner_near_front": {
+        "frames": 24,
+        "vertices": 584,
+        "pins": 16,
+        "free_vertices": 568,
+        "maximum_solver_displacement": 0.3281649461624659,
+        "maximum_free_solver_displacement": 0.3281649461624659,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.014622996561229229,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "banner_near_rear": {
+        "frames": 24,
+        "vertices": 592,
+        "pins": 16,
+        "free_vertices": 576,
+        "maximum_solver_displacement": 0.11742328344043586,
+        "maximum_free_solver_displacement": 0.11742328344043586,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.0104000773280859,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "banner_far_front": {
+        "frames": 24,
+        "vertices": 592,
+        "pins": 16,
+        "free_vertices": 576,
+        "maximum_solver_displacement": 0.16399093859630276,
+        "maximum_free_solver_displacement": 0.16399093859630276,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.002626789268106222,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "banner_far_rear": {
+        "frames": 24,
+        "vertices": 592,
+        "pins": 16,
+        "free_vertices": 576,
+        "maximum_solver_displacement": 0.16073099342153063,
+        "maximum_free_solver_displacement": 0.16073099342153063,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.0038000133354216814,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "tabard_back": {
+        "frames": 24,
+        "vertices": 304,
+        "pins": 16,
+        "free_vertices": 288,
+        "maximum_solver_displacement": 0.22008999663033116,
+        "maximum_free_solver_displacement": 0.22008999663033116,
+        "maximum_pin_error": 3.725290298461914e-09,
+        "maximum_contact_displacement": 0.011376767419278622,
+        "maximum_contact_displacement_allowed": 0.252
+      }
+    },
+    "source_outline_fit": {
+      "regions": [
+        "foot_far",
+        "foot_near"
+      ],
+      "vertices": 2345,
+      "profile_views": {
+        "foot_near": [
+          "front"
+        ],
+        "foot_far": [
+          "rear"
+        ]
+      },
+      "maximum_skinning_error": 1.80061301179366e-07,
+      "maximum_displacement": 0.19895618266606027,
+      "native_corrective_shape": "source_outline_fit"
+    },
+    "facing": {
+      "forward_world": [
+        0.9979227185249329,
+        -0.006726275663822889,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.9979227185249329,
+        -0.006726275663822889,
+        -0.06407010555267334
+      ],
+      "front_forward_screen": [
+        -0.7103941165031136,
+        0.3504408631175375
+      ],
+      "rear_forward_screen": [
+        0.7103941165031136,
+        -0.3504408631175375
+      ],
+      "board_axis_cosine": 0.9999855791634586,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {}
+  },
+  "passed": true
+}

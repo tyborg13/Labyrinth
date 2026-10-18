@@ -14,6 +14,31 @@ from .torso_reflection import asymmetry, passes_asymmetry
 
 
 def probe(spec, objects, output, root, cam, capture):
+    if any(o.get('piece_type') == 'body' and o.get('part') == 'torso' for o in objects):
+        return probe_mattes(spec, objects, output, root, cam, capture)
+    # A robe legitimately covers the complete chest. Its proof still uses
+    # the original heat-weighted torso, without exposing it in delivered clay.
+    from .pieces import mesh_object
+    body = bpy.data.objects['posed_body']
+    owners = json.loads(body['face_owners'])
+    faces = [list(p.vertices) for p, owner in zip(body.data.polygons, owners) if owner == 'torso']
+    if not faces:
+        raise ValueError('Covered torso has no weighted anatomy for facing proof')
+    torso = mesh_object('proof_weighted_torso', [list(v.co) for v in body.data.vertices], faces)
+    torso['part'], torso['piece_type'] = 'torso', 'body'
+    torso.parent = root
+    torso.matrix_basis = body.matrix_world.copy()
+    objects.append(torso)
+    try:
+        return probe_mattes(spec, objects, output, root, cam, capture)
+    finally:
+        objects.remove(torso)
+        data = torso.data
+        bpy.data.objects.remove(torso, do_unlink=True)
+        bpy.data.meshes.remove(data)
+
+
+def probe_mattes(spec, objects, output, root, cam, capture):
     from bpy_extras.object_utils import world_to_camera_view
     output = Path(output)
     rig = bpy.data.objects['maquette_armature']

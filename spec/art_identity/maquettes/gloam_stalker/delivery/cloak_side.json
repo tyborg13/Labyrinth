@@ -1,0 +1,89 @@
+{
+  "rule": "body_sagittal_plane",
+  "pieces": {
+    "cloak_render": {
+      "torso_midpoint_body": [
+        0.014915551990270615,
+        0.024859189987182617,
+        1.1145873069763184
+      ],
+      "normal_toward_shoulder_near": [
+        0.000639601521431465,
+        0.999999795454926,
+        -0.0
+      ],
+      "forward_body": [
+        0.99991375207901,
+        -0.0006395464879460633,
+        -0.01312288548797369
+      ],
+      "up_body": [
+        0,
+        0,
+        1
+      ],
+      "shoulder_near_body": [
+        -0.24527766472408363,
+        0.23201941257683617,
+        1.4609975027401225
+      ],
+      "shoulder_far_body": [
+        0.35465824493887765,
+        -0.2353339756136482,
+        1.3635696448143733
+      ],
+      "face_owner_hash": "cf0ce02b4298bed47301a7ad5f9afbccda8e628f10e5696cb41b85e30387cec3",
+      "faces": {
+        "cape_near": 5951,
+        "cape_far": 34481
+      }
+    },
+    "front_cloak_render": {
+      "torso_midpoint_body": [
+        0.014915551990270615,
+        0.024859189987182617,
+        1.1145873069763184
+      ],
+      "normal_toward_shoulder_near": [
+        0.000639601521431465,
+        0.999999795454926,
+        -0.0
+      ],
+      "forward_body": [
+        0.99991375207901,
+        -0.0006395464879460633,
+        -0.01312288548797369
+      ],
+      "up_body": [
+        0,
+        0,
+        1
+      ],
+      "shoulder_near_body": [
+        -0.24527766472408363,
+        0.23201941257683617,
+        1.4609975027401225
+      ],
+      "shoulder_far_body": [
+        0.35465824493887765,
+        -0.2353339756136482,
+        1.3635696448143733
+      ],
+      "face_owner_hash": "4357b13d7dcfb4ed6e89812f6d28bbbe04895c0b76b25474356e997251384a74",
+      "faces": {
+        "cape_near": 29339,
+        "cape_far": 11197
+      }
+    }
+  },
+  "view_owner_hashes": {
+    "front": {
+      "cloak_render": "cf0ce02b4298bed47301a7ad5f9afbccda8e628f10e5696cb41b85e30387cec3",
+      "front_cloak_render": "4357b13d7dcfb4ed6e89812f6d28bbbe04895c0b76b25474356e997251384a74"
+    },
+    "rear": {
+      "cloak_render": "cf0ce02b4298bed47301a7ad5f9afbccda8e628f10e5696cb41b85e30387cec3",
+      "front_cloak_render": "4357b13d7dcfb4ed6e89812f6d28bbbe04895c0b76b25474356e997251384a74"
+    }
+  }
+}
