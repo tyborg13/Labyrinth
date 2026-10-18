@@ -1,0 +1,2276 @@
+{
+  "schema": 1,
+  "id": "gale_herald",
+  "sources": {
+    "front": "spec/art_identity/jobs/gale_herald/front/processed.png",
+    "rear": "spec/art_identity/jobs/gale_herald/rear/processed.png"
+  },
+  "source_sha256": {
+    "front": "6c177113929ec39523104f32d7046c81dbf065e5aafe2d8eacb21aa55c1a8f81",
+    "rear": "f2d96176790add5927479a4468f215ffb729507881540abb0a04895d2eeb5d47"
+  },
+  "labels": {
+    "head": [
+      1.0,
+      0.85,
+      0.1
+    ],
+    "torso": [
+      0.85,
+      0.15,
+      0.15
+    ],
+    "belt": [
+      0.35,
+      0.22,
+      0.1
+    ],
+    "tabard": [
+      0.95,
+      0.5,
+      0.6
+    ],
+    "cape_near": [
+      0.95,
+      0.55,
+      0.1
+    ],
+    "cape_far": [
+      0.6,
+      0.35,
+      0.05
+    ],
+    "upper_near": [
+      0.2,
+      0.4,
+      1.0
+    ],
+    "fore_near": [
+      0.45,
+      0.62,
+      1.0
+    ],
+    "hand_near": [
+      0.75,
+      0.82,
+      1.0
+    ],
+    "upper_far": [
+      0.5,
+      0.1,
+      0.8
+    ],
+    "fore_far": [
+      0.72,
+      0.3,
+      0.9
+    ],
+    "hand_far": [
+      0.92,
+      0.62,
+      1.0
+    ],
+    "horn": [
+      0.255,
+      0.85,
+      0.5515760780500001
+    ],
+    "thigh_near": [
+      0.1,
+      0.7,
+      0.7
+    ],
+    "shin_near": [
+      0.3,
+      0.85,
+      0.85
+    ],
+    "foot_near": [
+      0.6,
+      0.95,
+      0.95
+    ],
+    "thigh_far": [
+      0.05,
+      0.4,
+      0.4
+    ],
+    "shin_far": [
+      0.15,
+      0.55,
+      0.55
+    ],
+    "foot_far": [
+      0.3,
+      0.65,
+      0.65
+    ]
+  },
+  "joints_px": {
+    "pelvis": [
+      [
+        125,
+        139
+      ],
+      [
+        113,
+        138
+      ]
+    ],
+    "torso": [
+      [
+        123,
+        107
+      ],
+      [
+        111,
+        100
+      ]
+    ],
+    "head": [
+      [
+        118,
+        65
+      ],
+      [
+        108,
+        61
+      ]
+    ],
+    "head_tip": [
+      [
+        118,
+        50
+      ],
+      [
+        108,
+        48
+      ]
+    ],
+    "shoulder_near": [
+      [
+        148,
+        104
+      ],
+      [
+        77,
+        101
+      ]
+    ],
+    "shoulder_far": [
+      [
+        98,
+        102
+      ],
+      [
+        142,
+        100
+      ]
+    ],
+    "elbow_near": [
+      [
+        158,
+        143
+      ],
+      [
+        48,
+        134
+      ]
+    ],
+    "elbow_far": [
+      [
+        79,
+        108
+      ],
+      [
+        148,
+        72
+      ]
+    ],
+    "hand_near": [
+      [
+        161,
+        171
+      ],
+      [
+        40,
+        155
+      ]
+    ],
+    "hand_far": [
+      [
+        91,
+        68
+      ],
+      [
+        138,
+        64
+      ]
+    ],
+    "hand_tip_near": [
+      [
+        157,
+        181
+      ],
+      [
+        38,
+        164
+      ]
+    ],
+    "hand_tip_far": [
+      [
+        97,
+        61
+      ],
+      [
+        132,
+        62
+      ]
+    ],
+    "hip_near": [
+      [
+        140,
+        150
+      ],
+      [
+        91,
+        144
+      ]
+    ],
+    "hip_far": [
+      [
+        109,
+        149
+      ],
+      [
+        123,
+        147
+      ]
+    ],
+    "knee_near": [
+      [
+        151,
+        186
+      ],
+      [
+        68,
+        177
+      ]
+    ],
+    "knee_far": [
+      [
+        96,
+        175
+      ],
+      [
+        123,
+        186
+      ]
+    ],
+    "ankle_near": [
+      [
+        157,
+        222
+      ],
+      [
+        59,
+        206
+      ]
+    ],
+    "ankle_far": [
+      [
+        89,
+        195
+      ],
+      [
+        128,
+        224
+      ]
+    ],
+    "foot_tip_near": [
+      [
+        139,
+        237
+      ],
+      [
+        73,
+        212
+      ]
+    ],
+    "foot_tip_far": [
+      [
+        74,
+        202
+      ],
+      [
+        147,
+        234
+      ]
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "masked_hood",
+      "part": "head",
+      "kind": "hood",
+      "shape": "cowl",
+      "joint": "head",
+      "rings": [
+        [
+          28,
+          0.5,
+          0.5
+        ],
+        [
+          25,
+          8,
+          7
+        ],
+        [
+          19,
+          13,
+          12
+        ],
+        [
+          12,
+          17,
+          16
+        ],
+        [
+          4,
+          17,
+          16
+        ],
+        [
+          -5,
+          14,
+          15
+        ],
+        [
+          -13,
+          20,
+          21
+        ],
+        [
+          -34,
+          25,
+          26
+        ]
+      ],
+      "angles": [
+        0.7853981633974483,
+        5.497787143782138
+      ],
+      "closed": false,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "head",
+        "torso"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1,
+          2
+        ],
+        "frames": 8,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "self_distance_min": 0.0005,
+        "pin_filled_spans": [
+          [
+            0,
+            2
+          ]
+        ],
+        "pin_opening_rows": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "solver_margin": 0.015,
+        "native_hood": {
+          "revision": 1,
+          "opening_width_ratio": 0,
+          "opening_height_px": 26,
+          "closed_topology_revision": 2,
+          "sewn_topology_note": "One crown vertex and circular seam are already sewn. Do not merge distinct contact vertices after collision projection.",
+          "use_solver_rest_clearance": true
+        },
+        "rag": {
+          "count": 0,
+          "depth": 0,
+          "seed": 0
+        }
+      },
+      "opening_half_angles": [
+        0,
+        0,
+        0.12,
+        0.32,
+        0.35,
+        0.25,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "shoulder_yoke",
+      "part": "cape_near",
+      "shape": "cowl",
+      "kind": "cloak",
+      "joint": "torso",
+      "rings": [
+        [
+          25,
+          20,
+          24
+        ],
+        [
+          10,
+          32,
+          36
+        ],
+        [
+          -4,
+          40,
+          43
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "columns": 64,
+      "side_parts": [
+        "cape_near",
+        "cape_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 8,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "solver_margin": 0.035,
+        "rag": {
+          "count": 14,
+          "depth": 0.035,
+          "seed": 23
+        },
+        "radial_rest": {
+          "joint": "torso"
+        }
+      },
+      "fold_allowance_px": [
+        0,
+        1,
+        2,
+        0,
+        -1,
+        0,
+        2,
+        0,
+        -1,
+        0,
+        1,
+        0,
+        -1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "tunic",
+      "part": "torso",
+      "kind": "skirt",
+      "shape": "cowl",
+      "joint": "torso",
+      "rings": [
+        [
+          25,
+          12,
+          14
+        ],
+        [
+          15,
+          24,
+          26
+        ],
+        [
+          5,
+          23,
+          25
+        ],
+        [
+          -25,
+          19,
+          20
+        ],
+        [
+          -38,
+          18,
+          20
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "head",
+        "upper_near",
+        "upper_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          4
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "native_rest": {
+          "revision": 1,
+          "waist_joint": "pelvis",
+          "cuffs": [],
+          "neckline_px": [
+            [
+              120,
+              97
+            ],
+            [
+              113,
+              97
+            ]
+          ]
+        }
+      },
+      "sewn_parts": [
+        "torso"
+      ]
+    },
+    {
+      "id": "belt",
+      "part": "belt",
+      "kind": "skirt",
+      "shape": "cowl",
+      "joint": "pelvis",
+      "rings": [
+        [
+          3,
+          20,
+          21
+        ],
+        [
+          -4,
+          20,
+          21
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "head",
+        "upper_near",
+        "upper_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      }
+    },
+    {
+      "id": "tabard",
+      "part": "tabard",
+      "kind": "tabard",
+      "shape": "panel",
+      "rows_px": [
+        [
+          [
+            106,
+            131
+          ],
+          [
+            125,
+            134
+          ]
+        ],
+        [
+          [
+            105,
+            159
+          ],
+          [
+            126,
+            163
+          ]
+        ],
+        [
+          [
+            111,
+            190
+          ],
+          [
+            129,
+            205
+          ]
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": 0.23,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      }
+    },
+    {
+      "id": "banner_near",
+      "part": "cape_near",
+      "kind": "tabard",
+      "shape": "panel",
+      "rows_px": [
+        [
+          [
+            142,
+            109
+          ],
+          [
+            143,
+            136
+          ]
+        ],
+        [
+          [
+            165,
+            117
+          ],
+          [
+            161,
+            151
+          ]
+        ],
+        [
+          [
+            188,
+            126
+          ],
+          [
+            180,
+            169
+          ]
+        ],
+        [
+          [
+            212,
+            138
+          ],
+          [
+            203,
+            187
+          ]
+        ],
+        [
+          [
+            232,
+            139
+          ],
+          [
+            227,
+            185
+          ]
+        ],
+        [
+          [
+            245,
+            145
+          ],
+          [
+            240,
+            166
+          ]
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.15,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "upper_near",
+        "upper_far",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "rear_rows_px": [
+        [
+          [
+            113.0,
+            111
+          ],
+          [
+            115.0,
+            129
+          ]
+        ],
+        [
+          [
+            140.0,
+            126
+          ],
+          [
+            134.0,
+            151
+          ]
+        ],
+        [
+          [
+            164.0,
+            136
+          ],
+          [
+            155.0,
+            171
+          ]
+        ],
+        [
+          [
+            185.0,
+            141
+          ],
+          [
+            179.0,
+            187
+          ]
+        ],
+        [
+          [
+            208.0,
+            149
+          ],
+          [
+            204.0,
+            194
+          ]
+        ],
+        [
+          [
+            225.0,
+            169
+          ],
+          [
+            220.0,
+            195
+          ]
+        ]
+      ],
+      "ownership_mode": "whole_piece",
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "trailing_splits": {
+          "source_row": 4,
+          "columns": [
+            3,
+            8,
+            12
+          ],
+          "gap_columns": 1
+        },
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.013933965477701142,
+          0.018647285538155124,
+          0.011020973480483873,
+          -0.0038983442028329824,
+          -0.01623797632095822,
+          -0.01783230968053413,
+          -0.007626312057671253,
+          0.007626312057671244,
+          0.017832309680534127,
+          0.016237976320958233,
+          0.0038983442028330158,
+          -0.011020973480483864,
+          -0.018647285538155124,
+          -0.01393396547770114,
+          -4.249154173235985e-17
+        ],
+        "back_rest": {
+          "revision": 1,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ]
+        },
+        "rag": {
+          "count": 6,
+          "depth": 0.045,
+          "seed": 33
+        },
+        "gather_frames": 12,
+        "attach_pins_to_support": true,
+        "yoke_seam_joint": "shoulder_near",
+        "smooth_rows": true
+      },
+      "wind": {
+        "strength": 20,
+        "fit_basis": "Force solver fit to the approved screen-right banner rest trajectory, separately for each view.",
+        "space": "screen_right"
+      }
+    },
+    {
+      "id": "banner_far",
+      "part": "cape_far",
+      "kind": "tabard",
+      "shape": "panel",
+      "rows_px": [
+        [
+          [
+            137,
+            53
+          ],
+          [
+            139,
+            78
+          ]
+        ],
+        [
+          [
+            162,
+            54
+          ],
+          [
+            161,
+            81
+          ]
+        ],
+        [
+          [
+            188,
+            61
+          ],
+          [
+            183,
+            91
+          ]
+        ],
+        [
+          [
+            211,
+            70
+          ],
+          [
+            208,
+            105
+          ]
+        ],
+        [
+          [
+            233,
+            84
+          ],
+          [
+            230,
+            109
+          ]
+        ],
+        [
+          [
+            244,
+            96
+          ],
+          [
+            237,
+            106
+          ]
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.15,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "upper_near",
+        "upper_far",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "rear_rows_px": [
+        [
+          [
+            102.0,
+            66
+          ],
+          [
+            105.0,
+            85
+          ]
+        ],
+        [
+          [
+            133.0,
+            75
+          ],
+          [
+            132.0,
+            98
+          ]
+        ],
+        [
+          [
+            160.0,
+            80
+          ],
+          [
+            157.0,
+            115
+          ]
+        ],
+        [
+          [
+            184.0,
+            86
+          ],
+          [
+            182.0,
+            124
+          ]
+        ],
+        [
+          [
+            206.0,
+            92
+          ],
+          [
+            205.0,
+            134
+          ]
+        ],
+        [
+          [
+            227.0,
+            114
+          ],
+          [
+            220.0,
+            127
+          ]
+        ]
+      ],
+      "ownership_mode": "whole_piece",
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "trailing_splits": {
+          "source_row": 4,
+          "columns": [
+            3,
+            8,
+            12
+          ],
+          "gap_columns": 1
+        },
+        "pleat_direction": [
+          1,
+          0,
+          0
+        ],
+        "pleat_profile": [
+          0.0,
+          0.013933965477701142,
+          0.018647285538155124,
+          0.011020973480483873,
+          -0.0038983442028329824,
+          -0.01623797632095822,
+          -0.01783230968053413,
+          -0.007626312057671253,
+          0.007626312057671244,
+          0.017832309680534127,
+          0.016237976320958233,
+          0.0038983442028330158,
+          -0.011020973480483864,
+          -0.018647285538155124,
+          -0.01393396547770114,
+          -4.249154173235985e-17
+        ],
+        "back_rest": {
+          "revision": 1,
+          "shoulders": [
+            "shoulder_near",
+            "shoulder_far"
+          ]
+        },
+        "rag": {
+          "count": 6,
+          "depth": 0.045,
+          "seed": 33
+        },
+        "gather_frames": 12,
+        "attach_pins_to_support": true,
+        "yoke_seam_joint": "shoulder_far",
+        "smooth_rows": true
+      },
+      "wind": {
+        "strength": 20,
+        "fit_basis": "Force solver fit to the approved screen-right banner rest trajectory, separately for each view.",
+        "space": "screen_right"
+      }
+    },
+    {
+      "id": "horn",
+      "part": "horn",
+      "shape": "lathe",
+      "path_px": [
+        [
+          98,
+          59
+        ],
+        [
+          89,
+          75
+        ],
+        [
+          69,
+          104
+        ],
+        [
+          49,
+          120
+        ],
+        [
+          29,
+          137
+        ]
+      ],
+      "radius_px": 4,
+      "taper": [
+        0.55,
+        0.65,
+        0.7,
+        1.5,
+        3.7
+      ],
+      "plane_axis": 1,
+      "plane_coordinate": -0.2,
+      "closed": false,
+      "sides": 32,
+      "wall_px": 1,
+      "rear_path_px": [
+        [
+          126,
+          63
+        ],
+        [
+          143,
+          62
+        ],
+        [
+          165,
+          59
+        ],
+        [
+          188,
+          56
+        ],
+        [
+          214,
+          54
+        ]
+      ],
+      "bands": [
+        {
+          "at": 0.08,
+          "thickness_px": 1
+        },
+        {
+          "at": 0.22,
+          "thickness_px": 1
+        },
+        {
+          "at": 0.38,
+          "thickness_px": 1
+        },
+        {
+          "at": 0.55,
+          "thickness_px": 1
+        },
+        {
+          "at": 0.76,
+          "thickness_px": 1
+        }
+      ]
+    },
+    {
+      "id": "crest_mask",
+      "part": "head",
+      "shape": "plate",
+      "front_outline_px": [
+        [
+          118,
+          36
+        ],
+        [
+          130,
+          58
+        ],
+        [
+          125,
+          80
+        ],
+        [
+          114,
+          88
+        ],
+        [
+          108,
+          65
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": 0.25,
+      "thick": 0.006,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      },
+      "native_mask": true,
+      "paired_anchors_px": {
+        "0": [
+          [
+            118,
+            36
+          ],
+          [
+            114,
+            31
+          ]
+        ]
+      },
+      "seat_on": "masked_hood",
+      "closed_cover": true
+    },
+    {
+      "id": "upper_plate_near",
+      "part": "upper_near",
+      "shape": "body_plate",
+      "regions": [
+        "upper_near"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "fore_plate_near",
+      "part": "fore_near",
+      "shape": "body_plate",
+      "regions": [
+        "fore_near"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "upper_plate_far",
+      "part": "upper_far",
+      "shape": "body_plate",
+      "regions": [
+        "upper_far"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "fore_plate_far",
+      "part": "fore_far",
+      "shape": "body_plate",
+      "regions": [
+        "fore_far"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "shoulder_lame_near_0",
+      "part": "upper_near",
+      "shape": "plate",
+      "front_outline_px": [
+        [
+          137,
+          106
+        ],
+        [
+          148,
+          110
+        ],
+        [
+          153,
+          117
+        ],
+        [
+          144,
+          120
+        ],
+        [
+          135,
+          114
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.02,
+      "thick": 0.009,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "shoulder_lame_near_1",
+      "part": "upper_near",
+      "shape": "plate",
+      "front_outline_px": [
+        [
+          139,
+          116
+        ],
+        [
+          151,
+          119
+        ],
+        [
+          155,
+          126
+        ],
+        [
+          146,
+          129
+        ],
+        [
+          137,
+          123
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.02,
+      "thick": 0.009,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "shoulder_lame_near_2",
+      "part": "upper_near",
+      "shape": "plate",
+      "front_outline_px": [
+        [
+          141,
+          125
+        ],
+        [
+          153,
+          128
+        ],
+        [
+          156,
+          135
+        ],
+        [
+          147,
+          138
+        ],
+        [
+          139,
+          132
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.02,
+      "thick": 0.009,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "armour_thigh_near",
+      "part": "thigh_near",
+      "shape": "body_plate",
+      "regions": [
+        "thigh_near"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "armour_shin_near",
+      "part": "shin_near",
+      "shape": "body_plate",
+      "regions": [
+        "shin_near"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "armour_thigh_far",
+      "part": "thigh_far",
+      "shape": "body_plate",
+      "regions": [
+        "thigh_far"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "armour_shin_far",
+      "part": "shin_far",
+      "shape": "body_plate",
+      "regions": [
+        "shin_far"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.008,
+      "bevel": {
+        "width": 0.002,
+        "segments": 1,
+        "angle_limit": 0.4
+      }
+    },
+    {
+      "id": "tabard_back",
+      "part": "tabard",
+      "kind": "tabard",
+      "shape": "panel",
+      "rows_px": [
+        [
+          [
+            81,
+            131
+          ],
+          [
+            117,
+            140
+          ]
+        ],
+        [
+          [
+            80,
+            151
+          ],
+          [
+            128,
+            164
+          ]
+        ],
+        [
+          [
+            89,
+            174
+          ],
+          [
+            135,
+            185
+          ]
+        ],
+        [
+          [
+            98,
+            202
+          ],
+          [
+            116,
+            188
+          ]
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": -0.35,
+      "collision_refine_levels": 3,
+      "contact_regions": [
+        "torso",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "attach_pins_to_support": true,
+        "gather_frames": 8,
+        "rag": {
+          "count": 6,
+          "depth": 0.045,
+          "seed": 33
+        },
+        "waist_anchor_px": [
+          [
+            119,
+            139
+          ],
+          [
+            107,
+            138
+          ]
+        ],
+        "waist_side": "back"
+      },
+      "source_view": "rear"
+    }
+  ],
+  "bone_scales": {
+    "pelvis": [
+      1,
+      1
+    ],
+    "torso": [
+      1,
+      1
+    ],
+    "shoulder_near": [
+      1,
+      1
+    ],
+    "shoulder_far": [
+      1,
+      1
+    ],
+    "elbow_near": [
+      1,
+      1
+    ],
+    "elbow_far": [
+      1,
+      1
+    ],
+    "ankle_near": [
+      1.3,
+      1.1
+    ],
+    "ankle_far": [
+      1.3,
+      1.1
+    ],
+    "head": [
+      0.6,
+      0.6
+    ],
+    "hip_near": [
+      1,
+      1
+    ],
+    "hip_far": [
+      1,
+      1
+    ],
+    "knee_near": [
+      1,
+      1
+    ],
+    "knee_far": [
+      1,
+      1
+    ]
+  },
+  "region_map": {
+    "pelvis": "torso"
+  },
+  "weapon_parts": [
+    "horn"
+  ],
+  "fit": {
+    "front": {
+      "source_frame": {
+        "head_top": 36,
+        "sole_bottom": 246,
+        "ground_x": 141.5
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.3238095238095238,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.49047619047619045,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.7142857142857143,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.8857142857142857,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.7,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    },
+    "rear": {
+      "source_frame": {
+        "head_top": 31,
+        "sole_bottom": 246,
+        "ground_x": 126.74137931034483
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.32558139534883723,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.49767441860465117,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.6790697674418604,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.813953488372093,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.65,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    }
+  },
+  "features": {
+    "mouthpiece_hand": "hand_far",
+    "banner_glyphs": [
+      {
+        "part": "cape_near",
+        "whole": true
+      },
+      {
+        "part": "cape_far",
+        "whole": true
+      }
+    ]
+  },
+  "occlusions": {
+    "front": {},
+    "rear": {}
+  },
+  "unresolved_design": {},
+  "measurement_basis": "Art-02 identity/proportion reference. Feedback 2/3: free native cloth, masked hood, measured bronze plate layers and a smooth flared horn. New painting follows the maquette.",
+  "view_registration_px": {
+    "front": [
+      0,
+      0
+    ],
+    "rear": [
+      -30,
+      0
+    ]
+  },
+  "covered_body_regions": [
+    "head"
+  ],
+  "per_view_cloth_pose": {
+    "decision": "Director mq-04 feedback 1, 2026-10-17: both paintings trail screen-right.",
+    "parts": [
+      "cape_near",
+      "cape_far"
+    ],
+    "method": "Two native editable static cloth states, measured in their respective approved view. Visibility selects the state at capture; the common body, armature, joints and every other piece are turned 180 degrees unchanged."
+  },
+  "hidden_anatomy_note": "The hood supplies the complete head silhouette; concealed anatomy is narrowed only for cloth clearance. Visible anatomy and source cloth measurements are unchanged.",
+  "contact_policy": "Existing native regional contact solver; original-anatomy collision validation remains mandatory. Whole-body projection experiments were rejected because they distorted source fits without clearing the real-model gate.",
+  "body_source_profiles": {
+    "foot_near": {
+      "front": [
+        [
+          146,
+          221
+        ],
+        [
+          145,
+          222
+        ],
+        [
+          143,
+          223
+        ],
+        [
+          143,
+          224
+        ],
+        [
+          142,
+          225
+        ],
+        [
+          141,
+          226
+        ],
+        [
+          140,
+          227
+        ],
+        [
+          139,
+          228
+        ],
+        [
+          137,
+          229
+        ],
+        [
+          134,
+          230
+        ],
+        [
+          134,
+          231
+        ],
+        [
+          133,
+          232
+        ],
+        [
+          132,
+          233
+        ],
+        [
+          132,
+          234
+        ],
+        [
+          131,
+          235
+        ],
+        [
+          130,
+          236
+        ],
+        [
+          130,
+          237
+        ],
+        [
+          130,
+          238
+        ],
+        [
+          130,
+          239
+        ],
+        [
+          130,
+          240
+        ],
+        [
+          130,
+          241
+        ],
+        [
+          131,
+          242
+        ],
+        [
+          133,
+          243
+        ],
+        [
+          133,
+          244
+        ],
+        [
+          136,
+          246
+        ],
+        [
+          147,
+          246
+        ],
+        [
+          150,
+          244
+        ],
+        [
+          151,
+          243
+        ],
+        [
+          154,
+          242
+        ],
+        [
+          155,
+          241
+        ],
+        [
+          156,
+          240
+        ],
+        [
+          157,
+          239
+        ],
+        [
+          158,
+          238
+        ],
+        [
+          158,
+          237
+        ],
+        [
+          159,
+          236
+        ],
+        [
+          161,
+          235
+        ],
+        [
+          161,
+          234
+        ],
+        [
+          164,
+          233
+        ],
+        [
+          166,
+          232
+        ],
+        [
+          168,
+          231
+        ],
+        [
+          168,
+          230
+        ],
+        [
+          169,
+          229
+        ],
+        [
+          169,
+          228
+        ],
+        [
+          169,
+          227
+        ],
+        [
+          169,
+          226
+        ],
+        [
+          169,
+          225
+        ],
+        [
+          169,
+          224
+        ],
+        [
+          169,
+          223
+        ],
+        [
+          169,
+          222
+        ],
+        [
+          168,
+          221
+        ]
+      ]
+    },
+    "foot_far": {
+      "rear": [
+        [
+          120,
+          221
+        ],
+        [
+          118,
+          222
+        ],
+        [
+          118,
+          223
+        ],
+        [
+          118,
+          224
+        ],
+        [
+          118,
+          225
+        ],
+        [
+          118,
+          226
+        ],
+        [
+          118,
+          227
+        ],
+        [
+          117,
+          228
+        ],
+        [
+          116,
+          229
+        ],
+        [
+          116,
+          230
+        ],
+        [
+          116,
+          231
+        ],
+        [
+          116,
+          232
+        ],
+        [
+          116,
+          233
+        ],
+        [
+          116,
+          234
+        ],
+        [
+          117,
+          235
+        ],
+        [
+          115,
+          236
+        ],
+        [
+          115,
+          237
+        ],
+        [
+          115,
+          238
+        ],
+        [
+          115,
+          239
+        ],
+        [
+          115,
+          240
+        ],
+        [
+          115,
+          241
+        ],
+        [
+          115,
+          242
+        ],
+        [
+          116,
+          243
+        ],
+        [
+          119,
+          244
+        ],
+        [
+          120,
+          246
+        ],
+        [
+          134,
+          246
+        ],
+        [
+          134,
+          244
+        ],
+        [
+          138,
+          243
+        ],
+        [
+          146,
+          242
+        ],
+        [
+          147,
+          241
+        ],
+        [
+          152,
+          240
+        ],
+        [
+          156,
+          239
+        ],
+        [
+          156,
+          238
+        ],
+        [
+          157,
+          237
+        ],
+        [
+          158,
+          236
+        ],
+        [
+          159,
+          235
+        ],
+        [
+          159,
+          234
+        ],
+        [
+          159,
+          233
+        ],
+        [
+          159,
+          232
+        ],
+        [
+          159,
+          231
+        ],
+        [
+          159,
+          230
+        ],
+        [
+          159,
+          229
+        ],
+        [
+          157,
+          228
+        ],
+        [
+          157,
+          227
+        ],
+        [
+          156,
+          226
+        ],
+        [
+          156,
+          225
+        ],
+        [
+          154,
+          224
+        ],
+        [
+          153,
+          223
+        ],
+        [
+          145,
+          222
+        ],
+        [
+          143,
+          221
+        ]
+      ]
+    }
+  },
+  "grounded_profile_measurements": {
+    "regions": {
+      "foot_near": [
+        "front",
+        [
+          110,
+          221,
+          170,
+          247
+        ]
+      ],
+      "foot_far": [
+        "rear",
+        [
+          108,
+          221,
+          168,
+          247
+        ]
+      ]
+    },
+    "alpha_threshold": 128,
+    "row_step_px": 1,
+    "method": "Observed full ground-contact foot contour; retain native depth for the occluded opposite view."
+  },
+  "design_direction": "Feedback 3: all four native maquettes reviewed together before paint-over.",
+  "simulation_basis": "Native Cloth uses the Lancer r3 stiffness preset with the fixed per-garment pre-roll recorded in drape.frames, free fabric, self-collision, measured attachments and the native anatomy collision skin. Sampling, solver timing and tolerances are implementation fields; source extents and director metric dimensions are retained.",
+  "cloth_registration": "Each wind-driven banner includes a sewn cloth connection from its measured shoulder yoke to the measured banner strips. Only the banner cloth has per-view states. The banner outlines, seam spans and glyph ownership retain the identity reference.",
+  "yoke_basis": "The blue shoulder cloth visible in both approved paintings; native simulated near/far body-side parts. Glyph circles remain whole on their separately owned trailing banners. Yoke is the same mesh turned 180 degrees.",
+  "tabard_basis": "Two real waist panels, front and back, both always present on the same model; the rear blue waist cloth in the identity painting is not a view-specific body change.",
+  "implementation_issues": {},
+  "hood_basis": "Feedback 4: closed simulated cowl without a cut aperture; one solid pointed mask overlays the front.",
+  "banner_fold_basis": "Feedback 4: two broad rest folds across each strip, resolved by native cloth; ragged lower edge. Rear source contours remeasured; shoulder attachment and per-view screen-right wind retained."
+}

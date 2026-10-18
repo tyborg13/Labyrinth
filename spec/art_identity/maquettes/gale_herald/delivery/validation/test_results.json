@@ -1,0 +1,61 @@
+{
+  "focused_maquette.log": {
+    "sha256": "02b2a719dcf89273cc8684729fe84da52dbd6326619a70aa5fcb3869fa6940e0",
+    "result_lines": [
+      "Ran 98 tests in 130.588s",
+      "OK (skipped=2)"
+    ]
+  },
+  "art_identity.log": {
+    "sha256": "c38f02ffdeaab96837427a39d373f52d97f394dc2a3f793f77bad26ef5a6dcdd",
+    "result_lines": [
+      "Ran 111 tests in 67.852s",
+      "OK"
+    ]
+  },
+  "full_python_final.log": {
+    "sha256": "e72fd0d02eed51d49f0f604f05108e4f93de1b9728bda7fc740602c57bd4aae2",
+    "result_lines": [
+      "Ran 670 tests in 602.932s",
+      "OK (skipped=63)"
+    ]
+  },
+  "helpers_final.log": {
+    "sha256": "894386cd8efaf0ea638d64b770e1af5c4a171fcb74cef809281567935c5ac9f5",
+    "result_lines": [
+      "Ran 61 tests in 0.950s",
+      "OK"
+    ]
+  },
+  "mutations.log": {
+    "sha256": "f1ddc34309417527ca4e5db1271c00df24924677d1378596a0e7369be0b94c1d",
+    "result_lines": [
+      "MQ03_MUTATIONS: PASS; caught=4; survived=0"
+    ]
+  },
+  "compat.log": {
+    "sha256": "a3328eabbff273a551ab95f9dfdfde855cfcc579da01fcaa3f7f33695996aede",
+    "result_lines": [
+      "MAQUETTE_COMPAT: PASS"
+    ]
+  },
+  "quality_delivery.log": {
+    "sha256": "9a6b7b37825f9ed0d5d65c314ae0df47b421d05eacdfe583225e4fdb511629b8",
+    "result_lines": [
+      "MAQUETTE_QUALITY_DELIVERY: PASS"
+    ]
+  },
+  "clean_regeneration_release.log": {
+    "sha256": "243bf7c4a58b19eccdc217e2b4ec742f3fa6c198bd8ea5208eb2ec62ef9462b7",
+    "result_lines": [
+      "CLEAN_REGENERATION: PASS; arc_thrall; canonical_png_sha256=true"
+    ]
+  },
+  "helpers_curated.log": {
+    "sha256": "ed221d8d9e0229ac8e11eda195860f6e79f7166628c588ae5f2845104afc6cdd",
+    "result_lines": [
+      "Ran 61 tests in 0.943s",
+      "OK"
+    ]
+  }
+}

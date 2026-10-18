@@ -15,10 +15,12 @@ from .capture_manifest import read_manifest, require_image
 
 DEFAULT_BLENDER = '/Applications/Blender.app/Contents/MacOS/Blender'
 BUILDER = Path(__file__).with_name('build.py')
+BACKEND_DEFAULTS = {'job_timeout_s': 900}
 
 
 def command(spec_path, output, blender=DEFAULT_BLENDER, bundle=None, silhouettes=False, gallery=False):
     result = [sys.executable, str(Path(__file__).with_name('bridge_client.py')),
+              '--timeout', str(BACKEND_DEFAULTS['job_timeout_s']),
               str(BUILDER), '--', str(Path(spec_path).resolve()), str(Path(output).resolve()), '--engine', 'cycles']
     if bundle:
         result += ['--bundle', str(bundle)]
@@ -92,7 +94,7 @@ class BlenderRenderer:
             cmd.append('--fit-only')
         if gallery:
             cmd.append('--gallery')
-        result = run_job(BUILDER, cmd, timeout_s=120)
+        result = run_job(BUILDER, cmd, timeout_s=BACKEND_DEFAULTS['job_timeout_s'])
         (folder / 'blender.log').write_text(result['stdout'])
         (folder / 'bridge_result.json').write_text(json.dumps({k: v for k, v in result.items() if k != 'stdout'}, indent=2))
         if result['exit']:

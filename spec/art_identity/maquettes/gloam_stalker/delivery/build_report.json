@@ -1,0 +1,354 @@
+{
+  "schema": 2,
+  "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
+  "board_frame": {
+    "yaw_radians": -0.0,
+    "pivot": [
+      -5.240664411863456e-17,
+      0.013258252147247684,
+      0.8764303551856266
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "0f20f9f9e48bfb8c7684df446d381cf05056bb68970e928f19024ed16cce0231",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "hood_render": "c54ad7c9f11cda61b4852164f0ecb108249d4cf0beff8e8a8750f971bd2df12d",
+    "torso_cloth_render": "5578b2fbc475428bc16179ed33329e80589a718fb7900242ff443cc1e15e5f42",
+    "claw_near_render": "b1d086c5901d12c69e6b3a120e99e3e836efed8c0a218ed091f050e9e2312834",
+    "claw_far_render": "f967ac2601177ecd2b9b4ff5b95513adcbc4344a51be519d20e7dab77b287890",
+    "cloak_render": "061b4d07b8ab0f65ec5c1439dd7c25514d55a28e0f16436760b35e4e9ddc88cf",
+    "front_cloak_render": "43b0860324a331be9ea2e475ab393c62fd14fe7748805ed008cc8f573491acdf",
+    "back_carapace_render": "da6e3ecfb5c7cbca0a8713804661054b20a75b0e86e815b7a0bd71b3d74c717e",
+    "body_foot_far": "18e82d33d5059e4fa0df12375a01928519161116a9a97a59025cd5505caaf656",
+    "body_foot_near": "509bee1badb37554b234b6f39a35ed90726cc8ca34cbb7090e0f6a20ae4ed7ed",
+    "body_fore_far": "573922a28253df3fa918de1c8e21ab73cbc8ed00912e74e81db18f6f7aa78111",
+    "body_fore_near": "6d7b21dbd3b55b52d942031796f791823d3252f3780949af4127f6ac7d3a09ae",
+    "body_head": "eade60a8ea1eaaddd18842f3352c340b06ea5f44cf4301fd520e8aa17bd70926",
+    "body_shin_far": "d7281a58062b4bb3bf8fe8c7fa0b5ce627899888a874a821711581ba16f87742",
+    "body_shin_near": "82da80cb3149f0688df034f91133c2261e39debc1304d9dd4299c2bade6b64c8",
+    "body_thigh_far": "0bddac2153c89134dec5493a4bf3c253db5677b930a7cc86acdba49f7dcc460d",
+    "body_thigh_near": "35df3b2a1795d35968f7440e6feb0595b79e7c1a617e29e188756364dc749682",
+    "body_upper_far": "20654490584f84a1f05ecb66d442d928e23f02b280964e899bbd8cb7b7737c58",
+    "body_upper_near": "2711b5732f41d8cfb38ca547ed979ef77c057e4f4bdb0297cde50afd03a87257"
+  },
+  "combined_mesh_hash": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
+  "checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "sculpted_blade_roots_attached": true,
+    "native_cloth_drape": true,
+    "native_cloth_stability": true,
+    "native_cloth_contact_stability": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "cloth": {
+    "hood": {
+      "minimum_signed_distance": 0.03773602470755577,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "torso_cloth": {
+      "minimum_signed_distance": 0.059730324894189835,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "cloak": {
+      "minimum_signed_distance": 0.06000238656997681,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "front_cloak": {
+      "minimum_signed_distance": 0.05985359475016594,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "hood__back_carapace": {
+      "minimum_signed_distance": 0.01571359671652317,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "torso_cloth__back_carapace": {
+      "minimum_signed_distance": 0.039632488042116165,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "cloak__back_carapace": {
+      "minimum_signed_distance": 0.014999985694885254,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "front_cloak__back_carapace": {
+      "minimum_signed_distance": 0.16854546964168549,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    }
+  },
+  "geometry_details": {
+    "metric_accessories": {},
+    "rounded_hoods": {
+      "hood_render": {
+        "head_bounds": [
+          [
+            -0.03234003484249115,
+            -0.1820681095123291,
+            1.679695725440979
+          ],
+          [
+            0.20518285036087036,
+            0.024959266185760498,
+            2.0246949195861816
+          ]
+        ],
+        "head_width": 0.2070273756980896,
+        "opening_width": 0.12421642541885375,
+        "opening_width_ratio": 0.6,
+        "opening_height": 0.24375,
+        "collision_allowance": 0.043000000000000003,
+        "opening_rows": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "defaults": {
+          "revision": 1,
+          "skull_rows": 25,
+          "columns": 48,
+          "shoulder_rows": 8,
+          "crown_pin_rows": 3
+        }
+      }
+    },
+    "sewn_rest": {
+      "torso_cloth_render": {
+        "connected": true,
+        "nonmanifold_edges": 0,
+        "boundary_loops": 2,
+        "source": "native anatomy union / sewn shoulder rest surface",
+        "regions": [
+          "torso"
+        ],
+        "pins": 306,
+        "vertices": 2373,
+        "removed_sampling_islands": [],
+        "defaults": {
+          "revision": 1,
+          "voxel_size": 0.022,
+          "smoothing_iterations": 4,
+          "smoothing_factor": 0.5,
+          "upper_cuff_pins": 2
+        }
+      }
+    },
+    "rigid_clearance": {
+      "back_carapace_render": {
+        "targets": [
+          "hood",
+          "torso_cloth",
+          "cloak",
+          "front_cloak"
+        ],
+        "source_closed_plates": 4,
+        "retained_faces_per_plate": [
+          63,
+          50,
+          96,
+          174
+        ],
+        "clearance": 0.015,
+        "cloth_unchanged": true,
+        "method": "Native exact boolean difference against expanded convex garment envelopes"
+      }
+    },
+    "collar_widths": {},
+    "corner_errors": {},
+    "conformance": {},
+    "blade_attachments": {
+      "claw_near_render": {
+        "region": "fore_near",
+        "root_displacement": 0.09992022154176865,
+        "root_contact_gap": 0.0,
+        "passed": true
+      },
+      "claw_far_render": {
+        "region": "fore_far",
+        "root_displacement": 0.28835195126428115,
+        "root_contact_gap": 0.0,
+        "passed": true
+      }
+    },
+    "cloth_simulation": {
+      "hood": {
+        "frames": 64,
+        "vertices": 1480,
+        "pins": 106,
+        "free_vertices": 1374,
+        "maximum_solver_displacement": 0.2428725507927947,
+        "maximum_free_solver_displacement": 0.2428725507927947,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.008464645594358444,
+        "maximum_contact_displacement_allowed": 0.17200000000000001
+      },
+      "torso_cloth": {
+        "frames": 24,
+        "vertices": 2323,
+        "pins": 296,
+        "free_vertices": 2027,
+        "maximum_solver_displacement": 0.02059773477067926,
+        "maximum_free_solver_displacement": 0.02059773477067926,
+        "maximum_pin_error": 0.0,
+        "maximum_contact_displacement": 0.00644960580393672,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "cloak": {
+        "frames": 96,
+        "vertices": 1319,
+        "pins": 64,
+        "free_vertices": 1255,
+        "maximum_solver_displacement": 0.701254948659765,
+        "maximum_free_solver_displacement": 0.701254948659765,
+        "maximum_pin_error": 1.862645149230957e-09,
+        "maximum_contact_displacement": 0.014792037196457386,
+        "maximum_contact_displacement_allowed": 0.252
+      },
+      "front_cloak": {
+        "frames": 96,
+        "vertices": 1323,
+        "pins": 64,
+        "free_vertices": 1259,
+        "maximum_solver_displacement": 0.35773990831242436,
+        "maximum_free_solver_displacement": 0.35773990831242436,
+        "maximum_pin_error": 3.725290298461914e-09,
+        "maximum_contact_displacement": 0.011703209951519966,
+        "maximum_contact_displacement_allowed": 0.252
+      }
+    },
+    "source_outline_fit": {
+      "regions": [
+        "foot_far",
+        "foot_near",
+        "shin_far",
+        "shin_near",
+        "thigh_far",
+        "thigh_near"
+      ],
+      "vertices": 3536,
+      "profile_views": {
+        "foot_near": [
+          "front"
+        ],
+        "foot_far": [
+          "rear"
+        ],
+        "shin_near": [
+          "front",
+          "rear"
+        ],
+        "shin_far": [
+          "front",
+          "rear"
+        ],
+        "thigh_near": [
+          "front",
+          "rear"
+        ],
+        "thigh_far": [
+          "front",
+          "rear"
+        ]
+      },
+      "maximum_skinning_error": 2.2426762719561173e-07,
+      "maximum_displacement": 0.37512754501539336,
+      "native_corrective_shape": "source_outline_fit"
+    },
+    "facing": {
+      "forward_world": [
+        0.99991375207901,
+        -0.0006395464879460633,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.99991375207901,
+        -0.0006395464879460633,
+        -0.01312288548797369
+      ],
+      "front_forward_screen": [
+        -0.7074980223552629,
+        0.35329678351912075
+      ],
+      "rear_forward_screen": [
+        0.7074980223552629,
+        -0.35329678351912075
+      ],
+      "board_axis_cosine": 0.9999998691915557,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {}
+  },
+  "passed": true
+}

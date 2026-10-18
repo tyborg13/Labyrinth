@@ -1,0 +1,50 @@
+{
+  "rule": "body_sagittal_plane",
+  "pieces": {
+    "robe_skirt_render": {
+      "torso_midpoint_body": [
+        -0.03314562141895294,
+        0.09280773252248764,
+        1.0902302265167236
+      ],
+      "normal_toward_shoulder_near": [
+        -0.0006962159931678299,
+        0.9999997576416161,
+        -0.0
+      ],
+      "forward_body": [
+        0.999474823474884,
+        0.0006958505255170166,
+        -0.032399509102106094
+      ],
+      "up_body": [
+        0,
+        0,
+        1
+      ],
+      "shoulder_near_body": [
+        -0.23533397561364786,
+        0.23533397561364777,
+        1.2499038105676659
+      ],
+      "shoulder_far_body": [
+        0.17235727791422098,
+        -0.1325825214724778,
+        1.2336658342467075
+      ],
+      "face_owner_hash": "f7623a5616a9b6aa6fee13c0668c3b4a7e5fd1e75131b3440eeede2b37faf2d5",
+      "faces": {
+        "skirt_near": 18536,
+        "skirt_far": 18824
+      }
+    }
+  },
+  "view_owner_hashes": {
+    "front": {
+      "robe_skirt_render": "f7623a5616a9b6aa6fee13c0668c3b4a7e5fd1e75131b3440eeede2b37faf2d5"
+    },
+    "rear": {
+      "robe_skirt_render": "f7623a5616a9b6aa6fee13c0668c3b4a7e5fd1e75131b3440eeede2b37faf2d5"
+    }
+  }
+}

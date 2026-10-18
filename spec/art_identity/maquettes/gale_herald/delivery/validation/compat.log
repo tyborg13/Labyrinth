@@ -1,0 +1,11 @@
+chainbound_gaoler front: min solo IoU=0.990079; joint error=0.0; PASS
+chainbound_gaoler rear: min solo IoU=0.990081; joint error=0.0; PASS
+frostglass_lancer front: min solo IoU=0.997701; joint error=0.0; PASS
+frostglass_lancer rear: min solo IoU=0.997645; joint error=0.0; PASS
+lightning_wisp front: min solo IoU=1.000000; joint error=0.0; PASS
+lightning_wisp rear: min solo IoU=1.000000; joint error=0.0; PASS
+shale_bloomer front: min solo IoU=0.986605; joint error=0.0; PASS
+shale_bloomer rear: min solo IoU=0.982631; joint error=0.0; PASS
+gust_shrike front: min solo IoU=0.998274; joint error=0.0; PASS
+gust_shrike rear: min solo IoU=0.998746; joint error=0.0; PASS
+MAQUETTE_COMPAT: PASS

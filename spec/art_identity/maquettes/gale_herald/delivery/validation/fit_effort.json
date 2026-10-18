@@ -1,0 +1,49 @@
+{
+  "final_delivery": {
+    "gale_herald": [
+      0.7357913796776255,
+      0.6802944538667802
+    ],
+    "gloam_stalker": [
+      0.7161269405278199,
+      0.7188129514076549
+    ]
+  },
+  "gloam_diagnostics": [
+    {
+      "case": "quality_r4_carapace",
+      "front_iou": 0.678054081880711,
+      "rear_iou": 0.5306604417972433,
+      "rejected": "Rejected foot/ground registration",
+      "preview_report_sha256": "e6bc3bba0a31386468847ae4c3d2c754692ddd2698c92d80fb32f1d0a6512e7a"
+    },
+    {
+      "case": "quality_r4_grounded",
+      "front_iou": 0.7306926152830258,
+      "rear_iou": 0.7010859652855883,
+      "rejected": "Carapace/cloth clearance not yet certified; short hem",
+      "preview_report_sha256": "a699d9d64125fa132d99921702b4e19b23d9d0b096170f05c94afbc0f1fe2b09"
+    },
+    {
+      "case": "quality_r4_tattered",
+      "front_iou": 0.7306378360266454,
+      "rear_iou": 0.7276044176137706,
+      "rejected": "Carapace/cloth clearance not yet certified",
+      "preview_report_sha256": "6b73100738d468ef7ace0b27f05f1b847b2d2b53ec9d3fa2829c5b2923f7c2e0"
+    },
+    {
+      "case": "quality_r4_collision",
+      "front_iou": 0.7239762013729977,
+      "rear_iou": 0.7074593169148473,
+      "rejected": "Failed carapace collision gate",
+      "preview_report_sha256": "f457a2e2183e07c5c8d893712de274965399ab8652e2a8678e2ba64b7139b983"
+    },
+    {
+      "case": "quality_r4_backing",
+      "front_iou": 0.7317119326887035,
+      "rear_iou": 0.7269100052708041,
+      "rejected": "Failed carapace collision gate; distorted rear relief",
+      "preview_report_sha256": "0a89ffcb11132713787401509c768dece6d884060105751b97e5f8e1af01e09d"
+    }
+  ]
+}

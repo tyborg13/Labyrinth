@@ -1,0 +1,477 @@
+{
+  "iou": 0.7550728331405493,
+  "median_band_error": 0.09179628876254273,
+  "max_band_error": 0.6885512670953284,
+  "bands": [
+    {
+      "band": 0,
+      "y_fraction": [
+        0.0,
+        0.041666666666666664
+      ],
+      "source_width": 0.5192307692307693,
+      "maquette_width": 0.4728124153411509,
+      "relative_error": 0.08939831119482052,
+      "weapon_only": false
+    },
+    {
+      "band": 1,
+      "y_fraction": [
+        0.041666666666666664,
+        0.08333333333333333
+      ],
+      "source_width": 0.5173076923076924,
+      "maquette_width": 0.5101772030651341,
+      "relative_error": 0.01378384537594896,
+      "weapon_only": false
+    },
+    {
+      "band": 2,
+      "y_fraction": [
+        0.08333333333333333,
+        0.125
+      ],
+      "source_width": 0.5435897435897435,
+      "maquette_width": 0.4934401486125624,
+      "relative_error": 0.09225633038255021,
+      "weapon_only": false
+    },
+    {
+      "band": 3,
+      "y_fraction": [
+        0.125,
+        0.16666666666666666
+      ],
+      "source_width": 0.5987179487179487,
+      "maquette_width": 0.48890485312899107,
+      "relative_error": 0.18341373567320549,
+      "weapon_only": false
+    },
+    {
+      "band": 4,
+      "y_fraction": [
+        0.16666666666666666,
+        0.20833333333333334
+      ],
+      "source_width": 0.6011396011396012,
+      "maquette_width": 0.5036572622779519,
+      "relative_error": 0.1621625636987625,
+      "weapon_only": false
+    },
+    {
+      "band": 5,
+      "y_fraction": [
+        0.20833333333333334,
+        0.25
+      ],
+      "source_width": 0.6333333333333333,
+      "maquette_width": 0.5276132977282403,
+      "relative_error": 0.1669263720080416,
+      "weapon_only": false
+    },
+    {
+      "band": 6,
+      "y_fraction": [
+        0.25,
+        0.2916666666666667
+      ],
+      "source_width": 0.6205128205128205,
+      "maquette_width": 0.5404693486590039,
+      "relative_error": 0.1289956777809442,
+      "weapon_only": false
+    },
+    {
+      "band": 7,
+      "y_fraction": [
+        0.2916666666666667,
+        0.3333333333333333
+      ],
+      "source_width": 0.617948717948718,
+      "maquette_width": 0.5750222531831727,
+      "relative_error": 0.06946606331353802,
+      "weapon_only": false
+    },
+    {
+      "band": 8,
+      "y_fraction": [
+        0.3333333333333333,
+        0.375
+      ],
+      "source_width": 0.6333333333333333,
+      "maquette_width": 0.5983590696234374,
+      "relative_error": 0.05522252164720401,
+      "weapon_only": false
+    },
+    {
+      "band": 9,
+      "y_fraction": [
+        0.375,
+        0.4166666666666667
+      ],
+      "source_width": 0.6551282051282051,
+      "maquette_width": 0.6190134099616859,
+      "relative_error": 0.05512630181973588,
+      "weapon_only": false
+    },
+    {
+      "band": 10,
+      "y_fraction": [
+        0.4166666666666667,
+        0.4583333333333333
+      ],
+      "source_width": 0.6705128205128205,
+      "maquette_width": 0.644955300127714,
+      "relative_error": 0.03811637839461391,
+      "weapon_only": false
+    },
+    {
+      "band": 11,
+      "y_fraction": [
+        0.4583333333333333,
+        0.5
+      ],
+      "source_width": 0.6705128205128205,
+      "maquette_width": 0.6315852490421456,
+      "relative_error": 0.058056416342497835,
+      "weapon_only": false
+    },
+    {
+      "band": 12,
+      "y_fraction": [
+        0.5,
+        0.5416666666666666
+      ],
+      "source_width": 0.6495726495726496,
+      "maquette_width": 0.6191803088354813,
+      "relative_error": 0.04678820876643021,
+      "weapon_only": false
+    },
+    {
+      "band": 13,
+      "y_fraction": [
+        0.5416666666666666,
+        0.5833333333333334
+      ],
+      "source_width": 0.6333333333333333,
+      "maquette_width": 0.6051704787336971,
+      "relative_error": 0.0444676651573203,
+      "weapon_only": false
+    },
+    {
+      "band": 14,
+      "y_fraction": [
+        0.5833333333333334,
+        0.625
+      ],
+      "source_width": 0.6102564102564103,
+      "maquette_width": 0.5545178799489144,
+      "relative_error": 0.09133624714253524,
+      "weapon_only": false
+    },
+    {
+      "band": 15,
+      "y_fraction": [
+        0.625,
+        0.6666666666666666
+      ],
+      "source_width": 0.5615384615384615,
+      "maquette_width": 0.5389527458492975,
+      "relative_error": 0.04022113752864823,
+      "weapon_only": false
+    },
+    {
+      "band": 16,
+      "y_fraction": [
+        0.6666666666666666,
+        0.7083333333333334
+      ],
+      "source_width": 0.5602564102564103,
+      "maquette_width": 0.5165834591121947,
+      "relative_error": 0.07795172057777602,
+      "weapon_only": false
+    },
+    {
+      "band": 17,
+      "y_fraction": [
+        0.7083333333333334,
+        0.75
+      ],
+      "source_width": 0.5833333333333334,
+      "maquette_width": 0.5233477011494253,
+      "relative_error": 0.10283251231527096,
+      "weapon_only": false
+    },
+    {
+      "band": 18,
+      "y_fraction": [
+        0.75,
+        0.7916666666666666
+      ],
+      "source_width": 0.6038461538461538,
+      "maquette_width": 0.5302836797089671,
+      "relative_error": 0.12182320557750673,
+      "weapon_only": false
+    },
+    {
+      "band": 19,
+      "y_fraction": [
+        0.7916666666666666,
+        0.8333333333333334
+      ],
+      "source_width": 0.5980769230769231,
+      "maquette_width": 0.5399505108556832,
+      "relative_error": 0.09718885644708909,
+      "weapon_only": false
+    },
+    {
+      "band": 20,
+      "y_fraction": [
+        0.8333333333333334,
+        0.875
+      ],
+      "source_width": 0.625071225071225,
+      "maquette_width": 0.5303997832733465,
+      "relative_error": 0.1514570468142907,
+      "weapon_only": false
+    },
+    {
+      "band": 21,
+      "y_fraction": [
+        0.875,
+        0.9166666666666666
+      ],
+      "source_width": 0.6134615384615385,
+      "maquette_width": 0.4840744610859553,
+      "relative_error": 0.21091310418590362,
+      "weapon_only": false
+    },
+    {
+      "band": 22,
+      "y_fraction": [
+        0.9166666666666666,
+        0.9583333333333334
+      ],
+      "source_width": 0.5128205128205128,
+      "maquette_width": 0.42193486590038315,
+      "relative_error": 0.1772270114942528,
+      "weapon_only": false
+    },
+    {
+      "band": 23,
+      "y_fraction": [
+        0.9583333333333334,
+        1.0
+      ],
+      "source_width": 0.2423076923076923,
+      "maquette_width": 0.4091489608730988,
+      "relative_error": 0.6885512670953284,
+      "weapon_only": false
+    }
+  ],
+  "landmarks": {
+    "shoulder": {
+      "source_y": 0.3333333333333333,
+      "maquette_y": 0.33588761174968074,
+      "absolute_error": 0.002554278416347422,
+      "joints": [
+        "shoulder_near"
+      ]
+    },
+    "waist": {
+      "source_y": 0.4717948717948718,
+      "maquette_y": 0.47381864623243936,
+      "absolute_error": 0.0020237744375675715,
+      "joints": [
+        "pelvis"
+      ]
+    },
+    "knee": {
+      "source_y": 0.7025641025641025,
+      "maquette_y": 0.7037037037037037,
+      "absolute_error": 0.0011396011396012096,
+      "joints": [
+        "knee_near"
+      ]
+    },
+    "ankle": {
+      "source_y": 0.9128205128205128,
+      "maquette_y": 0.913154533844189,
+      "absolute_error": 0.0003340210236761898,
+      "joints": [
+        "ankle_near"
+      ]
+    }
+  },
+  "source_frame": {
+    "head_top": 51.0,
+    "sole_bottom": 246.0,
+    "ground_x": 81.02173913043478
+  },
+  "maquette_frame": {
+    "head_top": 201.0,
+    "sole_bottom": 984.0,
+    "ground_x": 341.0416666666667
+  },
+  "normalisation": "head-top to sole-bottom; ground-contact centroid aligned",
+  "source_frame_annotated": true,
+  "unresolved_design": [],
+  "gate": {
+    "iou_min": 0.65,
+    "median_band_error_max": 0.12,
+    "max_band_error_max": 0.3,
+    "landmark_error_max": 0.03
+  },
+  "checks": {
+    "iou": true,
+    "median_band_error": true,
+    "max_band_error": false,
+    "landmark_error": true,
+    "design_complete": true
+  },
+  "passed": false,
+  "conflicting_bands": [
+    23
+  ],
+  "proportion_guidance_passed": true,
+  "visible_part_pixels": {
+    "head": 31336,
+    "collar": 8806,
+    "torso": 32033,
+    "skirt_near": 29997,
+    "skirt_far": 74267,
+    "upper_near": 18927,
+    "fore_near": 8491,
+    "hand_near": 1219,
+    "upper_far": 18943,
+    "fore_far": 3223,
+    "hand_far": 3147,
+    "staff_shaft": 11272,
+    "staff_crystal": 14342,
+    "foot_near": 2999,
+    "foot_far": 3672
+  },
+  "per_part_coverage": {
+    "head": {
+      "visible_pixels": 31336,
+      "solo_pixels": 44489,
+      "visible_fraction_of_solo": 0.7043538852300568,
+      "depth_tested_owner_pixels": 31336,
+      "pure_owner_pixels": 29018,
+      "clipped_at_canvas": false
+    },
+    "collar": {
+      "visible_pixels": 8734,
+      "solo_pixels": 32424,
+      "visible_fraction_of_solo": 0.26936836910930173,
+      "depth_tested_owner_pixels": 8806,
+      "pure_owner_pixels": 6833,
+      "clipped_at_canvas": false
+    },
+    "torso": {
+      "visible_pixels": 32027,
+      "solo_pixels": 68549,
+      "visible_fraction_of_solo": 0.46721323432872836,
+      "depth_tested_owner_pixels": 32033,
+      "pure_owner_pixels": 27980,
+      "clipped_at_canvas": false
+    },
+    "skirt_near": {
+      "visible_pixels": 29996,
+      "solo_pixels": 72124,
+      "visible_fraction_of_solo": 0.4158948477621873,
+      "depth_tested_owner_pixels": 29997,
+      "pure_owner_pixels": 28184,
+      "clipped_at_canvas": false
+    },
+    "skirt_far": {
+      "visible_pixels": 74267,
+      "solo_pixels": 79095,
+      "visible_fraction_of_solo": 0.9389594791074025,
+      "depth_tested_owner_pixels": 74267,
+      "pure_owner_pixels": 71812,
+      "clipped_at_canvas": false
+    },
+    "upper_near": {
+      "visible_pixels": 18927,
+      "solo_pixels": 21839,
+      "visible_fraction_of_solo": 0.8666605613810157,
+      "depth_tested_owner_pixels": 18927,
+      "pure_owner_pixels": 17838,
+      "clipped_at_canvas": false
+    },
+    "fore_near": {
+      "visible_pixels": 8443,
+      "solo_pixels": 14042,
+      "visible_fraction_of_solo": 0.6012676256943456,
+      "depth_tested_owner_pixels": 8491,
+      "pure_owner_pixels": 7790,
+      "clipped_at_canvas": false
+    },
+    "hand_near": {
+      "visible_pixels": 1218,
+      "solo_pixels": 1337,
+      "visible_fraction_of_solo": 0.9109947643979057,
+      "depth_tested_owner_pixels": 1219,
+      "pure_owner_pixels": 640,
+      "clipped_at_canvas": false
+    },
+    "upper_far": {
+      "visible_pixels": 18638,
+      "solo_pixels": 25181,
+      "visible_fraction_of_solo": 0.7401612326754299,
+      "depth_tested_owner_pixels": 18943,
+      "pure_owner_pixels": 17311,
+      "clipped_at_canvas": false
+    },
+    "fore_far": {
+      "visible_pixels": 2941,
+      "solo_pixels": 8266,
+      "visible_fraction_of_solo": 0.3557948221630777,
+      "depth_tested_owner_pixels": 3223,
+      "pure_owner_pixels": 2419,
+      "clipped_at_canvas": false
+    },
+    "hand_far": {
+      "visible_pixels": 3147,
+      "solo_pixels": 4705,
+      "visible_fraction_of_solo": 0.6688629117959617,
+      "depth_tested_owner_pixels": 3147,
+      "pure_owner_pixels": 2408,
+      "clipped_at_canvas": false
+    },
+    "staff_shaft": {
+      "visible_pixels": 11110,
+      "solo_pixels": 11874,
+      "visible_fraction_of_solo": 0.9356577395991241,
+      "depth_tested_owner_pixels": 11272,
+      "pure_owner_pixels": 8290,
+      "clipped_at_canvas": false
+    },
+    "staff_crystal": {
+      "visible_pixels": 14313,
+      "solo_pixels": 14587,
+      "visible_fraction_of_solo": 0.9812161513676562,
+      "depth_tested_owner_pixels": 14342,
+      "pure_owner_pixels": 12825,
+      "clipped_at_canvas": false
+    },
+    "foot_near": {
+      "visible_pixels": 2999,
+      "solo_pixels": 3084,
+      "visible_fraction_of_solo": 0.9724383916990921,
+      "depth_tested_owner_pixels": 2999,
+      "pure_owner_pixels": 2444,
+      "clipped_at_canvas": false
+    },
+    "foot_far": {
+      "visible_pixels": 3215,
+      "solo_pixels": 3806,
+      "visible_fraction_of_solo": 0.8447188649500789,
+      "depth_tested_owner_pixels": 3672,
+      "pure_owner_pixels": 2817,
+      "clipped_at_canvas": false
+    }
+  },
+  "unclipped_required_solos": true,
+  "missing_unoccluded_parts": []
+}

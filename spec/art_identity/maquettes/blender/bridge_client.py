@@ -10,7 +10,8 @@ import time
 import uuid
 
 BRIDGE_DEFAULTS = {'root': '/private/tmp/labyrinth_codex/blender_bridge',
-                   'timeout_s': 120, 'response_timeout_s': 120, 'poll_s': 1}
+                   'timeout_s': 120, 'start_timeout_s': 120,
+                   'result_grace_s': 30, 'poll_s': 1}
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 ARG_ROOTS = [SCRIPT_ROOT.parents[2], Path('/private/tmp/labyrinth_codex')]
 
@@ -39,10 +40,19 @@ def submit(script, args, timeout_s=120, root=None):
 def wait(identifier, timeout_s=120, root=None):
     root = Path(root or BRIDGE_DEFAULTS['root'])
     path = root / 'done' / (identifier + '.json')
-    deadline = time.monotonic() + min(timeout_s, BRIDGE_DEFAULTS['response_timeout_s'])
+    start_deadline = time.monotonic() + BRIDGE_DEFAULTS['start_timeout_s']
+    execution_deadline = None
     while not path.is_file():
-        if time.monotonic() >= deadline:
-            raise TimeoutError('Bridge result not received; job remains queued/running: ' + identifier)
+        now = time.monotonic()
+        if execution_deadline is None:
+            log = root / 'bridge.log'
+            if log.exists() and any('RUN ' + identifier + ':' in line for line in log.read_text().splitlines()):
+                execution_deadline = now + timeout_s + BRIDGE_DEFAULTS['result_grace_s']
+                print('BLENDER_BRIDGE_STARTED: ' + identifier, flush=True)
+            elif now >= start_deadline:
+                raise TimeoutError('Bridge did not start job within 120 s: ' + identifier)
+        elif now >= execution_deadline:
+            raise TimeoutError('Started bridge job has no result after its execution budget: ' + identifier)
         time.sleep(BRIDGE_DEFAULTS['poll_s'])
     result = json.loads(path.read_text())
     log = root / 'done' / (identifier + '.log')

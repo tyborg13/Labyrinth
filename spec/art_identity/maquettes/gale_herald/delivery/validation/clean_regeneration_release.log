@@ -1,0 +1,4 @@
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-04/spec/art_identity/maquettes/gale_herald/candidates/clean_delivery_release/clean_project/spec/art_identity/maquettes/arc_thrall/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-99cde83d98f74a91ad986c1f3bce8ee2
+BLENDER_BRIDGE_STARTED: mq03-99cde83d98f74a91ad986c1f3bce8ee2
+CLEAN_REGENERATION: PASS; arc_thrall; canonical_png_sha256=true

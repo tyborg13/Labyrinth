@@ -8,7 +8,8 @@ TOPOLOGY_FIELDS = ('edges', 'loop_vertices', 'loop_edges', 'polygon_starts', 'po
 
 
 def topology_hash(payload):
-    return digest({field: payload[field] for field in TOPOLOGY_FIELDS})
+    return digest({**{field: payload[field] for field in TOPOLOGY_FIELDS},
+                   **({'sewn_owners': payload['sewn_owners']} if 'sewn_owners' in payload else {})})
 
 
 def cache_key(context_key, piece, blender_version):
