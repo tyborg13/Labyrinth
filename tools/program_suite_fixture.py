@@ -67,8 +67,11 @@ def main(argv=None) -> int:
         stage_directory.mkdir(parents=True, exist_ok=True)
         bootstrap = stage_directory / (Path(script).stem + ".gd")
         target = str(Path(script)) if Path(script).is_absolute() else str(project / script)
-        write_child_bootstrap(bootstrap, args.suite, target=target,
-                              parallel_runtime=str(root / "scripts/parallel_runtime.gd"))
+        # Inside the repository project the class is registered at its res:// path; an absolute
+        # path there declares ParallelRuntime twice. Only foreign stage projects need the file path.
+        runtime = ("res://scripts/parallel_runtime.gd" if project.resolve() == root
+                   else str(root / "scripts/parallel_runtime.gd"))
+        write_child_bootstrap(bootstrap, args.suite, target=target, parallel_runtime=runtime)
         remaining = args.timeout - (time.monotonic() - started)
         if remaining <= 0:
             return 124

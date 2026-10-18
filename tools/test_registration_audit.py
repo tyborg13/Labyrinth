@@ -37,7 +37,7 @@ QUARANTINE_OWNERS = {
     "legacy-cutout": {"qa-10"},
     "long-diagnostic": {"qa-11"},
     "needs-design": {"design-01"},
-    "possible-bug": {"bug-01"},
+    "possible-bug": {"bug-01", "bug-02"},
 }
 PROGRAM_HELPERS = ("tests/helpers/program_sub_suites.gd", "tests/static_facing_program_suites.gd")
 TEST_SUFFIXES = ("_test.gd", "_suite.gd", "_probe.gd")

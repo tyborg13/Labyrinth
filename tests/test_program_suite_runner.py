@@ -126,7 +126,8 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         expected.extend(EXTRACTED_PROGRAMS)
         expected.extend(MERGED_PROGRAMS)
         supplemental = json.loads(SUPPLEMENTAL_MANIFEST.read_text())
-        self.assertEqual(len(supplemental), 116, "Preserve the accepted supplemental set")
+        # 116 accepted; owned_cpu_asset_preparation_test moved to quarantine (bug-02) at the integration merge.
+        self.assertEqual(len(supplemental), 115, "Preserve the accepted supplemental set")
         expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
         expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)

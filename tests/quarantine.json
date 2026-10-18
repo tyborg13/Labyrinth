@@ -230,5 +230,12 @@
     "reason": "All three handoff modes differ only in analytics; the test compares an engine result to a scene boundary that stages/acknowledges analytics. Needs current committed-analytics reference reconciliation, retaining exact durable-save assertions.",
     "evidence_log": "output/qa-08/quarantine-check/surface_query_handoff_test.gd.log",
     "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/owned_cpu_asset_preparation_test.gd",
+    "category": "possible-bug",
+    "reason": "Cancelled audio preparation publishes its source on the director's machine (both cancellation assertions fail deterministically on qa-08 merge 53ad3ec22 and integration fb78f1d0e+); it passed in three Codex sandbox runs. Likely a cancel-after-publish race in asset_loader.prepare_audio_for, or a test that assumes the worker is still running one frame later. Needs root cause, not a timing tweak.",
+    "evidence_log": "output/qa-08/quarantine-check/owned_cpu_asset_preparation_test.gd.log",
+    "follow_up": "bug-02"
   }
 ]
