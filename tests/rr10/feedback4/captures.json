@@ -1,0 +1,110 @@
+{
+  "capture_commit": "5abe9b561 (retained at 477e6d24a)",
+  "native_manifest_sha256": "fad9a3440064ae77fe841717357f3eb61a3ba499aa816f8d023b2dcbe96a5a4e",
+  "compiled_motion_sha256": "6ffa2aa81e03e7c9b1f7cecf17a3a7cf35f565aef1e806c4babf8293cfe69dd4",
+  "scope": "captured pre-feedback4 GPU body; only updated rigid tucks rendered headlessly; not current mesh/native acceptance",
+  "rigid_tucks": [
+    "hidden_hand_near",
+    "hidden_hand_far",
+    "hidden_foot_near",
+    "hidden_foot_far"
+  ],
+  "frames": [
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 30,
+      "target": "hidden_hand_far",
+      "rest_hole_count": 7,
+      "files": {
+        "owners": {
+          "file": "mark_0030_owners.png",
+          "sha256": "f414b549fb4b05c2d05b495f0dada7b2b3c093ea9d0c7b892d42ff6186968084"
+        },
+        "seam": {
+          "file": "mark_0030_seam.png",
+          "sha256": "0635f11473f2ce0259d7cc0c585c1e1f70329368815c78de2ad7dfd0ccef4c2f"
+        },
+        "rest_holes": {
+          "file": "mark_0030_rest_holes.png",
+          "sha256": "21dd57d19fd021ca2799555f9e8f8b50bea8c0a29ea66598c2e49721fcc14e7c"
+        },
+        "regression_tuck": {
+          "file": "mark_0030_regression_tuck.png",
+          "sha256": "5b19558a0cdb088edee910333cc134ffd83ffa19abc71e5127f4a55be4fa3afa"
+        }
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 30,
+      "target": "hidden_hand_far",
+      "rest_hole_count": 7,
+      "files": {
+        "owners": {
+          "file": "death_0030_owners.png",
+          "sha256": "8ef1f6d2e69e7062eb7ef9d2f62b572d2fff233c8510bc2641178fedfc5f3bf4"
+        },
+        "seam": {
+          "file": "death_0030_seam.png",
+          "sha256": "24913274b21ab1e57ca1af87ef2c9196cfd7f01228206cc7ddbab3547b3492c0"
+        },
+        "rest_holes": {
+          "file": "death_0030_rest_holes.png",
+          "sha256": "627e578da1c1cb3c0639d657ea2fdbedada8ec01e1fcd8eb6cbf67b09eb8c4fa"
+        },
+        "regression_tuck": {
+          "file": "death_0030_regression_tuck.png",
+          "sha256": "3fc14b968d924df9e0dcde7259b4a84e000b99479655be951932c70dcd73160b"
+        }
+      }
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 9,
+      "target": "hidden_foot_near",
+      "rest_hole_count": 7,
+      "files": {
+        "owners": {
+          "file": "move_0009_owners.png",
+          "sha256": "070e954735c55e56bd25dcb5e37f21c41f978fad75494e492fe88de8afd02f43"
+        },
+        "seam": {
+          "file": "move_0009_seam.png",
+          "sha256": "ea1de48aced92c25567447d71cabddd2a258ef6bd62e9e71cf7dd4ea2d407905"
+        },
+        "rest_holes": {
+          "file": "move_0009_rest_holes.png",
+          "sha256": "62f51712104cad2c00419a5fc962349869a9d9cad870b9b36b4caee7d5fd0b0c"
+        },
+        "regression_tuck": {
+          "file": "move_0009_regression_tuck.png",
+          "sha256": "ecdb39be566ee20191855fa3596315d52eb3d644908a9db90dee9c482fa8a78f"
+        }
+      }
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 27,
+      "target": null,
+      "rest_hole_count": 7,
+      "files": {
+        "owners": {
+          "file": "bolt_0027_owners.png",
+          "sha256": "e3cc67fb1f125b6e991b668ac2e1f76d65a2f19e66611521566a9bcc45ee0c56"
+        },
+        "seam": {
+          "file": "bolt_0027_seam.png",
+          "sha256": "4ef44ad377d5778b7cb608ce1f4e7c7b6f2391f53cdd519b8aad9812f62111b6"
+        },
+        "rest_holes": {
+          "file": "bolt_0027_rest_holes.png",
+          "sha256": "cefda57228fdeedb657dcd06c5e5a0c5d63d38b78ae1b47abe1e443947d3161e"
+        }
+      }
+    }
+  ]
+}

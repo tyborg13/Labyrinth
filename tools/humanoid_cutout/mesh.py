@@ -4,6 +4,7 @@ import numpy as np
 GRID_PX = 2
 ROBE_TOP_ROWS_PX = 4
 ELBOW_BLEND_HALF_WIDTH_PX = 4
+CUFF_FORE_ROWS_PX = 4  # rr-10 feedback 4: rigid cuff rows along the forearm axis.
 
 
 def smoothstep(value):
@@ -22,7 +23,7 @@ def robe_weights(vertices, bounds):
             'hem_far': (hem * (1 - near)).tolist()}
 
 
-def sleeve_weights(vertices, shoulder, elbow, wrist, side):
+def sleeve_weights(vertices, shoulder, elbow, wrist, side, cuff_rows_px=CUFF_FORE_ROWS_PX):
     points = np.asarray(vertices, dtype=float)
     shoulder, elbow, wrist = map(lambda p: np.asarray(p, dtype=float), (shoulder, elbow, wrist))
     upper, fore = elbow - shoulder, wrist - elbow
@@ -34,6 +35,9 @@ def sleeve_weights(vertices, shoulder, elbow, wrist, side):
     db = np.linalg.norm(points - (elbow + b[:, None] * fore), axis=1)
     distance = np.where(da <= db, (a - 1) * np.linalg.norm(upper), b * np.linalg.norm(fore))
     weight = smoothstep((distance + ELBOW_BLEND_HALF_WIDTH_PX) / (2 * ELBOW_BLEND_HALF_WIDTH_PX))
+    if cuff_rows_px:
+        cuff_row = np.sum((points - wrist) * (fore / np.linalg.norm(fore)), axis=1)
+        weight[cuff_row >= -cuff_rows_px] = 1.
     return {'upper_' + side: (1 - weight).tolist(), 'fore_' + side: weight.tolist()}
 
 

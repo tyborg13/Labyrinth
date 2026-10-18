@@ -1,12 +1,12 @@
 # rr-10 front handoff
 
-**Current handoff:** [director feedback 3](feedback3.md), with current result
-lines in [feedback verification](proof/feedback3_verification.md). The exact
-protected rope mask from [feedback 2](feedback2.md) remains unchanged. The new
-boundary and outline criteria reduce the existing native flags to 217 hole
-frames and one detached-component frame; they do not yet permit native
-acceptance or contact sheet composition. The original covered-tuck and
-rest-hole rules were superseded by [feedback 1](feedback1.md).
+**Current handoff:** [director feedback 4](feedback4.md), with exact results
+in [feedback verification](proof/feedback4_verification.md). Wrist, foot and
+robe-top tucks are deepened; cuff rows are forearm-rigid. The native gates and
+protected exact rope mask remain unchanged. Headless source/attachment and
+captured-body regression proof is separate from the director's pending full
+native pixel proof. Earlier reports: [feedback 3](feedback3.md),
+[feedback 2](feedback2.md), [feedback 1](feedback1.md).
 
 This is the front-only humanoid v2 candidate. The approved mq6 rear painting and
 rebuilt rear delivery are absent. `inputs.json` owns the rear job and delivery

@@ -1,0 +1,661 @@
+{
+  "ok": false,
+  "fresh_capture": false,
+  "native_pixels": false,
+  "accepted": false,
+  "scope": "historical captured GPU body with current rigid tucks only; not current mesh/native acceptance",
+  "native_manifest_sha256": "fad9a3440064ae77fe841717357f3eb61a3ba499aa816f8d023b2dcbe96a5a4e",
+  "poses": 467,
+  "failures": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 7,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 22,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 39,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 48,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 17,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 18,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 19,
+      "hole_sizes": [
+        3,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 50,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 51,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 53,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "land",
+      "frame": 15,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "land",
+      "frame": 17,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 23,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 24,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 25,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 26,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 28,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 31,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 33,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 34,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 35,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 8,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 9,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 11,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 12,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 13,
+      "hole_sizes": [
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 14,
+      "hole_sizes": [
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 15,
+      "hole_sizes": [
+        2,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 16,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 17,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 18,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 19,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 20,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 21,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 22,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 23,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 24,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 25,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 26,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 27,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 28,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 29,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 30,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 31,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 32,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 33,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 34,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 35,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 36,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 37,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 38,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 39,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 40,
+      "hole_sizes": [
+        5,
+        3,
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 41,
+      "hole_sizes": [
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 42,
+      "hole_sizes": [
+        2,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 43,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 44,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 45,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 46,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 4,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 8,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 9,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 83,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 84,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 87,
+      "hole_sizes": [
+        2
+      ]
+    }
+  ]
+}

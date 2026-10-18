@@ -22,6 +22,7 @@ from tools.humanoid_cutout.mesh import grid, robe_weights, sleeve_weights
 from tools.humanoid_cutout.materials import connected_mask, clean_continuation, held_depths
 from tools.humanoid_cutout.seams import build_masks
 from tools.humanoid_cutout.ownership import read_mask, apply_override
+from tools.humanoid_cutout.tucks import TUCK_DEPTHS_PX, TUCK_COVERS, required_tuck
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 ASSETS = PROJECT / 'assets/units/hoarfrost_seer_cutout/humanoid_v2'
@@ -38,7 +39,6 @@ GROUPS = {'upper_body': ['torso', 'head', 'sleeve_near', 'hand_near'],
 # fusion does not change any rest pixel; underlays always precede visible paint.
 DEPTH_SOURCE = {'torso': 'collar', 'sleeve_near': 'upper_near',
                 'sleeve_far': 'upper_far', 'staff': 'staff_shaft', 'robe': 'skirt_far'}
-TUCK_PX = 3
 
 
 def copy_protected(source, target):
@@ -155,12 +155,20 @@ def build():
                          'front', inputs['held_item_depth'])
     parts, meshes, tuck_report = [], [], []
     tuck_masks = {}
-    # rr-05 same-material interior texel continuation, only in the explicit
-    # three-pixel tuck. Exact approved seed paint is never repainted.
-    for name, cover in [('robe', 'torso'), ('sleeve_near', 'torso'), ('sleeve_far', 'torso'),
-                        ('hand_near', 'sleeve_near'), ('hand_far', 'sleeve_far'), ('head', 'torso')]:
+    # rr-05 same-material continuation at the director's per-edge depths.
+    # Approved visible paint and protected source inputs remain unchanged.
+    for name, cover in TUCK_COVERS.items():
         own = visible[name][..., 3] > 0
-        required = connected_mask(own, dilate(own, TUCK_PX) & (visible[cover][..., 3] > 0))
+        occlusion = None
+        if name.startswith(('hand_', 'foot_')) or name == 'robe':
+            # A wrist edge can be hidden by the staff as well as the cuff;
+            # clipping to the cuff alone cuts away the needed continuation.
+            # Keep every extra texel hidden behind an inherited higher layer.
+            under_depth = depths[name] if name == 'robe' else max(
+                p['z_index'] for p in old['parts'] if p.get('hidden_material') and p.get('logical_part') in PIECES[name])
+            occlusion = np.logical_or.reduce([material[...,3]>0 for other,material in visible.items()
+                if depths[other] > under_depth and other != name])
+        required = required_tuck(name, visible, joints, occlusion, hidden[name][...,3]>0)
         missing = required & (hidden[name][..., 3] == 0)
         tuck_masks[name] = required
         donors = visible[name].copy()
@@ -205,8 +213,7 @@ def build():
                 parts.append(dict(underlay, bone=bone, z_index=hidden_depth, hidden_material=True,
                                   logical_part=name, presentation_anchor=part['offset']))
         parts.append(dict(part, bone=bone, z_index=z, logical_part=name))
-    for name, cover in [('robe', 'torso'), ('sleeve_near', 'torso'), ('sleeve_far', 'torso'),
-                        ('hand_near', 'sleeve_near'), ('hand_far', 'sleeve_far'), ('head', 'torso')]:
+    for name, cover in TUCK_COVERS.items():
         own = visible[name][..., 3] > 0
         required = tuck_masks[name]
         provided = hidden[name][..., 3] > 0
@@ -214,7 +221,7 @@ def build():
         mask_path = CASE / f'tucks/front_{name}.png'
         mask_path.parent.mkdir(parents=True, exist_ok=True)
         Image.fromarray(required.astype('uint8') * 255).save(mask_path)
-        tuck_report.append({'piece': name, 'cover': cover, 'minimum_px': TUCK_PX,
+        tuck_report.append({'piece': name, 'cover': cover, 'minimum_px': TUCK_DEPTHS_PX[name],
                             'required_mask': str(mask_path.relative_to(CASE)),
                             'missing_pixels': int(missing.sum()), 'required_pixels': int(required.sum())})
     shaft = next(p for p in read_json(base / 'source/spec_native.json')['pieces'] if p['id'] == 'staff_shaft')
