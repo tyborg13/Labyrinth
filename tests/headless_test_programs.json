@@ -384,6 +384,9 @@
     "path": "tests/maquette_cutout_test.gd"
   },
   {
+    "path": "tests/owned_cpu_asset_preparation_test.gd"
+  },
+  {
     "path": "tests/rr07/runtime_test.gd"
   }
 ]

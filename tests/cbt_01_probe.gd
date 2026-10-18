@@ -54,7 +54,7 @@ func _run() -> void:
 			scene.call("_input", motion)
 			scene.call("_on_board_tile_hovered", Cases.HERO)
 			await Cases.settle(self)
-			Cases.assert_arrow_at_hero(scene, _expect)
+			await Cases.assert_arrow_at_hero(scene, _expect)
 		_expect(scene.get("_combat_state") == before, id + " hover leaves committed combat unchanged")
 		_expect(scene.get_viewport().get_visible_rect().size == Vector2(PROOF_SIZE), "Proof uses 1920x1080 at 100% scale")
 		if id == "guarded_step": Cases.assert_stay_preview(scene, _expect)
@@ -66,7 +66,7 @@ func _run() -> void:
 		if id == "guarded_step":
 			await Cases.keyboard_focus_hero(scene)
 			await Cases.settle_keyboard(self)
-			Cases.assert_keyboard_stay_focus(scene, _expect)
+			await Cases.assert_keyboard_stay_focus(scene, _expect)
 			Cases.assert_stay_preview(scene, _expect)
 			_expect(scene.get("_combat_state") == before, "Settled keyboard hover leaves combat unchanged")
 			if not logic_only: await _capture(viewport, "guarded_step_stay_keyboard.png")

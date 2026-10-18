@@ -185,3 +185,20 @@
   the worktree's `output/rr-05/`). The director ran the native recheck at HEAD 0ebbc5b07 in the rr-05 worktree:
   `native_errors` 0 and pixel gate ok with 0 errors, for both the Shale Bloomer and the Lightning Wisp.
 - The owner approved the final Bloomer clip on 2026-10-18.
+
+## 2026-10-18 rr-07 rig hierarchy (pelvis-less figures)
+- Seer: root body → torso (root body part) → collar and the head; skirts are torso children pivoting at the belt;
+  feet are root children so they stay planted; staff_crystal is always a child of staff_shaft.
+- Thrall: root body → torso and both thighs; collar and loincloth are torso children.
+
+## 2026-10-18 det-01 accepted
+- The review (2c94e72b4) confirmed both root causes, with 5/5 mutations caught. Its Medium (the staged startup missed
+  the arrow connection) is fixed in round 2 with an idempotent connection that both paths run, plus regressions for
+  both paths: the removal mutation fails both.
+- Accepted by the director on that bounded delta. The Low was integration docs that arrived through the merge.
+- 2026-10-18 rr-07 fb2: the native tie band widens from exact ties (1e-6) to the GPU sub-texel half step (1/512
+  texel). The near-tie mismatches seen in rotated "before" poses are inside it. Still only two legal candidates and
+  held-frame consistency.
+- 2026-10-18 rr-07 fb3: an invalid-tie pixel (native matches neither legal candidate) counts as one changed pixel
+  under the existing 1 px + 1% allowance instead of failing outright. The rr-05 23-pixel edge-deletion regression
+  still fails.
