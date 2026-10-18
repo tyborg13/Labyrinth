@@ -3,12 +3,16 @@ extends RefCounted
 ## Mirrors the Python input manifest, never hashes proof outputs into themselves.
 static func for_case(directory: String) -> Dictionary:
 	var result: Dictionary = {}
+	var anatomy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
+	var integration: Dictionary = anatomy["integration"]
 	_collect(directory, directory, "", result, ["json", "png"])
-	for folder: String in ["tools/humanoid_cutout", "scripts/maquette_cutout_runtime", "tests/rr10"]:
+	for folder: String in integration["binding_folders"]:
 		_collect("res://" + folder, "res://", "runtime:", result, ["gd", "py", "json"])
-	_collect("res://assets/units/hoarfrost_seer_cutout/humanoid_v2", "res://", "production:", result, ["json", "png"])
-	for name: String in ["rig.gd", "renderer.gd", "actions.gd"]:
-		var path: String = "res://assets/units/hoarfrost_seer_cutout/" + name
+	if integration["production_root"] == null: return result
+	var production: String = "res://" + str(integration["production_root"])
+	_collect(production.path_join(integration["rig_directory"]), "res://", "production:", result, ["json", "png"])
+	for name: String in integration["binding_files"]:
+		var path: String = production.path_join(name)
 		result["production:" + path.trim_prefix("res://")] = FileAccess.get_sha256(path)
 	return result
 

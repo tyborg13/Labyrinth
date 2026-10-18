@@ -12,7 +12,7 @@ sys.path.insert(0, str(PROJECT / 'tools'))
 from cutout_pipeline.cases import digest
 from humanoid_cutout.gates import clean_metrics
 from humanoid_cutout.silhouette_gates import (
-    OWNER_IDS, JOINT_PAIRS, detached_metrics, joined_boundary, joint_holes, posed_owners)
+    detached_metrics, joined_boundary, joint_holes, posed_owners)
 from maquette_motion.silhouette import dilate
 
 # Debug-only threshold fixtures; no production art or tuning.
@@ -24,6 +24,12 @@ FIXTURE_LUMA_BELOW_RGBA = (30, 30, 30, 255)
 FIXTURE_LUMA_ABOVE_RGBA = (31, 31, 31, 255)
 BOUNDARY_FIXTURE_SIZE_PX = 12
 BOUNDARY_FIXTURE_HOLE = (slice(4, 6), slice(4, 7))
+CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
+from humanoid_cutout.anatomy import load, owner_ids
+ANATOMY = load(CASE)
+OWNER_IDS = owner_ids(ANATOMY['ownership'])
+JOINT_PAIRS = ANATOMY['ownership']['joint_pairs']
+
 
 
 class SilhouetteGateTests(unittest.TestCase):
@@ -83,24 +89,24 @@ class SilhouetteGateTests(unittest.TestCase):
             for y, x in boundary[:7]: owners[y, x] = a
             y, x = boundary[7]; owners[y, x] = b
             with self.subTest(pair=pair):
-                self.assertTrue(joined_boundary(hole, occupied, owners))
+                self.assertTrue(joined_boundary(hole, occupied, owners, ANATOMY['ownership']))
                 # Keep both members of the pair at 70%; only the boundary
                 # fraction, not the both-owners predicate, must reject it.
                 y, x = boundary[6]; owners[y, x] = outsider
-                self.assertFalse(joined_boundary(hole, occupied, owners))
+                self.assertFalse(joined_boundary(hole, occupied, owners, ANATOMY['ownership']))
         owners[:] = OWNER_IDS['upper_far']
-        self.assertFalse(joined_boundary(hole, occupied, owners))
+        self.assertFalse(joined_boundary(hole, occupied, owners, ANATOMY['ownership']))
 
     def test_staff_and_unjoined_negative_space_remain_free(self):
         occupied, hole, boundary = self.opening()
         owners = np.full(occupied.shape, OWNER_IDS['fore_far'], dtype=np.uint8)
         owners[6:] = OWNER_IDS['hand_far']
-        self.assertTrue(joined_boundary(hole, occupied, owners))
+        self.assertTrue(joined_boundary(hole, occupied, owners, ANATOMY['ownership']))
         y, x = boundary[0]; owners[y, x] = OWNER_IDS['staff']
-        self.assertFalse(joined_boundary(hole, occupied, owners))
+        self.assertFalse(joined_boundary(hole, occupied, owners, ANATOMY['ownership']))
         owners[:] = OWNER_IDS['robe']; owners[6:] = OWNER_IDS['hand_near']
-        self.assertFalse(joined_boundary(hole, occupied, owners))
-        self.assertEqual(joint_holes(occupied, hole, owners), [])
+        self.assertFalse(joined_boundary(hole, occupied, owners, ANATOMY['ownership']))
+        self.assertEqual(joint_holes(occupied, hole, owners, ownership=ANATOMY['ownership']), [])
 
     def test_native_far_elbow_three_pixel_gap_still_fails(self):
         folder = PROJECT / 'tests/rr10/feedback3'
@@ -112,7 +118,7 @@ class SilhouetteGateTests(unittest.TestCase):
         parts = [{'name': 'sleeve_far', 'logical_part': 'sleeve_far'}]
         row = {'name': 'sleeve_far', 'z_index': 0}
         def check(paint):
-            owners = posed_owners([(row, paint, None)], parts, record['bones'], record['source_offset'])
+            owners = posed_owners([(row, paint, None)], parts, record['bones'], record['source_offset'], ANATOMY['ownership'])
             return joint_holes(paint[..., 3] > 0, seam, owners)
         self.assertEqual(check(image), [])
         x, y = record['elbow_gap_centre']

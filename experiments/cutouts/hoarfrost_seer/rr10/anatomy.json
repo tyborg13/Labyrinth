@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "required_parents": {
+    "root": null,
+    "pelvis": "root",
+    "torso": "pelvis",
+    "head": "torso",
+    "upper_near": "torso",
+    "fore_near": "upper_near",
+    "hand_near": "fore_near",
+    "foot_near": "hem_near",
+    "upper_far": "torso",
+    "fore_far": "upper_far",
+    "hand_far": "fore_far",
+    "foot_far": "hem_far",
+    "hem_near": "root",
+    "hem_far": "root",
+    "staff": "hand_far"
+  },
+  "forbidden_joints": [
+    "collar",
+    "skirt_near",
+    "skirt_far",
+    "staff_crystal"
+  ],
+  "meshes": {
+    "robe": {
+      "kind": "hem",
+      "bones": [
+        "pelvis",
+        "hem_near",
+        "hem_far"
+      ],
+      "top_rows_px": 4
+    },
+    "sleeve_near": {
+      "kind": "two_segment",
+      "joints": [
+        "upper_near",
+        "fore_near",
+        "hand_near"
+      ],
+      "bones": [
+        "upper_near",
+        "fore_near"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "sleeve_far": {
+      "kind": "two_segment",
+      "joints": [
+        "upper_far",
+        "fore_far",
+        "hand_far"
+      ],
+      "bones": [
+        "upper_far",
+        "fore_far"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    }
+  },
+  "idle_groups": {
+    "upper_body": {
+      "bones": [
+        "torso",
+        "head",
+        "upper_near",
+        "fore_near",
+        "hand_near"
+      ],
+      "stationary": false
+    },
+    "still_staff_arm": {
+      "bones": [
+        "upper_far",
+        "fore_far",
+        "hand_far",
+        "staff"
+      ],
+      "stationary": true
+    },
+    "still_lower_body": {
+      "bones": [
+        "root",
+        "pelvis",
+        "hem_near",
+        "hem_far",
+        "foot_near",
+        "foot_far"
+      ],
+      "stationary": true
+    }
+  },
+  "planted_bones": [
+    "hem_near",
+    "hem_far",
+    "foot_near",
+    "foot_far"
+  ],
+  "held_depth_roles": {
+    "staff": {
+      "body": [
+        "torso",
+        "sleeve_near",
+        "sleeve_far",
+        "robe"
+      ],
+      "grip": "hand_far",
+      "policy": {
+        "front": "behind_body",
+        "rear": "in_front_of_body"
+      }
+    }
+  },
+  "ownership": {
+    "names": [
+      "head",
+      "torso",
+      "upper_near",
+      "fore_near",
+      "upper_far",
+      "fore_far",
+      "hand_near",
+      "hand_far",
+      "staff",
+      "robe",
+      "foot_near",
+      "foot_far"
+    ],
+    "segments": {
+      "sleeve_near": {
+        "joints": [
+          "upper_near",
+          "fore_near",
+          "hand_near"
+        ],
+        "owners": [
+          "upper_near",
+          "fore_near"
+        ]
+      },
+      "sleeve_far": {
+        "joints": [
+          "upper_far",
+          "fore_far",
+          "hand_far"
+        ],
+        "owners": [
+          "upper_far",
+          "fore_far"
+        ]
+      }
+    },
+    "joint_pairs": [
+      [
+        "torso",
+        "head"
+      ],
+      [
+        "torso",
+        "robe"
+      ],
+      [
+        "robe",
+        "foot_near"
+      ],
+      [
+        "robe",
+        "foot_far"
+      ],
+      [
+        "torso",
+        "upper_near"
+      ],
+      [
+        "upper_near",
+        "fore_near"
+      ],
+      [
+        "fore_near",
+        "hand_near"
+      ],
+      [
+        "torso",
+        "upper_far"
+      ],
+      [
+        "upper_far",
+        "fore_far"
+      ],
+      [
+        "fore_far",
+        "hand_far"
+      ]
+    ],
+    "free_space_owners": [
+      "staff"
+    ]
+  },
+  "seam_joins": [
+    [
+      "head",
+      "torso"
+    ],
+    [
+      "sleeve_near",
+      "torso"
+    ],
+    [
+      "sleeve_far",
+      "torso"
+    ],
+    [
+      "hand_near",
+      "sleeve_near"
+    ],
+    [
+      "hand_far",
+      "sleeve_far"
+    ],
+    [
+      "staff",
+      "hand_far"
+    ],
+    [
+      "robe",
+      "torso"
+    ],
+    [
+      "foot_near",
+      "robe"
+    ],
+    [
+      "foot_far",
+      "robe"
+    ]
+  ],
+  "covered_surfaces": {
+    "upper": "torso",
+    "lower": "robe",
+    "arms": [
+      "sleeve_near",
+      "sleeve_far"
+    ],
+    "feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "joint_continuations": {
+    "depth_px": 3,
+    "bounded_pieces": [
+      "robe",
+      "sleeve_near",
+      "sleeve_far"
+    ]
+  },
+  "tucks": {
+    "base_px": 3,
+    "pieces": {
+      "torso": {
+        "depth_px": 4,
+        "covers": [
+          "sleeve_near",
+          "sleeve_far",
+          "robe"
+        ],
+        "mode": "radial"
+      },
+      "head": {
+        "depth_px": 3,
+        "covers": "torso",
+        "mode": "radial"
+      },
+      "sleeve_near": {
+        "depth_px": 3,
+        "covers": "torso",
+        "mode": "inner_edge",
+        "extension_px": 3
+      },
+      "sleeve_far": {
+        "depth_px": 3,
+        "covers": "torso",
+        "mode": "inner_edge",
+        "extension_px": 3
+      },
+      "hand_near": {
+        "depth_px": 5,
+        "covers": "sleeve_near",
+        "mode": "wrist",
+        "axis_joints": [
+          "hand_near",
+          "fore_near"
+        ]
+      },
+      "hand_far": {
+        "depth_px": 5,
+        "covers": "sleeve_far",
+        "mode": "wrist",
+        "axis_joints": [
+          "hand_far",
+          "fore_far"
+        ]
+      },
+      "foot_near": {
+        "depth_px": 4,
+        "covers": "robe",
+        "mode": "foot",
+        "axis": [
+          0.0,
+          -1.0
+        ]
+      },
+      "foot_far": {
+        "depth_px": 4,
+        "covers": "robe",
+        "mode": "foot",
+        "axis": [
+          0.0,
+          -1.0
+        ]
+      },
+      "robe": {
+        "depth_px": 5,
+        "covers": "torso",
+        "mode": "hem",
+        "side_extension_px": 3,
+        "hem_join_px": 3,
+        "feet": [
+          "foot_near",
+          "foot_far"
+        ]
+      }
+    }
+  },
+  "integration": {
+    "production_root": "assets/units/hoarfrost_seer_cutout",
+    "rig_directory": "humanoid_v2",
+    "production_files": [
+      "rig.gd",
+      "renderer.gd",
+      "actions.gd",
+      "front.json",
+      "rear.json"
+    ],
+    "binding_files": [
+      "rig.gd",
+      "renderer.gd",
+      "actions.gd"
+    ],
+    "binding_folders": [
+      "tools/humanoid_cutout",
+      "scripts/maquette_cutout_runtime",
+      "tests/rr10"
+    ],
+    "scale": {
+      "file": "data/enemies.json",
+      "key": "hoarfrost_seer",
+      "field": "art_scale",
+      "default": 1.0
+    },
+    "identity_registry": "spec/art_identity/registry.json",
+    "identity_id": "hoarfrost_seer",
+    "density_id": "hoarfrost_seer_cutout",
+    "owner_approval": "rr-10 feedback 5: supplied approved mq5 front and mq6 rear painting; derived rest snapshot, not a worker art verdict or native proof.",
+    "identity_kind": "creature",
+    "identity_entry_kind": "legacy",
+    "identity_boss": false
+  }
+}

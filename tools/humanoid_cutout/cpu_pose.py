@@ -12,6 +12,7 @@ from cutout_pipeline.cases import read_json
 from maquette_motion import pixels
 from maquette_motion.raster import SUBPIXEL_SCALE
 from .gates import matrix
+from .anatomy import load
 
 
 @dataclass
@@ -97,6 +98,9 @@ class CpuPose:
         self.case, self.layout = case, layout
         self.images = {}
         self.templates = {}
+        ownership = load(case)['ownership']
+        for part in layout['parts']:
+            part['proof_ownership'] = ownership
         self.meshes = {m['name']: m for m in layout['joint_meshes']}
 
     def image(self, path):

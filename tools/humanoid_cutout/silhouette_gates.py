@@ -5,6 +5,7 @@ upper/fore regions of a single sleeve; they never deform or rasterize paint.
 """
 import numpy as np
 
+from .anatomy import owner_ids
 from maquette_motion.material_palette import luma
 from maquette_motion.silhouette import components, dilate, holes
 
@@ -14,15 +15,10 @@ JOINT_NEIGHBOURHOOD_PX = 3
 OUTLINE_COMPONENT_MAX_PIXELS = 2
 OUTLINE_COMPONENT_MAX_LUMA = .12
 OUTLINE_COMPONENT_DISTANCE_PX = 2
-OWNER_NAMES = ('head', 'torso', 'upper_near', 'fore_near', 'upper_far',
-               'fore_far', 'hand_near', 'hand_far', 'staff', 'robe',
-               'foot_near', 'foot_far')
-OWNER_IDS = {name: index + 1 for index, name in enumerate(OWNER_NAMES)}
-JOINT_PAIRS = (('torso', 'head'), ('torso', 'robe'),
-               ('robe', 'foot_near'), ('robe', 'foot_far')) + tuple(
-    pair for side in ('near', 'far') for pair in (
-        ('torso', 'upper_' + side), ('upper_' + side, 'fore_' + side),
-        ('fore_' + side, 'hand_' + side)))
+class OwnedPixels(np.ndarray):
+    """Carry the case vocabulary with diagnostic pixels, including old callers."""
+    def __array_finalize__(self, source):
+        self.ownership = getattr(source, 'ownership', None)
 
 
 def detached_metrics(image):
@@ -51,37 +47,44 @@ def segment_distance(points, start, end):
     return np.sum((points - start - projection[:, None] * direction) ** 2, axis=1)
 
 
-def posed_owners(layers, parts, bones, source_offset):
+def posed_owners(layers, parts, bones, source_offset, ownership=None):
     """Name each visible native boundary texel, including hidden continuations.
 
     Sleeves are single meshes containing two joined segments. Nearest posed
     segment names their boundary sides; this is not a CPU skin/raster oracle.
     The origin is the existing proof camera's source offset.
     """
+    if ownership is None:
+        ownership = parts[0]['proof_ownership']
+    ids = owner_ids(ownership)
     logical = {part['name']: part['logical_part'] for part in parts}
-    owners = np.zeros(layers[0][1].shape[:2], dtype=np.uint8)
+    owners = np.zeros(layers[0][1].shape[:2], dtype=np.uint8).view(OwnedPixels)
+    owners.ownership = ownership
     for row, image, _ in sorted(layers, key=lambda item: item[0]['z_index']):
         name = logical[row['name']]
         y, x = np.nonzero(image[..., 3] > 0)
-        if name.startswith('sleeve_'):
-            side = name.split('_')[-1]
-            upper, fore, hand = [np.asarray(bones[bone + side]['global'][4:]) + source_offset
-                                 for bone in ('upper_', 'fore_', 'hand_')]
+        if name in ownership['segments']:
+            segment = ownership['segments'][name]
+            upper, fore, hand = [np.asarray(bones[bone]['global'][4:]) + source_offset
+                                 for bone in segment['joints']]
             points = np.column_stack((x + .5, y + .5))
             is_fore = segment_distance(points, fore, hand) < segment_distance(points, upper, fore)
-            owners[y, x] = np.where(is_fore, OWNER_IDS['fore_' + side], OWNER_IDS['upper_' + side])
+            first, second = segment['owners']
+            owners[y, x] = np.where(is_fore, ids[second], ids[first])
         else:
-            owners[y, x] = OWNER_IDS[name]
+            owners[y, x] = ids[name]
     return owners
 
 
-def joined_boundary(hole, occupied, owners):
+def joined_boundary(hole, occupied, owners, ownership=None):
+    if ownership is None: ownership = owners.ownership
+    ids = owner_ids(ownership)
     # Four-neighbour boundary matches the background's four-connectivity.
     boundary = owners[dilate(hole, 1) & occupied]
-    if not len(boundary) or OWNER_IDS['staff'] in boundary:
+    if not len(boundary) or any(ids[n] in boundary for n in ownership['free_space_owners']):
         return False
-    for first, second in JOINT_PAIRS:
-        a, b = OWNER_IDS[first], OWNER_IDS[second]
+    for first, second in ownership['joint_pairs']:
+        a, b = ids[first], ids[second]
         if a in boundary and b in boundary:
             count = np.count_nonzero((boundary == a) | (boundary == b))
             if count >= JOINT_BOUNDARY_FRACTION * len(boundary):
@@ -89,10 +92,10 @@ def joined_boundary(hole, occupied, owners):
     return False
 
 
-def joint_holes(occupied, seam, owners, references=()):
+def joint_holes(occupied, seam, owners, references=(), ownership=None):
     """Only new, joint-local holes bounded >=80% by one actual joint pair.
 
-    Staff-bounded openings and unjoined free space are unrestricted. Existing
+    Held-item openings and unjoined free space are unrestricted. Existing
     holes still match their transported GPU rest references one-to-one.
     """
     near = dilate(seam, JOINT_NEIGHBOURHOOD_PX)
@@ -102,7 +105,7 @@ def joint_holes(occupied, seam, owners, references=()):
         size = int(hole.sum())
         # Locality means touching the seam band. Growing a real joint tear
         # beyond that band must never turn it into an exempt large opening.
-        if size <= 1 or not (hole & near).any() or not joined_boundary(hole, occupied, owners):
+        if size <= 1 or not (hole & near).any() or not joined_boundary(hole, occupied, owners, ownership):
             continue
         overlaps = [int((hole & old).sum()) for old in remaining]
         if overlaps and max(overlaps):

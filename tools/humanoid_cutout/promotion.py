@@ -1,4 +1,4 @@
-"""Copy the two-view Seer closure to production; never certify native rests."""
+"""Copy the case closure to production; never certify native rests."""
 from copy import deepcopy
 from pathlib import Path
 import shutil

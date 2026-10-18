@@ -1,5 +1,6 @@
 """Real RunScene callbacks, plus frozen/contact/coverage mutations for rr-12."""
 import copy
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -22,7 +23,7 @@ class ProductionTests(unittest.TestCase):
         cls.reports = {}
         for creature in CREATURES:
             output = Path(cls.temporary.name) / creature
-            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-12', '--stream',
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', os.environ.get('LABYRINTH_TASK_ID', 'rr-12'), '--stream',
                        '--', 'godot', '--headless', '--path', '.', '--script', 'tests/rr12/production_capture.gd',
                        '--', '--type', creature, '--output', str(output), '--logic-only']
             process = subprocess.run(command, cwd=PROJECT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)

@@ -67,6 +67,7 @@ class FeedbackTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rr10-sheet-fixture-') as folder:
             root=Path(folder); case=root/'case';capture=root/'capture';output=root/'sheets'
             case.mkdir();capture.mkdir()
+            shutil.copyfile(CASE/'anatomy.json',case/'anatomy.json')
             (case/'compiled_motion.json').write_text(json.dumps({'clips':{'fixture':{}},'view_tracks':{'front':{}}}))
             rows=[]
             for index,name in enumerate(FIXTURE_FRAMES):

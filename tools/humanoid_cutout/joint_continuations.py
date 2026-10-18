@@ -3,10 +3,9 @@ import numpy as np
 
 from maquette_motion.silhouette import dilate
 from .materials import connected_mask
-from .tucks import BASE_TUCK_PX
 
 
-def domains(visible, hidden, joins):
+def domains(visible, hidden, joins, *, depth_px, bounded_pieces):
     result = {}
     for name, recipe in joins.items():
         own = visible[name][..., 3] > 0
@@ -15,8 +14,8 @@ def domains(visible, hidden, joins):
         seed = np.zeros_like(own)
         for x, y in recipe['source_points']:
             seed[y, x] = True
-        target = dilate(seed, BASE_TUCK_PX, grid_distance=True) & cover & ~own
-        if name == 'robe' or name.startswith('sleeve_'):
+        target = dilate(seed, depth_px, grid_distance=True) & cover & ~own
+        if name in bounded_pieces:
             # Keep the existing garment grid and weight field unchanged. New
             # texels here are inside that field, not a new deformation recipe.
             ys, xs = np.nonzero(base)

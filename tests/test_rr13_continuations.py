@@ -16,6 +16,9 @@ from maquette_motion.pixels import rest_identity, PROOF_DEFAULTS
 from rr13_cpu_proof import frame_state
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
+from humanoid_cutout.anatomy import load, owner_ids
+ANATOMY = load(CASE)
+
 FIXTURES = PROJECT / 'tests/rr10/rr13_f3'
 FIXED_FRAMES = [('front', 'mark', frame, 'hidden_torso') for frame in (18, 22, 48, 49)] + [
     ('rear', 'mark', frame, 'hidden_torso') for frame in (20, 21, 22)] + [
@@ -52,7 +55,7 @@ class ContinuationTests(unittest.TestCase):
                 layers, maps = model.layers(pose, overrides)
                 seam = np.logical_or.reduce(model.masks(pose, layout['proof_joint_seams'], maps))
                 refs = model.masks(pose, layout['proof_rest_holes'], maps)
-                owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'])
+                owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], ANATOMY['ownership'])
                 self.assertTrue(joint_holes(owners > 0, seam, owners, refs))
 
     def test_both_rest_composites_and_all_garment_deformation_fields_are_unchanged(self):

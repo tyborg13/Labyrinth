@@ -66,8 +66,20 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		var hand: String = "hand_" + side
 		var value: Dictionary = values.get(hand, {})
 		if value.has("forward_px") or value.has("lift_px") or value.has("inward_px"):
-			_solve_arm(result, joints, side)
+			_solve_two_bone(result, joints, "upper_" + side, "fore_" + side, hand)
+		var foot: String = "foot_" + side
+		value = values.get(foot, {})
+		# Hem-parented feet retain their existing FK behaviour. A visible leg
+		# is identified by its actual hierarchy, never by the creature's name.
+		if joints.has(foot) and parent_name(joints[foot]) == "shin_" + side and joints.has("thigh_" + side) and parent_name(joints["shin_" + side]) == "thigh_" + side:
+			if value.has("forward_px") or value.has("lift_px") or value.has("inward_px"):
+				_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true)
 	# Held items keep their rest world orientation, independent of solved hands.
+	for chain: Dictionary in layout.get("ik_chains", []):
+		var target: String = str(chain["target"])
+		var value: Dictionary = values.get(target, {})
+		if value.has("forward_px") or value.has("lift_px") or value.has("inward_px"):
+			_solve_two_bone(result, joints, str(chain["first"]), str(chain["second"]), target)
 	for item: String in layout.get("held_items", {}):
 		var attachment: Dictionary = layout["held_items"][item]
 		var hand: String = str(attachment["hand"])
@@ -84,10 +96,7 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		result[item] = Transform2D(angle, pivot)
 	return result
 
-static func _solve_arm(world: Dictionary, joints: Dictionary, side: String) -> void:
-	var upper: String = "upper_" + side
-	var fore: String = "fore_" + side
-	var hand: String = "hand_" + side
+static func _solve_two_bone(world: Dictionary, joints: Dictionary, upper: String, fore: String, hand: String, full_extension: bool = false) -> void:
 	var a: Vector2 = Tracks.point(joints[upper]["position"])
 	var b: Vector2 = Tracks.point(joints[fore]["position"])
 	var c: Vector2 = Tracks.point(joints[hand]["position"])
@@ -96,11 +105,14 @@ static func _solve_arm(world: Dictionary, joints: Dictionary, side: String) -> v
 	var first: float = a.distance_to(b)
 	var second: float = b.distance_to(c)
 	var ray: Vector2 = target - shoulder
-	var distance: float = clampf(ray.length(), absf(first - second) + SOLVE_EPSILON, first + second - SOLVE_EPSILON)
+	# Keep the established arm arithmetic byte-stable. Legs may reach exact
+	# full extension; neither chain ever stretches beyond its rest lengths.
+	var distance: float = clampf(ray.length(), absf(first - second) + SOLVE_EPSILON, first + second if full_extension else first + second - SOLVE_EPSILON)
 	var axis: Vector2 = ray.normalized() if ray.length() > SOLVE_EPSILON else (c - a).normalized()
 	var along: float = (first * first - second * second + distance * distance) / (2.0 * distance)
 	var height: float = sqrt(maxf(0.0, first * first - along * along))
 	var bend_side: float = signf((c - a).cross(b - a))
+	if is_zero_approx(bend_side): bend_side = 1.0
 	var elbow: Vector2 = shoulder + axis * along + Vector2(-axis.y, axis.x) * height * bend_side
 	var wrist: Vector2 = shoulder + axis * distance
 	var upper_angle: float = (elbow - shoulder).angle() - (b - a).angle()
@@ -108,3 +120,11 @@ static func _solve_arm(world: Dictionary, joints: Dictionary, side: String) -> v
 	world[upper] = Transform2D(wrapf(upper_angle, -PI, PI), shoulder)
 	world[fore] = Transform2D(wrapf(fore_angle, -PI, PI), elbow)
 	world[hand] = Transform2D(wrapf(fore_angle, -PI, PI), wrist)
+	# Non-target attachments (for example a rigid claw) follow the solved
+	# chain. Held items receive their world-angle policy in the next pass.
+	for name: String in joints:
+		if name in [upper, fore, hand]: continue
+		var parent: String = parent_name(joints[name])
+		if parent == hand:
+			var local: Vector2 = Tracks.point(joints[name]["position"]) - c
+			world[name] = (world[hand] as Transform2D) * Transform2D(0.0, local)

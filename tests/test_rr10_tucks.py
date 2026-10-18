@@ -14,11 +14,16 @@ PROJECT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(PROJECT/'tools'))
 from cutout_pipeline.cases import digest
 from humanoid_cutout.gates import source_errors,EPSILON,matrix
-from humanoid_cutout.mesh import CUFF_FORE_ROWS_PX
+
 from humanoid_cutout.seam_proof import fixture_masks,seam_holes
-from humanoid_cutout.tucks import TUCK_DEPTHS_PX
+
 
 CASE=PROJECT/'experiments/cutouts/hoarfrost_seer/rr10'
+from humanoid_cutout.anatomy import load, owner_ids
+ANATOMY = load(CASE)
+TUCK_DEPTHS_PX = {n:r['depth_px'] for n,r in ANATOMY['tucks']['pieces'].items()}
+CUFF_FORE_ROWS_PX = ANATOMY['meshes']['sleeve_near']['cuff_rows_px']
+
 FIXTURES=PROJECT/'tests/rr10/feedback4'
 # The fixture body is a pre-rr-13 GPU capture. Under rr-13's stricter seam locality it shows the 2 px robe/torso
 # waist opening the director approved for front death 27-30 (gate_exceptions.json). Pinned exactly so any growth fails.

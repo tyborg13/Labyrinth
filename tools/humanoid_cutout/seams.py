@@ -4,26 +4,20 @@ import numpy as np
 from PIL import Image
 from maquette_motion.silhouette import dilate
 
-JOINS = [('head', 'torso'), ('sleeve_near', 'torso'), ('sleeve_far', 'torso'),
-         ('hand_near', 'sleeve_near'), ('hand_far', 'sleeve_far'), ('staff', 'hand_far'),
-         ('robe', 'torso'), ('foot_near', 'robe'), ('foot_far', 'robe')]
-
-
-def build_masks(case, layout, visible):
+def build_masks(case, layout, visible, anatomy):
     masks = {name: np.zeros(image.shape[:2], dtype=bool) for name, image in visible.items()}
-    for first, second in JOINS:
+    for first, second in anatomy['seam_joins']:
         a, b = visible[first][..., 3] > 0, visible[second][..., 3] > 0
         masks[first] |= a & dilate(b, 1, grid_distance=True)
         masks[second] |= b & dilate(a, 1, grid_distance=True)
     # Inside each single sleeve mesh, the elbow cross-section is the joint
     # seam. The exact .5 contour follows the authored segment-projection rule.
-    from .mesh import sleeve_weights
+    from .mesh import weights_for
     yy, xx = np.indices(next(iter(masks.values())).shape)
     points = np.stack((xx.ravel() + .5, yy.ravel() + .5), axis=1)
-    for side in ('near', 'far'):
-        name = 'sleeve_' + side
-        weights = np.asarray(sleeve_weights(points, *[layout['joints'][n + side]['position']
-            for n in ('upper_', 'fore_', 'hand_')], side)['fore_' + side]).reshape(xx.shape)
+    for name, recipe in anatomy['meshes'].items():
+        if recipe['kind'] != 'two_segment': continue
+        weights = np.asarray(weights_for(points, None, layout['joints'], recipe)[recipe['bones'][1]]).reshape(xx.shape)
         # Pixels crossing the half-weight contour, without a new motion rule.
         near = weights >= .5
         masks[name] |= (visible[name][..., 3] > 0) & (dilate(near, 1) & dilate(~near, 1))

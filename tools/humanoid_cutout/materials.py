@@ -29,13 +29,17 @@ def clean_continuation(visible, fill, definition, replace_all=False):
     return result
 
 
-def held_depths(depths, view, policy):
-    """View-specific body/prop ordering; preserve the inherited body order."""
+def held_depths(depths, view, roles):
+    """Case-owned body, item, grip and view roles; retain inherited body order."""
     result = dict(depths)
-    body = [result[name] for name in ('torso', 'sleeve_near', 'sleeve_far', 'robe')]
-    if policy[view] == 'behind_body': result['staff'] = min(body) - 1
-    elif policy[view] == 'in_front_of_body':
-        result['staff'] = max(value for name,value in result.items() if name not in ('staff','hand_far') and not name.startswith('hidden_')) + 1
-    else: raise ValueError('TODO_DESIGN_staff_depth_' + view)
-    result['hand_far'] = max(result['hand_far'], result['staff'] + 1)
+    for item, role in roles.items():
+        body = [result[name] for name in role['body']]
+        grip = role.get('grip')
+        policy = role['policy'][view]
+        if policy == 'behind_body': result[item] = min(body) - 1
+        elif policy == 'in_front_of_body':
+            result[item] = max(value for name, value in result.items()
+                               if name not in (item, grip) and not name.startswith('hidden_')) + 1
+        else: raise ValueError('TODO_DESIGN_' + item + '_depth_' + view)
+        if grip is not None: result[grip] = max(result[grip], result[item] + 1)
     return result
