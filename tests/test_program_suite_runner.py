@@ -140,10 +140,10 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         expected.extend(EXTRACTED_PROGRAMS)
         expected.extend(MERGED_PROGRAMS)
         supplemental = json.loads(SUPPLEMENTAL_MANIFEST.read_text())
-        # 116 accepted; owned_cpu_asset_preparation_test moved to quarantine (bug-02) at the integration merge;
+        # det-01 restores owned_cpu_asset_preparation_test after deterministic cancellation coverage;
         # bug-01's four fixed tests left quarantine for the supplemental set at its merge;
         # rr-05 made maquette_cutout_test a real pixel-runtime program (no longer a shared wrapper).
-        self.assertEqual(len(supplemental), 120, "Preserve the accepted supplemental set")
+        self.assertEqual(len(supplemental), 121, "Preserve the accepted supplemental set")
         expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
         expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)

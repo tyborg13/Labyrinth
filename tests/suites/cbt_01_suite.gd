@@ -15,6 +15,11 @@ const FIXTURE_ENEMY_HP: int = 40
 const SETTLE_FRAMES: int = 3
 const KEYBOARD_SETTLE_PHYSICS_FRAMES: int = 10
 const ARROW_ENDPOINT_TOLERANCE_PX: float = 1.0
+# Invisible fixtures force a board tween to advance after the last physics
+# sample, without depending on host load, elapsed time, or idle animation.
+const FRAME_ORDER_BOARD_OFFSET := Vector2(0.0, 8.0)
+const FRAME_ORDER_TWEEN_SECONDS: float = 1.0
+const FRAME_ORDER_STEP_SECONDS: float = 0.5
 const KEYBOARD_APPROACH_OFFSET := Vector2i(-1, -1)
 const NO_TARGET := Vector2i(-1, -1)
 
@@ -173,20 +178,21 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	if router != null: router.call("set_forced_state_for_test", "pointer", "steam_deck")
 	await keyboard_focus_hero(scene)
 	await settle_keyboard(tree)
-	assert_keyboard_stay_focus(scene, expect)
+	await assert_keyboard_stay_focus(scene, expect)
+	await _test_presented_arrow_frame(tree, scene, expect)
 	assert_stay_preview(scene, expect)
 	var neutral_stick := InputEventJoypadMotion.new()
 	neutral_stick.axis = JOY_AXIS_LEFT_X
 	neutral_stick.axis_value = 0.0
 	await scene.call("_input", neutral_stick)
-	assert_keyboard_stay_focus(scene, expect)
+	await assert_keyboard_stay_focus(scene, expect)
 	var pointer := InputEventMouseMotion.new()
 	pointer.position = scene.call("_controller_board_point", HERO)
 	await scene.call("_input", pointer)
 	expect.call(not preload("res://scripts/movement_target_keyboard.gd").active(scene) and (scene.get("board_view") as Control).get("_controller_focus_tile") == NO_TARGET, "Pointer input releases keyboard-owned focus")
 	await keyboard_focus_hero(scene)
 	await settle_keyboard(tree)
-	assert_keyboard_stay_focus(scene, expect)
+	await assert_keyboard_stay_focus(scene, expect)
 	await _test_keyboard_cancel_reselect(tree, scene, expect)
 	var confirm := InputEventKey.new()
 	confirm.keycode = KEY_ENTER
@@ -258,7 +264,7 @@ static func _test_keyboard_cancel_reselect(tree: SceneTree, scene: Node, expect:
 	expect.call(board.get("_controller_focus_tile") == NO_TARGET and scene.get("_hovered_board_tile") == NO_TARGET, "Reselection without a keypress does not restore the rendered keyboard cursor or hover")
 	await keyboard_focus_hero(scene)
 	await settle_keyboard(tree)
-	assert_keyboard_stay_focus(scene, expect)
+	await assert_keyboard_stay_focus(scene, expect)
 	assert_stay_preview(scene, expect)
 
 static func keyboard_focus_hero(scene: Node) -> void:
@@ -278,13 +284,48 @@ static func assert_keyboard_stay_focus(scene: Node, expect: Callable) -> void:
 	expect.call(not scene.call("_controller_is_active"), "Stay regression uses keyboard/pointer modality")
 	expect.call(scene.get("_controller_board_tile") == HERO and scene.get("_hovered_board_tile") == HERO, "Keyboard focus and hover remain on (4,3) after physics frames")
 	expect.call(board.get("_controller_focus_tile") == HERO, "Rendered board focus remains on (4,3) after physics frames")
-	assert_arrow_at_hero(scene, expect)
+	await assert_arrow_at_hero(scene, expect)
 
 static func assert_arrow_at_hero(scene: Node, expect: Callable) -> void:
+	# process_frame resumes before node processing and idle tweens. Compare at
+	# the presentation boundary, after production has sampled that same frame.
+	await presented_frame(scene.get_tree())
 	var arrow: Control = scene.get("_drag_target_arrow")
 	var arrow_endpoint: Vector2 = arrow.get_global_transform_with_canvas() * (arrow.call("targeting_end") as Vector2)
 	var hero_point: Vector2 = scene.call("_controller_board_point", HERO)
 	expect.call(arrow.is_visible_in_tree() and arrow_endpoint.distance_to(hero_point) <= ARROW_ENDPOINT_TOLERANCE_PX, "Targeting arrow remains visible and ends on the hero (visible: %s, endpoint: %s, hero: %s)" % [arrow.is_visible_in_tree(), arrow_endpoint, hero_point])
+
+static func presented_frame(tree: SceneTree) -> void:
+	if DisplayServer.get_name() == "headless":
+		# The dummy renderer has no native boundary. Emit only that missing signal
+		# after this frame's nodes/tweens, matching other headless scene fixtures.
+		await tree.process_frame
+		RenderingServer.frame_pre_draw.emit.call_deferred()
+	await RenderingServer.frame_pre_draw
+
+static func _test_presented_arrow_frame(tree: SceneTree, scene: Node, expect: Callable) -> void:
+	var board: Control = scene.get("board_view")
+	var centering: Tween = scene.get("_board_centering_tween")
+	if centering != null and centering.is_valid(): centering.kill()
+	var original_position: Vector2 = board.position
+	var physics_enabled: bool = scene.is_physics_processing()
+	scene.set_physics_process(false)
+	Keyboard.preserve_focus(scene)
+	var sampled_point: Vector2 = scene.call("_controller_board_point", HERO)
+	var tween: Tween = tree.create_tween()
+	tween.pause()
+	tween.tween_property(board, "position", original_position + FRAME_ORDER_BOARD_OFFSET, FRAME_ORDER_TWEEN_SECONDS)
+	tween.custom_step(FRAME_ORDER_STEP_SECONDS)
+	var moved_point: Vector2 = scene.call("_controller_board_point", HERO)
+	expect.call(sampled_point.distance_to(moved_point) > ARROW_ENDPOINT_TOLERANCE_PX, "Frame-order fixture advances the real board transform beyond the unchanged arrow tolerance")
+	await assert_arrow_at_hero(scene, expect)
+	var candidate: Dictionary = scene.get("_controller_focus_candidate")
+	expect.call((candidate.get("point", Vector2.INF) as Vector2).distance_to(scene.call("_controller_board_point", HERO)) <= ARROW_ENDPOINT_TOLERANCE_PX, "Controller focus candidate and arrow retain the same presented board geometry")
+	print("DET-01 ARROW FRAME: physics=%s presented=%s" % [sampled_point, moved_point])
+	tween.kill()
+	board.position = original_position
+	scene.set_physics_process(physics_enabled)
+	await assert_arrow_at_hero(scene, expect)
 
 static func assert_stay_preview(scene: Node, expect: Callable) -> void:
 	var board: Control = scene.get("board_view")

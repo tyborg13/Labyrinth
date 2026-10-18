@@ -9,6 +9,9 @@ const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const RunSfx = preload("res://scripts/run_sfx_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SOURCE: String = "res://assets/art/ui/section_map/medallion.png"
+# Binary ResourceLoader fixture retains the approved samples without requiring
+# an editor import cache on the test host.
+const IMPORTED_AUDIO_FIXTURE: String = "user://owned_cpu_audio.res"
 var _errors: Array[String]
 var _active: bool = true
 var _present_count: int = 0
@@ -126,10 +129,36 @@ func _test_audio() -> void:
 		_expect(Assets.load_audio_stream(path) == prepared and Assets.looping_audio_copy(prepared) == looped and _present_count == before, "Warm audio must retain source and looped identities")
 		Assets._audio_cache.erase(path)
 		Assets._looping_audio_cache.erase(prepared)
+		await _assert_cancelled_audio(path, mode + " source")
+		_expect(ResourceSaver.save(original, IMPORTED_AUDIO_FIXTURE) == OK, "Approved audio must save as a synchronous ResourceLoader fixture")
+		_expect(ResourceLoader.exists(IMPORTED_AUDIO_FIXTURE), "Imported-route fixture must be available without editor imports")
+		var frames_before_import: int = _present_count
 		_cancel_next_frame = true
-		await Assets.prepare_audio_for(root, PackedStringArray([path]), _present, _alive, true)
-		_expect(not Assets._audio_cache.has(path), "Cancelled audio must drain without publishing its private source")
+		await Assets.prepare_audio_for(root, PackedStringArray([IMPORTED_AUDIO_FIXTURE]), _present, _alive, true)
+		_expect(_active and _cancel_next_frame and _present_count == frames_before_import and Assets._audio_cache.has(IMPORTED_AUDIO_FIXTURE), "Imported audio finishes before a next-frame cancellation hook can run for " + mode)
+		print("DET-01 AUDIO FRAME HOOK: %s imported completed synchronously; cancellation was not requested" % mode)
+		_cancel_next_frame = false
+		await _assert_cancelled_audio(IMPORTED_AUDIO_FIXTURE, mode + " imported")
+		# A cached source still needs a loop copy. Cancellation must precede that
+		# publication as well as the cold source publication.
+		Assets._audio_cache[path] = prepared
+		await Assets.prepare_audio_for(root, PackedStringArray([path]), _present, _cancel_audio_request, true)
+		_expect(not Assets._looping_audio_cache.has(prepared), "Cancelled warm audio must not publish a loop copy for " + mode)
 		_active = true
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(IMPORTED_AUDIO_FIXTURE))
+
+func _assert_cancelled_audio(path: String, label: String) -> void:
+	Assets._audio_cache.erase(path)
+	# Cancellation is an explicit request-state hook, not a bet that a worker or
+	# synchronous ResourceLoader will remain unfinished until the next frame.
+	await Assets.prepare_audio_for(root, PackedStringArray([path]), _present, _cancel_audio_request, true)
+	_expect(not _active, "Audio must consult cancellation for " + label)
+	_expect(not Assets._audio_cache.has(path), "Cancelled audio must drain without publishing its private source: " + label)
+	_active = true
+
+func _cancel_audio_request() -> bool:
+	_active = false
+	return false
 
 static func _reference_loop(resource: AudioStream) -> AudioStream:
 	var looped: AudioStream = resource.duplicate() as AudioStream
