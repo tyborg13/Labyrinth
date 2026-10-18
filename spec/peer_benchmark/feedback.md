@@ -164,3 +164,7 @@
   kept) and its rr-12 rig (two-group idle, inchworm crawl, gnaw, burrow into the mound, erupt) are accepted.
 - 2026-10-18 tick-rig APPROVED (owner), with no notes. The Ember Tick painting (standing legs kept, near-black shell,
   ember cracks) and its rr-12 rig are accepted. Both are on integration (rr-12 merged 9fdb6462f).
+- 2026-10-18 seer-rig-v2 APPROVED (owner), with no notes. Hoarfrost Seer v2 is accepted: the true 180° rear (mq-06
+  repaint), the protagonist bob idle, the skinned robe and sleeves, and translation-led actions (rr-10 + rr-13 on humanoid
+  rig v2). The rr-13 review round closes 2–6 px seam pinholes with hidden fills only (rest identity unchanged). This
+  confirms the humanoid rig v2 spec as the standard for the Thrall, Herald, Gloam, Lancer and Glacial Mirror.
