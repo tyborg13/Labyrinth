@@ -1,0 +1,71 @@
+{
+  "min_images": 4,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*bug_01_floor_restored.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*bug_01_floor_fresh.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*bug_01_floor_reference.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*bug_01_floor_mutated.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [0, 0, 1920, 1080],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

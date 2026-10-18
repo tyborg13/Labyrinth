@@ -731,7 +731,7 @@ from duplicating events. Existing JSONL storage and vector normalization apply.
 
 | Event | Payload |
 | --- | --- |
-| `section_entered` | Section index, boss id, remaining Scout uses |
+| `section_entered` | Section index, boss id, remaining Scout uses; additive `entry: auto_transition` after dragon-reward CONTINUE or `entry: resume_transition` when loading a claimed, cleared boss room |
 | `route_revealed` | Source (`proximity`), section index, newly identified rooms |
 | `map_scout_used` | Section, `scope: mystery` when scouting a revision-4 mystery, otherwise `scope: room` (older layouts and ordinary Section VI unknown rooms), selected `target`, exactly one revealed room, newly `outlined_rooms`, uses remaining; `branch` retained as a legacy alias for the selected coordinate |
 | `route_choice_committed` | Section, origin, destination, known room ids, known room metadata (type, element, step, landmark), remaining Scout uses |
@@ -739,6 +739,26 @@ from duplicating events. Existing JSONL storage and vector normalization apply.
 | `map_event_resolved` | Room, legacy `choice`, Embers delta, newly revealed rooms; additive `event_id`, `choice_id`, concrete ordered `outcomes` |
 | `omen_gained` | `id`, `fights` (new or refreshed duration) |
 | `omen_expired` | `id` |
+
+The automatic section transition annotates only the newly staged
+`section_entered` receipt before saving the destination threshold. A skip uses
+the same arrival and emits no extra event. Loading the cleared boss room
+replays presentation without regranting rewards; loading an already entered
+threshold emits no second section entry. Existing revision keys, save-before-
+append ordering, and append-only JSONL history remain unchanged.
+An entry-save failure returns to the post-claim dragon reward screen and emits
+no `section_entered` event. CONTINUE retries presentation without staging a
+second `reward_claimed` receipt. A quit/resume retry uses `resume_transition` on
+its eventual successful entry.
+Older cleared-boss saves migrate their already-claimed presentation summary
+before descent. Matching local `reward_offered` records retain historical reward
+identities and totals when available. The reconstructed reward screen shows the
+known dragon and recorded relic only; it omits both payout/Moltshard rows,
+including when those historical totals remain in the local event. Existing
+complete reward summaries retain their usual rows. This migration neither
+replays a grant/claim nor rewrites
+the append-only event history; destination entry still uses the same saved
+`resume_transition` receipt.
 
 Authored event choices commit their result page and effects with the saved
 `map_event_resolved` receipt. Concrete outcomes include actual resource deltas,
@@ -1090,6 +1110,12 @@ failed boon appends transfer to the existing durable profile analytics outbox
 with the original run context and the same idempotency keys. If that transfer
 cannot be saved, the old run remains intact. Outbox delivery and acknowledgment
 use the normal batch replay path; retrying either copy cannot duplicate JSONL.
+An animation-held terminal snapshot already contains its settled wallet. If
+Save & Quit occurs while its heirloom prompt is pending, persist the profile
+and retained receipts before replacing the unprocessed fallback with that held
+snapshot. A failed profile write leaves the original fallback unchanged; a
+successful retry keeps the unanswered prompt resumable and settles the wallet
+exactly once.
 Replacement also reconciles and durably acknowledges the saved run's newer
 progression before creating its successor, including consumed heirlooms and
 settled terminal wallets. Unsettled held Embers still follow abandonment rules.

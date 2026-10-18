@@ -13,7 +13,8 @@ class HoverScene extends "res://scripts/run_scene.gd":
 	func _refresh_stage_view() -> void:
 		stage_calls += 1
 		presented = _hovered_board_tile
-	func _update_action_context_copy(_preview: Dictionary = {}) -> void: context_calls += 1
+	# Hover now refreshes the selected-card forecast rather than the old copy hook.
+	func _refresh_selected_card_forecast() -> void: context_calls += 1
 
 var failures: int = 0
 func _initialize() -> void:

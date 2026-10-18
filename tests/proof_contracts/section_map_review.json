@@ -1,0 +1,78 @@
+{
+  "min_images": 14,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/01_dragon_reward.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/02_automatic_descent.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/03_transition_title.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/04_second_section.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/05_completed_history.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/05b_section_tab_focus.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/05c_available_navigation.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/06_recovery_distant.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/07_recovery_resumed.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/08_recovery_routes.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/09_recovery_collected.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/10_scavenger_shop.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/11_scavenger_leave_map.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/12_scavenger_map_closed.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

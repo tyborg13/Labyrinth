@@ -492,6 +492,14 @@ func _test_combat_skill_outbox_crash_windows() -> void:
 	terminal_host.set("_progression", terminal_progression)
 	var terminal_checkpoint: Dictionary = terminal_host.call("_run_state_for_combat_checkpoint", terminal_run, terminal_combat) as Dictionary
 	var terminal_key: String = str(terminal_host.call("_combat_skill_event_idempotency_key", terminal_run, terminal_combat, 1, "afterimage"))
+	# Boss victories first commit the resumable dragon reward. The terminal
+	# boundary follows Continue; do not skip that production transition.
+	_expect(engine.is_dragon_reward(terminal_checkpoint), "Final combat should first reach the dragon reward checkpoint")
+	_expect(bool((terminal_checkpoint.get("pending_reward", {}) as Dictionary).get("final_boss", false)), "Terminal outbox fixture should use the final dragon reward")
+	terminal_host.call("_hold_committed_run_state", terminal_checkpoint, "final_dragon_skill_outbox")
+	_expect(ProgressionStore.has_saved_run(), "The final dragon reward should remain resumable before Continue")
+	_expect(engine.is_dragon_reward(ProgressionStore.load_saved_run()), "The saved final dragon reward should retain its continuation")
+	terminal_checkpoint = engine.continue_dragon_reward(ProgressionStore.load_saved_run())
 	_expect(str(terminal_checkpoint.get("mode", "")) == "victory", "Terminal outbox fixture should reach the final victory boundary")
 	terminal_host.call("_hold_committed_run_state", terminal_checkpoint, "terminal_combat_skill_outbox")
 	terminal_host.free()

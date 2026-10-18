@@ -25,9 +25,7 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 	expect.call(failures.is_empty(), "Revision 5 metric thresholds over seeds 1..50 x 6 sections")
 	print("Map 02 metrics: %s (50 seeds x 6 sections)" % ("PASS" if failures.is_empty() else "FAIL"))
 	_test_legacy_hashes(expect, legacy_seed_count)
-	Regression.test_public_dispatch(expect)
-	Regression.test_bounded_structures(expect)
-	Regression.test_probe_ready(expect)
+	Regression.run(expect)
 	for seed_value: int in range(1, DETERMINISM_SEED_COUNT + 1):
 		var state: Dictionary = _state(seed_value)
 		Graph.initialize(state)
@@ -35,7 +33,6 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 		Graph.initialize(again)
 		expect.call(state == again and state["section_map_layout_revision"] == 5, "Revision 5 is deterministic and new runs record revision 5")
 		if seed_value == 1: _test_panel_before_ready(state, expect)
-		if seed_value in Regression.LAYOUT_SEEDS: Regression.test_layout_gaps(state, expect)
 		for index: int in range(6): _test_section(state, index, expect)
 	_test_saved_revision4(expect)
 	_test_layout_contract(expect)
@@ -44,11 +41,11 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 static func _state(seed_value: int) -> Dictionary:
 	return {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
 
-static func _test_legacy_hashes(expect: Callable, seed_count: int) -> void:
+static func _test_legacy_hashes(expect: Callable, seed_count: int, first_seed: int = 1) -> void:
 	var revision4: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Metrics.BASELINE_PATH))["hashes"]
 	var revision3: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/map_02_revision3_hashes.json"))
 	var reused: int = 0
-	for seed_value: int in range(1, seed_count + 1):
+	for seed_value: int in range(first_seed, first_seed + seed_count):
 		var seed_key: String = str(seed_value)
 		var state: Dictionary = _state(int(seed_key))
 		var actual_revision4: String = str(Legacy.revision4_graph_hashes.get(seed_key, ""))

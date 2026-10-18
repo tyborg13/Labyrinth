@@ -1,0 +1,61 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "gloam_stalker",
+  "job_id": "mq-gloam-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "292f93c7d5455c98000d0b4cfa3d48380f80b9ec8c0fd13b4b343ac86dcac59b",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/gloam_stalker/mq5_front/kit.json",
+    "pixel_sha256": "7692c3f644c7050c2041a3d17878e91c37e53e71440d7ebc747e78ab79d41fe3"
+  },
+  "method": "maquette paint-over r1 rear from the mq-04 r4 maquette (matches mq5_front); image tool returned 1254x1254, so the director resized it to 1024 with Lanczos (refs/raw_1024_lanczos.png); palette matched to mq5_front by match_reference",
+  "peers": [
+    "glacial_mirror_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "d534b804be6ac48d9ad4316552d8603538ab409bc920b665c80afa6e05deb048",
+  "prompt_source": "spec/art_identity/maquettes/gloam_stalker/prompt_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq04r4",
+      "file": "refs/01_maquette_rear_parts_mq04r4.png",
+      "pixel_sha256": "4fda75253a2199f58d381c0a3af25f6b47f32c385362aeb5c9b393a92c504215",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-rear-r1/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq04r4",
+      "file": "refs/02_maquette_rear_clay_mq04r4.png",
+      "pixel_sha256": "8202ac1d78901dc8fbb1879d3c5467cda0ade452f583f9954a108c1fd11be00d",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-rear-r1/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "gloam_front_mq5_approved",
+      "file": "refs/03_gloam_front_mq5_approved.png",
+      "pixel_sha256": "349de178d831450e85be4748c3a869b977c1351ec0a913c4a2a6982e62761ee1",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-rear-r1/refs/03_gloam_front_approved.png"
+    },
+    {
+      "canon_id": "glacial_mirror_rear",
+      "file": "refs/04_glacial_mirror_rear.png",
+      "pixel_sha256": "00f8011727f155d8f97a9ac174b49c5347a6b064fee872484f6926cd55dfcb87",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-rear-r1/refs/04_glacial_mirror_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-rear-r1/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "view": "creature_rear"
+}

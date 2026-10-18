@@ -1,0 +1,75 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "gloam_stalker",
+  "job_id": "mq-gloam-front-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "00780620e7fc2d29ae47f35724f67b036b7ba2e97a0fe0de5a69a4985128609f",
+  "method": "maquette paint-over r1 from the Blender-native mq-04 r4 maquette (3/4 board facing); peer ref = owner-approved Frostglass Lancer mq4; director tone step (veils darkened to the identity near-black brown; blades and mask untouched)",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "710c9a7f79860b7ae9bb7252522da9768838f5dfc72b82e77e3671afa96f9dd8",
+  "prompt_source": "spec/art_identity/maquettes/gloam_stalker/prompt_front_r1.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_front_r1.json",
+          "sha256": "ebfde5d4f513f87a16de4655fd559be8bc5c3a3323c00433e06b1b795c26785a"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "422555f95b3df3f4960d88476877c31ba41092c7e6835c2ed5f987e836a41c93"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "349de178d831450e85be4748c3a869b977c1351ec0a913c4a2a6982e62761ee1",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq04r4",
+      "file": "refs/01_maquette_front_parts_mq04r4.png",
+      "pixel_sha256": "bb35ecac168b746f470cfeac74ce2faae3a965586d65ef2f04f529b56cbc4606",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-front-r1/refs/01_maquette_front_parts.png"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq04r4",
+      "file": "refs/02_maquette_front_clay_mq04r4.png",
+      "pixel_sha256": "175b371de8d0420529e1b430325c32de86d32852829ad0db336628c7bf653948",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-front-r1/refs/02_maquette_front_clay.png"
+    },
+    {
+      "canon_id": "identity_gloam_stalker_current",
+      "file": "refs/03_identity_gloam_stalker_current.png",
+      "pixel_sha256": "aa3ce627a4882b0f006e97479f7de1ea128a7d36781331a5365be58d9b2e08ec",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-front-r1/refs/03_identity_gloam_stalker_front.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_front",
+      "file": "refs/04_approved_frostglass_lancer_mq4_front.png",
+      "pixel_sha256": "5ae6ac1f259665257abf87af1e79a90f68421e52af16ab7941cc45d01ac90a26",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-front-r1/refs/04_peer.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gloam-front-r1/refs/05_hero_front.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "view": "creature_front"
+}

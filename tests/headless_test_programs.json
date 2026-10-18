@@ -1,0 +1,383 @@
+[
+  {
+    "path": "tests/acolyte_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/bile_bloomer_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/board_hover_coalescing_test.gd"
+  },
+  {
+    "path": "tests/board_surface_content_smoke_test.gd"
+  },
+  {
+    "path": "tests/board_surface_data_test.gd"
+  },
+  {
+    "path": "tests/board_surface_presentation_test.gd"
+  },
+  {
+    "path": "tests/board_surface_probe_migration_test.gd"
+  },
+  {
+    "path": "tests/card_draw_hand_flow_test.gd"
+  },
+  {
+    "path": "tests/card_presentation_cache_test.gd"
+  },
+  {
+    "path": "tests/card_proxy_pool_test.gd"
+  },
+  {
+    "path": "tests/chainbound_gaoler_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/chainbound_gaoler_motion_test.gd"
+  },
+  {
+    "path": "tests/chronicle_test.gd"
+  },
+  {
+    "path": "tests/cinder_droplet_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/cinder_ooze_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/combat_analytics_context_equivalence_test.gd"
+  },
+  {
+    "path": "tests/combat_hud_buttons_test.gd"
+  },
+  {
+    "path": "tests/combat_hud_dialogue_input_test.gd"
+  },
+  {
+    "path": "tests/combat_motion_timing_test.gd"
+  },
+  {
+    "path": "tests/combat_music_integration_test.gd"
+  },
+  {
+    "path": "tests/contextual_combat_tutorial_test.gd"
+  },
+  {
+    "path": "tests/crawler_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/cutout_pose_application_test.gd"
+  },
+  {
+    "path": "tests/cutout_submission_equivalence_test.gd"
+  },
+  {
+    "path": "tests/demo_capture_settings_test.gd",
+    "mode": "capture_settings"
+  },
+  {
+    "path": "tests/demo_clip_clock_test.gd"
+  },
+  {
+    "path": "tests/demo_probe_viewport_test.gd"
+  },
+  {
+    "path": "tests/departed_run_cleanup_test.gd"
+  },
+  {
+    "path": "tests/dragon_committed_patterns_test.gd"
+  },
+  {
+    "path": "tests/dragon_exchange_presentation_test.gd"
+  },
+  {
+    "path": "tests/dragon_feedback_mechanics_test.gd"
+  },
+  {
+    "path": "tests/dragon_pressure_mechanics_test.gd"
+  },
+  {
+    "path": "tests/dragon_reward_feedback_test.gd"
+  },
+  {
+    "path": "tests/dragon_spire_routes_test.gd"
+  },
+  {
+    "path": "tests/dragon_trophy_feedback_test.gd"
+  },
+  {
+    "path": "tests/dragon_wallet_ack_test.gd"
+  },
+  {
+    "path": "tests/elemental_fx_hash_equivalence_test.gd"
+  },
+  {
+    "path": "tests/elemental_spell_fx_test.gd"
+  },
+  {
+    "path": "tests/en05_elemental_test.gd"
+  },
+  {
+    "path": "tests/en05_live_integration_test.gd"
+  },
+  {
+    "path": "tests/en05_probe_contract_test.gd"
+  },
+  {
+    "path": "tests/enemy_cutout_roster_pack_test.gd",
+    "mode": "roster_pack"
+  },
+  {
+    "path": "tests/enemy_route_allocation_equivalence_test.gd"
+  },
+  {
+    "path": "tests/forced_movement_query_equivalence_test.gd"
+  },
+  {
+    "path": "tests/frostglass_lancer_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/frostglass_lancer_motion_test.gd"
+  },
+  {
+    "path": "tests/glossary_test.gd"
+  },
+  {
+    "path": "tests/graftwright_console_test.gd"
+  },
+  {
+    "path": "tests/graftwright_cutout_pack_test.gd",
+    "mode": "roster_pack"
+  },
+  {
+    "path": "tests/grave_surgeon_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/grimoire_performance_test.gd"
+  },
+  {
+    "path": "tests/grimoire_search_rows_equivalence_test.gd"
+  },
+  {
+    "path": "tests/guardian_cutout_motion_probe.gd"
+  },
+  {
+    "path": "tests/guardian_cutout_pack_test.gd",
+    "mode": "roster_pack"
+  },
+  {
+    "path": "tests/guided_combat_tutorial_integration_test.gd"
+  },
+  {
+    "path": "tests/gust_shrike_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/gust_shrike_cutout_test.gd"
+  },
+  {
+    "path": "tests/harrier_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/headless_playtest_progression_test.gd"
+  },
+  {
+    "path": "tests/humanoid_cutout_reaction_motion_probe.gd"
+  },
+  {
+    "path": "tests/iskaldra_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/magic_deck_test.gd"
+  },
+  {
+    "path": "tests/main_menu_input_test.gd"
+  },
+  {
+    "path": "tests/merchant_stock_equivalence_probe.gd"
+  },
+  {
+    "path": "tests/music_continuity_test.gd"
+  },
+  {
+    "path": "tests/noctyrax_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/objective_glyph_equivalence_test.gd"
+  },
+  {
+    "path": "tests/original_music_test.gd"
+  },
+  {
+    "path": "tests/performance_phase_fast_path_test.gd"
+  },
+  {
+    "path": "tests/performance_telemetry_test.gd"
+  },
+  {
+    "path": "tests/pixel_fx_test.gd"
+  },
+  {
+    "path": "tests/player_defeat_continuity_test.gd"
+  },
+  {
+    "path": "tests/player_movement_outcome_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_deck_fit_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_pinned_hover_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_review_fixes_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_semantics_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_true_scale_test.gd"
+  },
+  {
+    "path": "tests/pre_battle_view_test.gd"
+  },
+  {
+    "path": "tests/prepared_card_preview_queries_test.gd"
+  },
+  {
+    "path": "tests/prepared_pre_battle_view_equivalence_test.gd"
+  },
+  {
+    "path": "tests/prepared_shop_equivalence_test.gd"
+  },
+  {
+    "path": "tests/prepared_unit_canvas_equivalence_test.gd"
+  },
+  {
+    "path": "tests/profile_read_equivalence_test.gd"
+  },
+  {
+    "path": "tests/protagonist_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/protagonist_gear_motion_gameplay_test.gd"
+  },
+  {
+    "path": "tests/relic_u5_test.gd"
+  },
+  {
+    "path": "tests/relic_u6_test.gd"
+  },
+  {
+    "path": "tests/relic_u8_test.gd"
+  },
+  {
+    "path": "tests/retained_character_header_equivalence_test.gd"
+  },
+  {
+    "path": "tests/retained_character_loadout_equivalence_test.gd"
+  },
+  {
+    "path": "tests/save_pipeline_performance_test.gd"
+  },
+  {
+    "path": "tests/save_resume_boundary_test.gd"
+  },
+  {
+    "path": "tests/scavenger_cutout_pack_test.gd",
+    "mode": "roster_pack"
+  },
+  {
+    "path": "tests/scavenger_resource_cache_test.gd"
+  },
+  {
+    "path": "tests/shadow_triangulation_equivalence_test.gd"
+  },
+  {
+    "path": "tests/skill_link_geometry_equivalence_test.gd"
+  },
+  {
+    "path": "tests/skill_progression_analytics_test.gd"
+  },
+  {
+    "path": "tests/skill_tree_view_test.gd"
+  },
+  {
+    "path": "tests/staged_reward_choices_equivalence_test.gd"
+  },
+  {
+    "path": "tests/start_room_map_test.gd"
+  },
+  {
+    "path": "tests/stone_warden_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/structural_route_equivalence_test.gd"
+  },
+  {
+    "path": "tests/surface_analytics_batch_test.gd"
+  },
+  {
+    "path": "tests/surface_parent_review_test.gd"
+  },
+  {
+    "path": "tests/surface_preview_equivalence_test.gd"
+  },
+  {
+    "path": "tests/surface_relic_test.gd"
+  },
+  {
+    "path": "tests/surface_save_migration_test.gd"
+  },
+  {
+    "path": "tests/tharokh_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/ui_components_gallery_fixture_test.gd"
+  },
+  {
+    "path": "tests/ui_skin_performance_test.gd"
+  },
+  {
+    "path": "tests/vaeloryx_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/veilbound_acolyte_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/vyraketh_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/zekarion_cutout_pack_test.gd",
+    "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/prepared_other_character_view_test.gd"
+  },
+  {
+    "path": "tests/retained_character_inventory_equivalence_test.gd"
+  },
+  {
+    "path": "tests/shop_retained_content_test.gd"
+  },
+  {
+    "path": "tests/static_floor_cache_equivalence_test.gd"
+  }
+]

@@ -3,6 +3,7 @@ extends SceneTree
 const Shop = preload("res://scripts/scavenger_shop_view.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const Fixture = preload("res://tests/ui_flow_performance_workload.gd")
+const PAGING_FIXTURE_SPARE_GEAR_ID: String = "iron_cleaver"
 var _errors: Array[String]
 
 func _initialize() -> void:
@@ -12,6 +13,13 @@ func _initialize() -> void:
 	var fixture := Fixture.new()
 	fixture.set("_probe", self)
 	var state: Dictionary = fixture.call("_scavenger_state", engine)
+	# The authored page grew from two slots to nine. The shared flow fixture
+	# has only seven sellable entries, so give this paging test a real second
+	# page without changing production stock or the shared owner's fixture.
+	var spare_gear: Array = state["equipment_inventory"].duplicate()
+	while engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER).size() <= Shop.SELL_PAGE_SIZE:
+		spare_gear.append(PAGING_FIXTURE_SPARE_GEAR_ID)
+		state["equipment_inventory"] = spare_gear.duplicate()
 	var shop := Shop.new()
 	root.add_child(shop)
 	await process_frame
@@ -56,6 +64,7 @@ func _initialize() -> void:
 	_expect((shop.get("_slot_tweens") as Dictionary).is_empty(), "Reduced motion must stop retained offer tweens")
 	await create_timer(0.16).timeout
 	_expect(gear.scale.is_equal_approx(Vector2.ONE), "A retired emphasis tween must not resume after preference change")
+	_expect(engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER).size() > Shop.SELL_PAGE_SIZE, "Paging fixture must contain more than one authored page")
 	shop.call("_turn_sell_page", 1)
 	var page: int = int(shop.get("_sell_page"))
 	var page_sources: Dictionary = (shop.get("_offer_sources") as Dictionary).duplicate()

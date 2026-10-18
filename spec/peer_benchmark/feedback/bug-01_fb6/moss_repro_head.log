@@ -1,0 +1,14 @@
+Running task-local command:
+  task: bug-01-review
+  run: bug-01-review-1792282176123306000-65203
+  HOME: /private/tmp/labyrinth-godot-home/bug-01-review-1792282176123306000-65203
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/bug-01-review-1792282176123306000-65203/godot.log --headless --path . --script tests/bug_01_review_moss_repro.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MOSS_ONSET {"body_after":0.319999992847443,"body_before":0.319999992847443,"full_redraw_delta":0,"geometry_same":true,"moss_after":0.540000021457672,"moss_before":1.0,"moss_enabled":true,"moss_texture":true,"queued":false}
+MOSS_REMOVAL {"full_redraw_delta":0,"moss_alpha":1.0,"queued":false}

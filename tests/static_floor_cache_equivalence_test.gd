@@ -2,11 +2,39 @@ extends SceneTree
 const Board = preload("res://scripts/combat_board_view.gd")
 const Reference = preload("res://tests/fixtures/static_floor_cache_reference.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const ProofClock = preload("res://tests/fixtures/static_floor_proof_clock.gd")
+const DiffDump = preload("res://tests/fixtures/static_floor_diff_dump.gd")
+const DiffCapture = preload("res://tests/fixtures/static_floor_diff_capture.gd")
+const DiffChecks = preload("res://tests/fixtures/static_floor_diff_dump_checks.gd")
+const DiffSmoke = preload("res://tests/fixtures/static_floor_diff_capture_smoke.gd")
+const ShaderTime = preload("res://tests/fixtures/static_floor_shader_time.gd")
+const FreshChecks = preload("res://tests/fixtures/static_floor_fresh_checks.gd")
+const ScenePropChecks = preload("res://tests/fixtures/static_floor_scene_prop_checks.gd")
+const PROOF_ENCOUNTER_TYPES: Array = ["warden"]
+const PROOF_SIZE := Vector2i(1920, 1080)
+const PROOF_UI_SCALE: float = 1.0
+const PROOF_AMBIENT_SECONDS: float = ProofClock.AMBIENT_SECONDS
+const PROOF_IDLE_SECONDS: float = ProofClock.BOARD_SECONDS
+const RESTORE_PROOF_SETTLE_FRAMES: int = 3
+const FLOOR_MUTATION_ENV: String = "LABYRINTH_BUG_01_MUTATE_FLOOR"
+const FLOOR_MUTATION_TILE := Vector2i(4, 4)
+const FLOOR_MUTATION_COLOR := Color.MAGENTA
+const COMPARATOR_FIXTURE_SIZE := Vector2i(2, 2)
+const COMPARATOR_MUTATION_PIXEL := Vector2i(1, 1)
+const CLOCK_FIXTURE_ENEMY: Dictionary = {"id": 1, "type": "warden", "pos": Vector2i(6, 4), "hp": 24, "max_hp": 24}
+const CLOCK_DRIFT_ACTUAL_SECONDS: float = 0.19
+const CLOCK_DRIFT_REFERENCE_SECONDS: float = 0.57
 
-# Freeze only the original wall-clock torch particles for pixel comparison.
+# Board/actor clocks are frozen by ProofClock before every comparison. Torch
+# motes also use a wall clock in _draw(), so supply the same fixed input here.
 # Both subclasses inherit their complete production/frozen floor paths.
 class ClockedBoard:
 	extends Board
+	var queued_scene_tiles: Dictionary = {}
+	func _queue_scene_render_layer_for_tile(tile: Vector2i) -> void:
+		queued_scene_tiles[tile] = true
+		super._queue_scene_render_layer_for_tile(tile)
 	func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
 		if tiles.is_empty() or not _pillar_torch_ember_motes_active():
 			return
@@ -14,7 +42,7 @@ class ClockedBoard:
 		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 		if pillar_texture == null:
 			return
-		var time_seconds: float = 12.0
+		var time_seconds: float = ProofClock.AMBIENT_SECONDS
 		var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 		for tile: Vector2i in tiles:
 			if not _tile_renders_as_pillar(grid, tile):
@@ -34,7 +62,7 @@ class ClockedReference:
 		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
 		if pillar_texture == null:
 			return
-		var time_seconds: float = 12.0
+		var time_seconds: float = ProofClock.AMBIENT_SECONDS
 		var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 		for tile: Vector2i in tiles:
 			if not _tile_renders_as_pillar(grid, tile):
@@ -44,6 +72,13 @@ class ClockedReference:
 			var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
 			_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "left", -1.0, tint_alpha, time_seconds)
 			_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "right", 1.0, tint_alpha, time_seconds)
+
+# A one-pixel, test-only floor corruption. It is drawn inside the real cached
+# floor viewport, and remains in the complete board comparison with all actors.
+class FloorPixelMutation:
+	extends Node2D
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, Vector2.ONE), FLOOR_MUTATION_COLOR)
 
 var _errors: Array[String]
 var _checks: int = 0
@@ -59,9 +94,17 @@ var _layer_ids: Dictionary
 var _shadow_geometry: Dictionary
 var _shadow_meshes: Dictionary
 var _exits: Dictionary = {}
+var _diff_dump := DiffDump.new()
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	Settings.set_storage_path("user://bug_01_floor_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = PROOF_UI_SCALE
+	settings["fullscreen"] = false
+	Settings.apply_settings(settings, null, false)
 	_native = DisplayServer.get_name() != "headless"
+	if DiffDump.enabled() and not _native:
+		print("BUG_01 DIFF DUMP: native captures unavailable headlessly; diagnostic fixture checks only")
 	if _native: DisplayServer.window_set_size(Vector2i(1920, 1080))
 	root.size = Vector2i(1920, 1080)
 	await process_frame
@@ -75,6 +118,17 @@ func _initialize() -> void:
 	_actual.set_submission_performance_instrumentation_enabled(true)
 	_state = _room()
 	await _show({}, "empty")
+	var diff_check_error_count: int = _errors.size()
+	_check(DiffChecks.run(_check), "Diagnostic image checks must finish")
+	_check(_test_fresh_diagnostic_fixture(), "Fresh diagnostic fixture check must finish")
+	if not _native:
+		var smoke_errors_before: int = _errors.size()
+		_check(_actual is ClockedBoard and _reference is ClockedReference, "Capture smoke must use the exact clocked production and frozen-reference node types")
+		_check(await DiffSmoke.run(self, _actual, _reference, _check), "End-to-end diagnostic capture smoke must finish")
+		print("BUG_01 CAPTURE END_TO_END SMOKE: %s (ClockedBoard + ClockedReference; GPU readback/fences mocked)" % ("PASS" if _errors.size() == smoke_errors_before else "FAIL"))
+	print("BUG_01 DIFF DUMP CHECKS: %s (strict RGBA metrics, masks, crops, JSON, fresh fixture, isolated mutation)" % ("PASS" if _errors.size() == diff_check_error_count else "FAIL"))
+	await _test_animation_clock()
+	_test_pixel_comparator()
 	await _test_floor_inputs()
 	_state = _room()
 	_exits.clear()
@@ -113,13 +167,10 @@ func _initialize() -> void:
 	# Change layout and input state while every effect pass is dormant. Restore
 	# through a presentation-only update to expose incomplete reactivation.
 	for board: Control in [_actual, _reference]:
-		board._navigation_zoom = 0.83
-		board._navigation_pan = Vector2(12, -9)
-		board._navigation_uses_default_zoom = false
-		board._controller_focus_tile = Vector2i(4,3)
-		board._invalidate_board_layout_cache()
-		board._sync_dynamic_render_state(true)
-		board.presentation = {"trap_effects": [{"pos": Vector2i(6,4), "element": "fire", "effect_progress": 0.42}], "ambient_time_seconds": 12.0}
+		board.set_controller_focus_tile(Vector2i(4,3))
+		board.set_navigation_zoom(0.83, board.size * 0.5)
+		board.set_navigation_pan(Vector2(12, -9))
+		board.presentation = {"trap_effects": [{"pos": Vector2i(6,4), "element": "fire", "effect_progress": 0.42}], "ambient_time_seconds": PROOF_AMBIENT_SECONDS, "board_encounter_types": PROOF_ENCOUNTER_TYPES.duplicate()}
 	_actual._sync_dynamic_render_state(false, false, ["presentation"])
 	_reference._sync_dynamic_render_state(false)
 	_check_active_fields("partial reactivation")
@@ -129,8 +180,11 @@ func _initialize() -> void:
 	_state["grid"] = (_state["grid"] as Array).slice(0, 7)
 	await _show({"trap_effects": [{"pos": Vector2i(5,3), "element": "ice", "effect_progress": 0.42}]}, "new room")
 	_check(_actual._scene_back_effect_render_layers_by_tile.size() == 63, "A smaller room must retire stale effect canvases")
+	await _test_restored_empty_board()
 	_actual_view.queue_free(); _reference_view.queue_free()
 	await process_frame; await process_frame
+	if DiffDump.enabled() and _native:
+		print("BUG_01 DIFF DUMP: %d native cases" % _diff_dump.case_count())
 	print("STATIC FLOOR CACHE RESULT: " + JSON.stringify({"cases": _cases, "checks": _checks, "pixel_differences": _differences, "native": _native, "errors": _errors, "orphans": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))}))
 	quit(0 if _errors.is_empty() else 1)
 func _viewport() -> SubViewport:
@@ -144,14 +198,16 @@ func _viewport() -> SubViewport:
 	return view
 func _show(shown: Dictionary, label: String) -> void:
 	var display: Dictionary = shown.duplicate(true)
-	display["ambient_time_seconds"] = 12.0
-	display["damage_preview_time_seconds"] = 12.0
-	display["umbra_time_seconds"] = 12.0
+	display["ambient_time_seconds"] = PROOF_AMBIENT_SECONDS
+	display["damage_preview_time_seconds"] = PROOF_AMBIENT_SECONDS
+	display["umbra_time_seconds"] = PROOF_AMBIENT_SECONDS
+	# The clock fixture adds a warden after room entry. Production callers provide
+	# this encounter closure up front so actor visibility never reframes the room.
+	display["board_encounter_types"] = PROOF_ENCOUNTER_TYPES.duplicate()
 	if not display.has("board_framing_mode"): display["board_framing_mode"] = "combat"
 	for board: Control in [_actual, _reference]:
-		board._idle_elapsed = 2.0
+		board._idle_elapsed = PROOF_IDLE_SECONDS
 		board.set_combat_state(_state, [], [], Vector2i(-1, -1), "", "", _exits.duplicate(true), {}, display.duplicate(true))
-		if is_instance_valid(board._protagonist_renderer): board._protagonist_renderer.set_process(false)
 	_check_active_fields(label)
 	for key: Variant in _shadow_geometry:
 		_check(_actual._unit_shadow_draw_geometry_cache.has(key) and is_same(_actual._unit_shadow_draw_geometry_cache.get(key), _shadow_geometry[key]), label + ": effect onset must preserve warmed shadow geometry")
@@ -180,16 +236,25 @@ func _check_active_fields(label: String) -> void:
 				_check(a.get(field) == b.get(field), label + ": restored field " + field)
 func _draw_and_compare(label: String, force_redraw: bool = false) -> void:
 	_cases += 1
+	for board: Control in [_actual, _reference]:
+		ProofClock.freeze(board)
+		var shader_audit: Dictionary = ShaderTime.pin_tree(board)
+		_check(shader_audit["errors"].is_empty(), "Proof shader time audit: " + str(shader_audit["errors"]))
 	# Ordinary transitions use production selective routing; an unconditional
 	# redraw here would mask a missing effect onset/clear redraw.
 	if force_redraw:
 		for board: Control in [_actual, _reference]: board._queue_dynamic_redraw()
+	var fresh_view: SubViewport = DiffCapture.fresh_view(self, _actual)
+	var fresh: Control = fresh_view.get_child(0)
+	FreshChecks.run(_actual, fresh, _check, label)
 	if _native:
-		await RenderingServer.frame_post_draw
+		for _frame: int in range(RESTORE_PROOF_SETTLE_FRAMES): await RenderingServer.frame_post_draw
 		_check(root.size == Vector2i(1920, 1080) and DisplayServer.window_get_size(root.get_window_id()) == Vector2i(1920, 1080), label + ": actual native window dimensions")
 		var a: Image = _actual_view.get_texture().get_image()
 		var b: Image = _reference_view.get_texture().get_image()
-		_check(_actual._static_render_cache_viewport.get_texture().get_image().get_data() == _reference._static_render_cache_viewport.get_texture().get_image().get_data(), label + ": cached floor pixels")
+		var f: Image = fresh_view.get_texture().get_image()
+		var floor_equal: bool = ProofClock.pixels_equal(_actual._static_render_cache_viewport.get_texture().get_image(), _reference._static_render_cache_viewport.get_texture().get_image())
+		_check(floor_equal, label + ": cached floor pixels")
 		if label == "empty":
 			a.save_png("user://floor_empty_actual.png")
 			b.save_png("user://floor_empty_reference.png")
@@ -204,13 +269,23 @@ func _draw_and_compare(label: String, force_redraw: bool = false) -> void:
 			_actual._static_render_cache_viewport.get_texture().get_image().save_png("user://floor_cache_actual.png")
 			_reference._static_render_cache_viewport.get_texture().get_image().save_png("user://floor_cache_reference.png")
 			print("FLOOR LIT IMAGE: " + ProjectSettings.globalize_path("user://floor_lit_actual.png"))
-		if a.get_data() != b.get_data():
+		if not ProofClock.pixels_equal(a, f):
 			_differences.append({"case": _cases, "label": label})
-			_check(false, label + ": complete board pixels must match original submissions")
+			_check(false, label + ": complete board pixels must match fresh production submissions")
+		if FreshChecks.original_baseline_valid(label):
+			_check(ProofClock.pixels_equal(a, b), label + ": unchanged board pixels must match original submissions")
 		if label == "fire/ordinary/0.79":
 			a.save_png("user://static_floor_cache.png")
 			print("STATIC FLOOR CACHE IMAGE: " + ProjectSettings.globalize_path("user://static_floor_cache.png"))
+		# Dump all states: pinning TIME could remove a previous failure, and that
+		# state still needs the requested unpinned 0.25-second control evidence.
+		if DiffDump.enabled():
+			var dumped: Dictionary = await DiffCapture.record(self, _diff_dump, _actual, _reference, a, b, _cases, label)
+			var dump_errors: Array = dumped.get("errors", ["BUG_01_DIFF_DUMP_RECORD_INCOMPLETE: " + label])
+			if not dump_errors.is_empty(): printerr("BUG_01_DIFF_DUMP_IO_FAILURE: " + str(dump_errors))
+			_check(dump_errors.is_empty(), "Native diff dump writes: " + str(dump_errors))
 	else: await process_frame
+	fresh_view.free()
 func _room() -> Dictionary:
 	var grid: Array = []
 	for _row: int in range(9): grid.append(["floor","floor","floor","floor","floor","floor","floor","floor","floor"])
@@ -218,6 +293,49 @@ func _room() -> Dictionary:
 func _check(condition: bool, message: String) -> void:
 	_checks += 1
 	if not condition and _errors.size() < 30: _errors.append(message)
+
+# Exercise real persistent hero/enemy renderers with deliberately different
+# histories. Equal clocks must mean equal applied poses, not just paused nodes.
+func _test_animation_clock() -> void:
+	_state["enemies"] = [CLOCK_FIXTURE_ENEMY.duplicate(true)]
+	await _show({}, "actor clock fixture")
+	var actual_actors: Array[Node] = ProofClock.freeze(_actual)
+	var reference_actors: Array[Node] = ProofClock.freeze(_reference)
+	_check(actual_actors.size() >= 2 and actual_actors.size() == reference_actors.size(), "Clock regression must include the hero and an enemy")
+	for actors: Array in [actual_actors, reference_actors]:
+		var drift: float = CLOCK_DRIFT_ACTUAL_SECONDS if is_same(actors, actual_actors) else CLOCK_DRIFT_REFERENCE_SECONDS
+		for actor: Node in actors:
+			actor.call("_process", drift)
+	_check(_actual._protagonist_renderer.get("_idle_seconds") != _reference._protagonist_renderer.get("_idle_seconds"), "Clock regression must first create different live idle phases")
+	for board: Control in [_actual, _reference]:
+		var actors: Array[Node] = ProofClock.freeze(board)
+		for actor: Node in actors:
+			_check(actor.get("_idle_seconds") == ProofClock.ACTOR_SECONDS and not actor.is_processing(), "Every actor must pause at the exact proof time")
+	for index: int in range(actual_actors.size()):
+		_check(actual_actors[index].get("_pose_signature") == reference_actors[index].get("_pose_signature"), "Fixed actor clocks must reapply identical complete poses")
+	await _draw_and_compare("actor clocks restored")
+	await process_frame
+	for actor: Node in actual_actors + reference_actors:
+		_check(actor.get("_idle_seconds") == ProofClock.ACTOR_SECONDS, "Actor clocks must stay fixed across frames")
+	_state = _room()
+	await _show({}, "actor clock fixture cleared")
+
+func _test_pixel_comparator() -> void:
+	var original: Image = Image.create(COMPARATOR_FIXTURE_SIZE.x, COMPARATOR_FIXTURE_SIZE.y, false, Image.FORMAT_RGBA8)
+	original.fill(Color.BLACK)
+	var mutated: Image = original.duplicate()
+	_check(ProofClock.pixels_equal(original, mutated), "Strict pixel comparator must accept identical images")
+	mutated.set_pixelv(COMPARATOR_MUTATION_PIXEL, FLOOR_MUTATION_COLOR)
+	_check(not ProofClock.pixels_equal(original, mutated), "Strict pixel comparator must reject even one changed floor pixel")
+
+func _test_fresh_diagnostic_fixture() -> bool:
+	var view: SubViewport = DiffCapture.fresh_view(self, _actual)
+	var fresh: Control = view.get_child(0)
+	_check(fresh.combat_state == _actual.combat_state and fresh.presentation == _actual.presentation, "Fresh diagnostic fixture preserves complete current inputs")
+	_check(fresh._resolved_board_geometry_inputs() == _actual._resolved_board_geometry_inputs(), "Fresh diagnostic fixture independently resolves the same board geometry")
+	_check(fresh._static_render_cache_layer != _actual._static_render_cache_layer, "Fresh diagnostic fixture owns independent floor submissions")
+	view.free()
+	return true
 
 func _test_floor_inputs() -> void:
 	_state["grid"][2][2] = "pillar"
@@ -262,8 +380,16 @@ func _test_floor_inputs() -> void:
 	for element: String in ["ice", "fire", "lightning", "earth", "none"]:
 		_state["room_element"] = element
 		await _show({}, "floor moss " + element)
+	_actual.queued_scene_tiles.clear()
 	await _show({"scene_props": [{"kind": "watch_brazier_lit", "tile": Vector2i(5,4), "width_scale": 0.60, "baseline_scale": 0.36}]}, "floor light changed")
+	_check(_actual.queued_scene_tiles.has(Vector2i(6,6)), "Scene prop onset must redraw its obstructing pillar")
+	ScenePropChecks.check_unaffected(_actual, _check, "onset")
+	_actual.queued_scene_tiles.clear()
 	await _show({}, "floor light cleared")
+	_check(_actual.queued_scene_tiles.has(Vector2i(6,6)), "Scene prop removal must redraw its obstructing pillar")
+	ScenePropChecks.check_unaffected(_actual, _check, "removal")
+	ScenePropChecks.check_already_obstructed(self, _actual, _check)
+	ScenePropChecks.check_moss_obstruction(self, _actual, _check)
 	for enabled: bool in [false, true]:
 		for board: Control in [_actual, _reference]: board.set_art_treatment_enabled(enabled)
 		await _draw_and_compare("floor art enabled " + str(enabled))
@@ -363,3 +489,101 @@ func _test_retained_geometry_and_bindings() -> void:
 	await _show({}, "retained new canvases initialized")
 	for layer: Control in _actual._retained_render_layers():
 		_check(is_same(layer._prop_textures, _actual._prop_textures), "New canvases must be initialized even when source bindings stay equal")
+
+# Restore after an actual room/effect/empty-state transition, then compare to a
+# freshly constructed production board as well as the independent frozen floor.
+# A caller can run this entire program with the visual runner for native proof.
+func _test_restored_empty_board() -> void:
+	for board: Control in [_actual, _reference]:
+		board.set_combat_state({})
+		board.reset_navigation()
+		board.set_controller_focus_tile(Vector2i(-1, -1))
+	_state = _room()
+	_exits.clear()
+	await _show({}, "restored empty board")
+	var fresh_view: SubViewport = _viewport()
+	var fresh: Control = ClockedBoard.new()
+	fresh_view.add_child(fresh)
+	fresh.size = Vector2(PROOF_SIZE)
+	fresh.set_process(false)
+	fresh.set_art_treatment_enabled(_actual._art_treatment_enabled)
+	_check(fresh.set_art_treatment_preset(_actual._art_treatment.preset), "Fresh proof must use the restored board's authored lighting preset")
+	fresh._idle_elapsed = PROOF_IDLE_SECONDS
+	var display: Dictionary = {
+		"ambient_time_seconds": PROOF_AMBIENT_SECONDS,
+		"damage_preview_time_seconds": PROOF_AMBIENT_SECONDS,
+		"umbra_time_seconds": PROOF_AMBIENT_SECONDS,
+		"board_framing_mode": "combat",
+		"board_encounter_types": PROOF_ENCOUNTER_TYPES.duplicate(),
+	}
+	fresh.set_combat_state(_state.duplicate(true), [], [], Vector2i(-1, -1), "", "", {}, {}, display)
+	for board: Control in [_actual, fresh, _reference]:
+		ProofClock.freeze(board)
+		ShaderTime.pin_tree(board)
+	_check(_actual.presentation == fresh.presentation, "Restored empty board must have the complete fresh presentation")
+	_check(_actual.combat_state == fresh.combat_state, "Restored empty board must preserve the fresh authoritative room")
+	_check(_actual._art_treatment._parameters == fresh._art_treatment._parameters, "Fresh proof must use identical complete lighting inputs")
+	if _native:
+		# Let the new nested floor-cache viewport finish before comparing it
+		# with the already warmed retained board. All motion clocks are frozen.
+		for _frame: int in range(RESTORE_PROOF_SETTLE_FRAMES):
+			await RenderingServer.frame_post_draw
+		var restored_image: Image = _actual_view.get_texture().get_image()
+		var fresh_image: Image = fresh_view.get_texture().get_image()
+		var reference_image: Image = _reference_view.get_texture().get_image()
+		_check(ProofClock.pixels_equal(restored_image, fresh_image), "Restored empty board pixels must match a fresh production board")
+		_check(ProofClock.pixels_equal(restored_image, reference_image), "Restored empty board pixels must match the frozen floor renderer")
+		if DiffDump.enabled() and not _diff_dump.has_case(_cases) and (not ProofClock.pixels_equal(restored_image, fresh_image) or not ProofClock.pixels_equal(restored_image, reference_image)):
+			var bounds: Rect2 = _actual.rendered_visual_bounds().merge(_reference.rendered_visual_bounds()).merge(fresh.rendered_visual_bounds())
+			var dumped: Dictionary = _diff_dump.write_case(_cases, "restored empty board (fresh comparison)", reference_image, restored_image, fresh_image, bounds, {})
+			if not dumped["errors"].is_empty(): printerr("BUG_01_DIFF_DUMP_IO_FAILURE: " + str(dumped["errors"]))
+			_check(dumped["errors"].is_empty(), "Restored empty board diff dump writes: " + str(dumped["errors"]))
+		for entry: Array in [["restored", restored_image], ["fresh", fresh_image], ["reference", reference_image]]:
+			var path: String = "user://bug_01_floor_%s.png" % entry[0]
+			_check((entry[1] as Image).save_png(path) == OK, "Restored empty board capture must save: " + path)
+			print(ProjectSettings.globalize_path(path))
+		await _test_floor_pixel_negative_control(fresh_view)
+		print("RESTORED EMPTY BOARD NATIVE: %s (1920x1080 ui_scale=1.0)" % ("PASS" if _errors.is_empty() else "FAIL"))
+	else:
+		await process_frame
+		print("RESTORED EMPTY BOARD LOGIC: %s (native pixel proof requires window server)" % ("PASS" if _errors.is_empty() else "FAIL"))
+	fresh_view.free()
+
+func _test_floor_pixel_negative_control(fresh_view: SubViewport) -> void:
+	var floor_view: SubViewport = _actual._static_render_cache_viewport
+	var original_floor: Image = floor_view.get_texture().get_image()
+	var original_board: Image = _actual_view.get_texture().get_image()
+	var mutation := FloorPixelMutation.new()
+	mutation.position = _actual._tile_center(FLOOR_MUTATION_TILE).floor()
+	_actual._static_render_cache_layer.add_child(mutation)
+	floor_view.render_target_update_mode = SubViewport.UPDATE_ONCE
+	for _frame: int in range(RESTORE_PROOF_SETTLE_FRAMES):
+		await RenderingServer.frame_post_draw
+	var mutated_floor: Image = floor_view.get_texture().get_image()
+	var mutated_board: Image = _actual_view.get_texture().get_image()
+	var pixel := Vector2i((_actual.get_global_transform_with_canvas() * mutation.position).floor())
+	var floor_delta: Dictionary = DiffDump.compare(original_floor, mutated_floor)
+	var board_delta: Dictionary = DiffDump.compare(original_board, mutated_board)
+	_check(int(floor_delta["differing_pixel_count"]) == 1 and (floor_delta["bounds"] as Rect2i).position == pixel, "Mutation must change only its named floor pixel")
+	_check(int(board_delta["differing_pixel_count"]) == 1 and (board_delta["bounds"] as Rect2i).position == pixel, "Mutation must change only its named complete-board pixel")
+	var rejected: bool = not ProofClock.pixels_equal(mutated_floor, original_floor) and not ProofClock.pixels_equal(mutated_board, original_board) and not ProofClock.pixels_equal(mutated_board, fresh_view.get_texture().get_image()) and not ProofClock.pixels_equal(mutated_board, _reference_view.get_texture().get_image())
+	_check(rejected, "Deliberate floor-pixel mutation must fail strict floor and complete board equality")
+	var path: String = "user://bug_01_floor_mutated.png"
+	_check(mutated_board.save_png(path) == OK, "Floor mutation capture must save")
+	print(ProjectSettings.globalize_path(path))
+	print("FLOOR PIXEL NEGATIVE CONTROL: %s" % ("PASS (strict equality rejects mutation)" if rejected else "FAIL"))
+	print("FLOOR PIXEL MUTATION DIFF: floor=%d board=%d pixel=%s" % [floor_delta["differing_pixel_count"], board_delta["differing_pixel_count"], str(pixel)])
+	# Optional deliberate failure goes through the existing assertions too. The
+	# visual runner must exit nonzero; ordinary proof expects the rejection above.
+	if OS.get_environment(FLOOR_MUTATION_ENV) == "1":
+		var message: String = DiffDump.mutation_error(original_board, mutated_board, pixel)
+		# This error compares only this board's before/after pixel. It must not
+		# disappear behind the 30-error cap filled by reference mismatches.
+		_errors.append(message if not message.is_empty() else DiffDump.MUTATION_ERROR + ": CONTROL FAILED TO CHANGE THE NAMED PIXEL")
+		await _draw_and_compare("deliberate floor-pixel mutation")
+	mutation.free()
+	floor_view.render_target_update_mode = SubViewport.UPDATE_ONCE
+	for _frame: int in range(RESTORE_PROOF_SETTLE_FRAMES):
+		await RenderingServer.frame_post_draw
+	_check(ProofClock.pixels_equal(floor_view.get_texture().get_image(), original_floor), "Removing the mutation must restore exactly equal floor pixels")
+	_check(ProofClock.pixels_equal(_actual_view.get_texture().get_image(), original_board), "Removing the mutation must restore exactly equal complete board pixels")

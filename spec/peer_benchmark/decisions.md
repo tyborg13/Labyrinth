@@ -125,3 +125,43 @@
   variable.
 - 2026-10-17 Legacy saves without a recorded dragon reward summary: the re-shown reward screen omits the unknown
   Ember/Moltshard lines. No placeholder text ever reaches players.
+- 2026-10-17 rr-05 acceptance (final): blocking = no detached pieces, feature integrity, zero shimmer, rest identity,
+  native agreement. Seam tear, protrusion and negative-space measures are report-only (some poses can't satisfy both
+  constraints). The director judges the native clip by eye.
+- 2026-10-17 AMENDED typed-array rule (reviewers read AGENTS.md strictly): new code declares empty typed arrays
+  without a literal (`var x: Array[T]`) and builds non-empty ones with typed helpers or append/assign. Existing
+  declarations with literal initializers on master stay untouched (no mass rewrite). Reviews flag new violations only.
+
+## 2026-10-17 rr-05 final-proof review
+- Native check: an exact texel tie (snapped `u` or `v` within 1e-6 of an integer) may resolve to either neighbour, because
+  the Metal sampler's tie direction isn't reproducible on the CPU. Every other pixel keeps the 1 px + 1% rule, and held
+  shimmer stays 0. No percentage guard: whole scanlines tie, and non-tie pixels still catch broken transforms. Tie counts are reported.
+- Hidden support must never read as dark slabs.
+  - New blocking gate: in every posed frame, exposed hidden or seam material may not contain an outline-class component
+    with a full 3×3 block.
+  - Support fills take interior (non-outline) donors.
+  - Hidden-only parts are limited to their painted fill plus the joint margin.
+  - The rear trunk socket may be recoloured where it's exposed.
+  - Cause: the 7 px dilation filled from the outline in `continuity.underlays()`.
+
+## 2026-10-17 bug-01 review resolution (5b12d3630)
+- Scene-prop changes (rare) invalidate exactly, by comparing the effective alpha through the draw path's tint for every
+  tinted rectangle, moss included.
+- Actor movement (every interpolation frame) stays conservative on purpose. It queues a tile when a moving actor's
+  overlap with any tinted rectangle changes, even if a stationary actor already fixes the alpha.
+- An occasional extra tile redraw is cheaper than recomputing every candidate's full tint on every frame, and it can't
+  produce a stale frame.
+- So review finding M1 on 5b12d3630 (redundant moss redraw while a warden walks past a hero-obstructed pillar) is
+  accepted as by design. Every other check in that review passed, and bug-01 is signed off at
+  5b12d3630e7d488ab541132e63de5e9e1ca25034.
+- 2026-10-17 rr-05 fb12: the dark-slab gate blocks derived (pipeline-generated) texels only. Exposures of approved
+  painted fills are reported, not blocked: the Wisp's original tail shadow (29,18,26) is approved paint.
+
+## 2026-10-17 qa-08 review resolution (fecdbf24e)
+- The registration audit is a conservative heuristic. These are documented limits, not fixed, because none of the
+  patterns occur in tests/ and a fifth round isn't worth it:
+  - a never-invoked lambda body counts as reachable;
+  - StringName/NodePath literal arguments aren't read;
+  - \U escapes aren't decoded.
+- The last two fail loudly as orphans, so the fix is to use a plain string.
+- Every other item in that review was verified. qa-08 is accepted at eec098b526aaf8f61af80fab786c91d6e06c59a3 (fecdbf24e plus the limits docstring).

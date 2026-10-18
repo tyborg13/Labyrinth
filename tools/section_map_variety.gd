@@ -4,6 +4,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Audit = preload("res://tools/section_map_revision4_audit.gd")
 const BASELINE_PATH: String = "res://tests/fixtures/map_02_revision4_baseline.json"
 const DEFAULT_SEED_COUNT: int = 200
+const BEFORE_FIX_PATH: String = "res://tests/fixtures/fix_05_revision5_before_metrics.json"
 
 func _initialize() -> void:
 	var seed_count: int = DEFAULT_SEED_COUNT
@@ -139,18 +140,20 @@ static func _median(sorted_values: Array[int]) -> float:
 	return (float(sorted_values[(sorted_values.size() - 1) / 2]) + float(sorted_values[sorted_values.size() / 2])) * 0.5
 
 static func _print_comparison(after: Dictionary) -> void:
-	var before: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BASELINE_PATH))
-	print("| Metric | Revision 4 (200 seeds) | Revision 5 (%d seeds) |" % int(after["seed_count"]))
-	print("| --- | --- | --- |")
-	print("| Accepted canned topology | %d/%d | %d/%d |" % [int(before["stats"].get("accepted_canned_topology", 0)), int(before["seed_count"]) * 6, int(after["stats"].get("fallback", 0)), int(after["seed_count"]) * 6])
+	var revision4: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BASELINE_PATH))
+	var before: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(BEFORE_FIX_PATH))
+	print("| Metric | Revision 4 | Revision 5 before fix | Revision 5 after fix |")
+	print("| --- | --- | --- | --- |")
+	print("| Accepted canned topology | %d/%d | %d/%d | %d/%d |" % [int(revision4["stats"].get("accepted_canned_topology", 0)), int(revision4["seed_count"]) * 6, int(before["stats"].get("fallback", 0)), int(before["seed_count"]) * 6, int(after["stats"].get("fallback", 0)), int(after["seed_count"]) * 6])
 	for metric: String in ["distinct_signatures", "median_routes", "wide_sections", "long_divergence_sections"]:
-		print("| %s | %s | %s |" % [metric, str(before[metric]), str(after[metric])])
-	var before_total: int = 0
-	var after_total: int = 0
-	for value: int in before["types"].values(): before_total += value
-	for value: int in after["types"].values(): after_total += value
+		print("| %s | %s | %s | %s |" % [metric, str(revision4[metric]), str(before[metric]), str(after[metric])])
+	var totals: Array[int]
+	for report: Dictionary in [revision4, before, after]:
+		var total: int = 0
+		for value: int in report["types"].values(): total += value
+		totals.append(total)
 	for type: String in Graph.TYPE_WEIGHTS.keys() + ["treasure", "campfire"]:
-		print("| %s | %.2f%% | %.2f%% |" % [type, 100.0 * int(before["types"].get(type, 0)) / float(before_total), 100.0 * int(after["types"].get(type, 0)) / float(after_total)])
+		print("| %s | %.2f%% | %.2f%% | %.2f%% |" % [type, 100.0 * int(revision4["types"].get(type, 0)) / float(totals[0]), 100.0 * int(before["types"].get(type, 0)) / float(totals[1]), 100.0 * int(after["types"].get(type, 0)) / float(totals[2])])
 
 static func _route_count(layout: Dictionary, count: int) -> int:
 	var paths: Dictionary = {}

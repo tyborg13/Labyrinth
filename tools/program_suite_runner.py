@@ -16,10 +16,11 @@ import time
 
 from godot_task_runner import TIMEOUT_RETURN_CODE, slugify, terminate_windows_process_tree
 from windows_process_job import spawn_owned_process
+from test_execution_sources import program_paths
 
 
 # Keep the historical order, including the static-facing additions that ran first.
-SUITES = (
+BASE_SUITES = (
     "en04_enemies_test", "en05_enemies_test", "en06_enemies_test", "static_facing_test",
     "combat_feel_test", "event_view_test", "event_rules_test", "biome_test",
     "health_ghost_test", "movement_undo_test", "threats_at_rest_test",
@@ -30,43 +31,71 @@ SUITES = (
     "section_map_v2_test", "en01_enemies_test",
     "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test",
     "opening_boon_test", "run_end_recap_tests", "main_menu_resume_test",
-    "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
+    "section_transition_test",
+    "suites/full_scene_presentation_program", "suites/full_scene_cutouts_program",
+    "suites/full_scene_creature_cutouts_program", "suites/full_scene_audio_program",
+    "suites/full_scene_navigation_program", "suites/full_scene_card_drag_program",
+    "suites/full_scene_controls_program",
     "suites/full_scene_clock_program",
-    "suites/full_scene_interaction_program",
+    "suites/full_scene_choices_program", "suites/full_scene_interaction_program",
+    "opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
+    "suites/section_map_performance_program",
 )
-MAX_CHILDREN = 3  # The owning main-body Godot occupies the fourth process slot.
+SUPPLEMENTAL_MANIFEST = Path(__file__).resolve().parents[1] / "tests/headless_test_programs.json"
+SUPPLEMENTAL_PROGRAMS = json.loads(SUPPLEMENTAL_MANIFEST.read_text(encoding="utf-8"))
+SUPPLEMENTAL_BY_NAME = {program["path"].removeprefix("tests/").removesuffix(".gd"): program
+                        for program in SUPPLEMENTAL_PROGRAMS}
+SUITES = tuple(path.removeprefix("tests/").removesuffix(".gd")
+               for name in BASE_SUITES + tuple(SUPPLEMENTAL_BY_NAME)
+               for path in program_paths("tests/" + name + ".gd"))
+MAX_CHILDREN = min(6, max(1, (os.cpu_count() or 1) // 3))
 SUITE_TIMEOUT_SECONDS = 180.0
 PROGRAM_BUDGET_SECONDS = 900.0
 POLL_SECONDS = 0.02
 WRAPPER_CLEANUP_SECONDS = 5.0
 
 
-def write_child_bootstrap(path: Path, suite: str) -> None:
+def write_child_bootstrap(path: Path, suite: str, *, target: str | None = None,
+                          parallel_runtime: str = "res://scripts/parallel_runtime.gd") -> None:
     # Inherit the standalone SceneTree so its lifecycle and awaits are unchanged.
     # Namespace initialization precedes even suites that omit it themselves.
-    target = "res://tests/" + suite + ".gd"
+    target = target or "res://tests/" + suite + ".gd"
     path.write_text('''extends %s
 
 func _initialize() -> void:
-\tpreload("res://scripts/parallel_runtime.gd").apply_from_environment()
+\tpreload(%s).apply_from_environment()
 \tvar log_path: String = OS.get_environment("LABYRINTH_GODOT_LOG_PATH")
 \tprint("PROGRAM SUITE PATHS: " + JSON.stringify({"user_data": OS.get_user_data_dir(), "user_file": ProjectSettings.globalize_path("user://program-suite-isolation.json"), "log_file": log_path}))
 \tawait super._initialize()
-''' % json.dumps(target))
+''' % (json.dumps(target), json.dumps(parallel_runtime)), encoding="utf-8")
+
+
+def task_command(project: Path, task_id: str, timeout: float, command: list[str]) -> list[str]:
+    return [sys.executable, str(Path(__file__).with_name("godot_task_runner.py")),
+            "--project", str(project), "--task-id", slugify(task_id),
+            "--timeout", str(timeout), "--stream", "--", *command]
 
 
 def child_command(args: argparse.Namespace, suite: str, timeout: float, bootstrap: Path, engine_log: Path) -> list[str]:
-    command = [
-        sys.executable, str(Path(__file__).with_name("godot_task_runner.py")),
-        "--project", str(args.project), "--task-id", slugify(args.task_id + "-" + suite),
-        "--timeout", str(timeout), "--stream", "--", args.godot,
+    task_id = args.task_id + "-" + suite
+    program = SUPPLEMENTAL_BY_NAME.get(suite, {})
+    if program.get("mode", "script") != "script":
+        # A serial fixture occupies one ordinary scheduler slot. Its stages use
+        # the same bootstrap/isolation path and share this child's outer cap.
+        return task_command(args.project, task_id, timeout, [
+            sys.executable, str(Path(__file__).with_name("program_suite_fixture.py")),
+            "--project", str(args.project), "--suite", suite, "--directory", str(bootstrap.parent),
+            "--godot", args.godot, "--task-id", task_id, "--timeout", str(timeout)])
+    command = task_command(args.project, task_id, timeout, [args.godot,
         "--log-file", str(engine_log), "--headless", "--path", str(args.project),
         "--script", str(bootstrap),
-    ]
+    ])
     if suite == "sfx_sync_harness" or suite.startswith("suites/sfx_sync_"):
         command.extend(["--", "--assert-onsets"])
     if suite.startswith("suites/encounter_"):
         command.extend(["--", "--placement-report-directory=" + str(args.placement_report_directory)])
+    if program.get("args"):
+        command.extend(["--", *program["args"]])
     return command
 
 
@@ -193,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--watch-parent-stdin", action="store_true")
     args = parser.parse_args(argv)
     if not 1 <= args.jobs <= MAX_CHILDREN or args.timeout <= 0 or args.budget <= 0:
-        parser.error("jobs must be 1..3; timeout and budget must be positive")
+        parser.error("jobs must be 1..%d; timeout and budget must be positive" % MAX_CHILDREN)
     args.project = args.project.resolve()
     args.result_file = args.result_file.resolve()
     args.result_file.parent.mkdir(parents=True, exist_ok=True)

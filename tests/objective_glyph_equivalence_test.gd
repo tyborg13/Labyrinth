@@ -5,6 +5,7 @@ const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const Rules = preload("res://scripts/combat_objective_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const OWNERSHIP_SLICE_DELAY_USEC: int = Glyphs.SLICE_USEC + 1
 
 var _errors: Array[String]
 var _checks: int = 0
@@ -17,6 +18,7 @@ var _owner: Variant
 var _boundary_action: String = ""
 var _boundary_executed: bool = false
 var _boundary_saw_outline: bool = false
+var _ownership_delay_pending: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -241,11 +243,25 @@ func _ownership_case(action: String) -> void:
 	# Cold real private font bitmaps guarantee native work before suspension.
 	var state: Dictionary = _states()[0]
 	var jobs: Array[Dictionary] = hud.opening_glyph_preparation_jobs(state)
+	# A cold font can finish in less than one production slice on a fast host.
+	# Keep the real native work and cancellation assertions, but make this private
+	# fixture cross a slice after an outline instead of relying on machine load.
+	var outline_index: int = -1
+	for index: int in range(jobs.size()):
+		if (jobs[index]["size"] as Vector2i).y > 0:
+			outline_index = index
+			break
+	_check(outline_index >= 0, "Ownership fixture must contain real outline glyph work")
+	if outline_index >= 0:
+		var outline_job: Dictionary = jobs[outline_index]
+		jobs.remove_at(outline_index)
+		jobs.push_front(outline_job)
 	_owner = hud
 	_active = true
 	_boundary_action = action
 	_boundary_executed = false
 	_boundary_saw_outline = false
+	_ownership_delay_pending = true
 	await Glyphs.prepare_jobs_for(hud, jobs, _present, _alive)
 	_check(_boundary_executed, "Real native objective glyph work must suspend before each owner change: " + action)
 	_check(_boundary_saw_outline, "Ownership case must cross actual native outline rasterization: " + action)
@@ -263,7 +279,11 @@ func _ownership_case(action: String) -> void:
 	await _frame()
 
 func _alive() -> bool:
-	return _active and is_instance_valid(_owner) and _owner.is_inside_tree()
+	if not _active or not is_instance_valid(_owner) or not _owner.is_inside_tree(): return false
+	if _ownership_delay_pending:
+		_ownership_delay_pending = false
+		OS.delay_usec(OWNERSHIP_SLICE_DELAY_USEC)
+	return true
 
 func _present() -> void:
 	_presented += 1

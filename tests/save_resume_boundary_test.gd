@@ -515,6 +515,7 @@ func _test_terminal_boundaries(base_run: Dictionary) -> void:
 	_run_scene.set("_combat_state", {})
 	ProgressionStore.clear_saved_run()
 	_assert(bool(_run_scene.call("_persist_committed_boundary", "terminal_defeat")), "Defeat should finalize progression at the committed boundary")
+	preload("res://tests/helpers/terminal_boundary_fixture.gd").finish_prompt(_run_scene, _assert)
 	_assert(not ProgressionStore.has_saved_run(), "Committed defeat should not leave an older resumable combat")
 	var committed_defeat: Dictionary = ProgressionStore.load_data()
 	_assert(int(ProgressionStore.recovery_marker(committed_defeat).get("amount", 0)) == 23, "Committed defeat should persist the recovery marker before clearing the run")
@@ -600,6 +601,7 @@ func _test_terminal_failure_recovery(base_run: Dictionary) -> void:
 		else:
 			_run_scene.call("_process_defeat_loss")
 		_assert(bool(_run_scene.call("_persist_committed_boundary", "terminal_%s_retry" % mode)), "%s should finalize after storage recovers" % mode)
+		preload("res://tests/helpers/terminal_boundary_fixture.gd").finish_prompt(_run_scene, _assert)
 		_assert(not ProgressionStore.has_saved_run(), "%s retry should clear the resumable fallback only after durable progression" % mode)
 		var recovered_progression: Dictionary = ProgressionStore.load_data()
 		if mode == "victory":
