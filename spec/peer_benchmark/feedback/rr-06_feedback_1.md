@@ -1,8 +1,9 @@
 # rr-06 feedback 1: director decisions for the three TODO_DESIGN placeholders
 
-Resume after rr-07 (Seer + Thrall rigs) has merged into `codex/peer-benchmark`. Merge integration into your branch
-first: rr-07 adds the generic ownership and hidden-material handling, and the native tie rules, which these decisions
-reuse.
+rr-07 (Seer + Thrall rigs) has merged, and the director merged integration into your branch at 2c94d0ccd. Your round-1
+work is committed as d3c1165e2; the merge unioned the density registry and presentation table and regenerated the
+shadow cache. rr-07's generic ownership and hidden-material handling and its native tie rules are now in your tree.
+Reuse them.
 
 1. **`TODO_DESIGN_hidden_material_frostglass_lancer`: no painted hidden fills, and none are generated.**
    - Use rr-07's approach: hidden requests with immutable fill previews built from **same-material approved texel
