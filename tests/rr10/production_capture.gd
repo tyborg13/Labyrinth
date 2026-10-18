@@ -1,7 +1,6 @@
 extends SceneTree
 
-## Actual resolver steps and production callbacks, with the front-only v2 candidate injected by candidate_scene.gd.
-## Production registration remains deferred until the approved rear arrives.
+## Actual resolver steps and production callbacks, using the promoted two-view rig.
 const CaptureScene = preload("candidate_scene.gd")
 const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
 const Fixtures = preload("res://tests/suites/en03_enemies_suite.gd")
@@ -110,7 +109,7 @@ func _run() -> void:
 	_failures.append_array(preload("capture_contract.gd").errors(_frames, _data, _scene.proof_completions, not _logic))
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("bindings.gd").for_case("res://experiments/cutouts/hoarfrost_seer/rr10")
-	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": true, "production_promoted": false,
+	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
 		"size": [1920, 1080], "ui_scale": 1.0, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
 	var file := FileAccess.open(_output.path_join("logic_frames.json" if _logic else "frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(report))
@@ -127,8 +126,8 @@ func _capture() -> void:
 	if not _logic: await RenderingServer.frame_post_draw
 	var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": _type, "id": 1})
 	if renderer == null: return
-	if not renderer.has_meta("rr10_candidate") or str(renderer.motion_data().get("rig", "")) != "humanoid_v2":
-		_failures.append("Recorded a renderer other than the humanoid_v2 candidate")
+	if str(renderer.motion_data().get("rig", "")) != "humanoid_v2" or renderer.rigs.size() != 2:
+		_failures.append("Recorded a renderer other than the promoted two-view humanoid_v2")
 		return
 	var snapshot: Dictionary = renderer.snapshot()
 	if snapshot["clip"] != _stage: return
@@ -181,7 +180,6 @@ func fixture(intent: String) -> Dictionary:
 
 func install(state: Dictionary) -> void:
 	Fixtures.install(_scene, state)
-	_scene.ensure_candidate(state)
 	_scene._render_board_state(state, {})
 	await settle()
 

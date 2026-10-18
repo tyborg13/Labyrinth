@@ -6,3 +6,6 @@ production_native/
 contact_sheets/
 *.mp4
 logs/
+production_pack/
+feedback5/
+guard_probe/

@@ -59,10 +59,12 @@ class RopeTests(unittest.TestCase):
         self.assertEqual(len(components(self.mask)[1]), 1)
         self.assertTrue(np.all(np.asarray(Image.open(CASE / self.record['file']))[self.mask] == 255))
         self.assertEqual(self.inputs['rope_masks']['rear']['file'], 'inputs/rope_mask_rear.png')
-        self.assertIsNone(self.inputs['rope_masks']['rear']['sha256'])
+        rear=self.inputs['rope_masks']['rear']
+        self.assertEqual(digest(CASE/rear['file']),rear['sha256'])
+        self.assertEqual((CASE/rear['file']).read_bytes(),(PROJECT/'spec/peer_benchmark/staged/rr-10/rope_mask_rear.png').read_bytes())
+        self.assertEqual(rear['pixels'],242)
         self.assertNotIn('rope_colour_connectivity', self.inputs)
-        self.assertEqual(set(read(CASE / 'cutout.json')['design_placeholders']),
-                         {'TODO_DESIGN_mq6_rear_delivery_and_paint'})
+        self.assertNotIn('TODO_DESIGN_mq6_rear_delivery_and_paint', read(CASE / 'cutout.json')['design_placeholders'])
 
     def test_masked_pixels_are_torso_and_unmasked_ownership_is_unchanged(self):
         baseline_path = PROJECT / self.build['source_ownership']

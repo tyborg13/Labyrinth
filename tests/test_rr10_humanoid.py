@@ -1,4 +1,4 @@
-"""Front-only v2 evidence and planted regressions. Never launches a GUI."""
+"""Two-view v2 evidence and planted regressions. Never launches a GUI."""
 import copy
 import json
 import math
@@ -43,16 +43,21 @@ class HumanoidTests(unittest.TestCase):
 
     def test_exact_protected_copy_and_compilation(self):
         self.assertEqual((CASE / 'director_motion.json').read_bytes(), DIRECTOR.read_bytes())
-        self.assertEqual(compile_motion(DIRECTOR, 'hoarfrost_seer', {'front': self.layout}, self.data['projection']), self.data)
+        self.assertEqual(compile_motion(DIRECTOR, 'hoarfrost_seer', {v:read(CASE/f'layouts/{v}.json') for v in ('front','rear')}, self.data['projection']), self.data)
         self.assertEqual(self.build['front_rest_mismatch_pixels'], 0)
         idle=read(PROJECT/'tests/rr10/feedback1/approved_idle.json')
         self.assertEqual(self.data['clips']['idle'],idle['clip'])
         self.assertEqual(self.data['view_tracks']['front']['idle'],idle['tracks'])
 
-    def test_unpromoted_paint_stays_outside_registered_density_family(self):
+    def test_promoted_paint_has_a_production_only_closure(self):
         assets=PROJECT/'assets/units/hoarfrost_seer_cutout/humanoid_v2'
-        self.assertFalse(list(assets.rglob('*.png')),'Candidate paint must be density-adopted only at production promotion')
+        self.assertTrue(list(assets.rglob('*.png')))
         self.assertEqual((assets/'director_motion.json').read_bytes(),DIRECTOR.read_bytes())
+        for view in ('front','rear'):
+            layout=read(assets/(view+'.json'))
+            for part in layout['parts']+layout['joint_meshes']:
+                self.assertNotIn('experiments/',part['file'])
+                self.assertTrue((assets/part['file']).is_file())
 
     def test_structure_and_all_real_bones(self):
         self.assertEqual(structure_errors(self.layout, self.build), [])
@@ -113,7 +118,7 @@ class HumanoidTests(unittest.TestCase):
         self.assertTrue(any('signed hand target' in e for e in bone_errors(self.layout,self.data,report)))
 
     def test_world_step_and_release_floor_end(self):
-        rows = [r for r in self.samples['samples'] if r['kind']=='authored']
+        rows = [r for r in self.samples['samples'] if r['kind']=='authored' and r['view']=='front']
         planted = [r for r in rows if r['clip']=='move' and r['phase'] <= .02]
         self.assertGreater(len(planted), 1)
         self.assertTrue(all(np.allclose(r['bones']['hem_near']['global'][4:], planted[0]['bones']['hem_near']['global'][4:]) for r in planted))
@@ -256,9 +261,8 @@ class HumanoidTests(unittest.TestCase):
             self.assertEqual(process.returncode,0,process.stdout+process.stderr)
             report=read(Path(folder)/'logic_frames.json')
             self.assertTrue(report['ok'],report['errors'])
-            self.assertFalse(report['production_promoted'])
-            self.assertTrue(all(r['snapshot']['rig_count']==1 and r['snapshot']['facing']=='front' and
-                                not r['snapshot']['mirrored'] for r in report['frames']))
+            self.assertTrue(report['production_promoted'])
+            self.assertTrue(all(r['snapshot']['rig_count']==2 for r in report['frames']))
             for clip in ('mark','land','bolt','ward'):
                 contact=self.data['clips'][clip]['contact']
                 self.assertTrue(any(r['stage']==clip and abs(r['snapshot']['phase']-contact)<1e-6 for r in report['frames']))

@@ -6,6 +6,10 @@ static func for_case(directory: String) -> Dictionary:
 	_collect(directory, directory, "", result, ["json", "png"])
 	for folder: String in ["tools/humanoid_cutout", "scripts/maquette_cutout_runtime", "tests/rr10"]:
 		_collect("res://" + folder, "res://", "runtime:", result, ["gd", "py", "json"])
+	_collect("res://assets/units/hoarfrost_seer_cutout/humanoid_v2", "res://", "production:", result, ["json", "png"])
+	for name: String in ["rig.gd", "renderer.gd", "actions.gd"]:
+		var path: String = "res://assets/units/hoarfrost_seer_cutout/" + name
+		result["production:" + path.trim_prefix("res://")] = FileAccess.get_sha256(path)
 	return result
 
 static func _collect(directory: String, base: String, prefix: String, result: Dictionary, extensions: Array) -> void:

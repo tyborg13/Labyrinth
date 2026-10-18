@@ -4,8 +4,11 @@
   "rear_job": "spec/art_identity/jobs/hoarfrost_seer/mq6_rear",
   "rear_delivery": "spec/art_identity/maquettes/hoarfrost_seer/delivery",
   "baseline": "experiments/cutouts/hoarfrost_seer/mq5",
-  "rear_status": "TODO_DESIGN_mq6_rear_delivery_and_paint",
-  "held_item_depth": {"front": "behind_body", "rear": "in_front_of_body"},
+  "rear_status": "ready",
+  "held_item_depth": {
+    "front": "behind_body",
+    "rear": "in_front_of_body"
+  },
   "rope_masks": {
     "front": {
       "file": "inputs/rope_mask_front.png",
@@ -17,9 +20,14 @@
     },
     "rear": {
       "file": "inputs/rope_mask_rear.png",
-      "sha256": null,
+      "sha256": "2ded642ed2062d2b37c31c4aad01bb1fc717036ca6cd85b3994836b7c0b03348",
       "owner": "torso",
-      "underlay": "robe"
+      "underlay": "robe",
+      "pixels": 242,
+      "components": 1
     }
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_rear_foot_near_hidden_paint": "No visible near-foot paint in the true rear. Transparent registered solo pending director donor decision."
   }
 }

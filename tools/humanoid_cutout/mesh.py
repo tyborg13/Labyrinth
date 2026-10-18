@@ -12,13 +12,14 @@ def smoothstep(value):
     return value * value * (3 - 2 * value)
 
 
-def robe_weights(vertices, bounds):
+def robe_weights(vertices, bounds, near_on_right=True):
     left, top, right, bottom = bounds
     points = np.asarray(vertices, dtype=float)
     hem = np.clip((points[:, 1] - top - ROBE_TOP_ROWS_PX) /
                   max(1, bottom - top - ROBE_TOP_ROWS_PX), 0, 1)
     near = smoothstep((points[:, 0] - left - (right - left) / 3) /
                       ((right - left) / 3))
+    if not near_on_right: near = 1 - near
     return {'pelvis': (1 - hem).tolist(), 'hem_near': (hem * near).tolist(),
             'hem_far': (hem * (1 - near)).tolist()}
 

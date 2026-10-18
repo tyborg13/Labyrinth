@@ -1,11 +1,18 @@
 #!/bin/sh
 # Director-only windowed proof. Every stage is explicit; no worker GUI retries.
 set -eu
-stage="${1:?Use rest, native, production, idle, review or sheets}"
+stage="${1:?Use density, rest, native, production, idle, review or sheets}"
 project="$(pwd)"
 rig_case="$project/experiments/cutouts/hoarfrost_seer/rr10"
 proof="$rig_case/proof"
 case "$stage" in
+density)
+python3 tools/visual_probe_runner.py --task-id rr-10 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 tests/rr10/density_rebake.gd -- --only hoarfrost_seer_cutout
+python3 tools/process_board_density.py --record-rests --only hoarfrost_seer_cutout
+python3 tools/godot_task_runner.py --task-id rr-10 --stream -- godot --headless --path . --script tools/generate_unit_shadow_cache.gd
+python3 tools/process_board_density.py --check --only hoarfrost_seer_cutout
+python3 experiments/cutouts/hoarfrost_seer/rr10_density.py seal
+;;
 rest)
 python3 tools/visual_probe_runner.py --task-id rr-10 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/rr10/rest_contract.json tests/rr10/native_capture.gd -- --case "$rig_case" --output "$proof/native_rest" --rest-only
 ;;

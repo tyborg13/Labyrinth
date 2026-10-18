@@ -7,7 +7,7 @@ const Renderer = preload("renderer.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 
 static func rest_path(type: String) -> String:
-	return "res://assets/units/" + str(Presentation.CREATURES[type]) + "_cutout/front/rest.png"
+	return Presentation.asset_directory(type).path_join("front/rest.png")
 
 ## Also used by LiveActor's source TextureRect: retain the approved 255px
 ## source canvas and opaque bounds without creating a second live renderer.

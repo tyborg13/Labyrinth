@@ -37,7 +37,7 @@ class TuckTests(unittest.TestCase):
                 'godot','--headless','--path','.','--script','tests/rr10/samples.gd','--','--output',str(output)],
                 cwd=PROJECT,capture_output=True,text=True,timeout=PROOF_TIMEOUT_SECONDS)
             if process.returncode:raise AssertionError(process.stdout+process.stderr)
-            cls.samples=read(output)['samples']
+            cls.samples=[r for r in read(output)['samples'] if r['view']=='front']
         cls.poses={(r['clip'],r['frame']):r for r in cls.samples if r['kind']=='presented'}
 
     def test_requested_depths_real_texels_and_unchanged_motion(self):
@@ -49,7 +49,12 @@ class TuckTests(unittest.TestCase):
             self.assertEqual(tuck['missing_pixels'],0)
             self.assertGreater(tuck['required_pixels'],0)
         self.assertEqual(source_errors(CASE,self.layout,self.build),[])
-        self.assertEqual(digest(CASE/'compiled_motion.json'),self.fixtures['compiled_motion_sha256'])
+        # Adding the approved rear does not change the protected front tracks.
+        from humanoid_cutout.compiler import compile_motion
+        current=read(CASE/'compiled_motion.json')
+        front=compile_motion(CASE/'director_motion.json','hoarfrost_seer',{'front':self.layout},{'front':current['projection']['front']})
+        import hashlib
+        self.assertEqual(hashlib.sha256((json.dumps(front,indent=2)+'\n').encode()).hexdigest(), self.fixtures['compiled_motion_sha256'])
 
     def test_cuff_rows_are_entirely_forearm_weighted_on_both_sides(self):
         self.assertEqual(CUFF_FORE_ROWS_PX,4)

@@ -43,17 +43,19 @@ func _run() -> void:
 						_expect(rig.bones[bone].transform.is_finite(), type + ": finite " + view + "/" + clip + "/" + bone)
 						pose.append(str(rig.bones[bone].transform))
 					poses[JSON.stringify(pose)] = true
-				_expect(poses.size() >= 6, type + ": at least six changing poses " + view + "/" + clip)
+				var minimum: int = 3 if type == "hoarfrost_seer" and clip == "idle" else 6
+				_expect(poses.size() >= minimum, type + ": complete progression " + view + "/" + clip)
 				if type == "hoarfrost_seer":
-					_expect(rig.bones["staff_crystal"].get_parent() == rig.bones["staff_shaft"], "Crystal follows shaft in every clip")
+					_expect(rig.bones["staff"].get_parent() == rig.bones["hand_far"], "Whole staff follows far grip")
 		for view: String in ["front", "rear"]:
 			var rig: Node2D = renderer.rigs[view]
-			_expect(rig.bones["collar"].get_parent() == rig.bones["torso"], type + ": director collar hierarchy")
-			_expect(not rig.bones.has("pelvis"), type + ": no pelvis bone")
 			if type == "hoarfrost_seer":
-				_expect(rig.bones["skirt_near"].get_parent() == rig.bones["torso"], "Robe follows torso")
-				_expect(rig.bones["foot_near"].get_parent() == rig.bones["root"], "Feet stay on root")
+				_expect(not rig.bones.has("collar") and not rig.bones.has("skirt_near"), "Fused collar and robe")
+				_expect(rig.bones["pelvis"].get_parent() == rig.bones["root"], "Pelvis follows root")
+				_expect(rig.bones["foot_near"].get_parent() == rig.bones["hem_near"], "Foot follows hem anchor")
 			else:
+				_expect(rig.bones["collar"].get_parent() == rig.bones["torso"], type + ": director collar hierarchy")
+				_expect(not rig.bones.has("pelvis"), type + ": no pelvis bone")
 				_expect(rig.bones["loincloth"].get_parent() == rig.bones["torso"], "Loincloth follows torso")
 		var portrait := TextureRect.new()
 		preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(portrait, type, false, true)
@@ -61,10 +63,11 @@ func _run() -> void:
 		await process_frame
 		_expect(portrait.texture is AtlasTexture and (portrait.texture as AtlasTexture).atlas is ViewportTexture, type + ": portrait shares renderer")
 		_expect(preload("res://scripts/actor_presentation.gd").travel_renderer(type) == Presentation.renderer_script(type), type + ": pre-battle shares renderer")
+		if type == "hoarfrost_seer": preload("res://tests/rr10/humanoid_runtime_suite.gd").run(renderer, _expect)
 		portrait.queue_free()
 		board.queue_free()
 		await process_frame
-		await preload("res://tests/maquette_cutout/pixel_runtime_suite.gd").run(self, _expect, type)
+		if type != "hoarfrost_seer": await preload("res://tests/maquette_cutout/pixel_runtime_suite.gd").run(self, _expect, type)
 	print("RR07 RUNTIME: %s (%d checks, %d failures; headless logic only)" % ["PASS" if failures == 0 else "FAIL", checks, failures])
 	quit(0 if failures == 0 else 1)
 

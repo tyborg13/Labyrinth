@@ -36,13 +36,13 @@ def build_masks(case, layout, visible):
         mesh = next((m for m in layout['joint_meshes'] if m['name'] == name), None)
         image = np.zeros((*mask.shape, 4), dtype=np.uint8)
         image[mask] = 255
-        path = folder / ('front_' + name + '.png')
+        path = folder / (layout['facing'] + '_' + name + '.png')
         if mesh: image = image[mesh['bbox'][1]:mesh['bbox'][3], mesh['bbox'][0]:mesh['bbox'][2]]
         Image.fromarray(image).save(path)
         row = {'name': 'JointSeam_' + name, 'owner': name, 'bone': part['bone'],
                'file': str(path.relative_to(case))}
         if mesh:
-            template = folder / (name + '_mesh.json')
+            template = folder / (layout['facing'] + '_' + name + '_mesh.json')
             template.write_text(json.dumps(mesh, separators=(',', ':')) + '\n')
             row['mesh_template'] = str(template.relative_to(case))
         records.append(row)

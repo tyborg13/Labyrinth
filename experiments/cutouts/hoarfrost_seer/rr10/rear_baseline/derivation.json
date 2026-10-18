@@ -1,0 +1,127 @@
+{
+  "painting_sha256": "d84433a5cff4b3391d3c2531cc74736f6e06ee2c4eb84688d9078c8778d11742",
+  "delivery": {
+    "joints_px.json": "39b2333c5b8cd0b5614b853d91447b253554e4784ab935b541c10f401f6b96ac",
+    "rear_parts.png": "341121e50139dffe406c57159ae9efdc169702737779836614babe772bd2924d",
+    "rear_solo_head.png": "094e6c221dab08a494fe9a43a1cd8c4469bef1dc08add7030bfab9b57af28c86",
+    "rear_solo_torso.png": "0edb500c3088ef6ada7cb2d07263e8b122b9d2ec76851c5f16f7780450273c3e",
+    "rear_solo_collar.png": "3647bf627fcf8e9f769d8e5b375ac10c6807f15011a22453a0711c2ca810b859",
+    "rear_solo_upper_near.png": "01c3e8b95fe979139077c2eeae08fbb704cf540d2434950970f52c8d26822867",
+    "rear_solo_fore_near.png": "7930e998259ab1284dd37d80612ae342c4d65a1d1296c50a547467610f994ed8",
+    "rear_solo_upper_far.png": "db67b9d62f7ad085601752db8b1bd247a9dbbaa942427831cb506b1cc90f7720",
+    "rear_solo_fore_far.png": "7a2ec463957fd7d71ffaef60c4b1be630f76c0e850645e8c52dc3ea2dd936e93",
+    "rear_solo_hand_near.png": "6ea5cd828957b8cf63cf763315d19b4710f9efa266bbcd110dea30382822b54a",
+    "rear_solo_hand_far.png": "6367483082b5580db60ae88bdda73ad66b6fe11ee5211744203d9b57396875e3",
+    "rear_solo_staff_shaft.png": "5237006f850899d47f24009dd8b52b31a7cc3a5179733d63f58ee970d4292035",
+    "rear_solo_staff_crystal.png": "8ec7079635b2fad538ab11b742a68a32a7eee3851a5eb0af9d4b82459834a096",
+    "rear_solo_skirt_near.png": "4d83e93cc9874918395bd4b36507d7651aebaca1138d2f365fc9a277b2f62a5e",
+    "rear_solo_skirt_far.png": "0f38cb908b1ac5cdb6e750cb1cafce56081482b94d44bc245991842eee86fb43",
+    "rear_solo_foot_near.png": "7709f9af9d71e68abb39fd1ce5acb45f98fcfe1f6d0dad1b9f0d67e5b603abe2",
+    "rear_solo_foot_far.png": "d415ea2ebcc2a6564dfc40acfc108f5d0160ca168a6a89214dff1d4269b8b06c"
+  },
+  "policy": "rr07 genuine categorical seeds / nearest ownership; rr05 non-outline same-surface edge texels",
+  "nearest_assignment": {
+    "head": {
+      "painted_pixels": 2025,
+      "reassigned_pixels": 223,
+      "reassigned_share": 0.11012345679012346,
+      "above_15_percent": false
+    },
+    "collar": {
+      "painted_pixels": 607,
+      "reassigned_pixels": 180,
+      "reassigned_share": 0.29654036243822074,
+      "above_15_percent": true
+    },
+    "torso": {
+      "painted_pixels": 2019,
+      "reassigned_pixels": 261,
+      "reassigned_share": 0.12927191679049035,
+      "above_15_percent": false
+    },
+    "skirt_near": {
+      "painted_pixels": 1119,
+      "reassigned_pixels": 34,
+      "reassigned_share": 0.03038427167113494,
+      "above_15_percent": false
+    },
+    "skirt_far": {
+      "painted_pixels": 6681,
+      "reassigned_pixels": 205,
+      "reassigned_share": 0.03068402933692561,
+      "above_15_percent": false
+    },
+    "upper_near": {
+      "painted_pixels": 1149,
+      "reassigned_pixels": 60,
+      "reassigned_share": 0.05221932114882506,
+      "above_15_percent": false
+    },
+    "fore_near": {
+      "painted_pixels": 504,
+      "reassigned_pixels": 41,
+      "reassigned_share": 0.08134920634920635,
+      "above_15_percent": false
+    },
+    "hand_near": {
+      "painted_pixels": 121,
+      "reassigned_pixels": 84,
+      "reassigned_share": 0.6942148760330579,
+      "above_15_percent": true
+    },
+    "upper_far": {
+      "painted_pixels": 1141,
+      "reassigned_pixels": 71,
+      "reassigned_share": 0.06222611744084137,
+      "above_15_percent": false
+    },
+    "fore_far": {
+      "painted_pixels": 195,
+      "reassigned_pixels": 44,
+      "reassigned_share": 0.22564102564102564,
+      "above_15_percent": true
+    },
+    "hand_far": {
+      "painted_pixels": 200,
+      "reassigned_pixels": 47,
+      "reassigned_share": 0.235,
+      "above_15_percent": true
+    },
+    "staff_shaft": {
+      "painted_pixels": 821,
+      "reassigned_pixels": 298,
+      "reassigned_share": 0.3629719853836784,
+      "above_15_percent": true
+    },
+    "staff_crystal": {
+      "painted_pixels": 986,
+      "reassigned_pixels": 183,
+      "reassigned_share": 0.18559837728194725,
+      "above_15_percent": true
+    },
+    "foot_near": {
+      "painted_pixels": 0,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0,
+      "above_15_percent": false
+    },
+    "foot_far": {
+      "painted_pixels": 181,
+      "reassigned_pixels": 30,
+      "reassigned_share": 0.16574585635359115,
+      "above_15_percent": true
+    }
+  },
+  "connected_neighbour_transfers": [
+    {
+      "from": "upper_far",
+      "to": "fore_far",
+      "pixels": 1
+    },
+    {
+      "from": "staff_shaft",
+      "to": "skirt_far",
+      "pixels": 1
+    }
+  ]
+}

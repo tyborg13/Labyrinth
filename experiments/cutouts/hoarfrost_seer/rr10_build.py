@@ -1,8 +1,4 @@
-"""Front-only v2 candidate from rr-07 ownership and verified rr-05 fill seeds.
-
-No paint synthesis, new art, maquette edits or production promotion. Rear inputs
-are deliberately named in inputs.json; the obsolete mirrored rear is not read.
-"""
+"""Both approved v2 views, with frozen front ownership and a native mq-06 rear."""
 from pathlib import Path
 import shutil
 import sys
@@ -11,7 +7,10 @@ import json
 import numpy as np
 from PIL import Image, ImageFilter
 
-from rr07_inputs import PROJECT, read_json, write_json, digest, projected
+from rr07_inputs import PROJECT, read_json, write_json, digest, projected, registered_transform, label_palette
+from rr07_geometry import native_depths, recipe_for, bind_layout
+from tools.humanoid_cutout.source_view import prepare
+from tools.humanoid_cutout.skin_layers import layer as skin_layer
 from maquette_motion.features import source_pixels
 from maquette_motion.support_seeds import approved
 from maquette_motion.bleed import edge_texels
@@ -53,9 +52,14 @@ def dilate(mask, pixels):
         ImageFilter.MaxFilter(pixels * 2 + 1))) > 0
 
 
-def store(image, folder, name):
+def store(image, folder, name, empty_bounds=None):
     ys, xs = np.nonzero(image[..., 3])
-    bounds = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+    if len(xs):
+        bounds = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+    elif empty_bounds is not None:
+        bounds = empty_bounds
+    else:
+        raise ValueError('Empty piece without a registered crop: ' + name)
     path = folder / (name + '.png')
     path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(image).crop(tuple(bounds)).save(path)
@@ -63,24 +67,35 @@ def store(image, folder, name):
     return {'name': name, 'file': str(path.relative_to(CASE)), 'offset': bounds[:2], 'bbox': bounds}
 
 
-def build():
-    inputs = read_json(CASE / 'inputs.json')
-    base = PROJECT / inputs['baseline']
-    old = read_json(base / 'layouts/front.json')
-    delivery = PROJECT / inputs['front_delivery']
-    bound_delivery = {}
-    for name in ['joints_px.json', 'front_parts.png'] + ['front_solo_' + n + '.png' for labels in PIECES.values() for n in labels]:
-        if digest(delivery / name) != digest(base / 'source/maquette' / name):
-            raise ValueError('Front delivery differs from rr-07 ownership registration: ' + name)
-        bound_delivery[name] = digest(delivery / name)
-    paint_path = PROJECT / inputs['front_job'] / 'processed.png'
+def underlay_depth(old, labels, depths):
+    inherited = [p['z_index'] for p in old['parts'] if p.get('hidden_material') and p.get('logical_part') in labels]
+    return max(inherited) if inherited else min(depths.values()) - 1
+
+
+def build_view(view, inputs):
+    seed_fills = None
+    if view == 'front':
+        base = PROJECT / inputs['baseline']
+        old = read_json(base / 'layouts/front.json')
+        delivery = PROJECT / inputs['front_delivery']
+        bound_delivery = {}
+        for name in ['joints_px.json', 'front_parts.png'] + ['front_solo_' + n + '.png' for labels in PIECES.values() for n in labels]:
+            # mq-06 intentionally replaced only the rear half of this shared file.
+            same = (read_json(delivery / name)['front'] == read_json(base / 'source/maquette' / name)['front']
+                    if name == 'joints_px.json' else digest(delivery / name) == digest(base / 'source/maquette' / name))
+            if not same:
+                raise ValueError('Front delivery differs from rr-07 ownership registration: ' + name)
+            bound_delivery[name] = digest(delivery / name)
+        if digest(PROJECT / inputs['front_job'] / 'processed.png') != digest(base / 'source/front/processed.png'):
+            raise ValueError('rr-07 ownership no longer belongs to the approved front')
+    else:
+        base, old, seed_fills, bound_delivery = prepare(PROJECT, CASE, inputs, view, PIECES,
+            registered_transform, label_palette, native_depths, recipe_for, bind_layout)
+    paint_path = PROJECT / inputs[view + '_job'] / 'processed.png'
     paint = np.asarray(Image.open(paint_path).convert('RGBA'))
-    if digest(paint_path) != digest(base / 'source/front/processed.png'):
-        raise ValueError('rr-07 ownership no longer belongs to the approved front')
-    (CASE / 'source/front').mkdir(parents=True, exist_ok=True)
+    (CASE / ('source/' + view)).mkdir(parents=True, exist_ok=True)
     for name in ('processed.png', 'processed.json'):
-        shutil.copyfile(PROJECT / inputs['front_job'] / name, CASE / 'source/front' / name)
-    copy_protected(DIRECTOR, CASE / 'director_motion.json')
+        shutil.copyfile(PROJECT / inputs[view + '_job'] / name, CASE / 'source' / view / name)
     visible, hidden = {}, {}
     for name, labels in PIECES.items():
         image = np.zeros_like(paint)
@@ -93,26 +108,29 @@ def build():
         fill = np.zeros_like(paint)
         for label in labels:
             part = next((p for p in old['parts'] if p.get('hidden_material') and p.get('logical_part') == label), None)
-            if part:
-                layer = approved(base, 'front', part)
+            if seed_fills is not None:
+                layer = seed_fills[label]
+                fill[layer[..., 3] > 0] = layer[layer[..., 3] > 0]
+            elif part:
+                layer = approved(base, view, part)
                 fill[layer[..., 3] > 0] = layer[layer[..., 3] > 0]
         # Continuations are hidden at rest, within the approved union silhouette.
         native_silhouette = np.zeros(paint.shape[:2],dtype=bool)
         for label in labels:
-            native_silhouette |= np.asarray(Image.open(base / f'registered/front_solo_{label}.png').convert('RGBA'))[...,3] > 128
+            native_silhouette |= np.asarray(Image.open(base / f'registered/{view}_solo_{label}.png').convert('RGBA'))[...,3] > 128
         fill[(paint[..., 3] == 0) | (image[..., 3] > 0) | ~native_silhouette] = 0
         hidden[name] = fill
-    rope = dict(inputs['rope_masks']['front'])
+    rope = dict(inputs['rope_masks'][view])
     rope_mask = read_mask(CASE, rope, paint.shape[:2])
     underlay = rope['underlay']
     # Preserve the exact former robe ownership as the required cloth surface
     # behind the now rigid rope tails. No colour selector or mask dilation.
     rope_underlay = rope_mask & (visible[underlay][..., 3] > 0)
     previous_owners = apply_override(visible, paint, rope_mask, rope['owner'])
-    material_rules = rules(base, 'front')
+    material_rules = rules(base, view)
     cloth = edge_texels(visible[underlay], rope_underlay, material_rules)
     hidden[underlay][rope_underlay] = cloth[rope_underlay]
-    required_path = CASE / 'ownership/front_rope_underlay.png'
+    required_path = CASE / f'ownership/{view}_rope_underlay.png'
     required_path.parent.mkdir(exist_ok=True)
     Image.fromarray(rope_underlay.astype('uint8') * 255).save(required_path)
     rope['underlay_required_mask'] = str(required_path.relative_to(CASE))
@@ -146,13 +164,15 @@ def build():
     # The spec places hem anchors at the lower corners on the floor line.
     # Endpoints are measured from the approved robe alpha, not hand fitted.
     floor = int(robe_ys.max()) + 1
-    for side, x in (('near', int(robe_xs.max()) + 1), ('far', int(robe_xs.min()))):
+    near_right = joints['foot_near']['position'][0] > joints['foot_far']['position'][0]
+    ends = (int(robe_xs.max()) + 1, int(robe_xs.min())) if near_right else (int(robe_xs.min()), int(robe_xs.max()) + 1)
+    for side, x in zip(('near', 'far'), ends):
         joints['hem_' + side] = {'position': [x, floor], 'parent': 'root'}
     joint('staff', 'hand_far', 'hand_far')
     depths = {p['logical_part']: p['z_index'] for p in old['parts'] if not any(
         p.get(k) for k in ('hidden_material', 'seam_underlay', 'silhouette_backing'))}
     depths = held_depths({name: depths[DEPTH_SOURCE.get(name, name)] for name in PIECES},
-                         'front', inputs['held_item_depth'])
+                         view, inputs['held_item_depth'])
     parts, meshes, tuck_report = [], [], []
     tuck_masks = {}
     # rr-05 same-material continuation at the director's per-edge depths.
@@ -164,8 +184,7 @@ def build():
             # A wrist edge can be hidden by the staff as well as the cuff;
             # clipping to the cuff alone cuts away the needed continuation.
             # Keep every extra texel hidden behind an inherited higher layer.
-            under_depth = depths[name] if name == 'robe' else max(
-                p['z_index'] for p in old['parts'] if p.get('hidden_material') and p.get('logical_part') in PIECES[name])
+            under_depth = depths[name] if name == 'robe' else underlay_depth(old, PIECES[name], depths)
             occlusion = np.logical_or.reduce([material[...,3]>0 for other,material in visible.items()
                 if depths[other] > under_depth and other != name])
         required = required_tuck(name, visible, joints, occlusion, hidden[name][...,3]>0)
@@ -173,7 +192,7 @@ def build():
         tuck_masks[name] = required
         donors = visible[name].copy()
         donors[hidden[name][..., 3] > 0] = hidden[name][hidden[name][..., 3] > 0]
-        continuation = edge_texels(donors, missing, rules(base, 'front'))
+        continuation = edge_texels(donors, missing, rules(base, view))
         hidden[name][missing] = continuation[missing]
     # One deterministic cloth field across both old fills and new tucks. This
     # prevents a flat seed band ending in a horizontal seam below the belt.
@@ -194,21 +213,24 @@ def build():
             allowed = (fill[..., 3] > 0) & higher
             allowed = connected_mask(image[..., 3] > 0, allowed)
             combined[allowed] = fill[allowed]
-            part = store(combined, CASE / 'pieces/front', name)
-            vertices, uvs, triangles = grid(part['bbox'])
-            if name == 'robe':
-                weights = robe_weights(vertices, part['bbox'])
-            else:
-                side = name.split('_')[-1]
-                weights = sleeve_weights(vertices, *[joints[n + side]['position'] for n in
-                    ('upper_', 'fore_', 'hand_')], side)
-            meshes.append(dict(part, replaces_part=name, z_index=z, vertices=vertices, uvs=uvs,
-                               triangles=triangles, weights=weights, grid_px=2))
+            part = store(combined, CASE / 'pieces' / view, name)
+            meshes.append(skin_layer(part, name, part['bbox'], joints, z))
+            # A hidden hem continuation underneath a boot cannot share the
+            # visible robe's depth. It uses the SAME garment weight field in
+            # a covered draw layer, just as rigid rr-05 underlays do.
+            lower = fill.copy()
+            lower[allowed] = 0
+            if (lower[..., 3] > 0).any():
+                underlay = store(lower, CASE / 'pieces' / view, 'hidden_' + name)
+                hidden_depth = underlay_depth(old, PIECES[name], depths)
+                meshes.append(skin_layer(underlay, name, part['bbox'], joints, hidden_depth, True))
+                parts.append(dict(underlay, bone=bone, z_index=hidden_depth, hidden_material=True, logical_part=name))
         else:
-            part = store(image, CASE / 'pieces/front', name)
+            empty_bounds = next((p['bbox'] for p in old['parts'] if p.get('logical_part') == name), None)
+            part = store(image, CASE / 'pieces' / view, name, empty_bounds)
             if (fill[..., 3] > 0).any():
-                underlay = store(fill, CASE / 'pieces/front', 'hidden_' + name)
-                hidden_depth = max(p['z_index'] for p in old['parts'] if p.get('hidden_material') and p.get('logical_part') in PIECES[name])
+                underlay = store(fill, CASE / 'pieces' / view, 'hidden_' + name)
+                hidden_depth = underlay_depth(old, PIECES[name], depths)
                 if name == 'staff': hidden_depth = z - 1
                 parts.append(dict(underlay, bone=bone, z_index=hidden_depth, hidden_material=True,
                                   logical_part=name, presentation_anchor=part['offset']))
@@ -218,23 +240,24 @@ def build():
         required = tuck_masks[name]
         provided = hidden[name][..., 3] > 0
         missing = required & ~provided
-        mask_path = CASE / f'tucks/front_{name}.png'
+        mask_path = CASE / f'tucks/{view}_{name}.png'
         mask_path.parent.mkdir(parents=True, exist_ok=True)
         Image.fromarray(required.astype('uint8') * 255).save(mask_path)
+        if not own.any() and not provided.any(): continue  # Explicit fully occluded source placeholder.
         tuck_report.append({'piece': name, 'cover': cover, 'minimum_px': TUCK_DEPTHS_PX[name],
                             'required_mask': str(mask_path.relative_to(CASE)),
                             'missing_pixels': int(missing.sum()), 'required_pixels': int(required.sum())})
     shaft = next(p for p in read_json(base / 'source/spec_native.json')['pieces'] if p['id'] == 'staff_shaft')
-    transform = read_json(base / 'registered/front_registration.json')
-    native = projected(read_json(base / 'source/spec_native.json'), shaft['path'][0], 'front')
+    transform = read_json(base / f'registered/{view}_registration.json')
+    native = projected(read_json(base / 'source/spec_native.json'), shaft['path'][0], view)
     floor_end = (np.asarray(native) * transform['scale'] + transform['offset']).tolist()
-    layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': 'front', 'canvas_size': [255, 255],
+    layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
               'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
               'held_items': {'staff': {'hand': 'hand_far', 'floor_end': floor_end}},
               'held_item_depth': inputs['held_item_depth'],
               'continuation_policy': {'robe': 'rr05_visible_cloth_edge_texels'},
               'source_labels': PIECES, 'ownership_overrides': [rope],
-              'rest_source': 'source/front/processed.png', 'motion_data': 'res://' +
+              'rest_source': 'source/' + view + '/processed.png', 'motion_data': 'res://' +
               str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     layers = {}
     mesh_names = {m['name'] for m in meshes}
@@ -254,21 +277,26 @@ def build():
         checks[tuck, 1] = 255
         dark = allowed & outline_class(stored, material_rules)
         checks[dark, 2] = 255
-        mask = store(checks, CASE / 'checks/front', name)
+        mask = store(checks, CASE / 'checks' / view, name, part['bbox'])
         layers[name] = {'mask': mask['file'], 'mask_offset': mask['offset'],
                         'z_index': part['z_index'], 'source': part['file'],
                         'rigid': name not in mesh_names,
                         'source_sha256': digest(CASE / part['file'])}
     layout['proof_layers'] = layers
     (CASE / 'features').mkdir(exist_ok=True)
-    shutil.copyfile(base / 'features/front_ice_crystal.png', CASE / 'features/front_ice_crystal.png')
-    layout['features'] = [{'name': 'ice_crystal', 'piece': 'staff', 'mask': 'features/front_ice_crystal.png'}]
+    feature_path = CASE / f'features/{view}_ice_crystal.png'
+    if view == 'front':
+        shutil.copyfile(base / 'features/front_ice_crystal.png', feature_path)
+    else:
+        crystal = next(p for p in old['parts'] if p['logical_part'] == 'staff_crystal')
+        Image.fromarray((source_pixels(base, crystal)[..., 3] > 0).astype('uint8') * 255).save(feature_path)
+    layout['features'] = [{'name': 'ice_crystal', 'piece': 'staff', 'mask': str(feature_path.relative_to(CASE))}]
     rest_holes = []
     for index,hole in enumerate(holes(paint[...,3]>0)):
         if int(hole.sum())<=1: continue
         rim=dilate(hole,1)&~hole
         owner=max(PIECES,key=lambda name:int((rim & (visible[name][...,3]>0)).sum()))
-        path=CASE/f'holes/front_{index:02d}.png'
+        path=CASE/f'holes/{view}_{index:02d}.png'
         path.parent.mkdir(exist_ok=True)
         image=np.zeros_like(paint); image[hole]=255
         Image.fromarray(image).save(path)
@@ -277,64 +305,67 @@ def build():
         if owner=='robe' or owner.startswith('sleeve_'):
             vertices,uvs,triangles=grid([0,0,255,255])
             if owner=='robe':
-                weights=robe_weights(vertices,next(m['bbox'] for m in meshes if m['name']==owner))
+                weights=robe_weights(vertices,next(m['bbox'] for m in meshes if m['name']==owner),near_right)
             else:
                 side=owner.split('_')[-1]
                 weights=sleeve_weights(vertices,*[joints[n+side]['position'] for n in ('upper_','fore_','hand_')],side)
-            template=CASE/f'holes/{owner}_mesh.json'
+            template=CASE/f'holes/{view}_{owner}_mesh.json'
             template.write_text(json.dumps({'vertices':vertices,'uvs':uvs,'triangles':triangles,
                 'weights':weights,'z_index':0},separators=(',',':'))+'\n')
             record['mesh_template']=str(template.relative_to(CASE))
         rest_holes.append(record)
     layout['proof_rest_holes']=rest_holes
     layout['proof_joint_seams'] = build_masks(CASE, layout, visible)
-    write_json(CASE / 'layouts/front.json', layout)
-    projection = read_json(base / 'compiled_motion.json')['projection']['front']
-    compiled = compile_motion(DIRECTOR, 'hoarfrost_seer', {'front': layout}, {'front': {
-        'forward': projection['forward'], 'lean_sign': projection['parts']['torso']['lean_deg']}})
+    write_json(CASE / f'layouts/{view}.json', layout)
+    report = {'front_rest_mismatch_pixels': int(np.any(reconstructed != paint, axis=-1).sum()),
+        'rest_mismatch_pixels': int(np.any(reconstructed != paint, axis=-1).sum()),
+        'tucks': tuck_report, 'ownership_overrides': [dict(rope, previous_owners=previous_owners,
+            underlay_pixels=int(rope_underlay.sum()))],
+        'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'),
+        'source_ownership_sha256': digest(base / f'layouts/{view}.json'), 'delivery': bound_delivery}
+    if view == 'front':
+        projection = read_json(base / 'compiled_motion.json')['projection'][view]
+        projection = {'forward': projection['forward'], 'lean_sign': projection['parts']['torso']['lean_deg']}
+    else:
+        spec = read_json(base / 'source/spec_native.json')
+        origin = np.asarray(projected(spec, [0, 0, 0], view))
+        up = np.asarray(projected(spec, [0, 0, 1], view)) - origin
+        forward = np.asarray(projected(spec, [1, 0, 0], view)) - origin
+        projection = {'forward': (forward / np.linalg.norm(forward)).tolist(),
+                      'lean_sign': float(np.sign(up[0] * forward[1] - up[1] * forward[0]))}
+    return layout, report, projection
+
+
+def build():
+    inputs = read_json(CASE / 'inputs.json')
+    copy_protected(DIRECTOR, CASE / 'director_motion.json')
+    layouts, reports, projections = {}, {}, {}
+    for view in ('front', 'rear'):
+        layouts[view], reports[view], projections[view] = build_view(view, inputs)
+    compiled = compile_motion(DIRECTOR, 'hoarfrost_seer', layouts, projections)
     write_json(CASE / 'compiled_motion.json', compiled)
     write_json(CASE / 'cutout.json', {'character_id': 'hoarfrost_seer', 'rig': 'humanoid_v2',
-        'layouts': {'front': 'layouts/front.json'}, 'design_placeholders': {
-        'TODO_DESIGN_mq6_rear_delivery_and_paint': 'Wait for both approved mq6 inputs before promotion.'},
+        'layouts': {v: f'layouts/{v}.json' for v in layouts}, 'design_placeholders': inputs.get('design_placeholders', {}),
         'clips': compiled['clips'], 'runtime_paths': ['scripts/maquette_cutout_runtime/humanoid_motion.gd',
         'scripts/maquette_cutout_runtime/humanoid_presentation.gd']})
-    # Stage a production-shaped candidate. Existing production registration is
-    # held until both approved views exist, avoiding a mixed v1/v2 Seer.
-    ASSETS.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(CASE / 'compiled_motion.json', ASSETS / 'compiled_motion.json')
-    copy_protected(DIRECTOR, ASSETS / 'director_motion.json')
-    staged = dict(layout, motion_data='res://' + str(ASSETS.relative_to(PROJECT) / 'compiled_motion.json'))
-    # Until promotion, paint stays in the authoring case. Raw candidate PNGs
-    # inside a registered production family would bypass its density adoption.
-    # The owning promotion step copies/adopts them after both views pass native.
-    for part in staged['parts'] + staged['joint_meshes']:
-        if not part['file'].startswith('res://'):
-            part['file'] = 'res://' + str(CASE.relative_to(PROJECT) / part['file'])
-    for record in layers.values():
-        record['mask'] = 'res://' + str(CASE.relative_to(PROJECT) / record['mask'])
-    staged['features'] = [dict(f,mask='res://' + str(CASE.relative_to(PROJECT) / f['mask'])) for f in staged['features']]
-    staged['proof_rest_holes'] = []
-    staged['proof_joint_seams'] = []
-    staged['ownership_overrides'] = [dict(rope, file='res://' + str(CASE.relative_to(PROJECT) / rope['file']),
-        underlay_required_mask='res://' + str(CASE.relative_to(PROJECT) / rope['underlay_required_mask']))]
-    write_json(ASSETS / 'front.json', staged)
-    write_json(CASE / 'proof/build.json', {'front_rest_mismatch_pixels': int(np.any(reconstructed != paint, axis=-1).sum()),
-        'director_sha256': digest(DIRECTOR), 'tucks': tuck_report,
-        'ownership_overrides': [dict(rope, previous_owners=previous_owners,
-            underlay_pixels=int(rope_underlay.sum()))],
-        'source_ownership': str(base.relative_to(PROJECT) / 'layouts/front.json'),
-        'source_ownership_sha256': digest(base / 'layouts/front.json'),
-        'hidden_fill_index_sha256': digest(base / 'hidden_fills/index.json'),
-        'front_delivery_joints_sha256': digest(PROJECT / inputs['front_delivery'] / 'joints_px.json'),
-        'front_delivery': bound_delivery,
-        'production_promoted': False, 'rear': inputs['rear_status']})
-    for root in (CASE,ASSETS):
+    # Native rest recording remains an explicit director step after promotion.
+    from tools.humanoid_cutout.promotion import promote
+    promote(PROJECT, CASE, ASSETS, layouts)
+    report = dict(reports['front'], views=reports, director_sha256=digest(DIRECTOR), production_promoted=True,
+        front_delivery=reports['front']['delivery'],
+        front_delivery_joints_sha256=reports['front']['delivery']['joints_px.json'],
+        hidden_fill_index_sha256=digest(PROJECT / inputs['baseline'] / 'hidden_fills/index.json'), rear='ready')
+    write_json(CASE / 'proof/build.json', report)
+    for root in (CASE, ASSETS):
         for path in root.rglob('*.png'):
             if 'proof' not in path.relative_to(root).parts:
                 Path(str(path) + '.import').write_text('[remap]\n\nimporter="keep"\n')
-    print('RR10 FRONT BUILD: PASS (rest mismatch: 0 px; 3 joint_meshes; protected tracks byte-identical)')
-    print('RR10 TUCK COVERAGE: %d missing source pixels (see proof/build.json)' % sum(r['missing_pixels'] for r in tuck_report))
-    return layout
+    for view in layouts:
+        print('RR10 %s BUILD: PASS (rest mismatch: %d px; 3 joint_meshes; protected tracks byte-identical)' %
+              (view.upper(), reports[view]['rest_mismatch_pixels']))
+    print('RR10 TUCK COVERAGE: %d missing source pixels (both views; see proof/build.json)' %
+          sum(r['missing_pixels'] for report in reports.values() for r in report['tucks']))
+    return layouts
 
 
 if __name__ == '__main__':

@@ -34,7 +34,8 @@ def held_depths(depths, view, policy):
     result = dict(depths)
     body = [result[name] for name in ('torso', 'sleeve_near', 'sleeve_far', 'robe')]
     if policy[view] == 'behind_body': result['staff'] = min(body) - 1
-    elif policy[view] == 'in_front_of_body': result['staff'] = max(body) + 1
+    elif policy[view] == 'in_front_of_body':
+        result['staff'] = max(value for name,value in result.items() if name not in ('staff','hand_far') and not name.startswith('hidden_')) + 1
     else: raise ValueError('TODO_DESIGN_staff_depth_' + view)
     result['hand_far'] = max(result['hand_far'], result['staff'] + 1)
     return result

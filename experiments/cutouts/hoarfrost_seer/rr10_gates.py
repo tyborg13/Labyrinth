@@ -21,10 +21,11 @@ def main():
     if args.native:
         from pathlib import Path
         errors += native_errors(CASE, Path(args.native))
+    placeholders=read_json(CASE / 'cutout.json')['design_placeholders']
     write_json(CASE / ('proof/native_gates.json' if args.native else 'proof/gates.json'), {'ok': not errors, 'errors': errors,
-        'production_ready': False, 'design_placeholders':read_json(CASE / 'cutout.json')['design_placeholders'],
-        'scope': 'front; headless structure and real bones' if not args.native else 'native windowed proof'})
-    print('RR10 %s GATES: %s (%d errors)' % ('NATIVE' if args.native else 'FRONT BONE/CUT', 'FAIL' if errors else 'PASS', len(errors)))
+        'production_ready': not errors and not placeholders and bool(args.native), 'design_placeholders':placeholders,
+        'scope': 'both views; headless structure and real bones' if not args.native else 'native windowed proof'})
+    print('RR10 %s GATES: %s (%d errors)' % ('NATIVE' if args.native else 'BONE/CUT', 'FAIL' if errors else 'PASS', len(errors)))
     for error in errors[:30]: print(error)
     return int(bool(errors))
 

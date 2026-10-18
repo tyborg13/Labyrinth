@@ -30,7 +30,12 @@ def relative_angle(a, b):
     return (angle(a) - angle(b) + 180) % 360 - 180
 
 
+def view_build(layout, build):
+    return build['views'][layout['facing']] if layout['facing'] != 'front' and 'views' in build else build
+
+
 def structure_errors(layout, build):
+    build = view_build(layout, build)
     errors = []
     required = {'root': None, 'pelvis': 'root', 'torso': 'pelvis', 'head': 'torso',
                 'hem_near': 'root', 'hem_far': 'root', 'foot_near': 'hem_near',
@@ -38,14 +43,14 @@ def structure_errors(layout, build):
     for name, parent in required.items():
         if layout['joints'].get(name, {}).get('parent', 'missing') != parent:
             errors.append('hierarchy: ' + name)
-    meshes = {m['name']: m for m in layout.get('joint_meshes', [])}
+    meshes = {m['name']: m for m in layout.get('joint_meshes', []) if not m.get('hidden_material')}
     if set(meshes) != {'robe', 'sleeve_near', 'sleeve_far'}:
         errors.append('cut: exactly one robe and two sleeve meshes required')
     if any(n in layout['joints'] for n in ('collar', 'skirt_near', 'skirt_far', 'staff_crystal')):
         errors.append('cut: independently moving fused piece')
     if set(layout.get('idle_groups', {})) != set(GROUP_BONES):
         errors.append('idle: exactly three groups required')
-    for mesh in meshes.values():
+    for mesh in layout.get('joint_meshes', []):
         weights = np.asarray(list(mesh['weights'].values()))
         if mesh.get('grid_px') != 2 or not np.isfinite(weights).all() or weights.min() < 0 or not np.allclose(weights.sum(0), 1):
             errors.append('mesh: invalid grid or normalized weights: ' + mesh['name'])
@@ -53,9 +58,12 @@ def structure_errors(layout, build):
         vertices,uvs,triangles=grid(mesh['bbox'])
         if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
             errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
-        if mesh['name']=='robe': expected=robe_weights(vertices,mesh['bbox'])
+        garment=mesh.get('garment',mesh['name'])
+        if mesh.get('hidden_material') and (garment not in meshes or mesh.get('weight_bounds') != meshes[garment]['bbox']):
+            errors.append('mesh: hidden layer must share its garment field: '+mesh['name'])
+        if garment=='robe': expected=robe_weights(vertices,mesh.get('weight_bounds',mesh['bbox']), layout['joints']['hem_near']['position'][0] > layout['joints']['hem_far']['position'][0])
         else:
-            side=mesh['name'].split('_')[-1]
+            side=garment.split('_')[-1]
             expected=sleeve_weights(vertices,*[layout['joints'][n+side]['position'] for n in ('upper_','fore_','hand_')],side)
         if set(mesh['weights'])!=set(expected) or any(not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
             errors.append('mesh: director weight rule differs: '+mesh['name'])
@@ -79,6 +87,7 @@ def structure_errors(layout, build):
 
 
 def source_errors(case, layout, build):
+    build = view_build(layout, build)
     from maquette_motion.features import source_pixels
     errors = []
     images = {p['name']: source_pixels(case,p) for p in layout['parts']}
@@ -412,4 +421,11 @@ def bindings(case):
         for path in (project / folder).rglob('*'):
             if path.is_file() and path.suffix in ('.gd','.py','.json'):
                 result['runtime:' + str(path.relative_to(project))] = digest(path)
+    production = project / 'assets/units/hoarfrost_seer_cutout'
+    for path in (production / 'humanoid_v2').rglob('*'):
+        if path.is_file() and path.suffix in ('.json','.png'):
+            result['production:' + str(path.relative_to(project))] = digest(path)
+    for name in ('rig.gd','renderer.gd','actions.gd'):
+        path=production/name
+        result['production:' + str(path.relative_to(project))] = digest(path)
     return result

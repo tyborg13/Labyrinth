@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Candidate renderer, phase seeds, source-pixel units and existing portrait API.
+## Production renderer, phase seeds, source-pixel units and existing portrait API.
 const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
 const CASE: String = "res://experiments/cutouts/hoarfrost_seer/rr10"
@@ -18,11 +18,11 @@ func check(value: bool, message: String) -> void:
 	if not value: failures.append(message)
 
 func _run() -> void:
-	var renderer := preload("candidate_renderer.gd").new()
+	var renderer := preload("res://assets/units/hoarfrost_seer_cutout/renderer.gd").new()
 	renderer.seed_idle_phase(PROOF_SEED)
 	root.add_child(renderer)
 	check(is_equal_approx(float(renderer.snapshot()["phase"]),PROOF_SEED),"idle phase seed lost")
-	check(renderer.rigs.size()==1,"front proof must not load the rejected rear")
+	check(renderer.rigs.size()==2,"production must load both approved views")
 	renderer.present({"clip":"ward","phase":PROOF_PHASE},false)
 	check(renderer.snapshot()["clip"]=="ward","candidate action did not route")
 	var atlas: AtlasTexture = preload("res://scripts/maquette_cutout_runtime/portrait.gd").source_texture(renderer,"hoarfrost_seer")
@@ -31,7 +31,7 @@ func _run() -> void:
 	var rig: Node2D = renderer.rigs["front"]
 	var polygons: int = 0
 	for child: Node in rig.get_children():
-		if child is Polygon2D: polygons += 1
+		if child is Polygon2D and not str(child.name).begins_with("hidden_"): polygons += 1
 	check(polygons==3,"three real joint_meshes were not constructed")
 	var other := Rig.new()
 	other.case_directory = CASE
