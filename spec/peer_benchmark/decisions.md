@@ -240,3 +240,12 @@
 - Knees bend toward the figure's facing: screen-left in the front view (facing the lower-left), screen-right in the
   rear view (facing the upper-right). Straight-at-rest legs must declare it per view in case anatomy; bent legs keep
   their rest side. Recorded in `humanoid_cutout_rig.md` §3.
+
+## 2026-10-18 Thrall gait (rr-11 TODO_DESIGN items)
+- The Thrall's legs are almost straight at rest, and each view has one foreshortened leg. Decided: near-straight rest
+  knees (within 6°) take the facing policy; per-view `stride`/`trailing` leg roles; the pelvis never above rest, dipping
+  3 px after stride landings and under the jab; the knee gate checks peak bend per stride swing. The director revised
+  `staged/rr-11/motion_tracks.json` accordingly; the rules are in `humanoid_cutout_rig.md` §3.
+- purge-01 merged at 6302747af, then was reset off integration: the SFX sync harness failed deterministically
+  (`ambience.tharokh` loop waits after its state change) and the registration audit flagged
+  `magic_deck_guard_mutation_test.gd`. Final fix round: feedback 3.
