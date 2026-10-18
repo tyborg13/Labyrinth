@@ -185,3 +185,8 @@
   the worktree's `output/rr-05/`). The director ran the native recheck at HEAD 0ebbc5b07 in the rr-05 worktree:
   `native_errors` 0 and pixel gate ok with 0 errors, for both the Shale Bloomer and the Lightning Wisp.
 - The owner approved the final Bloomer clip on 2026-10-18.
+
+## 2026-10-18 rr-07 rig hierarchy (pelvis-less figures)
+- Seer: root body → torso (root body part) → collar and the head; skirts are torso children pivoting at the belt;
+  feet are root children so they stay planted; staff_crystal is always a child of staff_shaft.
+- Thrall: root body → torso and both thighs; collar and loincloth are torso children.
