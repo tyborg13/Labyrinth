@@ -117519,5 +117519,5 @@
   },
   "rest_source": "humanoid_v2/rear/rest.png",
   "motion_data": "res://assets/units/hoarfrost_seer_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "d84433a5cff4b3391d3c2531cc74736f6e06ee2c4eb84688d9078c8778d11742"
+  "rest_source_sha256": "ed088952f4716dc80ffaa28eb6cdcda9e782a6edf8e4a80bcfe90931d30bcd6a"
 }

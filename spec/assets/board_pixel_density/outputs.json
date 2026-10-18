@@ -8836,6 +8836,12 @@
     "grid": 1.5,
     "facing": "rear"
   },
+  "assets/units/hoarfrost_seer_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "2d0bc055ddfda60fb8d05b07b38463cb6cb90709c1ec2c3795191529d70e2893",
+    "parts_pixel_sha256": "7010eb9d6b9a9e4d929e54099092d2d5d76d768f8b5985e2be964eb86df778a1"
+  },
   "assets/units/hoarfrost_seer_cutout/hidden/front/collar.png": {
     "pixel_sha256": "56cba8266ff458e8ec32eb0eb5610c3ea37de51231f068a7e2915891e52962b1",
     "source_pixel_sha256": "8bc37785f45a7fe44af1bde069823c57e33287ed7390427f5a59830694a258fc",
@@ -9180,6 +9186,12 @@
     "grid": 1.0,
     "facing": "front"
   },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png": {
+    "kind": "rest",
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "8a4166c0461318bc1dc6234a4d9b302eb85e2c2735ee31906cf7ef23fafa032d",
+    "parts_pixel_sha256": "7010eb9d6b9a9e4d929e54099092d2d5d76d768f8b5985e2be964eb86df778a1"
+  },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png": {
     "pixel_sha256": "9db9ceaaae6d171078ff9ac3dd0c6fc7fad8b6a9d9fcc57dcea9198b270a3fdb",
     "source_pixel_sha256": "c83008495caee470b050fb7e9e7f7d712bd4a32998acd3f86db64ed97916e2ef",
@@ -9316,6 +9328,12 @@
     "grid": 1.0,
     "facing": "rear"
   },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png": {
+    "kind": "rest",
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "801a9f25627204b4b48788035f294789b146a5469f49c89a2a0ffabd1937c0e0",
+    "parts_pixel_sha256": "7010eb9d6b9a9e4d929e54099092d2d5d76d768f8b5985e2be964eb86df778a1"
+  },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png": {
     "pixel_sha256": "1004d42cbdf2bce6439fa2d64390aaa7532d223ba79688815ea2a357765b1ff8",
     "source_pixel_sha256": "ebb155a0532acb177542881f415b8799826d5d4c6d50058e39971634833b12f3",
@@ -9355,6 +9373,12 @@
     "mode": "clean",
     "grid": 1.0,
     "facing": "rear"
+  },
+  "assets/units/hoarfrost_seer_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "hoarfrost_seer_cutout",
+    "pixel_sha256": "454957527e05d3a6179f16c377318892d10c5ec7d571fa9f1d27e343f234627f",
+    "parts_pixel_sha256": "7010eb9d6b9a9e4d929e54099092d2d5d76d768f8b5985e2be964eb86df778a1"
   },
   "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png": {
     "pixel_sha256": "2b2d1488e90c59266d19e2a1e4219a7ef7965986d74102429ee01d11eb9a1a57",

@@ -13,16 +13,11 @@
   "density": {
     "entry": "hoarfrost_seer_cutout",
     "paint": "adopted/processed from untouched source parts",
-    "native_rest_pending": [
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/front/rest.png: no rebake record; run --record-rests after native rebake",
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake",
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/rear/rest.png: no rebake record; run --record-rests after native rebake"
-    ]
+    "native_rest_pending": []
   },
   "files": {
     "actions.gd": "5fb5be41dade5aed30c593f6ae8fda84d8cc74f9b8099af802da9eb6f1499267",
-    "front.json": "906eee0d85ae620b68390b6d134180cf020bb87c0d3a8bac75aea1fe8ced2682",
+    "front.json": "70809511ff30a2d95213477933e69c6620c4b8dc085aa29cd5e0a5e22f2edb6d",
     "humanoid_v2/compiled_motion.json": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
     "humanoid_v2/director_motion.json": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
     "humanoid_v2/front/foot_far.png": "11d546cb71560b4279216802f4de6390a5705e0edbe98a0427206362d5045216",
@@ -53,7 +48,7 @@
     "humanoid_v2/front/hidden_staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/hidden_torso.png": "b10520786c891453262c8b1953378ed64e5af1376677600fa79b7a187bd3a2bc",
     "humanoid_v2/front/hidden_torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front/rest.png": "50cb831186da2ae47833f9a8133c65b7b637890a2db3440a779f5e8925b7d528",
+    "humanoid_v2/front/rest.png": "c50fca1b7d11c686fad8e2ab77ea385cc260cead1f9589f58c26503afdfd29cd",
     "humanoid_v2/front/rest.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/robe.png": "a775bfaa0e81de1682185a3e505db2e03d210b01c31fe0a3da19fabcc06939a2",
     "humanoid_v2/front/robe.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
@@ -65,7 +60,7 @@
     "humanoid_v2/front/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/torso.png": "bee46d6907f16ec9111e638b5bb596d9af287dd0ca94d825a30aa0fd3232ed61",
     "humanoid_v2/front/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front.json": "a047b925f8450872eeee466eb0016cbceafdab809dcacac475c02bac50183b13",
+    "humanoid_v2/front.json": "79c22f1bc863ab734e68e1531f400697fc9845e663a32020c78282a3416629c7",
     "humanoid_v2/rear/foot_far.png": "eb1e33a60bdfb2cd99589824e8b9a10d203d9d7ef55fd1f615d5a983f23841f7",
     "humanoid_v2/rear/foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/foot_near.png": "83be1d9ce3aae2e2889920f2d516a01357f6a35efd4275791165dfdc0772b4e5",
@@ -90,7 +85,7 @@
     "humanoid_v2/rear/hidden_robe.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/hidden_torso.png": "8e45b173c64740311f6a41d311f17dad8a61fcc8f4fa4f715758d2893fd3ebde",
     "humanoid_v2/rear/hidden_torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear/rest.png": "d84433a5cff4b3391d3c2531cc74736f6e06ee2c4eb84688d9078c8778d11742",
+    "humanoid_v2/rear/rest.png": "ed088952f4716dc80ffaa28eb6cdcda9e782a6edf8e4a80bcfe90931d30bcd6a",
     "humanoid_v2/rear/rest.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/robe.png": "8448c9d4297be48e2891aa6b4c537de51923f7253aba6dbe3b657754035b9a48",
     "humanoid_v2/rear/robe.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
@@ -102,8 +97,8 @@
     "humanoid_v2/rear/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/torso.png": "eb2912b4ecf4aaff5b38c30d7f773ae15717cbc97558eea8a5ca94c365ac3380",
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "b26b5f62df4252ea53d8b6a29a58a4feb38278b64cd833cc1956e200f72a7b42",
-    "rear.json": "00a2ad635c10d80552dcab8e76e13a73f28cd6f6621bb40195800788b8b8db52",
+    "humanoid_v2/rear.json": "4646103c642da6feb1de907977a10c85dd14887b06987960645a18838c87ee4e",
+    "rear.json": "c560f0a51a91930f2ed7662b391a04bf5ff88436030b4c45726cf0d55d223616",
     "renderer.gd": "0f607acd367d0acb5af8102c0f0cb9acbe57dad147f2300b74974dbd8fcf5e5a",
     "rig.gd": "e44395d3bf6080fa72d4de05a183f65ab8d1ccf2b6f643fa198dfba7be04e421"
   }
