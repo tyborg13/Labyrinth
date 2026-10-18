@@ -1,0 +1,19 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328641419512000-48039
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328641419512000-48039
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328641419512000-48039/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/committed_hand_queries_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: The mixed fixture stops at the unrevealed follow-up
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/committed_hand_queries_test.gd:223)
+       [1] _initialize (res://tests/committed_hand_queries_test.gd:148)
+       [2] _settle_job (res://tests/committed_hand_queries_test.gd:215)
+TEST RESULT: FAIL — 93 committed-hand query checks (1 failures)

@@ -112,6 +112,11 @@ static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:
 	return {"family": "attack", "action_type": intent["actions"][0]["type"], "value": int(intent["actions"][0].get("damage", 0))}
 
 static func animate(scene: Node, state: Dictionary, step: Dictionary) -> void:
+	var actor: Dictionary = preload("res://scripts/maquette_cutout_runtime/action.gd").actor_for(state, str(step.get("actor_key", "")))
+	var rig_actions: Script = load("res://assets/units/burrow_grub_cutout/actions.gd")
+	if rig_actions.handles(step, actor):
+		await rig_actions.animate(scene, state, step, actor)
+		return
 	var after: Dictionary = step["state_after"]
 	if str(step["kind"]) == "erupt" and not bool(scene._reduced_motion_enabled()):
 		var rising: Dictionary = rise_state(state, step)

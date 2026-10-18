@@ -1,0 +1,218 @@
+{
+  "branch": "codex/rr-12",
+  "head": "05c4186fc98d09014c20cd706cfd6842038536b6",
+  "uncommitted": true,
+  "director_motion_sha256": "a278c6205fee0ffb1c42265ce72392897f1d89b0e6f88311add227ce3289a503",
+  "creatures": {
+    "burrow_grub": {
+      "required_delivery_files": 33,
+      "director_copy_byte_identical": true,
+      "signed_motion": {
+        "ok": true,
+        "errors": []
+      },
+      "bone_poses": 460,
+      "pixel_gate_ok": true,
+      "sampled_poses": 828,
+      "rest_identity": {
+        "ok": true,
+        "views": {
+          "front": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          },
+          "rear": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          }
+        }
+      },
+      "shimmer_after": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 0
+      },
+      "stray_components": 0,
+      "production_logic_ok": true,
+      "production_callback_frames": 1082,
+      "production_gate": {
+        "ok": true,
+        "errors": []
+      },
+      "native_proof": "not run; director-owned windowed proof",
+      "logs": {
+        "motion_gates": "experiments/cutouts/burrow_grub/mq5/proof/motion_gates.log",
+        "pixels_gates": "experiments/cutouts/burrow_grub/mq5/proof/pixels_gates.log",
+        "production_capture": "experiments/cutouts/burrow_grub/mq5/proof/production_capture.log"
+      }
+    },
+    "ember_tick": {
+      "required_delivery_files": 41,
+      "director_copy_byte_identical": true,
+      "signed_motion": {
+        "ok": true,
+        "errors": []
+      },
+      "bone_poses": 168,
+      "pixel_gate_ok": true,
+      "sampled_poses": 564,
+      "rest_identity": {
+        "ok": true,
+        "views": {
+          "front": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          },
+          "rear": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          }
+        }
+      },
+      "shimmer_after": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 0
+      },
+      "stray_components": 0,
+      "production_logic_ok": true,
+      "production_callback_frames": 982,
+      "production_gate": {
+        "ok": true,
+        "errors": []
+      },
+      "native_proof": "not run; director-owned windowed proof",
+      "logs": {
+        "motion_gates": "experiments/cutouts/ember_tick/mq5/proof/motion_gates.log",
+        "pixels_gates": "experiments/cutouts/ember_tick/mq5/proof/pixels_gates.log",
+        "production_capture": "experiments/cutouts/ember_tick/mq5/proof/production_capture.log"
+      }
+    }
+  },
+  "full_godot": {
+    "exit_code": 0,
+    "log": "experiments/cutouts/burrow_grub/mq5/proof/full_godot.log",
+    "result_lines": [
+      "MAIN BODY ASSERTIONS: 378906",
+      "FULL SUITE RUNTIME: 383.541 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ]
+  },
+  "full_python": {
+    "exit_code": 1,
+    "log": "experiments/cutouts/burrow_grub/mq5/proof/full_python.log",
+    "result_lines": [
+      "Ran 862 tests in 890.565s",
+      "FAILED (failures=1, skipped=63)"
+    ],
+    "only_failure": "test_shipped_derivations_and_manifest_are_current: four native density rest records pending director renderer"
+  },
+  "focused": {
+    "delivery_mutations": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/focused_delivery.log",
+      "result_lines": [
+        "Ran 14 tests in 2.984s",
+        "OK"
+      ]
+    },
+    "production_mutations": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/production_tests.log",
+      "result_lines": [
+        "Ran 5 tests in 65.801s",
+        "OK"
+      ]
+    },
+    "actor_presentation": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/actor_presentation.log",
+      "result_lines": [
+        "ACTOR PRESENTATION TEST: PASS"
+      ]
+    },
+    "en02": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/en02_integration.log",
+      "result_lines": [
+        "EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)"
+      ]
+    },
+    "pre_battle": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/pre_battle.log",
+      "result_lines": [
+        "PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    "art_identity": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/art_identity.log",
+      "result_lines": [
+        "Ran 111 tests in 47.453s",
+        "OK"
+      ]
+    },
+    "icon_identity": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/icon_identity.log",
+      "result_lines": [
+        "Ran 7 tests in 0.102s",
+        "OK"
+      ]
+    },
+    "strict_certificate_mutations": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/strict_certificate_mutations.log",
+      "result_lines": [
+        "RR12 STRICT CERTIFICATE MUTATIONS: PASS (passing, stray-failure and native-disagreement reports)"
+      ]
+    },
+    "quarantine": {
+      "log": "experiments/cutouts/burrow_grub/mq5/proof/quarantine_check.log",
+      "result_lines": [
+        "QUARANTINE RUNTIME: 368.977 seconds (4 workers)",
+        "QUARANTINE CHECK: PASS (29 entries; 28 programs; 0 now passing)"
+      ]
+    }
+  },
+  "package": {
+    "ok": true,
+    "results": [
+      {
+        "stage": "build",
+        "exit_code": 0
+      },
+      {
+        "stage": "runtime",
+        "exit_code": 0
+      }
+    ],
+    "template_archive_sha256": "a6d51d2b650091ab7073c15e9e6faf01c0e972648edb2e99952735c6befae00e",
+    "unchanged_runtime_sha256": "f15a333bd2321a9343adfe228945eacaaa08c7c976dbb212f2f8a618b777039c",
+    "pack_sha256": "d7bb029569e04db266c5a913973ec49daa919a3dbbeb95ccb84e7612b43080d2",
+    "native_pixels": false,
+    "proof_defaults": {
+      "package_timeout_seconds": 120
+    }
+  },
+  "native_outputs_pending": [
+    "native_rest",
+    "native/verification.json",
+    "production_native/verification.json",
+    "<creature>_review.mp4",
+    "contact_sheets/*_all_frames_3x.png"
+  ],
+  "density_rests_pending": [
+    "assets/units/burrow_grub_cutout/front/rest.png",
+    "assets/units/burrow_grub_cutout/rear/rest.png",
+    "assets/units/ember_tick_cutout/front/rest.png",
+    "assets/units/ember_tick_cutout/rear/rest.png"
+  ],
+  "TODO_DESIGN": [],
+  "chosen_defaults": "See experiments/cutouts/burrow_grub/README.md",
+  "contract_acceptance": [
+    {
+      "criterion": "Board, pre-battle and portrait renderer with staged intent clips",
+      "headless": "PASS",
+      "native": "pending director"
+    },
+    {
+      "criterion": "Rest identity 0 px, rr-07 gates and strict stray gate",
+      "offline": "PASS; both views; zero differing pixels",
+      "native": "pending director"
+    }
+  ],
+  "previous_registry_records_unchanged": true
+}

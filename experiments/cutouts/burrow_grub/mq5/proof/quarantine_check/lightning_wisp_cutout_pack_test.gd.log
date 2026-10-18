@@ -1,0 +1,155 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328658932885000-48160
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328658932885000-48160
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328658932885000-48160/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/lightning_wisp_cutout_pack_test.gd -- build /Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/test-program-k_mwddz7/fixture.pck
+  timeout: 30s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+LIGHTNING WISP CUTOUT PACK TEST RESULT: PASS (build, editor=true)
+
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328659277468000-48164
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328659277468000-48164
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328659277468000-48164/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/test-program-k_mwddz7/empty --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd -- verify /Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/test-program-k_mwddz7/fixture.pck
+  timeout: 30s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] load_rig (res://scripts/protagonist_cutout/rig.gd:150)
+              [3] _ready (res://scripts/lightning_wisp_cutout/renderer.gd:46)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] load_rig (res://scripts/protagonist_cutout/rig.gd:150)
+              [3] _ready (res://scripts/lightning_wisp_cutout/renderer.gd:46)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] apply_pose (res://scripts/cutout_reaction_playback.gd:20)
+              [3] _apply_pose (res://scripts/lightning_wisp_cutout/renderer.gd:144)
+              [4] _ready (res://scripts/lightning_wisp_cutout/renderer.gd:67)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+              [1] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:60)
+              [2] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [3] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+              [1] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:60)
+              [2] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [3] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+              [1] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:60)
+              [2] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [3] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+              [1] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:60)
+              [2] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [3] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+              [1] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:60)
+              [2] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [3] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+          GDScript backtrace (most recent call first):
+              [0] _bind (res://scripts/lightning_wisp_cutout/motion.gd:7)
+              [1] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:60)
+              [2] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [3] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:61)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:49)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] apply_pose (res://scripts/cutout_reaction_playback.gd:20)
+              [3] _apply_pose (res://scripts/lightning_wisp_cutout/renderer.gd:144)
+              [4] _process (res://scripts/lightning_wisp_cutout/renderer.gd:127)
+ERROR: front packed skeleton is complete
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:54)
+ERROR: rear packed skeleton is complete
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+LIGHTNING WISP CUTOUT PACK TEST RESULT: FAIL (verify, editor=true)
+       [0] _initialize (/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/tests/lightning_wisp_cutout_pack_test.gd:54)

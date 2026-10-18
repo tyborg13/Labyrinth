@@ -1,0 +1,5 @@
+{
+  "authority": "rr-05 non-outline same-part seam donors",
+  "policy": "Source paint stays exact; seam bands use existing interior parent texels; no feature donors",
+  "tool_sha256": "85475dc5ad183712c80aaace35d6e62b31b8a186985e56c0fd2da8b112a7d7c8"
+}

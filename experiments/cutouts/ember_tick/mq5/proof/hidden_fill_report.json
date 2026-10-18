@@ -1,0 +1,43 @@
+{
+  "complete": true,
+  "method": "diffusion",
+  "requests": 36,
+  "filled_requests": 35,
+  "pending_design": [],
+  "review_decisions": {},
+  "cross_view_requests": 1,
+  "remaining_magenta_pixels": 0,
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "a17e556eafef7b9041d21155101896902a9bd8e92af96da52a71edc743ebfaf1"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "f96c4b00894a9c74905cb4f2742e73ae632f7db2d1d9450f8d2085cc1eed9a86"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "ember_tick",
+    "layouts": {
+      "front": {
+        "joints": 19,
+        "parts": 38,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 19,
+        "parts": 40,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true
+}

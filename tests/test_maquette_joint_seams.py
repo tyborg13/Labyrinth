@@ -37,6 +37,8 @@ FIXTURE_NATIVE_HOLE_RECT = (25, 25, 27, 27)
 FIXTURE_WIDENED_GAP_PX = 2
 FIXTURE_LARGE_SEPARATION_PX = 20
 FIXTURE_COMPONENT_RECTS = ((10, 10, 13, 11), (20, 20, 24, 21), (30, 30, 32, 31))
+FIXTURE_CULLED_ALPHA = 0.00576234608888626  # Retained rr-12 Grub burrow/55 sample.
+FIXTURE_HALF_ALPHA = 0.5
 
 
 def region(rect):
@@ -342,6 +344,71 @@ class JointSeamTests(unittest.TestCase):
             self.assertEqual(result['views']['front']['different_pixels'], 1)
             self.assertEqual(result['views']['rear']['different_pixels'], 0)
             self.assertFalse((case / 'proof/rest_identity.json').exists())
+
+    def test_native_faded_reference_accepts_empty_but_checks_a_visible_part(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as temporary:
+            case = Path(temporary)
+            _, samples = self.fixture(case)
+            samples['samples'] = [r for r in samples['samples'] if r['frame'] == 0]
+            native = {'directory': case, 'frames': []}
+            for row in samples['samples']:
+                frame = {k: row[k] for k in ('view', 'clip', 'frame')}
+                frame['reference_transform'] = row['parts']['body']['transform'].copy()
+                for kind in ('parts', 'seams', 'rest', 'interior'):
+                    file = row['view'] + '_' + kind + '.png'
+                    image = np.zeros((pixels.PROOF_DEFAULTS['canvas_size'],) * 2 + (4,), np.uint8)
+                    Image.fromarray(image).save(case / file)
+                    frame[kind + '_file'] = file
+                    frame[kind + '_sha256'] = digest(case / file)
+                native['frames'].append(frame)
+
+            # Both exact zero and the retained native cull case must accept
+            # empty references without weakening any transform checks.
+            for alpha in (0., FIXTURE_CULLED_ALPHA):
+                with self.subTest(alpha=alpha):
+                    for row, frame in zip(samples['samples'], native['frames']):
+                        for part in row['parts'].values():
+                            part['alpha'] = alpha
+                        frame['reference'] = dict(row['parts']['body'], bone='body')
+                    result = seam_pose.report(case, samples, native)
+                    self.assertTrue(result['ok'], result['errors'])
+                    # Even one opaque reference pixel is invalid when culled.
+                    actual = np.zeros((FIXTURE_GATE_SIZE,) * 2, bool)
+                    actual[FIXTURE_MUTATION_YX] = True
+                    self.assertFalse(seam_pose.native_reference_matches(actual, actual, samples['samples'][0]))
+
+            # A single half-visible body OR child must use the normal oracle.
+            for visible in ('body', 'child'):
+                with self.subTest(visible=visible):
+                    for row, frame in zip(samples['samples'], native['frames']):
+                        for name, part in row['parts'].items():
+                            part['alpha'] = FIXTURE_HALF_ALPHA if name == visible else 0.
+                        frame['reference'] = dict(row['parts']['body'], bone='body')
+                        layout = read_json(case / f'layouts/{row["view"]}.json')
+                        paint = np.zeros((pixels.PROOF_DEFAULTS['canvas_size'],) * 2 + (4,), np.uint8)
+                        paint[silhouette.compose(case, layout, row)] = FIXTURE_PARENT_RGBA
+                        Image.fromarray(paint).save(case / frame['parts_file'])
+                        frame['parts_sha256'] = digest(case / frame['parts_file'])
+                        owner = seam_pose.body_part(layout)
+                        masks = seam_pose.pose_reference(seam_pose.reference_images(case, layout), row, owner)
+                        for kind, mask in zip(('rest', 'interior'), masks):
+                            Image.fromarray(np.repeat(mask[..., None], 4, axis=-1).astype(np.uint8) * 255).save(case / frame[kind + '_file'])
+                            frame[kind + '_sha256'] = digest(case / frame[kind + '_file'])
+                    with patch.object(pixels, 'native_frame_matches', wraps=pixels.native_frame_matches) as compare:
+                        result = seam_pose.report(case, samples, native)
+                        self.assertTrue(result['ok'], result['errors'])
+                        self.assertEqual(compare.call_count, 4)
+                    native['frames'][0]['reference_transform'][4] += FIXTURE_WIDENED_GAP_PX
+                    result = seam_pose.report(case, samples, native)
+                    self.assertFalse(result['ok'])
+                    self.assertTrue(any('independently moved native reference mask' in e for e in result['errors']))
+                    if visible == 'body':
+                        for kind in ('rest', 'interior'):
+                            self.assertTrue(any('native ' + kind + ' reference differs from source transform' in e
+                                                for e in result['errors']))
+                    native['frames'][0]['reference_transform'][4] -= FIXTURE_WIDENED_GAP_PX
+        print('MAQUETTE FADED REFERENCE: PASS (zero/cull alpha empty; one half-visible part compared; tampered transforms rejected)')
 
     def test_report_only_metrics_do_not_block_promotion_prerequisites(self):
         from maquette_cutout_build import validate_derived_material

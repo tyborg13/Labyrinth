@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328736074868000-48826
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328736074868000-48826
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328736074868000-48826/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/prepared_reward_choices_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PREPARED REWARD CHOICES RESULT: {"cases":20,"differences":0,"errors":["Full post-refresh committed state must match the independent reference: prepared hp=1 reduced=false","Full post-refresh committed state must match the independent reference: prepared hp=11 reduced=false","Full post-refresh committed state must match the independent reference: prepared hp=24 reduced=false","Full post-refresh committed state must match the independent reference: prepared hp=1 reduced=true","Full post-refresh committed state must match the independent reference: prepared hp=11 reduced=true","Full post-refresh committed state must match the independent reference: prepared hp=24 reduced=true","Full post-refresh committed state must match the independent reference: immediate original fallback","Full post-refresh committed state must match the independent reference: partial original fallback","Full post-refresh committed state must match the independent reference: stale fallback ownership","Full post-refresh committed state must match the independent reference: stale fallback hp","Full post-refresh committed state must match the independent reference: stale fallback progression","Full post-refresh committed state must match the independent reference: stale fallback cards","Full post-refresh committed state must match the independent reference: stale fallback viewport","Full post-refresh committed state must match the independent reference: stale fallback scale","Full post-refresh committed state must match the independent reference: stale fallback settings","Full post-refresh committed state must match the independent reference: stale fallback skin","Full post-refresh committed state must match the independent reference: stale fallback definition","Full post-refresh committed state must match the independent reference: canonical prediction mismatch fallback"],"native":false,"orphans":0,"pixel_differences":[],"preparation_boundaries":198,"source_checks":198}

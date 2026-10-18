@@ -1,0 +1,245 @@
+{
+  "character_id": "burrow_grub",
+  "joints": {
+    "root": {
+      "joint": "root",
+      "position_3d": [
+        0,
+        0,
+        0
+      ],
+      "parent": null
+    },
+    "head": {
+      "meeting_centres": [
+        "head_base",
+        "seg_1_base"
+      ],
+      "position_3d": [
+        0.6579407628071705,
+        -0.14086892906450754,
+        0.7681771797125718
+      ],
+      "parent": "seg_1"
+    },
+    "seg_1": {
+      "meeting_centres": [
+        "seg_1_base",
+        "seg_2_base"
+      ],
+      "position_3d": [
+        0.38946115682540317,
+        -0.15744174424856727,
+        0.7492328740047873
+      ],
+      "parent": "seg_2"
+    },
+    "seg_2": {
+      "meeting_centres": [
+        "seg_2_base",
+        "seg_3_base"
+      ],
+      "position_3d": [
+        0.08286407592029854,
+        -0.16904271487740907,
+        0.7438202152311345
+      ],
+      "parent": "seg_3"
+    },
+    "seg_3": {
+      "joint": "seg_3_base",
+      "position_3d": [
+        -0.07623494984667468,
+        -0.1756718409510329,
+        0.7357012270706553
+      ],
+      "parent": "root"
+    },
+    "seg_4": {
+      "meeting_centres": [
+        "seg_4_base",
+        "seg_3_base"
+      ],
+      "position_3d": [
+        -0.23201941257683598,
+        -0.16572815184059703,
+        0.7302885682970026
+      ],
+      "parent": "seg_3"
+    },
+    "seg_5": {
+      "meeting_centres": [
+        "seg_5_base",
+        "seg_4_base"
+      ],
+      "position_3d": [
+        -0.5319873674083168,
+        -0.13092523995407163,
+        0.7086379332023917
+      ],
+      "parent": "seg_4"
+    },
+    "seg_6": {
+      "meeting_centres": [
+        "seg_6_base",
+        "seg_5_base"
+      ],
+      "position_3d": [
+        -0.7954951288348662,
+        -0.0729203868098626,
+        0.6626303336263433
+      ],
+      "parent": "seg_5"
+    },
+    "tail": {
+      "meeting_centres": [
+        "tail_base",
+        "seg_6_base"
+      ],
+      "position_3d": [
+        -0.9927116295251768,
+        -0.028173785812901385,
+        0.6436860279185588
+      ],
+      "parent": "seg_6"
+    },
+    "leg_near_1": {
+      "joint": "leg_near_1_base",
+      "position_3d": [
+        0.5170718337426634,
+        -0.012357277914220803,
+        0.5965265446179607
+      ],
+      "parent": "seg_1"
+    },
+    "leg_near_2": {
+      "joint": "leg_near_2_base",
+      "position_3d": [
+        0.24892368406457696,
+        0.12387126289874967,
+        0.5800179353583199
+      ],
+      "parent": "seg_2"
+    },
+    "leg_near_3": {
+      "joint": "leg_near_3_base",
+      "position_3d": [
+        -0.06032504726997724,
+        0.0002380616256647569,
+        0.5662156554855056
+      ],
+      "parent": "seg_3"
+    },
+    "leg_far_1": {
+      "joint": "leg_far_1_base",
+      "position_3d": [
+        0.6562834812887649,
+        -0.19314563036811921,
+        0.6073518621652662
+      ],
+      "parent": "seg_1"
+    },
+    "leg_far_2": {
+      "joint": "leg_far_2_base",
+      "position_3d": [
+        0.3215126145707587,
+        -0.24286407592029854,
+        0.6344151560335298
+      ],
+      "parent": "seg_2"
+    },
+    "leg_far_3": {
+      "joint": "leg_far_3_base",
+      "position_3d": [
+        -0.0696058237730506,
+        -0.3290427148774086,
+        0.591113885844308
+      ],
+      "parent": "seg_3"
+    }
+  },
+  "parts": {
+    "head": "head",
+    "seg_1": "seg_1",
+    "seg_2": "seg_2",
+    "seg_3": "seg_3",
+    "seg_4": "seg_4",
+    "seg_5": "seg_5",
+    "seg_6": "seg_6",
+    "tail": "tail",
+    "leg_near_1": "leg_near_1",
+    "leg_near_2": "leg_near_2",
+    "leg_near_3": "leg_near_3",
+    "leg_far_1": "leg_far_1",
+    "leg_far_2": "leg_far_2",
+    "leg_far_3": "leg_far_3"
+  },
+  "director_decisions": {
+    "authority": "rr-12 brief, committed mq-05 anatomy",
+    "body": "Director body tracks bind to runtime root; no material belongs to root",
+    "rings": "seg_3 outward in both directions; pivots at native inter-ring meeting planes",
+    "legs": "Native ring children for Grub; shell > upper > lower for Tick"
+  },
+  "motion": "motion.gd",
+  "features": "features.json",
+  "rigid_bones": [],
+  "contact_feet": [],
+  "materials": {
+    "head": "head approved paint",
+    "seg_1": "seg_1 approved paint",
+    "seg_2": "seg_2 approved paint",
+    "seg_3": "seg_3 approved paint",
+    "seg_4": "seg_4 approved paint",
+    "seg_5": "seg_5 approved paint",
+    "seg_6": "seg_6 approved paint",
+    "tail": "tail approved paint",
+    "leg_near_1": "leg_near_1 approved paint",
+    "leg_near_2": "leg_near_2 approved paint",
+    "leg_near_3": "leg_near_3 approved paint",
+    "leg_far_1": "leg_far_1 approved paint",
+    "leg_far_2": "leg_far_2 approved paint",
+    "leg_far_3": "leg_far_3 approved paint"
+  },
+  "design_placeholders": {},
+  "clips": {
+    "idle": {
+      "frames": 84,
+      "duration": 1.4,
+      "loop": true
+    },
+    "move": {
+      "frames": 54,
+      "duration": 0.9,
+      "loop": false
+    },
+    "gnaw": {
+      "frames": 48,
+      "duration": 0.8,
+      "loop": false
+    },
+    "burrow": {
+      "frames": 60,
+      "duration": 1.0,
+      "loop": false
+    },
+    "erupt": {
+      "frames": 60,
+      "duration": 1.0,
+      "loop": false
+    },
+    "hit": {
+      "frames": 30,
+      "duration": 0.5,
+      "loop": false
+    },
+    "death": {
+      "frames": 78,
+      "duration": 1.3,
+      "loop": false
+    }
+  },
+  "proof_defaults": {
+    "native_fps": 60,
+    "render_size": 1024
+  }
+}

@@ -1,0 +1,40 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328648777771000-48057
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328648777771000-48057
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328648777771000-48057/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/cutout_rig_data_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] load_rig (res://scripts/protagonist_cutout/rig.gd:150)
+              [3] _initialize (res://tests/cutout_rig_data_test.gd:59)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (res://tests/cutout_rig_data_test.gd:60)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] load_rig (res://scripts/protagonist_cutout/rig.gd:150)
+              [3] _initialize (res://tests/cutout_rig_data_test.gd:59)
+SCRIPT ERROR: Invalid access to property or key 'crown' on a base object of type 'Dictionary'.
+          at: sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+          GDScript backtrace (most recent call first):
+              [0] sample_pose (res://scripts/lightning_wisp_cutout/motion.gd:42)
+              [1] apply_pose (res://scripts/lightning_wisp_cutout/rig.gd:13)
+              [2] _initialize (res://tests/cutout_rig_data_test.gd:60)
+CUTOUT RIG DATA: PASS
+error: Godot reported script or test failures despite exit code 0.

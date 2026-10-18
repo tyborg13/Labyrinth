@@ -1,0 +1,40 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328842882764000-49850
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328842882764000-49850
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328842882764000-49850/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/surface_query_handoff_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RUNTIME FRAME PERF PHASE: install specialists: reset (4224 ms)
+RUNTIME FRAME PERF PHASE: install specialists: combat created (4233 ms)
+RUNTIME FRAME PERF PHASE: install specialists: combat enriched (4233 ms)
+RUNTIME FRAME PERF PHASE: install specialists: state assigned (4234 ms)
+RUNTIME FRAME PERF PHASE: install specialists: refreshing ui (4234 ms)
+RUNTIME FRAME PERF PHASE: install specialists: ui refreshed (4561 ms)
+RUNTIME FRAME PERF SEMANTIC ERROR: Surface commit equals the complete engine result: ["analytics"]
+RUNTIME FRAME PERF SEMANTIC ERROR: The authored post-animation boundary durably saves the complete result
+RUNTIME FRAME PERF PHASE: install specialists: reset (5353 ms)
+RUNTIME FRAME PERF PHASE: install specialists: combat created (5362 ms)
+RUNTIME FRAME PERF PHASE: install specialists: combat enriched (5362 ms)
+RUNTIME FRAME PERF PHASE: install specialists: state assigned (5363 ms)
+RUNTIME FRAME PERF PHASE: install specialists: refreshing ui (5363 ms)
+RUNTIME FRAME PERF PHASE: install specialists: ui refreshed (5561 ms)
+RUNTIME FRAME PERF SEMANTIC ERROR: Surface commit equals the complete engine result: ["analytics"]
+RUNTIME FRAME PERF SEMANTIC ERROR: The authored post-animation boundary durably saves the complete result
+RUNTIME FRAME PERF PHASE: install specialists: reset (6044 ms)
+RUNTIME FRAME PERF PHASE: install specialists: combat created (6053 ms)
+RUNTIME FRAME PERF PHASE: install specialists: combat enriched (6053 ms)
+RUNTIME FRAME PERF PHASE: install specialists: state assigned (6053 ms)
+RUNTIME FRAME PERF PHASE: install specialists: refreshing ui (6053 ms)
+RUNTIME FRAME PERF PHASE: install specialists: ui refreshed (6255 ms)
+RUNTIME FRAME PERF SEMANTIC ERROR: Surface commit equals the complete engine result: ["analytics"]
+RUNTIME FRAME PERF SEMANTIC ERROR: The authored post-animation boundary durably saves the complete result
+SURFACE QUERY HANDOFF RESULT: {"cases":[{"frames":38,"mismatched_state_keys":["analytics"],"mode":"normal","queries":{"adopted_cards":7,"adopted_forecasts":1,"adopted_previews":0,"adopted_shortcuts":0,"prepared_cards":7,"prepared_forecasts":1}},{"frames":9,"mismatched_state_keys":["analytics"],"mode":"reduced","queries":{"adopted_cards":7,"adopted_previews":0,"adopted_shortcuts":0,"prepared_cards":7}},{"frames":46,"mismatched_state_keys":["analytics"],"mode":"cancelled_preparation","queries":{"rejected_batches":1}}],"errors":["Surface commit equals the complete engine result: [\"analytics\"]","The authored post-animation boundary durably saves the complete result","Surface commit equals the complete engine result: [\"analytics\"]","The authored post-animation boundary durably saves the complete result","Surface commit equals the complete engine result: [\"analytics\"]","The authored post-animation boundary durably saves the complete result"]}
+TEST RESULT: FAIL
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

@@ -1,0 +1,37 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328649494725000-48060
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328649494725000-48060
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328649494725000-48060/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/dragon_area_presentation_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: vyraketh counterplay removes its whole warning
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (res://tests/dragon_area_presentation_test.gd:8)
+       [1] run (res://tests/suites/dragon_area_presentation_suite.gd:74)
+       [2] _initialize (res://tests/dragon_area_presentation_test.gd:7)
+ERROR: vyraketh canceled area causes no player damage
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (res://tests/dragon_area_presentation_test.gd:8)
+       [1] run (res://tests/suites/dragon_area_presentation_suite.gd:78)
+       [2] _initialize (res://tests/dragon_area_presentation_test.gd:7)
+ERROR: tharokh counterplay removes its whole warning
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (res://tests/dragon_area_presentation_test.gd:8)
+       [1] run (res://tests/suites/dragon_area_presentation_suite.gd:74)
+       [2] _initialize (res://tests/dragon_area_presentation_test.gd:7)
+ERROR: tharokh canceled area causes no player damage
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] <anonymous lambda> (res://tests/dragon_area_presentation_test.gd:8)
+       [1] run (res://tests/suites/dragon_area_presentation_suite.gd:78)
+       [2] _initialize (res://tests/dragon_area_presentation_test.gd:7)
+DRAGON CANCELED AREA: FAIL["vyraketh counterplay removes its whole warning", "vyraketh canceled area causes no player damage", "tharokh counterplay removes its whole warning", "tharokh canceled area causes no player damage"]

@@ -1,0 +1,173 @@
+{
+  "input_ok": true,
+  "feature_declarations_ok": true,
+  "production_ready": false,
+  "features": [
+    {
+      "feature": "ember_crack_front_01",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 322,
+      "mask_pixels": 536,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fbfd1e51dcf818c5443ea4f69612907b42ba1a33cc260ae26fd838bb1c2f2018",
+      "outline_crop": "proof/features/front_ember_crack_front_01_outline.png"
+    },
+    {
+      "feature": "ember_crack_front_01",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_front_02",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 312,
+      "mask_pixels": 526,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "c181a579424fab40599f2ca4836c337bdf2973e7eda575bbe2bdbb1c4ac6aa17",
+      "outline_crop": "proof/features/front_ember_crack_front_02_outline.png"
+    },
+    {
+      "feature": "ember_crack_front_02",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_front_03",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 51,
+      "mask_pixels": 121,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "42642e1af9a723040c281c1862596bd8adaefd65ee1a0b1b0c484259e03c787c",
+      "outline_crop": "proof/features/front_ember_crack_front_03_outline.png"
+    },
+    {
+      "feature": "ember_crack_front_03",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_rear_01",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_rear_01",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 431,
+      "mask_pixels": 697,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "b6d5bd9e7a82d16e0c7d64924fdbfd1ba97f96f03f61746a9558ae1eae0f3a67",
+      "outline_crop": "proof/features/rear_ember_crack_rear_01_outline.png"
+    },
+    {
+      "feature": "ember_crack_rear_02",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_rear_02",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 186,
+      "mask_pixels": 332,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "a9e22ae3dae24937b56c691bafa90ffe4424f543590320e8d6f45efb3b7e35a3",
+      "outline_crop": "proof/features/rear_ember_crack_rear_02_outline.png"
+    },
+    {
+      "feature": "ember_crack_rear_03",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_rear_03",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 172,
+      "mask_pixels": 326,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "a0c62d206926c4a31057ad31e56ec2ba8dc2254289537a218502f40b5e9b1b52",
+      "outline_crop": "proof/features/rear_ember_crack_rear_03_outline.png"
+    },
+    {
+      "feature": "ember_crack_rear_04",
+      "view": "front",
+      "owner": "shell",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    },
+    {
+      "feature": "ember_crack_rear_04",
+      "view": "rear",
+      "owner": "shell",
+      "seed_pixels": 57,
+      "mask_pixels": 115,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "2df08fcc0dfa19edd4b3e7589185700b4d525d9a4d008a63344a746ab5065870",
+      "outline_crop": "proof/features/rear_ember_crack_rear_04_outline.png"
+    }
+  ],
+  "TODO_DESIGN": [],
+  "unrun_gates": [
+    "rig rest identity",
+    "signed bone motion",
+    "connected parts",
+    "hidden material and dark slabs",
+    "seam underlays",
+    "shimmer",
+    "native exact-tie agreement",
+    "production progression",
+    "motion mutations"
+  ]
+}

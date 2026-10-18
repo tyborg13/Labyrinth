@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "crawler",
+  "id": "burrow_grub",
+  "job_id": "mq-grub-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "b05621d3c57ca9e18e6c90588b2e5f9a0810363e3ee71f962721c1a8369f26b7",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/burrow_grub/mq5_front/kit.json",
+    "pixel_sha256": "81fac4952fe9cdbc200b08b604cd21e985d884a3458803e54375a8e1028efc6a"
+  },
+  "method": "maquette paint-over r1 (rear) from the Blender-native mq-05 maquette; palette matched to the approved mq5 front job",
+  "peers": [
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "e1f162c9126d7cf8b3df26794db02685a182f3f2e403de55e4977973eae90a14",
+  "prompt_source": "spec/art_identity/maquettes/burrow_grub/prompt_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq05",
+      "file": "refs/01_maquette_rear_parts_mq05.png",
+      "pixel_sha256": "1e09497760bbdd3d09de751aebd55b2edecf5d62ca4d6a54535aaa368fde209e",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-grub-rear-r1/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq05",
+      "file": "refs/02_maquette_rear_clay_mq05.png",
+      "pixel_sha256": "1153ac747e40098b6fc7ada894e533244b2255b29240585943f07f95a08d5d54",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-grub-rear-r1/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "burrow_grub_front_mq5_raw",
+      "file": "refs/03_burrow_grub_front_mq5_raw.png",
+      "pixel_sha256": "2072b3dc778764768d28975919d42565f85e9171a23ef58fbf10b18dd884f565",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-grub-rear-r1/refs/03_burrow_grub_front_approved.png"
+    },
+    {
+      "canon_id": "approved_shale_bloomer_rear",
+      "file": "refs/04_approved_shale_bloomer_rear.png",
+      "pixel_sha256": "e3b957d6ce450eeebfec7e8275a9c65d28202114348d9b1fe55ea815c7912c2a",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-grub-rear-r1/refs/04_peer_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-grub-rear-r1/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 138,
+  "view": "beast_rear"
+}
