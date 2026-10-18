@@ -9,7 +9,7 @@ const SUITES: Array[String] = [
 	"movement_undo_test", "threats_at_rest_test", "encounter_tables_test",
 	"run_score_test", "sfx_bank_test", "sfx_sync_bank_test", "sfx_sync_harness", "section_map_v2_test",
 	"en01_enemies_test", "en02_enemies_test", "en03_enemies_test",
-	"magic_deck_input_test",
+	"magic_deck_input_test", "magic_deck_guard_mutation_test",
 	"opening_boon_test",
 	"run_end_recap_tests", "main_menu_resume_test", "section_transition_test"
 ]

@@ -34722,6 +34722,9 @@ func _confirm_magic_purge(card_id: String, source: String) -> void:
 	_run_state = next
 	_ensure_sfx_bank()
 	_sfx_router.card_exhaust()
+	# Exhaust now awaits its card animation before the final UI refresh. Publish
+	# the committed room's audio context on this frame, not at animation end.
+	_update_ambient_sfx_for_context(str(next.get("mode", "room")))
 	_analytics_store.write_event("magic_purged", _analytics_context_from_states(next, _combat_state, card_id), {
 		"card_id": card_id, "source": source, "price": next["last_magic_purge"]["price"],
 		"purge_index": next["magic_purges_this_run"], "held_embers_before": _run_engine.held_embers(before),

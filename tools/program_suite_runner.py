@@ -29,7 +29,7 @@ BASE_SUITES = (
     "run_score_test", "sfx_bank_test", "sfx_sync_bank_test",
     "suites/sfx_sync_0_program", "suites/sfx_sync_1_program", "suites/sfx_sync_2_program",
     "section_map_v2_test", "en01_enemies_test",
-    "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test",
+    "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test", "magic_deck_guard_mutation_test",
     "opening_boon_test", "run_end_recap_tests", "main_menu_resume_test",
     "section_transition_test",
     "suites/full_scene_presentation_program", "suites/full_scene_cutouts_program",
