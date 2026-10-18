@@ -1,0 +1,31 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328641420534000-48038
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328641420534000-48038
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328641420534000-48038/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/combat_hud_badges_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Intents starts off with its semantic label intact
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/combat_hud_badges_test.gd:312)
+       [1] _run (res://tests/combat_hud_badges_test.gd:60)
+       [2] _capture (res://tests/combat_hud_badges_test.gd:307)
+ERROR: ON retains semantic text and brightens the plate
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/combat_hud_badges_test.gd:312)
+       [1] _run (res://tests/combat_hud_badges_test.gd:65)
+       [2] _click (res://tests/combat_hud_badges_test.gd:288)
+ERROR: Controller focus must expose the complete inspection tooltip
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _expect (res://tests/combat_hud_badges_test.gd:312)
+       [1] _assert_inspection (res://tests/combat_hud_badges_test.gd:191)
+       [2] _settle (res://tests/combat_hud_badges_test.gd:268)
+COMBAT HUD BADGES TEST: FAIL

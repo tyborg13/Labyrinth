@@ -3,6 +3,8 @@ extends RefCounted
 ## Independent Script identities, then actual production consumers (including
 ## portraits built outside the tree and their retained defeat texture).
 const EXPECTED: Dictionary = {
+	"burrow_grub": preload("res://assets/units/burrow_grub_cutout/renderer.gd"),
+	"ember_tick": preload("res://assets/units/ember_tick_cutout/renderer.gd"),
 	"bile_bloomer": preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd"),
 	"lightning_wisp": preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd")
 }

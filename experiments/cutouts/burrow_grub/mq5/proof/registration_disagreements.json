@@ -1,0 +1,21 @@
+{
+  "features": [
+    {
+      "view": "front",
+      "feature": "maw_tooth_ring",
+      "owner": "head",
+      "painted_pixels_outside_native_label": 259,
+      "mask_pixels": 1677,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "maw_tooth_ring",
+      "owner": "head",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    }
+  ],
+  "policy": "Report categorical disagreement; approved paint remains at its original coordinates."
+}

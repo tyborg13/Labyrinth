@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "views": [
+    {
+      "view": "front",
+      "job": "spec/art_identity/jobs/ember_tick/mq5_front",
+      "expected_raw_sha256": "d679b0bd1b151d929d3774b6cfb2294d568b6693107a02449b4c8b3eeaefc5d1",
+      "expected_raw_pixel_sha256": null,
+      "ok": true,
+      "kind": "approved_file",
+      "source": "spec/art_identity/jobs/ember_tick/mq5_front/refs/raw_approved.png"
+    },
+    {
+      "view": "rear",
+      "job": "spec/art_identity/jobs/ember_tick/mq5_rear",
+      "expected_raw_sha256": "6259e88f3131f5fd68a92915f207684629f1c2ed33105f0ff0d5ed7c73d38e96",
+      "expected_raw_pixel_sha256": null,
+      "ok": true,
+      "kind": "approved_file",
+      "source": "spec/art_identity/jobs/ember_tick/mq5_rear/refs/raw_approved.png"
+    }
+  ]
+}

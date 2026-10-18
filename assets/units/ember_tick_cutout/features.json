@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "approved_sha256": {
+    "front": "19d8e3ffe59a7e0957e85f2e0500104128c2ebf638c41cb455f64a0efdd4cc69",
+    "rear": "bdc3ab7858b8adc4585162f1281021e334f82f9786a4f0911a26db4d431b64df"
+  },
+  "features": [
+    {
+      "name": "ember_crack_front_01",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_front_01.png"
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_front_01.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        }
+      }
+    },
+    {
+      "name": "ember_crack_front_02",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_front_02.png"
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_front_02.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        }
+      }
+    },
+    {
+      "name": "ember_crack_front_03",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_front_03.png"
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_front_03.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        }
+      }
+    },
+    {
+      "name": "ember_crack_rear_01",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_rear_01.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_rear_01.png"
+        }
+      }
+    },
+    {
+      "name": "ember_crack_rear_02",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_rear_02.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_rear_02.png"
+        }
+      }
+    },
+    {
+      "name": "ember_crack_rear_03",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_rear_03.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_rear_03.png"
+        }
+      }
+    },
+    {
+      "name": "ember_crack_rear_04",
+      "views": {
+        "front": {
+          "owner": "shell",
+          "mask": "features/front_ember_crack_rear_04.png",
+          "occluded_reason": "View-specific painted shell surface; the paired view has its own whole crack declarations."
+        },
+        "rear": {
+          "owner": "shell",
+          "mask": "features/rear_ember_crack_rear_04.png"
+        }
+      }
+    }
+  ]
+}

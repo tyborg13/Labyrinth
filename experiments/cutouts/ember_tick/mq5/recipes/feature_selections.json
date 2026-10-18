@@ -1,0 +1,37 @@
+{
+  "source": "Approved mq5 paintings; rr-12 feature ownership",
+  "selections": {
+    "ember_cracks": {
+      "owner": "shell",
+      "colour": "ember",
+      "front": [
+        0,
+        0,
+        255,
+        255
+      ],
+      "rear": [
+        0,
+        0,
+        255,
+        255
+      ]
+    }
+  },
+  "policy": "Source colour seeds in explicit source rectangles; one 8-neighbour pixel rim; fill bounded holes; intersect approved opaque paint",
+  "ember_colour_selection": {
+    "r_exclusive_min": 180,
+    "g_exclusive_min": 40,
+    "r_gt_g": true,
+    "g_gt_twice_b": true
+  },
+  "proof_defaults": {
+    "input_cell_px": 255,
+    "input_columns": 6,
+    "input_label_height_px": 30,
+    "outline_zoom": 8,
+    "outline_crop_margin_px": 3,
+    "full_godot_timeout_seconds": 900,
+    "registration_joint_tolerance_px": 0.02
+  }
+}

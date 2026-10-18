@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792329320584071000-53297
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792329320584071000-53297
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792329320584071000-53297/godot.log --headless --path . --script tests/maquette_cutout/pixel_samples.gd -- --case experiments/cutouts/burrow_grub/mq5 --output experiments/cutouts/burrow_grub/mq5/proof/continuity_samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE PIXEL SAMPLES: PASS (828 poses; headless transforms only)

@@ -1,0 +1,11 @@
+{
+  "basis": "all 60 Hz Godot transforms; convex hull of opaque source texel squares; both views/reflections",
+  "movement_registration": "Root tile travel follows unit_world_positions and is subtracted once",
+  "native_pixels": false,
+  "rect": [
+    -127.0,
+    -160.0,
+    254.0,
+    224.0
+  ]
+}

@@ -1,0 +1,37 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328644847737000-48045
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328644847737000-48045
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328644847737000-48045/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/contextual_creature_motion_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Attempt to open script 'res://output/contextual-animation-polish/creatures/cases/crawler/motion.gd' resulted in error 'File not found'.
+   at: load_source_code (modules/gdscript/gdscript.cpp:1127)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/contextual_creature_motion_test.gd:11)
+ERROR: Failed loading resource: res://output/contextual-animation-polish/creatures/cases/crawler/motion.gd.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/contextual_creature_motion_test.gd:11)
+ERROR: Attempt to open script 'res://output/contextual-animation-polish/creatures/cases/crawler/source/baseline_motion.gd' resulted in error 'File not found'.
+   at: load_source_code (modules/gdscript/gdscript.cpp:1127)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/contextual_creature_motion_test.gd:12)
+ERROR: Failed loading resource: res://output/contextual-animation-polish/creatures/cases/crawler/source/baseline_motion.gd.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/contextual_creature_motion_test.gd:12)
+ERROR: Parse JSON failed. Error at line 0: Unknown error getting token
+   at: parse_string (core/io/json.cpp:624)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/contextual_creature_motion_test.gd:13)
+SCRIPT ERROR: Trying to assign value of type 'Nil' to a variable of type 'Dictionary'.
+          at: _initialize (res://tests/contextual_creature_motion_test.gd:13)
+          GDScript backtrace (most recent call first):
+              [0] _initialize (res://tests/contextual_creature_motion_test.gd:13)
+error: command timed out after 180 seconds.

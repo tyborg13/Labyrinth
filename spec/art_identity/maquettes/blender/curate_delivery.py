@@ -81,7 +81,7 @@ def stage(folder, source):
         if clay:
             pixel_hashes[name] = hashlib.sha256(Image.open(source / name).convert('RGBA').tobytes()).hexdigest()
     for name in ('joints_px.json', 'build_report.json', 'capture_checks.json', 'facing_report.json',
-                 'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json'):
+                 'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json', 'fit_report.json', 'fit_overlay.png'):
         if (source / name).exists():
             shutil.copyfile(source / name, output / name)
     write(output / 'native_capture_manifest.json', manifest)
@@ -89,11 +89,19 @@ def stage(folder, source):
     for name in ('recipe_proof.json', 'exact_native_replay.json'):
         from .delivery_validation import proof_path
         shutil.copyfile(proof_path(source, name), output / name)
-    write(output / 'provenance.json', {'schema': 1, 'spec_hash': digest(spec),
+    provenance = {'schema': 1, 'spec_hash': digest(spec),
         'recipe_sha256': sha(folder / 'measurements.json'), 'native_image_sha256': original,
         'native_clay_rgba_sha256': pixel_hashes,
         'generated_spec': 'spec_native.json is compiled output, not a tracked input. Regenerate from measurements.json.',
-        'packing': 'Native PNG bytes are retained unchanged. Regeneration compares temporary canonical copies only.'})
+        'packing': 'Native PNG bytes are retained unchanged. Regeneration compares temporary canonical copies only.'}
+    packing_path = source / 'capture_packing.json'
+    if packing_path.exists():
+        packing = json.loads(packing_path.read_text())
+        shutil.copyfile(packing_path, output / packing_path.name)
+        shutil.copyfile(source / 'native_render_manifest.json', output / 'native_render_manifest.json')
+        provenance['native_raw_image_sha256'] = {name: value['native_sha256'] for name, value in packing['images'].items()}
+        provenance['packing'] = 'Capture masks are losslessly packed before staging; alpha and every visible RGBA value are unchanged. Native clay PNG bytes and all staged PNG bytes are copied unchanged.'
+    write(output / 'provenance.json', provenance)
     print('DELIVERY_STAGE: PASS; ' + folder.name)
 
 

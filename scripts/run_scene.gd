@@ -24641,6 +24641,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
 					_combat_pacing.after_step(step)
 					continue
+				if preload("res://assets/units/burrow_grub_cutout/actions.gd").handles(step, rr07_actor):
+					await preload("res://assets/units/burrow_grub_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+					_combat_pacing.after_step(step)
+					continue
 				await MaquetteAction.play_utility(self, animated_state, step)
 				if GuardianCutout.handles(str(_animation_actor_unit(animated_state,step_actor_key).get("type",""))) and str(step["kind"]) in ["block","stoneskin"]:
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
@@ -24762,7 +24766,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						"effect_frame_count": attack_frame_count,
 						"effect_progress": t
 					}
-					if str(step.get("kind", "")) == "melee" and not warden_attack and not crawler_attack and not gaoler_attack and not gust_shrike_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack and not guardian_attack:
+					if str(step.get("kind", "")) == "melee" and maquette_type not in ["burrow_grub", "ember_tick"] and not warden_attack and not crawler_attack and not gaoler_attack and not gust_shrike_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack and not guardian_attack:
 						presentation["unit_world_positions"] = {
 							step_actor_key: from_point.lerp(to_point, 0.08 + sin(t * PI) * 0.22)
 						}

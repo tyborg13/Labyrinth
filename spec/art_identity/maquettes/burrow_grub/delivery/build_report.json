@@ -1,0 +1,136 @@
+{
+  "schema": 2,
+  "spec_hash": "d48e160b33033b4026b9db93097d985def98189159a98f66444a237e79dc9253",
+  "board_frame": {
+    "yaw_radians": -0.0,
+    "pivot": [
+      -0.07623494984667468,
+      -0.1756718409510329,
+      0.7357012270706553
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "0a5664c61bc642a0d271d012f5bd7a1d9960f1e425e93d147a2872812eab5cad",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "seg_1_render": "d5f04c6c4f22a752650000ec30fca9739e1db2ea0fb017e8fd1510b7ff72bd9d",
+    "seg_2_render": "d8a0fff70e0ac2a319ba503c90e8e573dad3e8c9636e281ff9fcc6ea8175bba3",
+    "seg_3_render": "f2c0fc3d4e926a2b6803ee8eaac03ff2293af7a5b76901bac811593434adf2b5",
+    "seg_4_render": "3653ab7a0170c6aad11da48a9640bc6f7d87443afe7ca7f6e7f70bfd48b3e411",
+    "seg_5_render": "4d5367ccbdefdaeaa855ac53a9da98991d787c4f5d74a5c46864dc5f9c42c8e4",
+    "seg_6_render": "e471c95177954651605ecb5465eac6d8a5060c089243700c2d9924954a011710",
+    "tail_render": "aae5f816588e1dc580d13300136d74bc3b6cb8c2726c752ad3132f04a3f18020",
+    "maw_ring_render": "d0e6f8f71d1f9106573266e003c24bd48e7b583d60688c114a1bd0aa78f4868f",
+    "maw_throat_render": "73e8030c9f0987ca549664cbd9e69b16d3bc9e3b346f443c44b734bdedf94a1c",
+    "tooth_00_render": "2470b6f651e26b9bd575434a69fea1526e59bee73b5fca7af8eb33d1a3d17c41",
+    "tooth_01_render": "bb6312ab37c7b0cd462bb916189ee9efd8caf26cfc6fa0bcce455af48ebd855f",
+    "tooth_02_render": "345535f3ab3a87459cccd5abeaef0b6721a204806481bbf1da40292344aeebe9",
+    "tooth_03_render": "bd74d17da1be12c046f6f00390d39649484a922a4910096fa923e28c0f282d6f",
+    "tooth_04_render": "d42f7214c18a88caf7a3a1ead2f96bb4d3dcfd9fccfd1cadea6e2a2b498ea48e",
+    "tooth_05_render": "b0a25ab45f0aeb6fc6d6b2caf039538f7c3d18b8f0a6bc2304e51d049f205bce",
+    "tooth_06_render": "69bcf9241a30293cb8a55fd9f7d8183a44a9aa9a44a6e6fdfad0a9ed07b22ee1",
+    "tooth_07_render": "8e44387437c6d2a15258e9d11d8021840fd343664f59da67ff2fc67477673a8d",
+    "tooth_08_render": "968dfdc3ad56087aefe46eaf6c621e58e1b1e42b0ae4afe9408faa2838559f4f",
+    "tooth_09_render": "b4f478b31efee7bbec675823bb2907770ff35dd4fec5aa784a9941fe69bb5bbd",
+    "leg_near_1_render": "63ae47244931a04c07f08d87b8755eeb40d0dd35fb2fab977fdd46fa321b0b89",
+    "leg_near_2_render": "e5d4b9c1d677bea8bfd75975fc72b4de9b144033094e752f456cba905d56611c",
+    "leg_near_3_render": "060f8fc53337001a163057cbde06bba7bb5ff586285953bc07b909484b1ed6d7",
+    "leg_far_1_render": "ef5d578eb519d680c3af8b938754e00734c413aee156b63fe5dc981e2a3ed0b6",
+    "leg_far_2_render": "f050af276898123f4beab4eaa23e7d50dc270de90f109d668446317f1c62187a",
+    "leg_far_3_render": "ce275256182d7be3f3e0961dca12beb9874ef8bad199ae42de9430dd424d2aca"
+  },
+  "combined_mesh_hash": "c3f763a5396140a7e6b5ad11b723b7f4df463712994dfc430c7244f88d69aab6",
+  "checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "native_rigid_bindings": true,
+    "native_sculpted_surfaces": true,
+    "whole_native_features": true,
+    "native_sculpted_sections": true,
+    "sculpted_blade_roots_attached": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "cloth": {},
+  "geometry_details": {
+    "metric_accessories": {},
+    "rounded_hoods": {},
+    "sewn_rest": {},
+    "collar_widths": {},
+    "corner_errors": {},
+    "conformance": {},
+    "native_features": {
+      "maw_tooth_ring": {
+        "checks": {
+          "whole_feature_ownership": true
+        },
+        "visibility": {},
+        "passed": true
+      }
+    },
+    "blade_attachments": {},
+    "facing": {
+      "forward_world": [
+        0.9985309839248657,
+        0.05418385565280914,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.9985309839248657,
+        0.05418385565280914,
+        0.0
+      ],
+      "front_forward_screen": [
+        -0.6677542581952136,
+        0.3721909008605412
+      ],
+      "rear_forward_screen": [
+        0.6677542581952136,
+        -0.3721909008605412
+      ],
+      "board_axis_cosine": 0.9989947786051998,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {}
+  },
+  "passed": true
+}

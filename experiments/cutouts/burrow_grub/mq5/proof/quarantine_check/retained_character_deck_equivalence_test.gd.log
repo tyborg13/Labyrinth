@@ -1,0 +1,19 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328764022347000-49082
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328764022347000-49082
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328764022347000-49082/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/retained_character_deck_equivalence_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SCRIPT ERROR: Invalid access to property or key 'magic' on a base object of type 'Dictionary'.
+          at: _run (res://tests/retained_character_deck_equivalence_test.gd:34)
+          GDScript backtrace (most recent call first):
+              [0] _run (res://tests/retained_character_deck_equivalence_test.gd:34)
+              [1] _compare (res://tests/retained_character_inventory_equivalence_test.gd:355)
+              [2] _settle (res://tests/retained_character_inventory_equivalence_test.gd:449)
+error: command timed out after 180 seconds.

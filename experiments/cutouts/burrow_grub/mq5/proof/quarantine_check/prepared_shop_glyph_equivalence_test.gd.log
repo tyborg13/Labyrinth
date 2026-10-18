@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328750260049000-48849
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328750260049000-48849
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328750260049000-48849/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/prepared_shop_glyph_equivalence_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PREPARED SHOP GLYPH RESULT: {"cases":8,"checks":3039,"differences":0,"errors":["Ownership change must occur after native outline rendering, not only stock building: cancel","Ownership change must occur after native outline rendering, not only stock building: show","Ownership change must occur after native outline rendering, not only stock building: detach","Ownership change must occur after native outline rendering, not only stock building: free"],"native":false,"orphans":0,"pixel_differences":[],"presented":12}

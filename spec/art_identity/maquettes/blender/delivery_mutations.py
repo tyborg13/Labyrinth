@@ -30,6 +30,37 @@ def broken(source,destination,*a,**k):
     return original(source,destination,*a,**k)
 c.shutil.copyfile=broken
 """, 'DeliveryValidationTests.test_staging_preserves_native_png_bytes_including_stamps'),
+    'disabled_modifiers_accepted': ("""
+from spec.art_identity.maquettes.blender import sculpted_mass as m
+original=m.native_stack_matches
+def broken(piece,source):
+    states=[(mod,mod.show_viewport,mod.show_render) for mod in source.modifiers]
+    for mod,_,_ in states:mod.show_viewport=mod.show_render=True
+    try:return original(piece,source)
+    finally:
+        for mod,viewport,render in states:mod.show_viewport,mod.show_render=viewport,render
+m.native_stack_matches=broken
+""", 'modifier_feedback2'),
+    'frozen_base_mesh_accepted': ("from spec.art_identity.maquettes.blender import sculpted_mass as m;m.frozen_differs_from_base=lambda *a:True", 'frozen_feedback2'),
+    'foot_height_ignored': ("""
+from pathlib import Path
+from spec.art_identity.maquettes.blender import foot_projection as m
+source=Path(m.__file__).read_text();before="'passed':distance<=FOOT_LIMITS['ground_tolerance_m']"
+assert source.count(before)==1
+namespace=dict(m.__dict__);exec(compile(source.replace(before,"'passed':True"),m.__file__,'exec'),namespace)
+m.report=namespace['report']
+""", 'foot_feedback2'),
+    'foot_projection_ignored': ("""
+from pathlib import Path
+from spec.art_identity.maquettes.blender import foot_projection as m
+source=Path(m.__file__).read_text();before="entry['passed'] &= passed"
+assert source.count(before)==1
+namespace=dict(m.__dict__);exec(compile(source.replace(before,'pass'),m.__file__,'exec'),namespace)
+m.report=namespace['report']
+""", 'foot_feedback2'),
+    'fit_not_recomputed': ("from spec.art_identity.maquettes.blender import solid_fit;solid_fit.validate_fit=lambda *a,**k:None", 'fit_feedback2'),
+    'native_contacts': ("from spec.art_identity.maquettes.blender import delivery_validation as v; original=v.geometry_checks;v.geometry_checks=lambda s:tuple(k for k in original(s) if k!='native_contacts')", 'feedback2'),
+    'native_sculpted_sections': ("from spec.art_identity.maquettes.blender import delivery_validation as v; original=v.geometry_checks;v.geometry_checks=lambda s:tuple(k for k in original(s) if k!='native_sculpted_sections')", 'feedback2'),
     'required_parts_not_rejected': ("""
 from spec.art_identity.maquettes.blender import ownership
 ownership.require_solos=lambda *a,**k:None
@@ -45,6 +76,18 @@ def main():
     results = {}
     for name, (mutation, test) in MUTATIONS.items():
         module = 'spec.art_identity.maquettes.blender.test_delivery_validation'
+        if test=='foot_feedback2':
+            module='spec.art_identity.maquettes.blender.test_feedback2'
+            test='FeedbackTwoTests.test_each_foot_rejects_unpainted_projection_and_wrong_height'
+        if test in ('modifier_feedback2','frozen_feedback2'):
+            module='spec.art_identity.maquettes.blender.test_feedback2'
+            test='FeedbackTwoTests.'+('test_every_required_modifier_must_evaluate_in_both_modes' if test=='modifier_feedback2' else 'test_frozen_surface_must_differ_from_base_mesh')
+        if test == 'fit_feedback2':
+            module='spec.art_identity.maquettes.blender.test_feedback2'
+            test='FeedbackTwoTests.test_failed_zero_stale_and_forged_fit_rejected_for_every_figure'
+        if test == 'feedback2':
+            module='spec.art_identity.maquettes.blender.test_feedback2'
+            test='FeedbackTwoTests.test_native_contacts_and_sculpted_sections_cannot_be_omitted'
         if test == 'existing_helper':
             module = 'spec.art_identity.maquettes.blender.test_delivery'
             test = 'DeliveryTests.test_required_parts_reject_missing_zero_and_negative_solos'

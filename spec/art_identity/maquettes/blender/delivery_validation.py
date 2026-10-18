@@ -19,6 +19,21 @@ PROOF_CHECKS = ('fresh_and_replay_raw_hashes', 'joint_endpoints', 'native_geomet
 BUILDS = ('cold', 'replay', 'independent_cold')
 
 
+def geometry_checks(spec):
+    required = GEOMETRY_CHECKS
+    if any(p.get('rig_bone') for p in spec['pieces']):
+        required += ('native_rigid_bindings',)
+    if any(p['type'] == 'sculpted_mass' for p in spec['pieces']):
+        required += ('native_sculpted_surfaces',)
+    if any(p.get('sculpt') for p in spec['pieces']):
+        required += ('native_sculpted_sections',)
+    if spec.get('native_contacts') or spec.get('foot_contacts') or any('support_z' in p for p in spec['pieces']):
+        required += ('native_contacts',)
+    if spec.get('native_features'):
+        required += ('whole_native_features',)
+    return required
+
+
 def load(path):
     if not path.is_file():
         raise ValueError('Required delivery report is missing: ' + path.name)
@@ -55,20 +70,39 @@ def validate_delivery(spec, folder, require_binding=True):
     for view in ('front', 'rear'):
         for kind in ('clay', 'parts'):
             require_image(manifest, view + '_' + kind + '.png')
-    reports = {name: load(folder / name) for name in REPORTS}
+    report_names = REPORTS + (('capture_packing.json', 'fit_report.json') if spec.get('native_solid_revision') else ())
+    reports = {name: load(folder / name) for name in report_names}
     for name, report in reports.items():
         passing(report, name)
         if name != 'solo_coverage.json' and report.get('passed') is not True:
             raise ValueError('Missing or failed passed field: ' + name)
         if 'spec_hash' in report and report['spec_hash'] != current:
             raise ValueError('Stale delivery report: ' + name)
+    if spec.get('native_solid_revision'):
+        from .solid_fit import validate_fit
+        validate_fit(spec,folder)
+        packing = reports['capture_packing.json']
+        if any(packing.get(key) is not True for key in ('alpha_and_visible_rgba_unchanged','native_clay_bytes_unchanged')):
+            raise ValueError('Native capture packing changed visible pixels or clay bytes')
+        native = load(folder / 'native_render_manifest.json')
+        if packing.get('native_render_manifest_sha256') != sha256(folder / 'native_render_manifest.json') or native.get('joints_sha256') != manifest['joints_sha256']:
+            raise ValueError('Missing or stale original native render manifest')
+        packed = packing.get('images', {})
+        if set(packed) != set(manifest['images']) or set(native.get('images', {})) != set(packed):
+            raise ValueError('Packed capture inventory differs from native render')
+        for name,value in packed.items():
+            if value.get('packed_sha256') != manifest['images'][name]['sha256'] or value.get('native_sha256') != native['images'][name]['sha256']:
+                raise ValueError('Packed/native capture hash differs: '+name)
+            if name.endswith('_clay.png') and value['native_sha256'] != value['packed_sha256']:
+                raise ValueError('Native clay PNG bytes changed')
     build = reports['build_report.json']
     capture = reports['capture_checks.json']
     if build.get('spec_hash') != current or capture.get('spec_hash') != current:
         raise ValueError('Missing current build/capture spec hash')
-    checks(build, GEOMETRY_CHECKS + ('board_facing_axis', 'required_solo_coverage',
+    required_geometry = geometry_checks(spec)
+    checks(build, required_geometry + ('board_facing_axis', 'required_solo_coverage',
            'rendered_torso_asymmetry', 'capture_geometry_unchanged'), 'build')
-    if any(capture.get('geometry_checks', {}).get(key) is not True for key in GEOMETRY_CHECKS) or any(
+    if any(capture.get('geometry_checks', {}).get(key) is not True for key in required_geometry) or any(
             v is not True for v in capture.get('geometry_checks', {}).values()):
         raise ValueError('Missing or failed capture geometry checks')
     if capture.get('geometry_unchanged') is not True:
@@ -110,7 +144,8 @@ def validate_delivery(spec, folder, require_binding=True):
             raise ValueError('Exact native replay differs: ' + field)
     if exact.get('mesh_count') != len(build['mesh_hashes']) or proof.get('mesh_count') != len(build['mesh_hashes']):
         raise ValueError('Native proof mesh count differs')
-    bound = {name: sha256(folder / name) for name in REPORTS + ('capture_manifest.json',)}
+    bound_names = report_names + ('capture_manifest.json',) + (('native_render_manifest.json',) if spec.get('native_solid_revision') else ())
+    bound = {name: sha256(folder / name) for name in bound_names}
     binding = {'spec_hash': current, 'cold_mesh_hash': cold, 'report_sha256': bound,
                'exact_native_replay_sha256': sha256(proof_path(folder, 'exact_native_replay.json'))}
     if require_binding and proof.get('delivery_binding') != binding:

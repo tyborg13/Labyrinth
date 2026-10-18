@@ -1,0 +1,53 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "d7dc7a16bfffdcc39df4bb8c533ff2beaafa08d761d908317e700b3b5aaef737",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 30,
+  "joint_errors": {
+    "shell": 0.0,
+    "head": 0.0,
+    "leg_near_1_upper": 2.9802322387695312e-08,
+    "leg_near_1_lower": 5.960464477539063e-08,
+    "leg_near_2_upper": 5.960464477539063e-08,
+    "leg_near_2_lower": 5.960464477539063e-08,
+    "leg_near_3_upper": 6.143906154658885e-08,
+    "leg_near_3_lower": 6.143906154658885e-08,
+    "leg_near_4_upper": 2.9802322387695312e-08,
+    "leg_near_4_lower": 2.9802322387695312e-08,
+    "leg_far_1_upper": 4.2146848510894035e-08,
+    "leg_far_1_lower": 6.828569911354542e-08,
+    "leg_far_2_upper": 1.4901161193847656e-08,
+    "leg_far_2_lower": 2.9802322387695312e-08,
+    "leg_far_3_upper": 5.960464477539063e-08,
+    "leg_far_3_lower": 6.664001874625056e-08,
+    "leg_far_4_upper": 5.960464477539063e-08,
+    "leg_far_4_lower": 8.429369702178807e-08
+  },
+  "combined_mesh_hashes": {
+    "cold": "6adf2307f2983091f2364f0b708c3e86bb4efb1c76bfff9ddc6d60ff1346f5c5",
+    "replay": "6adf2307f2983091f2364f0b708c3e86bb4efb1c76bfff9ddc6d60ff1346f5c5",
+    "independent_cold": "6adf2307f2983091f2364f0b708c3e86bb4efb1c76bfff9ddc6d60ff1346f5c5"
+  },
+  "delivery_binding": {
+    "spec_hash": "d7dc7a16bfffdcc39df4bb8c533ff2beaafa08d761d908317e700b3b5aaef737",
+    "cold_mesh_hash": "6adf2307f2983091f2364f0b708c3e86bb4efb1c76bfff9ddc6d60ff1346f5c5",
+    "report_sha256": {
+      "build_report.json": "04c6e5c31295d29b096d31bf9f23a802fdc84e2eeb903a3b1726cdbec2c1f6d4",
+      "capture_checks.json": "68fddc8b823f83d6bd97c70d6c51c9f791ada378cd679be33a87848c5726fbdd",
+      "facing_report.json": "1063c894c321294f55248a66cc1938b2a6700f99c4a1c99c678e88ce4a47c707",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "514cb09fe5b72bc1051d87462c938ee23b597d36a2666fcd51740c746a6cccec",
+      "capture_packing.json": "2089e0de27f1d157d2865b47cb3a2a8b1a122dc66690249a4414fb6a2bff5043",
+      "fit_report.json": "3a8d70d6bc5b292869e9a74d28e01a23713b38d2f78650fc53689d8b44c8b3db",
+      "capture_manifest.json": "99934b21846cd2bd51e19b211594eae584d953a5a236ec17a1644b17108fbced",
+      "native_render_manifest.json": "da8b7a5b71b05725f81e018341b0b3d46279794df6a58bedbcecb4fd13f64846"
+    },
+    "exact_native_replay_sha256": "86b2b374813c81d88118238f141241175b29fc0b255d6290d8a1958b651e85af"
+  }
+}

@@ -1,0 +1,20 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328829942726000-49685
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328829942726000-49685
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328829942726000-49685/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/retained_shop_rows_equivalence_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SCRIPT ERROR: Invalid access to property or key 'sell:frostbolt' on a base object of type 'Dictionary'.
+          at: _run (res://tests/retained_shop_rows_equivalence_test.gd:90)
+          GDScript backtrace (most recent call first):
+              [0] _run (res://tests/retained_shop_rows_equivalence_test.gd:90)
+              [1] _configure_compare (res://tests/retained_shop_rows_equivalence_test.gd:121)
+              [2] _compare_shops (res://tests/retained_shop_rows_equivalence_test.gd:139)
+              [3] _settle (res://tests/retained_character_inventory_equivalence_test.gd:449)
+error: command timed out after 180 seconds.

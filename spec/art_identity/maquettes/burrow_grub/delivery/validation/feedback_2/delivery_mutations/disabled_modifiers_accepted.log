@@ -1,0 +1,69 @@
+test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... 
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='rounded_mass_subdivision', mode='show_viewport')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='rounded_mass_subdivision', mode='show_render')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='modelled_surface_relief', mode='show_viewport')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='modelled_surface_relief', mode='show_render')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='modelled_chipped_bevel', mode='show_viewport')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='modelled_chipped_bevel', mode='show_render')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='modelled_fracture_0', mode='show_viewport')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (modifier='modelled_fracture_0', mode='show_render')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 79, in test_every_required_modifier_must_evaluate_in_both_modes
+    with self.subTest(modifier=mod.name,mode=field):self.assertFalse(native_stack_matches(piece,source))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.013s
+
+FAILED (failures=8)

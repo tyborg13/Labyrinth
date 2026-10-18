@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "stage": "build",
+      "exit_code": 0
+    },
+    {
+      "stage": "runtime",
+      "exit_code": 0
+    }
+  ],
+  "template_archive_sha256": "a6d51d2b650091ab7073c15e9e6faf01c0e972648edb2e99952735c6befae00e",
+  "unchanged_runtime_sha256": "f15a333bd2321a9343adfe228945eacaaa08c7c976dbb212f2f8a618b777039c",
+  "pack_sha256": "d7bb029569e04db266c5a913973ec49daa919a3dbbeb95ccb84e7612b43080d2",
+  "native_pixels": false,
+  "proof_defaults": {
+    "package_timeout_seconds": 120
+  }
+}

@@ -1,0 +1,68 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: hood
+ROUNDED_HOOD_REST: {"head_bounds": [[-0.03234003484249115, -0.1820681095123291, 1.679695725440979], [0.20518285036087036, 0.024959266185760498, 2.0246949195861816]], "head_width": 0.2070273756980896, "opening_width": 0.12421642541885375, "opening_width_ratio": 0.6, "opening_height": 0.24375, "collision_allowance": 0.043000000000000003, "opening_rows": [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], "defaults": {"revision": 1, "skull_rows": 25, "columns": 48, "shoulder_rows": 8, "crown_pin_rows": 3}}
+CLOTH_PATTERN: hood; vertices=1480; pins=106
+CLOTH_FRAME: hood; 8/64
+CLOTH_FRAME: hood; 16/64
+CLOTH_FRAME: hood; 24/64
+CLOTH_FRAME: hood; 32/64
+CLOTH_FRAME: hood; 40/64
+CLOTH_FRAME: hood; 48/64
+CLOTH_FRAME: hood; 56/64
+CLOTH_FRAME: hood; 64/64
+BUILD_STAGE: torso_cloth
+SEWN_NATIVE_REST: {"connected": true, "nonmanifold_edges": 0, "boundary_loops": 2, "source": "native anatomy union / sewn shoulder rest surface", "regions": ["torso"], "pins": 306, "vertices": 2373, "removed_sampling_islands": [], "defaults": {"revision": 1, "voxel_size": 0.022, "smoothing_iterations": 4, "smoothing_factor": 0.5, "upper_cuff_pins": 2}}
+CLOTH_PATTERN: torso_cloth; vertices=2323; pins=296
+CLOTH_FRAME: torso_cloth; 8/24
+CLOTH_FRAME: torso_cloth; 16/24
+CLOTH_FRAME: torso_cloth; 24/24
+BUILD_STAGE: claw_near
+BUILD_STAGE: claw_far
+BUILD_STAGE: cloak
+CLOTH_PATTERN: cloak; vertices=1319; pins=64
+CLOTH_FRAME: cloak; 8/96
+CLOTH_FRAME: cloak; 16/96
+CLOTH_FRAME: cloak; 24/96
+CLOTH_FRAME: cloak; 32/96
+CLOTH_FRAME: cloak; 40/96
+CLOTH_FRAME: cloak; 48/96
+CLOTH_FRAME: cloak; 56/96
+CLOTH_FRAME: cloak; 64/96
+CLOTH_FRAME: cloak; 72/96
+CLOTH_FRAME: cloak; 80/96
+CLOTH_FRAME: cloak; 88/96
+CLOTH_FRAME: cloak; 96/96
+BUILD_STAGE: front_cloak
+CLOTH_PATTERN: front_cloak; vertices=1323; pins=64
+CLOTH_FRAME: front_cloak; 8/96
+CLOTH_FRAME: front_cloak; 16/96
+CLOTH_FRAME: front_cloak; 24/96
+CLOTH_FRAME: front_cloak; 32/96
+CLOTH_FRAME: front_cloak; 40/96
+CLOTH_FRAME: front_cloak; 48/96
+CLOTH_FRAME: front_cloak; 56/96
+CLOTH_FRAME: front_cloak; 64/96
+CLOTH_FRAME: front_cloak; 72/96
+CLOTH_FRAME: front_cloak; 80/96
+CLOTH_FRAME: front_cloak; 88/96
+CLOTH_FRAME: front_cloak; 96/96
+BUILD_STAGE: back_carapace
+00:51.871  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_silhouette.png'
+00:54.702  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_silhouette.png'
+00:57.974  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_parts.png'
+01:08.302  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_clay.png'
+01:10.835  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_silhouette.png'
+01:13.371  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_silhouette.png'
+01:15.731  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_silhouette.png'
+01:18.007  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/front_silhouette.png'
+01:20.270  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/rear_parts.png'
+01:29.187  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/rear_clay.png'
+01:31.436  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/rear_silhouette.png'
+01:33.819  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/rear_silhouette.png'
+01:35.958  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/rear_silhouette.png'
+01:38.171  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/capture/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

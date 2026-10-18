@@ -1,0 +1,1147 @@
+{
+  "exposure_basis": "sample after director motion binding",
+  "requests": [
+    {
+      "part": "head",
+      "view": "front",
+      "image": "hidden_requests/front_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 16,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "head approved paint"
+    },
+    {
+      "part": "seg_1",
+      "view": "front",
+      "image": "hidden_requests/front_seg_1.png",
+      "status": "measured",
+      "hidden_pixel_count": 1246,
+      "bounding_box": [
+        43,
+        160,
+        89,
+        214
+      ],
+      "solo_outside_paint_pixels": 10,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1166,
+          "material": "head approved paint"
+        },
+        {
+          "part": "leg_near_1",
+          "pixels": 80,
+          "material": "leg_near_1 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 59,
+          "material": "head approved paint"
+        },
+        {
+          "part": "leg_near_1",
+          "pixels": 14,
+          "material": "leg_near_1 approved paint"
+        }
+      ],
+      "material": "seg_1 approved paint",
+      "paint_nodes": [
+        "hidden_seg_1"
+      ]
+    },
+    {
+      "part": "seg_2",
+      "view": "front",
+      "image": "hidden_requests/front_seg_2.png",
+      "status": "measured",
+      "hidden_pixel_count": 1183,
+      "bounding_box": [
+        65,
+        146,
+        111,
+        201
+      ],
+      "solo_outside_paint_pixels": 2,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 113,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 1053,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "leg_near_2",
+          "pixels": 17,
+          "material": "leg_near_2 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 25,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 41,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "leg_near_2",
+          "pixels": 10,
+          "material": "leg_near_2 approved paint"
+        }
+      ],
+      "material": "seg_2 approved paint",
+      "paint_nodes": [
+        "hidden_seg_2"
+      ]
+    },
+    {
+      "part": "seg_3",
+      "view": "front",
+      "image": "hidden_requests/front_seg_3.png",
+      "status": "measured",
+      "hidden_pixel_count": 1089,
+      "bounding_box": [
+        88,
+        135,
+        132,
+        190
+      ],
+      "solo_outside_paint_pixels": 2,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_1",
+          "pixels": 34,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "seg_2",
+          "pixels": 994,
+          "material": "seg_2 approved paint"
+        },
+        {
+          "part": "leg_near_3",
+          "pixels": 61,
+          "material": "leg_near_3 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_1",
+          "pixels": 20,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "seg_2",
+          "pixels": 45,
+          "material": "seg_2 approved paint"
+        },
+        {
+          "part": "leg_near_3",
+          "pixels": 14,
+          "material": "leg_near_3 approved paint"
+        }
+      ],
+      "material": "seg_3 approved paint",
+      "paint_nodes": [
+        "hidden_seg_3"
+      ]
+    },
+    {
+      "part": "seg_4",
+      "view": "front",
+      "image": "hidden_requests/front_seg_4.png",
+      "status": "measured",
+      "hidden_pixel_count": 923,
+      "bounding_box": [
+        113,
+        125,
+        138,
+        180
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 923,
+          "material": "seg_3 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 61,
+          "material": "seg_3 approved paint"
+        }
+      ],
+      "material": "seg_4 approved paint",
+      "paint_nodes": [
+        "hidden_seg_4"
+      ]
+    },
+    {
+      "part": "seg_5",
+      "view": "front",
+      "image": "hidden_requests/front_seg_5.png",
+      "status": "measured",
+      "hidden_pixel_count": 929,
+      "bounding_box": [
+        140,
+        118,
+        192,
+        172
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 924,
+          "material": "seg_4 approved paint"
+        },
+        {
+          "part": "seg_6",
+          "pixels": 5,
+          "material": "seg_6 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 61,
+          "material": "seg_4 approved paint"
+        },
+        {
+          "part": "seg_6",
+          "pixels": 9,
+          "material": "seg_6 approved paint"
+        }
+      ],
+      "material": "seg_5 approved paint",
+      "paint_nodes": [
+        "hidden_seg_5"
+      ]
+    },
+    {
+      "part": "seg_6",
+      "view": "front",
+      "image": "hidden_requests/front_seg_6.png",
+      "status": "measured",
+      "hidden_pixel_count": 1096,
+      "bounding_box": [
+        166,
+        117,
+        216,
+        170
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 952,
+          "material": "seg_5 approved paint"
+        },
+        {
+          "part": "tail",
+          "pixels": 144,
+          "material": "tail approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 57,
+          "material": "seg_5 approved paint"
+        },
+        {
+          "part": "tail",
+          "pixels": 46,
+          "material": "tail approved paint"
+        }
+      ],
+      "material": "seg_6 approved paint",
+      "paint_nodes": [
+        "hidden_seg_6"
+      ]
+    },
+    {
+      "part": "tail",
+      "view": "front",
+      "image": "hidden_requests/front_tail.png",
+      "status": "measured",
+      "hidden_pixel_count": 1264,
+      "bounding_box": [
+        179,
+        113,
+        212,
+        169
+      ],
+      "solo_outside_paint_pixels": 19,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 245,
+          "material": "seg_5 approved paint"
+        },
+        {
+          "part": "seg_6",
+          "pixels": 1019,
+          "material": "seg_6 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 38,
+          "material": "seg_5 approved paint"
+        },
+        {
+          "part": "seg_6",
+          "pixels": 23,
+          "material": "seg_6 approved paint"
+        }
+      ],
+      "material": "tail approved paint",
+      "paint_nodes": [
+        "hidden_tail"
+      ]
+    },
+    {
+      "part": "leg_near_1",
+      "view": "front",
+      "image": "hidden_requests/front_leg_near_1.png",
+      "status": "measured",
+      "hidden_pixel_count": 115,
+      "bounding_box": [
+        73,
+        196,
+        87,
+        208
+      ],
+      "solo_outside_paint_pixels": 17,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 3,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 112,
+          "material": "seg_1 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 5,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 24,
+          "material": "seg_1 approved paint"
+        }
+      ],
+      "material": "leg_near_1 approved paint",
+      "paint_nodes": [
+        "hidden_leg_near_1"
+      ]
+    },
+    {
+      "part": "leg_near_2",
+      "view": "front",
+      "image": "hidden_requests/front_leg_near_2.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 22,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "leg_near_2 approved paint"
+    },
+    {
+      "part": "leg_near_3",
+      "view": "front",
+      "image": "hidden_requests/front_leg_near_3.png",
+      "status": "measured",
+      "hidden_pixel_count": 109,
+      "bounding_box": [
+        118,
+        177,
+        132,
+        225
+      ],
+      "solo_outside_paint_pixels": 4,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 66,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "leg_near_2",
+          "pixels": 43,
+          "material": "leg_near_2 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 24,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "leg_near_2",
+          "pixels": 21,
+          "material": "leg_near_2 approved paint"
+        }
+      ],
+      "material": "leg_near_3 approved paint",
+      "paint_nodes": [
+        "hidden_leg_near_3"
+      ]
+    },
+    {
+      "part": "leg_far_1",
+      "view": "front",
+      "image": "hidden_requests/front_leg_far_1.png",
+      "status": "measured",
+      "hidden_pixel_count": 321,
+      "bounding_box": [
+        33,
+        191,
+        58,
+        209
+      ],
+      "solo_outside_paint_pixels": 7,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 321,
+          "material": "head approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 59,
+          "material": "head approved paint"
+        }
+      ],
+      "material": "leg_far_1 approved paint",
+      "paint_nodes": [
+        "hidden_leg_far_1"
+      ]
+    },
+    {
+      "part": "leg_far_2",
+      "view": "front",
+      "image": "hidden_requests/front_leg_far_2.png",
+      "status": "measured",
+      "hidden_pixel_count": 435,
+      "bounding_box": [
+        47,
+        174,
+        79,
+        200
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 350,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 85,
+          "material": "seg_1 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 67,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 26,
+          "material": "seg_1 approved paint"
+        }
+      ],
+      "material": "leg_far_2 approved paint",
+      "paint_nodes": [
+        "leg_far_2"
+      ]
+    },
+    {
+      "part": "leg_far_3",
+      "view": "front",
+      "image": "hidden_requests/front_leg_far_3.png",
+      "status": "measured",
+      "hidden_pixel_count": 435,
+      "bounding_box": [
+        70,
+        160,
+        102,
+        186
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 21,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 277,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "seg_2",
+          "pixels": 137,
+          "material": "seg_2 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 13,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 46,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "seg_2",
+          "pixels": 34,
+          "material": "seg_2 approved paint"
+        }
+      ],
+      "material": "leg_far_3 approved paint",
+      "paint_nodes": [
+        "leg_far_3"
+      ]
+    },
+    {
+      "part": "head",
+      "view": "rear",
+      "image": "hidden_requests/rear_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 890,
+      "bounding_box": [
+        178,
+        120,
+        211,
+        171
+      ],
+      "solo_outside_paint_pixels": 2,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_1",
+          "pixels": 860,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "leg_far_1",
+          "pixels": 30,
+          "material": "leg_far_1 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_1",
+          "pixels": 55,
+          "material": "seg_1 approved paint"
+        },
+        {
+          "part": "seg_2",
+          "pixels": 2,
+          "material": "seg_2 approved paint"
+        },
+        {
+          "part": "leg_far_1",
+          "pixels": 6,
+          "material": "leg_far_1 approved paint"
+        }
+      ],
+      "material": "head approved paint",
+      "paint_nodes": [
+        "hidden_head"
+      ]
+    },
+    {
+      "part": "seg_1",
+      "view": "rear",
+      "image": "hidden_requests/rear_seg_1.png",
+      "status": "measured",
+      "hidden_pixel_count": 1315,
+      "bounding_box": [
+        155,
+        132,
+        194,
+        189
+      ],
+      "solo_outside_paint_pixels": 16,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_2",
+          "pixels": 1179,
+          "material": "seg_2 approved paint"
+        },
+        {
+          "part": "seg_3",
+          "pixels": 8,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "leg_far_2",
+          "pixels": 128,
+          "material": "leg_far_2 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_2",
+          "pixels": 47,
+          "material": "seg_2 approved paint"
+        },
+        {
+          "part": "seg_3",
+          "pixels": 16,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "leg_far_2",
+          "pixels": 7,
+          "material": "leg_far_2 approved paint"
+        }
+      ],
+      "material": "seg_1 approved paint",
+      "paint_nodes": [
+        "hidden_seg_1"
+      ]
+    },
+    {
+      "part": "seg_2",
+      "view": "rear",
+      "image": "hidden_requests/rear_seg_2.png",
+      "status": "measured",
+      "hidden_pixel_count": 983,
+      "bounding_box": [
+        133,
+        146,
+        181,
+        199
+      ],
+      "solo_outside_paint_pixels": 30,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 972,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "leg_far_2",
+          "pixels": 1,
+          "material": "leg_far_2 approved paint"
+        },
+        {
+          "part": "leg_far_3",
+          "pixels": 10,
+          "material": "leg_far_3 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 60,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "leg_far_2",
+          "pixels": 1,
+          "material": "leg_far_2 approved paint"
+        },
+        {
+          "part": "leg_far_3",
+          "pixels": 8,
+          "material": "leg_far_3 approved paint"
+        }
+      ],
+      "material": "seg_2 approved paint",
+      "paint_nodes": [
+        "hidden_seg_2"
+      ]
+    },
+    {
+      "part": "seg_3",
+      "view": "rear",
+      "image": "hidden_requests/rear_seg_3.png",
+      "status": "measured",
+      "hidden_pixel_count": 915,
+      "bounding_box": [
+        110,
+        159,
+        158,
+        211
+      ],
+      "solo_outside_paint_pixels": 17,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 885,
+          "material": "seg_4 approved paint"
+        },
+        {
+          "part": "leg_far_3",
+          "pixels": 30,
+          "material": "leg_far_3 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 60,
+          "material": "seg_4 approved paint"
+        },
+        {
+          "part": "leg_far_3",
+          "pixels": 10,
+          "material": "leg_far_3 approved paint"
+        }
+      ],
+      "material": "seg_3 approved paint",
+      "paint_nodes": [
+        "hidden_seg_3"
+      ]
+    },
+    {
+      "part": "seg_4",
+      "view": "rear",
+      "image": "hidden_requests/rear_seg_4.png",
+      "status": "measured",
+      "hidden_pixel_count": 805,
+      "bounding_box": [
+        82,
+        175,
+        108,
+        223
+      ],
+      "solo_outside_paint_pixels": 19,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 805,
+          "material": "seg_5 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 53,
+          "material": "seg_5 approved paint"
+        }
+      ],
+      "material": "seg_4 approved paint",
+      "paint_nodes": [
+        "hidden_seg_4"
+      ]
+    },
+    {
+      "part": "seg_5",
+      "view": "rear",
+      "image": "hidden_requests/rear_seg_5.png",
+      "status": "measured",
+      "hidden_pixel_count": 759,
+      "bounding_box": [
+        55,
+        185,
+        104,
+        233
+      ],
+      "solo_outside_paint_pixels": 9,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 1,
+          "material": "seg_4 approved paint"
+        },
+        {
+          "part": "seg_6",
+          "pixels": 568,
+          "material": "seg_6 approved paint"
+        },
+        {
+          "part": "tail",
+          "pixels": 190,
+          "material": "tail approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 2,
+          "material": "seg_4 approved paint"
+        },
+        {
+          "part": "seg_6",
+          "pixels": 21,
+          "material": "seg_6 approved paint"
+        },
+        {
+          "part": "tail",
+          "pixels": 34,
+          "material": "tail approved paint"
+        }
+      ],
+      "material": "seg_5 approved paint",
+      "paint_nodes": [
+        "hidden_seg_5"
+      ]
+    },
+    {
+      "part": "seg_6",
+      "view": "rear",
+      "image": "hidden_requests/rear_seg_6.png",
+      "status": "measured",
+      "hidden_pixel_count": 1541,
+      "bounding_box": [
+        32,
+        188,
+        82,
+        245
+      ],
+      "solo_outside_paint_pixels": 3,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 31,
+          "material": "seg_5 approved paint"
+        },
+        {
+          "part": "tail",
+          "pixels": 1510,
+          "material": "tail approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_5",
+          "pixels": 30,
+          "material": "seg_5 approved paint"
+        },
+        {
+          "part": "tail",
+          "pixels": 75,
+          "material": "tail approved paint"
+        }
+      ],
+      "material": "seg_6 approved paint",
+      "paint_nodes": [
+        "hidden_seg_6"
+      ]
+    },
+    {
+      "part": "tail",
+      "view": "rear",
+      "image": "hidden_requests/rear_tail.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 575,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "tail approved paint"
+    },
+    {
+      "part": "leg_near_1",
+      "view": "rear",
+      "image": "hidden_requests/rear_leg_near_1.png",
+      "status": "measured",
+      "hidden_pixel_count": 262,
+      "bounding_box": [
+        157,
+        158,
+        175,
+        177
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_2",
+          "pixels": 262,
+          "material": "seg_2 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_2",
+          "pixels": 54,
+          "material": "seg_2 approved paint"
+        },
+        {
+          "part": "seg_3",
+          "pixels": 3,
+          "material": "seg_3 approved paint"
+        }
+      ],
+      "material": "leg_near_1 approved paint",
+      "paint_nodes": [
+        "leg_near_1"
+      ]
+    },
+    {
+      "part": "leg_near_2",
+      "view": "rear",
+      "image": "hidden_requests/rear_leg_near_2.png",
+      "status": "measured",
+      "hidden_pixel_count": 305,
+      "bounding_box": [
+        122,
+        162,
+        144,
+        180
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 233,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "seg_4",
+          "pixels": 72,
+          "material": "seg_4 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 42,
+          "material": "seg_3 approved paint"
+        },
+        {
+          "part": "seg_4",
+          "pixels": 20,
+          "material": "seg_4 approved paint"
+        }
+      ],
+      "material": "leg_near_2 approved paint",
+      "paint_nodes": [
+        "leg_near_2"
+      ]
+    },
+    {
+      "part": "leg_near_3",
+      "view": "rear",
+      "image": "hidden_requests/rear_leg_near_3.png",
+      "status": "measured",
+      "hidden_pixel_count": 255,
+      "bounding_box": [
+        113,
+        181,
+        130,
+        200
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 255,
+          "material": "seg_4 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_4",
+          "pixels": 55,
+          "material": "seg_4 approved paint"
+        }
+      ],
+      "material": "leg_near_3 approved paint",
+      "paint_nodes": [
+        "leg_near_3"
+      ]
+    },
+    {
+      "part": "leg_far_1",
+      "view": "rear",
+      "image": "hidden_requests/rear_leg_far_1.png",
+      "status": "measured",
+      "hidden_pixel_count": 165,
+      "bounding_box": [
+        190,
+        161,
+        212,
+        177
+      ],
+      "solo_outside_paint_pixels": 189,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 161,
+          "material": "seg_1 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 7,
+          "material": "head approved paint"
+        },
+        {
+          "part": "seg_1",
+          "pixels": 36,
+          "material": "seg_1 approved paint"
+        }
+      ],
+      "material": "leg_far_1 approved paint",
+      "paint_nodes": [
+        "hidden_leg_far_1"
+      ]
+    },
+    {
+      "part": "leg_far_2",
+      "view": "rear",
+      "image": "hidden_requests/rear_leg_far_2.png",
+      "status": "measured",
+      "hidden_pixel_count": 155,
+      "bounding_box": [
+        168,
+        173,
+        182,
+        189
+      ],
+      "solo_outside_paint_pixels": 57,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_2",
+          "pixels": 155,
+          "material": "seg_2 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_2",
+          "pixels": 33,
+          "material": "seg_2 approved paint"
+        }
+      ],
+      "material": "leg_far_2 approved paint",
+      "paint_nodes": [
+        "hidden_leg_far_2"
+      ]
+    },
+    {
+      "part": "leg_far_3",
+      "view": "rear",
+      "image": "hidden_requests/rear_leg_far_3.png",
+      "status": "measured",
+      "hidden_pixel_count": 70,
+      "bounding_box": [
+        145,
+        195,
+        158,
+        208
+      ],
+      "solo_outside_paint_pixels": 32,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 70,
+          "material": "seg_3 approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "seg_3",
+          "pixels": 22,
+          "material": "seg_3 approved paint"
+        }
+      ],
+      "material": "leg_far_3 approved paint",
+      "paint_nodes": [
+        "hidden_leg_far_3"
+      ]
+    }
+  ]
+}

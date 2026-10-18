@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "fps": 60,
+  "frames": 678,
+  "seconds": 11.3,
+  "plan": [
+    [
+      "idle",
+      3
+    ],
+    [
+      "move",
+      3
+    ],
+    [
+      "bite",
+      2
+    ],
+    [
+      "kindle",
+      2
+    ],
+    [
+      "hit",
+      2
+    ],
+    [
+      "death",
+      1
+    ]
+  ],
+  "death_hold_seconds": 1,
+  "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/ember_tick/mq5/proof/native",
+  "native_manifest_sha256": "3f8df125537c7ce6c67f31eff20c1847360ed0b0653e68e34f16ab17b729831d",
+  "video_sha256": "07dcc9a7a54ca1649f45e9fff3b114d808a1bf14a5381ea99b933813b33f5c29"
+}

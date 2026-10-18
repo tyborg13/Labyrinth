@@ -146,3 +146,17 @@
       robes and capes.
   - → humanoid rig v2 (`spec/peer_benchmark/humanoid_cutout_rig.md`): mq-06 (rear turn fix), the director's rear
     repaint, then rr-10 (Seer v2). Thrall, Herald, Gloam and Lancer follow.
+- 2026-10-18 thrall-rig NEEDS CHANGES (owner): "Right arm doesn't seem to connect high enough to match the left. Walk
+  is unnatural with no knee bend. Idle is more of a ripple than a bob. Attack (I assume) swings the gun arm backwards
+  so it makes no sense. Rear view shows the inside of the gun thing where it should be going into the arm. Front view
+  just paints the hand over it, which makes no sense. Generally, these cutouts are not reaching our standard."
+  - Director diagnosis:
+    - The mq5 paint-over broke the original concept. The approved old Thrall's near forearm is sheathed in a capped
+      iron tube with no hand. The mq5 front paints a hand over the tube, and the mq5 rear shows an open pipe end.
+    - The tether/jab raised the near arm by rotation, and the sign carried it backward. Translation-led hand targets
+      remove that class of error.
+    - The rr-07 move had no leg solve.
+    - The far claw arm reads as growing from mid-chest.
+  - → Thrall repaint r2 (both views: a capped tube sheathing the forearm, the arm entering at the elbow, no hand, both
+    shoulders at the real shoulder). Spec additions: knee-bend walking and shoulder attachment. Then the Thrall v2 rig
+    after rr-10.

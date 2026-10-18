@@ -19,6 +19,10 @@ static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	if data.is_empty() or bool(effect.get("cancelled", false)): return ""
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
+	# The existing Kindle resolver emits a status snapshot. Normalize only its
+	# presentation selector; preserve the resolver step and protected clip data.
+	if str(actor.get("type", "")) == "ember_tick" and intent == "kindle" and verb == "status" and effect.has("enemy_after"):
+		verb = "kindle"
 	for clip: String in data["clips"]:
 		for selector: String in data["clips"][clip].get("intents", []):
 			if selector == intent or selector == intent + ":" + verb: return clip

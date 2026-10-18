@@ -1,0 +1,43 @@
+{
+  "complete": true,
+  "method": "diffusion",
+  "requests": 28,
+  "filled_requests": 25,
+  "pending_design": [],
+  "review_decisions": {},
+  "cross_view_requests": 5,
+  "remaining_magenta_pixels": 0,
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "81fac4952fe9cdbc200b08b604cd21e985d884a3458803e54375a8e1028efc6a"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "688291f0f0755ddc979953968b51006674fa38e8185866f6bb1667f38856998d"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "burrow_grub",
+    "layouts": {
+      "front": {
+        "joints": 15,
+        "parts": 25,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 15,
+        "parts": 24,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true
+}

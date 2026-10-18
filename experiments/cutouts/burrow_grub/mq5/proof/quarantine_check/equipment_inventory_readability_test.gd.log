@@ -1,0 +1,75 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328656048650000-48156
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328656048650000-48156
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328656048650000-48156/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/equipment_inventory_readability_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must never clip mid-word: Riposte Lunge, Parry Rhythm, Needle Thrust
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must never clip mid-word: Mirror Feint, Mirror Flash
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must never clip mid-word: Cinderweave Guard, Cinder Patch
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must never clip mid-word: Cloudstep Loop, Zephyr Feint
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must never clip mid-word: Worldroot Stride, Rooted Kick
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must never clip mid-word: Borrowed Spark, Cinder Second
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+EQUIPMENT INVENTORY READABILITY TEST RESULT: FAIL
+ERROR: Inventory copy must retain readable type sizes
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/equipment_inventory_readability_test.gd:99)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
