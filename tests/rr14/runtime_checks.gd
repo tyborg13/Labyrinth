@@ -36,6 +36,7 @@ func _run() -> void:
 	check(rig.get_node_or_null("loincloth") != null, "loincloth is a skinned mesh")
 	if args.has("--invalid-knee-policy"):
 		invalid_knee_policy(layout, args[args.find("--invalid-knee-policy") + 1])
+		for failure: String in failures: push_error(failure)
 		rig.free()
 		quit(1)
 		return
@@ -168,3 +169,5 @@ func invalid_knee_policy(layout: Dictionary, mode: String) -> void:
 		data["legs"]["near"][view]["bend_side"] = 1 if view == "rear" else -1
 	var world: Dictionary = Humanoid.world_transforms(data, "idle", 0.0, bad, view)
 	check(world.is_empty(), "invalid knee policy must reject the entire pose")
+	# The expected nonzero exit alone cannot prove that no pose was returned.
+	if failures.is_empty(): print("RR14 KNEE POLICY REJECTED: " + mode)

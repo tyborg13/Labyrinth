@@ -126,6 +126,7 @@ class AnatomyTests(unittest.TestCase):
             (SCRATCH / ('invalid-knee-' + mode + '.log')).write_text(log)
             with self.subTest(mode=mode):
                 self.assertNotEqual(result.returncode, 0, log)
+                self.assertIn('RR14 KNEE POLICY REJECTED: ' + mode, result.stdout.splitlines(), log)
                 self.assertIn('Invalid humanoid leg IK: legs.near.', log)
                 self.assertIn('disagrees with rest bend side' if mode.startswith('conflict') else 'required for straight rest leg', log)
                 self.assertNotIn('Parse Error', log)
