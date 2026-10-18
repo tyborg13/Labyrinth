@@ -1,0 +1,64 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-0386a56a35e8468ea25e81aeb4d06524
+BLENDER_BRIDGE_STARTED: mq03-0386a56a35e8468ea25e81aeb4d06524
+SOLID_WORKFLOW: burrow_grub/capture; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-679c91f1b4d54c69abffe6f68bcbb27f
+BLENDER_BRIDGE_STARTED: mq03-679c91f1b4d54c69abffe6f68bcbb27f
+SOLID_WORKFLOW: burrow_grub/cold_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-41dd2f4ce265408a925cb519ad011f22
+BLENDER_BRIDGE_STARTED: mq03-41dd2f4ce265408a925cb519ad011f22
+SOLID_WORKFLOW: burrow_grub/exact_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-c4997665e05b408d9c874a2208bae952
+BLENDER_BRIDGE_STARTED: mq03-c4997665e05b408d9c874a2208bae952
+SOLID_WORKFLOW: burrow_grub/material_mutation; exit=0
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=10503370; packed_bytes=2410112
+DELIVERY_STAGE: PASS; burrow_grub
+BLENDER_BRIDGE_SUBMITTED: mq03-830e1de9df4b4b468725682cffc1e094
+BLENDER_BRIDGE_STARTED: mq03-830e1de9df4b4b468725682cffc1e094
+SOLID_WORKFLOW: ember_tick/capture; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-4a9ee6267258484687ed539f7a36cc0d
+BLENDER_BRIDGE_STARTED: mq03-4a9ee6267258484687ed539f7a36cc0d
+SOLID_WORKFLOW: ember_tick/cold_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-5de39690d1f84bd386323e98b52d9edc
+BLENDER_BRIDGE_STARTED: mq03-5de39690d1f84bd386323e98b52d9edc
+SOLID_WORKFLOW: ember_tick/exact_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-6ec4c801f05e4b0da12768adaa6caa81
+BLENDER_BRIDGE_STARTED: mq03-6ec4c801f05e4b0da12768adaa6caa81
+SOLID_WORKFLOW: ember_tick/material_mutation; exit=0
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12144170; packed_bytes=2453128
+DELIVERY_STAGE: PASS; ember_tick
+BLENDER_BRIDGE_SUBMITTED: mq03-8916cc006a9b4abd9d2329beb2a36c43
+BLENDER_BRIDGE_STARTED: mq03-8916cc006a9b4abd9d2329beb2a36c43
+SOLID_WORKFLOW: glacial_mirror/capture; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-876e9c6f53364a7db16d89631b456394
+BLENDER_BRIDGE_STARTED: mq03-876e9c6f53364a7db16d89631b456394
+SOLID_WORKFLOW: glacial_mirror/cold_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-5b187b1daaa84594b1e651f6e57421f5
+BLENDER_BRIDGE_STARTED: mq03-5b187b1daaa84594b1e651f6e57421f5
+SOLID_WORKFLOW: glacial_mirror/exact_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-42d4cbfd7fd14e7cafd99f898a96fd22
+BLENDER_BRIDGE_STARTED: mq03-42d4cbfd7fd14e7cafd99f898a96fd22
+SOLID_WORKFLOW: glacial_mirror/material_mutation; exit=0
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12648419; packed_bytes=3763881
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/spec_native.json
+DELIVERY_STAGE: PASS; glacial_mirror
+| Figure | Front IoU ≥0.70 | Rear IoU ≥0.65 | Fit and all parts |
+|---|---:|---:|---|
+| burrow_grub | 0.730941 | 0.681472 | PASS |
+| ember_tick | 0.716118 | 0.680897 | PASS |
+| glacial_mirror | 0.769370 | 0.729297 | PASS |
+SOLID_ROSTER_REVIEW: PASS
+BLENDER_BRIDGE_SUBMITTED: mq03-d7e322cb2d144dd9975368f5101aa5b1
+BLENDER_BRIDGE_STARTED: mq03-d7e322cb2d144dd9975368f5101aa5b1
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=10505818; packed_bytes=2410248
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/ember_tick/proof/regeneration/clean_project/spec/art_identity/maquettes/ember_tick/spec_native.json
+CLEAN_REGENERATION: PASS; burrow_grub; canonical_png_sha256=true
+BLENDER_BRIDGE_SUBMITTED: mq03-a90ee2ade33b4bc7bce2f104a8defb7c
+BLENDER_BRIDGE_STARTED: mq03-a90ee2ade33b4bc7bce2f104a8defb7c
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12147118; packed_bytes=2453262
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/spec_native.json
+CLEAN_REGENERATION: PASS; ember_tick; canonical_png_sha256=true
+BLENDER_BRIDGE_SUBMITTED: mq03-c0ce2df585e9411fa62db843ba450725
+BLENDER_BRIDGE_STARTED: mq03-c0ce2df585e9411fa62db843ba450725
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12651117; packed_bytes=3764023
+CLEAN_REGENERATION: PASS; glacial_mirror; canonical_png_sha256=true
+SOLID_NATIVE_DELIVERY: PASS; figures=3

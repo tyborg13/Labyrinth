@@ -1,0 +1,22 @@
+test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... FAIL
+
+======================================================================
+FAIL: test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_delivery_validation.py", line 185, in test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools
+    self.assertNotEqual(result.returncode, 0, result.stdout)
+AssertionError: 0 == 0 : FITTED_CONTACT_SHEET: /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0rctsn26/arc_thrall/review/fit_overlay_contact_sheet.png
+| Figure | Front IoU (≥0.70) | Rear IoU (≥0.65) | Native geometry | Visible part-views |
+|---|---:|---:|---|---:|
+| arc_thrall | 0.722267 | 0.703515 | PASS | 34/34 |
+MAQUETTE_TECHNICAL_GATES: PASS
+MAQUETTE_DESIGN_FIELDS: COMPLETE
+MAQUETTE_IMPLEMENTATION_FIELDS: COMPLETE
+MAQUETTE_QUALITY_DELIVERY: PASS
+
+
+----------------------------------------------------------------------
+Ran 1 test in 2.560s
+
+FAILED (failures=1)

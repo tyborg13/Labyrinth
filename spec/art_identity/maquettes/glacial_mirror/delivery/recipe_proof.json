@@ -1,0 +1,50 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "3246cbe99d4274d88a9e19dd6c5d43c6c1d77182b68fb54d49f212c7e0e680e3",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 35,
+  "joint_errors": {
+    "pelvis": 3.332000937312528e-08,
+    "torso": 5.890201144234053e-09,
+    "head": 2.598160480471866e-07,
+    "shoulder_near": 1.2377834115800373e-07,
+    "elbow_near": 1.228781230931777e-07,
+    "hand_near": 1.9082797281243946e-07,
+    "hip_near": 2.5258676990909333e-06,
+    "knee_near": 3.332000937312528e-07,
+    "ankle_near": 8.971687092477304e-08,
+    "shoulder_far": 1.999200562387517e-07,
+    "elbow_far": 1.3657139822709083e-07,
+    "hand_far": 9.541398640621973e-08,
+    "hip_far": 3.0036838028184444e-06,
+    "knee_far": 5.966544077546133e-07,
+    "ankle_far": 2.0485709734063626e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "f8c8f9627f54d21edd1700e8cd2390d3773bef390f6a0c41e953114330b09974",
+    "replay": "f8c8f9627f54d21edd1700e8cd2390d3773bef390f6a0c41e953114330b09974",
+    "independent_cold": "f8c8f9627f54d21edd1700e8cd2390d3773bef390f6a0c41e953114330b09974"
+  },
+  "delivery_binding": {
+    "spec_hash": "3246cbe99d4274d88a9e19dd6c5d43c6c1d77182b68fb54d49f212c7e0e680e3",
+    "cold_mesh_hash": "f8c8f9627f54d21edd1700e8cd2390d3773bef390f6a0c41e953114330b09974",
+    "report_sha256": {
+      "build_report.json": "c40c733d2b6b2d9d32e52fd417178c7cad9d0f36db458e279a8e0cda1157c451",
+      "capture_checks.json": "77f3db5725a0664363981be256edb85118e20e11c273b3376c388d4594a44064",
+      "facing_report.json": "d4dc9dd596cc0bfa0565cf0ad9e7c65d031c121a19aa662891f2ce821b78dbba",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "936fd0a7692df644b3ac42195b613ae238a486fe3fd7a860742054ac12146706",
+      "capture_packing.json": "61646b990ae90dd4fdf98617ce0f9dbab7e78998987c20c99500af0ed25a5deb",
+      "fit_report.json": "7f45ab4ae1617dfd89f77769cdc4c4960d36a56541e15e78419c4af49beaebec",
+      "capture_manifest.json": "0c33bd0b05868b53f71783d2e5688dc81783ecced85d081aa29901a5bc3b9c0b",
+      "native_render_manifest.json": "7d31d55baaca31ba7ec4b3e9b2d274e0024301a4b73632bc12a704a65aa27097"
+    },
+    "exact_native_replay_sha256": "789fad3a995f26dd02d777c2ef510663c14787f8aab089d69c2281e3b7cac377"
+  }
+}

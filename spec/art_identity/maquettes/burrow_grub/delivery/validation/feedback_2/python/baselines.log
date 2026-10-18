@@ -1,0 +1,22 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-7d0e5b0433af4dbc92462577c2e0b4e8
+BLENDER_BRIDGE_STARTED: mq03-7d0e5b0433af4dbc92462577c2e0b4e8
+CLEAN_REGENERATION: PASS; frostglass_lancer; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/hoarfrost_seer/clean_project/spec/art_identity/maquettes/hoarfrost_seer/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-bf837967d2174c038f0fb5cb8abd6caa
+BLENDER_BRIDGE_STARTED: mq03-bf837967d2174c038f0fb5cb8abd6caa
+CLEAN_REGENERATION: PASS; hoarfrost_seer; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gale_herald/clean_project/spec/art_identity/maquettes/gale_herald/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-1dff626a5efb4fddb2aae13e777f995a
+BLENDER_BRIDGE_STARTED: mq03-1dff626a5efb4fddb2aae13e777f995a
+CLEAN_REGENERATION: PASS; gale_herald; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-22974c51f3624eeab038eabc13be8525
+BLENDER_BRIDGE_STARTED: mq03-22974c51f3624eeab038eabc13be8525
+CLEAN_REGENERATION: PASS; arc_thrall; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_2_baselines/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-0e8aaa4b81f743588afaee9b98fc7c48
+BLENDER_BRIDGE_STARTED: mq03-0e8aaa4b81f743588afaee9b98fc7c48
+CLEAN_REGENERATION: PASS; gloam_stalker; canonical_png_sha256=true
+BLENDER_BRIDGE_SUBMITTED: mq03-88554e0852354a52a66877ea9a128b58
+BLENDER_BRIDGE_STARTED: mq03-88554e0852354a52a66877ea9a128b58
+BASELINE_REGENERATIONS: PASS; figures=5; required_clays_and_maps=true

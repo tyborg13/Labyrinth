@@ -1,0 +1,15 @@
+test_collision_and_ownership_details_cannot_hide_behind_true_summary (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_hash_binding_is_required_and_current (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_passed_and_check_field_rejects_false_or_missing_even_before_sealing (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_every_report_is_required (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_required_part_rejection_is_exercised_directly (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_staging_preserves_native_png_bytes_including_stamps (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_valid_current_delivery (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 3.521s
+
+OK
+DELIVERY_STAGE: PASS; staged

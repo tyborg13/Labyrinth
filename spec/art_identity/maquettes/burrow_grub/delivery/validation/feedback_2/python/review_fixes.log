@@ -1,0 +1,16 @@
+test_all_tick_contacts_match_paint_and_the_ground_plane (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+test_every_required_modifier_must_evaluate_in_both_modes (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+test_failed_zero_stale_and_forged_fit_rejected_for_every_figure (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+test_frozen_surface_must_differ_from_base_mesh (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+test_native_contacts_and_sculpted_sections_cannot_be_omitted (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+test_native_spec_regeneration_requires_both_clays_and_maps (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 44.097s
+
+OK
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 4636378, "figure": "burrow_grub", "files": 108}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5285615, "figure": "ember_tick", "files": 86}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 4786024, "figure": "glacial_mirror", "files": 76}
+CLEAN_REGENERATION: PASS; native_fixture; canonical_png_sha256=true
