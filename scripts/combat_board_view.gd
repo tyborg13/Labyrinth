@@ -14,6 +14,7 @@ const KindleView = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ScenePropRedraws = preload("res://scripts/board_scene_prop_redraws.gd")
+const PropMossGeometry = preload("res://scripts/board_prop_moss_geometry.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const HeroStrikeTrail = preload("res://scripts/hero_strike_trail.gd")
@@ -3650,6 +3651,7 @@ func _foreground_obstruction_candidates() -> Array:
 		"navigation_zoom": _navigation_zoom,
 		"navigation_pan": _navigation_pan,
 		"grid": combat_state.get("grid", []),
+		"moss": combat_state.get("moss", {}),
 		"scene_props": presentation.get("scene_props", []),
 		"terrain": combat_state.get("terrain", []),
 		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", [])
@@ -3679,6 +3681,11 @@ func _foreground_obstruction_candidates() -> Array:
 				var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
 				if door_texture != null:
 					candidates.append({"tile": tile, "rect": _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid)), "tile_id": "door"})
+		var moss: Dictionary = PropMossGeometry.for_tile(self, tile_id, grid, tile)
+		if not moss.is_empty():
+			candidates.append(moss)
+		# Pillar torch fixtures, halos and embers inherit the body rectangle's
+		# tint (then apply their alpha floor); they have no separate tint input.
 		for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
 			if typeof(terrain_var) != TYPE_DICTIONARY:
 				continue
@@ -7274,35 +7281,11 @@ func _refresh_moving_foreground_obstruction_entries(moving_actor_keys: Dictionar
 	return true
 
 func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstruction_entries: Array) -> void:
-	if tile_id == "pillar":
-		if not _tile_has_moss("pillar", tile):
-			return
-		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
-		if pillar_texture == null:
-			return
-		var frame_rect: Rect2 = _prop_rect_for_tile(tile)
-		var draw_rect: Rect2 = _prop_draw_rect(pillar_texture, frame_rect)
-		var texture: Texture2D = _moss_texture_for_surface("pillar", tile)
-		if texture == null:
-			return
-		var moss_rect: Rect2 = _pillar_moss_rect(draw_rect)
-		_draw_world_texture(texture, moss_rect, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
+	var moss: Dictionary = PropMossGeometry.for_tile(self, tile_id, grid, tile)
+	if moss.is_empty():
 		return
-	if tile_id != "wall" or not _tile_has_moss("wall", tile):
-		return
-	var orientation: String = _wall_orientation_for_tile(grid, tile)
-	if orientation.is_empty():
-		return
-	var wall_texture: Texture2D = _prop_textures.get("wall_%s" % orientation, _prop_textures.get("wall", null))
-	if wall_texture == null:
-		return
-	var frame_rect: Rect2 = _prop_rect_for_tile(tile)
-	var draw_rect: Rect2 = _prop_draw_rect(wall_texture, frame_rect)
-	var texture: Texture2D = _moss_texture_for_surface("wall", tile, orientation == "col")
-	if texture == null:
-		return
-	var moss_rect: Rect2 = _wall_moss_rect(draw_rect)
-	_draw_world_texture(texture, moss_rect, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
+	var moss_rect: Rect2 = moss["rect"]
+	_draw_world_texture(moss["texture"], moss_rect, _foreground_blocker_tint(moss["tile_id"], tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
 
 func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = []) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)

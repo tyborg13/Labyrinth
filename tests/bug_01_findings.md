@@ -6,16 +6,28 @@ fixture-input cases. The 62 other cases are equal controls. All 212 temporal
 pairs are equal, rejecting shader TIME as the cause. See the complete
 [case classification](bug_01_native_classification.md) and
 [feedback-4 verification/native handoff](bug_01_feedback_4.md). Current review-fix
-verification is in [bug_01_feedback_5.md](bug_01_feedback_5.md).
+verification is in [bug_01_feedback_6.md](bug_01_feedback_6.md); the previous
+review fixes and their observed results remain in
+[bug_01_feedback_5.md](bug_01_feedback_5.md).
 
 Production now redraws foreground candidates only when the draw path's complete
-effective alpha changes, including unchanged actors and objects. No authored
+effective alpha changes, including unchanged actors and objects. Pillar and wall
+moss use one shared geometry resolver for drawing and candidate collection;
+their tint can change independently of the body. No authored
 opacity, timing, assets, mechanics, analytics, saves or input paths change.
 Native comparisons retain strict pixel equality against independently fresh
 production with equivalent complete inputs and settled HP transients. Original
 pixels are asserted only for explicit unchanged submissions; structural reference
 and cached-floor assertions stay. Changes are uncommitted
-on `codex/bug-01`, based on owner-merged integration HEAD `aa3a6bf58`.
+on `codex/bug-01`, based on owner-merged integration HEAD `6e9791666`.
+
+The feedback-6 moss onset/removal regression fails before the fix, passes after,
+and fails again when only moss candidates are removed. Its independent fixture
+preserves the 106 numbered native cases and existing positive/negative assertions.
+Feedback-6 four focused programs and dump-enabled headless floor all pass;
+full Godot reports `TEST RESULT: PASS`, 331.208 seconds. Full Python reports
+`Ran 702 tests in 702.598s` / `OK (skipped=63)`. Complete result lines, mutation
+evidence and native commands are in its linked handoff.
 
 For feedback 5, the four focused programs and dump-enabled headless floor program pass, and the
 unconditional-candidate-redraw mutation now fails the new negative assertions.
@@ -31,7 +43,7 @@ failure and the successful same-limits recheck are retained in the feedback-5 ha
 | `prepared_other_character_view_test.gd` | Stale fixture | None demonstrated. Reversing the migrated empty reserve changes nothing. | `5b766ff7e` (deck-01; integrated by `3f8a19b15`). Timing-dependent boundary counting dates to `809d5b9ce`. | Reverse the active deck and assert that the input key really changes. Stop cancellation enumeration at an actually absent boundary, assert uninterrupted completion and fail on safety-limit exhaustion. Trigger owner termination when both future columns are attached and assert it occurred. | Existing input-capture/cancellation/ownership assertions; new source-mutation, scan-completion and complete-column termination preconditions. |
 | `retained_character_inventory_equivalence_test.gd` | Stale time input | None demonstrated. Opening an unread tab legitimately commits elapsed run time; the two scenes sample different wall times. | `13ffa4a8a` (fix-02; integrated by `0d54a5970`). | Freeze the external clock before either scene is ready. Keep real sampling/commit/save logic and the entire dictionary comparison. | Existing `Presentation must not mutate authoritative state` and `Boundary open must preserve original authoritative state`. |
 | `shop_retained_content_test.gd` | Stale paging fixture | None demonstrated. Its seven entries fit one nine-slot page; the page never advanced. | `b6d717756` changed page size from 2 to 9. This predates requested baseline `816f5e68a`. | Add spare gear locally until the fixture actually spans multiple pages. Shared flow data and production are unchanged. | Existing unchanged-page/control-identity assertions; new multi-page fixture precondition. |
-| `static_floor_cache_equivalence_test.gd` | Bug plus stale references/fixtures | A new prop can remain obscured by an opaque pillar; removal can leave the pillar faded until an unrelated redraw. No stale lighting/navigation/room floor demonstrated. | `7d38b66ce` introduced prop-tile-only redraws, before requested baseline `816f5e68a`. Stale inputs also date to `5923db9da` and `6b4927d2f`. | Queue foreground candidates whose prop obstruction changes. Correct encounter closure, navigation setup and HP transients in proof; use strict fresh production pixels for changed presentations. | `Scene prop onset/removal must redraw its obstructing pillar` fails before fix and passes after. All 106 cases independently compare geometry, HUD, obstruction and floor inputs; native complete-pixel and one-pixel mutation proof pending owner run. |
+| `static_floor_cache_equivalence_test.gd` | Bug plus stale references/fixtures | A new prop can remain obscured by an opaque pillar or moss overlay; removal can leave it faded until an unrelated redraw. No stale lighting/navigation/room floor demonstrated. | `7d38b66ce` introduced prop-tile-only redraws, before requested baseline `816f5e68a`; `561e9ee4f` missed independently tinted moss. Stale inputs also date to `5923db9da` and `6b4927d2f`. | Queue body and moss candidates only when effective draw alpha changes; share moss geometry with drawing. Correct encounter closure, navigation setup and HP transients in proof; use strict fresh production pixels for changed presentations. | `Scene prop onset/removal must redraw its obstructing pillar` and `check_moss_obstruction` fail before their fixes and pass after; moss-candidate mutation fails both new assertions. All 106 cases independently compare geometry, HUD, obstruction and floor inputs; native complete-pixel and one-pixel mutation proof pending owner run. |
 
 The intended contracts already exist in production: deck-01 migrates reserve
 spells into the active deck; fix-02 commits scene-owned time at save boundaries;
@@ -98,10 +110,14 @@ or registration replaces them; focused commands use qa-07's runner directly.
 
 - `scripts/board_scene_prop_redraws.gd` and `scripts/combat_board_view.gd`:
   targeted invalidation of foreground candidates obstructing changed props.
+- `scripts/board_prop_moss_geometry.gd`: identical pillar/wall moss geometry and
+  tile ids for drawing and retained-layer invalidation (feedback 6).
 - `tests/fixtures/static_floor_fresh_checks.gd`: independent geometry, HUD,
   obstruction, settled-ghost and complete floor-input regressions in every case.
 - `tests/fixtures/static_floor_scene_prop_checks.gd`: unaffected-pillar and
-  already-actor-obstructed-pillar onset/removal negatives, with real alpha checks.
+  already-actor-obstructed-pillar onset/removal negatives, plus independent moss
+  onset/removal positives with unchanged body alpha and selective-redraw checks.
+- `tests/bug_01_feedback_6.md`: review 6e9791666 fixes and current verification.
 - `tests/bug_01_feedback_5.md`: review aa3a6bf58 fixes and current verification.
 - `tests/bug_01_native_classification.md`: all 106 owner-run case classifications.
 - `tests/bug_01_feedback_4.md`: current commands, verification and open issues.
@@ -264,8 +280,9 @@ argument in the current proof and mutation commands. It is not enforced by a
 GDScript constant; the unused `NATIVE_DUMP_TIMEOUT_SECONDS` was removed in
 feedback 5. The native commands and strict pixel contract remain unchanged.
 
-The next requested runs are the feedback-4 proof and mutation commands in
-[bug_01_feedback_4.md](bug_01_feedback_4.md). The two feedback-1 commands below
+Current proof and mutation commands are in
+[bug_01_feedback_6.md](bug_01_feedback_6.md#proof-for-the-design-owner), with fresh
+feedback-6 manifest paths and the real runner timeout. The two feedback-1 commands below
 were run by the owner and failed; they are not evidence of a native pass.
 
 Revised native proof is pending: this sandbox has no window-server access. No
@@ -298,9 +315,9 @@ The positive manifest records validated image paths. Expected positive lines:
 `STATIC FLOOR CACHE RESULT` with `native:true`, `cases:106`, empty `errors` and
 empty `pixel_differences`. These native results have not been observed here.
 Inspect the native captures before concluding visual equivalence.
-No playable inspection fixture is needed for this test-only change; the required
-manual inspection is the native restored/fresh/reference comparison and floor
-mutation check. The owner handles Git, review, inspection and publication.
+The assigned inspection is the native restored/fresh/reference comparison and
+floor mutation check. The owner handles inspection fixtures, Git, review and
+publication; no new playable fixture was prepared by this implementation worker.
 
 ## TODO_DESIGN placeholders
 
@@ -329,6 +346,9 @@ Only test/proof/execution inputs were chosen:
   in the fixed room envelope from entry; no production encounter value changes.
 - Contract `min_luma_range = 8`, `min_luma_stdev = 2`: reject blank proof images.
 - `PROOF_SIZE = 1920x1080`, `PROOF_UI_SCALE = 1.0`: mandated proof settings.
+- `MOSS_HERO_TILE = (6,5)`, `MOSS_BRAZIER_TILE = (5,5)`: the feedback-6 review's
+  exact regression inputs; pillar (6,6), width/baseline fields and expected alpha
+  reuse existing fixture fields and production constants.
 
 ## Open issues / scope limits
 
@@ -336,7 +356,7 @@ Only test/proof/execution inputs were chosen:
 - The full suite prints ObjectDB leak warnings despite passing; the three instrumented equivalence
   programs report zero orphan nodes.
 - Task contracts are in `output/bug-01/contract.md` and
-  `output/bug-01/feedback-{1,2,3,4,5}-contract.md`; owner-managed metadata is untouched.
+  `output/bug-01/feedback-{1,2,3,4,5,6}-contract.md`; owner-managed metadata is untouched.
 
 No commit, push, merge, rebase, stash, branch switch, peer review, signoff, queue
 edit, or `tests/quarantine.json` edit was performed.

@@ -389,6 +389,7 @@ func _test_floor_inputs() -> void:
 	_check(_actual.queued_scene_tiles.has(Vector2i(6,6)), "Scene prop removal must redraw its obstructing pillar")
 	ScenePropChecks.check_unaffected(_actual, _check, "removal")
 	ScenePropChecks.check_already_obstructed(self, _actual, _check)
+	ScenePropChecks.check_moss_obstruction(self, _actual, _check)
 	for enabled: bool in [false, true]:
 		for board: Control in [_actual, _reference]: board.set_art_treatment_enabled(enabled)
 		await _draw_and_compare("floor art enabled " + str(enabled))
