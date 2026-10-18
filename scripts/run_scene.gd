@@ -24542,8 +24542,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		_sfx_router.begin_enemy_action(animated_state, step, dragon_actor)
 		if str(step.get("kind", "")) in ["push", "pull"]: _sfx_router.push()
 		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) not in ["burrow", "erupt"]:
+			# Hidden presentation owns completion, including recursively rendered
+			# visible spans. The outer dispatch must not settle the same hit again.
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
-			await _combat_pacing.after_step(step)
 			continue
 		if step.has("en05_after"):
 			if str(step.get("action_type", "")) == "dive_line": await preload("res://scripts/enemy_mechanics/dive_view.gd").animate(self, animated_state, step)
@@ -24660,6 +24661,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if str(step.get("kind", "")) == "status_damage" and not (step.get("surface_events",[]) as Array).is_empty():
 					await _animate_surface_change(before_status_step_state,animated_state,{"surface_feedback_events":step["surface_events"]})
 					await _animate_turn_order_alongside_defeats(before_status_step_state,animated_state)
+					await _combat_pacing.after_step(step)
 					continue
 				await _animate_floating_text_presentation(
 					animated_state,
@@ -24963,6 +24965,7 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 	}))
 	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
+	await _combat_pacing.after_step(step)
 
 func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictionary:
 	var kind: String = str(step.get("kind", ""))

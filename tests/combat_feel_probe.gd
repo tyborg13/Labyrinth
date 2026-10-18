@@ -24,7 +24,6 @@ const TIMELINE_TOLERANCE_SECONDS: float = 0.08
 const FIXTURE_SEED_SEARCH_COUNT: int = 64
 const ROUND_FREE_OFFSETS: Array = [Vector2i(0,0),Vector2i(1,0),Vector2i(2,0),Vector2i(0,-1),Vector2i(0,-2),Vector2i(0,-3),Vector2i(-1,0),Vector2i(-2,0),Vector2i(-3,0),Vector2i(-3,-1),Vector2i(0,1),Vector2i(0,2),Vector2i(0,3)]
 const ROUND_FOES: Array = [[1,"crawler",Vector2i(2,0),"skitter_strike"],[2,"acolyte",Vector2i(0,-3),"dust_bolt"],[3,"frostglass_lancer",Vector2i(0,3),"glass_lunge"],[4,"harrier",Vector2i(-3,-1),"darting_pelt"]]
-const ROUND_CAPTURE_FPS: int = 60
 const ROUND_CAPTURE_FRAME_USEC: int = 16667
 const BASELINE_COMMIT: String = "6c72aa134815d4bbdbec0c490f202d8ed6cd0e78"
 

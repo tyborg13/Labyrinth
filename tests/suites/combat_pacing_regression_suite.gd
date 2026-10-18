@@ -4,6 +4,7 @@ const Pacing = preload("res://scripts/combat_pacing.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
+const ActionPacing = preload("res://tests/suites/combat_action_pacing_suite.gd")
 const VICTORY_ENEMY_HP: int = 1
 const VICTORY_ENEMY_TILE: Vector2i = Vector2i(3, 4)
 const ENEMY_PHASE_DAMAGE: int = 1
@@ -40,6 +41,7 @@ class RemovalOwner:
 static func run(tree: SceneTree, expect: Callable) -> void:
 	_test_feedback_duration(expect)
 	await _action_waits(tree, expect)
+	await ActionPacing.run(tree, expect)
 	await _victory_board(tree, expect, false)
 	await _victory_board(tree, expect, true)
 	for death: bool in [true, false]: await _last_action_overlays(tree, expect, death)

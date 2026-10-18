@@ -9,7 +9,7 @@ const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
 const ENEMY_ACTION_SETTLE_SECONDS: float = 0.15
 const ENEMY_ACTION_LEAD_SECONDS: float = 0.25
-const ENEMY_ACTION_KINDS: Array = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "heal", "stoneskin", "status", "surface", "summon", "burrow", "erupt"]
+const ENEMY_ACTION_KINDS: Array = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "heal", "stoneskin", "status", "status_damage", "surface", "summon", "burrow", "erupt"]
 const FLASH_SECONDS: float = 0.140
 const WHITE_FLASH_PROFILE: int = 8
 # Unspecified perceptible curve: preserve the shipped linear fade until supplied.
@@ -36,6 +36,7 @@ var _banner_clock: int = 0
 var _actor: String = ""
 var _caption: String = ""
 var _caption_prefix: String = ""
+var _caption_target_prefix: String = ""
 var _phase: String = ""
 var _phase_started_usec: int = 0
 var _phase_started_clock: int = 0
@@ -110,6 +111,7 @@ func begin_enemies() -> void:
 	_actor = ""
 	_caption = ""
 	_caption_prefix = ""
+	_caption_target_prefix = ""
 	_phase = "banner"
 	_phase_started_usec = _round_started_usec
 	_phase_started_clock = _banner_clock
@@ -257,9 +259,13 @@ func _exit_tree() -> void:
 static func is_action_step(step: Dictionary) -> bool:
 	return str(step.get("kind", "")) in ENEMY_ACTION_KINDS
 
+static func action_actor_key(step: Dictionary) -> String:
+	# Ally-support steps apply to actor_key but belong to the source's turn.
+	return str(step.get("source_actor_key", step.get("actor_key", "")))
+
 static func activation_has_action(actor: String, steps: Array) -> bool:
 	for step: Dictionary in steps:
-		if str(step.get("actor_key", "")) == actor and is_action_step(step): return true
+		if action_actor_key(step) == actor and is_action_step(step): return true
 	return false
 
 func _wait_until(deadline: int) -> void:
@@ -270,7 +276,8 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 	var kind: String = str(step.get("kind", ""))
 	if kind == "commit":
 		return
-	var actor: String = str(step.get("actor_key", ""))
+	var actor: String = action_actor_key(step)
+	_caption_target_prefix = str(step.get("actor_name", "")) if step.has("source_actor_key") else ""
 	if actor != _actor:
 		_caption = ""
 		_caption_prefix = ""
@@ -299,7 +306,7 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 		_change_phase("wind-up")
 
 func caption_text(text: String) -> String:
-	if enemies_active and not _caption.is_empty() and text.begins_with(_caption_prefix+": "):
+	if enemies_active and not _caption.is_empty() and (text.begins_with(_caption_prefix+": ") or (not _caption_target_prefix.is_empty() and text.begins_with(_caption_target_prefix+": "))):
 		return _caption
 	return text
 
