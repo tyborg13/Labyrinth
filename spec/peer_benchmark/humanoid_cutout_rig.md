@@ -78,6 +78,10 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
     shoulder line.
   - The near and far shoulders differ in height only by the 3/4 perspective.
   - Neither arm may appear to grow out of the chest side.
+  - Measured on the maquette's front `joints_px.json` (1024 px): the far shoulder must sit higher than the near one,
+    by `0.15 × |x_near − x_far|` ± 10 px.
+  - mq-04 shipped the far shoulder below the near one for the Thrall (52 px low), the Gloam (56 px) and the Seer
+    (12 px).
 - **Hit** (0.5 s):
   - At 0.18: the torso moves 3 px back (opposite forward) and 1 px down, with a 3° lean back. It recovers by 0.6.
   - The head nods 4° back. The free hand trails 1 px.
