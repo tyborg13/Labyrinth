@@ -1,0 +1,11 @@
+[
+ {
+  "name": "veils and carapace: medium brown -> the identity's near-black brown (L 28 -> 22, warmth reduced); pale blades and mask untouched",
+  "min_lum": 0.0,
+  "max_lum": 0.45,
+  "min_chroma": 0.03,
+  "hue_deg": [0, 70],
+  "lab_scale": [0.8, 0.72, 0.55],
+  "box": [0, 0, 1024, 1024]
+ }
+]
