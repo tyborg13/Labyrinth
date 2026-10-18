@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    214,
+    142
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.1952259917402904,
+    "edge_light_share": 0.0,
+    "feature_px": 7.2332656534376865,
+    "height": 142,
+    "height_drawn": 142.0,
+    "orphan_share": 0.022834794676086546,
+    "regions": 303,
+    "run_length": 3.2532320952185514,
+    "symmetry": 0.349973523323545,
+    "thin_abs": 0.006244874787106558,
+    "thin_rel": 0.010786601905002247,
+    "value": 0.2426318141058227,
+    "width": 214
+  },
+  "pixel_sha256": "688291f0f0755ddc979953968b51006674fa38e8185866f6bb1667f38856998d",
+  "placement": [
+    21,
+    104
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/burrow_grub/mq5_front/kit.json",
+        "pixel_sha256": "81fac4952fe9cdbc200b08b604cd21e985d884a3458803e54375a8e1028efc6a"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "cf29dca130d753b19b0e5b87043d02105373c77ca9e9db18ea80bdcc776bed19",
+      "protected_body_share": {
+        "front": 0.00013330667199893355,
+        "rear": 0.0
+      },
+      "reference_pixel_sha256": "81fac4952fe9cdbc200b08b604cd21e985d884a3458803e54375a8e1028efc6a",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "ac56a6c08ad72d9a53edc2d67358c5538792e1cfffce4d7201b389f1e71c6a2d",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "5ab852e586ee84a4dc766cff538fee8afd1184c39a5e0285076dadb52fbc3f90",
+  "shift": [
+    0,
+    0
+  ]
+}

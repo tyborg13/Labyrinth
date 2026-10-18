@@ -15,7 +15,7 @@ const FIXTURE_PARTNER_ID: int = 3
 static func run(engine: RefCounted, fixture: Callable, intent: Callable, enemy: Callable, expect: Callable) -> void:
 	for type: String in ROSTER:
 		var registered: bool = Context.STATIC_ENEMY_TYPES.has(type)
-		if type in ["hoarfrost_seer", "arc_thrall"]:
+		if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick"]:
 			registered = Context.FAMILY_KEYS.get(type) == type + "_motion" and not Context.STATIC_ENEMY_TYPES.has(type)
 		expect.call(Data.enemy_def(type).has("intents") and registered and Scene.TURN_ORDER_PORTRAITS.has(type) and Strikes.REGISTRY.has(type), "%s retains enemy, presentation, strike and portrait registrations" % type)
 	var state: Dictionary = fixture.call(engine, "gale_herald")

@@ -2,7 +2,8 @@ extends RefCounted
 
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
-	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall"}
+	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
+	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick"}
 
 static func handles(type: String) -> bool:
 	return CREATURES.has(type)
@@ -11,7 +12,7 @@ static func handles(type: String) -> bool:
 ## instantiate its concrete runtime adapter, including future maquette rigs.
 static func renderer_script(type: String) -> Script:
 	if not handles(type): return null
-	if type in ["hoarfrost_seer", "arc_thrall"]:
+	if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick"]:
 		return load("res://assets/units/%s_cutout/renderer.gd" % type) as Script
 	return load("res://scripts/maquette_cutout_runtime/%s_renderer.gd" % CREATURES[type]) as Script
 

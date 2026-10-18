@@ -497,6 +497,86 @@
     "assets/units/hoarfrost_seer_cutout/front/rest.png": {
       "category": "other",
       "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+    },
+    "assets/units/burrow_grub_cutout/features/front_maw_tooth_ring.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/burrow_grub_cutout/features/rear_maw_tooth_ring.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/burrow_grub_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+    },
+    "assets/units/burrow_grub_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_rear_02.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_rear_03.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_rear_01.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_rear_04.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_rear_03.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_rear_02.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_rear_01.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_rear_04.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_front_03.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_front_01.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_front_02.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_front_02.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/front_ember_crack_front_03.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/features/rear_ember_crack_front_01.png": {
+      "category": "never_drawn",
+      "reason": "Feature ownership mask; metadata, never drawn"
+    },
+    "assets/units/ember_tick_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+    },
+    "assets/units/ember_tick_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
     }
   },
   "entries": [
@@ -4963,6 +5043,287 @@
         ],
         "rear": [
           "assets/units/hoarfrost_seer_cutout/rear/rest.png"
+        ]
+      }
+    },
+    {
+      "id": "burrow_grub_cutout",
+      "unit_type": "burrow_grub",
+      "kind": "rig",
+      "dir": "assets/units/burrow_grub_cutout",
+      "rig_script": "assets/units/burrow_grub_cutout/rig.gd",
+      "paths": [
+        "assets/units/burrow_grub_cutout/hidden/front/leg_far_1.png",
+        "assets/units/burrow_grub_cutout/hidden/front/leg_far_2.png",
+        "assets/units/burrow_grub_cutout/hidden/front/leg_far_3.png",
+        "assets/units/burrow_grub_cutout/hidden/front/leg_near_1.png",
+        "assets/units/burrow_grub_cutout/hidden/front/leg_near_3.png",
+        "assets/units/burrow_grub_cutout/hidden/front/seg_1.png",
+        "assets/units/burrow_grub_cutout/hidden/front/seg_2.png",
+        "assets/units/burrow_grub_cutout/hidden/front/seg_3.png",
+        "assets/units/burrow_grub_cutout/hidden/front/seg_4.png",
+        "assets/units/burrow_grub_cutout/hidden/front/seg_5.png",
+        "assets/units/burrow_grub_cutout/hidden/front/seg_6.png",
+        "assets/units/burrow_grub_cutout/hidden/front/tail.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/head.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/leg_far_1.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/leg_far_2.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/leg_far_3.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/leg_near_1.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/leg_near_2.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/leg_near_3.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/seg_1.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/seg_2.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/seg_3.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/seg_4.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/seg_5.png",
+        "assets/units/burrow_grub_cutout/hidden/rear/seg_6.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_head_leg_far_1.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_head_seg_1.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_leg_near_2_leg_near_3.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_1_leg_near_1.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_1_seg_2.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_2_leg_near_2.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_2_seg_3.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_3_leg_near_3.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_3_seg_4.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_4_leg_near_3.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_4_seg_5.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_5_seg_6.png",
+        "assets/units/burrow_grub_cutout/seams/front/seam_seg_6_tail.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_head_leg_far_1.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_head_seg_1.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_1_leg_far_1.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_1_leg_far_2.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_1_seg_2.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_2_leg_far_2.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_2_leg_far_3.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_2_seg_3.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_3_leg_far_3.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_3_seg_4.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_4_seg_5.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_5_seg_6.png",
+        "assets/units/burrow_grub_cutout/seams/rear/seam_seg_6_tail.png",
+        "assets/units/burrow_grub_cutout/segmented/front/feature_maw_tooth_ring.png",
+        "assets/units/burrow_grub_cutout/segmented/front/head.png",
+        "assets/units/burrow_grub_cutout/segmented/front/leg_far_1.png",
+        "assets/units/burrow_grub_cutout/segmented/front/leg_near_1.png",
+        "assets/units/burrow_grub_cutout/segmented/front/leg_near_2.png",
+        "assets/units/burrow_grub_cutout/segmented/front/leg_near_3.png",
+        "assets/units/burrow_grub_cutout/segmented/front/seg_1.png",
+        "assets/units/burrow_grub_cutout/segmented/front/seg_2.png",
+        "assets/units/burrow_grub_cutout/segmented/front/seg_3.png",
+        "assets/units/burrow_grub_cutout/segmented/front/seg_4.png",
+        "assets/units/burrow_grub_cutout/segmented/front/seg_5.png",
+        "assets/units/burrow_grub_cutout/segmented/front/seg_6.png",
+        "assets/units/burrow_grub_cutout/segmented/front/tail.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/head.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/leg_far_1.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/leg_far_2.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/leg_far_3.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/seg_1.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/seg_2.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/seg_3.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/seg_4.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/seg_5.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/seg_6.png",
+        "assets/units/burrow_grub_cutout/segmented/rear/tail.png"
+      ],
+      "frames": null,
+      "r": 0.85,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "burrow_grub.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/burrow_grub_cutout/front/rest.png",
+          "orphan_share": 0.02992734786376058,
+          "t": 1.0,
+          "grid": 1.18,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/burrow_grub_cutout/rear/rest.png",
+          "orphan_share": 0.022834794676086546,
+          "t": 1.0,
+          "grid": 1.18,
+          "mode": "clean"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/burrow_grub_cutout/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/burrow_grub_cutout/rear/rest.png"
+        ]
+      }
+    },
+    {
+      "id": "ember_tick_cutout",
+      "unit_type": "ember_tick",
+      "kind": "rig",
+      "dir": "assets/units/ember_tick_cutout",
+      "rig_script": "assets/units/ember_tick_cutout/rig.gd",
+      "paths": [
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_1_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_3_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_1_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_2_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_3_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_4_lower.png",
+        "assets/units/ember_tick_cutout/hidden/front/leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/hidden/front/shell.png",
+        "assets/units/ember_tick_cutout/hidden/rear/head.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_1_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_3_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_1_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_2_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_3_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_4_lower.png",
+        "assets/units/ember_tick_cutout/hidden/rear/leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/hidden/rear/shell.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_head_leg_far_1_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_head_leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_head_leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_head_shell.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_far_1_lower_leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_far_2_upper_leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_far_2_upper_leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_far_3_upper_leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_far_4_upper_leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_near_1_upper_leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_near_2_upper_leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_near_3_upper_leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_leg_near_4_upper_leg_near_4_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_3_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_1_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_2_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_3_upper.png",
+        "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_head_shell.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_1_lower_leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_1_upper_leg_far_1_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_1_upper_leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_2_lower_leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_2_upper_leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_3_upper_leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_3_upper_leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_4_upper_leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_1_upper_leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_2_upper_leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_3_lower_leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_3_upper_leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_4_upper_leg_near_4_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_3_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_1_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_2_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_3_upper.png",
+        "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/feature_ember_crack_front_01.png",
+        "assets/units/ember_tick_cutout/segmented/front/feature_ember_crack_front_02.png",
+        "assets/units/ember_tick_cutout/segmented/front/feature_ember_crack_front_03.png",
+        "assets/units/ember_tick_cutout/segmented/front/head.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_1_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_3_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_1_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_2_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_3_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_4_lower.png",
+        "assets/units/ember_tick_cutout/segmented/front/leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/segmented/front/shell.png",
+        "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_01.png",
+        "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_02.png",
+        "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_03.png",
+        "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_04.png",
+        "assets/units/ember_tick_cutout/segmented/rear/head.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_1_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_1_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_2_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_2_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_3_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_3_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_4_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_far_4_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_1_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_1_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_2_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_2_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_3_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_3_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_4_lower.png",
+        "assets/units/ember_tick_cutout/segmented/rear/leg_near_4_upper.png",
+        "assets/units/ember_tick_cutout/segmented/rear/shell.png"
+      ],
+      "frames": null,
+      "r": 0.86,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "ember_tick.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/ember_tick_cutout/front/rest.png",
+          "orphan_share": 0.042498302783435166,
+          "t": 1.0,
+          "grid": 1.16,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/ember_tick_cutout/rear/rest.png",
+          "orphan_share": 0.074503199730549,
+          "t": 1.122515998652745,
+          "grid": 1.31,
+          "mode": "regrid"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/ember_tick_cutout/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/ember_tick_cutout/rear/rest.png"
         ]
       }
     }

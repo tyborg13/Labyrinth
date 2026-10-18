@@ -1,0 +1,10 @@
+test_burrow_finishes_hidden_and_erupt_feedback_begins_at_contact (test_rr12_production.ProductionTests) ... ok
+test_frozen_idle_is_rejected (test_rr12_production.ProductionTests) ... ok
+test_kindle_bonus_and_effect_start_at_authored_contact (test_rr12_production.ProductionTests) ... ok
+test_real_callbacks_have_six_changing_frames_and_contact (test_rr12_production.ProductionTests) ... ok
+test_removed_contact_and_missing_action_are_rejected (test_rr12_production.ProductionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 65.801s
+
+OK

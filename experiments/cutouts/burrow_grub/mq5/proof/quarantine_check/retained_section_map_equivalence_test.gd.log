@@ -1,0 +1,560 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328824899393000-49646
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328824899393000-49646
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328824899393000-49646/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/retained_section_map_equivalence_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:87)
+              [2] _compare (res://tests/retained_section_map_equivalence_test.gd:114)
+              [3] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:87)
+              [2] _compare (res://tests/retained_section_map_equivalence_test.gd:114)
+              [3] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:87)
+              [2] _compare (res://tests/retained_section_map_equivalence_test.gd:114)
+              [3] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:87)
+              [2] _compare (res://tests/retained_section_map_equivalence_test.gd:114)
+              [3] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:87)
+              [2] _compare (res://tests/retained_section_map_equivalence_test.gd:114)
+              [3] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:87)
+              [2] _compare (res://tests/retained_section_map_equivalence_test.gd:114)
+              [3] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _compare (res://tests/retained_section_map_equivalence_test.gd:109)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (SectionMapPanel)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+SCRIPT ERROR: Invalid access to property or key '_continue' on a base object of type 'Control (section_map_panel_reference.gd)'.
+          at: _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+          GDScript backtrace (most recent call first):
+              [0] _snapshot (res://tests/retained_section_map_equivalence_test.gd:128)
+              [1] _run (res://tests/retained_section_map_equivalence_test.gd:97)
+              [2] _settle (res://tests/retained_section_map_equivalence_test.gd:135)
+RETAINED SECTION MAP EQUIVALENCE RESULT: {"cases":42,"errors":[]}
+error: Godot reported script or test failures despite exit code 0.

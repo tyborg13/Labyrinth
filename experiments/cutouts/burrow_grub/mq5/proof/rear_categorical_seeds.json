@@ -1,0 +1,58 @@
+{
+  "head": {
+    "rejected_fringe_seeds": 114,
+    "genuine_seeds": 733
+  },
+  "seg_1": {
+    "rejected_fringe_seeds": 69,
+    "genuine_seeds": 1357
+  },
+  "seg_2": {
+    "rejected_fringe_seeds": 83,
+    "genuine_seeds": 1635
+  },
+  "seg_3": {
+    "rejected_fringe_seeds": 65,
+    "genuine_seeds": 1644
+  },
+  "seg_4": {
+    "rejected_fringe_seeds": 85,
+    "genuine_seeds": 1854
+  },
+  "seg_5": {
+    "rejected_fringe_seeds": 85,
+    "genuine_seeds": 1610
+  },
+  "seg_6": {
+    "rejected_fringe_seeds": 76,
+    "genuine_seeds": 695
+  },
+  "tail": {
+    "rejected_fringe_seeds": 95,
+    "genuine_seeds": 2553
+  },
+  "leg_near_1": {
+    "rejected_fringe_seeds": 3,
+    "genuine_seeds": 0
+  },
+  "leg_near_2": {
+    "rejected_fringe_seeds": 0,
+    "genuine_seeds": 0
+  },
+  "leg_near_3": {
+    "rejected_fringe_seeds": 0,
+    "genuine_seeds": 0
+  },
+  "leg_far_1": {
+    "rejected_fringe_seeds": 47,
+    "genuine_seeds": 210
+  },
+  "leg_far_2": {
+    "rejected_fringe_seeds": 40,
+    "genuine_seeds": 228
+  },
+  "leg_far_3": {
+    "rejected_fringe_seeds": 44,
+    "genuine_seeds": 306
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "source": "Approved mq5 paintings; rr-12 feature ownership",
+  "selections": {
+    "maw_tooth_ring": {
+      "owner": "head",
+      "colour": "tooth_ring",
+      "front": [
+        31,
+        165,
+        75,
+        216
+      ],
+      "rear": null
+    }
+  },
+  "policy": "Source colour seeds in explicit source rectangles; one 8-neighbour pixel rim; fill bounded holes; intersect approved opaque paint",
+  "ember_colour_selection": {
+    "r_exclusive_min": 180,
+    "g_exclusive_min": 40,
+    "r_gt_g": true,
+    "g_gt_twice_b": true
+  },
+  "proof_defaults": {
+    "input_cell_px": 255,
+    "input_columns": 6,
+    "input_label_height_px": 30,
+    "outline_zoom": 8,
+    "outline_crop_margin_px": 3,
+    "full_godot_timeout_seconds": 900,
+    "registration_joint_tolerance_px": 0.02
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "director_decisions": {
+    "authority": "rr-12 brief, committed mq-05 anatomy",
+    "body": "Director body tracks bind to runtime root; no material belongs to root",
+    "rings": "seg_3 outward in both directions; pivots at native inter-ring meeting planes",
+    "legs": "Native ring children for Grub; shell > upper > lower for Tick"
+  },
+  "unresolved": {},
+  "native_joint_positions": "source/maquette/joints_px.json"
+}

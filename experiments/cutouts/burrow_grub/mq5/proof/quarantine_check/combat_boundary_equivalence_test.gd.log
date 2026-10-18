@@ -1,0 +1,85 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328641070560000-48025
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328641070560000-48025
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328641070560000-48025/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/combat_boundary_equivalence_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: canonical checkpoint preserves every field
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:291)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: canonical repeated checkpoint remains idempotent
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:292)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: legacy checkpoint preserves every field
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:291)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: legacy repeated checkpoint remains idempotent
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:292)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: overflow checkpoint preserves every field
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:291)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: overflow repeated checkpoint remains idempotent
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:292)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: recovery repeated checkpoint remains idempotent
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:292)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: equipment checkpoint preserves every field
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:291)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: equipment repeated checkpoint remains idempotent
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:292)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: items checkpoint preserves every field
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:291)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: items repeated checkpoint remains idempotent
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_checkpoints (res://tests/combat_boundary_equivalence_test.gd:292)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:259)
+ERROR: Display fixture must exercise one-shot modifier consumption
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] check (res://tests/combat_boundary_equivalence_test.gd:337)
+       [1] _test_rule_lookup_edges (res://tests/combat_boundary_equivalence_test.gd:447)
+       [2] _initialize (res://tests/combat_boundary_equivalence_test.gd:262)
+TEST RESULT: FAIL — 7347 boundary ownership/visibility/display comparisons (12 failures)
