@@ -41,6 +41,8 @@ func _initialize() -> void:
 	_expect(entry.get_node("ScavengerPurgePrice/PriceTagInk/PriceTagValue").text == "50", "Service price uses the existing parchment tag")
 	var service_label: Label = entry.get("_label")
 	_expect(service_label.get_line_count() == 1 and service_label.get_minimum_size().y <= service_label.size.y, "Service label fits on one line")
+	_assert_service_text_fit(entry, "enabled Scavenger service")
+	_test_service_text_fit_mutation(entry, "enabled")
 	await _proof_capture("scavenger_purge_service")
 	entry.pressed.emit()
 	await _settle()
@@ -141,6 +143,18 @@ func _initialize() -> void:
 	await _settle()
 	await _check_and_capture(modal, "reduced_motion_confirm")
 	_test_text_fit_mutation(modal)
+	# The disabled plate is also player-facing; visit it after all captures so
+	# the accepted visual proof states and their sequence stay unchanged.
+	instance.call("_close_magic_purge")
+	var empty: Dictionary = state.duplicate(true)
+	empty["attuned_magic_cards"] = []
+	instance.call("_load_run_state", engine.repair_loaded_run_state(empty))
+	instance.call("_close_dialogue")
+	await _settle()
+	entry = shop.find_child("ScavengerPurge", true, false)
+	_expect(entry.disabled, "Text-fit proof covers the disabled empty-deck service")
+	_assert_service_text_fit(entry, "disabled empty-deck Scavenger service")
+	_test_service_text_fit_mutation(entry, "disabled")
 	# Drain the existing deferred modal/layout refresh before disposing its host.
 	for _frame: int in range(Presentation.TEARDOWN_FRAMES): await process_frame
 	instance.queue_free()
@@ -161,6 +175,7 @@ func _open(instance: Node, state: Dictionary, source: String) -> Control:
 	await _settle()
 	var modal: Control = instance.get("_magic_purge_overlay")
 	_expect(modal != null, "Fixture opens " + source + " Purge")
+	if source == "scavenger": _assert_service_text_fit(instance.get("_scavenger_shop_view").find_child("ScavengerPurge", true, false), "Scavenger service after layout")
 	return modal
 
 func _check_and_capture(modal: Control, stem: String) -> void:
@@ -168,6 +183,20 @@ func _check_and_capture(modal: Control, stem: String) -> void:
 	var failures: Array[String] = Presentation.text_fit_failures(modal)
 	for failure: String in failures: _expect(false, stem + ": " + failure)
 	await _proof_capture(stem)
+
+func _assert_service_text_fit(service: Button, context: String) -> void:
+	# Recursion includes the rendered _label and the parchment price tag's
+	# nested value label, even when the service is disabled.
+	for failure: String in Presentation.text_fit_failures(service): _expect(false, context + ": " + failure)
+
+func _test_service_text_fit_mutation(service: Button, context: String) -> void:
+	var label: Label = service.get("_label")
+	var label_path: String = str(label.get_path())
+	var caught: Array[String] = Presentation.service_label_clipping_failures(service)
+	var killed: bool = caught.any(func(value: String) -> bool: return value.begins_with(label_path + " clips Label "))
+	_expect(killed, "Nested service label clipping mutation is killed: " + context)
+	_assert_service_text_fit(service, "restored " + context + " service")
+	print("SERVICE TEXT FIT MUTATION (%s): %s" % [context, "KILLED" if killed else "SURVIVED"])
 
 func _test_text_fit_mutation(modal: Control) -> void:
 	# Prove the regression detects a clipped Label and a clipped Button rather

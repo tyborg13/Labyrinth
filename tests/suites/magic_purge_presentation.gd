@@ -14,6 +14,7 @@ const SMALL_IDENTITIES: int = 4
 const OVERFLOW_IDENTITIES: int = 20
 const FIT_EPSILON: float = 1.0
 const TEARDOWN_FRAMES: int = 2
+const CLIPPED_SERVICE_LABEL_WIDTH: float = 1.0
 
 static func unique_cards(count: int) -> Array:
 	var ids: Array = Data.cards().keys()
@@ -27,6 +28,28 @@ static func unique_cards(count: int) -> Array:
 static func text_fit_failures(root: Node) -> Array[String]:
 	var failures: Array[String]
 	_walk_text(root, failures)
+	return failures
+
+static func service_label_clipping_failures(service: Button) -> Array[String]:
+	# Mutate the real nested label while leaving the native Button text/size
+	# unchanged. Restore synchronously so this cannot affect accepted captures.
+	var label: Label = service.get("_label")
+	var original_wrap: TextServer.AutowrapMode = label.autowrap_mode
+	var original_clip: bool = label.clip_text
+	var original_rect: Rect2 = label.get_rect()
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	label.clip_text = true
+	label.size.x = CLIPPED_SERVICE_LABEL_WIDTH
+	var failures: Array[String] = text_fit_failures(service)
+	label.autowrap_mode = original_wrap
+	label.clip_text = original_clip
+	# Reflow at the restored width before restoring height: Label otherwise
+	# clamps the height against its cached one-pixel wrapped minimum.
+	label.size.x = original_rect.size.x
+	label.get_line_count()
+	label.get_minimum_size()
+	label.size = original_rect.size
+	label.position = original_rect.position
 	return failures
 
 static func _walk_text(node: Node, failures: Array[String]) -> void:
