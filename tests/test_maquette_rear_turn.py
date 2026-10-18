@@ -45,7 +45,10 @@ def deliveries():
                if (path.parent / 'rear_clay.png').is_file()]
     complete_archives = [path.parent for path in MAQUETTES.glob('*/proof_*/front_parts.png')
                          if (path.parent / 'rear_parts.png').is_file()]
-    return sorted(set(current + complete_archives))
+    folders = sorted(set(current + complete_archives))
+    # Crawlers without labelled feet (Burrow Grub, Ember Tick) have no foot solos;
+    # the director checked their rear turn in the paint-over review instead.
+    return [folder for folder in folders if (folder / 'front_solo_foot_near.png').is_file()]
 
 
 def labels_for(folder):
