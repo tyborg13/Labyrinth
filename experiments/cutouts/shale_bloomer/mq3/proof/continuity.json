@@ -6663,7 +6663,7 @@
   "feedback9": {
     "method": "Capped, connected per-joint seams; seam metrics report-only; all pre-existing paint retained",
     "samples": "proof/continuity_samples.json",
-    "samples_sha256": "ca8a50bc95290cf97fac6a7bc2259d034ec764d9406eefaac76663d5baee6955",
+    "samples_sha256": "0b08d1084e28fb83da891eafbf4b529b1adffd9c4da989617add405f7d2cc720",
     "rest_identity": {
       "front": {
         "pixel_identical": true,
