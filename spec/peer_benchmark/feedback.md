@@ -134,3 +134,15 @@
   sound sting added. flow-01 is accepted and waits for owner publication approval with the rest of integration.
 - 2026-10-18 bloomer-motion APPROVED (owner) on the rr-05 final clip: whole gem, stepped idle, joint fixes. The Wisp
   reference clip shipped alongside.
+- 2026-10-18 seer-rig NEEDS CHANGES (owner): "rear view is wrong orientation entirely, idle is still more of a rippling
+  effect rather than an independently cut out bob like our protag (all of our humanoids should generally bob like
+  this), some of the animations are cutting up nonsensically, it's like you're not even rigging him like we have been
+  in the past, or maybe not cutting him into small enough parts."
+  - Director diagnosis:
+    - The mq-04 Seer rear maquette is a left-right mirror, not a 180° turn. The other figures' rears are right.
+    - The rr-07 idle was the director's own rotation sum ("no whole-body bob"); the rr-08 Herald/Gloam idle data had
+      the same flaw.
+    - The rig used rigid per-label sprites with supports, where the protagonist and Acolyte use skinned sleeves,
+      robes and capes.
+  - → humanoid rig v2 (`spec/peer_benchmark/humanoid_cutout_rig.md`): mq-06 (rear turn fix), the director's rear
+    repaint, then rr-10 (Seer v2). Thrall, Herald, Gloam and Lancer follow.

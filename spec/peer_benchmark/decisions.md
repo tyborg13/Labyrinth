@@ -202,3 +202,17 @@
 - 2026-10-18 rr-07 fb3: an invalid-tie pixel (native matches neither legal candidate) counts as one changed pixel
   under the existing 1 px + 1% allowance instead of failing outright. The rr-05 23-pixel edge-deletion regression
   still fails.
+
+## 2026-10-18 humanoid rig v2 (owner verdict on the Seer)
+- Binding for every humanoid maquette rig: `spec/peer_benchmark/humanoid_cutout_rig.md`.
+  - Idle: the protagonist's cut-out bob. Three rigid groups (upper body 2 px, the weapon arm lagged or still, the
+    lower body still), 0.84 s, no rotation and no deformation.
+  - Cut: robes, cloaks and sleeves are one skinned mesh each; the collar is part of the torso; joints are covered,
+    with a 3 px tuck.
+  - Actions: translation-led. Hands are placed by two-bone targets; held items keep their world angle unless keyed
+    (≤ 35°); torso ≤ 4° and head ≤ 6°.
+- Supersedes the idle notes in `staged/rr-07` and `staged/rr-08`, which forbade a whole-body bob.
+- The rr-06 (Lancer) and rr-08 (Herald, Gloam) runs started before this. They are not killed (owner rule). Their
+  results are reviewed for reusable pipeline parts only, and each figure moves to v2 in a later unit.
+- Seer v2 motion: `staged/rr-10/motion_tracks.json`, in source pixels. The ward pushes the staff out ahead rather than
+  across the body, because the staff is on the body's far side in the front view and would hide behind the torso.
