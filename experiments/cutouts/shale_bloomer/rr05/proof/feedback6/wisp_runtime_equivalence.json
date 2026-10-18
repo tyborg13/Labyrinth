@@ -1,9 +1,0 @@
-{
-  "ok": true,
-  "poses": 750,
-  "painted_node_poses": 7875,
-  "differing_poses": [],
-  "comparison": "Exact dictionaries: bone, alpha, raw before matrices, presented matrices; source and production files separately hash-pinned",
-  "serialized_node_pose_sha256_before": "f88a53f0a57d8b3ace31b23a44e3e742a61fe3341c9267fa3553f3962111f8f4",
-  "serialized_node_pose_sha256_after": "f88a53f0a57d8b3ace31b23a44e3e742a61fe3341c9267fa3553f3962111f8f4"
-}

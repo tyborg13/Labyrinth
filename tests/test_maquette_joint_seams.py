@@ -1,4 +1,4 @@
-"""Local bands, protected paint and strict CPU/saved-surface gate mutations."""
+"""Local bands, protected paint and report-only CPU/native seam mutations."""
 from pathlib import Path
 import sys
 import tempfile
@@ -35,6 +35,8 @@ FIXTURE_EXCESS_PROTRUSION_YX = (15, 2)
 FIXTURE_NATIVE_BODY_RECT = (20, 20, 40, 40)
 FIXTURE_NATIVE_HOLE_RECT = (25, 25, 27, 27)
 FIXTURE_WIDENED_GAP_PX = 2
+FIXTURE_LARGE_SEPARATION_PX = 20
+FIXTURE_COMPONENT_RECTS = ((10, 10, 13, 11), (20, 20, 24, 21), (30, 30, 32, 31))
 
 
 def region(rect):
@@ -70,7 +72,7 @@ class JointSeamTests(unittest.TestCase):
                     'child': {'transform': [1, 0, 0, 1, shift, 0], 'alpha': 1}}})
         return paint, {'samples': rows}
 
-    def test_exact_boundary_length_total_width_and_parent_edge_colours(self):
+    def test_exact_boundary_length_per_side_reach_cap_and_parent_edge_colours(self):
         with tempfile.TemporaryDirectory() as temporary:
             case = Path(temporary)
             _, samples = self.fixture(case)
@@ -80,10 +82,17 @@ class JointSeamTests(unittest.TestCase):
             record = records[0]
             self.assertEqual(record['shared_boundary_px'], 20)
             self.assertEqual(record['maximum_sampled_separation_px'], FIXTURE_SEPARATION_PX)
-            self.assertEqual(record['band_width_px'], FIXTURE_SEPARATION_PX + 1)
+            self.assertEqual(record['reach_per_side_px'], FIXTURE_SEPARATION_PX + 1)
+            self.assertEqual(record['band_width_px'], 2 * (FIXTURE_SEPARATION_PX + 1))
             image = images[record['name']]
-            self.assertEqual(int((image[..., 3] > 0).sum()), 80)
+            self.assertEqual(int((image[..., 3] > 0).sum()), 160)
             self.assertTrue(np.all(image[image[..., 3] > 0] == FIXTURE_PARENT_RGBA))
+            samples['samples'][1]['parts']['child']['transform'][4] = FIXTURE_LARGE_SEPARATION_PX
+            capped, images, _ = joint_seams.derive_view(case, 'front', layout, samples)
+            self.assertEqual(capped[0]['derived_reach_per_side_px'], FIXTURE_LARGE_SEPARATION_PX + 1)
+            self.assertEqual(capped[0]['reach_per_side_px'], joint_seams.MAX_BAND_REACH_PX)
+            self.assertEqual(capped[0]['band_width_px'], 2 * joint_seams.MAX_BAND_REACH_PX)
+            self.assertEqual(int((next(iter(images.values()))[..., 3] > 0).sum()), 160)
 
     def test_install_preserves_rest_and_paint_and_has_no_full_backing(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -105,16 +114,24 @@ class JointSeamTests(unittest.TestCase):
                 np.testing.assert_array_equal(np.asarray(combined), paint)
             self.assertFalse((case / 'backing.json').exists())
 
-    def test_sibling_owner_is_a_design_placeholder_until_explicit(self):
+    def test_sibling_owner_and_paint_are_the_lower_drawn_part(self):
         with tempfile.TemporaryDirectory() as temporary:
             case = Path(temporary)
             _, samples = self.fixture(case)
             layout = read_json(case / 'layouts/front.json')
             layout['joints']['child']['parent'] = 'root'
             records, surfaces, pending = joint_seams.derive_view(case, 'front', layout, samples)
-            self.assertEqual(surfaces, {})
-            self.assertTrue(records[0]['parent'].startswith('TODO_DESIGN_seam_parent_'))
-            self.assertEqual(len(pending), 1)
+            self.assertEqual(pending, [])
+            self.assertEqual(records[0]['parent'], 'body')
+            layout['parts'][0]['z_index'] = FIXTURE_FOREGROUND_Z
+            records, surfaces, pending = joint_seams.derive_view(case, 'front', layout, samples)
+            self.assertEqual(records[0]['parent'], 'child')
+            self.assertEqual(pending, [])
+            self.assertTrue(np.all(next(iter(surfaces.values()))[next(iter(surfaces.values()))[..., 3] > 0] == FIXTURE_CHILD_RGBA))
+            # Equal-z native ordering is layout order, so body is underneath.
+            layout['parts'][0]['z_index'] = layout['parts'][1]['z_index']
+            records, _, _ = joint_seams.derive_view(case, 'front', layout, samples)
+            self.assertEqual(records[0]['parent'], 'body')
             _, surfaces, pending = joint_seams.derive_view(case, 'front', layout, samples,
                                                           {'body|child': 'TODO_DESIGN_fixture_parent'})
             self.assertEqual(surfaces, {})
@@ -122,6 +139,21 @@ class JointSeamTests(unittest.TestCase):
             _, surfaces, pending = joint_seams.derive_view(case, 'front', layout, samples, {'body|child': 'body'})
             self.assertEqual(len(surfaces), 1)
             self.assertEqual(pending, [])
+
+    def test_disconnected_bands_become_single_component_nodes_and_specks_are_dropped(self):
+        image = np.zeros((FIXTURE_SIZE, FIXTURE_SIZE, 4), np.uint8)
+        for rect in FIXTURE_COMPONENT_RECTS:
+            image[region(rect)] = FIXTURE_PARENT_RGBA
+        nodes, discarded = joint_seams.connected_bands('fixture_seam', image)
+        self.assertEqual(discarded, [2])
+        self.assertEqual(list(nodes), ['fixture_seam_component_01', 'fixture_seam_component_02'])
+        self.assertEqual([int((node[..., 3] > 0).sum()) for node in nodes.values()], [4, 3])
+        for node in nodes.values():
+            self.assertEqual(len(silhouette.components(node[..., 3] > 0)[1]), 1)
+        # Split results and naming are deterministic, including equal-size ties.
+        repeated, _ = joint_seams.connected_bands('fixture_seam', image)
+        for name, expected in nodes.items():
+            np.testing.assert_array_equal(repeated[name], expected)
 
     def test_feature_hole_is_never_target_or_donor(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -198,9 +230,10 @@ class JointSeamTests(unittest.TestCase):
             self.assertEqual(pending, [])
             self.assertEqual(records[0]['parent'], 'body')
             self.assertEqual(records[0]['maximum_sampled_separation_px'], 0)
-            self.assertEqual(records[0]['band_width_px'], 1)
+            self.assertEqual(records[0]['reach_per_side_px'], 1)
+            self.assertEqual(records[0]['band_width_px'], 2)
 
-    def test_interior_tear_is_hard_even_when_open_to_exterior(self):
+    def test_interior_tear_is_measured_even_when_open_to_exterior(self):
         parts = np.zeros((FIXTURE_GATE_SIZE,) * 2, bool)
         parts[region(FIXTURE_GATE_BODY_RECT)] = True
         rest = parts.copy()
@@ -215,7 +248,7 @@ class JointSeamTests(unittest.TestCase):
         underlay[region(FIXTURE_CRACK_RECT)] = True
         self.assertEqual(seam_pose.measure(parts, underlay, rest, interior)[0]['interior_tear_pixels'], 0)
 
-    def test_negative_space_outside_rest_is_report_only_and_extent_stays_two(self):
+    def test_negative_space_and_protrusion_are_measured_without_clamping(self):
         parts = np.zeros((FIXTURE_GATE_SIZE,) * 2, bool)
         parts[region(FIXTURE_GATE_BODY_RECT)] = True
         rest = parts.copy()
@@ -253,7 +286,7 @@ class JointSeamTests(unittest.TestCase):
             Image.fromarray(parts[:FIXTURE_GATE_SIZE, :FIXTURE_GATE_SIZE]).save(case / 'composed.png')
             self.assertTrue(any('dimensions' in e for e in seam_pose.native_consistency_errors(layers, full)))
 
-    def test_widen_joint_mutation_fails_cpu_and_saved_surface_hard_gate(self):
+    def test_widen_joint_mutation_is_report_only_but_native_agreement_still_blocks(self):
         with tempfile.TemporaryDirectory() as temporary:
             case = Path(temporary)
             _, samples = self.fixture(case)
@@ -261,8 +294,9 @@ class JointSeamTests(unittest.TestCase):
             self.assertTrue(seam_pose.report(case, samples)['ok'])
             samples['samples'][0]['parts']['child']['transform'][4] = FIXTURE_WIDENED_GAP_PX
             cpu = seam_pose.report(case, samples)
-            self.assertFalse(cpu['ok'])
+            self.assertTrue(cpu['ok'], cpu['errors'])
             self.assertEqual(cpu['poses'][0]['interior_tear_pixels'], 36)
+            self.assertEqual(cpu['max_by_clip']['front_fixture']['interior_tear_pixels']['interior_tear_pixels'], 36)
             native = {'directory': case, 'frames': []}
             for row in samples['samples']:
                 layout = read_json(case / f'layouts/{row["view"]}.json')
@@ -276,7 +310,7 @@ class JointSeamTests(unittest.TestCase):
                     frame[name + '_file'] = file
                     frame[name + '_sha256'] = digest(case / file)
                 frame['reference'] = dict(row['parts']['body'], bone='body')
-                frame['reference_transform'] = row['parts']['body']['transform']
+                frame['reference_transform'] = row['parts']['body']['transform'].copy()
                 for kind, source in zip(('rest', 'interior'), seam_pose.reference_images(case, layout)):
                     image = pixels.render(source, pixels.unpack(frame['reference_transform']))
                     file = row['view'] + '_' + kind + '.png'
@@ -285,12 +319,53 @@ class JointSeamTests(unittest.TestCase):
                     frame[kind + '_sha256'] = digest(case / file)
                 native['frames'].append(frame)
             saved = seam_pose.report(case, samples, native)
-            self.assertFalse(saved['ok'])
+            self.assertTrue(saved['ok'], saved['errors'])
             self.assertEqual([r['interior_tear_pixels'] for r in cpu['poses']],
                              [r['interior_tear_pixels'] for r in saved['poses']])
+            native['frames'][0]['reference_transform'][4] += FIXTURE_WIDENED_GAP_PX
+            self.assertTrue(any('independently moved' in e for e in seam_pose.report(case, samples, native)['errors']))
             native['frames'].pop()
             self.assertTrue(any('missing native' in e for e in seam_pose.report(case, samples, native)['errors']))
-        print('MAQUETTE SEAM MUTATION: widened joint rejected by CPU and saved-surface hard gates')
+        print('MAQUETTE SEAM MUTATION: CPU/native gap reported; independent native reference rejected')
+
+    def test_rest_identity_checks_current_paint_without_writing_proof(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            case = Path(temporary)
+            self.fixture(case)
+            self.assertTrue(pixels.rest_identity(case)['ok'])
+            path = case / 'front_body.png'
+            image = np.array(Image.open(path))
+            image[FIXTURE_BODY_RECT[1], FIXTURE_BODY_RECT[0], 0] += 1
+            Image.fromarray(image).save(path)
+            result = pixels.rest_identity(case)
+            self.assertFalse(result['ok'])
+            self.assertEqual(result['views']['front']['different_pixels'], 1)
+            self.assertEqual(result['views']['rear']['different_pixels'], 0)
+            self.assertFalse((case / 'proof/rest_identity.json').exists())
+
+    def test_report_only_metrics_do_not_block_promotion_prerequisites(self):
+        from maquette_cutout_build import validate_derived_material
+        from cutout_pipeline.cases import CutoutError
+        with tempfile.TemporaryDirectory() as temporary:
+            case = Path(temporary)
+            _, samples = self.fixture(case)
+            joint_seams.install(case, samples)
+            write_json(case / 'proof/continuity_samples.json', samples)
+            write_json(case / 'hidden_fills/index.json', {'pending_design': []})
+            # Independent blocking gates are prevalidated in this seam-only fixture.
+            proof = {'ok': True, 'TODO_DESIGN': [], 'exposed_hidden': {'ok': True}, 'seams': {'ok': True, 'max_by_clip': {
+                'fixture': {'interior_tear_pixels': FIXTURE_LARGE_SEPARATION_PX,
+                            'underlay_protrusion_width_px': FIXTURE_LARGE_SEPARATION_PX}}}}
+            write_json(case / 'proof/continuity.json', proof)
+            validate_derived_material(case)
+            proof['ok'] = False
+            write_json(case / 'proof/continuity.json', proof)
+            with self.assertRaisesRegex(CutoutError, 'blocking derive-time'):
+                validate_derived_material(case)
+            proof.update(ok=True, TODO_DESIGN=[{'name': 'TODO_DESIGN_fixture_missing_owner'}])
+            write_json(case / 'proof/continuity.json', proof)
+            with self.assertRaisesRegex(CutoutError, 'blocking derive-time'):
+                validate_derived_material(case)
 
 
 if __name__ == '__main__':

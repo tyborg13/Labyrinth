@@ -1,0 +1,17 @@
+{
+  "status": "pending owner density adoption/native rest rebake after director promotion",
+  "art_registry_failures": [
+    "FAIL assets/units/shale_bloomer_cutout/front/rest.png: pixel digest changed",
+    "FAIL assets/units/shale_bloomer_cutout/rear/rest.png: pixel digest changed"
+  ],
+  "density_stale_paint_count": 64,
+  "density_rest_rebakes": [
+    "rest rebake needed: assets/units/shale_bloomer_cutout/front/rest.png: rest pixels changed since recorded rebake",
+    "rest rebake needed: assets/units/shale_bloomer_cutout/rear/rest.png: rest pixels changed since recorded rebake"
+  ],
+  "density_log": "output/rr-05/feedback10/density-check.log",
+  "art_registry_log": "output/rr-05/feedback10/art-registry-check.log",
+  "worker_adoption_performed": false,
+  "owner_script_registry_fix_preserved": "item.get('dir')",
+  "owner_script_stub_with_prop_entry": "PASS (5 tests)"
+}

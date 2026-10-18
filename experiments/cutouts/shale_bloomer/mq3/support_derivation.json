@@ -1,0 +1,504 @@
+{
+  "authority": "Director rr-05 feedback 11",
+  "policy": "Approved painted seed plus one joint margin; no cumulative trials or foreign hidden-only seeds; non-outline same-part/bone donors",
+  "tool_sha256": "1a546b605b1adceb8ed359f6f382ae0094290c20ae6c52889ecc622cfbaa19e0",
+  "parts": [
+    {
+      "view": "front",
+      "part": "hidden_trunk",
+      "bone": "trunk",
+      "visible_owners": [
+        "trunk"
+      ],
+      "painted_pixels": 3770,
+      "support_pixels": 14197,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_trunk.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_core",
+      "bone": "core",
+      "visible_owners": [
+        "core"
+      ],
+      "painted_pixels": 202,
+      "support_pixels": 1121,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_core.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_petal_near_l",
+      "bone": "petal_near_l",
+      "visible_owners": [
+        "petal_near_l"
+      ],
+      "painted_pixels": 681,
+      "support_pixels": 2478,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_petal_near_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_petal_near_r",
+      "bone": "petal_near_r",
+      "visible_owners": [
+        "petal_near_r"
+      ],
+      "painted_pixels": 236,
+      "support_pixels": 2764,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_petal_near_r.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_petal_far_l",
+      "bone": "petal_far_l",
+      "visible_owners": [
+        "petal_far_l"
+      ],
+      "painted_pixels": 765,
+      "support_pixels": 2678,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_petal_far_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_petal_far_r",
+      "bone": "petal_far_r",
+      "visible_owners": [
+        "petal_far_r"
+      ],
+      "painted_pixels": 485,
+      "support_pixels": 3095,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_petal_far_r.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_tendril_high_l",
+      "bone": "tendril_high_l",
+      "visible_owners": [
+        "tendril_high_l"
+      ],
+      "painted_pixels": 955,
+      "support_pixels": 2333,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_tendril_high_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_tendril_high_r",
+      "bone": "tendril_high_r",
+      "visible_owners": [
+        "tendril_high_r"
+      ],
+      "painted_pixels": 429,
+      "support_pixels": 1816,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_tendril_high_r.png"
+    },
+    {
+      "view": "front",
+      "part": "tendril_mid_l",
+      "bone": "tendril_mid_l",
+      "visible_owners": [],
+      "painted_pixels": 631,
+      "support_pixels": 1473,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_tendril_mid_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_tendril_low_l",
+      "bone": "tendril_low_l",
+      "visible_owners": [
+        "tendril_low_l"
+      ],
+      "painted_pixels": 506,
+      "support_pixels": 2386,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_tendril_low_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_tendril_low_r",
+      "bone": "tendril_low_r",
+      "visible_owners": [
+        "tendril_low_r"
+      ],
+      "painted_pixels": 299,
+      "support_pixels": 2470,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_tendril_low_r.png"
+    },
+    {
+      "view": "front",
+      "part": "root_stem_l",
+      "bone": "root_stem_l",
+      "visible_owners": [],
+      "painted_pixels": 866,
+      "support_pixels": 1688,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_root_stem_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_root_stem_r",
+      "bone": "root_stem_r",
+      "visible_owners": [
+        "root_stem_r"
+      ],
+      "painted_pixels": 874,
+      "support_pixels": 1908,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_root_stem_r.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_root_stem_c",
+      "bone": "root_stem_c",
+      "visible_owners": [
+        "root_stem_c"
+      ],
+      "painted_pixels": 1162,
+      "support_pixels": 1352,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_root_stem_c.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_root_tip_l",
+      "bone": "root_tip_l",
+      "visible_owners": [
+        "root_tip_l"
+      ],
+      "painted_pixels": 0,
+      "support_pixels": 170,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_root_tip_l.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_root_tip_r",
+      "bone": "root_tip_r",
+      "visible_owners": [
+        "root_tip_r"
+      ],
+      "painted_pixels": 178,
+      "support_pixels": 1552,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_root_tip_r.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_root_tip_c",
+      "bone": "root_tip_c",
+      "visible_owners": [
+        "root_tip_c"
+      ],
+      "painted_pixels": 246,
+      "support_pixels": 1217,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_root_tip_c.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_trunk",
+      "bone": "trunk",
+      "visible_owners": [
+        "trunk"
+      ],
+      "painted_pixels": 2492,
+      "support_pixels": 16246,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": false,
+      "painted_fill_preview": "hidden_fills/rear_trunk.png",
+      "original_painted_rgba_preserved_except_authorized_edit": true,
+      "authorized_edited_pixels": 1
+    },
+    {
+      "view": "rear",
+      "part": "hidden_core",
+      "bone": "core",
+      "visible_owners": [
+        "core"
+      ],
+      "painted_pixels": 331,
+      "support_pixels": 1629,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_core.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_petal_near_l",
+      "bone": "petal_near_l",
+      "visible_owners": [
+        "petal_near_l"
+      ],
+      "painted_pixels": 670,
+      "support_pixels": 1694,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_petal_near_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_petal_near_r",
+      "bone": "petal_near_r",
+      "visible_owners": [
+        "petal_near_r"
+      ],
+      "painted_pixels": 545,
+      "support_pixels": 1371,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_petal_near_r.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_petal_far_l",
+      "bone": "petal_far_l",
+      "visible_owners": [
+        "petal_far_l"
+      ],
+      "painted_pixels": 101,
+      "support_pixels": 1234,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_petal_far_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_petal_far_r",
+      "bone": "petal_far_r",
+      "visible_owners": [
+        "petal_far_r"
+      ],
+      "painted_pixels": 102,
+      "support_pixels": 1073,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_petal_far_r.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tendril_high_l",
+      "bone": "tendril_high_l",
+      "visible_owners": [
+        "tendril_high_l"
+      ],
+      "painted_pixels": 479,
+      "support_pixels": 3771,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_tendril_high_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tendril_high_r",
+      "bone": "tendril_high_r",
+      "visible_owners": [
+        "tendril_high_r"
+      ],
+      "painted_pixels": 207,
+      "support_pixels": 1693,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_tendril_high_r.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tendril_mid_l",
+      "bone": "tendril_mid_l",
+      "visible_owners": [
+        "tendril_mid_l"
+      ],
+      "painted_pixels": 63,
+      "support_pixels": 1761,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_tendril_mid_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tendril_low_l",
+      "bone": "tendril_low_l",
+      "visible_owners": [
+        "tendril_low_l"
+      ],
+      "painted_pixels": 0,
+      "support_pixels": 164,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_tendril_low_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tendril_low_r",
+      "bone": "tendril_low_r",
+      "visible_owners": [
+        "tendril_low_r"
+      ],
+      "painted_pixels": 849,
+      "support_pixels": 1192,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_tendril_low_r.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_root_stem_l",
+      "bone": "root_stem_l",
+      "visible_owners": [
+        "root_stem_l"
+      ],
+      "painted_pixels": 952,
+      "support_pixels": 1475,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_root_stem_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_root_stem_r",
+      "bone": "root_stem_r",
+      "visible_owners": [
+        "root_stem_r"
+      ],
+      "painted_pixels": 0,
+      "support_pixels": 236,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_root_stem_r.png"
+    },
+    {
+      "view": "rear",
+      "part": "root_stem_c",
+      "bone": "root_stem_c",
+      "visible_owners": [],
+      "painted_pixels": 1088,
+      "support_pixels": 2050,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_root_stem_c.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_root_tip_l",
+      "bone": "root_tip_l",
+      "visible_owners": [
+        "root_tip_l"
+      ],
+      "painted_pixels": 352,
+      "support_pixels": 841,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_root_tip_l.png"
+    },
+    {
+      "view": "rear",
+      "part": "root_tip_r",
+      "bone": "root_tip_r",
+      "visible_owners": [],
+      "painted_pixels": 452,
+      "support_pixels": 1011,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_root_tip_r.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_root_tip_c",
+      "bone": "root_tip_c",
+      "visible_owners": [
+        "root_tip_c"
+      ],
+      "painted_pixels": 465,
+      "support_pixels": 664,
+      "joint_margin_px": 7,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_root_tip_c.png"
+    }
+  ],
+  "outline_rules": {
+    "front": {
+      "outline_palette": [
+        [
+          6,
+          13,
+          13
+        ],
+        [
+          20,
+          16,
+          21
+        ]
+      ],
+      "visible_luma_percentile": 5,
+      "visible_luma_cutoff": 9.125,
+      "luma_weights": [
+        0.299,
+        0.587,
+        0.114
+      ],
+      "approved_visible_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32"
+    },
+    "rear": {
+      "outline_palette": [
+        [
+          6,
+          13,
+          13
+        ],
+        [
+          20,
+          16,
+          21
+        ]
+      ],
+      "visible_luma_percentile": 5,
+      "visible_luma_cutoff": 6.2059999999999995,
+      "luma_weights": [
+        0.299,
+        0.587,
+        0.114
+      ],
+      "approved_visible_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2"
+    }
+  },
+  "director_authorized_derived_edits": [
+    {
+      "authority": "Director rr-05 feedback 11 decision 4",
+      "view": "rear",
+      "part": "hidden_trunk",
+      "region": "Approved hidden trunk cap above the first rest-visible trunk scanline, and exposed in a sampled pose",
+      "cap_bottom_source_y_exclusive": 77,
+      "exposed_cap_pixels": 1,
+      "changed_pixels": 1,
+      "mask": "support/rear_socket_derived_edit.png",
+      "mask_sha256": "d31323fed560c665d7b4c17612c65762721febf23f528068306037e3a3ad150c",
+      "donors": "Nearest non-outline original trunk/body paint outside the socket cap",
+      "preview_unchanged": true
+    }
+  ]
+}

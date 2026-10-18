@@ -251,6 +251,7 @@ class PixelPresentationTests(unittest.TestCase):
                 errors, metric = pixels.shimmer(case_for(creature), report)
                 self.assertEqual(errors, [])
                 self.assertEqual(metric['totals']['after']['held_unexplained_pixels'], 0)
+                self.assertEqual(metric['totals']['after']['boundary_unexplained_pixels'], 0)
                 self.assertGreater(metric['totals']['before']['held_unexplained_pixels'], 0)
                 print(f'MAQUETTE SHIMMER CPU: {creature}: {metric["totals"]}')
                 mutant = copy.deepcopy(report)

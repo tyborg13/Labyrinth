@@ -40,7 +40,9 @@ rr05_select() {
   esac
 }
 
-# Director-supplied declarations and masks are protected. Derive before review.
+# Feedback 11 changes generated support textures: use the default/full pass
+# (no --from-native) to derive, recapture native pixels and finish adoption.
+# Director-supplied declarations, masks and painted-fill previews are protected.
 if [[ "$RR05_START_STAGE" == derive ]]; then
   for creature in "${RR05_CREATURES[@]}"; do
     rr05_select "$creature"
@@ -48,7 +50,10 @@ if [[ "$RR05_START_STAGE" == derive ]]; then
   done
 fi
 
-# Headless acceptance first, including all clips/views and continuity TODOs.
+# Blocking headless acceptance includes exposed derived dark slabs in every
+# clip/view; approved painted-fill shadows report only (feedback 12). Seam tears, negative
+# space and protrusion remain in pixel_gates.json as per-clip reports only.
+# The director judges visible seams in both native MP4s.
 if [[ "$RR05_START_STAGE" != adopt ]]; then
 for creature in "${RR05_CREATURES[@]}"; do
   rr05_select "$creature"
@@ -81,7 +86,7 @@ for creature in sys.argv[1:]:
     for view in ('front', 'rear'):
         base = 'assets/units/' + creature + '_cutout/'
         current.extend(base + part['file'] for part in read_json(Path(base + view + '.json'))['parts'])
-    entry = next(item for item in registry['entries'] if item['dir'] == base.rstrip('/'))
+    entry = next(item for item in registry['entries'] if item.get('dir') == base.rstrip('/'))
     entry['paths'] = sorted(set(entry['paths']) | set(current))
     feature_file = Path(base) / 'features.json'
     if feature_file.is_file():

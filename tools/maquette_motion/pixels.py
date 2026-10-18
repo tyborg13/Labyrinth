@@ -3,18 +3,33 @@ import math
 import numpy as np
 from PIL import Image
 from cutout_pipeline.cases import read_json
-from maquette_motion.gates import expected_bones, input_bindings, unpack
-from maquette_motion.raster import nearest_quad
+from maquette_motion.gates import expected_bones, bindings_match, unpack
+from maquette_motion.raster import nearest_quad, EXACT_TIE_EPSILON
+from maquette_motion import native_ties
 
-# Non-player-visible proof defaults. A native boundary may disagree with the model
-# on raster edge inclusion, but at most 1% of a part's occupied pixels may have
-# unexplained temporal change. Held frames have an exact zero tolerance.
+# Held frames have an exact zero tolerance; at most 1% of a part's occupied pixels
+# may show unexplained temporal change at raster boundaries (director, rr-05 fb 9).
 PROOF_DEFAULTS = {'fps': 60, 'step_frames': 6, 'canvas_size': 512,
                   'source_offset': 128, 'boundary_residual_fraction': 0.01,
                   'transform_tolerance': 0.0001, 'bounds_margin_px': 2,
                   'native_raster_fraction': 0.01, 'native_raster_edge_pixels': 1}
 ROTATION_STEP = math.pi / 120
 CANVAS_COLOR_CHANNEL_MAX = 255
+
+
+def rest_identity(case):
+    """Read-only exact RGBA comparison, including every derived underlay."""
+    views = {}
+    for view in ('front', 'rear'):
+        layout = read_json(case / f'layouts/{view}.json')
+        approved = Image.open(case / layout['rest_source']).convert('RGBA')
+        composed = Image.new('RGBA', approved.size)
+        for part in sorted(layout['parts'], key=lambda p: p['z_index']):
+            composed.alpha_composite(Image.open(case / part['file']).convert('RGBA'), tuple(part['offset']))
+        difference = np.any(np.asarray(composed) != np.asarray(approved), axis=2)
+        views[view] = {'different_pixels': int(difference.sum()), 'pixel_identical': not difference.any()}
+        views[view]['pixel_identical'] = bool(views[view]['pixel_identical'])
+    return {'ok': all(row['pixel_identical'] for row in views.values()), 'views': views}
 
 
 def modulated_alpha(alpha, modulation):
@@ -74,11 +89,11 @@ def presented(bone, part, layout, anchors):
     return snapped(painted(bone, reference, layout)) @ relative
 
 
-def render(image, transform, bounds=None):
+def render(image, transform, bounds=None, with_ties=False):
     value = transform.copy()
     value[:2, 2] += PROOF_DEFAULTS['source_offset']
     size = PROOF_DEFAULTS['canvas_size']
-    return nearest_quad(image, value, bounds or (0, 0, size, size))
+    return nearest_quad(image, value, bounds or (0, 0, size, size), with_ties=with_ties)
 
 
 def changed(first, second):
@@ -94,19 +109,24 @@ def residual(previous, current, ideal_previous, ideal_current):
     return count, count / max(1, area)
 
 
-def native_frame_matches(actual, expected):
+def native_frame_matches(actual, expected, samples=None):
     """A quiet blank/frozen surface is not evidence of shimmer-free paint."""
+    reference = expected
+    if samples is not None:
+        expected, invalid = native_ties.select(actual, samples)
+        if invalid.any():
+            return False
     expected_area = int((expected[..., 3] > 0).sum())
     if expected_area and not (actual[..., 3] > 0).any():
         return False
-    union = int(((actual[..., 3] > 0) | (expected[..., 3] > 0)).sum())
+    union = int(((actual[..., 3] > 0) | (reference[..., 3] > 0)).sum())
     allowance = PROOF_DEFAULTS['native_raster_edge_pixels'] + union * PROOF_DEFAULTS['native_raster_fraction']
     return int(changed(actual, expected).sum()) <= allowance
 
 
 def transform_errors(case, report):
     failures = []
-    if not report.get('ok') or report.get('inputs') != input_bindings(case):
+    if not report.get('ok') or not bindings_match(case, report.get('inputs')):
         failures.append('Stale or incomplete pixel samples')
     data = read_json(case / 'compiled_motion.json')
     for view in ('front', 'rear'):
@@ -196,13 +216,21 @@ def shimmer(case, report, native=None):
                              'max_boundary_fraction': 0.0} for kind in ('before', 'after')}
             # Include the wrap from the final sampled pose back to frame zero.
             last_ideal_phase, last_transform = None, None
-            for row in [rows[-1], *rows]:
+            ties = {'total': 0, 'max_per_frame': 0, 'max_fraction': 0.0}
+            for ordinal, row in enumerate([rows[-1], *rows]):
                 node = row['parts'][part['name']]
                 shown = phase_for(data['clips']['idle'], row['phase'])
                 bones = bone_samples[row['frame']]
                 if shown != last_ideal_phase:
-                    ideal = render(image, unpack(node['transform']), bounds)
+                    candidates = render(image, unpack(node['transform']), bounds, with_ties=True)
+                canonical = candidates.default
+                ideal = canonical
                 last_ideal_phase = shown
+                tied = native_ties.statistics(candidates)
+                if ordinal:
+                    ties['total'] += tied['pixels']
+                    ties['max_per_frame'] = max(ties['max_per_frame'], tied['pixels'])
+                    ties['max_fraction'] = max(ties['max_fraction'], tied['fraction'])
                 if native is None:
                     if node['transform'] != last_transform:
                         actual = render(image, unpack(node['transform']), bounds)
@@ -227,20 +255,26 @@ def shimmer(case, report, native=None):
                             failures.append('Native part escaped its complete-loop bounds')
                     actual = actual[y:bottom, x:right]
                     baseline = baseline[y:bottom, x:right]
-                    expected_before = render(image, unpack(node['before']), bounds)
-                    if not native_frame_matches(actual, ideal) or not native_frame_matches(baseline, expected_before):
+                    expected_before = render(image, unpack(node['before']), bounds, with_ties=True)
+                    if not native_frame_matches(actual, canonical, candidates) or not native_frame_matches(baseline, expected_before.default, expected_before):
                         failures.append(f'{view}/{part["name"]}/{row["frame"]}: native part does not match its source transform')
+                    ideal, _ = native_ties.select(actual, candidates)
                 if previous is not None:
                     held = row['presented_phase'] == previous[3]
                     for kind, observed, old in [('before', baseline, previous[0]), ('after', actual, previous[1])]:
-                        count, fraction = residual(old, observed, previous[2], ideal)
+                        ideal_previous, ideal_current = native_ties.explanation(previous[2], ideal, held, previous[4], canonical)
+                        count, fraction = residual(old, observed, ideal_previous, ideal_current)
                         totals[kind]['held_unexplained_pixels' if held else 'boundary_unexplained_pixels'] += count
                         if not held:
                             totals[kind]['max_boundary_fraction'] = max(totals[kind]['max_boundary_fraction'], fraction)
                         if kind == 'after' and ((held and count) or (not held and fraction > PROOF_DEFAULTS['boundary_residual_fraction'])):
                             failures.append(f'{view}/{part["name"]}/{row["frame"]}: unexplained shimmer ({count}px, {fraction:.6f})')
-                previous = (baseline, actual, ideal, row['presented_phase'])
-            metrics.append({'view': view, 'part': part['name'], **totals})
+                previous = (baseline, actual, ideal, row['presented_phase'], canonical)
+            metrics.append({'view': view, 'part': part['name'], 'ties': ties, **totals})
     return failures, {'native_pixels': native is not None, 'metric': 'changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored',
                       'defaults': PROOF_DEFAULTS, 'parts': metrics,
+                      'tie_policy': {'epsilon': EXACT_TIE_EPSILON, 'occupancy_acceptance': 'report-only; exact candidates remain strict',
+                                     'scope': 'presented idle frames, occupied candidate union; wrap comparison not counted twice',
+                                     'total': sum(m['ties']['total'] for m in metrics),
+                                     'max_per_frame': max((m['ties']['max_per_frame'] for m in metrics), default=0)},
                       'totals': {kind: {field: sum(m[kind][field] for m in metrics) for field in ('held_unexplained_pixels', 'boundary_unexplained_pixels')} for kind in ('before', 'after')}}

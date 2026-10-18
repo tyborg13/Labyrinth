@@ -1,7 +1,0 @@
-{
-  "ok": true,
-  "poses": 750,
-  "preexisting_node_poses": 7875,
-  "comparison": "Exact dictionary equality including raw/snapped transforms, bone and alpha; added backing excluded",
-  "failures": []
-}

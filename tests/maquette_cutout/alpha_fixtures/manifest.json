@@ -1,5 +1,5 @@
 {
-  "case": "experiments/cutouts/lightning_wisp/mq4",
+  "case": "tests/maquette_cutout/alpha_fixtures/source_case",
   "layout": {
     "version": 1,
     "facing": "front",
@@ -260,7 +260,8 @@
     "hidden/front/tail.png": "cfe71eca04c36319b51315c12ac52c8f08f2301a42bc76a7ce766527bf6bbcbf",
     "hidden/front/arc_left.png": "5042905e9daf0c935832024bfb40133ee3510e147c42f2724362b9709c2e7791",
     "hidden/front/arc_right.png": "d8905533d337222d2499571908fc4aa6daa69145c8181ab2cb59a9145aa1d9e3",
-    "segmented/front/feature_eye.png": "8fb9fbf9507b7b4b0312c60e1f0dc595dc366cf68edbc7b43fe6b569b2d2ff32"
+    "segmented/front/feature_eye.png": "8fb9fbf9507b7b4b0312c60e1f0dc595dc366cf68edbc7b43fe6b569b2d2ff32",
+    "source/front/processed.png": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f"
   },
   "frames": [
     {
@@ -732,5 +733,7 @@
       }
     }
   ],
-  "expected_before_fix_false_pixels_frame70": 13007
+  "expected_before_fix_false_pixels_frame70": 13007,
+  "original_case": "experiments/cutouts/lightning_wisp/mq4",
+  "source_authority": "Frozen source texels for the existing retained native capture; original 11 SHA-256 values unchanged. Live hidden support is rebuilt in feedback 11."
 }

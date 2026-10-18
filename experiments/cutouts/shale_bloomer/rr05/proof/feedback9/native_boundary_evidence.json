@@ -1,0 +1,564 @@
+{
+  "basis": "Saved Wisp run 4 isolated frames, exact source transforms and original material draw order; fresh seam nodes were not present.",
+  "different_source_pixels": 18,
+  "alpha_differences": 2,
+  "fully_occluded_differences": 17,
+  "poses": [
+    {
+      "view": "front",
+      "part": "hidden_core",
+      "frame": 30,
+      "pixels": 2,
+      "coordinates": [
+        [
+          259,
+          214
+        ],
+        [
+          266,
+          245
+        ]
+      ],
+      "expected": [
+        [
+          141,
+          133,
+          174,
+          255
+        ],
+        [
+          92,
+          83,
+          121,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          141,
+          132,
+          176,
+          255
+        ],
+        [
+          94,
+          83,
+          123,
+          255
+        ]
+      ],
+      "transform": [
+        0.970704615116119,
+        -0.025418795645237,
+        0.026957718655467,
+        1.0294736623764,
+        67.1171722412109,
+        76.1016845703125
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/front/core.png",
+      "capture": "output/rr-05/wisp-native/pixels/front/hidden_core/after_0030.png",
+      "opaque_higher_part_coverage": [
+        true,
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "front",
+      "part": "hidden_crown",
+      "frame": 30,
+      "pixels": 2,
+      "coordinates": [
+        [
+          259,
+          214
+        ],
+        [
+          266,
+          245
+        ]
+      ],
+      "expected": [
+        [
+          141,
+          133,
+          174,
+          255
+        ],
+        [
+          92,
+          83,
+          121,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          141,
+          132,
+          176,
+          255
+        ],
+        [
+          94,
+          83,
+          123,
+          255
+        ]
+      ],
+      "transform": [
+        0.970704615116119,
+        -0.025418795645237,
+        0.026957718655467,
+        1.0294736623764,
+        67.1171722412109,
+        76.1016845703125
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/front/crown.png",
+      "capture": "output/rr-05/wisp-native/pixels/front/hidden_crown/after_0030.png",
+      "opaque_higher_part_coverage": [
+        true,
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "front",
+      "part": "hidden_arc_left",
+      "frame": 30,
+      "pixels": 2,
+      "coordinates": [
+        [
+          259,
+          214
+        ],
+        [
+          266,
+          245
+        ]
+      ],
+      "expected": [
+        [
+          141,
+          133,
+          174,
+          255
+        ],
+        [
+          92,
+          83,
+          121,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          141,
+          132,
+          176,
+          255
+        ],
+        [
+          94,
+          83,
+          123,
+          255
+        ]
+      ],
+      "transform": [
+        0.970704615116119,
+        -0.025418795645237,
+        0.026957718655467,
+        1.0294736623764,
+        67.1171722412109,
+        76.1016845703125
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/front/arc_left.png",
+      "capture": "output/rr-05/wisp-native/pixels/front/hidden_arc_left/after_0030.png",
+      "opaque_higher_part_coverage": [
+        true,
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "front",
+      "part": "hidden_arc_right",
+      "frame": 30,
+      "pixels": 2,
+      "coordinates": [
+        [
+          259,
+          214
+        ],
+        [
+          266,
+          245
+        ]
+      ],
+      "expected": [
+        [
+          141,
+          133,
+          174,
+          255
+        ],
+        [
+          92,
+          83,
+          121,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          141,
+          132,
+          176,
+          255
+        ],
+        [
+          94,
+          83,
+          123,
+          255
+        ]
+      ],
+      "transform": [
+        0.970704615116119,
+        -0.025418795645237,
+        0.026957718655467,
+        1.0294736623764,
+        67.1171722412109,
+        76.1016845703125
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/front/arc_right.png",
+      "capture": "output/rr-05/wisp-native/pixels/front/hidden_arc_right/after_0030.png",
+      "opaque_higher_part_coverage": [
+        true,
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "rear",
+      "part": "hidden_core",
+      "frame": 54,
+      "pixels": 1,
+      "coordinates": [
+        [
+          284,
+          296
+        ]
+      ],
+      "expected": [
+        [
+          32,
+          21,
+          30,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          33,
+          22,
+          30,
+          255
+        ]
+      ],
+      "transform": [
+        0.976747095584869,
+        0.0255770236253738,
+        -0.0267909485846758,
+        1.02310490608215,
+        69.0,
+        75.9999847412109
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/core.png",
+      "capture": "output/rr-05/wisp-native/pixels/rear/hidden_core/after_0054.png",
+      "opaque_higher_part_coverage": [
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "rear",
+      "part": "hidden_crown",
+      "frame": 54,
+      "pixels": 1,
+      "coordinates": [
+        [
+          284,
+          296
+        ]
+      ],
+      "expected": [
+        [
+          32,
+          21,
+          30,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          33,
+          22,
+          30,
+          255
+        ]
+      ],
+      "transform": [
+        0.976747095584869,
+        0.0255770236253738,
+        -0.0267909485846758,
+        1.02310490608215,
+        69.0,
+        75.9999847412109
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/crown.png",
+      "capture": "output/rr-05/wisp-native/pixels/rear/hidden_crown/after_0054.png",
+      "opaque_higher_part_coverage": [
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tail",
+      "frame": 42,
+      "pixels": 3,
+      "coordinates": [
+        [
+          233,
+          303
+        ],
+        [
+          265,
+          314
+        ],
+        [
+          237,
+          326
+        ]
+      ],
+      "expected": [
+        [
+          66,
+          56,
+          87,
+          255
+        ],
+        [
+          31,
+          19,
+          27,
+          255
+        ],
+        [
+          50,
+          40,
+          66,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          62,
+          52,
+          84,
+          255
+        ],
+        [
+          29,
+          18,
+          26,
+          255
+        ],
+        [
+          63,
+          53,
+          84,
+          255
+        ]
+      ],
+      "transform": [
+        0.965324640274048,
+        0.0505905225872993,
+        -0.048822458833456,
+        1.03336215019226,
+        82.6599731445312,
+        132.865692138672
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/tail.png",
+      "capture": "output/rr-05/wisp-native/pixels/rear/hidden_tail/after_0042.png",
+      "opaque_higher_part_coverage": [
+        true,
+        true,
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tail",
+      "frame": 72,
+      "pixels": 3,
+      "coordinates": [
+        [
+          230,
+          304
+        ],
+        [
+          224,
+          311
+        ],
+        [
+          218,
+          318
+        ]
+      ],
+      "expected": [
+        [
+          30,
+          17,
+          31,
+          255
+        ],
+        [
+          25,
+          1,
+          21,
+          255
+        ],
+        [
+          84,
+          75,
+          108,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          255
+        ]
+      ],
+      "transform": [
+        0.995615661144257,
+        0.131075292825699,
+        -0.131740361452103,
+        0.987059712409973,
+        85.4791717529297,
+        129.439971923828
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/tail.png",
+      "capture": "output/rr-05/wisp-native/pixels/rear/hidden_tail/after_0072.png",
+      "opaque_higher_part_coverage": [
+        true,
+        false,
+        true
+      ],
+      "alpha_differences": 2
+    },
+    {
+      "view": "rear",
+      "part": "hidden_arc_left",
+      "frame": 54,
+      "pixels": 1,
+      "coordinates": [
+        [
+          284,
+          296
+        ]
+      ],
+      "expected": [
+        [
+          32,
+          21,
+          30,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          33,
+          22,
+          30,
+          255
+        ]
+      ],
+      "transform": [
+        0.976747095584869,
+        0.0255770236253738,
+        -0.0267909485846758,
+        1.02310490608215,
+        69.0,
+        75.9999847412109
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/arc_left.png",
+      "capture": "output/rr-05/wisp-native/pixels/rear/hidden_arc_left/after_0054.png",
+      "opaque_higher_part_coverage": [
+        true
+      ],
+      "alpha_differences": 0
+    },
+    {
+      "view": "rear",
+      "part": "hidden_arc_right",
+      "frame": 54,
+      "pixels": 1,
+      "coordinates": [
+        [
+          284,
+          296
+        ]
+      ],
+      "expected": [
+        [
+          32,
+          21,
+          30,
+          255
+        ]
+      ],
+      "actual": [
+        [
+          33,
+          22,
+          30,
+          255
+        ]
+      ],
+      "transform": [
+        0.976747095584869,
+        0.0255770236253738,
+        -0.0267909485846758,
+        1.02310490608215,
+        69.0,
+        75.9999847412109
+      ],
+      "source": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/arc_right.png",
+      "capture": "output/rr-05/wisp-native/pixels/rear/hidden_arc_right/after_0054.png",
+      "opaque_higher_part_coverage": [
+        true
+      ],
+      "alpha_differences": 0
+    }
+  ]
+}

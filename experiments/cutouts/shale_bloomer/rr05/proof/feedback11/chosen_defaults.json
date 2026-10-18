@@ -1,0 +1,100 @@
+{
+  "player_visible_defaults": [],
+  "test_only": {
+    "small_canvas_px": 12,
+    "registered_canvas_px": 255,
+    "outline_rgba": [
+      20,
+      16,
+      21,
+      255
+    ],
+    "interior_rgba": [
+      109,
+      72,
+      54,
+      255
+    ],
+    "low_luma_rgba": [
+      3,
+      4,
+      5,
+      255
+    ],
+    "luma_fixture_cutoff": 9.125,
+    "joint_margin_fixture_px": 2,
+    "fixture_body_bounds": [
+      10,
+      10,
+      60,
+      60
+    ],
+    "fixture_outline_bounds": [
+      10,
+      10,
+      60,
+      15
+    ],
+    "fixture_seed_bounds": [
+      30,
+      30,
+      32,
+      32
+    ],
+    "foreign_seed_pixel_xy": [
+      50,
+      50
+    ],
+    "block_bounds": [
+      3,
+      3,
+      6,
+      6
+    ],
+    "thin_line_bounds": [
+      2,
+      3,
+      10,
+      5
+    ],
+    "donor_outline_xy": [
+      4,
+      5
+    ],
+    "donor_interior_xy": [
+      8,
+      5
+    ],
+    "donor_target_xy": [
+      5,
+      5
+    ]
+  },
+  "proof_only": {
+    "cpu_crops": "cpu_crops.json",
+    "ordering": "Before rows followed by after rows; supplied pose order",
+    "extra_detail_pose": [
+      "death",
+      30
+    ],
+    "frozen_alpha_inputs": "Copy of original approved textures with all original fixture SHA-256 values retained"
+  },
+  "unchanged_or_director_specified": {
+    "existing_joint_margin_px": 7,
+    "seam_width_cap_per_side_px": 4,
+    "dark_slab_full_block_px": 3,
+    "outline_luma_percentile": 5,
+    "exact_tie_epsilon": 1e-06,
+    "native_edge_allowance_px": 1,
+    "native_union_allowance_fraction": 0.01,
+    "boundary_shimmer_fraction": 0.01,
+    "held_shimmer_pixels": 0,
+    "outline_class_luma_weights": [
+      0.299,
+      0.587,
+      0.114
+    ],
+    "tie_percentage_guard": "Removed by feedback 11 decision 0"
+  },
+  "earlier_test_defaults": "../feedback10/chosen_defaults.json (historical guard value superseded)"
+}

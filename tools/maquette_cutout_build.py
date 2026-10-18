@@ -85,8 +85,8 @@ def build(creature, renders, front_raw, rear_raw):
     baseline(root)
     return report
 
-def promote(creature):
-    root = case_for(creature)
+def validate_derived_material(root):
+    """Read-only promotion prerequisites; seam measurements are reports only."""
     from maquette_motion.joint_seams import definition_errors
     if definition_errors(root, read_json(root / 'proof/continuity_samples.json')):
         raise builder.CutoutError('Missing or invalid joint seam underlays; derive before promotion')
@@ -94,14 +94,24 @@ def promote(creature):
     if not part_report(root)['ok']:
         raise builder.CutoutError('Disconnected part; derive connected ownership before promotion')
     continuity_path = root/'proof/continuity.json'
-    if not continuity_path.exists() or read_json(continuity_path).get('TODO_DESIGN'):
-        raise builder.CutoutError('Resolve derive-time silhouette TODO_DESIGN before promotion')
+    if not continuity_path.exists():
+        raise builder.CutoutError('Missing derive-time continuity proof before promotion')
+    continuity = read_json(continuity_path)
+    if not continuity.get('ok') or continuity.get('TODO_DESIGN'):
+        raise builder.CutoutError('Resolve blocking derive-time continuity checks before promotion')
+    if not continuity.get('exposed_hidden', {}).get('ok'):
+        raise builder.CutoutError('Derive and pass the exposed hidden-material gate before promotion')
     if (root/'features.json').exists():
         from maquette_motion.features import declarations
         for view in ('front','rear'): declarations(root,view)
         if not read_json(root/'recipes/rig.json').get('features'): raise builder.CutoutError('Derive feature ownership before promotion')
-    config = read_json(root/'cutout.json')
     if read_json(root/'hidden_fills/index.json').get('pending_design'): raise builder.CutoutError('Unfilled hidden material; production refused')
+
+
+def promote(creature):
+    root = case_for(creature)
+    validate_derived_material(root)
+    config = read_json(root/'cutout.json')
     destination = PROJECT/'assets/units'/ (creature+'_cutout')
     destination.mkdir(parents=True, exist_ok=True)
     for view, relative in config['layouts'].items():

@@ -194,7 +194,7 @@ def pose_report(case, report, native=None, legacy_hole_gate=False):
             'detached_distance_metric': 'Euclidean (conservative relative to 8-neighbour grid distance)',
             'director_table_distance_metric': '8-neighbour grid distance >3 px; exactly reproduces supplied worst-pose table',
             'background_connectivity': BACKGROUND_CONNECTIVITY,
-            'hole_policy': 'legacy hole counts are diagnostic; feedback8 seam_pose gates interior tears and reports natural negative space', 'poses': results, 'worst_by_clip': worst,
+            'hole_policy': 'report-only: legacy holes and feedback9 seam measurements; detached components remain blocking', 'poses': results, 'worst_by_clip': worst,
             'worst_by_clip_distance_3px': historical_worst, 'worst_holes_by_clip': hole_worst}
 
 

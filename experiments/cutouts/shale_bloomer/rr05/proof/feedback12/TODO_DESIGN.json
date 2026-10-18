@@ -1,0 +1,8 @@
+{
+  "TODO_DESIGN_exposed_hidden_lightning_wisp_tail": {
+    "status": "resolved",
+    "authority": "Director feedback 12",
+    "resolution": "Approved painted hidden-fill texels are report-only; only derived material may block. Original Wisp tail RGBA unchanged."
+  },
+  "open": []
+}

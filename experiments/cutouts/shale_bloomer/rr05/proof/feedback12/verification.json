@@ -1,0 +1,148 @@
+{
+  "focused": {
+    "command": "python3 -m unittest discover -s tests -p 'test_maquette_*.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 163 tests in 242.048s",
+      "OK (skipped=2)"
+    ],
+    "log": "output/rr-05/feedback12/focused.log"
+  },
+  "material_regressions": {
+    "command": "python3 -m unittest discover -s tests -p 'test_maquette_hidden_material.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 8 tests in 0.593s",
+      "OK"
+    ],
+    "log": "output/rr-05/feedback12/material-tests.log"
+  },
+  "full_godot": {
+    "command": "python3 tools/godot_task_runner.py --task-id rr-05 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "exit_code": 0,
+    "result_lines": [
+      "FULL SUITE RUNTIME: 348.808 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "log": "output/rr-05/feedback12/full-godot.log",
+    "notes": "qa-07 parallel runner; no editor scan. Existing log warnings/errors from system certificate access, intentional failure tests and ObjectDB cleanup do not change the observed suite PASS."
+  },
+  "full_python": {
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 764 tests in 665.091s",
+      "FAILED (failures=68, skipped=63)"
+    ],
+    "log": "output/rr-05/feedback12/full-python.log",
+    "failure_counts": {
+      "test_committed_registry_has_no_pending_warnings_even_in_strict_mode": 1,
+      "test_every_output_preserves_size_alpha_hidden_rgb_and_frame_edges": 63,
+      "test_painted_derivations_and_manifest_are_current": 1,
+      "test_rig_coverage_names_adoption_command_for_new_art": 1,
+      "test_rig_rest_rule_uses_declared_assemblies_only": 1,
+      "test_shipped_derivations_and_manifest_are_current": 1
+    },
+    "expected_pending_bloomer_adoption_failures": 68,
+    "unexpected_failures": 0,
+    "details": "python_failures.json"
+  },
+  "bloomer_before_after_probe": {
+    "exit_code": 0,
+    "result_lines": [
+      "BLOOMER DERIVED SLAB BEFORE: REJECTED (719 poses)",
+      "BLOOMER DERIVED SLAB REGRESSION: PASS (before rejected: 719 poses; after: 0)"
+    ],
+    "log": "output/rr-05/feedback12/bloomer-before-regression.log",
+    "result": "bloomer_regression.json",
+    "before_case": "output/rr-05/feedback11/before-case",
+    "oracle": "tools/maquette_motion/hidden_material.py:report"
+  },
+  "owner_script_tests": {
+    "log": "output/rr-05/feedback12/focused.log",
+    "result_lines": [
+      "test_adoption_heredoc_reads_layouts_and_calls_density (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_default_stage_order (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_invalid_filter_stops_before_tools (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_resume_adoption_only (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_resume_each_creature_only_in_either_argument_order (test_maquette_owner_proof.OwnerProofTests) ... ok"
+    ]
+  },
+  "retained_native_fixture_tests": {
+    "log": "output/rr-05/feedback12/focused.log",
+    "result_lines": [
+      "test_native_loop_rejects_a_held_flip_between_valid_candidates (test_maquette_native_raster.NativeRasterTests) ... ok",
+      "test_saved_native_surfaces_match_source_transform (test_maquette_native_raster.NativeRasterTests) ... ok",
+      "test_seam_fixture_exercises_the_opposite_exact_tie_choice (test_maquette_native_raster.NativeRasterTests) ... ok",
+      "test_third_colour_at_a_tie_is_not_an_edge_allowance (test_maquette_native_ties.NativeTieTests) ... ok"
+    ]
+  },
+  "wisp_feature_derivation_regression": {
+    "log": "output/rr-05/feedback12/focused.log",
+    "result_lines": [
+      "test_feature_derivation_runs_end_to_end_on_isolated_approved_paint_fixture (test_maquette_pixel_polish.PixelPresentationTests) ... MAQUETTE SEAM MUTATION: CPU/native gap reported; independent native reference rejected"
+    ],
+    "assertion_unchanged": true
+  },
+  "preservation": "preservation.json",
+  "motion_preservation": "motion_preservation.json",
+  "native_capture_preservation": "native_preservation.json",
+  "output_gdignore": {
+    "commands": [
+      "python3 tools/output_gdignore.py",
+      "python3 tools/output_gdignore.py --check"
+    ],
+    "exit_code": 0,
+    "result_lines": [
+      "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+    ],
+    "log": "output/rr-05/feedback12/output-gdignore-check.log"
+  },
+  "git_diff_check": {
+    "command": "git diff --check",
+    "exit_code": 0,
+    "output": ""
+  },
+  "windowed_worker_runs": [],
+  "production_adoption_worker_runs": [],
+  "owner_commands": "owner_commands.md",
+  "TODO_DESIGN_open": [],
+  "shale_derive": {
+    "command": "python3 tools/maquette_cutout_polish.py derive --case experiments/cutouts/shale_bloomer/mq3 --output output/rr-05/feedback12/shale-derive.json",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE DERIVATION: PASS (0 errors)",
+      "MAQUETTE DERIVED POSES: PASS"
+    ],
+    "log": "output/rr-05/feedback12/shale-derive.log",
+    "report": "output/rr-05/feedback12/shale-derive.json"
+  },
+  "shale_gate": {
+    "command": "python3 tools/maquette_cutout_polish.py gate --case experiments/cutouts/shale_bloomer/mq3 --samples output/rr-05/feedback12/shale-pixels.json --output output/rr-05/feedback12/shale-gates.json",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE PIXEL GATES: PASS (0 errors)"
+    ],
+    "log": "output/rr-05/feedback12/shale-gates.log",
+    "report": "output/rr-05/feedback12/shale-gates.json"
+  },
+  "wisp_derive": {
+    "command": "python3 tools/maquette_cutout_polish.py derive --case experiments/cutouts/lightning_wisp/mq4 --output output/rr-05/feedback12/wisp-derive.json",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE DERIVATION: PASS (0 errors)",
+      "MAQUETTE DERIVED POSES: PASS"
+    ],
+    "log": "output/rr-05/feedback12/wisp-derive.log",
+    "report": "output/rr-05/feedback12/wisp-derive.json"
+  },
+  "wisp_gate": {
+    "command": "python3 tools/maquette_cutout_polish.py gate --case experiments/cutouts/lightning_wisp/mq4 --samples output/rr-05/feedback12/wisp-pixels.json --output output/rr-05/feedback12/wisp-gates.json",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE PIXEL GATES: PASS (0 errors)"
+    ],
+    "log": "output/rr-05/feedback12/wisp-gates.log",
+    "report": "output/rr-05/feedback12/wisp-gates.json"
+  }
+}

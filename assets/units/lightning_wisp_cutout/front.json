@@ -30,6 +30,74 @@
   },
   "parts": [
     {
+      "name": "seam_core_crown",
+      "seam_underlay": true,
+      "bone": "core",
+      "file": "seams/front/seam_core_crown.png",
+      "offset": [
+        102,
+        92
+      ],
+      "bbox": [
+        102,
+        92,
+        157,
+        114
+      ],
+      "z_index": -9
+    },
+    {
+      "name": "seam_core_tail",
+      "seam_underlay": true,
+      "bone": "core",
+      "file": "seams/front/seam_core_tail.png",
+      "offset": [
+        100,
+        161
+      ],
+      "bbox": [
+        100,
+        161,
+        161,
+        175
+      ],
+      "z_index": -8
+    },
+    {
+      "name": "seam_core_arc_left",
+      "seam_underlay": true,
+      "bone": "core",
+      "file": "seams/front/seam_core_arc_left.png",
+      "offset": [
+        69,
+        120
+      ],
+      "bbox": [
+        69,
+        120,
+        105,
+        145
+      ],
+      "z_index": -7
+    },
+    {
+      "name": "seam_core_arc_right",
+      "seam_underlay": true,
+      "bone": "core",
+      "file": "seams/front/seam_core_arc_right.png",
+      "offset": [
+        162,
+        95
+      ],
+      "bbox": [
+        162,
+        95,
+        173,
+        129
+      ],
+      "z_index": -6
+    },
+    {
       "name": "core",
       "file": "segmented/front/core.png",
       "offset": [

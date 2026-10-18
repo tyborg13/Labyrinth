@@ -97,6 +97,7 @@ def production_errors(manifest, compiled):
 
 RUNTIME_PATHS = ['scripts/maquette_cutout_runtime/motion.gd', 'scripts/maquette_cutout_runtime/rig.gd',
     'scripts/maquette_cutout_runtime/pixel_presentation.gd', 'tools/maquette_motion/features.py', 'tools/maquette_motion/pixels.py', 'tools/maquette_motion/raster.py',
+    'tools/maquette_motion/material_palette.py', 'tools/maquette_motion/hidden_material.py', 'tools/maquette_motion/material_provenance.py', 'tools/maquette_motion/support_seeds.py', 'tools/maquette_motion/hidden_support.py', 'tools/maquette_motion/socket_edit.py',
     'tools/maquette_motion/joint_seams.py', 'tools/maquette_motion/seam_pose.py', 'tools/maquette_motion/seam_builder.py', 'tools/maquette_motion/silhouette.py', 'tools/maquette_motion/continuity.py', 'tools/maquette_motion/bleed.py', 'tools/maquette_motion/seam_support.py', 'tools/maquette_motion/contract.py', 'tools/maquette_motion/continuity_limits.py', 'tools/maquette_motion/feature_builder.py',
     'tests/maquette_cutout/seam_capture.gd', 'tests/maquette_cutout/reference_masks.gd', 'tests/maquette_cutout/pixel_capture.gd', 'tests/maquette_cutout/pixel_samples.gd', 'tests/maquette_cutout/proof_inputs.gd', 'tools/maquette_cutout_polish.py',
     'scripts/maquette_cutout_runtime/renderer.gd', 'scripts/maquette_cutout_runtime/action.gd',
@@ -113,7 +114,10 @@ def input_bindings(case):
     if (case / 'seams.json').exists(): paths.add('seams.json')
     if (case / 'seam_parent_decisions.json').exists(): paths.add('seam_parent_decisions.json')
     if (case / 'director_amendments.json').exists(): paths.add('director_amendments.json')
+    for relative in ('support_derivation.json', 'hidden_fills/index.json'):
+        if (case / relative).exists(): paths.add(relative)
     for view in ('front','rear'):
+        if (case / f'source/{view}/processed.json').exists(): paths.add(f'source/{view}/processed.json')
         paths.add('source/'+view+'/processed.png')
         paths.update(p['file'] for p in read_json(case/f'layouts/{view}.json')['parts'])
     if (case/'features.json').exists():
@@ -124,11 +128,32 @@ def input_bindings(case):
     result.update({'runtime:'+p:digest(PROJECT/p) for p in RUNTIME_PATHS})
     return result
 
+
+# These files only interpret saved pixels/matrices; Godot does not execute
+# them. Re-checking a retained native capture with a revised oracle must not
+# pretend that its recorded oracle hashes are today's hashes. All case paint,
+# layouts, authored motion, derivation code and native runtime bindings remain
+# exact. Preserve the original manifests and expose both oracle revisions.
+VERIFICATION_ONLY_PATHS = ('tools/maquette_motion/pixels.py',
+                           'tools/maquette_motion/raster.py', 'tools/maquette_cutout_polish.py')
+
+
+def bindings_match(case, recorded):
+    current = input_bindings(case)
+    ignored = {'runtime:' + p for p in VERIFICATION_ONLY_PATHS}
+    return isinstance(recorded, dict) and recorded.keys() == current.keys() and all(
+        recorded[key] == value for key, value in current.items() if key not in ignored)
+
+
+def verification_bindings():
+    paths = (*VERIFICATION_ONLY_PATHS, 'tools/maquette_motion/native_ties.py', 'tools/maquette_motion/gates.py')
+    return {p: digest(PROJECT / p) for p in paths}
+
 def native_errors(case, capture):
     failures=[]
     manifest=read_json(capture/'frames.json')
     compiled=read_json(case/'compiled_motion.json')
-    if manifest.get('inputs') != input_bindings(case):failures.append('Native input bindings differ from final case/runtime')
+    if not bindings_match(case, manifest.get('inputs')):failures.append('Native input bindings differ from final case/runtime')
     if not manifest.get('ok') or not manifest.get('native_pixels') or manifest.get('fps') != 60:failures.append('Native renderer proof incomplete')
     if manifest.get('compiled_sha256')!=digest(case/'compiled_motion.json'): failures.append('Stale native motion capture')
     expected_frames=0

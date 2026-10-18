@@ -1,0 +1,1141 @@
+{
+  "destination": "output/rr-05/archive",
+  "files": [
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/case_validation.json",
+      "bytes": 669,
+      "sha256": "0fe4faf0e25507a5989dcd9db14332ebc475e747c22950c8e516e69ebde7d457",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/director_inputs.sha256.json",
+      "bytes": 1643,
+      "sha256": "9120e0104fe4768e60ebf705aaa8f8ce55d59bb768eb3808c8921d8a118dba73",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/features.json",
+      "bytes": 7306,
+      "sha256": "94c75ae05eb25fd3e9dc2db4205e396e1c624b18e7b8ed13a5ddcdc74ca131d5",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/focused_results.json",
+      "bytes": 12159,
+      "sha256": "c1b8c0f64464372c6f64db030c4451b7d3ec309d1c9ad7ab1dca668624dbb1c0",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/godot_full.log",
+      "bytes": 52620,
+      "sha256": "4aea73e02d54ec01c6c99dd345c8575d5753395a194b6e967dd297cc76e5f82a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/integration.log",
+      "bytes": 1580,
+      "sha256": "ac6655f016d1f74a59fa399ebc0efc084f3c13cfdb29fda66ddea58a4ed51bc6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/living_foes.log",
+      "bytes": 679,
+      "sha256": "4beada0c501b875465ac46bb1ed2d85470b154b26faa1b7ffb0c35f6a8068e49",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/output_gdignore.log",
+      "bytes": 2042,
+      "sha256": "3dbf879172f65a4ecb84a4b4793ac43e72de8b389255d6c12f596c48124267f5",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/pixel_tests.log",
+      "bytes": 1897,
+      "sha256": "b922b861338159d4114c8f911e02f9fdc155535d68185e60a2cf26567d4f96ad",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/protected_inputs.json",
+      "bytes": 229,
+      "sha256": "d761c71cd8c79e2e7b35cb4aef68c054ffc30b90d343f317122224646f92578f",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/python_full.log",
+      "bytes": 78764,
+      "sha256": "9fd64a4f48591b9d9f74021634be473598576586d92f585b14e969f0d5035124",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/runtime.log",
+      "bytes": 636,
+      "sha256": "78af5145273c5c86ba11470695cd33cf464b3ceefb1743c70586fcc72ebe64eb",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/semantic_tests.log",
+      "bytes": 1518,
+      "sha256": "a079ba28bc534407fbbf9d3bdbc08f91d68b58c72d9e31d46336226078f35d8b",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-authored-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-derive.json",
+      "bytes": 397,
+      "sha256": "f739d5b1c61d8162631e69788d107538e3a432b1fb72f5a7a60c76aac3a23aaa",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-logic-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-pixel-gates.json",
+      "bytes": 47572,
+      "sha256": "a825a87a3322110e7d4e22f525fbe1bb8e19fb0ad7cda20ecb91cceb4e31ef6a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_authored.log",
+      "bytes": 770,
+      "sha256": "11d6dd6798f5062090ba67ac33782738bfe00b540f4f003693ca081558e7ef0a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_authored_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_logic.log",
+      "bytes": 979,
+      "sha256": "adb5c396245d23cda4e46b0f14c45b63e3f6f4085cb0d02578d45d03f90c26de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_logic_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_native_parse.log",
+      "bytes": 775,
+      "sha256": "3b4f25dc55b9911c775c7f07faf5f0382d8940d54708fe89549337b8c7aa8055",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_pixel_gate.log",
+      "bytes": 38,
+      "sha256": "ed77cc4c079928d9e05df55bb9695f8af3815df38d1b9846bfc659f13663b2a8",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_pixels.log",
+      "bytes": 795,
+      "sha256": "a55bb30afd8b37905d6fc20bf8a4329a0f13f6263c76c4a32c00c3e391ba780c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/suite_results.json",
+      "bytes": 2464,
+      "sha256": "1ab1598da50e319b14b595710b5a31ecccb2174b1ac781ad87f68df08728b1bf",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/verification.json",
+      "bytes": 26815,
+      "sha256": "95554a379ce7a6f3990a365f170ab619c4295ebe6c5e18749572c75256041589",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-authored-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-derive.json",
+      "bytes": 397,
+      "sha256": "d90404b4a86a3617123275931fc92e598c905939e25394445b4181d2d71f279a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-logic-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-pixel-gates.json",
+      "bytes": 16081,
+      "sha256": "b11920a40731f1f22455cbb059cf32fd3c3db7a21659b35cca6a388f4a4aa7a7",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_authored.log",
+      "bytes": 770,
+      "sha256": "88f8c67728da5a4f3deeafc8894d2c81586e35e0884e7fe1895afa50c223d48b",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_authored_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_logic.log",
+      "bytes": 855,
+      "sha256": "bc1481a7a254c093db3d4c005f8f8639edd2efd852ca82680b45590f1746a4ac",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_logic_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_native_parse.log",
+      "bytes": 775,
+      "sha256": "ace66127ff2d46b653dadf495be76f56bdd50e5d33f3e8faacba21c8637a1070",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_pixel_gate.log",
+      "bytes": 38,
+      "sha256": "ed77cc4c079928d9e05df55bb9695f8af3815df38d1b9846bfc659f13663b2a8",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_pixels.log",
+      "bytes": 794,
+      "sha256": "3c2f398f737a1813951acd84c00e76d36224f46994076ec64c8975510d3b1846",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/README.md",
+      "bytes": 5901,
+      "sha256": "5b2ef66b5702a510c396b04ff9895c1b2dcb0183205a1fd918b01a34c0ad4f6c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/capture_cleanup.json",
+      "bytes": 266,
+      "sha256": "5138d1e78df79e1e52dac757b5089a787e0f0d10b4c9233728230ca4c670cace",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/direct_inverse_comparison.json",
+      "bytes": 111419,
+      "sha256": "efbc5f8dc3beab651762ef38596a497946aa9a1b9bb1b78039aee3b8d0dfcb2a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_evidence_sha256.json",
+      "bytes": 637,
+      "sha256": "9d811465687216957aaa7713728640ee3966027d362513e7b569005ec214f89b",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_frames.json",
+      "bytes": 259006,
+      "sha256": "fc60c422727d2b227829fc791d9af29367219e9021fc655ca1fa31e266f11a27",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_pixel_frames.json",
+      "bytes": 6954708,
+      "sha256": "53cfa7e688e64577d91fbbaaf73fb9d9a795109e63768fdd8aa309349e1edd6a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_pixel_gates.json",
+      "bytes": 57483,
+      "sha256": "ead52459d45b90575cafe10d36eb3ec3574ea4516d1531235d92fa10c5f5e5fb",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_pixel_samples.json",
+      "bytes": 9107124,
+      "sha256": "7cfe5b32c85e4961729b0e29ba1e138242f58f38480a8b77b70cd45b3a30c2ef",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_windowed_run1.log",
+      "bytes": 16700,
+      "sha256": "5f98b4009ef98b9046ccb528f4d82707192b62141f0167861d0b6f8893ecc85c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/features.json",
+      "bytes": 7306,
+      "sha256": "94c75ae05eb25fd3e9dc2db4205e396e1c624b18e7b8ed13a5ddcdc74ca131d5",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/final_checks.json",
+      "bytes": 497,
+      "sha256": "82e4b8b216614ffdf98fc1109b80b9855760062e5db60cc748473a81472835fe",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/focused_results.json",
+      "bytes": 12484,
+      "sha256": "a8f7192b0049f771c3f59facb4c9da89e6d1a5ff5f4955483d198b09e5714483",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/godot_full.log",
+      "bytes": 52691,
+      "sha256": "e59c1b9889140a48a942181c0fc42c584d8005a19cf51d874a2fdc4c3aa98946",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/initial_mismatches.json",
+      "bytes": 161874,
+      "sha256": "34aad9e4df093c2949fdacff86fe73aef548221ccbd1fd53e346bbda507de118",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/integration.log",
+      "bytes": 1577,
+      "sha256": "def0cc6bbc945c866740164cc9c8f7471212fedff8b9a564c38df9cb017e658e",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/living_foes.log",
+      "bytes": 676,
+      "sha256": "282abc46909453a4fe8ba8359d3d7006ab2c6eb7dd7a3b503e41b462a34957bb",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/native_matrix_comparison.json",
+      "bytes": 98648,
+      "sha256": "7dae909cbd33469db85bf649b480433db8342dde3e458eca4314fc8487260056",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/native_regression.log",
+      "bytes": 417,
+      "sha256": "8fb73d070034cd50913e3f4408c2cf95274dc9b63d17188a0626577439517ed1",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/native_regression_before.log",
+      "bytes": 7406,
+      "sha256": "e56c44126d31dc7a4934c7d2f958cb2f6e7b8075f7f40b7263f7297087603419",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/output_gdignore.log",
+      "bytes": 2042,
+      "sha256": "3dbf879172f65a4ecb84a4b4793ac43e72de8b389255d6c12f596c48124267f5",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/owner_script_control_flow.json",
+      "bytes": 6693,
+      "sha256": "5a76853a4beb9dd43950b256b4895ce1f3270b30624639c3e9aa920c8b450b3e",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/pixel_tests.log",
+      "bytes": 1895,
+      "sha256": "7ac856d7e50b04162ad4e6ee59ca4956b9bc8f788cce362ed0a992640ef71d5e",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/protected_inputs.json",
+      "bytes": 370,
+      "sha256": "66c1d92b40fa63befa4db4fae80b86135147d436779cd9d354a45565135475e1",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/python_full.log",
+      "bytes": 79081,
+      "sha256": "e33e09391bce620a9da9d9314eea1a587a6266f95d42d2df5b07de336a9238f9",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/runtime.log",
+      "bytes": 633,
+      "sha256": "47e49fc2c954885f1c108359e4b261327f32f407f8db1831ae022ebcb80e9a4d",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/saved_capture_replay.json",
+      "bytes": 29514,
+      "sha256": "c06264bd3314fc2f713f6a4e7ad91460c51b265e7dd601b67227d738305f70fd",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/saved_native_transform_oracle.json",
+      "bytes": 379,
+      "sha256": "51f6cb515e8e57131f0e68d6ba8dea6e8215df16591aaa728438fe783983ce97",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/semantic_tests.log",
+      "bytes": 1518,
+      "sha256": "7f5b8347e25c85da5a37dfa14a07b66cad7843b6ed5e7acd590c57b26d20622e",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale-authored-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale-logic-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale-pixel-gates.json",
+      "bytes": 47627,
+      "sha256": "d0858ac18096ee7661324aa99dfbfaebb5eea40c838ca6babed91b9454b4b3e6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_authored.log",
+      "bytes": 767,
+      "sha256": "9a8fd3344a897bd0fa96b72eb0b7e3cb2b35c306de1838ceef5898c3efcf90f2",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_authored_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_logic.log",
+      "bytes": 852,
+      "sha256": "efc67f264fb7427b90add97b423e382fb3e6680233764a7cd4e27de6a4312a48",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_logic_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_native_parse.log",
+      "bytes": 772,
+      "sha256": "0194f10209077732ad0216c1c9addacee2afed05f9267d055826728b4555d495",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_pixel_gate.log",
+      "bytes": 38,
+      "sha256": "ed77cc4c079928d9e05df55bb9695f8af3815df38d1b9846bfc659f13663b2a8",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_pixels.log",
+      "bytes": 792,
+      "sha256": "1ae5dee5bdcd54288755ad3d30508179976e7975724a534f84519840a9f64962",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/suite_results.json",
+      "bytes": 1792,
+      "sha256": "cc2f6544efabedc31020d20f5b669574eb588611073a51e6b0eba5144365e8b9",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/verification.json",
+      "bytes": 58573,
+      "sha256": "b99d3f583c9d512d660675bd8b2e14e2a0e35a781ff6f338d775c394e0ec05a1",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp-authored-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp-logic-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp-pixel-gates.json",
+      "bytes": 16102,
+      "sha256": "f79becb72da9d69ce452ec433eddfc4defeb9929e2aa6da6791e6a02e5295bba",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_authored.log",
+      "bytes": 767,
+      "sha256": "8177c6dc7b09a91374b5d872affd44f441fadd1117977b83c9e92dbf71624c46",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_authored_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_logic.log",
+      "bytes": 852,
+      "sha256": "100af43d2f112346d25321e43bd4c1577071edfaa00ac6bf356b77e043d92897",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_logic_gate.log",
+      "bytes": 39,
+      "sha256": "65f41d3326ac7ed3a14e820b8d2cdf8b76eae1dbdc327e8a20941a33798932de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_native_parse.log",
+      "bytes": 772,
+      "sha256": "4a9075ea336a6d88877231b536f0dd6e76b5e890cb27453ecdc88ca5b4187f92",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_pixel_gate.log",
+      "bytes": 38,
+      "sha256": "ed77cc4c079928d9e05df55bb9695f8af3815df38d1b9846bfc659f13663b2a8",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_pixels.log",
+      "bytes": 791,
+      "sha256": "bb6c0d9a83e8b98b64d485a128aa52bf91f646b55987053695dac98981c78415",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/README.md",
+      "bytes": 5649,
+      "sha256": "dba793ca90a8a8797a22a7df4d31aaeeb7908494512a57e19c09a8349ee4e572",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/bloomer_native_replay.json",
+      "bytes": 29399,
+      "sha256": "16096cef793cf577168be9e35f5b87d768ce9ef8f82ffb584d9f47a1009c838f",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/bloomer_outputs.sha256.json",
+      "bytes": 3591562,
+      "sha256": "9caeada096a4629e8ed2263f236550fcf5670830717f321498c4616d66b18bc6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/capture_cleanup.json",
+      "bytes": 201,
+      "sha256": "575d4a00a56952ccb909b6915e6086600e842bab8d4331c6b768b17f299ed124",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/diagnosis.json",
+      "bytes": 13815,
+      "sha256": "09bc6dbbbfcd10deddcb70a8774901f734d67b3b7be7c5fa180b33bdccc1c919",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_frames.json",
+      "bytes": 189345,
+      "sha256": "54ff27e9bfefa49d0ac1096078f68790a7ed0d8304381fdc7c40575992f67c24",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_pixel_frames.json",
+      "bytes": 1591390,
+      "sha256": "d4ff14b2079a3da40c9360b995376a73247df9b7d513f484b923a3d3358c60be",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_pixel_gates.json",
+      "bytes": 17232,
+      "sha256": "83681c43416e4d96c590b0da55d47b7bbf4e166dae58a5643e14a8a24e7a6d8c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_pixel_samples.json",
+      "bytes": 2022671,
+      "sha256": "4619c92287132c84ec68c34aa35eb643cdc8d4f3b68450a2d84f819a48522be6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_windowed_run2.log",
+      "bytes": 28252,
+      "sha256": "cb5fd3f8998c89fdbfa29fa70b3eac93022abb606ecca4025071bb2ef77fd57d",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/pre_fix_runtime_corrected_raster_replay.json",
+      "bytes": 9282,
+      "sha256": "4a78e1d30cd7be677678685e7ae7221162887dde50214a47737e26efcf880444",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/preservation_and_attachment.json",
+      "bytes": 350,
+      "sha256": "1a2a17c2763a03c3787546eaa019817191a6d40f183844528444b97bcbdae2e4",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/verification.json",
+      "bytes": 30121,
+      "sha256": "8b6bc7326b8f30f22a154ca05461bb0a2a3ab4c4c69a9f83f5d6c5b89b0a8acb",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/README.md",
+      "bytes": 9568,
+      "sha256": "8df087b9a1ebcf15737b26248dc0daec02684fdc0b3e378284e8a811a247db48",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/TODO_DESIGN.json",
+      "bytes": 4073,
+      "sha256": "c282cb667138dd00d346d10938c7216591d2ea5fbc077e9fa1752101c868edd6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/before_after.csv",
+      "bytes": 2401,
+      "sha256": "a197f3b179ebe428a938fc74db3e933be0cc8c2be5bfb4432bcf93eb51412969",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/before_after.json",
+      "bytes": 13252,
+      "sha256": "7cbfe0b09f17ef01cfb94e266cfd56ff8e62affd7d446b1b38eac75d57b40497",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/before_after.md",
+      "bytes": 1881,
+      "sha256": "d0ec2a8febd31b31b9eb13db5e2f317a82126c63d3280cf044092fffddf07f6d",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/preservation.json",
+      "bytes": 188,
+      "sha256": "dd046c6e582e49b531d74c4cba3920e7eac1b5558cdd66adfe288e2f6f41587c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/scratch_cleanup.json",
+      "bytes": 1017,
+      "sha256": "f8ffa4466620ee4683f6d2c903d8cdebe205385acc76ecf2f0abd592c31072a8",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/verification.json",
+      "bytes": 44287,
+      "sha256": "c747f3dd5d9c7ccbb67e84e133821f39572c4a1f38b71395bb917787a314930f",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/wisp_native_before.sha256.json",
+      "bytes": 896451,
+      "sha256": "5e846ccf55a65b57cb0105424bb54375f55a5d686947782f93e5f32af2a1f746",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/wisp_native_raster_diagnosis.json",
+      "bytes": 972,
+      "sha256": "3eb1eb83ef2540898f0fb27482eaeeb1b7f3493b696ef5f093c5901d64732115",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/README.md",
+      "bytes": 11161,
+      "sha256": "ff7c4a3d5fca46ab7afcbe52779208fd25a961680a9e09e0f858a7ae7712743d",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/TODO_DESIGN.json",
+      "bytes": 217652,
+      "sha256": "5040fbc81d6383db978d693b8b7490f9a27f3bde483f0902ea9fc4be312381cb",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/TODO_summary.md",
+      "bytes": 1250,
+      "sha256": "0716bdefeb6e457e75562a1cdf5138c2318eeb136e2e5d7058dd904709278e68",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/amendment_evidence.json",
+      "bytes": 1904,
+      "sha256": "7d472dffb78b559bcc608df65ca8335eabba1c83659459d7b27bb9af29bd49ec",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/before_after.md",
+      "bytes": 3273,
+      "sha256": "6be8fc6e7ac930dd0d2f2e87bb4fb69411e6538ba6b75154cdaadb76476954ed",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/before_continuity.json",
+      "bytes": 423430,
+      "sha256": "a529e4603653638599a256a1cbded29e1f893d6015bee43cd85b0854da807855",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/chosen_defaults.json",
+      "bytes": 1683,
+      "sha256": "af6be144699f7a3e49d8c73d92459f6fc83ba171994d87c3a836ef4d617fed8a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/features.json",
+      "bytes": 7093,
+      "sha256": "65562ceea1e1148c6466341043124eac8aa45942867a7687cd76cb6c14a0dc00",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/features.md",
+      "bytes": 764,
+      "sha256": "a215a847f84f7e4b6663399239113bf44fd6f9aa1c886fd591621aa7ac38a3f1",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/preservation.json",
+      "bytes": 1497,
+      "sha256": "851201edd5ab7e126c85f7d92a6cd19edb6b66b9a3a2b69070d89072db9802ea",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/python_failures.json",
+      "bytes": 4908,
+      "sha256": "de8067fe789c8d28449acc733229ff5761f6a21f2e5df1fb542574c25ca48851",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/scope.json",
+      "bytes": 248,
+      "sha256": "d5bebf2d6e8cdf2311c2a9b98340c5a26cfad1aab5faee2c6e56372a937658de",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/scratch_cleanup.json",
+      "bytes": 943,
+      "sha256": "ab89d1a25b63d196faef48debb76a30c7152c044073d3588c909b5509bbf6fa1",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/shimmer.json",
+      "bytes": 983,
+      "sha256": "beedb8d327be9fb2af8789f865ca339917b73c525560db7d50088d43ff27b1b6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/verification.json",
+      "bytes": 28791,
+      "sha256": "a431bf88f0d56cdc3adc3d34a88339b253a3233bed1081396c46ffb6c6f80e24",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/wisp_runtime_equivalence.json",
+      "bytes": 447,
+      "sha256": "ef8b7b90c3688cf1efa255528e0adc1a4befcb896dbcfcb5d34ca0601258a781",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/README.md",
+      "bytes": 8331,
+      "sha256": "00dfbd8c7f643f2525f433412559368971112462942257a4d32d6544debadb3d",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/chosen_defaults.json",
+      "bytes": 2836,
+      "sha256": "2bef23e197c113bc43469a04fa9fff04732c26bd01b993abe8aa6be0ecd97a4e",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/features.json",
+      "bytes": 7093,
+      "sha256": "a9c8329c2df28df5a0eef7638db8b31dfa74a6a13e7a1f5a9d9659cff8849f84",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/features.md",
+      "bytes": 1058,
+      "sha256": "5d0f891acc487a307f62814d72b1d89f8a32cceb5dfb14d8c8b5b65e92bc4d83",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/historical_native_before.md",
+      "bytes": 3490,
+      "sha256": "07e099156548fcb9b5fb0de0e8d03016296300665150f18029ed8a5e62568cb0",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/owner_commands.md",
+      "bytes": 4232,
+      "sha256": "8a6e38f345a2b2caa61343c5fe5f1c9b0621fedff609f54d9ba9bfad4ca66765",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/per_clip.md",
+      "bytes": 2729,
+      "sha256": "dd61c1a0287336e0edc27e8cfb4beefa712896bc79599b0685170f986193251a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/preservation.json",
+      "bytes": 2488,
+      "sha256": "d0088822c6b61fe1d9ce9c567153fcbef27a8213cfeae4012423283f8b0fd934",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/results.json",
+      "bytes": 58256,
+      "sha256": "dbcd1ea0ab2bdf9091422ce03745a1bc8844554b5ec63d16c49693f7ddcaa662",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/scope.json",
+      "bytes": 221,
+      "sha256": "fc8e9062089def64fb85369a0d523f1ee044cbdd4a6f2ba4c6ca20b2c1a66a2b",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/scratch_cleanup.json",
+      "bytes": 724,
+      "sha256": "369aba8ac049f99f98b4ee9df8b38847a1a97878364a35d05b3ff3e1801349e5",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/shale-TODO_DESIGN.json",
+      "bytes": 395228,
+      "sha256": "e5245dae201b5fb8331813302922fdf583541574a68365640c7be4d53102d058",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/shale-evidence.json",
+      "bytes": 358449,
+      "sha256": "6a9181bfc766cd506018ed3908831b635243675a7a687687b668edda177c554d",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/shimmer.md",
+      "bytes": 527,
+      "sha256": "ea92074bfac6282215469e4eb20e37a1198402b7632d5534bdd16b1dede5ab21",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/verification.json",
+      "bytes": 26972,
+      "sha256": "445756c591ed563efd20d7569984223dc7b85bcf9fa7d5fe66f1fb544d13121c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/wisp-TODO_DESIGN.json",
+      "bytes": 198014,
+      "sha256": "066f0186a4a8e98f65a337a838429ed61862eb572ef69fb02416e2d0b188b23e",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/wisp-evidence.json",
+      "bytes": 143226,
+      "sha256": "d23a2a728a60c3dfc33c5cc7a66cb5eccf2d32300192237e1b552b856ae82c90",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/wisp_runtime_equivalence.json",
+      "bytes": 203,
+      "sha256": "89762e1090e86bfa6c374ec9b13a9425fcbc6581dfae05bf1dc85cb8da4c2bcf",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/README.md",
+      "bytes": 10877,
+      "sha256": "01227500fe6597ee926cab643086cb91b65b4258fca9bb4fdff1b71d642fb63c",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/chosen_defaults.json",
+      "bytes": 4256,
+      "sha256": "90297fa496e060ac1807670f6c9f267ea13147e00aeaf61631d3b0f45bc5f019",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/constraint_certificates.json",
+      "bytes": 433969,
+      "sha256": "3ef279c9fea0cf82b00e8a130d569489f73ac7c476199f0c24d4a7faf741bcb8",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/constraint_certificates.md",
+      "bytes": 1141,
+      "sha256": "98cddef13073acc150bdfe2bb9debe224cd932845e5f82e9ac9ffb454945cb8a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/design_questions.json",
+      "bytes": 765,
+      "sha256": "fbbb4dabc8af37b2857ca59c4424ac74a5457afaa950f65726d18402b4c20a13",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/detached.md",
+      "bytes": 2012,
+      "sha256": "737b1716a5d04dd6c36b2d49095a68ff77ea9124f7369aef7a25d2b2deb3d168",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/features.json",
+      "bytes": 7093,
+      "sha256": "65562ceea1e1148c6466341043124eac8aa45942867a7687cd76cb6c14a0dc00",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/features.md",
+      "bytes": 1112,
+      "sha256": "81b8c435ce15d9c9c4958c82e8aa5453e6c0288790697f1a6842d434dc820344",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/files.md",
+      "bytes": 3182,
+      "sha256": "aceb0ec05236c06ebc0f43debec9968cf0b57cbd5957ba713658d3328335a219",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/full_godot_result.json",
+      "bytes": 5297,
+      "sha256": "2a5aac2a93d9a586b40dd70159a46c2ba620666e089595540da8b74a5d2a209b",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/motion_preservation.json",
+      "bytes": 420,
+      "sha256": "ff448c4bf2c27af598206cd906fb48b091b07677653e90d7551b392addaecd8a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/native_alpha.md",
+      "bytes": 1771,
+      "sha256": "0e960a7ad715b81c565e0768f7e16d05ec1a5c7b522dbf09179f412a075ccb40",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/original_pose_equivalence.json",
+      "bytes": 747,
+      "sha256": "dd39e1bd39b9b3b252c7992e18a822655c3dea91dfaae7a18db1cd7737a94c74",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/owner_commands.md",
+      "bytes": 1870,
+      "sha256": "369208c488de4c9250a9f0386b07ab6ce46fee05ed64eca0f3a1cd28cb15747f",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/per_clip.md",
+      "bytes": 3302,
+      "sha256": "2082632f89fce6de5ef33c7a8ead4cd9ac2c940bdd0ca5f1d1c8ac4d1f0de1b4",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/preservation.json",
+      "bytes": 2462,
+      "sha256": "f4b62be8d53412adeea27740b7d3cbe8fc88bff618ba1265983dac1010721abc",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/results.json",
+      "bytes": 20372,
+      "sha256": "dcc0213571855ba7542091ba2c91fc4136c6d269c3e524d868bf765622d0b8e7",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/scope.json",
+      "bytes": 46318,
+      "sha256": "0eabe4a6e9693b9b913f1af55215d6eb6ebe5419435a0d70386fbe67bf2c7136",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/scratch_cleanup.json",
+      "bytes": 512,
+      "sha256": "df2db514610b34a9281cdd8dc2ce7ca1930d2eeb075c01f21907f140fa2d400a",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/shale-TODO_DESIGN.json",
+      "bytes": 869861,
+      "sha256": "6fc5ebb1083562ba6df882e2b7267c10b1efa1f81aea7ac9f968e4889202ebc0",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/shale-evidence.json",
+      "bytes": 364296,
+      "sha256": "f174aacc8d280b0fe58587efe4e667160586e10297751b9cf021e742870ee2e6",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/shale-seam_parents.json",
+      "bytes": 7541,
+      "sha256": "9cd7cc8bdbaaaa9c57d71715b4ac6ad578865e74c53f01902e21cecf4bba9878",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/verification.json",
+      "bytes": 64289,
+      "sha256": "195c9c83f7157088634bb12ddbd97afc6f8d1a1a4d1b1e454adbfb64ff9c9c4f",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/wisp-TODO_DESIGN.json",
+      "bytes": 329693,
+      "sha256": "d70eba594ae017020bbe0734ca53f69b6bfe891f80afd4f1a0bb1b8b7cd34a45",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/wisp-evidence.json",
+      "bytes": 119426,
+      "sha256": "8026c8066d34787ed15dced73b3fed0879eeb9d50c672157fbbca57930eb08bc",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/wisp-seam_parents.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/gaoler_rebuild.log",
+      "bytes": 773,
+      "sha256": "22fd5cf438ae2a69ee7ed56e635f50dbe1b0ecaa2251e8f545c7cc02c63bd7e7",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/godot_full.log",
+      "bytes": 52997,
+      "sha256": "55b3801fdc321f30b8346e9f09156c5e7530f1a4336a66aeae31f9c12ec7a670",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/godot_full_initial.log",
+      "bytes": 49377,
+      "sha256": "4e1ed2824d15af90ca291a140e77d83e30058fd17ac482037755418b458eca02",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/godot_full_seed_failure.log",
+      "bytes": 58237,
+      "sha256": "58974f7a334a80bc141f5ab9b1fa60ccb0f2699ba5db320d5a62f0d0b196dcdb",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/pixel_tests.log",
+      "bytes": 1717,
+      "sha256": "c2413092f0d633013aabeed6b307fbc4e91f539a33d890c01d31bc96f63ab419",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/pre_mask_verification.json",
+      "bytes": 3998,
+      "sha256": "1f027a3004981c331fa2ec2f575df284765772dd0b122aae46da5643d222ebdd",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/python_full.log",
+      "bytes": 78764,
+      "sha256": "f7aedd2efed864931d85fcf3ac57a1a70fa3bf7202416c806c30cf216e6041b3",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/python_full_initial.log",
+      "bytes": 79025,
+      "sha256": "c5b66727cbbd03f329c35e7bf2eb74f7b594e71bba73634bbba36b60fecb7839",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/runtime.log",
+      "bytes": 636,
+      "sha256": "f8138ce7e26e77785c30876cdaf6836839eabe1c9b21eb89be02370f3a62d181",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/seeded_foes.log",
+      "bytes": 679,
+      "sha256": "fb529ac8593d5b002695e5deb9c722ea076ce617a559856d3f06928f41a142fe",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale-pixel-gates.json",
+      "bytes": 36979,
+      "sha256": "08ad5036c91222e22188a14b5785027790ca95c06a5fb5a2c7f34f839b620a42",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale-production-logic-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale_logic.log",
+      "bytes": 911,
+      "sha256": "fdd2e1a8f18d9f085ef04c89c80445f6f7048748e37c622f8b20e9cdba745594",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale_native_parse.log",
+      "bytes": 715,
+      "sha256": "3dad4b0cdbd8cf480adfcee87ed4534d9eb93f2e858b727c8f20ed5d7cbc88e4",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/verification.json",
+      "bytes": 64289,
+      "sha256": "195c9c83f7157088634bb12ddbd97afc6f8d1a1a4d1b1e454adbfb64ff9c9c4f",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp-pixel-gates.json",
+      "bytes": 14488,
+      "sha256": "2ff5fc3eed69305b01ef69d40ce1541548e81a8b33e1459429e6aadb4f829845",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp-production-logic-gates.json",
+      "bytes": 33,
+      "sha256": "9bf5d597ef1cce6c355e1727229cc29f9433e59b89ec5ce3fdd64387b7217581",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp_logic.log",
+      "bytes": 787,
+      "sha256": "4a32bb8d29853553b2d68456134c5b0684c1624b6b4079fbe0d56bcfa3a45d80",
+      "tracked": true
+    },
+    {
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp_native_parse.log",
+      "bytes": 723,
+      "sha256": "59985bc0eb730a3b5d579e076daeccf7c842c39a0aa1eb074717a5c771a07bb0",
+      "tracked": true
+    }
+  ],
+  "bytes": 30543324,
+  "tracked_bytes": 30543324
+}

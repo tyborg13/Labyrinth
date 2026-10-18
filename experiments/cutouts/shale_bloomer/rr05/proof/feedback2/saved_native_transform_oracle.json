@@ -1,9 +1,0 @@
-{
-  "basis": "Unmodified archived manifests; independent authored-transform oracle. The old closure is deliberately rejected after verifier changes, while every sampled matrix still passes. No manifest bindings were rewritten.",
-  "binding_errors": [
-    "Stale or incomplete pixel samples"
-  ],
-  "geometry_errors": [],
-  "native_idle_poses": 336,
-  "all_sampled_poses": 1008
-}

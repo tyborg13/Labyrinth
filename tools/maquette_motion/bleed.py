@@ -9,8 +9,14 @@ from maquette_motion.silhouette import components, dilate
 from maquette_motion.continuity import store
 
 
-def edge_texels(seed, target):
+def edge_texels(seed, target, outline_rules=None):
     """Exact squared-Euclidean nearest donor; stable row/column tie order."""
+    if outline_rules is not None:
+        from maquette_motion.material_palette import interior_donors
+        from cutout_pipeline.cases import CutoutError
+        seed = interior_donors(seed, outline_rules)
+        if target.any() and not (seed[..., 3] > 0).any():
+            raise CutoutError('TODO_DESIGN_bleed_interior_donor: no non-outline paint on this part/bone')
     h, w = target.shape
     distance = np.full((h, w), np.inf)
     donor_x = np.zeros((h, w), dtype=int)
@@ -60,6 +66,14 @@ def domains(case, samples):
             seed = original[part['name']].copy()
             footprint = seed[..., 3] > 0
             donor = seed.copy()
+            if (case / 'hidden_fills/index.json').exists():
+                from maquette_motion.support_seeds import approved
+                donor = approved(case, view, part)
+                for owner in layout['parts']:
+                    if owner['bone'] == part['bone'] and not any(owner.get(flag) for flag in ('hidden_material', 'feature', 'seam_underlay')):
+                        own = original[owner['name']]
+                        selected = own[..., 3] > 0
+                        donor[selected] = own[selected]
             donor[protected] = 0
             target = footprint.copy()
             joints = []
@@ -88,7 +102,11 @@ def domains(case, samples):
                                'margin_px': margin, 'worst_pose': worst, 'eligible_pixels': int(addition.sum())})
             labels, groups = components(target)
             connected = labels == max(groups, key=lambda g: int(((labels == g[0]) & footprint).sum()))[0]
-            result = edge_texels(donor, connected)
+            from maquette_motion.material_palette import rules
+            # Standalone legacy fixtures have no hidden-fill authority. Real
+            # maquette cases share the new gate's exact donor classification.
+            definition = rules(case, view) if (case / 'hidden_fills/index.json').exists() else None
+            result = edge_texels(donor, connected, definition)
             # Existing material is immutable at its original pixels; only the
             # newly covered neighbour region receives synthesized edge paint.
             result[footprint] = seed[footprint]

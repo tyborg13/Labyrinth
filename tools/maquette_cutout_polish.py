@@ -9,8 +9,8 @@ import tempfile
 from types import SimpleNamespace
 from unittest.mock import patch
 from cutout_pipeline.cases import CutoutError, baseline, digest, read_json, write_json
-from maquette_motion import features, pixels, silhouette, joint_seams, seam_pose
-from maquette_motion.gates import input_bindings
+from maquette_motion import features, pixels, silhouette, joint_seams, seam_pose, hidden_material
+from maquette_motion.gates import bindings_match, verification_bindings
 
 
 def derive(case, task_id='rr-05'):
@@ -21,7 +21,6 @@ def derive(case, task_id='rr-05'):
     from maquette_cutout_build import registration, bind_layout
     from maquette_motion.feature_builder import ownership_adapter, extract_nodes, record_partition
     from maquette_motion import continuity
-    from maquette_motion.continuity_limits import unfillable_hole, unfillable_holes
     old = read_json(case / 'hidden_fills/index.json')
     for relative, expected in old['protected_inputs'].items():
         if digest(case / relative) != expected:
@@ -30,11 +29,14 @@ def derive(case, task_id='rr-05'):
         for output in record.get('outputs', []):
             if digest(case / output['output']) != output['output_sha256']:
                 raise CutoutError('Preserve manually changed hidden paint: ' + output['output'])
-    # Feedback 8 changes support nodes only. Rebuilding existing material would
+    # Feedback 9 changes support nodes only. Rebuilding existing material would
     # discard the accepted selective 1,376-texel bleed and its stable anchors.
     proof_path = case / 'proof/continuity.json'
     same_features = read_json(case / 'proof/feature_derivation.json').get('features_sha256') == digest(case / 'features.json')
     if same_features and proof_path.exists() and ('feedback7' in read_json(proof_path) or (case / 'seams.json').exists()):
+        if (case / 'hidden_fills/index.json').exists():
+            from maquette_motion.hidden_support import derive as derive_support
+            return derive_support(case, task_id)
         from maquette_motion.seam_builder import derive as derive_seams
         return derive_seams(case, task_id)
     with tempfile.TemporaryDirectory(dir=case.parent, prefix='rr05-derive-') as temporary:
@@ -83,18 +85,13 @@ def derive(case, task_id='rr-05'):
             if sampled.returncode:
                 raise CutoutError('Continuity sampler failed: ' + sampled.stdout + sampled.stderr)
             pose_samples = read_json(sample_path)
-            poses = silhouette.pose_report(work, pose_samples, legacy_hole_gate=True)
+            poses = silhouette.pose_report(work, pose_samples)
             attempts.append({'margin': margin, 'errors': len(poses['errors']),
                              'max_detached_pixels': max(r['detached_pixels'] for r in poses['poses']),
                              'max_new_hole_pixels': max(r['new_hole_pixels'] for r in poses['poses'])})
             print('MAQUETTE CONTINUITY SEARCH: ' + str(attempts[-1]), flush=True)
-            if not any(r['islands'] or r['new_holes'] for r in poses['poses']):
-                break
             if not any(r['islands'] for r in poses['poses']):
-                limitation = unfillable_hole(work, pose_samples, poses)
-                if limitation:
-                    design.append(limitation)
-                    break
+                break
         else:
             raise CutoutError('TODO_DESIGN_silhouette_support: no whole pose within approved rest support domain')
         bleed = None
@@ -108,13 +105,15 @@ def derive(case, task_id='rr-05'):
         pose_samples = read_json(sample_path)
         poses = silhouette.pose_report(work, pose_samples)
         seams = seam_pose.report(work, pose_samples)
-        design = read_json(work / 'seams.json')['TODO_DESIGN'] + seam_pose.design_issues(seams)
+        material = hidden_material.report(work, pose_samples)
+        design = read_json(work / 'seams.json')['TODO_DESIGN']
         for view in features.VIEWS:
             record_partition(work, view, read_json(work / f'layouts/{view}.json'))
         continuity.seal(work, transfers, supports, margin, bleed)
         continuity_proof = read_json(work / 'proof/continuity.json')
-        continuity_proof.update(poses=poses, attempts=attempts, TODO_DESIGN=design, bleed=bleed,
-                                seams=seams, ok=poses['ok'] and seams['ok'] and not design)
+        continuity_proof.update(poses=seam_pose.summary(poses), attempts=attempts, TODO_DESIGN=design, bleed=bleed,
+                                seams=seam_pose.summary(seams), exposed_hidden=seam_pose.summary(material),
+                                ok=poses['ok'] and seams['ok'] and material['ok'] and not design)
         write_json(work / 'proof/continuity.json', continuity_proof)
         report['rest_identity'] = builder.rest_identity(work)
         if not report['rest_identity']['ok']:
@@ -135,14 +134,20 @@ def derive(case, task_id='rr-05'):
             shutil.copytree(work / folder, case / folder, dirs_exist_ok=True)
         for name in ('cutout.json', 'baseline.sha256.json', 'seams.json'):
             shutil.copyfile(work / name, case / name)
-    return {'ok': True, 'rest_identity': report['rest_identity'], 'parts': continuity_proof['part_gate'],
-            'silhouette': poses, 'seams': seams, 'pose_accepted': poses['ok'] and seams['ok'] and not design,
+    return {'ok': continuity_proof['ok'] and continuity_proof['part_gate']['ok'],
+            'errors': poses['errors'] + seams['errors'] + material['errors'] + continuity_proof['part_gate']['errors'] + [r['name'] for r in design],
+            'rest_identity': report['rest_identity'], 'parts': continuity_proof['part_gate'],
+            'silhouette': poses, 'seams': seams, 'exposed_hidden': material,
+            'pose_accepted': poses['ok'] and seams['ok'] and material['ok'] and not design,
             'TODO_DESIGN': design, 'joint_overlap_margin_px': margin}
 
 
 def gate(case, sample_file, native=None):
     report = read_json(sample_file)
     errors = pixels.transform_errors(case, report)
+    rest = pixels.rest_identity(case)
+    errors.extend(view + ': rest identity differs (' + str(row['different_pixels']) + 'px)'
+                  for view, row in rest['views'].items() if not row['pixel_identical'])
     errors.extend(joint_seams.definition_errors(case, report))
     feature_errors, feature_results = [], []
     try:
@@ -163,13 +168,15 @@ def gate(case, sample_file, native=None):
     errors.extend(cpu_silhouette['errors'])
     cpu_seams = seam_pose.report(case, report)
     errors.extend(cpu_seams['errors'])
+    material = hidden_material.report(case, report)
+    errors.extend(material['errors'])
     native_seams = None
     native_silhouette = None
     native_report = None
     if native:
         native_report = read_json(native / 'pixel_frames.json')
         native_report['directory'] = native
-        if not native_report.get('native_pixels') or native_report.get('inputs') != input_bindings(case):
+        if not native_report.get('native_pixels') or not bindings_match(case, native_report.get('inputs')):
             errors.append('Stale or incomplete native pixel inputs')
         merged = dict(report, samples=[r for r in report['samples'] if r['clip'] != 'idle'] + native_report.get('samples', []))
         errors.extend(pixels.transform_errors(case, merged))
@@ -183,7 +190,7 @@ def gate(case, sample_file, native=None):
                 if not path.is_file() or digest(path) != row[kind + '_sha256']:
                     errors.append('Changed native part frame: ' + str(path))
         full_native = read_json(native / 'frames.json')
-        if not full_native.get('ok') or not full_native.get('native_pixels') or full_native.get('inputs') != input_bindings(case):
+        if not full_native.get('ok') or not full_native.get('native_pixels') or not bindings_match(case, full_native.get('inputs')):
             errors.append('Stale or incomplete native silhouette inputs')
         for row in full_native['frames']:
             if digest(native / row['file']) != row['sha256']:
@@ -192,7 +199,7 @@ def gate(case, sample_file, native=None):
         native_silhouette = silhouette.pose_report(case, report, full_native)
         errors.extend(native_silhouette['errors'])
         layers = read_json(native / 'seam_frames.json')
-        if layers.get('inputs') != input_bindings(case) or not layers.get('native_pixels'):
+        if not bindings_match(case, layers.get('inputs')) or not layers.get('native_pixels'):
             errors.append('Stale or incomplete native seam inputs')
         expected = {(r['view'], r['clip'], r['frame']) for r in report['samples']}
         observed = [(r['view'], r['clip'], r['frame']) for r in layers['frames']]
@@ -209,9 +216,16 @@ def gate(case, sample_file, native=None):
     shimmer_errors, metric = pixels.shimmer(case, report, native_report)
     errors.extend(shimmer_errors)
     return {'ok': not errors, 'errors': errors, 'feature_errors': feature_errors, 'features': feature_results, 'shimmer': metric,
+            'rest_identity': rest,
+            'exposed_hidden': material,
+            'acceptance': {'blocking': ['detached components', 'feature integrity', 'held/boundary shimmer',
+                                        'rest identity', 'CPU/native model agreement', 'derived material integrity', 'exposed derived dark slabs'],
+                           'report_only': ['interior tears', 'natural negative space', 'underlay protrusion'],
+                           'final_visual_gate': 'director watches both native MP4s'},
             'silhouette': {'parts': parts, 'cpu': cpu_silhouette, 'native': native_silhouette},
             'seams': {'cpu': cpu_seams, 'native': native_seams},
             'inputs': report.get('inputs'), 'samples_sha256': digest(sample_file),
+            'verification_inputs': verification_bindings(),
             'native_manifest_sha256': digest(native / 'pixel_frames.json') if native else None,
             'proof_basis': 'native isolated part pixels' if native else 'CPU diagnostic from real Godot transforms; native proof still required'}
 

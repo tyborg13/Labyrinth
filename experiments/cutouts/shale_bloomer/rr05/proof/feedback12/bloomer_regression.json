@@ -1,0 +1,724 @@
+{
+  "ok": true,
+  "method": "Run the same derived-only material oracle on retained pre-round11 Bloomer textures and final unchanged round11 textures, with identical director poses.",
+  "before": {
+    "case": "output/rr-05/feedback11/before-case",
+    "samples": "output/rr-05/feedback11/before-case/proof/continuity_samples.json",
+    "sampled_poses": 1008,
+    "derived_slab_failing_poses": 719,
+    "max_by_clip": {
+      "front_idle": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 84,
+          "exposed_hidden_pixels": 1320
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 84,
+          "derived_pixels": 930
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 132,
+          "largest_dark_component": 51
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 132,
+          "slab_pixels": 81
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 48,
+          "approved_painted_pixels": 25369
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 60,
+          "exposed_approved_hidden_pixels": 462
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 0,
+          "largest_approved_dark_component": 56
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 138,
+          "largest_approved_hidden_dark_component": 34
+        }
+      },
+      "front_move": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 9,
+          "exposed_hidden_pixels": 1200
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 9,
+          "derived_pixels": 976
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "move",
+          "frame": 13,
+          "largest_dark_component": 45
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 10,
+          "slab_pixels": 123
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 0,
+          "approved_painted_pixels": 25338
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 15,
+          "exposed_approved_hidden_pixels": 242
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "move",
+          "frame": 8,
+          "largest_approved_dark_component": 57
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "move",
+          "frame": 7,
+          "largest_approved_hidden_dark_component": 12
+        }
+      },
+      "front_burst": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 25,
+          "exposed_hidden_pixels": 1678
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 25,
+          "derived_pixels": 1235
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 26,
+          "largest_dark_component": 142
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 21,
+          "slab_pixels": 264
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 0,
+          "approved_painted_pixels": 25338
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 25,
+          "exposed_approved_hidden_pixels": 443
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 16,
+          "largest_approved_dark_component": 65
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "burst",
+          "frame": 46,
+          "largest_approved_hidden_dark_component": 18
+        }
+      },
+      "front_shot": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 12,
+          "exposed_hidden_pixels": 974
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 12,
+          "derived_pixels": 768
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 18,
+          "largest_dark_component": 43
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 18,
+          "slab_pixels": 69
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 0,
+          "approved_painted_pixels": 25338
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 36,
+          "exposed_approved_hidden_pixels": 217
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 0,
+          "largest_approved_dark_component": 56
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "shot",
+          "frame": 43,
+          "largest_approved_hidden_dark_component": 29
+        }
+      },
+      "front_shell": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 43,
+          "exposed_hidden_pixels": 2111
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 43,
+          "derived_pixels": 1392
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 17,
+          "largest_dark_component": 286
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 17,
+          "slab_pixels": 361
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 0,
+          "approved_painted_pixels": 25338
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 44,
+          "exposed_approved_hidden_pixels": 731
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 17,
+          "largest_approved_dark_component": 65
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "shell",
+          "frame": 17,
+          "largest_approved_hidden_dark_component": 50
+        }
+      },
+      "front_hit": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 7,
+          "exposed_hidden_pixels": 2001
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 7,
+          "derived_pixels": 1376
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 9,
+          "largest_dark_component": 54
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 7,
+          "slab_pixels": 204
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 5,
+          "approved_painted_pixels": 25794
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 9,
+          "exposed_approved_hidden_pixels": 635
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 5,
+          "largest_approved_dark_component": 57
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 9,
+          "largest_approved_hidden_dark_component": 36
+        }
+      },
+      "front_death": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 74,
+          "exposed_hidden_pixels": 3012
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 72,
+          "derived_pixels": 2057
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "death",
+          "frame": 77,
+          "largest_dark_component": 342
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 68,
+          "slab_pixels": 522
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 0,
+          "approved_painted_pixels": 25338
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 77,
+          "exposed_approved_hidden_pixels": 965
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "death",
+          "frame": 19,
+          "largest_approved_dark_component": 65
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "death",
+          "frame": 22,
+          "largest_approved_hidden_dark_component": 51
+        }
+      },
+      "rear_idle": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 66,
+          "exposed_hidden_pixels": 1518
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 66,
+          "derived_pixels": 1207
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 72,
+          "largest_dark_component": 117
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 72,
+          "slab_pixels": 281
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 18,
+          "approved_painted_pixels": 21394
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 66,
+          "exposed_approved_hidden_pixels": 311
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 18,
+          "largest_approved_dark_component": 30
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 42,
+          "largest_approved_hidden_dark_component": 19
+        }
+      },
+      "rear_move": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 16,
+          "exposed_hidden_pixels": 1078
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 16,
+          "derived_pixels": 926
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 18,
+          "largest_dark_component": 214
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 13,
+          "slab_pixels": 392
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 0,
+          "approved_painted_pixels": 21485
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 16,
+          "exposed_approved_hidden_pixels": 152
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 4,
+          "largest_approved_dark_component": 28
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 5,
+          "largest_approved_hidden_dark_component": 10
+        }
+      },
+      "rear_burst": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 25,
+          "exposed_hidden_pixels": 1016
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 26,
+          "derived_pixels": 810
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 22,
+          "largest_dark_component": 97
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 17,
+          "slab_pixels": 120
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 0,
+          "approved_painted_pixels": 21485
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 25,
+          "exposed_approved_hidden_pixels": 257
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 30,
+          "largest_approved_dark_component": 34
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "burst",
+          "frame": 35,
+          "largest_approved_hidden_dark_component": 13
+        }
+      },
+      "rear_shot": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 19,
+          "exposed_hidden_pixels": 708
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 12,
+          "derived_pixels": 587
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 12,
+          "largest_dark_component": 72
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 12,
+          "slab_pixels": 72
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 14,
+          "approved_painted_pixels": 21520
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 6,
+          "exposed_approved_hidden_pixels": 153
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 10,
+          "largest_approved_dark_component": 28
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "shot",
+          "frame": 6,
+          "largest_approved_hidden_dark_component": 12
+        }
+      },
+      "rear_shell": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 44,
+          "exposed_hidden_pixels": 2032
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 15,
+          "derived_pixels": 1628
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 15,
+          "largest_dark_component": 351
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 43,
+          "slab_pixels": 719
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 0,
+          "approved_painted_pixels": 21485
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 44,
+          "exposed_approved_hidden_pixels": 404
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 16,
+          "largest_approved_dark_component": 45
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "shell",
+          "frame": 16,
+          "largest_approved_hidden_dark_component": 21
+        }
+      },
+      "rear_hit": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 5,
+          "exposed_hidden_pixels": 2364
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 5,
+          "derived_pixels": 1767
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 11,
+          "largest_dark_component": 136
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 8,
+          "slab_pixels": 503
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 6,
+          "approved_painted_pixels": 21804
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 5,
+          "exposed_approved_hidden_pixels": 597
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 3,
+          "largest_approved_dark_component": 28
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 5,
+          "largest_approved_hidden_dark_component": 21
+        }
+      },
+      "rear_death": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 44,
+          "exposed_hidden_pixels": 3149
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 44,
+          "derived_pixels": 2370
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 45,
+          "largest_dark_component": 587
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 45,
+          "slab_pixels": 1009
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 0,
+          "approved_painted_pixels": 21485
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 74,
+          "exposed_approved_hidden_pixels": 868
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 41,
+          "largest_approved_dark_component": 55
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 50,
+          "largest_approved_hidden_dark_component": 41
+        }
+      }
+    },
+    "full_report": "output/rr-05/feedback12/bloomer-before-material.json"
+  },
+  "after": {
+    "case": "experiments/cutouts/shale_bloomer/mq3",
+    "sampled_poses": 1008,
+    "derived_slab_failing_poses": 0
+  },
+  "result_line": "BLOOMER DERIVED SLAB REGRESSION: PASS (before rejected: 719 poses; after: 0)",
+  "oracle_sha256": {
+    "tools/maquette_motion/material_provenance.py": "7cb11c290d3d7420000bb94b41853d091406cf33118da2d35839c60cb7e899ab",
+    "tools/maquette_motion/hidden_material.py": "d805d57a9807499bb8e6db29f31cc6ba11e4f69f5df88c707229e6a828d7f829",
+    "tools/maquette_motion/material_palette.py": "d85a8f43bf06751db7ad1c00a5a597f4d63eaf43bcd06320860edd554223a9fa"
+  }
+}

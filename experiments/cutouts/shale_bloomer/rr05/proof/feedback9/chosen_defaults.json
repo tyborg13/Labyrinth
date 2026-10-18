@@ -1,0 +1,57 @@
+{
+  "player_facing_defaults_chosen": [],
+  "director_values": {
+    "minimum_shared_boundary_px": 3,
+    "separation_margin_px": 1,
+    "maximum_reach_per_side_px": 4,
+    "minimum_component_pixels": 3,
+    "interior_erosion_px": 1,
+    "idle_hz": 10,
+    "rotation_step_degrees": 1.5
+  },
+  "non_player_defaults": {
+    "FIXTURE_LARGE_SEPARATION_PX": 20,
+    "FIXTURE_COMPONENT_RECTS": [
+      [
+        10,
+        10,
+        13,
+        11
+      ],
+      [
+        20,
+        20,
+        24,
+        21
+      ],
+      [
+        30,
+        30,
+        32,
+        31
+      ]
+    ]
+  },
+  "unchanged_test_fields": "Other synthetic fixtures retain the named fields at the top of tests/test_maquette_joint_seams.py; no player data is sourced from them.",
+  "proof_fields": {
+    "fps": 60,
+    "step_frames": 6,
+    "canvas_size": 512,
+    "source_offset": 128,
+    "boundary_residual_fraction": 0,
+    "transform_tolerance": 0.0001,
+    "bounds_margin_px": 2,
+    "native_raster_fraction": 0.01,
+    "native_raster_edge_pixels": 1
+  },
+  "derivation_conventions": {
+    "component_order": "decreasing area, then stable run label",
+    "node_names": "base name for one retained component; component_01 etc for multiple",
+    "equal_z_siblings": "stable layout order, matching native draw order",
+    "separation_rounding": "ceil before adding the director\u2019s 1px margin and applying the 4px cap"
+  },
+  "runner_fields": {
+    "full_godot_timeout_seconds": 900,
+    "native_command_stub_timeout_seconds": 10
+  }
+}

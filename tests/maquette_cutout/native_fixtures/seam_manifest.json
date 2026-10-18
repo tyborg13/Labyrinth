@@ -1,0 +1,22 @@
+{
+  "fixtures": [
+    {
+      "view": "rear",
+      "part": "seam_core_arc_right",
+      "frame": 12,
+      "kind": "after",
+      "capture": "wisp_rear_seam_core_arc_right_after_0012.png",
+      "capture_sha256": "647ac125bddba2fd4d86c0121f7d4ebb9f2b6a12d0465fcf46200c1ff6334c4d",
+      "source": "tests/maquette_cutout/native_fixtures/source_lightning_wisp_rear_seam_core_arc_right.png",
+      "source_sha256": "d36482b4c1099642ad8216b55296f5a112e9976e7a699bb62adced665cfaa7ff",
+      "transform": [
+        0.992364764213562,
+        -2.3283064365387e-10,
+        0.0,
+        1.00769400596619,
+        179.13720703125,
+        139.446258544922
+      ]
+    }
+  ]
+}

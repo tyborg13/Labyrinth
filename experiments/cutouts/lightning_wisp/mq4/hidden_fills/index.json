@@ -41,8 +41,8 @@
     "hidden_requests/rear_crown_4x.png": "12e78eeeb9bbb63d04c9831288a7c159a8e7a018f149da102b1f93cff6238e97",
     "hidden_requests/rear_tail.png": "b88f4ebae314fb47aefa56e833b95356981cfeb6918a0a45cc7d686afb48bf51",
     "hidden_requests/rear_tail_4x.png": "09be3d86e1d7b6f299c8aad8304ebba7edcab83d2cc1cf07e180e78a460d18d4",
-    "layouts/front.json": "90c38f3597c589c6034f8687e3dc2001b1ca84c439af3ec91ebbff36faa3990d",
-    "layouts/rear.json": "a21d0c1aa0f9c1430d2e7dc948000d7711079e2c160420a1722157c2c8c9b8de",
+    "layouts/front.json": "69a5a79d4b559796157588905508252e09a50b94d0004c0002e1ca818bfc9305",
+    "layouts/rear.json": "1056e368b90c3640892b331701262133a73e36a56c1b58ffe30b6bf28fb61f1d",
     "recipes/rig.json": "6e2d8309e5dfdf5065fbb690c0d975764c6cbc0769c9e4e76434712a84016b97",
     "registered/front_clay.png": "ed1c8f6bca9c4bfa0945b2740054c33d6dd4ba724083a819cc8c1f46ac69b579",
     "registered/front_hidden_arc_left.npy": "81079f0d06eaf47e243b87d2ec158c3214fdaf27ab378f412abd57cd5e2d08af",
@@ -241,7 +241,7 @@
           "output_rgba_sha256": "77b4eb19004e15280f1842380559f00ca2303407dcc2c592d53fdc0ed413e024",
           "alpha_sha256": "67be7a34532a87cc6261de2976efa97ce99524a94963abd166132b7c15e465b8",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "ab943f01549566285d9614b57570fe0c36bbe7a048b1975da5de4b6538f6632d"
+          "output_sha256": "9f2a8adc7421c6723dd5e98d9dd0b4c19a51dcbaec5b9f1b5f35d40241976a00"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -372,7 +372,7 @@
           "output_rgba_sha256": "0502aaa121015f59dd0058d856e1c493937662c941516066e50a0c4fff40edf6",
           "alpha_sha256": "11631df9f7774c4e3f43da2e40276ecd45038eff86a32983a1e53351622b5e0f",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "723796130cdd79603c7235f81e8f909b4a712c80e52c193c44fd48bce4cd1482"
+          "output_sha256": "0dc51cf3039baeb5b578a93ede33ac78bdc249e24d740e42da9b04a90d7dfd6e"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -500,7 +500,7 @@
           "output_rgba_sha256": "9789360c6aadcf12a94fecb38072861aabff541fc772b766bf98402ca62ffe7c",
           "alpha_sha256": "47c0d4bc1076e0aca84bb5adb1f4707b8572236919ec202aaa000119e3c2cab5",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "cfe71eca04c36319b51315c12ac52c8f08f2301a42bc76a7ce766527bf6bbcbf"
+          "output_sha256": "0439136244f97ed83926d54e54708e560fb1ae1cdcf0518998d77e06fce39bee"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -632,7 +632,7 @@
           "output_rgba_sha256": "623bbf89fc696dc27b7d6527019bb8902cfb6fc07ee92c3c7b99f1c258a0f310",
           "alpha_sha256": "ef8579be0f85ffe7bcf2658234d68776f47e6f457d2b150ed33b12506656f8b8",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "5042905e9daf0c935832024bfb40133ee3510e147c42f2724362b9709c2e7791"
+          "output_sha256": "738b9671ca7f25e68cac09e36bdb11109b27633e12521e81720f9c86c15473f6"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -764,7 +764,7 @@
           "output_rgba_sha256": "2d56ec45a93b38660873d79a8651ff0045f3677c07db6113d92150a8592a92b7",
           "alpha_sha256": "4ad1901314f4a01ea8d748f39901ca1de4c0390246f038a6ce518e9f1e4c7402",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "d8905533d337222d2499571908fc4aa6daa69145c8181ab2cb59a9145aa1d9e3"
+          "output_sha256": "2e7dfc609cd5eebb05c57fc5010379de844e699743b0c43ab4acb8929070bbee"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -896,7 +896,7 @@
           "output_rgba_sha256": "54fb25d66bfaf63428b1c6bee28e9675926be50732c00cddfab406b2da7d0fc9",
           "alpha_sha256": "39d011c08796f9866d065e80a9966b0e0300c4b73451ab8348eb94e75d529439",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "13a1692799fe19fbcf2e76498ce13e3e65fde97fc3b5ce85f91fcbcc29782e37"
+          "output_sha256": "e310a3bcadceeefb0ddafa1912766b8679a003764c608568dd1db5813cc6973d"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1027,7 +1027,7 @@
           "output_rgba_sha256": "db09f80ad4f70c0e85a6cdfb5a240bcee2a98f0ee47d1e94b6b2881d252a099f",
           "alpha_sha256": "112517c6679281675ee80d1e4663db8bf86b9660ca8a3d0776885afa48c64ded",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "4b2698844bec5608cddbec60f6cc82edf8b2d77010bef29be4da3321f998b4ac"
+          "output_sha256": "cc28505ca69a395c9404a8f75f5ceb2ec07f82ec0292307b2ecf5959885d873d"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1155,7 +1155,7 @@
           "output_rgba_sha256": "da843792fd37c623dfe07af863ad03d9673ca3012de52d22515b945cd2160802",
           "alpha_sha256": "6f6a86de107a0b35093cb81a13f17db74901dd5ae6c7f0637bfecac7b7a7afee",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "70d64e97821b1d2560ffc8d5416395c69b0e2cdd8dbebcb5a5057079660c323b"
+          "output_sha256": "834ac74daaa0b221dedb6f84a0cba870b52f676bacefed4fec9db13876043c06"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1287,7 +1287,7 @@
           "output_rgba_sha256": "94bf9c4f804362ec5b7f01f0d8e6c4f4fa6c2937dbbdbf8a7ee26ce7e129cedb",
           "alpha_sha256": "6105eb1bf1e30279bc7d89ce0d4f8813f2371dad24965716eeeedc7edb65db1f",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "4b2698844bec5608cddbec60f6cc82edf8b2d77010bef29be4da3321f998b4ac"
+          "output_sha256": "5e6044519230a4f81be9be03ac2accea7b96a58208cc0fe0971ca8a289315fb6"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1419,7 +1419,7 @@
           "output_rgba_sha256": "b4aa51c4c377481ba57e381109da3e99d0f15872c85f268a6e011d6bfc1cba8a",
           "alpha_sha256": "6d43ff79f2d647089aabe175f006fdf83af76fd44905c4bf07b36678806d6e22",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "4b2698844bec5608cddbec60f6cc82edf8b2d77010bef29be4da3321f998b4ac"
+          "output_sha256": "5e952337877303c0ec9c2995db251c4b87133e560ec7f829497a17f043859b6c"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1433,9 +1433,14 @@
     }
   ],
   "continuity": {
-    "tool_sha256": "997fe1147a91dda704434709ad1525a8708e53a8ae75620a631adebd23532295",
+    "tool_sha256": "95652e634093a9c0c36e58046613e5a26bae6275042d887b5674e9fc898b670c",
     "joint_overlap_margin_px": 2,
-    "policy": "Exact approved RGBA donors; hidden complete bone support, clipped to approved rest alpha",
-    "joint_seams_tool_sha256": "6d6f07d74769c2e5f27ebeeb4eb1e0a37c768f7c69f21eda3522e28b03529fc0"
+    "policy": "Approved painted seed plus one joint margin; no cumulative trials or foreign hidden-only seeds; non-outline same-part/bone donors",
+    "joint_seams_tool_sha256": "c51a9a76553479c785acbf021d7712d2083df6fff9466c2dfcf9753a3b345936",
+    "feedback11": {
+      "authority": "Director feedback 11",
+      "derivation": "support_derivation.json",
+      "policy": "Immutable approved painted fills; interior-only support donors; one joint margin"
+    }
   }
 }

@@ -1,0 +1,197 @@
+{
+  "authority": "Director rr-05 feedback 11",
+  "policy": "Approved painted seed plus one joint margin; no cumulative trials or foreign hidden-only seeds; non-outline same-part/bone donors",
+  "tool_sha256": "1a546b605b1adceb8ed359f6f382ae0094290c20ae6c52889ecc622cfbaa19e0",
+  "parts": [
+    {
+      "view": "front",
+      "part": "hidden_core",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 1304,
+      "support_pixels": 8026,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_core.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_crown",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 61,
+      "support_pixels": 8026,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_crown.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_tail",
+      "bone": "tail",
+      "visible_owners": [
+        "tail"
+      ],
+      "painted_pixels": 1811,
+      "support_pixels": 4808,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_tail.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_arc_left",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 786,
+      "support_pixels": 8066,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_arc_left.png"
+    },
+    {
+      "view": "front",
+      "part": "hidden_arc_right",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 455,
+      "support_pixels": 8049,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/front_arc_right.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_core",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 1054,
+      "support_pixels": 8055,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_core.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_crown",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 98,
+      "support_pixels": 8055,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_crown.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_tail",
+      "bone": "tail",
+      "visible_owners": [
+        "tail"
+      ],
+      "painted_pixels": 1873,
+      "support_pixels": 3965,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_tail.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_arc_left",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 690,
+      "support_pixels": 8055,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_arc_left.png"
+    },
+    {
+      "view": "rear",
+      "part": "hidden_arc_right",
+      "bone": "core",
+      "visible_owners": [
+        "core",
+        "crown",
+        "arc_left",
+        "arc_right"
+      ],
+      "painted_pixels": 877,
+      "support_pixels": 8055,
+      "joint_margin_px": 2,
+      "original_painted_rgba_preserved": true,
+      "painted_fill_preview": "hidden_fills/rear_arc_right.png"
+    }
+  ],
+  "outline_rules": {
+    "front": {
+      "outline_palette": [
+        [
+          20,
+          16,
+          21
+        ]
+      ],
+      "visible_luma_percentile": 5,
+      "visible_luma_cutoff": 22.695800000000002,
+      "luma_weights": [
+        0.299,
+        0.587,
+        0.114
+      ],
+      "approved_visible_sha256": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f"
+    },
+    "rear": {
+      "outline_palette": [
+        [
+          20,
+          16,
+          21
+        ]
+      ],
+      "visible_luma_percentile": 5,
+      "visible_luma_cutoff": 22.49235,
+      "luma_weights": [
+        0.299,
+        0.587,
+        0.114
+      ],
+      "approved_visible_sha256": "d1c368097ba9015dc9876c62047372427605b8a7205f37950d7f499af98309bf"
+    }
+  }
+}

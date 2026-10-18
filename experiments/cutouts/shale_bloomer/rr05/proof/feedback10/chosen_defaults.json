@@ -1,0 +1,31 @@
+{
+  "test_only": {
+    "synthetic_source_size_px": 12,
+    "synthetic_bounds": [
+      0,
+      0,
+      14,
+      14
+    ],
+    "synthetic_axis_offsets_px": [
+      0,
+      0.5
+    ],
+    "third_colour_rgba": [
+      251,
+      7,
+      199,
+      255
+    ],
+    "synthetic_step_distance_px": 80
+  },
+  "player_visible_defaults": [],
+  "director_values_unchanged": {
+    "exact_tie_epsilon": 1e-06,
+    "occupied_tie_guard_fraction": 0.02,
+    "native_edge_allowance_px": 1,
+    "native_union_allowance_fraction": 0.01,
+    "boundary_shimmer_fraction": 0.01,
+    "held_shimmer_pixels": 0
+  }
+}

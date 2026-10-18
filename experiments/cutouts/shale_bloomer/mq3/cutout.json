@@ -207,7 +207,9 @@
     "source/rear/processed.json",
     "source/rear/processed.png",
     "source/rear/raw.png",
-    "source/spec.json"
+    "source/spec.json",
+    "support/rear_socket_derived_edit.png",
+    "support_derivation.json"
   ],
   "source_baseline": {
     "kind": "maquette_registered_paint",

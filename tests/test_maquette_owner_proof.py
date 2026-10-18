@@ -30,7 +30,8 @@ class OwnerProofTests(unittest.TestCase):
             registry_path = root / 'registry.json'
             (base / 'features.json').write_text(json.dumps({'features': [{'name': 'eye', 'views': {
                 'front': {'mask': 'features/front_eye.png'}, 'rear': {'mask': 'features/empty.png'}}}]}))
-            registry = {'entries': [{'dir': 'assets/units/lightning_wisp_cutout', 'paths': ['existing.png']}], 'excluded_paths': {}}
+            registry = {'entries': [{'paths': ['assets/props/fixture.png']},
+                                    {'dir': 'assets/units/lightning_wisp_cutout', 'paths': ['existing.png']}], 'excluded_paths': {}}
             density = ModuleType('process_board_density')
             density.REGISTRY = registry_path
             density.load_registry = lambda: registry
@@ -48,7 +49,8 @@ class OwnerProofTests(unittest.TestCase):
             expected = ['assets/units/lightning_wisp_cutout/front/eye.png',
                         'assets/units/lightning_wisp_cutout/rear/eye.png']
             self.assertEqual(calls, [['process_board_density.py', '--force-adopt', '--adopt', *expected]])
-            self.assertEqual(read_json(registry_path)['entries'][0]['paths'], [*expected, 'existing.png'])
+            self.assertEqual(read_json(registry_path)['entries'][0], {'paths': ['assets/props/fixture.png']})
+            self.assertEqual(read_json(registry_path)['entries'][1]['paths'], [*expected, 'existing.png'])
             exclusions = read_json(registry_path)['excluded_paths']
             self.assertEqual(set(exclusions), {'assets/units/lightning_wisp_cutout/features/front_eye.png',
                                                'assets/units/lightning_wisp_cutout/features/empty.png'})
@@ -89,20 +91,22 @@ if sys.argv[1:2] == ['-']:
         self.assertEqual(calls[adopt[0]], ['-', 'shale_bloomer', 'lightning_wisp'])
         self.assertFalse(any('inspection_fixture.py' in arg for c in calls for arg in c))
 
-    def test_resume_wisp_only_in_either_argument_order(self):
-        for arguments in (('--from-native', '--creature', 'lightning_wisp'),
-                          ('--creature', 'lightning_wisp', '--from-native')):
-            result, calls = self.commands(*arguments)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertFalse(any('derive' in c for c in calls))
-            self.assertFalse(any('shale' in arg or 'bile_bloomer' in arg for c in calls for arg in c))
-            reviews = [c for c in calls if c[0] == 'tools/maquette_cutout_review.py']
-            self.assertEqual(len(reviews), 1)
-            self.assertIn('output/rr-05/lightning_wisp_review.mp4', reviews[0])
-            self.assertIn(['-', 'lightning_wisp'], calls)
-            self.assertEqual(sum('tools/rebake_cutout_rests.gd' in c for c in calls), 1)
-            self.assertEqual(sum('tests/maquette_cutout/production_capture.gd' in c for c in calls), 1)
-            self.assertFalse(any('inspection_fixture.py' in arg for c in calls for arg in c))
+    def test_resume_each_creature_only_in_either_argument_order(self):
+        for creature in ('shale_bloomer', 'lightning_wisp'):
+            for arguments in (('--from-native', '--creature', creature),
+                              ('--creature', creature, '--from-native')):
+                result, calls = self.commands(*arguments)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertFalse(any('derive' in c for c in calls))
+                other = ('wisp',) if creature == 'shale_bloomer' else ('shale', 'bile_bloomer')
+                self.assertFalse(any(token in arg for c in calls for arg in c for token in other))
+                reviews = [c for c in calls if c[0] == 'tools/maquette_cutout_review.py']
+                self.assertEqual(len(reviews), 1)
+                self.assertIn(f'output/rr-05/{creature}_review.mp4', reviews[0])
+                self.assertIn(['-', creature], calls)
+                self.assertEqual(sum('tools/rebake_cutout_rests.gd' in c for c in calls), 1)
+                self.assertEqual(sum('tests/maquette_cutout/production_capture.gd' in c for c in calls), 1)
+                self.assertFalse(any('inspection_fixture.py' in arg for c in calls for arg in c))
 
     def test_invalid_filter_stops_before_tools(self):
         for arguments in (('--creature',), ('--creature', 'shrike'), ('--unknown',)):

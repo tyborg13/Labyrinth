@@ -142,21 +142,55 @@
   },
   "parts": [
     {
+      "name": "seam_tendril_low_l_root_stem_l",
+      "seam_underlay": true,
+      "bone": "tendril_low_l",
+      "file": "seams/rear/seam_tendril_low_l_root_stem_l.png",
+      "offset": [
+        130,
+        220
+      ],
+      "bbox": [
+        130,
+        220,
+        139,
+        229
+      ],
+      "z_index": -38
+    },
+    {
+      "name": "seam_root_stem_l_root_stem_r",
+      "seam_underlay": true,
+      "bone": "root_stem_r",
+      "file": "seams/rear/seam_root_stem_l_root_stem_r.png",
+      "offset": [
+        128,
+        222
+      ],
+      "bbox": [
+        128,
+        222,
+        140,
+        236
+      ],
+      "z_index": -37
+    },
+    {
       "name": "seam_petal_far_l_tendril_high_l",
       "seam_underlay": true,
       "bone": "tendril_high_l",
       "file": "seams/rear/seam_petal_far_l_tendril_high_l.png",
       "offset": [
-        135,
-        83
+        151,
+        89
       ],
       "bbox": [
-        135,
-        83,
-        188,
-        121
+        151,
+        89,
+        180,
+        103
       ],
-      "z_index": -29
+      "z_index": -36
     },
     {
       "name": "seam_tendril_high_l_root_tip_c",
@@ -164,16 +198,16 @@
       "bone": "tendril_high_l",
       "file": "seams/rear/seam_tendril_high_l_root_tip_c.png",
       "offset": [
-        159,
-        146
+        168,
+        166
       ],
       "bbox": [
-        159,
-        146,
-        201,
-        203
+        168,
+        166,
+        183,
+        184
       ],
-      "z_index": -28
+      "z_index": -35
     },
     {
       "name": "seam_trunk_core",
@@ -181,16 +215,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_core.png",
       "offset": [
-        109,
-        74
+        112,
+        79
       ],
       "bbox": [
-        109,
-        74,
-        153,
-        100
+        112,
+        79,
+        150,
+        97
       ],
-      "z_index": -27
+      "z_index": -34
     },
     {
       "name": "seam_trunk_petal_far_l",
@@ -198,16 +232,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_petal_far_l.png",
       "offset": [
-        133,
-        83
+        142,
+        88
       ],
       "bbox": [
-        133,
-        83,
-        168,
-        107
+        142,
+        88,
+        159,
+        98
       ],
-      "z_index": -26
+      "z_index": -33
     },
     {
       "name": "seam_trunk_petal_far_r",
@@ -215,16 +249,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_petal_far_r.png",
       "offset": [
-        95,
-        68
+        99,
+        73
       ],
       "bbox": [
-        95,
-        68,
-        125,
-        90
+        99,
+        73,
+        120,
+        85
       ],
-      "z_index": -25
+      "z_index": -32
     },
     {
       "name": "seam_trunk_tendril_high_l",
@@ -232,16 +266,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_tendril_high_l.png",
       "offset": [
-        117,
-        85
+        148,
+        93
       ],
       "bbox": [
-        117,
-        85,
-        219,
-        234
+        148,
+        93,
+        191,
+        216
       ],
-      "z_index": -24
+      "z_index": -31
     },
     {
       "name": "seam_trunk_tendril_high_r",
@@ -249,16 +283,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_tendril_high_r.png",
       "offset": [
-        44,
-        86
+        56,
+        95
       ],
       "bbox": [
-        44,
-        86,
-        113,
-        176
+        56,
+        95,
+        99,
+        162
       ],
-      "z_index": -23
+      "z_index": -30
     },
     {
       "name": "seam_trunk_tendril_mid_l",
@@ -266,16 +300,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_tendril_mid_l.png",
       "offset": [
-        92,
-        118
+        101,
+        127
       ],
       "bbox": [
-        92,
-        118,
-        138,
-        207
+        101,
+        127,
+        129,
+        198
       ],
-      "z_index": -22
+      "z_index": -29
     },
     {
       "name": "seam_trunk_tendril_low_r",
@@ -284,15 +318,15 @@
       "file": "seams/rear/seam_trunk_tendril_low_r.png",
       "offset": [
         37,
-        164
+        173
       ],
       "bbox": [
         37,
-        164,
-        69,
-        201
+        173,
+        61,
+        194
       ],
-      "z_index": -21
+      "z_index": -28
     },
     {
       "name": "seam_trunk_root_stem_l",
@@ -300,16 +334,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_root_stem_l.png",
       "offset": [
-        125,
-        217
+        124,
+        216
       ],
       "bbox": [
-        125,
-        217,
-        146,
+        124,
+        216,
+        147,
         238
       ],
-      "z_index": -20
+      "z_index": -27
     },
     {
       "name": "seam_trunk_root_tip_l",
@@ -317,16 +351,16 @@
       "bone": "trunk",
       "file": "seams/rear/seam_trunk_root_tip_l.png",
       "offset": [
-        138,
-        217
+        141,
+        221
       ],
       "bbox": [
-        138,
-        217,
+        141,
+        221,
         169,
-        240
+        238
       ],
-      "z_index": -19
+      "z_index": -26
     },
     {
       "name": "seam_root_stem_l_root_tip_l",
@@ -334,14 +368,133 @@
       "bone": "root_stem_l",
       "file": "seams/rear/seam_root_stem_l_root_tip_l.png",
       "offset": [
-        138,
-        221
+        139,
+        222
       ],
       "bbox": [
-        138,
-        221,
-        153,
+        139,
+        222,
+        152,
         244
+      ],
+      "z_index": -25
+    },
+    {
+      "name": "seam_core_petal_near_l",
+      "seam_underlay": true,
+      "bone": "petal_near_l",
+      "file": "seams/rear/seam_core_petal_near_l.png",
+      "offset": [
+        129,
+        57
+      ],
+      "bbox": [
+        129,
+        57,
+        157,
+        85
+      ],
+      "z_index": -24
+    },
+    {
+      "name": "seam_petal_near_l_petal_near_r",
+      "seam_underlay": true,
+      "bone": "petal_near_l",
+      "file": "seams/rear/seam_petal_near_l_petal_near_r.png",
+      "offset": [
+        129,
+        52
+      ],
+      "bbox": [
+        129,
+        52,
+        138,
+        62
+      ],
+      "z_index": -23
+    },
+    {
+      "name": "seam_petal_near_l_petal_far_l",
+      "seam_underlay": true,
+      "bone": "petal_near_l",
+      "file": "seams/rear/seam_petal_near_l_petal_far_l.png",
+      "offset": [
+        150,
+        79
+      ],
+      "bbox": [
+        150,
+        79,
+        192,
+        98
+      ],
+      "z_index": -22
+    },
+    {
+      "name": "seam_core_petal_near_r",
+      "seam_underlay": true,
+      "bone": "petal_near_r",
+      "file": "seams/rear/seam_core_petal_near_r.png",
+      "offset": [
+        109,
+        57
+      ],
+      "bbox": [
+        109,
+        57,
+        137,
+        72
+      ],
+      "z_index": -21
+    },
+    {
+      "name": "seam_petal_near_r_petal_far_r",
+      "seam_underlay": true,
+      "bone": "petal_near_r",
+      "file": "seams/rear/seam_petal_near_r_petal_far_r.png",
+      "offset": [
+        81,
+        51
+      ],
+      "bbox": [
+        81,
+        51,
+        114,
+        73
+      ],
+      "z_index": -20
+    },
+    {
+      "name": "seam_core_petal_far_l",
+      "seam_underlay": true,
+      "bone": "core",
+      "file": "seams/rear/seam_core_petal_far_l.png",
+      "offset": [
+        132,
+        79
+      ],
+      "bbox": [
+        132,
+        79,
+        157,
+        93
+      ],
+      "z_index": -19
+    },
+    {
+      "name": "seam_core_petal_far_r",
+      "seam_underlay": true,
+      "bone": "core",
+      "file": "seams/rear/seam_core_petal_far_r.png",
+      "offset": [
+        108,
+        66
+      ],
+      "bbox": [
+        108,
+        66,
+        139,
+        85
       ],
       "z_index": -18
     },

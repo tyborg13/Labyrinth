@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "approved_sha256": {
+    "front": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
+    "rear": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2"
+  },
+  "features": [
+    {
+      "name": "crown_gem",
+      "views": {
+        "front": {
+          "owner": "core",
+          "mask": "features/front_crown_gem.png"
+        },
+        "rear": {
+          "owner": "core",
+          "mask": "features/rear_crown_gem.png"
+        }
+      }
+    },
+    {
+      "name": "amber_upper",
+      "views": {
+        "front": {
+          "owner": "trunk",
+          "mask": "features/front_amber_upper.png"
+        },
+        "rear": {
+          "owner": "trunk",
+          "mask": "features/empty.png",
+          "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view."
+        }
+      }
+    },
+    {
+      "name": "amber_right",
+      "views": {
+        "front": {
+          "owner": "trunk",
+          "mask": "features/front_amber_right.png"
+        },
+        "rear": {
+          "owner": "trunk",
+          "mask": "features/empty.png",
+          "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view."
+        }
+      }
+    },
+    {
+      "name": "amber_left",
+      "views": {
+        "front": {
+          "owner": "trunk",
+          "mask": "features/front_amber_left.png"
+        },
+        "rear": {
+          "owner": "trunk",
+          "mask": "features/empty.png",
+          "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view."
+        }
+      }
+    },
+    {
+      "name": "amber_rear_left",
+      "views": {
+        "front": {
+          "owner": "trunk",
+          "mask": "features/empty.png",
+          "occluded_reason": "On the back of the trunk; hidden from the front view."
+        },
+        "rear": {
+          "owner": "trunk",
+          "mask": "features/rear_amber_rear_left.png"
+        }
+      }
+    },
+    {
+      "name": "amber_rear_low",
+      "views": {
+        "front": {
+          "owner": "trunk",
+          "mask": "features/empty.png",
+          "occluded_reason": "On the back of the trunk; hidden from the front view."
+        },
+        "rear": {
+          "owner": "trunk",
+          "mask": "features/rear_amber_rear_low.png"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "shale_bloomer": {
+    "ok": true,
+    "files_checked": 45872,
+    "changed": []
+  },
+  "lightning_wisp": {
+    "ok": true,
+    "files_checked": 11789,
+    "changed": []
+  }
+}

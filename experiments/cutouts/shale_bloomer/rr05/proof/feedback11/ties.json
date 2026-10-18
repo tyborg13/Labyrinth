@@ -1,0 +1,1194 @@
+[
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_root_tip_l_root_tip_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_petal_near_l_tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_tendril_high_l_root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_root_stem_c_root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_tendril_high_r_tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_root_stem_r_root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_root_stem_r_root_tip_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_petal_near_r_tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_tendril_low_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_root_stem_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_root_stem_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_root_tip_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_root_tip_c_component_01",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_trunk_root_tip_c_component_02",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_tendril_low_l_root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_core_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_petal_near_l_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_petal_far_l_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_core_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_petal_near_r_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_core_petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_core_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "seam_petal_near_l_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "trunk",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "core",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "tendril_low_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "root_stem_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "root_stem_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "root_tip_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_trunk",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_core",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "tendril_mid_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_tendril_low_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "root_stem_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_root_stem_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_root_stem_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_root_tip_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "hidden_root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "feature_crown_gem",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "feature_amber_upper",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "feature_amber_right",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "front",
+    "part": "feature_amber_left",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_tendril_low_l_root_stem_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_root_stem_l_root_stem_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_petal_far_l_tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_tendril_high_l_root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_core",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_tendril_mid_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_root_stem_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_trunk_root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_root_stem_l_root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_core_petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_petal_near_l_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_petal_near_l_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_core_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_petal_near_r_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_core_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "seam_core_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "trunk",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "core",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "tendril_mid_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "tendril_low_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "root_stem_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "root_stem_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_trunk",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_core",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_petal_near_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_petal_near_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_petal_far_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_petal_far_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_tendril_high_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_tendril_high_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_tendril_mid_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_tendril_low_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_tendril_low_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_root_stem_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_root_stem_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "root_stem_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_root_tip_l",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "root_tip_r",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "hidden_root_tip_c",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "feature_crown_gem",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "feature_amber_rear_left",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "shale_bloomer",
+    "view": "rear",
+    "part": "feature_amber_rear_low",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "seam_core_crown",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "seam_core_tail",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "seam_core_arc_left",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "seam_core_arc_right",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "core",
+    "total": 12,
+    "max_per_frame": 2,
+    "max_fraction": 0.00028054425585636136
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "crown",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "tail",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00033478406427854036
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "arc_left",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "arc_right",
+    "total": 222,
+    "max_per_frame": 30,
+    "max_fraction": 0.13274336283185842
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "hidden_core",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.0001244090569793481
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "hidden_crown",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.0001244090569793481
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "hidden_tail",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00020798668885191348
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "hidden_arc_left",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00012385434728758978
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "hidden_arc_right",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00012408487405385284
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "front",
+    "part": "feature_eye",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "seam_core_crown",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "seam_core_tail",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "seam_core_arc_left",
+    "total": 30,
+    "max_per_frame": 5,
+    "max_fraction": 0.01483679525222552
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "seam_core_arc_right",
+    "total": 30,
+    "max_per_frame": 5,
+    "max_fraction": 0.08333333333333333
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "core",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "crown",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "tail",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "arc_left",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "arc_right",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "hidden_core",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00012403870007442322
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "hidden_crown",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00012403870007442322
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "hidden_tail",
+    "total": 0,
+    "max_per_frame": 0,
+    "max_fraction": 0.0
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "hidden_arc_left",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00012403870007442322
+  },
+  {
+    "creature": "lightning_wisp",
+    "view": "rear",
+    "part": "hidden_arc_right",
+    "total": 6,
+    "max_per_frame": 1,
+    "max_fraction": 0.00012403870007442322
+  }
+]

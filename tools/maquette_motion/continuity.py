@@ -72,10 +72,17 @@ def store(case, part, image):
     Image.fromarray(image).crop(part['bbox']).save(case / part['file'])
 
 
-def nearest_existing(seed, target):
+def nearest_existing(seed, target, outline_rules=None):
     """Copy exact existing RGBA texels; no interpolation, palette or new paint."""
-    result = seed.copy()
-    visited = seed[..., 3] > 0
+    if outline_rules is not None:
+        from maquette_motion.material_palette import interior_donors
+        donors = interior_donors(seed, outline_rules)
+    else:
+        donors = seed
+    result = donors.copy()
+    visited = donors[..., 3] > 0
+    if target.any() and not visited.any():
+        raise CutoutError('TODO_DESIGN_hidden_interior_donor: no non-outline paint on this part/bone')
     pending = deque((int(y), int(x)) for y, x in zip(*np.nonzero(visited)))
     h, w = visited.shape
     while pending:
@@ -116,25 +123,33 @@ def underlays(case, margin):
             # Material belonging to this bone supplies a connected support
             # surface beneath its visible crops, including painted Wisp veins.
             owners = [p for p in visible if p['bone'] == part['bone']]
-            seed = all_pixels[part['name']].copy()
+            # Always restart from immutable painted fill, not the previous
+            # search trial's support. Otherwise 0..7 grows by 28, not 7 px.
+            from maquette_motion.support_seeds import approved
+            from maquette_motion.material_palette import rules
+            seed = approved(case, view, part)
+            original = seed.copy()
             footprint = np.zeros_like(opaque)
             for owner in owners:
                 own = all_pixels[owner['name']]
                 selected = own[..., 3] > 0
                 footprint |= selected
                 if not owner.get('feature'):
-                    seed[selected] = own[selected]
+                    seed[selected & (original[..., 3] == 0)] = own[selected & (original[..., 3] == 0)]
             if not footprint.any():
                 labels, groups = components(seed[..., 3] > 0)
                 if not groups:
                     raise CutoutError('No support seed: ' + view + '/' + part['name'])
                 footprint = labels == groups[0][0]
-            candidate = ((seed[..., 3] > 0) | dilate(footprint, margin)) & opaque
+            candidate = dilate(seed[..., 3] > 0, margin) & opaque
             labels, groups = components(candidate)
             connected = labels == max(groups, key=lambda item: int(((labels == item[0]) & footprint).sum()))[0]
             before = int((seed[..., 3] > 0).sum())
             seed[~connected] = 0
-            result = nearest_existing(seed, connected)
+            selected = original[..., 3] > 0
+            generated = connected & ~selected
+            result = nearest_existing(seed, generated, rules(case, view)) if generated.any() else np.zeros_like(seed)
+            result[selected] = original[selected]
             store(case, part, result)
             records.append({'view': view, 'part': part['name'], 'overlap_margin_px': margin,
                             'pixels': int(connected.sum()), 'original_seed_pixels': before})

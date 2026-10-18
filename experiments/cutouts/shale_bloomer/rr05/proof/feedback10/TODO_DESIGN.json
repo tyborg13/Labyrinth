@@ -1,0 +1,55 @@
+{
+  "TODO_DESIGN_exact_tie_guard_scope": {
+    "constraint": "Fail above 2% occupied ties per painted node; retained unchanged.",
+    "conflict": "The three required retained native fixtures match exact candidates but exceed the new per-node guard.",
+    "cases": [
+      {
+        "view": "front",
+        "part": "arc_right",
+        "frames": [
+          18,
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "ties": 7,
+        "occupied_union": 180,
+        "fraction": 0.03888888888888889
+      },
+      {
+        "view": "front",
+        "part": "arc_right",
+        "frames": [
+          90,
+          91,
+          92,
+          93,
+          94,
+          95
+        ],
+        "ties": 30,
+        "occupied_union": 226,
+        "fraction": 0.13274336283185842
+      },
+      {
+        "view": "rear",
+        "part": "seam_core_arc_right",
+        "frames": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "ties": 5,
+        "occupied_union": 60,
+        "fraction": 0.08333333333333333
+      }
+    ],
+    "native_source_mismatches": 0,
+    "decision_pending": "Keep per-node denominator and accept a blocker, or authorize an owner-bone occupied-union denominator; all three nodes attach to core."
+  }
+}

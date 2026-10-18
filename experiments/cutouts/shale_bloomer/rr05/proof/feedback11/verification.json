@@ -1,0 +1,158 @@
+{
+  "full_godot": {
+    "command": "python3 tools/godot_task_runner.py --task-id rr-05 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "exit_code": 0,
+    "result_lines": [
+      "FULL SUITE RUNTIME: 483.938 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "log": "output/rr-05/feedback11/full-godot-final.log",
+    "notes": "qa-07 parallel runner present; no windowed launch or editor scan. Log retains system-certificate warning, intentional save-failure test error and ObjectDB exit warning; suite result is PASS."
+  },
+  "focused": {
+    "command": "python3 -m unittest discover -s tests -p 'test_maquette_*.py' -v",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 161 tests in 378.988s",
+      "FAILED (failures=1, skipped=2)"
+    ],
+    "log": "output/rr-05/feedback11/focused-complete.log",
+    "failure": "test_feature_derivation_runs_end_to_end_on_isolated_approved_paint_fixture; assertion unchanged. Isolated debug feature clone is rejected only by the new material gate (151 pose failures, rest identity 0); actual Wisp case has 68 material failures.",
+    "diagnosis": "feature_fixture.json"
+  },
+  "full_python": {
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 762 tests in 909.486s",
+      "FAILED (failures=69, skipped=63)"
+    ],
+    "log": "output/rr-05/feedback11/full-python-final.log",
+    "failure_counts": {
+      "test_committed_registry_has_no_pending_warnings_even_in_strict_mode": 1,
+      "test_every_output_preserves_size_alpha_hidden_rgb_and_frame_edges": 63,
+      "test_painted_derivations_and_manifest_are_current": 1,
+      "test_rig_coverage_names_adoption_command_for_new_art": 1,
+      "test_rig_rest_rule_uses_declared_assemblies_only": 1,
+      "test_shipped_derivations_and_manifest_are_current": 1,
+      "test_feature_derivation_runs_end_to_end_on_isolated_approved_paint_fixture": 1
+    },
+    "pending_bloomer_adoption_failures": 68,
+    "protected_wisp_paint_conflict_failures": 1,
+    "failures": "python_failures.json"
+  },
+  "new_material_regressions": {
+    "log": "output/rr-05/feedback11/focused-complete.log",
+    "result_lines": [
+      "test_both_replication_paths_exclude_nearby_outline_donors (test_maquette_hidden_material.HiddenMaterialTests) ... ok",
+      "test_full_three_by_three_block_is_blocking (test_maquette_hidden_material.HiddenMaterialTests) ... ok",
+      "test_promotion_cannot_use_a_pre_gate_or_failing_material_certificate (test_maquette_hidden_material.HiddenMaterialTests) ... ok",
+      "test_seam_and_hidden_painters_share_the_same_component_gate (test_maquette_hidden_material.HiddenMaterialTests) ... ok",
+      "test_support_search_restarts_at_original_fill_without_foreign_seed_growth (test_maquette_hidden_material.HiddenMaterialTests) ... ok",
+      "test_two_pixel_lines_and_visible_paint_are_not_slabs (test_maquette_hidden_material.HiddenMaterialTests) ... ok"
+    ]
+  },
+  "retained_native_tie_fixtures": {
+    "log": "output/rr-05/feedback11/focused-complete.log",
+    "fixtures": [
+      "Wisp front/arc_right frame 18",
+      "Wisp front/arc_right frame 90",
+      "Wisp rear/seam_core_arc_right frame 12"
+    ],
+    "result_lines": [
+      "test_native_loop_rejects_a_held_flip_between_valid_candidates (test_maquette_native_raster.NativeRasterTests) ... ok",
+      "test_saved_native_surfaces_match_source_transform (test_maquette_native_raster.NativeRasterTests) ... ok",
+      "test_seam_fixture_exercises_the_opposite_exact_tie_choice (test_maquette_native_raster.NativeRasterTests) ... ok",
+      "test_third_colour_at_a_tie_is_not_an_edge_allowance (test_maquette_native_ties.NativeTieTests) ... ok"
+    ]
+  },
+  "owner_script_stub_tests": {
+    "log": "output/rr-05/feedback11/focused-complete.log",
+    "result_lines": [
+      "test_adoption_heredoc_reads_layouts_and_calls_density (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_default_stage_order (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_invalid_filter_stops_before_tools (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_resume_adoption_only (test_maquette_owner_proof.OwnerProofTests) ... ok",
+      "test_resume_each_creature_only_in_either_argument_order (test_maquette_owner_proof.OwnerProofTests) ... ok"
+    ]
+  },
+  "cpu_proof": {
+    "command": "PYTHONPATH=tools python3 -m maquette_motion.material_proof --before-case output/rr-05/feedback11/before-case --after-case experiments/cutouts/shale_bloomer/mq3 --before-samples output/rr-05/shale-native/pixel_samples.json --after-samples output/rr-05/feedback11/shale-pixels.json --crops experiments/cutouts/shale_bloomer/rr05/proof/feedback11/cpu_crops.json --output output/rr-05/feedback11/cpu-evidence",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE CPU MATERIAL PROOF: PASS (110 Shell frames; 4 before/after sheets)"
+    ],
+    "log": "output/rr-05/feedback11/cpu-proof-final.log",
+    "captures": "output/rr-05/feedback11/cpu-evidence",
+    "inspected": [
+      "before_after_shell.png",
+      "before_after_left.png",
+      "before_after_top.png",
+      "before_after_actions.png"
+    ],
+    "basis": "CPU only; all crops viewed after final generation"
+  },
+  "preservation": {
+    "protected_files": "preservation.json",
+    "sampled_pose_rows": "motion_preservation.json",
+    "native_capture_files": "native_preservation.json",
+    "idempotence": "idempotence.json"
+  },
+  "output_gdignore": {
+    "commands": [
+      "python3 tools/output_gdignore.py",
+      "python3 tools/output_gdignore.py --check"
+    ],
+    "exit_code": 0,
+    "result_lines": [
+      "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+    ]
+  },
+  "git_diff_check": {
+    "command": "git diff --check",
+    "exit_code": 0,
+    "output": ""
+  },
+  "windowed_worker_runs": [],
+  "production_adoption_worker_runs": [],
+  "owner_commands": "owner_commands.md",
+  "open_design_input": "TODO_DESIGN_exposed_hidden_lightning_wisp_tail",
+  "shale_derive": {
+    "command": "python3 tools/maquette_cutout_polish.py derive --case experiments/cutouts/shale_bloomer/mq3 --output output/rr-05/feedback11/shale-derive-final.json",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE DERIVATION: PASS (0 errors)",
+      "MAQUETTE DERIVED POSES: PASS"
+    ],
+    "log": "output/rr-05/feedback11/shale-derive-final.log",
+    "report": "output/rr-05/feedback11/shale-derive-final.json"
+  },
+  "shale_gate": {
+    "command": "python3 tools/maquette_cutout_polish.py gate --case experiments/cutouts/shale_bloomer/mq3 --samples output/rr-05/feedback11/shale-pixels.json --output output/rr-05/feedback11/shale-gates.json",
+    "exit_code": 0,
+    "result_lines": [
+      "MAQUETTE PIXEL GATES: PASS (0 errors)"
+    ],
+    "log": "output/rr-05/feedback11/shale-gates-final.log",
+    "report": "output/rr-05/feedback11/shale-gates.json"
+  },
+  "wisp_derive": {
+    "command": "python3 tools/maquette_cutout_polish.py derive --case experiments/cutouts/lightning_wisp/mq4 --output output/rr-05/feedback11/wisp-derive-final.json",
+    "exit_code": 1,
+    "result_lines": [
+      "MAQUETTE DERIVATION: FAIL (68 errors)",
+      "MAQUETTE DERIVED POSES: FAIL; see TODO_DESIGN and run the pixel gates"
+    ],
+    "log": "output/rr-05/feedback11/wisp-derive-final.log",
+    "report": "output/rr-05/feedback11/wisp-derive-final.json"
+  },
+  "wisp_gate": {
+    "command": "python3 tools/maquette_cutout_polish.py gate --case experiments/cutouts/lightning_wisp/mq4 --samples output/rr-05/feedback11/wisp-pixels.json --output output/rr-05/feedback11/wisp-gates.json",
+    "exit_code": 1,
+    "result_lines": [
+      "MAQUETTE PIXEL GATES: FAIL (68 errors)"
+    ],
+    "log": "output/rr-05/feedback11/wisp-gates-final.log",
+    "report": "output/rr-05/feedback11/wisp-gates.json"
+  }
+}

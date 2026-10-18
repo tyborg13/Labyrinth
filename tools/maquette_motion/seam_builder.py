@@ -5,7 +5,7 @@ import sys
 import shutil
 import tempfile
 from cutout_pipeline.cases import CutoutError, baseline, digest, read_json, write_json
-from maquette_motion import joint_seams, seam_pose, silhouette
+from maquette_motion import joint_seams, seam_pose, silhouette, hidden_material
 
 
 def sample(case, task_id):
@@ -23,8 +23,9 @@ def seal(case, samples):
     import maquette_cutout
     poses = silhouette.pose_report(case, samples)
     seams = seam_pose.report(case, samples)
+    material = hidden_material.report(case, samples)
     definition = read_json(case / 'seams.json')
-    design = definition['TODO_DESIGN'] + seam_pose.design_issues(seams)
+    design = list(definition['TODO_DESIGN'])
     for row in poses['poses']:
         if row['islands']:
             design.append(dict(row, name=f'TODO_DESIGN_detached_{row["view"]}_{row["clip"]}_{row["frame"]:04d}'))
@@ -37,9 +38,20 @@ def seal(case, samples):
         raise CutoutError('Seam underlays changed approved rest RGBA')
     proof = read_json(case / 'proof/continuity.json')
     proof.pop('backing', None)
-    proof.update(poses=poses, seams=seams, TODO_DESIGN=design, part_gate=parts,
-                 ok=poses['ok'] and seams['ok'] and parts['ok'] and not design and not definition_errors)
-    proof['feedback8'] = {'method': 'Incremental per-joint seam install; all pre-existing paint retained',
+    for superseded in ('feedback7', 'feedback8'):
+        proof.pop(superseded, None)
+    proof.update(poses=seam_pose.summary(poses), seams=seam_pose.summary(seams), TODO_DESIGN=design, part_gate=parts,
+                 exposed_hidden=seam_pose.summary(material),
+                 ok=poses['ok'] and seams['ok'] and parts['ok'] and material['ok'] and not design and not definition_errors)
+    proof['feedback12'] = {'authority': 'Director feedback 12', 'blocking_scope': material['blocking_scope'],
+                           'approved_painted_exposures': 'Informational; exact original source texel provenance required'}
+    if (case / 'support_derivation.json').exists():
+        support = read_json(case / 'support_derivation.json')
+        proof['feedback11'] = {'authority': 'Director feedback 11', 'derivation': 'support_derivation.json',
+                               'supersedes': 'Cumulative margin-search support and historical bleed envelope',
+                               'painted_sources_unchanged': True}
+        proof['supports'] = support['parts']
+    proof['feedback9'] = {'method': 'Capped, connected per-joint seams; seam metrics report-only; all pre-existing paint retained',
                           'samples': 'proof/continuity_samples.json',
                           'samples_sha256': digest(case / 'proof/continuity_samples.json'), 'rest_identity': rest}
     write_json(case / 'proof/continuity.json', proof)
@@ -54,9 +66,9 @@ def seal(case, samples):
                       adapter_sha256=digest(Path(__file__).with_name('feature_builder.py')))
     write_json(case / 'proof/feature_derivation.json', derivation)
     baseline(case)
-    return {'ok': parts['ok'] and not any(not e.startswith('TODO_DESIGN_') for e in definition_errors),
-            'errors': parts['errors'] + [e for e in definition_errors if not e.startswith('TODO_DESIGN_')],
-            'rest_identity': rest, 'parts': parts, 'silhouette': poses, 'seams': seams,
+    return {'ok': proof['ok'],
+            'errors': parts['errors'] + definition_errors + poses['errors'] + seams['errors'] + material['errors'],
+            'rest_identity': rest, 'parts': parts, 'silhouette': poses, 'seams': seams, 'exposed_hidden': material,
             'pose_accepted': proof['ok'], 'TODO_DESIGN': design,
             'joint_overlap_margin_px': proof['joint_overlap_margin_px']}
 

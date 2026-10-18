@@ -1,0 +1,70 @@
+[
+  {
+    "view": "rear",
+    "part": "root_stem_c",
+    "before": {
+      "pixels": 6217,
+      "outline_rgb_20_16_21_pixels": 5081,
+      "outline_rgb_20_16_21_share": 0.8172752131253016,
+      "file_sha256": "1fe01932d6e35f93ee27fcb88cf091df20c83b1221b4ae31e9746a04e268fb2f"
+    },
+    "after": {
+      "pixels": 2050,
+      "outline_rgb_20_16_21_pixels": 109,
+      "outline_rgb_20_16_21_share": 0.05317073170731707,
+      "file_sha256": "7d64390b6a94f61ee3e0621450f98f62a0c7fadbb862a3fd0c7dc0ac7453226a"
+    },
+    "approved_painted_pixels": 1088
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_r",
+    "before": {
+      "pixels": 4115,
+      "outline_rgb_20_16_21_pixels": 3638,
+      "outline_rgb_20_16_21_share": 0.8840826245443499,
+      "file_sha256": "668d3858ec36126d698f75b82e91df00d8de41ea1543930c9d7722c427438fb6"
+    },
+    "after": {
+      "pixels": 1011,
+      "outline_rgb_20_16_21_pixels": 70,
+      "outline_rgb_20_16_21_share": 0.06923837784371908,
+      "file_sha256": "87a37c4bcba1152d94d3e4f59e1eb29a7a2254cd94cdb3ec7c5587b7227cd0f0"
+    },
+    "approved_painted_pixels": 452
+  },
+  {
+    "view": "front",
+    "part": "tendril_mid_l",
+    "before": {
+      "pixels": 5694,
+      "outline_rgb_20_16_21_pixels": 5084,
+      "outline_rgb_20_16_21_share": 0.8928696873902353,
+      "file_sha256": "88296cda2b23b8d5bcf2e70c1687738d2d77d2ce5ff12b76fa95609dd1532e73"
+    },
+    "after": {
+      "pixels": 1473,
+      "outline_rgb_20_16_21_pixels": 99,
+      "outline_rgb_20_16_21_share": 0.06720977596741344,
+      "file_sha256": "f09e6cc655513bcfa05c87295862106ce4750654b21d542511662791a13f90d3"
+    },
+    "approved_painted_pixels": 631
+  },
+  {
+    "view": "front",
+    "part": "root_stem_l",
+    "before": {
+      "pixels": 5712,
+      "outline_rgb_20_16_21_pixels": 4789,
+      "outline_rgb_20_16_21_share": 0.8384103641456583,
+      "file_sha256": "3b443afcf246c5cb5461fd40a0ed7b13504a12488af60dc98d95ccaddb85bff8"
+    },
+    "after": {
+      "pixels": 1688,
+      "outline_rgb_20_16_21_pixels": 93,
+      "outline_rgb_20_16_21_share": 0.05509478672985782,
+      "file_sha256": "d3b7b27d67a69be96dc6c571518cbaef9bbeb7015cdd26b334eb6644a03f8355"
+    },
+    "approved_painted_pixels": 866
+  }
+]

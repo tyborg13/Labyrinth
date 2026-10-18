@@ -1,0 +1,13 @@
+{
+  "shale_bloomer": {
+    "protected_files_checked": 178,
+    "changed": [],
+    "ok": true
+  },
+  "lightning_wisp": {
+    "protected_files_checked": 76,
+    "changed": [],
+    "ok": true
+  },
+  "native_capture_files": "Existing capture files unchanged; full hashes in native_preservation.json. Native rerender required by the texture changes."
+}

@@ -1,4 +1,8 @@
-"""CPU/native interior-tear and local-underlay extent gates (feedback 8)."""
+"""Report-only seam measurements; native/model agreement remains blocking.
+
+Director feedback 9 replaces tear/protrusion acceptance with native MP4 review.
+No measurement is suppressed or clamped when reporting a successful gate.
+"""
 import numpy as np
 from PIL import Image
 from cutout_pipeline.cases import read_json
@@ -6,7 +10,11 @@ from maquette_motion import pixels, silhouette
 from maquette_motion.bleed import source_transform
 
 INTERIOR_EROSION_PX = 1
-MAX_PROTRUSION_WIDTH_PX = 2
+
+
+def summary(report):
+    """Keep reproducible per-clip maxima in the case, full poses in output/."""
+    return {**{k: v for k, v in report.items() if k != 'poses'}, 'sampled_poses': len(report['poses'])}
 
 
 def body_part(layout):
@@ -46,8 +54,7 @@ def pose_reference(images, row, owner):
 def extent(parts, underlays):
     """One-sided outward extent: farthest exposed texel centre to posed paint.
 
-    Euclidean distance <=2 is exactly membership in a radius-2 disk dilation.
-    Report the exact nearest-centre distance, without rounding the threshold.
+    Report the exact nearest-centre distance without rounding or clamping.
     """
     outside = underlays & ~parts
     if not outside.any():
@@ -151,7 +158,7 @@ def report(case, samples, native=None, historical_reference_model=False):
                         continue
                     expected_masks = [pixels.modulated_alpha(pixels.render(image, matrix)[..., 3], reference['alpha']) > 0 for image in references]
                     # The pre-existing native source-transform tolerances also
-                    # apply to these source masks. Tear acceptance remains 0.
+                    # apply to these source masks. Seam metrics are report-only.
                     for kind, actual, expected_mask in zip(('rest', 'interior'), native_references, expected_masks):
                         a, b = (np.repeat(m[..., None], 4, axis=-1).astype(np.uint8) * 255 for m in (actual, expected_mask))
                         if not pixels.native_frame_matches(a, b):
@@ -188,26 +195,16 @@ def report(case, samples, native=None, historical_reference_model=False):
             results.append(result)
             clip = view + '_' + row['clip']
             clip_max = maxima.setdefault(clip, {})
-            for field in ('interior_tear_pixels', 'natural_negative_space_pixels', 'underlay_protrusion_width_px'):
+            for field in ('interior_tear_pixels', 'natural_negative_space_pixels',
+                          'underlay_protrusion_pixels', 'underlay_protrusion_width_px'):
                 if field not in clip_max or result[field] > clip_max[field][field]:
                     clip_max[field] = result
-            if result['interior_tear_pixels']:
-                errors.append(f'{clip}/{row["frame"]}: interior tears ({result["interior_tear_pixels"]}px)')
-            if result['underlay_protrusion_width_px'] > MAX_PROTRUSION_WIDTH_PX:
-                errors.append(f'{clip}/{row["frame"]}: underlay protrusion exceeds 2px ({result["underlay_protrusion_width_px"]:.6g}px)')
     return {'ok': not errors, 'errors': errors, 'native_pixels': native is not None,
-            'interior_erosion_px': INTERIOR_EROSION_PX, 'maximum_protrusion_width_px': MAX_PROTRUSION_WIDTH_PX,
+            'interior_erosion_px': INTERIOR_EROSION_PX,
+            'acceptance': 'report-only: interior tears, natural negative space and underlay protrusion; director judges native MP4',
+            'blocking_checks': 'native coverage, dimensions, reference transform and source-mask agreement',
             'reference_frame': 'approved rest silhouette projected through common body bone, including alpha; square 1px erosion before projection',
             'protrusion_metric': 'max Euclidean texel-centre distance of underlay outside posed material union to that union',
             'natural_negative_space': 'enclosed background outside projected uneroded rest silhouette; report only',
             'native_reference': 'historical CPU replay' if historical_reference_model else 'native captured rest/interior alpha' if native else None,
             'poses': results, 'max_by_clip': maxima}
-
-
-def design_issues(pose_report):
-    result = []
-    for row in pose_report['poses']:
-        for field, label in (('interior_tear_pixels', 'interior_tear'), ('underlay_protrusion_width_px', 'seam_protrusion')):
-            if row[field] > (MAX_PROTRUSION_WIDTH_PX if label == 'seam_protrusion' else 0):
-                result.append(dict(row, name=f'TODO_DESIGN_{label}_{row["view"]}_{row["clip"]}_{row["frame"]:04d}'))
-    return result

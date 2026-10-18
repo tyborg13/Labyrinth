@@ -1,0 +1,12 @@
+{
+  "basis": "HEAD tracked blob bytes versus current files at those paths plus new unit files; output/archive, caches and Git history excluded",
+  "before_bytes": 5262876306,
+  "after_bytes": 5232481954,
+  "delta_bytes": -30394352,
+  "delta_mib": -28.986313,
+  "archived_files": 189,
+  "archived_bytes": 30543324,
+  "new_unit_files": 34,
+  "history_rewritten": false,
+  "archive_note": "Bytes retained locally under ignored output/rr-05/archive/; this is source-controlled content reduction, not reclaimed Git-history or archive disk space."
+}

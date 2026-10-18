@@ -1,0 +1,117 @@
+{
+  "view": "rear",
+  "part": "seam_core_arc_right",
+  "frames": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "default_expected_bounds": [
+    307,
+    267,
+    317,
+    282
+  ],
+  "captured_bounds": [
+    307,
+    267,
+    317,
+    282
+  ],
+  "default_diff_pixels": 3,
+  "candidate_diff_pixels": 0,
+  "invalid_tie_pixels": 0,
+  "occupied_ties": {
+    "pixels": 5,
+    "occupied_pixels": 60,
+    "fraction": 0.08333333333333333
+  },
+  "pixels": [
+    {
+      "xy": [
+        308,
+        274
+      ],
+      "float64_v": 7.0,
+      "default_row": 6,
+      "native_row": 7,
+      "default": [
+        59,
+        46,
+        73,
+        255
+      ],
+      "native": [
+        60,
+        48,
+        78,
+        255
+      ],
+      "alternative": [
+        60,
+        48,
+        78,
+        255
+      ]
+    },
+    {
+      "xy": [
+        311,
+        274
+      ],
+      "float64_v": 7.0,
+      "default_row": 6,
+      "native_row": 7,
+      "default": [
+        90,
+        29,
+        155,
+        255
+      ],
+      "native": [
+        59,
+        49,
+        75,
+        255
+      ],
+      "alternative": [
+        59,
+        49,
+        75,
+        255
+      ]
+    },
+    {
+      "xy": [
+        312,
+        274
+      ],
+      "float64_v": 7.0,
+      "default_row": 6,
+      "native_row": 7,
+      "default": [
+        90,
+        29,
+        155,
+        255
+      ],
+      "native": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "alternative": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "source_sha256": "d36482b4c1099642ad8216b55296f5a112e9976e7a699bb62adced665cfaa7ff",
+  "capture_sha256": "647ac125bddba2fd4d86c0121f7d4ebb9f2b6a12d0465fcf46200c1ff6334c4d"
+}

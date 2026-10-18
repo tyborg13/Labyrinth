@@ -1,5 +1,5 @@
-# rr-05 — maquette rig polish
+# rr-05
 
-Latest handoff: [feedback 8](proof/feedback8/README.md). Full-silhouette backing removed; local seam underlays and strict CPU/native tear/protrusion gates implemented. Hard acceptance still fails; see the exact TODO_DESIGN poses and missing sibling-owner decisions before native review.
+Latest handoff: [feedback 12](proof/feedback12/README.md). The dark-slab gate blocks derived texels only; approved painted shadows report separately. Both derivations pass without changing round 11 art, motion or donor/support rules. The Wisp tail TODO_DESIGN is resolved by the director's scope decision.
 
-[Owner command](proof/feedback8/owner_commands.md) · [per-clip measurements](proof/feedback8/per_clip.md) · [verification](proof/feedback8/verification.json) · [previous feedback 7 evidence](proof/feedback7/README.md).
+[Owner commands](proof/feedback12/owner_commands.md) · [per-clip material table](proof/feedback12/README.md#informational-painted-fill-exposures) · [CPU results](proof/feedback12/results.json) · [tie counts](proof/feedback12/ties.json) · [verification](proof/feedback12/verification.json).

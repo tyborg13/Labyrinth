@@ -1,0 +1,10 @@
+{
+  "shale": {
+    "pose_rows": 1008,
+    "identical_to_round11": true
+  },
+  "wisp": {
+    "pose_rows": 750,
+    "identical_to_round11": true
+  }
+}
