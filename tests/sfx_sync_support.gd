@@ -8,6 +8,8 @@ const MapNode = preload("res://scripts/section_map_node.gd")
 const ShopFixture = preload("res://tests/suites/scavenger_shop_suite.gd")
 const MotionFixture = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
+const SyncClock = preload("res://tests/sfx_sync_clock.gd")
+const FloatingText = preload("res://scripts/floating_combat_text.gd")
 
 static func run(h: SceneTree) -> void:
 	_projectiles(h)
@@ -124,11 +126,33 @@ static func _state_changes(h: SceneTree) -> void:
 		var before: Dictionary = h._state()
 		h._invoke("_animate_player_action_step", [before, before, "spark", {"type": kind, "radius": 1, "amount": 1}, Vector2i(3, 3)])
 		h._finish(before)
-	h._begin("fatigue")
+	_fatigue(h)
+
+static func _fatigue(h: SceneTree) -> void:
+	# Fatigue requests on every presentation frame; all but the first request
+	# hit cooldown. Earlier scenario durations must not choose the baseline's
+	# spike phase (pace-01 changed 21 requests to 20 while still playing once).
+	# Keep the original baseline case at phase zero and exercise every other
+	# spike phase separately, checking actual plays and complete feedback below.
+	for phase: int in range(SyncClock.SPIKE_CADENCE_FRAMES if h.frame_profile == "spikes" else 1):
+		h._begin("fatigue" if phase == 0 else "fatigue/spike_phase_%d" % phase)
+		if h.frame_profile == "spikes": h.clock.frame_index = phase
+		_fatigue_case(h)
+
+static func _fatigue_case(h: SceneTree) -> void:
 	var before: Dictionary = h._state()
 	var fatigue: Array[Dictionary]
 	fatigue.append({"damage": 1, "amount": 1})
+	var texts: Array = h.scene.call("_fatigue_floating_texts_for_events", before, fatigue)
+	var authored_ms: float = FloatingText.total_duration(texts) * 1000.0 / h.combat_scale
 	h._invoke("_animate_fatigue_damage", [before, fatigue])
+	var requests: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "fatigue")
+	var plays: int = requests.filter(func(event: Dictionary) -> bool: return event["result"] == "played").size()
+	if plays != 1: h.failures.append("Every fatigue presentation must play its cue once: " + h.scenario)
+	var frames: Array = h.clock.frames.filter(func(frame: Dictionary) -> bool: return frame["shown"].has("impact_actor_keys"))
+	var observed_ms: float = float(frames.back()["time_ms"]) - float(frames[0]["time_ms"]) if not frames.is_empty() else 0.0
+	if observed_ms < authored_ms: h.failures.append("Fatigue capture must cover its full authored feedback: " + h.scenario)
+	print("SFX SYNC FATIGUE: %s / %sx / %s: %d requests, %d plays, %.3f/%.3f ms feedback" % [h.frame_profile, h.combat_scale, h.scenario, requests.size(), plays, observed_ms, authored_ms])
 	h._finish(before)
 
 static func _ground(h: SceneTree) -> void:

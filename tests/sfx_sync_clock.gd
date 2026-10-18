@@ -4,6 +4,7 @@ extends RefCounted
 # timers and tweens exactly as in production; audio timestamps stay in wall time.
 const FRAME_USEC: int = 16667
 const START_USEC: int = 10000000
+const SPIKE_CADENCE_FRAMES: int = 7
 var usec: int = START_USEC
 var visual_usec: float = START_USEC
 var bank: Node
@@ -22,7 +23,7 @@ func configure(profile: String) -> void:
 func next_frame_usec() -> int:
 	frame_index += 1
 	match frame_profile:
-		"spikes": return 33333 if frame_index % 7 == 0 else FRAME_USEC
+		"spikes": return 33333 if frame_index % SPIKE_CADENCE_FRAMES == 0 else FRAME_USEC
 		"fixed_30": return 33333
 		"fixed_144": return 6944
 		"jitter": return FRAME_USEC + frame_rng.randi_range(-4000, 4000)

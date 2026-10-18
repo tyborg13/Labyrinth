@@ -22,7 +22,7 @@ from test_execution_sources import program_paths
 # Keep the historical order, including the static-facing additions that ran first.
 BASE_SUITES = (
     "en04_enemies_test", "en05_enemies_test", "en06_enemies_test", "static_facing_test",
-    "combat_feel_test", "event_view_test", "event_rules_test", "biome_test",
+    "combat_feel_test", "combat_pacing_mutation_test", "event_view_test", "event_rules_test", "biome_test",
     "health_ghost_test", "movement_undo_test", "threats_at_rest_test",
     "suites/encounter_rules_program", "suites/encounter_placement_0_program",
     "suites/encounter_placement_1_program", "suites/encounter_placement_summary_program",

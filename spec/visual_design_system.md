@@ -154,8 +154,11 @@ floor shadows); the former navy button bodies clashed with it.
   on the first submitted frame at 85% opacity for enemies / 60% for the hero
   and fades over 140 ms with a quadratic ease-out.
 - YOUR TURN / ENEMY TURN marks scheduled hand-offs (`scripts/turn_banner.gd`).
-  Enemy captions add no delay; the first enemy can act after the 0.35 s banner
-  lead, while independent death/ground feedback overlaps subsequent actors.
+  Enemy movement stays at 0.20 s per tile. Each enemy attack or cast plays its
+  hit reaction and damage numbers in full, then settles 0.15 s before the next
+  actor; each acting enemy after the first holds its caption 0.25 s before its
+  wind-up (the first uses the 0.35 s banner lead). Move-only turns add no wait
+  (owner, playtest 10: "I can't really keep up with what they are all doing").
   Reduced Motion retains the existing static banner behavior.
 - Combat speed (Normal / Fast / Fastest) scales enemy and committed-card
   presentation by 1 / 1.5 / 2, preserving normal planning/menus and trailer

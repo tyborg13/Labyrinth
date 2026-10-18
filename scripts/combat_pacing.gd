@@ -7,7 +7,9 @@ const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const OutcomeFeedback = preload("res://scripts/combat_outcome_feedback.gd")
 const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
-const ENEMY_FEEDBACK_ADVANCE_SECONDS: float = 0.20
+const ENEMY_ACTION_SETTLE_SECONDS: float = 0.15
+const ENEMY_ACTION_LEAD_SECONDS: float = 0.25
+const ENEMY_ACTION_KINDS: Array = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "heal", "stoneskin", "status", "status_damage", "surface", "summon", "burrow", "erupt"]
 const FLASH_SECONDS: float = 0.140
 const WHITE_FLASH_PROFILE: int = 8
 # Unspecified perceptible curve: preserve the shipped linear fade until supplied.
@@ -34,8 +36,10 @@ var _banner_clock: int = 0
 var _actor: String = ""
 var _caption: String = ""
 var _caption_prefix: String = ""
+var _caption_target_prefix: String = ""
 var _phase: String = ""
 var _phase_started_usec: int = 0
+var _phase_started_clock: int = 0
 var _seen_hits: Dictionary = {}
 var _flashes: Dictionary = {}
 var _flash_draw_keys: Array = []
@@ -107,8 +111,10 @@ func begin_enemies() -> void:
 	_actor = ""
 	_caption = ""
 	_caption_prefix = ""
+	_caption_target_prefix = ""
 	_phase = "banner"
 	_phase_started_usec = _round_started_usec
+	_phase_started_clock = _banner_clock
 	if debug_timeline:
 		timeline.clear()
 
@@ -250,45 +256,69 @@ func _exit_tree() -> void:
 	end_scope()
 	_flash_shader = null
 
-func before_step(step: Dictionary) -> void:
+static func is_action_step(step: Dictionary) -> bool:
+	return str(step.get("kind", "")) in ENEMY_ACTION_KINDS
+
+static func action_actor_key(step: Dictionary) -> String:
+	# Ally-support steps apply to actor_key but belong to the source's turn.
+	return str(step.get("source_actor_key", step.get("actor_key", "")))
+
+static func activation_has_action(actor: String, steps: Array) -> bool:
+	for step: Dictionary in steps:
+		if action_actor_key(step) == actor and is_action_step(step): return true
+	return false
+
+func _wait_until(deadline: int) -> void:
+	while not _scope.is_empty() and is_inside_tree() and not _leaving_tree and presentation_usec() < deadline:
+		await get_tree().process_frame
+
+func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 	var kind: String = str(step.get("kind", ""))
 	if kind == "commit":
 		return
-	var actor: String = str(step.get("actor_key", ""))
+	var actor: String = action_actor_key(step)
+	_caption_target_prefix = str(step.get("actor_name", "")) if step.has("source_actor_key") else ""
 	if actor != _actor:
 		_caption = ""
 		_caption_prefix = ""
-	if not debug_baseline and kind == "intent" and _actor.is_empty():
-		while presentation_usec() - _banner_clock < int(BANNER_LEAD_SECONDS * 1000000.0):
-			await get_tree().process_frame
 	# Only an actor or target that depends on a dissolving body waits for it.
 	while _death_dependency(step) or _surface_dependency(step):
 		await get_tree().process_frame
 	if kind == "intent":
+		var first_enemy: bool = _actor.is_empty()
 		_close_phase()
 		_actor = actor
 		if not bool(step.get("hidden_by_umbra",false)):
 			_caption_prefix = str(step.get("actor_name","Enemy"))
 			_caption = "%s: %s" % [_caption_prefix,str(step.get("intent_name",""))]
-		_mark("pre-action delay")
 		_mark("caption")
-		_phase = "caption" if debug_baseline else "wind-up"
-		_phase_started_usec = Time.get_ticks_usec()
+		if not debug_baseline and activation_has_action(actor, activation_steps):
+			# Show the printed intent throughout the lead, including the first
+			# banner's remaining time. Move-only activations never enter this wait.
+			if not _caption.is_empty(): scene.call("_set_action_banner", _caption)
+			_change_phase("pre-action delay")
+			var deadline: int = _banner_clock + int(BANNER_LEAD_SECONDS * 1000000.0) if first_enemy else presentation_usec() + int(ENEMY_ACTION_LEAD_SECONDS * 1000000.0)
+			await _wait_until(deadline)
+		_change_phase("intent")
 	elif kind == "move":
 		_change_phase("walk")
-	elif kind in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
+	elif is_action_step(step):
 		_change_phase("wind-up")
 
 func caption_text(text: String) -> String:
-	if enemies_active and not _caption.is_empty() and text.begins_with(_caption_prefix+": "):
+	if enemies_active and not _caption.is_empty() and (text.begins_with(_caption_prefix+": ") or (not _caption_target_prefix.is_empty() and text.begins_with(_caption_target_prefix+": "))):
 		return _caption
 	return text
 
 func after_step(step: Dictionary) -> void:
 	if debug_baseline and str(step.get("kind", "")) == "intent": _change_phase("wind-up")
-	if str(step.get("kind", "")) in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes"]:
-		_close_phase()
-		_mark("post-action settle")
+	if enemies_active and is_action_step(step):
+		# A view may retain feedback beyond its own coroutine (including a
+		# staggered popup or hit-stop release). Settle starts after that deadline.
+		await _wait_until(_overlay_deadline(presentation_usec()))
+		_mark("feedback complete")
+		_change_phase("post-action settle")
+		await _wait_until(presentation_usec() + int(ENEMY_ACTION_SETTLE_SECONDS * 1000000.0))
 		_change_phase("hand-off gap")
 
 func walk_frame_seconds(actor_key: String, counts: Array[int], authored: float) -> float:
@@ -305,16 +335,15 @@ func walk_tile(index: int) -> void:
 		_change_phase(phase)
 
 func walk_finished() -> void:
-	if enemies_active: _change_phase("post-action settle")
+	if enemies_active: _change_phase("walk hand-off")
 
 func present_initial_order(before: Dictionary, after: Dictionary) -> void:
 	present_turn_order(scene.call("_turn_order_entries_from_state", before), scene.call("_turn_order_entries_from_state", after))
 
-func feedback_duration(_texts: Array, authored: float, initial_elapsed: float) -> float:
-	if not enemies_active:
-		return authored
-	# Popups/reactions remain alive in decorate() across the next actor's action.
-	return minf(authored, maxf(initial_elapsed, ENEMY_FEEDBACK_ADVANCE_SECONDS))
+func feedback_duration(_texts: Array, authored: float, _initial_elapsed: float) -> float:
+	# The caller already accounts for elapsed attack frames and popup stagger.
+	# Enemy hand-off must retain the same complete authored feedback as cards.
+	return authored
 
 func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	_last_render_frame = Engine.get_process_frames()
@@ -530,16 +559,18 @@ func _death_dependency(step: Dictionary) -> bool:
 func _mark(phase: String) -> void:
 	if debug_timeline:
 		var at: float = float(Time.get_ticks_usec() - _round_started_usec) / 1000000.0
-		timeline.append({"actor": _actor, "phase": phase, "start": at, "end": at})
+		var clock: float = float(presentation_usec() - _banner_clock) / 1000000.0
+		timeline.append({"actor": _actor, "phase": phase, "start": at, "end": at, "clock_start": clock, "clock_end": clock})
 
 func _change_phase(phase: String) -> void:
 	_close_phase()
 	_phase = phase
 	_phase_started_usec = Time.get_ticks_usec()
+	_phase_started_clock = presentation_usec()
 
 func _close_phase() -> void:
 	if debug_timeline and not _phase.is_empty():
-		timeline.append({"actor": _actor, "phase": _phase, "start": float(_phase_started_usec - _round_started_usec) / 1000000.0, "end": float(Time.get_ticks_usec() - _round_started_usec) / 1000000.0})
+		timeline.append({"actor": _actor, "phase": _phase, "start": float(_phase_started_usec - _round_started_usec) / 1000000.0, "end": float(Time.get_ticks_usec() - _round_started_usec) / 1000000.0, "clock_start": float(_phase_started_clock - _banner_clock) / 1000000.0, "clock_end": float(presentation_usec() - _banner_clock) / 1000000.0})
 	_phase = ""
 
 func print_timeline() -> void:

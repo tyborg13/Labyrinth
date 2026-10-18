@@ -4,6 +4,7 @@ const Pacing = preload("res://scripts/combat_pacing.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
+const ActionPacing = preload("res://tests/suites/combat_action_pacing_suite.gd")
 const VICTORY_ENEMY_HP: int = 1
 const VICTORY_ENEMY_TILE: Vector2i = Vector2i(3, 4)
 const ENEMY_PHASE_DAMAGE: int = 1
@@ -11,6 +12,9 @@ const ENEMY_PHASE_FIRST_TIME: int = 1
 const LAST_ACTION_INTENT_TIME: int = 20
 const RESOLUTION_TIMEOUT_MS: int = 10000
 const CLEANUP_FRAMES: int = 20
+const WAIT_TOLERANCE_SECONDS: float = 0.08
+const MOVE_ONLY_MAX_SECONDS: float = 0.05
+const FEEDBACK_INITIAL_ELAPSED: float = 0.20
 
 class FeedbackScene:
 	extends "res://scripts/run_scene.gd"
@@ -28,15 +32,98 @@ class RemovalOwner:
 	var _animation_lock: bool = true
 	var _drag_card_index: int = -1
 	var detached_refreshes: int = 0
+	var caption: String = ""
 	func _controller_modal_visible() -> bool: return false
+	func _set_action_banner(text: String) -> void: caption = text
 	func _refresh_stage_view() -> void:
 		if not is_inside_tree(): detached_refreshes += 1
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	_test_feedback_duration(expect)
+	await _action_waits(tree, expect)
+	await ActionPacing.run(tree, expect)
 	await _victory_board(tree, expect, false)
 	await _victory_board(tree, expect, true)
 	for death: bool in [true, false]: await _last_action_overlays(tree, expect, death)
 	await _removed_owner(tree, expect)
+	print("COMBAT PACING REGRESSION SUITE: complete")
+
+static func _test_feedback_duration(expect: Callable, pacing_script: Script = Pacing) -> void:
+	var pacing: Node = pacing_script.new()
+	var texts: Array = [{"tile":Vector2i.ZERO,"text":"-1"},{"tile":Vector2i.ZERO,"text":"-2"}]
+	var authored: float = preload("res://scripts/floating_combat_text.gd").total_duration(texts)
+	for enemy_phase: bool in [false,true]:
+		pacing.enemies_active = enemy_phase
+		for elapsed: float in [0.0,FEEDBACK_INITIAL_ELAPSED,authored]:
+			expect.call(is_equal_approx(pacing.feedback_duration(texts,authored,elapsed),authored),"Full authored feedback includes popup stagger (enemies=%s elapsed=%s)" % [enemy_phase,elapsed])
+	expect.call(is_equal_approx(Pacing.ENEMY_TILE_SECONDS,0.20),"Enemy movement retains 0.20 s per tile")
+	for kind: String in ["melee","ranged","aoe","push","pull","lightning_strikes"]:
+		expect.call(Pacing.activation_has_action("actor",[{"actor_key":"actor","kind":kind}]),"Action pacing covers %s" % kind)
+	expect.call(not Pacing.activation_has_action("actor",[{"actor_key":"actor","kind":"move"},{"actor_key":"other","kind":"melee"}]),"Move-only classification uses this actor's resolved actions")
+	pacing.free()
+
+static func _action_waits(tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
+	for speed: String in ["normal","fast","fastest"]:
+		for reduced: bool in [false,true]:
+			var owner := RemovalOwner.new()
+			owner._settings["combat_speed"] = speed
+			owner._settings["reduced_motion"] = reduced
+			tree.root.add_child(owner)
+			await tree.process_frame
+			var pacing: Node = pacing_script.new()
+			pacing.install(owner)
+			pacing.begin_enemies()
+			var scale: float = Settings.combat_speed_scale(owner._settings)
+			var intent: Dictionary = {"kind":"intent","actor_key":"first","actor_name":"Fixture","intent_name":"Fixture intent"}
+			var action: Dictionary = {"kind":"melee","actor_key":"first"}
+			var began: int = Time.get_ticks_usec()
+			var done: Dictionary = {"done":false}
+			_observe_lead(pacing,intent,[intent,action],done)
+			expect.call(owner.caption == "Fixture: Fixture intent" and not done["done"],"Caption is already showing during the first lead")
+			while not done["done"]: await tree.process_frame
+			_expect_real_wait(began,0.35/scale,expect,"First enemy shares the 0.35 s banner lead at %s reduced=%s" % [speed,reduced])
+			await pacing.before_step(action)
+			# Retained feedback can outlive the action view. It must finish before
+			# settle, even when hit-stop/reduced motion changes real elapsed time.
+			var popup_start: int = pacing.presentation_usec()
+			pacing.get("_popups")["fixture"] = {"start":popup_start}
+			began = Time.get_ticks_usec()
+			await pacing.after_step(action)
+			_expect_real_wait(began,(preload("res://scripts/floating_combat_text.gd").ANIMATION_DURATION_SECONDS+0.15)/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
+			pacing.get("_popups").clear()
+			intent["actor_key"] = "next"
+			action["actor_key"] = "next"
+			began = Time.get_ticks_usec()
+			await pacing.before_step(intent,[intent,action])
+			_expect_real_wait(began,0.25/scale,expect,"Subsequent actor has a 0.25 s lead at %s reduced=%s" % [speed,reduced])
+			intent["actor_key"] = "walker"
+			began = Time.get_ticks_usec()
+			await pacing.before_step(intent,[intent,{"kind":"move","actor_key":"walker"}])
+			await pacing.after_step({"kind":"move","actor_key":"walker"})
+			expect.call(float(Time.get_ticks_usec()-began)/1000000.0 < MOVE_ONLY_MAX_SECONDS,"Move-only turn adds no lead or settle at %s reduced=%s" % [speed,reduced])
+			pacing.end_scope()
+			pacing.begin_enemies()
+			began = Time.get_ticks_usec()
+			await pacing.before_step(intent,[intent,{"kind":"move","actor_key":"walker"}])
+			await pacing.after_step({"kind":"move","actor_key":"walker"})
+			expect.call(float(Time.get_ticks_usec()-began)/1000000.0 < MOVE_ONLY_MAX_SECONDS,"Even the first move-only turn adds no lead or settle")
+			intent["actor_key"] = "next"
+			began = Time.get_ticks_usec()
+			await pacing.before_step(intent,[intent,action])
+			_expect_real_wait(began,0.25/scale,expect,"Actor after an opening move-only turn uses the ordinary 0.25 s lead")
+			pacing.end_scope()
+			expect.call(is_equal_approx(Engine.time_scale,1.0),"Action waits restore the original clock")
+			owner.queue_free()
+			await tree.process_frame
+	print("COMBAT PACING ACTION WAITS: full feedback/stagger/lead/settle/move-only/three speeds/reduced motion checked")
+
+static func _observe_lead(pacing: Node, intent: Dictionary, steps: Array, done: Dictionary) -> void:
+	await pacing.before_step(intent,steps)
+	done["done"] = true
+
+static func _expect_real_wait(start: int, seconds: float, expect: Callable, message: String) -> void:
+	var elapsed: float = float(Time.get_ticks_usec()-start)/1000000.0
+	expect.call(elapsed >= seconds and elapsed <= seconds+WAIT_TOLERANCE_SECONDS,message+" (%.3f s)" % elapsed)
 
 static func _victory_board(tree: SceneTree, expect: Callable, enemy_phase: bool) -> void:
 	# Use the actual scene and actual victory coroutine, including the overlay.

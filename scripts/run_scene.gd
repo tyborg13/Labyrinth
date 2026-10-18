@@ -24536,56 +24536,57 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		if str(step.get("kind", "")) == "commit":
 			continue
 		_ensure_sfx_bank()
-		await _combat_pacing.before_step(step)
+		await _combat_pacing.before_step(step, steps)
 		# Preparation can wait for a banner or a visual dependency. Start cues on
 		# the action's first presentation frame, after that wait (sfx-04).
 		_sfx_router.begin_enemy_action(animated_state, step, dragon_actor)
 		if str(step.get("kind", "")) in ["push", "pull"]: _sfx_router.push()
 		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) not in ["burrow", "erupt"]:
+			# Hidden presentation owns completion, including recursively rendered
+			# visible spans. The outer dispatch must not settle the same hit again.
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
-			_combat_pacing.after_step(step)
 			continue
 		if step.has("en05_after"):
 			if str(step.get("action_type", "")) == "dive_line": await preload("res://scripts/enemy_mechanics/dive_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_beam(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		if step.has("en04_mechanic"):
 			if str(step["en04_mechanic"]).begins_with("lob"): await preload("res://scripts/enemy_mechanics/lob_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/bramble_view.gd").animate(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
 			if bool(step.get("en06_mirror", false)): await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		if step.has("en02_mechanic"):
 			var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
 			if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
 				await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
-				_combat_pacing.after_step(step)
+				await _combat_pacing.after_step(step)
 				continue
 			if str(step["en02_mechanic"]).begins_with("icefall"): await preload("res://scripts/enemy_mechanics/icefall_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/wind_view.gd").animate(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("action_type", "")) == "tether_beam":
 			var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
 			if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
 				await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
-				_combat_pacing.after_step(step)
+				await _combat_pacing.after_step(step)
 				continue
 			await preload("res://scripts/enemy_mechanics/tether_view.gd").animate(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		if bool(step.get("en03_veil", false)):
 			await preload("res://scripts/enemy_mechanics/veil_view.gd").animate(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("kind", "")) in ["burrow", "erupt"]:
 			await preload("res://scripts/enemy_mechanics/burrow_view.gd").animate(self, animated_state, step)
-			_combat_pacing.after_step(step)
+			await _combat_pacing.after_step(step)
 			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
@@ -24622,6 +24623,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
 					_apply_animation_step(animated_state,step)
 					_render_board_state(animated_state,{})
+					await _combat_pacing.after_step(step)
 					continue
 				if not preload("res://scripts/dragon_presentation.gd").profile(step).is_empty():
 					await _animate_dragon_utility(animated_state,step)
@@ -24630,6 +24632,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
 					_apply_animation_step(animated_state,step)
 					_render_board_state(animated_state,{})
+					await _combat_pacing.after_step(step)
 					continue
 				var before_ground: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
@@ -24639,17 +24642,18 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, step_actor_key)
 				if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
 					await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
-					_combat_pacing.after_step(step)
+					await _combat_pacing.after_step(step)
 					continue
 				if preload("res://assets/units/burrow_grub_cutout/actions.gd").handles(step, rr07_actor):
 					await preload("res://assets/units/burrow_grub_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
-					_combat_pacing.after_step(step)
+					await _combat_pacing.after_step(step)
 					continue
 				await MaquetteAction.play_utility(self, animated_state, step)
 				if GuardianCutout.handles(str(_animation_actor_unit(animated_state,step_actor_key).get("type",""))) and str(step["kind"]) in ["block","stoneskin"]:
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
 				if str(preload("res://scripts/dragon_presentation.gd").profile(step).get("geometry","")) == "utility":
 					await _animate_dragon_utility(animated_state, step)
+					await _combat_pacing.after_step(step)
 					continue
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
@@ -24657,6 +24661,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if str(step.get("kind", "")) == "status_damage" and not (step.get("surface_events",[]) as Array).is_empty():
 					await _animate_surface_change(before_status_step_state,animated_state,{"surface_feedback_events":step["surface_events"]})
 					await _animate_turn_order_alongside_defeats(before_status_step_state,animated_state)
+					await _combat_pacing.after_step(step)
 					continue
 				await _animate_floating_text_presentation(
 					animated_state,
@@ -24841,7 +24846,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						final_feedback_elapsed_seconds
 					)
 				await _animate_turn_order_alongside_defeats(before_attack_step_state, animated_state, {}, true)
-		_combat_pacing.after_step(step)
+		await _combat_pacing.after_step(step)
 
 func _tharokh_action_direction(effect: Dictionary, actor: Dictionary) -> Vector2i:
 	# Double coordinates retain the exact half-tile center of this 2x2 boss.
@@ -24960,6 +24965,7 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 	}))
 	await _animate_turn_order_alongside_defeats(before_step_state, animated_state)
 	await get_tree().create_timer(0.06).timeout
+	await _combat_pacing.after_step(step)
 
 func _visible_umbra_action_step(state: Dictionary, step: Dictionary) -> Dictionary:
 	var kind: String = str(step.get("kind", ""))

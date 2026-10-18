@@ -20,6 +20,12 @@ const PROBE_SETTLE_FRAMES: int = 30
 const SLOW_DRAW_REGRESSION_FPS: int = 5
 const HEAVY_CAPTURE_TIMEOUT_MS: int = 3000
 const PEAK_OPACITY_TOLERANCE: float = 0.025
+const TIMELINE_TOLERANCE_SECONDS: float = 0.08
+const FIXTURE_SEED_SEARCH_COUNT: int = 64
+const ROUND_FREE_OFFSETS: Array = [Vector2i(0,0),Vector2i(1,0),Vector2i(2,0),Vector2i(0,-1),Vector2i(0,-2),Vector2i(0,-3),Vector2i(-1,0),Vector2i(-2,0),Vector2i(-3,0),Vector2i(-3,-1),Vector2i(0,1),Vector2i(0,2),Vector2i(0,3)]
+const ROUND_FOES: Array = [[1,"crawler",Vector2i(2,0),"skitter_strike"],[2,"acolyte",Vector2i(0,-3),"dust_bolt"],[3,"frostglass_lancer",Vector2i(0,3),"glass_lunge"],[4,"harrier",Vector2i(-3,-1),"darting_pelt"]]
+const ROUND_CAPTURE_FRAME_USEC: int = 16667
+const BASELINE_COMMIT: String = "6c72aa134815d4bbdbec0c490f202d8ed6cd0e78"
 
 # Dummy-renderer boundary after normal animation and hit-stop node processing.
 # Unlike process_frame/call_deferred, this ordering exposes late release peaks.
@@ -42,6 +48,8 @@ var _failures: Array[String]
 var _heavy_timing_only: bool = false
 var _timeline_only: bool = false
 var _baseline: bool = false
+var _round_only: bool = false
+var _last_movie_frame_usec: int = 0
 var _capture_reduced: bool = false
 var _heavy_frame: int = -1
 var _capture_heavy: bool = false
@@ -64,6 +72,7 @@ func _initialize() -> void:
 	_timeline_only = "--timeline-only" in OS.get_cmdline_user_args() or _heavy_timing_only
 	if _heavy_timing_only: Engine.max_fps = SLOW_DRAW_REGRESSION_FPS
 	_baseline = "--baseline" in OS.get_cmdline_user_args()
+	_round_only = "--round-only" in OS.get_cmdline_user_args()
 	if DisplayServer.get_name() == "headless" and not _timeline_only:
 		push_error("COMBAT FEEL PROBE needs a windowed renderer, or --timeline-only for scheduling proof")
 		quit(1)
@@ -84,6 +93,14 @@ func _initialize() -> void:
 	_canvas.size = VIEWPORT_SIZE
 	_canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_canvas)
+	if _round_only and not _timeline_only:
+		# Movie Maker records the root viewport. Display the same exact-size
+		# render target used for the validated proof images in that viewport.
+		var display := TextureRect.new()
+		display.texture = _canvas.get_texture()
+		display.size = Vector2(VIEWPORT_SIZE)
+		root.add_child(display)
+		RenderingServer.frame_post_draw.connect(_movie_draw_tick)
 	check(_canvas.size == VIEWPORT_SIZE and _canvas.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Capture viewport is fixed-size and renders every frame")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	Suite.write_proof_contract()
@@ -92,7 +109,7 @@ func _initialize() -> void:
 		_finish()
 		return
 	_canvas.add_child(run_scene)
-	if _baseline: run_scene.get("_combat_pacing").debug_baseline = true
+
 	await _settle_frames(PROBE_SETTLE_FRAMES)
 	check(run_scene.get_viewport() == _canvas, "RunScene renders inside the capture viewport")
 	if _heavy_timing_only:
@@ -112,66 +129,44 @@ func _initialize() -> void:
 	layout["enemies"] = []
 	layout["traps"] = []
 	staging.normalize_room(layout)
-	var free: Array = [Vector2i(0,0),Vector2i(1,0),Vector2i(2,0),Vector2i(0,-1),Vector2i(0,-2),Vector2i(0,-3),Vector2i(-1,0),Vector2i(-2,0),Vector2i(-3,0),Vector2i(0,1),Vector2i(0,2),Vector2i(0,3)]
-	var anchor: Vector2i = staging.place(layout,free)
+	var anchor: Vector2i = staging.place(layout,ROUND_FREE_OFFSETS)
 	if not check(anchor != Vector2i(-1,-1),"Approved round has a valid placement"):
 		_finish()
 		return
 	layout["player_start"] = anchor
-	var foes: Array = [[1,"crawler",Vector2i(2,0),"skitter_strike"],[2,"acolyte",Vector2i(0,-3),"dust_bolt"],[3,"frostglass_lancer",Vector2i(0,3),"glass_lunge"],[4,"harrier",Vector2i(-3,0),"pelt"]]
 	var enemies: Array = []
 	var intents: Dictionary = {}
-	for foe: Array in foes:
+	for foe: Array in ROUND_FOES:
 		enemies.append(staging.foe(int(foe[0]),str(foe[1]),staging.at(anchor,foe[2]),layout))
 		intents[int(foe[0])] = str(foe[3])
 	layout["enemies"] = enemies
 	var initial: Dictionary = staging.stage_intents(_showcase_combat(layout),intents)
 	var speeds: Array[String]
-	speeds.assign(["normal"])
-	if not _baseline: speeds.assign(["normal","fast","fastest"])
+	speeds.assign(["normal","fast","fastest"])
+	if _round_only: speeds.assign(["normal"])
 	for speed: String in speeds:
 		await _round(layout,initial,speed)
-	if not _timeline_only:
+	if not _timeline_only and not _round_only:
 		await _heavy_hit(false)
 		await _heavy_hit(true)
 		await _settings_capture()
 	_finish()
 
 func _install_baseline_script() -> bool:
+	# Compare the repaired fixture against pace-01's exact parent pacing. Keep
+	# the real scene/input/audio pipeline, with no timing approximations.
 	var output: Array = []
-	if not check(OS.execute("git",["show","HEAD:scripts/run_scene.gd"],output)==0,"Read original HEAD for before timeline"): return false
-	var source: String = str(output[0])
-	source = source.replace("var _defer_initial_run_presentation:","var _combat_pacing = preload(\"res://scripts/combat_pacing.gd\").new()\nvar _defer_initial_run_presentation:")
-	source = source.replace("\nfunc _ready() -> void:\n","\nfunc _ready() -> void:\n\t_combat_pacing.install(self)\n")
-	source = source.replace("\nfunc _exit_tree() -> void:\n","\nfunc _exit_tree() -> void:\n\t_combat_pacing.end_scope()\n")
-	var start: int = source.find("func _resolve_enemy_round(")
-	var end: int = source.find("func _animate_enemy_phase_steps",start)
-	var phase: String = source.substr(start,end-start)
-	phase = phase.replace("\t_animation_lock = true","\t_animation_lock = true\n\t_combat_pacing.begin_enemies()")
-	phase = phase.replace("\tif phase_slice_safety >= 100:","\t_combat_pacing.end_scope()\n\tif phase_slice_safety >= 100:")
-	source = source.substr(0,start)+phase+source.substr(end)
-	start = source.find("func _animate_enemy_phase_steps(")
-	end = source.find("func _tharokh_action_direction",start)
-	phase = source.substr(start,end-start)
-	phase = phase.replace("\t\tvar step_actor_key:","\t\tawait _combat_pacing.before_step(step)\n\t\tvar step_actor_key:")
-	phase = phase.strip_edges(false,true)+"\n\t\t_combat_pacing.after_step(step)\n\n"
-	source = source.substr(0,start)+phase+source.substr(end)
-	source = source.replace("\t\tvar segment_frames: int = segment_frame_counts[path_index]","\t\tif _combat_pacing.enemies_active: _combat_pacing.walk_tile(path_index)\n\t\tvar segment_frames: int = segment_frame_counts[path_index]")
-	start = source.find("func _animate_move_step(")
-	end = source.find("func _resolved_movement_animation_path",start)
-	phase = source.substr(start,end-start).replace("\tvar before_move_state:","\t_combat_pacing.walk_finished()\n\tvar before_move_state:")
-	source = source.substr(0,start)+phase+source.substr(end)
-	source = source.replace("\tpreload(\"res://scripts/cutout_context.gd\").apply_to_presentation(display_state, rendered_presentation)","\t_combat_pacing.observe_baseline(display_state, rendered_presentation)\n\tpreload(\"res://scripts/cutout_context.gd\").apply_to_presentation(display_state, rendered_presentation)")
-	var path: String = Suite.PROOF_DIR+"/before_run_scene.gd"
-	var file: FileAccess = FileAccess.open(path,FileAccess.WRITE)
-	file.store_string(source)
-	file.close()
-	var script: Script = load(path) as Script
-	if script != null:
-		run_scene.get("_combat_pacing").free()
-		run_scene.set_script(script)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
-	return check(script != null,"Load instrumented original HEAD without changing its timings")
+	if not check(OS.execute("git",["show",BASELINE_COMMIT+":scripts/combat_pacing.gd"],output)==0,"Read pace-01 parent pacing for before timeline"): return false
+	var source: String = str(output[0]).replace("class_name CombatPacing", "")
+	# The new scene hook passes the immutable slice for action classification.
+	source = source.replace("func before_step(step: Dictionary)","func before_step(step: Dictionary, _activation_steps: Array = [])")
+	var script := GDScript.new()
+	script.source_code = source
+	if not check(script.reload() == OK,"Load original pacing without changing its timings"): return false
+	run_scene.get("_combat_pacing").free()
+	run_scene.set("_combat_pacing",script.new())
+	run_scene.get("_combat_pacing").install(run_scene)
+	return true
 
 func _round(layout: Dictionary, initial: Dictionary, speed: String) -> void:
 	var settings: Dictionary = (run_scene.get("_settings") as Dictionary).duplicate(true)
@@ -186,13 +181,19 @@ func _round(layout: Dictionary, initial: Dictionary, speed: String) -> void:
 	var before: Dictionary = (run_scene.get("_combat_state") as Dictionary).duplicate(true)
 	var scheduled: Dictionary = combat_engine.finish_player_activation(before)
 	var expected: Dictionary = scheduled
+	var resolved_steps: Array = []
 	var complete: bool = false
 	while not complete and combat_engine.combat_outcome(expected) == "":
 		var slice: Dictionary = combat_engine.advance_one_activation_with_steps(expected,false)
+		resolved_steps.append_array(slice.get("steps",[]))
 		expected = slice["state"]
 		complete = bool(slice.get("complete",false))
+	_validate_fixture(resolved_steps)
 	var pacing: Node = run_scene.get("_combat_pacing")
 	pacing.debug_timeline = true
+	if _round_only and not _timeline_only:
+		await _capture("round_start.png")
+		print("PACE ROUND CAPTURE START_FRAME=%d" % Engine.get_frames_drawn())
 	var started: int = Time.get_ticks_usec()
 	run_scene.call("_on_pass_turn_pressed")
 	var hero_banner_usec: int = 0
@@ -215,31 +216,68 @@ func _round(layout: Dictionary, initial: Dictionary, speed: String) -> void:
 	check(hero_banner_usec > 0,"Hero turn banner observed after Pass at %s" % speed)
 	var elapsed: float = float(hero_banner_usec-started)/1000000.0 if hero_banner_usec>0 else -1.0
 	print("COMBAT FEEL ROUND %s%s (%s): pass_to_hero_banner=%.3fs" % ["before_" if _baseline else "",speed,"headless scheduling" if _timeline_only else "real renderer",elapsed])
+	if _round_only and not _timeline_only:
+		print("PACE ROUND CAPTURE END_FRAME=%d" % Engine.get_frames_drawn())
+		await _capture("round_end.png")
 	pacing.print_timeline()
 	check(not bool(run_scene.get("_animation_lock")),"Round returns input at %s" % speed)
 	check(run_scene.get("_combat_state") == expected,"Enemy phase preserves exact resolver state/RNG at %s" % speed)
 	if speed == "normal" and not _baseline:
-		check(elapsed > 0.0 and elapsed <= 6.0,"Normal staged round meets the 6.0 s budget")
-		_validate_timeline(pacing.timeline)
+		check(elapsed > 0.0 and elapsed <= 9.0,"Normal staged round meets the 9.0 s budget")
+	if not _baseline: _validate_timeline(pacing.timeline, speed)
 	var file: FileAccess = FileAccess.open(OUTPUT_DIR+"/timeline_"+("before_" if _baseline else "")+speed+".json",FileAccess.WRITE)
 	file.store_string(JSON.stringify({"speed":speed,"renderer":not _timeline_only,"pass_to_hero_banner_seconds":elapsed,"timeline":pacing.timeline},"\t"))
 	await _settle_frames(PROBE_SETTLE_FRAMES)
 
-func _validate_timeline(rows: Array) -> void:
+func _validate_fixture(steps: Array) -> void:
+	var actors: Dictionary = {}
+	var moved: Dictionary = {}
+	var acted: Dictionary = {}
+	var kinds: Array[String]
+	for step: Dictionary in steps:
+		var actor: String = str(step.get("actor_key",""))
+		var kind: String = str(step.get("kind",""))
+		if kind == "intent": actors[actor] = true
+		if kind == "move": moved[actor] = true
+		if kind in ["melee","ranged","aoe","push","pull","lightning_strikes"]:
+			acted[actor] = true
+			kinds.append(kind)
+	var move_only: Array[String]
+	for actor: String in moved:
+		if not acted.has(actor): move_only.append(actor)
+	check(actors.size() == 4,"Staged round has four enemy activations")
+	check(not move_only.is_empty(),"Staged round includes a move-only turn")
+	check(kinds.has("melee") and (kinds.has("ranged") or kinds.has("aoe")),"Staged round includes melee and ranged/cast actions")
+	print("COMBAT FEEL FIXTURE COVERAGE: actors=%d move_only=%s actions=%s" % [actors.size(),move_only,kinds])
+
+func _validate_timeline(rows: Array, speed: String) -> void:
 	var captions: Array[Dictionary]
-	var actor_ends: Dictionary = {}
+	var action_actors: Dictionary = {}
+	var settle_end: float = -1.0
+	var leads: int = 0
+	var settles: int = 0
 	for row: Dictionary in rows:
-		if row["phase"] == "caption": captions.append(row)
-		if row["phase"] == "hand-off gap": actor_ends[row["actor"]] = row["end"]
-	check(captions.size() == 4,"All four approved actors are instrumented")
-	for row: Dictionary in captions:
-		check(float(actor_ends.get(row["actor"],row["start"]))-float(row["start"])<=1.4,"%s walk + attack <= 1.4 s" % row["actor"])
-	for row: Dictionary in rows:
-		var duration: float = float(row["end"])-float(row["start"])
-		if str(row["phase"]) == "hand-off gap": check(duration <= 0.12,"Hand-off gap <= 0.12 s")
-		if str(row["phase"]) == "post-action settle": check(duration <= 0.25,"Post-action settle <= 0.25 s")
-		if str(row["phase"]) == "pre-action delay": check(duration <= 0.10,"Pre-action <= 0.10 s")
-		if str(row["phase"]).begins_with("walk (tile"): check(duration <= 0.20,"Walk tile <= 0.20 s")
+		var phase: String = str(row["phase"])
+		var start: float = float(row["clock_start"])
+		var end: float = float(row["clock_end"])
+		if phase == "caption": captions.append(row)
+		if phase == "wind-up":
+			check(start >= settle_end,"%s wind-up follows previous full feedback + settle at %s" % [row["actor"],speed])
+			action_actors[row["actor"]] = true
+		if phase == "pre-action delay":
+			leads += 1
+			var first: bool = captions.size() == 1
+			# The first lead shares the banner's clock origin; it never adds 0.25.
+			check((end >= 0.35 and end <= 0.35 + TIMELINE_TOLERANCE_SECONDS) if first else (end-start >= 0.25 and end-start <= 0.25 + TIMELINE_TOLERANCE_SECONDS),"Caption lead is the approved duration for %s at %s" % [row["actor"],speed])
+		if phase == "post-action settle":
+			settles += 1
+			check(end-start >= 0.15 and end-start <= 0.15 + TIMELINE_TOLERANCE_SECONDS,"Full feedback is followed by 0.15 s settle at %s" % speed)
+			settle_end = end
+		if str(row["actor"]) == "enemy_4":
+			check(phase not in ["pre-action delay","wind-up","post-action settle"],"Move-only turn has no action wait at %s" % speed)
+	check(captions.size() == 4,"All four staged activations are instrumented at %s" % speed)
+	check(action_actors.size() == 3 and leads == 3 and settles == 3,"Only the three acting enemies receive lead/settle at %s" % speed)
+	print("COMBAT FEEL TIMELINE CHECK: %s actors=%d actions=%d leads=%d settles=%d no_overlap=true" % [speed,captions.size(),action_actors.size(),leads,settles])
 
 func _play(card_id: String) -> void:
 	var state: Dictionary = run_scene.get("_combat_state") as Dictionary
@@ -300,15 +338,32 @@ func _progression() -> Dictionary:
 	return ContextualCombatTutorial.dismiss_tutorial(data)
 
 func _enter_generated_combat() -> Dictionary:
-	for offset: int in range(64):
+	for offset: int in range(FIXTURE_SEED_SEARCH_COUNT):
 		var state: Dictionary = run_engine.repair_loaded_run_state(run_engine.create_new_run(seed+offset,_progression()))
 		var found: Dictionary = _search_combat_room(state,"fire",2)
 		if found.is_empty(): continue
 		var entered: Dictionary = run_engine.move_to_room(found["origin"],found["destination"])
 		if str(entered.get("mode","")) == "combat":
+			# Generated room templates change. Select a room that actually fits
+			# the unchanged showcase offsets instead of assuming the first does.
+			if not _fits_round(entered["current_room_layout"]): continue
 			print("COMBAT FEEL FIXTURE: seed=%d room=%s" % [seed+offset,found["destination"]])
 			return entered
 	return {}
+
+func _fits_round(layout: Dictionary) -> bool:
+	var staging = ApprovedStaging.new(self)
+	var grid: Array = layout["grid"]
+	for y: int in range(1,grid.size()-1):
+		for x: int in range(1,(grid[y] as Array).size()-1):
+			for symmetry: int in range(8):
+				var fits: bool = true
+				for offset: Vector2i in ROUND_FREE_OFFSETS:
+					if not staging.is_floor(layout,Vector2i(x,y)+staging.transform_offset(offset,symmetry)):
+						fits = false
+						break
+				if fits: return true
+	return false
 
 func _search_combat_room(initial: Dictionary, element: String, min_depth: int) -> Dictionary:
 	var queue: Array = [{"state":initial}]
@@ -364,6 +419,16 @@ func _headless_draw_tick() -> void:
 	# Heavy-hit scheduling uses a late-process boundary; round timing retains the
 	# existing turn-clock suite's explicit dummy-renderer completion signal.
 	RenderingServer.frame_post_draw.emit()
+
+func _movie_draw_tick() -> void:
+	# Movie Maker runs a fixed simulation clock without pacing wall time.
+	# Match production presentation_usec() and native PCM to 60 fps, as the
+	# existing trailer capture does at 30 fps. This affects only proof capture.
+	var now: int = Time.get_ticks_usec()
+	if _last_movie_frame_usec > 0:
+		var remaining: int = ROUND_CAPTURE_FRAME_USEC - (now - _last_movie_frame_usec)
+		if remaining > 0: OS.delay_usec(remaining)
+	_last_movie_frame_usec = Time.get_ticks_usec()
 
 func _settle_frames(count: int) -> void:
 	for _frame: int in range(count): await process_frame
