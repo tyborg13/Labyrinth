@@ -1,0 +1,23 @@
+{
+  "authority": "mq-06 feedback 3",
+  "bridge": {
+    "pickup_timeout_s": 120,
+    "running_timeout_s": 900
+  },
+  "contact": {
+    "margin_m": 0.003,
+    "primary": "minimum clear displacement in either front-camera-ray direction",
+    "fallback": "minimum normal displacement only if ray clearance is impossible",
+    "whole_front_alpha_changed_pixels": 0
+  },
+  "rear_frame": {
+    "edge_margin_px": 8,
+    "pan_only": true,
+    "direction_and_scale_unchanged": true
+  },
+  "rear_fit": {
+    "registration": "standard dynamic ground-centroid",
+    "iou_min": 0.6,
+    "also_report": "fixed-original registration"
+  }
+}

@@ -1,0 +1,8 @@
+MQ06_CANDIDATE_TURN: PASS
+MQ06_FLOOR_GUARD: PASS; Seer exceptions=[]
+FLOOR_CONTACT_GUARD: arc_thrall; documented exceptions=['ankle_far']
+FLOOR_CONTACT_GUARD: frostglass_lancer; documented exceptions=['spear_shaft.prop_foot']
+FLOOR_CONTACT_GUARD: gale_herald; documented exceptions=['ankle_far']
+FLOOR_CONTACT_GUARD: gloam_stalker; documented exceptions=[]
+FLOOR_CONTACT_GUARD: hoarfrost_seer; documented exceptions=[]
+MQ06_PROTECTED_BYTES: PASS; checked=533

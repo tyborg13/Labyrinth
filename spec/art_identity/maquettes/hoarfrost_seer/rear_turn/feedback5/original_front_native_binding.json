@@ -1,0 +1,13 @@
+{
+  "spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+  "cold_mesh_hash": "9d19087cf57e5a081466d9c4b4632f118d525b8b53bad3c9690a9384c1734620",
+  "report_sha256": {
+    "build_report.json": "ad00356f5d90e11d45c5716baafb594eaaaa6ec259aeefdbe1573d802a9aa948",
+    "capture_checks.json": "bb89bb388f74009a24650213d007e359250084527840c8af815b98d46dbd8250",
+    "facing_report.json": "b694671a946fc1ae5d764658d30bbc0ee59dddd05c29ed5206313bef61bc3425",
+    "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+    "solo_coverage.json": "aba9d46a49bffb32ccf6638aaa47e02edc4ebfcf527917c0274c81da00b25e49",
+    "capture_manifest.json": "560043ac4329912e7a0942426a6e9ed00c5cd2992fca5a40c961d8e4a6580fbb"
+  },
+  "exact_native_replay_sha256": "27beecf77ede4327286577fb96d5549a1c3dc42dc4916b1e985a475090dd7644"
+}

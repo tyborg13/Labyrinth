@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Native entry: bridge_client.py blender/build.py -- SPEC OUT [--engine cycles]."""
 import argparse
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
@@ -28,6 +29,11 @@ def build(spec, output, bundle, cache):
     input_spec = spec
     from spec.art_identity.maquettes.blender.facing import board_spec
     spec = board_spec(spec)
+    target_joints = deepcopy(spec['joints'])
+    if spec.get('floor_contact_correction'):
+        spec['joints'] = deepcopy(spec['floor_contact_correction']['fitted_joints'])
+    if spec.get('rear_body'):
+        spec['joints'] = deepcopy(spec['rear_body']['fitted_joints'])
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     write(output / 'source_spec.json', input_spec)
@@ -42,12 +48,16 @@ def build(spec, output, bundle, cache):
     from spec.art_identity.maquettes.blender.source_cage import fit_body
     source_fit = fit_body(spec, body, rig, posed)
     posed['face_owners'] = json.dumps(owners)
+    rear_pose = None
     context_key = digest({'spec': spec, 'bundle_sha256': hashlib.sha256(Path(bundle).read_bytes()).hexdigest()})
     objects = []
     cloth_reports = {}
     simulation_reports = {}
     for piece in spec['pieces']:
         print('BUILD_STAGE: ' + piece['id'], flush=True)
+        if spec.get('rear_body', {}).get('hem_piece') == piece['id']:
+            from spec.art_identity.maquettes.blender.rear_body import pose_leg
+            rear_pose = pose_leg(spec, body, rig, posed, target_joints)
         kind = piece['type']
         if kind == 'cloth':
             obj = cloth(piece, spec, posed, cache, context_key)
@@ -94,6 +104,17 @@ def build(spec, output, bundle, cache):
         obj['owner_index'] = list(spec['labels']).index(region)
         obj['piece_type'] = 'body'
         objects.append(obj)
+    floor_contact = None
+    if rear_pose is not None:
+        from spec.art_identity.maquettes.blender.rear_body import floor_report
+        from spec.art_identity.maquettes.blender.cloth_contacts import collision_report
+        floor_contact = floor_report(spec, objects, rear_pose)
+        cloth_reports.update({p['id']: collision_report(bpy.data.objects[p['id'] + '_render'], posed,
+            p['collision_margin']) for p in spec['pieces'] if p['type'] == 'cloth'})
+    if spec.get('floor_contact_correction'):
+        from spec.art_identity.maquettes.blender.floor_contact_native import apply as correct_floor
+        floor_contact, corrected_collisions = correct_floor(spec, objects, body, rig, posed, target_joints)
+        cloth_reports.update(corrected_collisions)
     posed.hide_render = True
     posed.hide_set(True)
     rig.hide_render = True
@@ -111,6 +132,8 @@ def build(spec, output, bundle, cache):
     details = {'metric_accessories': {o.name: json.loads(o['metric_collar']) for o in objects if 'metric_collar' in o},
                'rounded_hoods': {o.name: json.loads(o['rounded_hood_report']) for o in objects if 'rounded_hood_report' in o},
                'sewn_rest': {o.name: json.loads(o['sewn_rest_report']) for o in objects if 'sewn_rest_report' in o}}
+    if floor_contact is not None:
+        details['floor_contact'] = floor_contact
     if spec.get('cloth_obstacles'):
         from spec.art_identity.maquettes.blender.cloth_contacts import collision_report
         for cloth_id, obstacle_id in spec['cloth_obstacles']:
@@ -119,6 +142,8 @@ def build(spec, output, bundle, cache):
                 bpy.data.objects[cloth_id + '_render'], bpy.data.objects[obstacle_id + '_render'], garment['collision_margin'])
         details['rigid_clearance'] = {o.name: json.loads(o['rigid_clearance_report']) for o in objects if 'rigid_clearance_report' in o}
     checks = geometry_report(spec, objects, cloth_reports, details)
+    if floor_contact is not None:
+        checks['floor_contact_correction'] = floor_contact['passed']
     details['blade_attachments'] = {o.name: json.loads(o['blade_attachment_report']) for o in objects
                                     if 'blade_attachment_report' in o}
     checks['sculpted_blade_roots_attached'] = all(r['passed'] for r in details['blade_attachments'].values())

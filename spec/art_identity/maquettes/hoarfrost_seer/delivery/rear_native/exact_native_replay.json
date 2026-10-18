@@ -1,0 +1,62 @@
+{
+  "passed": true,
+  "byte_order": "little",
+  "rounding": null,
+  "spec_hash": "1b2d2d50598b78cac94c0a80d513c472904f5991f25fada4584a71fdcde9a099",
+  "mesh_count": 14,
+  "mesh_hashes": {
+    "cold": {
+      "body_foot_far": "76a8f3852b68867711e7a8224bf2112840d1051b3e4e0d43bbafa216d8686713",
+      "body_foot_near": "216c117076cbee2630e6565419f4861fb8d344f4460aa0f2280e71eb00818f64",
+      "body_hand_far": "ffdd68b3c87d79565b45dc4cf18233dcfb3a8d98fcd6b8c204be4b55952fd967",
+      "body_hand_near": "b7c260ac4a0b39da93f3d1f7014055881afd9740621ecf5593f185a493a13e27",
+      "body_head": "c2e97c493803d31cbee00543cebd60b5f161cb8fe280c1f56dda9a11d0075e82",
+      "hood_render": "6c74b7cc5e2851f2838e16a444a82a3fd1fcd0805834a9f88fd63721db7c82d7",
+      "ice_crystal_render": "1e5571e2928cd2b28bd0a44faeda9899a08abe8b3863eada172cd6751c1a3a8d",
+      "robe_skirt_render": "df8a04283a53c2a49ac2d1fba1b0c3817a2f7fe041e827c054b9c5198afdac6d",
+      "robe_torso_render": "9b4dec588985f5cee07b46d72443d342335f655c6072da1550ce795ea622d5b9",
+      "rope_belt_render": "4d61c3b5b4f5acb37a3ea7deb8febb0c3d2c537d23640fd7d828078576a3abf4",
+      "rope_knot_tail_render": "2daaeb1effafef467b7b0644c58e8acd32e9e9746adb55b5681d01eea3e900ac",
+      "scarf_render": "265931e7e7a305c20effa515c7212b98d602527dd17dd0d503d005ce95c97b4e",
+      "staff_shaft_band_0_render": "fa66c85d54e17d346a88d42ce9f80f53f4bc2c2ec6d6ae4028fa2255b3513b43",
+      "staff_shaft_render": "67cdb18d13c8b24f442461ee5d9c41ccc5c6673ab96900b193c846a7e6997e97"
+    },
+    "replay": {
+      "body_foot_far": "76a8f3852b68867711e7a8224bf2112840d1051b3e4e0d43bbafa216d8686713",
+      "body_foot_near": "216c117076cbee2630e6565419f4861fb8d344f4460aa0f2280e71eb00818f64",
+      "body_hand_far": "ffdd68b3c87d79565b45dc4cf18233dcfb3a8d98fcd6b8c204be4b55952fd967",
+      "body_hand_near": "b7c260ac4a0b39da93f3d1f7014055881afd9740621ecf5593f185a493a13e27",
+      "body_head": "c2e97c493803d31cbee00543cebd60b5f161cb8fe280c1f56dda9a11d0075e82",
+      "hood_render": "6c74b7cc5e2851f2838e16a444a82a3fd1fcd0805834a9f88fd63721db7c82d7",
+      "ice_crystal_render": "1e5571e2928cd2b28bd0a44faeda9899a08abe8b3863eada172cd6751c1a3a8d",
+      "robe_skirt_render": "df8a04283a53c2a49ac2d1fba1b0c3817a2f7fe041e827c054b9c5198afdac6d",
+      "robe_torso_render": "9b4dec588985f5cee07b46d72443d342335f655c6072da1550ce795ea622d5b9",
+      "rope_belt_render": "4d61c3b5b4f5acb37a3ea7deb8febb0c3d2c537d23640fd7d828078576a3abf4",
+      "rope_knot_tail_render": "2daaeb1effafef467b7b0644c58e8acd32e9e9746adb55b5681d01eea3e900ac",
+      "scarf_render": "265931e7e7a305c20effa515c7212b98d602527dd17dd0d503d005ce95c97b4e",
+      "staff_shaft_band_0_render": "fa66c85d54e17d346a88d42ce9f80f53f4bc2c2ec6d6ae4028fa2255b3513b43",
+      "staff_shaft_render": "67cdb18d13c8b24f442461ee5d9c41ccc5c6673ab96900b193c846a7e6997e97"
+    },
+    "independent_cold": {
+      "body_foot_far": "76a8f3852b68867711e7a8224bf2112840d1051b3e4e0d43bbafa216d8686713",
+      "body_foot_near": "216c117076cbee2630e6565419f4861fb8d344f4460aa0f2280e71eb00818f64",
+      "body_hand_far": "ffdd68b3c87d79565b45dc4cf18233dcfb3a8d98fcd6b8c204be4b55952fd967",
+      "body_hand_near": "b7c260ac4a0b39da93f3d1f7014055881afd9740621ecf5593f185a493a13e27",
+      "body_head": "c2e97c493803d31cbee00543cebd60b5f161cb8fe280c1f56dda9a11d0075e82",
+      "hood_render": "6c74b7cc5e2851f2838e16a444a82a3fd1fcd0805834a9f88fd63721db7c82d7",
+      "ice_crystal_render": "1e5571e2928cd2b28bd0a44faeda9899a08abe8b3863eada172cd6751c1a3a8d",
+      "robe_skirt_render": "df8a04283a53c2a49ac2d1fba1b0c3817a2f7fe041e827c054b9c5198afdac6d",
+      "robe_torso_render": "9b4dec588985f5cee07b46d72443d342335f655c6072da1550ce795ea622d5b9",
+      "rope_belt_render": "4d61c3b5b4f5acb37a3ea7deb8febb0c3d2c537d23640fd7d828078576a3abf4",
+      "rope_knot_tail_render": "2daaeb1effafef467b7b0644c58e8acd32e9e9746adb55b5681d01eea3e900ac",
+      "scarf_render": "265931e7e7a305c20effa515c7212b98d602527dd17dd0d503d005ce95c97b4e",
+      "staff_shaft_band_0_render": "fa66c85d54e17d346a88d42ce9f80f53f4bc2c2ec6d6ae4028fa2255b3513b43",
+      "staff_shaft_render": "67cdb18d13c8b24f442461ee5d9c41ccc5c6673ab96900b193c846a7e6997e97"
+    }
+  },
+  "joint_matrix_hashes": {
+    "cold": "7c17e6650ca5677b786008b01f01a103b87da9a5d725e92482607090fb0e9ea9",
+    "replay": "7c17e6650ca5677b786008b01f01a103b87da9a5d725e92482607090fb0e9ea9",
+    "independent_cold": "7c17e6650ca5677b786008b01f01a103b87da9a5d725e92482607090fb0e9ea9"
+  }
+}

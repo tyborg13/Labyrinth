@@ -1,0 +1,3 @@
+MQ06_PROPOSED_READER_PROBE: PASS; creature=hoarfrost_seer; files=35; joint_errors={'front': 0.004672955123737665, 'rear': 0.004682591733285335}
+MQ06_PROPOSED_READER_PROBE: PASS; creature=arc_thrall; files=39; joint_errors={'front': 0.004672955123737665, 'rear': 0.004672955123737665}
+PROPOSAL_ONLY: unowned reader file remains unchanged; not a full-suite PASS claim

@@ -1,0 +1,14 @@
+{
+  "checked": 533,
+  "changed": [
+    "spec/art_identity/maquettes/blender/build.py",
+    "spec/art_identity/maquettes/blender/cloth.py",
+    "spec/art_identity/maquettes/blender/compile_recipe.py",
+    "spec/art_identity/maquettes/blender/curate_delivery.py",
+    "spec/art_identity/maquettes/blender/drape_collision.py",
+    "spec/art_identity/maquettes/blender/render.py"
+  ],
+  "unexpected_changes": [],
+  "original_recipe_fields_unchanged": true,
+  "all_figure_deliveries_and_approved_paintings_unchanged": true
+}

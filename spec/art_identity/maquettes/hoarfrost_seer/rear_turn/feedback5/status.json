@@ -1,0 +1,14 @@
+{
+  "staged": true,
+  "front_frozen": true,
+  "turn_regression_passed": true,
+  "floor_passed": true,
+  "native_collision_passed": true,
+  "coverage_passed": true,
+  "exact_native_replay_passed": true,
+  "fixed_original_iou": 0.7609076185083125,
+  "dynamic_iou_diagnostic": 0.20540387838762533,
+  "full_python_suite_passed": false,
+  "remaining_integration_issue": "Existing rr-07 reader assumes one pose/camera for both views. A minimal read-only input compatibility patch is prepared; its unchanged 0.02 px assertion passes in the proposal probe. No unowned file has been edited.",
+  "scope_decision_pending": "experiments/cutouts/hoarfrost_seer/rr07_inputs.py is outside the original mq-06 Owned list. Awaiting explicit scope authorization."
+}

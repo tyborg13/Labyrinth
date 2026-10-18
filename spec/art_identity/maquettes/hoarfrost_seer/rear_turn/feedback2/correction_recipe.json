@@ -1,0 +1,1601 @@
+{
+  "schema": 1,
+  "id": "hoarfrost_seer",
+  "sources": {
+    "front": "spec/art_identity/jobs/hoarfrost_seer/front/processed.png",
+    "rear": "spec/art_identity/jobs/hoarfrost_seer/rear/processed.png"
+  },
+  "source_sha256": {
+    "front": "154a9a5635b0aa64dedb84882a415669b0a30f0abc0ba56749226ae81e7704f6",
+    "rear": "f384b1163e4a85b9a520f2075e26df373eea04d38624d66f365cabb0a963e4ca"
+  },
+  "labels": {
+    "head": [
+      1.0,
+      0.85,
+      0.1
+    ],
+    "collar": [
+      0.22,
+      0.65,
+      0.08
+    ],
+    "torso": [
+      0.85,
+      0.15,
+      0.15
+    ],
+    "skirt_near": [
+      0.85,
+      0.255,
+      0.7758559804874999
+    ],
+    "skirt_far": [
+      0.255,
+      0.85,
+      0.7505253593500005
+    ],
+    "upper_near": [
+      0.2,
+      0.4,
+      1.0
+    ],
+    "fore_near": [
+      0.45,
+      0.62,
+      1.0
+    ],
+    "hand_near": [
+      0.75,
+      0.82,
+      1.0
+    ],
+    "upper_far": [
+      0.5,
+      0.1,
+      0.8
+    ],
+    "fore_far": [
+      0.72,
+      0.3,
+      0.9
+    ],
+    "hand_far": [
+      0.92,
+      0.62,
+      1.0
+    ],
+    "staff_shaft": [
+      0.7251947382125011,
+      0.255,
+      0.85
+    ],
+    "staff_crystal": [
+      0.255,
+      0.85,
+      0.5515760780500001
+    ],
+    "foot_near": [
+      0.6,
+      0.95,
+      0.95
+    ],
+    "foot_far": [
+      0.3,
+      0.65,
+      0.65
+    ]
+  },
+  "joints_px": {
+    "pelvis": [
+      [
+        138,
+        147
+      ],
+      [
+        117,
+        143
+      ]
+    ],
+    "torso": [
+      [
+        136,
+        119
+      ],
+      [
+        119,
+        114
+      ]
+    ],
+    "head": [
+      [
+        128,
+        82
+      ],
+      [
+        126,
+        81
+      ]
+    ],
+    "head_tip": [
+      [
+        131,
+        57
+      ],
+      [
+        124,
+        58
+      ]
+    ],
+    "shoulder_near": [
+      [
+        163,
+        116
+      ],
+      [
+        92,
+        116
+      ]
+    ],
+    "shoulder_far": [
+      [
+        107,
+        119
+      ],
+      [
+        153,
+        116
+      ]
+    ],
+    "elbow_near": [
+      [
+        180,
+        139
+      ],
+      [
+        73,
+        140
+      ]
+    ],
+    "elbow_far": [
+      [
+        97,
+        144
+      ],
+      [
+        169,
+        143
+      ]
+    ],
+    "hand_near": [
+      [
+        176,
+        160
+      ],
+      [
+        65,
+        167
+      ]
+    ],
+    "hand_far": [
+      [
+        78,
+        138
+      ],
+      [
+        181,
+        135
+      ]
+    ],
+    "hand_tip_near": [
+      [
+        174,
+        176
+      ],
+      [
+        64,
+        180
+      ]
+    ],
+    "hand_tip_far": [
+      [
+        80,
+        146
+      ],
+      [
+        180,
+        143
+      ]
+    ],
+    "hip_near": [
+      [
+        151,
+        158
+      ],
+      [
+        106,
+        155
+      ]
+    ],
+    "hip_far": [
+      [
+        126,
+        158
+      ],
+      [
+        132,
+        154
+      ]
+    ],
+    "knee_near": [
+      [
+        157,
+        190
+      ],
+      [
+        100,
+        188
+      ]
+    ],
+    "knee_far": [
+      [
+        119,
+        186
+      ],
+      [
+        141,
+        184
+      ]
+    ],
+    "ankle_near": [
+      [
+        166,
+        229
+      ],
+      [
+        91,
+        229
+      ]
+    ],
+    "ankle_far": [
+      [
+        113,
+        212
+      ],
+      [
+        153,
+        217
+      ]
+    ],
+    "foot_tip_near": [
+      [
+        163,
+        240
+      ],
+      [
+        93,
+        238
+      ]
+    ],
+    "foot_tip_far": [
+      [
+        102,
+        218
+      ],
+      [
+        158,
+        226
+      ]
+    ]
+  },
+  "surfaces": [
+    {
+      "id": "hood",
+      "part": "head",
+      "kind": "hood",
+      "shape": "cowl",
+      "joint": "head",
+      "rings": [
+        [
+          34.5,
+          0,
+          0
+        ],
+        [
+          32,
+          8,
+          7
+        ],
+        [
+          28,
+          13,
+          11
+        ],
+        [
+          23,
+          17,
+          15
+        ],
+        [
+          16,
+          20,
+          17
+        ],
+        [
+          8,
+          18,
+          16
+        ],
+        [
+          0,
+          15,
+          15
+        ],
+        [
+          -9,
+          18,
+          19
+        ],
+        [
+          -17,
+          25,
+          26
+        ],
+        [
+          -25,
+          30,
+          31
+        ]
+      ],
+      "angles": [
+        0.7853981633974483,
+        5.497787143782138
+      ],
+      "closed": false,
+      "collision_refine_levels": 1,
+      "contact_regions": [
+        "head",
+        "torso"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          1,
+          2
+        ],
+        "frames": 8,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "pin_filled_spans": [
+          [
+            0,
+            2
+          ]
+        ],
+        "pin_opening_rows": [
+          3,
+          4,
+          5
+        ],
+        "solver_margin": 0.015,
+        "smooth_rows": true,
+        "native_hood": {
+          "revision": 1,
+          "opening_width_ratio": 0.6,
+          "opening_height_px": 26
+        }
+      },
+      "columns": 32,
+      "opening_half_angles": [
+        0,
+        0.0,
+        0.0,
+        0.44788591481310797,
+        0.5115115386894152,
+        0.3725446817093238,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "design_geometry": "Rounded cowl over the native skull, oval recessed opening measured at about 0.6 of native head width; crown and opening seam pinned, shoulder fabric free. Feedback 3.",
+      "opening_width_ratio": 0.6,
+      "native_head_width_m": 0.260044684012731
+    },
+    {
+      "id": "scarf",
+      "part": "collar",
+      "kind": "collar",
+      "shape": "cowl",
+      "joint": "head",
+      "rings": [
+        [
+          -15,
+          18,
+          19
+        ],
+        [
+          -24,
+          25,
+          26
+        ],
+        [
+          -34,
+          28,
+          29
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "collision_refine_levels": 1,
+      "contact_regions": [
+        "torso",
+        "head",
+        "upper_near",
+        "upper_far"
+      ],
+      "symmetry_front": [
+        1,
+        0,
+        0
+      ],
+      "symmetry_lateral": [
+        0,
+        1,
+        0
+      ],
+      "symmetry_joint": "head",
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "fold_allowance_px": [
+        0,
+        1,
+        2,
+        1,
+        0,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        -1,
+        0,
+        1,
+        2,
+        1,
+        0,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        -1
+      ]
+    },
+    {
+      "id": "robe_torso",
+      "part": "torso",
+      "kind": "skirt",
+      "shape": "cowl",
+      "joint": "torso",
+      "rings": [
+        [
+          30,
+          12,
+          14
+        ],
+        [
+          18,
+          25,
+          28
+        ],
+        [
+          7,
+          25,
+          28
+        ],
+        [
+          -12,
+          22,
+          23
+        ],
+        [
+          -38,
+          19,
+          22
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "collision_refine_levels": 1,
+      "contact_regions": [
+        "torso",
+        "upper_near",
+        "fore_near",
+        "upper_far",
+        "fore_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0,
+          4
+        ],
+        "frames": 24,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 1,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "armhole_clearance": 0,
+        "native_rest": {
+          "waist_joint": "pelvis",
+          "cuffs": [
+            {
+              "regions": [
+                "fore_near"
+              ],
+              "joints": [
+                "elbow_near",
+                "hand_near"
+              ],
+              "fraction": 0.8
+            },
+            {
+              "regions": [
+                "fore_far"
+              ],
+              "joints": [
+                "elbow_far",
+                "hand_far"
+              ],
+              "fraction": 0.95
+            }
+          ]
+        }
+      },
+      "fold_allowance_px": [
+        0,
+        1,
+        2,
+        0,
+        -1,
+        0,
+        2,
+        0,
+        -1,
+        0,
+        2,
+        0,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        -1,
+        0,
+        2,
+        0,
+        -1,
+        0,
+        2,
+        0,
+        -1,
+        0,
+        2,
+        1,
+        0,
+        -1,
+        0
+      ]
+    },
+    {
+      "id": "robe_skirt",
+      "part": "skirt_near",
+      "kind": "skirt",
+      "shape": "cowl",
+      "joint": "pelvis",
+      "rings": [
+        [
+          0,
+          28,
+          30
+        ],
+        [
+          -35,
+          36,
+          38,
+          -0.08,
+          0,
+          0
+        ],
+        [
+          -67,
+          44,
+          48,
+          -0.15,
+          0,
+          0
+        ],
+        [
+          -92,
+          52,
+          55,
+          -0.2,
+          0,
+          0
+        ]
+      ],
+      "angles": [
+        0,
+        6.283185307179586
+      ],
+      "closed": true,
+      "side_parts": [
+        "skirt_near",
+        "skirt_far"
+      ],
+      "hem_px": {
+        "front": [
+          [
+            94,
+            209
+          ],
+          [
+            110,
+            210
+          ],
+          [
+            115,
+            229
+          ],
+          [
+            124,
+            220
+          ],
+          [
+            130,
+            239
+          ],
+          [
+            139,
+            228
+          ],
+          [
+            143,
+            242
+          ],
+          [
+            153,
+            227
+          ],
+          [
+            162,
+            234
+          ],
+          [
+            169,
+            225
+          ],
+          [
+            181,
+            238
+          ],
+          [
+            190,
+            230
+          ],
+          [
+            201,
+            230
+          ],
+          [
+            210,
+            224
+          ]
+        ],
+        "rear": [
+          [
+            45,
+            230
+          ],
+          [
+            56,
+            220
+          ],
+          [
+            65,
+            237
+          ],
+          [
+            78,
+            237
+          ],
+          [
+            83,
+            225
+          ],
+          [
+            90,
+            241
+          ],
+          [
+            102,
+            239
+          ],
+          [
+            114,
+            232
+          ],
+          [
+            121,
+            237
+          ],
+          [
+            135,
+            225
+          ],
+          [
+            140,
+            215
+          ],
+          [
+            151,
+            216
+          ],
+          [
+            163,
+            216
+          ]
+        ]
+      },
+      "collision_refine_levels": 1,
+      "contact_regions": [
+        "torso",
+        "skirt_near",
+        "skirt_far",
+        "foot_near",
+        "foot_far"
+      ],
+      "drape": {
+        "row_subdivisions": 6,
+        "pin_rows": [
+          0
+        ],
+        "frames": 64,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "gather_frames": 8,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005
+      },
+      "fold_allowance_px": [
+        0,
+        2,
+        4,
+        1,
+        -2,
+        0,
+        3,
+        0,
+        -2,
+        1,
+        4,
+        1,
+        -2,
+        0,
+        3,
+        1,
+        0,
+        -2,
+        0,
+        4,
+        1,
+        -2,
+        0,
+        3,
+        0,
+        -2,
+        1,
+        4,
+        1,
+        -2,
+        0,
+        2
+      ],
+      "columns": 64
+    },
+    {
+      "id": "staff_shaft",
+      "part": "staff_shaft",
+      "shape": "curve",
+      "path_px": [
+        [
+          93,
+          219
+        ],
+        [
+          89,
+          200
+        ],
+        [
+          88,
+          180
+        ],
+        [
+          82,
+          162
+        ],
+        [
+          80,
+          145
+        ],
+        [
+          72,
+          127
+        ],
+        [
+          68,
+          108
+        ],
+        [
+          62,
+          92
+        ]
+      ],
+      "radius_px": 2,
+      "taper": [
+        0.8,
+        1,
+        1.25,
+        0.85,
+        1.3,
+        1.1,
+        1.3,
+        1.6
+      ],
+      "plane_axis": 1,
+      "plane_coordinate": -0.4,
+      "closed": false,
+      "bands": [
+        {
+          "at": 0.55,
+          "thickness_px": 0.7
+        }
+      ]
+    },
+    {
+      "id": "ice_crystal",
+      "part": "staff_crystal",
+      "shape": "crystal",
+      "path_px": [
+        [
+          62,
+          97
+        ],
+        [
+          53,
+          39
+        ]
+      ],
+      "plane_axis": 1,
+      "plane_coordinate": -0.4,
+      "sides": 5,
+      "profile_px": [
+        [
+          0,
+          3
+        ],
+        [
+          0.18,
+          8
+        ],
+        [
+          0.32,
+          6
+        ],
+        [
+          0.47,
+          13
+        ],
+        [
+          0.65,
+          9
+        ],
+        [
+          0.8,
+          6
+        ],
+        [
+          1,
+          0
+        ]
+      ],
+      "jag": {
+        "count": 0,
+        "depth": 0,
+        "seed": 0
+      }
+    },
+    {
+      "id": "rope_belt",
+      "part": "torso",
+      "shape": "ring",
+      "centre_px": [
+        [
+          138,
+          147
+        ],
+        [
+          117,
+          143
+        ]
+      ],
+      "axes": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ]
+      ],
+      "radii_px": [
+        22,
+        24
+      ],
+      "radius_px": 1.3
+    },
+    {
+      "id": "rope_knot_tail",
+      "part": "torso",
+      "shape": "curve",
+      "path_px": [
+        [
+          143,
+          145
+        ],
+        [
+          149,
+          148
+        ],
+        [
+          146,
+          152
+        ],
+        [
+          142,
+          148
+        ],
+        [
+          145,
+          146
+        ],
+        [
+          146,
+          159
+        ],
+        [
+          151,
+          168
+        ]
+      ],
+      "plane_axis": 0,
+      "plane_coordinate": 0.28,
+      "radius_px": 1.2,
+      "taper": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0.85,
+        0.6
+      ]
+    },
+    {
+      "id": "sleeve_upper_near",
+      "part": "upper_near",
+      "shape": "sleeve",
+      "joints": [
+        "shoulder_near",
+        "elbow_near",
+        "hand_near"
+      ],
+      "radii_px": [
+        11,
+        12,
+        14
+      ],
+      "collision_refine_levels": 1,
+      "contact_regions": [
+        "torso",
+        "upper_near",
+        "fore_near",
+        "upper_far",
+        "fore_far"
+      ],
+      "drape": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "armhole_clearance": 0
+      },
+      "end_fraction": 0.8,
+      "joint_parts": [
+        "upper_near",
+        "fore_near"
+      ],
+      "joint_chain": [
+        "shoulder_near",
+        "elbow_near",
+        "hand_near"
+      ]
+    },
+    {
+      "id": "sleeve_upper_far",
+      "part": "upper_far",
+      "shape": "sleeve",
+      "joints": [
+        "shoulder_far",
+        "elbow_far",
+        "hand_far"
+      ],
+      "radii_px": [
+        11,
+        12,
+        11
+      ],
+      "collision_refine_levels": 1,
+      "contact_regions": [
+        "torso",
+        "upper_near",
+        "fore_near",
+        "upper_far",
+        "fore_far"
+      ],
+      "drape": {
+        "row_subdivisions": 8,
+        "pin_rows": [
+          0
+        ],
+        "frames": 96,
+        "stiffness": {
+          "quality": 16,
+          "mass": 0.45,
+          "tension_stiffness": 45,
+          "compression_stiffness": 45,
+          "shear_stiffness": 30,
+          "bending_stiffness": 6,
+          "tension_damping": 8,
+          "compression_damping": 8,
+          "shear_damping": 8,
+          "bending_damping": 2,
+          "pin_stiffness": 1,
+          "time_scale": 0.2
+        },
+        "self_collision": true,
+        "collision_quality": 8,
+        "collision_refine_levels": 2,
+        "attach_pins_to_support": true,
+        "smooth_normals": true,
+        "weld_tolerance": 0.0003,
+        "self_distance_min": 0.0005,
+        "armhole_clearance": 0
+      },
+      "end_fraction": 0.95,
+      "joint_parts": [
+        "upper_far",
+        "fore_far"
+      ],
+      "joint_chain": [
+        "shoulder_far",
+        "elbow_far",
+        "hand_far"
+      ]
+    }
+  ],
+  "bone_scales": {
+    "head": [
+      1,
+      1
+    ],
+    "pelvis": [
+      1,
+      1
+    ],
+    "torso": [
+      1,
+      1
+    ],
+    "shoulder_near": [
+      1,
+      1
+    ],
+    "shoulder_far": [
+      1,
+      1
+    ],
+    "elbow_near": [
+      1,
+      1
+    ],
+    "elbow_far": [
+      1,
+      1
+    ],
+    "hip_near": [
+      1,
+      1
+    ],
+    "hip_far": [
+      1,
+      1
+    ],
+    "knee_near": [
+      1,
+      1
+    ],
+    "knee_far": [
+      1,
+      1
+    ],
+    "hand_far": [
+      0.55,
+      0.55
+    ],
+    "hand_near": [
+      0.75,
+      0.65
+    ]
+  },
+  "region_map": {
+    "pelvis": "torso",
+    "thigh_near": "skirt_near",
+    "shin_near": "skirt_near",
+    "thigh_far": "skirt_far",
+    "shin_far": "skirt_far"
+  },
+  "weapon_parts": [
+    "staff_shaft",
+    "staff_crystal"
+  ],
+  "fit": {
+    "front": {
+      "source_frame": {
+        "head_top": 46,
+        "sole_bottom": 246,
+        "ground_x": 170.0
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.35,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.505,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.72,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.915,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.7,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    },
+    "rear": {
+      "source_frame": {
+        "head_top": 51,
+        "sole_bottom": 246,
+        "ground_x": 81.02173913043478
+      },
+      "landmarks": {
+        "shoulder": {
+          "y": 0.3333333333333333,
+          "joints": [
+            "shoulder_near"
+          ]
+        },
+        "waist": {
+          "y": 0.4717948717948718,
+          "joints": [
+            "pelvis"
+          ]
+        },
+        "knee": {
+          "y": 0.7025641025641025,
+          "joints": [
+            "knee_near"
+          ]
+        },
+        "ankle": {
+          "y": 0.9128205128205128,
+          "joints": [
+            "ankle_near"
+          ]
+        }
+      },
+      "gate": {
+        "iou_min": 0.65,
+        "median_band_error_max": 0.12,
+        "max_band_error_max": 0.3,
+        "landmark_error_max": 0.03
+      }
+    }
+  },
+  "features": {
+    "staff_hand": "hand_far",
+    "ice_crystal": {
+      "part": "staff_crystal",
+      "whole": true
+    }
+  },
+  "occlusions": {
+    "front": {},
+    "rear": {}
+  },
+  "unresolved_design": {},
+  "measurement_basis": "Art-02 identity/proportion reference only, director feedback 2. Shoulder/crown/waist-pinned native cloth uses free fabric, measured robe hem and fold allowances. Native anatomy restored beneath the clothing. The new painting follows the maquette.",
+  "body_source_profiles": {
+    "foot_near": {
+      "front": [
+        [
+          163,
+          232
+        ],
+        [
+          171,
+          229
+        ],
+        [
+          180,
+          233
+        ],
+        [
+          183,
+          239
+        ],
+        [
+          179,
+          244
+        ],
+        [
+          161,
+          245
+        ],
+        [
+          158,
+          240
+        ]
+      ],
+      "rear": [
+        [
+          76,
+          235
+        ],
+        [
+          86,
+          232
+        ],
+        [
+          93,
+          238
+        ],
+        [
+          91,
+          244
+        ],
+        [
+          75,
+          246
+        ],
+        [
+          70,
+          241
+        ]
+      ]
+    },
+    "foot_far": {
+      "front": [
+        [
+          99,
+          211
+        ],
+        [
+          110,
+          207
+        ],
+        [
+          121,
+          211
+        ],
+        [
+          121,
+          218
+        ],
+        [
+          105,
+          224
+        ],
+        [
+          94,
+          220
+        ]
+      ],
+      "rear": [
+        [
+          146,
+          216
+        ],
+        [
+          157,
+          214
+        ],
+        [
+          166,
+          221
+        ],
+        [
+          165,
+          226
+        ],
+        [
+          151,
+          231
+        ],
+        [
+          142,
+          226
+        ]
+      ]
+    },
+    "hand_far": {
+      "front": [
+        [
+          70,
+          127
+        ],
+        [
+          80,
+          125
+        ],
+        [
+          87,
+          132
+        ],
+        [
+          85,
+          144
+        ],
+        [
+          76,
+          150
+        ],
+        [
+          68,
+          141
+        ]
+      ],
+      "rear": [
+        [
+          173,
+          125
+        ],
+        [
+          185,
+          125
+        ],
+        [
+          190,
+          131
+        ],
+        [
+          188,
+          142
+        ],
+        [
+          179,
+          147
+        ],
+        [
+          171,
+          140
+        ]
+      ]
+    }
+  },
+  "contact_policy": "Native isolated complete-body and regional closed support colliders, initial collision-free pattern, self-collision and fixed pre-roll. Final complete-anatomy triangle and clearance gates remain mandatory.",
+  "covered_body_regions": [
+    "torso",
+    "skirt_near",
+    "skirt_far",
+    "upper_near",
+    "upper_far",
+    "fore_near",
+    "fore_far"
+  ],
+  "design_direction": "mq-04 feedback 3: all four maquettes at the Lancer r3 bar, then owner reviews clay before paint-over prompts.",
+  "cloth_registration": "One sewn torso and both sleeves, shared armhole vertices before one native Cloth solve; all source-face labels remain anatomical across both views. Staff hand is hand_far.",
+  "implementation_issues": {
+    "staff_cuff_fold_quality": "The connected sewn rest closes the shoulder seams and preserves an open cuff, but dense wrinkles remain at the staff wrist. The topology fix is proved; complete removal of the crumpled visual read is not claimed."
+  },
+  "sewn_garment": {
+    "torso": "robe_torso",
+    "seams": [
+      {
+        "sleeve": "sleeve_upper_near",
+        "shoulder": "shoulder_near",
+        "rows": [
+          6,
+          10
+        ],
+        "columns": 4
+      },
+      {
+        "sleeve": "sleeve_upper_far",
+        "shoulder": "shoulder_far",
+        "rows": [
+          6,
+          10
+        ],
+        "columns": 4
+      }
+    ]
+  },
+  "simulation_basis": "Native Cloth uses the Lancer r3 stiffness preset with the fixed per-garment pre-roll recorded in drape.frames, free fabric, self-collision, measured attachments and the native anatomy collision skin. Sampling, solver timing and tolerances are implementation fields; source extents and director metric dimensions are retained.",
+  "floor_contact_correction": {
+    "authority": "mq-06 feedback 1 floor decision; feedback 2 front gate",
+    "floor_joint": "ankle_near",
+    "ankle_joint": "ankle_far",
+    "hip_joint": "hip_far",
+    "joint_chain": [
+      "knee_far",
+      "ankle_far",
+      "foot_tip_far"
+    ],
+    "leg_bones": [
+      "hip_far",
+      "knee_far",
+      "ankle_far"
+    ],
+    "hem_piece": "robe_skirt",
+    "prop_piece": "staff_shaft",
+    "exceptions": []
+  }
+}

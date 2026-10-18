@@ -1,0 +1,49 @@
+{
+  "rear": {
+    "passed": true,
+    "bounds_probe": "native clay alpha at the existing render sample count",
+    "pan_px": [
+      0.0,
+      -24.999990363390452
+    ],
+    "original_target": [
+      0.0,
+      0.0,
+      1.12
+    ],
+    "target": [
+      0.02071601099478718,
+      0.02071601099478718,
+      1.0692563435568854
+    ],
+    "ortho_scale": 2.4000000953674316,
+    "camera_rotation_unchanged": true,
+    "geometry_bounds_before_pan_px": [
+      [
+        227.3946276465382,
+        97.35907896096893
+      ],
+      [
+        839.0796490532354,
+        1039.9999903633905
+      ]
+    ],
+    "pixel_bounds": [
+      [
+        227,
+        72
+      ],
+      [
+        839,
+        1015
+      ]
+    ],
+    "edge_margins_px_left_top_right_bottom": [
+      227,
+      72,
+      184,
+      8
+    ],
+    "required_margin_px": 8
+  }
+}

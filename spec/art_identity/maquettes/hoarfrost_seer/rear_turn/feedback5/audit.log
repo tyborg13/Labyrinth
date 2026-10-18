@@ -1,0 +1,8 @@
+MQ06_DELIVERY_VALIDATION: PASS; frozen-front and independent planted-rear certificates sealed
+MQ06_FRONT_FREEZE: PASS; files=21; joint displacement=0 px
+MQ06_COMMITTED_TURN: PASS; deliveries=5
+MQ06_FLOOR_GUARD: PASS; Seer exceptions=[]
+MQ06_NATIVE_COLLISION: PASS; skirt intersections=0
+MQ06_REAR_FIT: PASS; fixed=0.7609076185083125; dynamic=0.20540387838762533; gate=0.6
+MQ06_PROTECTED_BYTES: PASS; checked=533
+MQ06_STAGED_REAR_HASHES: 34; /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/staged_rear_sha256.txt

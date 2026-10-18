@@ -19,18 +19,18 @@
   "rear": {
     "head": 44489,
     "collar": 32424,
-    "torso": 68549,
-    "skirt_near": 72124,
-    "skirt_far": 79095,
-    "upper_near": 21839,
-    "fore_near": 14042,
+    "torso": 68547,
+    "skirt_near": 78140,
+    "skirt_far": 115565,
+    "upper_near": 21840,
+    "fore_near": 14043,
     "hand_near": 1337,
-    "upper_far": 25181,
-    "fore_far": 8266,
+    "upper_far": 25182,
+    "fore_far": 8267,
     "hand_far": 4705,
     "staff_shaft": 11874,
-    "staff_crystal": 14587,
+    "staff_crystal": 14586,
     "foot_near": 3084,
-    "foot_far": 3806
+    "foot_far": 3825
   }
 }

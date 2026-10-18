@@ -49,5 +49,8 @@
     },
     "torso_asymmetry_passed": true,
     "frontal_axis_rejected": true
-  }
+  },
+  "geometry_scope": [
+    "front"
+  ]
 }

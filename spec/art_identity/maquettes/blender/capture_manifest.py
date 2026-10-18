@@ -35,8 +35,9 @@ def write_manifest(folder, spec_hash, mode, images):
     return manifest
 
 
-def read_manifest(folder, spec_hash, modes):
+def read_manifest(folder, spec_hash, modes, image_folder=None):
     folder = Path(folder)
+    images = Path(image_folder) if image_folder is not None else folder
     path = folder / 'capture_manifest.json'
     if not path.is_file():
         raise ValueError('Blender capture manifest is missing')
@@ -48,7 +49,7 @@ def read_manifest(folder, spec_hash, modes):
     for name, entry in manifest['images'].items():
         if Path(name).is_absolute() or '..' in Path(name).parts:
             raise ValueError('Invalid capture image name')
-        if not (folder / name).is_file() or sha256(folder / name) != entry['sha256']:
+        if not (images / name).is_file() or sha256(images / name) != entry['sha256']:
             raise ValueError('Stale or corrupt capture image: ' + name)
     if sha256(folder / 'joints_px.json') != manifest['joints_sha256']:
         raise ValueError('Stale capture joints')

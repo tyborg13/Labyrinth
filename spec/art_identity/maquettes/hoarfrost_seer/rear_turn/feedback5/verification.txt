@@ -1,0 +1,44 @@
+mq-06 feedback 5 verification; accepted rear staged, front frozen.
+FULL SUITE HOLD: rr-07 input reader assumes a common front/rear pose and camera.
+Reader patch is prepared and passes its proposal probe; original Owned scope prevents applying it without authorization.
+
+focused_tests.log
+Ran 95 tests in 12.117s
+OK (skipped=2)
+
+art_identity.log
+Ran 111 tests in 35.455s
+OK
+
+full_python.log
+ERROR: test_both_committed_deliveries_have_every_label_and_joint (test_rr07_delivery.DeliveryTests) (creature='hoarfrost_seer')
+Ran 851 tests in 687.263s
+FAILED (errors=1, skipped=63)
+
+stage.log
+MQ06_REAR_STAGE: PASS; images=18; front files unchanged=21
+MQ06_REAR_FIT: PASS; method=fixed_original_mq04; fixed=0.7609076185083125; dynamic=0.20540387838762533
+MQ06_VIEW_CERTIFICATES: PASS; independent front/rear spec and cold-mesh bindings
+
+audit.log
+MQ06_DELIVERY_VALIDATION: PASS; frozen-front and independent planted-rear certificates sealed
+MQ06_FRONT_FREEZE: PASS; files=21; joint displacement=0 px
+MQ06_COMMITTED_TURN: PASS; deliveries=5
+MQ06_FLOOR_GUARD: PASS; Seer exceptions=[]
+MQ06_NATIVE_COLLISION: PASS; skirt intersections=0
+MQ06_REAR_FIT: PASS; fixed=0.7609076185083125; dynamic=0.20540387838762533; gate=0.6
+MQ06_PROTECTED_BYTES: PASS; checked=533
+MQ06_STAGED_REAR_HASHES: 34; /Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/staged_rear_sha256.txt
+
+proposed_reader_probe.log
+MQ06_PROPOSED_READER_PROBE: PASS; creature=hoarfrost_seer; files=35; joint_errors={'front': 0.004672955123737665, 'rear': 0.004682591733285335}
+MQ06_PROPOSED_READER_PROBE: PASS; creature=arc_thrall; files=39; joint_errors={'front': 0.004672955123737665, 'rear': 0.004672955123737665}
+PROPOSAL_ONLY: unowned reader file remains unchanged; not a full-suite PASS claim
+
+output_gdignore.log
+OUTPUT GDIGNORE: PASS (13 folders; 3 referenced roots)
+
+Native replay retained from accepted feedback4 capture: FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=3.501882977994828e-06
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=14
+git diff --check: exit=0; no .gd changes or windowed command applies.
+Curation: see curation.log for stable final bytes. All discarded evidence hashed before removal.

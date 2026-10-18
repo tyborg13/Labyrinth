@@ -31,31 +31,32 @@ def command(spec_path, output, blender=DEFAULT_BLENDER, bundle=None, silhouettes
     return result
 
 
-def load_render(spec, folder, view='front'):
+def load_render(spec, folder, view='front', image_folder=None):
     folder = Path(folder)
+    images = Path(image_folder) if image_folder is not None else folder
     report = json.loads((folder / 'build_report.json').read_text())
     if report['spec_hash'] != digest(spec):
         raise ValueError('Blender render belongs to a different spec')
     names = list(spec['labels'])
     masks = {}
-    manifest = read_manifest(folder, digest(spec), ('full', 'fit', 'preview', 'silhouettes'))
+    manifest = read_manifest(folder, digest(spec), ('full', 'fit', 'preview', 'silhouettes'), images)
     fit_only = manifest['mode'] in ('fit', 'preview')
     for name in ([] if fit_only else names):
         require_image(manifest, f'{view}_solo_{name}.png')
-        with Image.open(folder / f'{view}_solo_{name}.png') as image:
+        with Image.open(images / f'{view}_solo_{name}.png') as image:
             masks[name] = np.asarray(image.convert('RGBA'))[..., 3] >= 128
     if fit_only:
         for name, filename in [('__body__', f'{view}_body.png'), (spec['fit'].get('head_part', 'head'), f'{view}_head.png')]:
             require_image(manifest, filename)
-            with Image.open(folder / filename) as image:
+            with Image.open(images / filename) as image:
                 masks[name] = np.asarray(image.convert('RGBA'))[..., 3] >= 128
     require_image(manifest, f'{view}_silhouette.png')
-    with Image.open(folder / f'{view}_silhouette.png') as image:
+    with Image.open(images / f'{view}_silhouette.png') as image:
         foreground = np.asarray(image.convert('RGBA'))[..., 3] >= 128
     owners = np.where(foreground, 0, -1).astype(np.int16)
     # Numerical fitting uses silhouettes and solos. A parts capture, when present,
     # additionally provides depth-tested owners for comparison tooling.
-    parts = folder / f'{view}_parts.png'
+    parts = images / f'{view}_parts.png'
     if parts.name in manifest['images']:
         with Image.open(parts) as image:
             pixels = np.asarray(image.convert('RGBA'))[..., :3].astype(float)

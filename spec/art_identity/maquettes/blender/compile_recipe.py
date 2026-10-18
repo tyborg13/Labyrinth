@@ -276,6 +276,20 @@ def compile_recipe(recipe):
     fit = deepcopy(recipe['fit']['front'])
     fit.update(source=recipe['sources']['front'], head_part='head', weapon_parts=recipe['weapon_parts'])
     spec['fit'] = fit
+    correction_key = 'rear_body' if recipe.get('rear_body') else 'floor_contact_correction'
+    if recipe.get(correction_key):
+        from spec.art_identity.maquettes.blender.floor_contact import along_front_ray, far_leg_changes, require_leg_bones
+        config = deepcopy(recipe[correction_key])
+        require_leg_bones(spec, config)
+        config['fitted_joints'] = deepcopy(spec['joints'])
+        corrected = deepcopy(spec['joints'])
+        for name in config['joint_chain']:
+            point = np.array([spec['joints'][name]])
+            corrected[name] = along_front_ray(spec, point, far_leg_changes(spec, point))[0].tolist()
+        spec[correction_key] = config
+        spec['joints'] = corrected
+    if recipe.get('rear_capture'):
+        spec['rear_capture'] = deepcopy(recipe['rear_capture'])
     spec['measurement_residuals_px'] = measurement_residuals(spec, recipe['joints_px'])
     validate(spec)
     return spec

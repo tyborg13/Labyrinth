@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "geometry_unchanged": true,
+  "diagnostic": false,
+  "spec_hash": "1b2d2d50598b78cac94c0a80d513c472904f5991f25fada4584a71fdcde9a099",
+  "cloth_view_states": {},
+  "geometry_checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true
+  },
+  "facing": null
+}

@@ -1,0 +1,299 @@
+{
+  "basis": "committed fitted ankle joints and shaft path endpoints; native Seer hem reported separately",
+  "figures": {
+    "arc_thrall": {
+      "floor_m": 0.24856193744190866,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.24856193744190866,
+          "above_floor_m": 0.0,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.31892650149939433,
+          "above_floor_m": 0.07036456405748567,
+          "passed": false
+        }
+      },
+      "offenders": [
+        "ankle_far"
+      ],
+      "passed": false
+    },
+    "gale_herald": {
+      "floor_m": 0.18902269093172858,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.18902269093172858,
+          "above_floor_m": 0.0,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.23773661989460335,
+          "above_floor_m": 0.04871392896287477,
+          "passed": false
+        }
+      },
+      "offenders": [
+        "ankle_far"
+      ],
+      "passed": false
+    },
+    "gloam_stalker": {
+      "floor_m": 0.286450548857478,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.286450548857478,
+          "above_floor_m": 0.0,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.29186320763113066,
+          "above_floor_m": 0.005412658773652657,
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "passed": true
+    },
+    "hoarfrost_seer": {
+      "floor_m": 0.026642927722146444,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.026642927722146444,
+          "above_floor_m": 0.0,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.18361003215807584,
+          "above_floor_m": 0.1569671044359294,
+          "passed": false
+        },
+        "staff_shaft.prop_foot": {
+          "height_m": -0.0022594720980433068,
+          "above_floor_m": -0.02890239982018975,
+          "passed": true
+        }
+      },
+      "offenders": [
+        "ankle_far"
+      ],
+      "passed": false
+    },
+    "frostglass_lancer": {
+      "floor_m": 0.16,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.16,
+          "above_floor_m": 0.0,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.16,
+          "above_floor_m": 0.0,
+          "passed": true
+        },
+        "spear_shaft.prop_foot": {
+          "height_m": 0.42963663067424485,
+          "above_floor_m": 0.2696366306742448,
+          "passed": false
+        }
+      },
+      "offenders": [
+        "spear_shaft.prop_foot"
+      ],
+      "passed": false
+    }
+  },
+  "native_hem_coverage": {
+    "hoarfrost_seer": "measured in diagnostic build",
+    "other_figures": "not measured; no native builds changed"
+  },
+  "seer_native_before_after": {
+    "floor_m": 0.026642927722146444,
+    "before": {
+      "floor_m": 0.026642927722146444,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_far": {
+          "height_m": 0.18361003215807584,
+          "above_floor_m": 0.1569671044359294,
+          "passed": false
+        },
+        "robe_skirt.hem_far_min": {
+          "height_m": 0.11621001362800598,
+          "above_floor_m": 0.08956708590585954,
+          "passed": false
+        },
+        "robe_skirt.hem_far_max": {
+          "height_m": 0.31396347284317017,
+          "above_floor_m": 0.28732054512102373,
+          "passed": false
+        },
+        "staff_shaft.prop_foot": {
+          "height_m": -0.0022594720980433068,
+          "above_floor_m": -0.02890239982018975,
+          "passed": true
+        }
+      },
+      "offenders": [
+        "ankle_far",
+        "robe_skirt.hem_far_min",
+        "robe_skirt.hem_far_max"
+      ],
+      "passed": false
+    },
+    "after": {
+      "floor_m": 0.026642927722146444,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_far": {
+          "height_m": 0.026642927722146437,
+          "above_floor_m": -6.938893903907228e-18,
+          "passed": true
+        },
+        "robe_skirt.hem_far_min": {
+          "height_m": 0.026642927722146437,
+          "above_floor_m": -6.938893903907228e-18,
+          "passed": true
+        },
+        "robe_skirt.hem_far_max": {
+          "height_m": 0.026642927722146437,
+          "above_floor_m": -6.938893903907228e-18,
+          "passed": true
+        },
+        "staff_shaft.prop_foot": {
+          "height_m": -0.0022594720980433068,
+          "above_floor_m": -0.02890239982018975,
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "passed": true
+    },
+    "hem_contact_vertices": 121,
+    "front_projection_error_px": {
+      "posed_body": 0.0,
+      "body_foot_far": 0.0,
+      "body_foot_near": 0.0,
+      "body_hand_far": 0.0,
+      "body_hand_near": 0.0,
+      "body_head": 0.0,
+      "robe_skirt": 1.3793838320452778e-05
+    },
+    "corrected_joints": {
+      "root": [
+        0,
+        0,
+        0
+      ],
+      "pelvis": [
+        -0.04308931947855528,
+        0.09612232806754628,
+        0.9359696016958069
+      ],
+      "torso": [
+        -0.02320194125768362,
+        0.08949320199392238,
+        1.2444911517940132
+      ],
+      "head": [
+        -2.280397217054098e-16,
+        0.01325825214724741,
+        1.6233772659497048
+      ],
+      "head_tip": [
+        -0.02983106733130721,
+        0.01657281518406002,
+        1.8831848870850363
+      ],
+      "shoulder_near": [
+        -0.23533397561364786,
+        0.23533397561364777,
+        1.2499038105676659
+      ],
+      "shoulder_far": [
+        0.17235727791422098,
+        -0.1325825214724778,
+        1.2336658342467075
+      ],
+      "elbow_near": [
+        -0.3612873710125017,
+        0.348029118865254,
+        0.9955088482059868
+      ],
+      "elbow_far": [
+        0.24527766472408366,
+        -0.23201941257683584,
+        0.9522075780167649
+      ],
+      "hand_near": [
+        -0.41432037960149276,
+        0.32151261457075836,
+        0.7357012270706554
+      ],
+      "hand_far": [
+        0.36128737101250147,
+        -0.3215126145707585,
+        1.0279848008479031
+      ],
+      "hand_tip_near": [
+        -0.3911184383438091,
+        0.3380854297548181,
+        0.5787341226347259
+      ],
+      "hand_tip_far": [
+        0.3513436819020657,
+        -0.31156892546032255,
+        0.9413822604694595
+      ],
+      "hip_near": [
+        -0.1292679584356656,
+        0.16904271487740916,
+        0.8114784499017939
+      ],
+      "hip_far": [
+        0.04640388251536717,
+        0.006629126073623859,
+        0.8168911086754465
+      ],
+      "knee_near": [
+        -0.17567184095103283,
+        0.20218834524552848,
+        0.45965562961436573
+      ],
+      "knee_far": [
+        -0.009122130750884166,
+        -0.15496290437060958,
+        0.4251441471772295
+      ],
+      "ankle_near": [
+        -0.24859222776089562,
+        0.24859222776089562,
+        0.026642927722146444
+      ],
+      "ankle_far": [
+        -0.09280776503073428,
+        -0.3579728079756896,
+        0.026642927722146437
+      ],
+      "foot_tip_near": [
+        -0.21876116042958815,
+        0.24527766472408372,
+        -0.08161024775090849
+      ],
+      "foot_tip_far": [
+        -0.059662134662614885,
+        -0.43089319478555227,
+        -0.05454695388264469
+      ]
+    },
+    "method": "front-ray lowering; far-leg blend from hip to ankle; far hem Dirichlet interpolation, fixed waist and near side",
+    "native_pose_recertified": false
+  }
+}

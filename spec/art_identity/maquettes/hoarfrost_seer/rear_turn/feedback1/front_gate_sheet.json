@@ -1,0 +1,97 @@
+{
+  "sheet_cell_px": 1024,
+  "columns": [
+    "frozen front clay",
+    "diagnostic corrected front clay",
+    "changed figure pixels"
+  ],
+  "diff_mask_rgba": [
+    255,
+    255,
+    255,
+    255
+  ],
+  "front_delivery_replaced": false,
+  "candidate_images": {
+    "front_solo_upper_near.png": {
+      "file_sha256": "d705ab283a4e202f5bcad0a0191aa0335f166cee66d9208844a4b846ece34f64",
+      "rgba_sha256": "8579b338ac9a8bbc60028b2c9489f35501e8db316c8ba0ee7515ddb59d990f0c"
+    },
+    "front_torso_frontal_control.png": {
+      "file_sha256": "e27fe0617b10f3bca9c39ecf35baa6177410dc7060ac7396101630476a571f2f",
+      "rgba_sha256": "0c9cd4fb540466b8a9739c47c4a2187814b98bf1505bac364bc013276a23fcfd"
+    },
+    "front_solo_collar.png": {
+      "file_sha256": "270517fc9d2f90f35decaf34a82ad8af09841053d2661db511b77d0a88776e10",
+      "rgba_sha256": "048f57c31659b548afc949e5effcd152f7356a81c834b6f1b7b525166a9b658a"
+    },
+    "front_solo_skirt_near.png": {
+      "file_sha256": "0836589a4d39825fd0ecb625d04b3d4640632103f813b23a8e7c1a17983dd88a",
+      "rgba_sha256": "8618d82caf96fe4138c62aeecc332dcc6e35ba98c81b2dee5eaf4a8f99012f53"
+    },
+    "front_solo_foot_far.png": {
+      "file_sha256": "a431ed83fc4740cb77081c77216d61155278aceacaeb02e9777042c3167af5b8",
+      "rgba_sha256": "da5a73b8e5d91636a379a9fde6aa0ceef3e01e59033b2f7af170ba03e97bd6cd"
+    },
+    "front_solo_fore_far.png": {
+      "file_sha256": "6411b54110c19cde8c6f3570cdc987b2f0d6f3d7c3499e2a71430c3da26c715d",
+      "rgba_sha256": "cc11d175e8072e2564ecb169ddf0443a576cc38a96dc2d91c5e8c14a63a6d63d"
+    },
+    "front_solo_fore_near.png": {
+      "file_sha256": "06d4a5e92c4de91e5590648c0f789d12ce306897d1eaa25a6313fe1ae3ab02b3",
+      "rgba_sha256": "c54f29b0f8d3467f601e73f618e34a0408881c4cf113cb9205144067e8e769b1"
+    },
+    "front_solo_foot_near.png": {
+      "file_sha256": "955a857491a6807bf6485552e36dc1018c584c2992ff166fcc10121f248a1221",
+      "rgba_sha256": "07ae7503d0eb26ba496d677fd9e98a3403a2c8839f04e63ca25d4cd61de565b6"
+    },
+    "front_silhouette.png": {
+      "file_sha256": "70ff4ce346941b4f19b910ce8c236e804cf5506a733b3efff6d00e5ab2b80f90",
+      "rgba_sha256": "bc2fc2b7c3eb7bba76bdb8d71e420ac1044d079b65d251f041b67528cb19dea4"
+    },
+    "front_solo_skirt_far.png": {
+      "file_sha256": "4335c622d8d46b22db04417b4627c5b9c328b02ea48bf0589475506df044f56f",
+      "rgba_sha256": "47e20c6fefb6e0684d8a1895cda775c73177a7cdb6175b9b1e86a1b4698ebc3f"
+    },
+    "front_clay.png": {
+      "file_sha256": "9a4f1b0f55ee588b6a332a3d6e828d864d99857436e29eb846cd301e6e66e496",
+      "rgba_sha256": "b53e399441c21eae976f610108c76fd64104f8fbe4d70e68f9a8cf314130f8bb"
+    },
+    "front_solo_upper_far.png": {
+      "file_sha256": "8f9acc23efd4d26aa40837abf854a454c105e8d71aaf06d46320e77b353098ad",
+      "rgba_sha256": "06bc6a50646661587fad86139fb64ef06e77bf123114801c7287270756e9788f"
+    },
+    "front_torso.png": {
+      "file_sha256": "b6bee1e89ee778b727e309b9743bfab1b6909504a8cdf64e0d9833978b74f978",
+      "rgba_sha256": "5ed0bc428a114dbb9a8e3c037eaecc5b11b78ed7f957988f1bc468b3aa52dee4"
+    },
+    "front_solo_head.png": {
+      "file_sha256": "bbc256c72201fb148a3051912ec48b84a45e4da254d0272984983dae7a4782f3",
+      "rgba_sha256": "4b832db71b650411f756c30cf51b83250a407245f7545a3a41f78182b4e1815b"
+    },
+    "front_solo_hand_near.png": {
+      "file_sha256": "7ecc2258e82f8769e15a9a4420fb6218f28fbfa4ba7e4a209095d46f10d35e12",
+      "rgba_sha256": "8459b1c68832e8cfe6f774b5c807c007043e6017d0feecb0660b1bb575f14c70"
+    },
+    "front_solo_torso.png": {
+      "file_sha256": "6b8aa33a9c06d114e7082f07a93a8cd99ecbb2c4614bfd28916ee140a0b8cbbe",
+      "rgba_sha256": "cd32ddafdfb472f34cc3d4967ea6b8ef42efd6f0cbbd7d35bbb0d58fe1ebdc42"
+    },
+    "front_solo_hand_far.png": {
+      "file_sha256": "277a51a0bbf8acfb580fe4ba88c0d3a52928ffb0d79e63d8fa9a8e36624a15cf",
+      "rgba_sha256": "a7c16a47476f3e528fcea08e20ee5c17e0abc856e60ff5926586a22aa2f9aa5a"
+    },
+    "front_solo_staff_crystal.png": {
+      "file_sha256": "4f7ec4e5d4badb68a610664daf2c7b05f90ca8fafa27f5bf11dede951988db35",
+      "rgba_sha256": "edaa18103cb20cc94278b272fec41b4d5836794b73f8aa09c260348675d79323"
+    },
+    "front_parts.png": {
+      "file_sha256": "82eae31079097733098507042c8053136a89ae7ff7744d42aba39a9972e508cc",
+      "rgba_sha256": "242e1930a7cea437112fa9bdbf41fa92763df39ab11f0cf1785e9907a504fa98"
+    },
+    "front_solo_staff_shaft.png": {
+      "file_sha256": "69bae600986abd5ee98c185c71765474d3d5aab9ffc3aff73e337d0a4e977e8a",
+      "rgba_sha256": "42a253713f067a842ae304cc9189f00392d62190c518a80e8848a91f555714d4"
+    }
+  }
+}
