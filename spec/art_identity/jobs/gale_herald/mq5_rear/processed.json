@@ -1,0 +1,97 @@
+{
+  "K": 4,
+  "drawn_size": [
+    187,
+    218
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.08167048683205219,
+    "edge_light_share": 0.0,
+    "feature_px": 6.457813732909553,
+    "height": 218,
+    "height_drawn": 218.0,
+    "orphan_share": 0.03605779984789514,
+    "regions": 536,
+    "run_length": 3.182827851345579,
+    "symmetry": 0.5576909637291215,
+    "thin_abs": 0.01717890216078377,
+    "thin_rel": 0.0818682056099852,
+    "value": 0.2148014810487341,
+    "width": 187
+  },
+  "pixel_sha256": "4b87aeea4f1d55ef32b8a4be1514eb7c9d136d6f3119118e4ed45cbccdbad986",
+  "placement": [
+    35,
+    28
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/gale_herald/mq5_front/kit.json",
+        "pixel_sha256": "e2d3bc0912f6d41340eb8d46cfeb0421f386c371a4d8bb18597795905149dc59"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "7078b5f4a1dba7cf011514135b03469473d858075dad555198997b49aa334aa2",
+      "protected_body_share": {
+        "front": 0.05123379339188624,
+        "rear": 0.04317642316477807
+      },
+      "reference_pixel_sha256": "e2d3bc0912f6d41340eb8d46cfeb0421f386c371a4d8bb18597795905149dc59",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "fb47c0b31a1e062230a204a1a1c803eb53ec67ff722de7d4e2f2efe7b3fc3450",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_pixel_sha256": "6313348fc31f3dd29fdaa485c3c3affd339f8bf7f6efed05942655eff8ed5f68",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_r1.json",
+          "sha256": "bc0a67fa162f01987aad536c4673f4555df2f9a8eabc66b7071c0aed3ee01145"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "7dea9e933dfd92ddce7ff18800c96a5c50005de8dea2e30837fc68ce57fd4978"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "6313348fc31f3dd29fdaa485c3c3affd339f8bf7f6efed05942655eff8ed5f68",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}

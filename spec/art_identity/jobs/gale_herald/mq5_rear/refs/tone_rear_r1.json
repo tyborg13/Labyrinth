@@ -1,0 +1,11 @@
+[
+ {
+  "name": "leather and brass: brighter, redder rear -> the approved front (L 32 -> ~29, chroma 30 -> ~22)",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [0, 75],
+  "lab_scale": [0.9, 0.72, 0.77],
+  "box": [0, 0, 1024, 1024]
+ }
+]
