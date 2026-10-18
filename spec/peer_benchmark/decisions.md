@@ -154,3 +154,5 @@
 - So review finding M1 on 5b12d3630 (redundant moss redraw while a warden walks past a hero-obstructed pillar) is
   accepted as by design. Every other check in that review passed, and bug-01 is signed off at
   5b12d3630e7d488ab541132e63de5e9e1ca25034.
+- 2026-10-17 rr-05 fb12: the dark-slab gate blocks derived (pipeline-generated) texels only. Exposures of approved
+  painted fills are reported, not blocked: the Wisp's original tail shadow (29,18,26) is approved paint.
