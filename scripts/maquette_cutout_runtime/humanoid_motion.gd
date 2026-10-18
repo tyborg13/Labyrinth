@@ -84,7 +84,15 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 			if policy.has("error"):
 				push_error("Invalid humanoid leg IK: " + str(policy["error"]))
 				return {}
-			if value.has("forward_px") or value.has("lift_px") or value.has("inward_px"):
+			var keyed: bool = value.has("forward_px") or value.has("lift_px") or value.has("inward_px")
+			# Case-owned unkeyed supports stay on their rest floor while the
+			# pelvis acts. Existing rigs opt in explicitly through their layout.
+			var planted: bool = not keyed and clip not in ["move", "death"] and foot in layout.get("planted_bones", [])
+			if planted:
+				var support: Transform2D = result[foot]
+				support.origin = Tracks.point(joints[foot]["position"])
+				result[foot] = support
+			if keyed or planted:
 				_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
 				for name: String in ["thigh_" + side, "shin_" + side, foot]: solved[name] = true
 				_propagate_descendants(result, joints, authored, order, solved)

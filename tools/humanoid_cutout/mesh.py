@@ -68,6 +68,8 @@ def weights_for(vertices, bounds, joints, recipe):
         # source position, with adjacent weights summing to one.
         start, end = [np.asarray(joints[n]['position']) for n in (bones[0], bones[-1])]
         axis = end - start
-        phase = np.clip((np.asarray(vertices) - start) @ axis / (axis @ axis), 0, 1) * (len(bones) - 1)
+        # Elementwise dot avoids platform BLAS dispatch for these tiny rows.
+        phase = np.clip(np.sum((np.asarray(vertices) - start) * axis, axis=1) /
+                        np.sum(axis * axis), 0, 1) * (len(bones) - 1)
         return {name: np.maximum(0, 1 - np.abs(phase - i)).tolist() for i, name in enumerate(bones)}
     raise ValueError('Unknown mesh field: ' + recipe['kind'])

@@ -21,6 +21,16 @@ static func apply(rig: Node2D, clip: String) -> void:
 			limit = floorf(limit / Pixels.ROTATION_STEP) * Pixels.ROTATION_STEP
 			angle = clampf(angle, -limit, limit)
 		world[name] = Transform2D(angle, bind + (pose.origin - bind).round())
+	# Independent world snapping can add one step to the head's relative
+	# angle when the torso rounds down. Enforce the same authored limit.
+	if world.has("head") and world.has("torso"):
+		var head: Transform2D = world["head"]
+		var torso: Transform2D = world["torso"]
+		var limit: float = deg_to_rad(20.0 if clip == "death" else 6.0)
+		limit = floorf(limit / Pixels.ROTATION_STEP) * Pixels.ROTATION_STEP
+		var relative: float = wrapf(head.get_rotation() - torso.get_rotation(), -PI, PI)
+		if absf(relative) > limit:
+			world["head"] = Transform2D(torso.get_rotation() + clampf(relative, -limit, limit), head.origin)
 	for name: String in rig.bones:
 		var parent: String = Humanoid.parent_name(rig.layout["joints"][name])
 		var local: Transform2D = world[name]

@@ -94,7 +94,10 @@ def prepare(project, case, inputs, view, pieces, registration, palette_for, dept
             # donor supplies this fully covered surface.
             placeholder='TODO_DESIGN_' + view + '_' + name + '_hidden_paint'
             donor = inputs.get('occluded_donors', {}).get(view, {}).get(name)
-            if donor is None and placeholder not in inputs.get('design_placeholders',{}):
+            fused = next(group for group in pieces.values() if name in group)
+            fused_visible = inputs.get('fused_occlusion', False) and any(
+                (owners == names.index(other)).any() for other in fused if other != name)
+            if donor is None and not fused_visible and placeholder not in inputs.get('design_placeholders',{}):
                 raise ValueError(placeholder)
             ys, xs = np.nonzero(solos[name])
         bounds = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]

@@ -79,7 +79,9 @@ def ik_errors(layout, bones, chain, fk, epsilon, anatomy):
     expected_side = np.sign(cross(rc-ra, rb-ra))
     if names[-1].startswith('foot_'):
         expected_side = leg_bend_side(layout, anatomy, names[-1].split('_')[-1], layout['facing'])
-    if cross(c-a, b-a) * expected_side < -epsilon:
+    # Cross products have squared-pixel units. Scale the serialized position
+    # tolerance by chain length at full extension (where the side is zero).
+    if cross(c-a, b-a) * expected_side < -epsilon * (first + second):
         errors.append('IK changed rest bend side: ' + names[-1])
     ray = fk[names[-1]][:2, 2] - a
     distance = np.clip(np.linalg.norm(ray), abs(first-second) + 1e-6, first+second)

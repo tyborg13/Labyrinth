@@ -1,0 +1,732 @@
+{
+  "front": {
+    "ok": false,
+    "errors": [
+      "front/move/3/near: swing knee below 15 degrees",
+      "front/move/3/near: knee bends against facing or is straight",
+      "front/move/4/near: swing knee below 15 degrees",
+      "front/move/4/near: knee bends against facing or is straight",
+      "front/move/5/near: knee bends against facing or is straight",
+      "front/move/6/near: knee bends against facing or is straight",
+      "front/move/7/near: knee bends against facing or is straight",
+      "front/move/8/near: knee bends against facing or is straight",
+      "front/move/9/near: knee bends against facing or is straight",
+      "front/move/10/near: knee bends against facing or is straight",
+      "front/move/11/near: swing knee below 15 degrees",
+      "front/move/11/near: knee bends against facing or is straight",
+      "front/move/12/near: swing knee below 15 degrees",
+      "front/move/13/near: swing knee below 15 degrees",
+      "front/move/13/near: knee bends against facing or is straight",
+      "front/move/14/near: swing knee below 15 degrees",
+      "front/move/15/near: swing knee below 15 degrees",
+      "front/move/16/near: swing knee below 15 degrees",
+      "front/move/17/near: swing knee below 15 degrees",
+      "front/move/18/near: swing knee below 15 degrees",
+      "front/move/18/near: knee bends against facing or is straight",
+      "front/move/19/near: swing knee below 15 degrees",
+      "front/move/20/near: swing knee below 15 degrees",
+      "front/move/20/near: knee bends against facing or is straight",
+      "front/move/42/far: swing knee below 15 degrees",
+      "front/move/42/far: knee bends against facing or is straight"
+    ],
+    "swing_frames": [
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.06,
+        "lift_px": 0.05096296296296289,
+        "bend_deg": 7.167547399303287,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.08,
+        "lift_px": 0.4159999999999998,
+        "bend_deg": 12.629710063623055,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.1,
+        "lift_px": 1.037037037037037,
+        "bend_deg": 17.342335135835633,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.12,
+        "lift_px": 1.8002962962962956,
+        "bend_deg": 22.602941668415347,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.14,
+        "lift_px": 2.592,
+        "bend_deg": 24.339044567906434,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.16,
+        "lift_px": 3.29837037037037,
+        "bend_deg": 24.27721132152393,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.18,
+        "lift_px": 3.8056296296296295,
+        "bend_deg": 23.42580598367414,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.2,
+        "lift_px": 4.0,
+        "bend_deg": 17.31086610218257,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.22,
+        "lift_px": 3.9068369646882046,
+        "bend_deg": 0.5469071164741444,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.24,
+        "lift_px": 3.6513899323816683,
+        "bend_deg": 0.9258702281936061,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.26,
+        "lift_px": 3.2697220135236664,
+        "bend_deg": 1.1774100126910385,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.28,
+        "lift_px": 2.7978963185574752,
+        "bend_deg": 1.5501118429183554,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.3,
+        "lift_px": 2.271975957926372,
+        "bend_deg": 1.1502356322405318,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.32,
+        "lift_px": 1.7280240420736286,
+        "bend_deg": 0.886805192354177,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.34,
+        "lift_px": 1.2021036814425239,
+        "bend_deg": 0.8867627032964855,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.36,
+        "lift_px": 0.7302779864763336,
+        "bend_deg": 0.8429890773917427,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.38,
+        "lift_px": 0.3486100676183317,
+        "bend_deg": 0.5469334581441048,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.4,
+        "lift_px": 0.09316303531179537,
+        "bend_deg": 0.8430366635954702,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.5,
+        "lift_px": 0.19437037037037064,
+        "bend_deg": 96.5597848432219,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.52,
+        "lift_px": 0.7016296296296306,
+        "bend_deg": 96.5597848432219,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.54,
+        "lift_px": 1.4080000000000017,
+        "bend_deg": 93.91951986292298,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.56,
+        "lift_px": 2.199703703703706,
+        "bend_deg": 96.8611245800325,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.58,
+        "lift_px": 2.9629629629629615,
+        "bend_deg": 102.68038349181982,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.6,
+        "lift_px": 3.583999999999999,
+        "bend_deg": 105.30975299471194,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.62,
+        "lift_px": 3.949037037037037,
+        "bend_deg": 108.15270588665115,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.64,
+        "lift_px": 3.9759579263711493,
+        "bend_deg": 104.3474050332444,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.66,
+        "lift_px": 3.7971450037565737,
+        "bend_deg": 102.5081008869547,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.68,
+        "lift_px": 3.4740796393688944,
+        "bend_deg": 99.25201842495301,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.7,
+        "lift_px": 3.042824943651391,
+        "bend_deg": 87.29512401426435,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.72,
+        "lift_px": 2.539444027047333,
+        "bend_deg": 83.57372028474474,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.74,
+        "lift_px": 2.0,
+        "bend_deg": 68.55226367289465,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.76,
+        "lift_px": 1.4605559729526663,
+        "bend_deg": 54.73698827040275,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.78,
+        "lift_px": 0.9571750563486092,
+        "bend_deg": 42.83176155037319,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.8,
+        "lift_px": 0.5259203606311029,
+        "bend_deg": 34.077159998236716,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.82,
+        "lift_px": 0.2028549962434263,
+        "bend_deg": 15.945395900922858,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "front",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.84,
+        "lift_px": 0.024042073628850247,
+        "bend_deg": 2.915322116642415,
+        "facing_direction_ok": false
+      }
+    ],
+    "minimum_bend_deg": 0.5469071164741444
+  },
+  "rear": {
+    "ok": false,
+    "errors": [
+      "rear/move/3/near: swing knee below 15 degrees",
+      "rear/move/3/near: knee bends against facing or is straight",
+      "rear/move/4/near: swing knee below 15 degrees",
+      "rear/move/4/near: knee bends against facing or is straight",
+      "rear/move/5/near: knee bends against facing or is straight",
+      "rear/move/6/near: knee bends against facing or is straight",
+      "rear/move/7/near: knee bends against facing or is straight",
+      "rear/move/8/near: knee bends against facing or is straight",
+      "rear/move/9/near: knee bends against facing or is straight",
+      "rear/move/10/near: knee bends against facing or is straight",
+      "rear/move/11/near: knee bends against facing or is straight",
+      "rear/move/12/near: knee bends against facing or is straight",
+      "rear/move/13/near: knee bends against facing or is straight",
+      "rear/move/14/near: knee bends against facing or is straight",
+      "rear/move/15/near: knee bends against facing or is straight",
+      "rear/move/16/near: knee bends against facing or is straight",
+      "rear/move/17/near: knee bends against facing or is straight",
+      "rear/move/18/near: knee bends against facing or is straight",
+      "rear/move/19/near: knee bends against facing or is straight",
+      "rear/move/20/near: knee bends against facing or is straight",
+      "rear/move/25/far: swing knee below 15 degrees",
+      "rear/move/26/far: swing knee below 15 degrees",
+      "rear/move/27/far: swing knee below 15 degrees",
+      "rear/move/28/far: swing knee below 15 degrees",
+      "rear/move/29/far: swing knee below 15 degrees",
+      "rear/move/29/far: knee bends against facing or is straight",
+      "rear/move/30/far: swing knee below 15 degrees",
+      "rear/move/31/far: swing knee below 15 degrees",
+      "rear/move/32/far: swing knee below 15 degrees",
+      "rear/move/33/far: swing knee below 15 degrees",
+      "rear/move/33/far: knee bends against facing or is straight",
+      "rear/move/34/far: swing knee below 15 degrees",
+      "rear/move/35/far: swing knee below 15 degrees",
+      "rear/move/36/far: swing knee below 15 degrees",
+      "rear/move/37/far: swing knee below 15 degrees",
+      "rear/move/38/far: swing knee below 15 degrees",
+      "rear/move/39/far: swing knee below 15 degrees",
+      "rear/move/40/far: swing knee below 15 degrees",
+      "rear/move/41/far: swing knee below 15 degrees",
+      "rear/move/42/far: swing knee below 15 degrees"
+    ],
+    "swing_frames": [
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.06,
+        "lift_px": 0.05096296296296289,
+        "bend_deg": 2.666203287625945,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.08,
+        "lift_px": 0.4159999999999998,
+        "bend_deg": 13.69265315582856,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.1,
+        "lift_px": 1.037037037037037,
+        "bend_deg": 28.962988134101053,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.12,
+        "lift_px": 1.8002962962962956,
+        "bend_deg": 41.10749919534912,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.14,
+        "lift_px": 2.592,
+        "bend_deg": 53.31428091413586,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.16,
+        "lift_px": 3.29837037037037,
+        "bend_deg": 65.1753039174688,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.18,
+        "lift_px": 3.8056296296296295,
+        "bend_deg": 73.05639245680406,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.2,
+        "lift_px": 4.0,
+        "bend_deg": 79.90020894302232,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.22,
+        "lift_px": 3.9068369646882046,
+        "bend_deg": 87.63695034458895,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.24,
+        "lift_px": 3.6513899323816683,
+        "bend_deg": 91.26536366541092,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.26,
+        "lift_px": 3.2697220135236664,
+        "bend_deg": 95.14276455788423,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.28,
+        "lift_px": 2.7978963185574752,
+        "bend_deg": 96.28269850885654,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.3,
+        "lift_px": 2.271975957926372,
+        "bend_deg": 95.18782268390693,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.32,
+        "lift_px": 1.7280240420736286,
+        "bend_deg": 96.82688847831204,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.34,
+        "lift_px": 1.2021036814425239,
+        "bend_deg": 97.97317205189097,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.36,
+        "lift_px": 0.7302779864763336,
+        "bend_deg": 96.2254219865198,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.38,
+        "lift_px": 0.3486100676183317,
+        "bend_deg": 95.65512315736746,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.4,
+        "lift_px": 0.09316303531179537,
+        "bend_deg": 96.225428738828,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.5,
+        "lift_px": 0.19437037037037064,
+        "bend_deg": 0.30210973305908423,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.52,
+        "lift_px": 0.7016296296296306,
+        "bend_deg": 0.30211548996319926,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.54,
+        "lift_px": 1.4080000000000017,
+        "bend_deg": 0.30210973305908423,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.56,
+        "lift_px": 2.199703703703706,
+        "bend_deg": 0.3020808468132799,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.58,
+        "lift_px": 2.9629629629629615,
+        "bend_deg": 1.0237584128153723,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.6,
+        "lift_px": 3.583999999999999,
+        "bend_deg": 0.52117694314347,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.62,
+        "lift_px": 3.949037037037037,
+        "bend_deg": 0.5559411141120236,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.64,
+        "lift_px": 3.9759579263711493,
+        "bend_deg": 0.5903225046271827,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.66,
+        "lift_px": 3.7971450037565737,
+        "bend_deg": 0.7221426123926968,
+        "facing_direction_ok": false
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.68,
+        "lift_px": 3.4740796393688944,
+        "bend_deg": 2.0381647318412015,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.7,
+        "lift_px": 3.042824943651391,
+        "bend_deg": 0.690277451642142,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.72,
+        "lift_px": 2.539444027047333,
+        "bend_deg": 0.7531038264934962,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.74,
+        "lift_px": 2.0,
+        "bend_deg": 0.7830572212693375,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.76,
+        "lift_px": 1.4605559729526663,
+        "bend_deg": 8.896196479456966,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.78,
+        "lift_px": 0.9571750563486092,
+        "bend_deg": 10.505121226960561,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.8,
+        "lift_px": 0.5259203606311029,
+        "bend_deg": 13.186573044430295,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.82,
+        "lift_px": 0.2028549962434263,
+        "bend_deg": 13.538385064046462,
+        "facing_direction_ok": true
+      },
+      {
+        "view": "rear",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.84,
+        "lift_px": 0.024042073628850247,
+        "bend_deg": 11.840174102962603,
+        "facing_direction_ok": true
+      }
+    ],
+    "minimum_bend_deg": 0.3020808468132799
+  }
+}

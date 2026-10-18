@@ -1,0 +1,8 @@
+proof/native/
+proof/native_failures/
+proof/native_rest/
+proof/idle_native/
+proof/production_native/
+proof/contact_sheets/
+proof/logs/
+*.mp4
