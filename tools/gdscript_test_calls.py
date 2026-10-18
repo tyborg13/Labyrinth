@@ -3,6 +3,11 @@
 This reads dispatch expressions, not arbitrary GDScript execution. Strings stay
 atomic: their values are used only as literal load/deferred-call arguments.
 Function bodies own their local aliases; nested alias lookup uses class scope.
+
+Known limits (director decision, qa-08 review fecdbf24e; none occur in tests/):
+- a lambda body counts as reachable from its enclosing function even if the lambda is never invoked;
+- StringName/NodePath literals (&"x", ^"x") are not read as load/deferred-call arguments, and GDScript's \\UXXXXXX
+  escapes are not decoded, so such calls report as orphaned. Use plain string literals in test dispatch.
 """
 from __future__ import annotations
 
