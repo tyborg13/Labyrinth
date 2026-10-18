@@ -22,10 +22,13 @@ from spec.art_identity.maquettes.blender.ray_search import first_clear
 
 MAQUETTES = Path(__file__).resolve().parents[1] / 'spec/art_identity/maquettes'
 REQUIRED_FIGURES = {'hoarfrost_seer', 'frostglass_lancer', 'arc_thrall',
-                    'gale_herald', 'gloam_stalker'}
+                    'gale_herald', 'gloam_stalker', 'glacial_mirror'}
 PROOF_DEFAULTS = {'alpha_threshold': 128, 'srgb_channel_tolerance': 1,
                   'registration_joint_tolerance_px': .02}
 GATE_FIXTURE = {'size': 8, 'start': 2, 'stop': 6, 'before_rgb': 10, 'after_rgb': 200}
+FOOT_LABEL_FIXTURES = (('foot_near', 'foot_far'), ('foot_near',), ('foot_far',))
+FOOT_SOLO_FIXTURES = ('front_solo_foot_near.png', 'front_solo_foot_far.png',
+                      'rear_solo_foot_near.png', 'rear_solo_foot_far.png')
 
 
 def rgba(path):
@@ -46,9 +49,22 @@ def deliveries():
     complete_archives = [path.parent for path in MAQUETTES.glob('*/proof_*/front_parts.png')
                          if (path.parent / 'rear_parts.png').is_file()]
     folders = sorted(set(current + complete_archives))
-    # Crawlers without labelled feet (Burrow Grub, Ember Tick) have no foot solos;
-    # the director checked their rear turn in the paint-over review instead.
-    return [folder for folder in folders if (folder / 'front_solo_foot_near.png').is_file()]
+    bipeds = []
+    for folder in folders:
+        labels = labels_for(folder)
+        if not {'foot_near', 'foot_far'} & set(labels):
+            if not (folder.parent / 'measurements.json').is_file():
+                raise ValueError('Crawler exemption requires measurements.json labels: ' + str(folder))
+            print('MAQUETTE_REAR_TURN_EXEMPT: ' + str(folder.relative_to(MAQUETTES)) +
+                  '; crawler; measurements.json labels contain neither foot_near nor foot_far')
+            continue
+        missing = [f'{view}_solo_foot_{side}.png' for view in ('front', 'rear')
+                   for side in ('near', 'far') if not (folder / f'{view}_solo_foot_{side}.png').is_file()]
+        if missing:
+            raise ValueError('Labelled biped ' + str(folder.relative_to(MAQUETTES)) +
+                             ' missing foot solos: ' + ', '.join(missing))
+        bipeds.append(folder)
+    return bipeds
 
 
 def labels_for(folder):
@@ -396,6 +412,62 @@ class RearTurnTests(unittest.TestCase):
                     camera_near, camera_far = ('near', 'far') if view == 'front' else ('far', 'near')
                     self.assertGreater(coverage[camera_near], coverage[camera_far],
                                        f'{name}/{view}: body-side depth order did not turn: {coverage}')
+
+    def test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear(self):
+        from shutil import copyfile, copytree
+        from unittest.mock import patch
+        figure = MAQUETTES / 'glacial_mirror'
+        for incorrect_rear in (False, True):
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                fixture = root / figure.name
+                copytree(figure / 'delivery', fixture / 'delivery')
+                copyfile(figure / 'measurements.json', fixture / 'measurements.json')
+                folder = fixture / 'delivery'
+                if incorrect_rear:
+                    # A copy of the front cannot exchange body-side depth.
+                    # Mutate only temporary copies of the approved captures.
+                    for front in folder.glob('front_*.png'):
+                        rear = folder / front.name.replace('front_', 'rear_', 1)
+                        if rear.is_file():
+                            copyfile(front, rear)
+                with patch(__name__ + '.MAQUETTES', root):
+                    actual = observations(folder)
+                    if incorrect_rear:
+                        self.assertEqual(actual['rear'], actual['front'])
+                    else:
+                        depth = actual['rear']['body_side_pixels_over_torso']
+                        self.assertGreater(depth['far'], depth['near'])
+                    original = (fixture / 'measurements.json').read_bytes()
+                    for labels in FOOT_LABEL_FIXTURES:
+                        recipe = json.loads(original)
+                        for name in {'foot_near', 'foot_far'} - set(labels):
+                            recipe['labels'].pop(name)
+                        (fixture / 'measurements.json').write_text(json.dumps(recipe))
+                        self.assertEqual(deliveries(), [folder])
+                        for name in FOOT_SOLO_FIXTURES:
+                            with self.subTest(incorrect_rear=incorrect_rear, labels=labels, missing=name):
+                                path = folder / name
+                                before = path.read_bytes()
+                                path.unlink()
+                                try:
+                                    with self.assertRaisesRegex(ValueError, 'Labelled biped.*missing foot solos.*' + name):
+                                        deliveries()
+                                finally:
+                                    path.write_bytes(before)
+
+    def test_real_crawlers_are_exempt_by_measurement_labels_and_reported_by_name(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        output = StringIO()
+        with redirect_stdout(output):
+            checked = deliveries()
+        for name in ('burrow_grub', 'ember_tick'):
+            figure = MAQUETTES / name
+            labels = json.loads((figure / 'measurements.json').read_text())['labels']
+            self.assertFalse({'foot_near', 'foot_far'} & set(labels))
+            self.assertNotIn(figure / 'delivery', checked)
+            self.assertIn('MAQUETTE_REAR_TURN_EXEMPT: ' + name + '/delivery; crawler', output.getvalue())
 
 
 if __name__ == '__main__':
