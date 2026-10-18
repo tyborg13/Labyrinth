@@ -68,6 +68,7 @@ r2/baseline_fit.json
 r2/baseline_measurements.json
 r2/curate.py
 r2/feedback_1.json
+r2/gate_receipt.py
 r2/measurements.json
 r2/proof/baseline/front_clay.png
 r2/proof/baseline/rear_clay.png
@@ -78,11 +79,16 @@ r2/proof/feedback2_determinism.log
 r2/proof/feedback2_exact_replay.log
 r2/proof/feedback2_focused.log
 r2/proof/feedback2_front.log
-r2/proof/feedback2_full_python.log
 r2/proof/feedback2_rear.log
 r2/proof/feedback2_tube.log
 r2/proof/feedback2_turn.log
 r2/proof/feedback2_verification.log
+r2/proof/feedback3_art_identity.log
+r2/proof/feedback3_focused.log
+r2/proof/feedback3_full_python.log
+r2/proof/feedback3_geometry_lock.json
+r2/proof/feedback3_mutations.log
+r2/proof/feedback3_receipts.log
 r2/proof/gates.json
 r2/proof/height_table.json
 r2/proof/shoulder_tube_sheet.png

@@ -242,3 +242,76 @@ No TODO_DESIGN remains. Non-gating maximum-band and rear source-landmark
 diagnostics remain visible in the fit reports for the director's repaint.
 No .gd or runtime changes; no separate Godot suite, local windowed capture or
 inspection fixture is applicable. All changes remain uncommitted.
+
+## Feedback 3 — proof validation only
+
+The accepted delivery geometry and every PNG are unchanged. The supplied review
+path `spec/peer_benchmark/feedback/mq-07_review_70ac9e5ef.md` was absent in this
+worktree; the three findings in the owner's feedback are implemented directly.
+
+1. `gate_receipt.py` binds acceptance to the current compiled spec, measured
+   recipe, verified capture manifest (all PNG/joint hashes), native report and
+   replay hashes, native tube receipt and accepted sheet. `curate.py` requires
+   this receipt before its first deletion. It checks every required pose, tube
+   geometry/entry/width, floor, fit, framing and per-part coverage gate, including
+   required nonempty collections and numerical limits. Packing is re-bound only
+   after source acceptance and the shared packer's pixel-preservation checks.
+2. `blender/socket_proof.py` requires the exact socket IDs and complete native
+   boundary, insertion, bore and ownership details. `delivery_validation.py`
+   requires those details and `native_socket_tucks` in both build and capture
+   checks before sealing. Build and single-view capture collect native object
+   receipts independently. No vertex, pose, geometry setting or renderer value
+   changes. Socket contracts also reject duplicate IDs and invalid axes/bores.
+3. `tests/test_arc_thrall_proof_validation.py` checks stale hashes, missing
+   receipts, false gates, empty collections and failing limits against complete
+   copied captures. Every rejection preserves every fixture file byte and never
+   calls staging/deletion. `test_delivery_validation.py` rejects omitted socket
+   flags/details before resealing and after a forged fresh hash seal.
+   `tests/test_maquette_builder_wiring.py` mocks the real build dispatcher,
+   checking procedural dispatch and fit → repose → split → socket-tuck order.
+   Invalid socket and lifted-foot-exception fixtures exercise the real contract.
+   In-memory AST mutations reproduce deletion of the procedural branch, repose
+   call, socket-tuck call, socket contract and foot-exception guard: all five
+   removals fail their regression through assertions, with no engine invocation.
+
+Proof-only defaults are named in `DISPATCH_FIXTURE`: root/elbow fixture joints
+(0,0,0)/(1,0,0), source elbow (0,1,0), triangle [(0,0,0),(1,0,0),(0,1,0)],
+label RGB (0.1,0.2,0.3), gravity (0,0,−9.81), fps 24, forward (1,0,0), and
+bundle bytes `approved anatomy fixture`. `PROOF_FIXTURE` uses 64 zeroes as a
+stale SHA and bytes `retained native evidence fixture`. These are test fixtures;
+no new player-facing values are selected. Margin 8 and diameter 68 native px
+are the owner's existing requirements, not new defaults.
+
+Read-only proof and verification commands (no local windowed commands apply):
+
+```sh
+python3 -B -m spec.art_identity.maquettes.arc_thrall.r2.proof --capture spec/art_identity/maquettes/arc_thrall/delivery --keep-images
+python3 -B -m spec.art_identity.maquettes.arc_thrall.r2.gate_receipt
+python3 -B -m unittest tests.test_arc_thrall_maquette_r2 tests.test_arc_thrall_proof_validation tests.test_maquette_builder_wiring tests.test_rr07_delivery.DeliveryTests.test_both_committed_deliveries_have_every_label_and_joint tests.test_maquette_rear_turn spec.art_identity.maquettes.blender.test_source_recipe spec.art_identity.maquettes.blender.test_delivery spec.art_identity.maquettes.blender.test_delivery_validation -v
+python3 -B tests/test_art_identity_gate.py
+python3 -B -m unittest discover -s tests -p 'test_*.py' -v
+python3 -B -m spec.art_identity.maquettes.blender.curate_delivery verify spec/art_identity/maquettes/arc_thrall
+```
+
+`proof/feedback3_geometry_lock.json` records the accepted PNG, measurement,
+joint and native-build hashes before these validation edits. Focused results
+and the full-suite result are recorded below when observed.
+
+### Observed feedback-3 results
+
+- Focused: `Ran 92 tests in 26.083s`, `OK`.
+- Art identity: `Ran 111 tests in 45.128s`, `OK`.
+- Full Python: `Ran 909 tests in 760.985s`, `OK (skipped=63)`, exit 0.
+- `MQ07_REVIEW_MUTATION_REJECTED`: procedural_chain, repose, append_tucks,
+  socket_contract, foot_exception — all five assertion-based regressions fire.
+- `MQ07_EVIDENCE: PASS; spec/capture/tube hashes and every mandatory gate current`.
+- The accepted-file hash lock and unchanged `delivery/` diff verify that every
+  delivered image, measurement, joint table and native geometry report is unchanged.
+
+Files for feedback 3: r2 `gate_receipt.py`, `curate.py`, `proof.py`, this README,
+the gates/hash-lock/test receipts and complete commit/discard inventories; shared
+Blender `socket_proof.py`, `build.py`, `capture_view.py`, `contract.py`,
+`delivery_validation.py`, `test_delivery_validation.py`; new root tests
+`test_arc_thrall_proof_validation.py` and `test_maquette_builder_wiring.py`.
+There are no new design TODOs. No separate native capture or engine run is
+needed for validation-only changes; all work remains uncommitted.

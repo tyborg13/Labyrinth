@@ -189,9 +189,9 @@ def build(spec, output, bundle, cache):
         details['rigid_clearance'] = {o.name: json.loads(o['rigid_clearance_report']) for o in objects if 'rigid_clearance_report' in o}
     checks = geometry_report(spec, objects, cloth_reports, details)
     if spec['base'].get('socket_tucks'):
-        details['socket_tucks'] = {o.name: json.loads(o['socket_tuck_report']) for o in objects if 'socket_tuck_report' in o}
-        checks['native_socket_tucks'] = len(details['socket_tucks']) == len(spec['base']['socket_tucks']) and all(
-            r['passed'] for r in details['socket_tucks'].values())
+        from spec.art_identity.maquettes.blender.socket_proof import collect
+        details['socket_tucks'] = collect(spec, objects)
+        checks['native_socket_tucks'] = True
     if floor_contact is not None:
         checks['floor_contact_correction'] = floor_contact['passed']
     details['blade_attachments'] = {o.name: json.loads(o['blade_attachment_report']) for o in objects

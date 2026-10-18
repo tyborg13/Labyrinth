@@ -1063,5 +1063,22 @@
       }
     }
   },
+  "binding": {
+    "spec_hash": "540ff35963d668b0a047a0440eb1b7a097aa908babdc921dc4126f2585014093",
+    "recipe_sha256": "10d2f5ac59ed27d69590eddf4fc822504b566d7b8c70c58939646acad0774110",
+    "capture_manifest_sha256": "51e4b0544b1013bb586a1a7e4b7c86480e875b789e89a8b6b741acbab0032cfc",
+    "report_sha256": {
+      "build_report.json": "13e3ad98fd73c5cf3292d65abe138fce7c34ec1d3005688c7ebc5f81e451ddd1",
+      "capture_checks.json": "bba7aa71539fbca51865fea069ade6d724f2250bb1cce9068e652c37eb025684",
+      "facing_report.json": "2595529cf7c159e1862587cfc887a97821699b685ac2f8b34f79beccf9993c10",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "4080665f3623de572dceb2526a8ec56d8e4eeb4088867df6e95514f286363a93",
+      "capture_frame.json": "0d4c700cab7f9717d6dabd57db8a3b2f15ce35f9b666254926818374a1dae223",
+      "recipe_proof.json": "f437d54f411c1386e6cb8f1d9ccb5607773f163c19c70d3e944ce0db4d92307c",
+      "exact_native_replay.json": "27c74ac8de88c6ea246a53344d851fc6bc616a9b0bd48d2bd35ebe2c17854cdf"
+    },
+    "tube_receipt_sha256": "78d3cfb54c641c5f7d8673f5ade27ba9328bf4066b7e355f418f73606e90cbc8",
+    "sheet_sha256": "91b28ac077ef7d0ece7024c70467a418ba8e4595b45396d47155c9d1e1170e52"
+  },
   "retention": "Planted r2 is promoted to delivery; native clay RGBA and every visible mask pixel/alpha are preserved by the shared lossless packer. Old native clays and immutable baseline recipe/registration remain for the 1024 sheet. Temporary blends, caches and duplicate captures are hash-inventoried before deletion."
 }

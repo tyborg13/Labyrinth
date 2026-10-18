@@ -168,6 +168,7 @@ def review_sheet(old_capture, new_capture, before, after, output):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--capture', type=Path)
+    parser.add_argument('--keep-images', action='store_true', help='Refresh receipts without rewriting the accepted sheet')
     args = parser.parse_args()
     recipe = json.loads((FIGURE / 'r2/measurements.json').read_text())
     old_recipe = json.loads((FIGURE / 'r2/baseline_measurements.json').read_text())
@@ -200,7 +201,8 @@ def main():
         for view in ('front', 'rear'):
             for side in ('near', 'far'):
                 report['shoulder_table_px'][view][side]['after'] = actual[view]['shoulder_' + side]
-        review_sheet(output / 'baseline', args.capture, joints(old), actual, output / 'shoulder_tube_sheet.png')
+        if not args.keep_images:
+            review_sheet(output / 'baseline', args.capture, joints(old), actual, output / 'shoulder_tube_sheet.png')
         height_table = {'floor_m': new['joints']['ankle_near'][2], 'rows': {
             name: {'before_m': old['joints'][name][2], 'after_m': new['joints'][name][2]}
             for name in ('hip_far', 'knee_far', 'ankle_far', 'ankle_near', 'foot_tip_far')}}
@@ -214,6 +216,10 @@ def main():
                          report.get('native_tube_entry_passed', False) and report['tube_geometry']['passed'] and
                          all(v['passed'] for v in report.get('tube_widths', {}).values()) and
                          all(v['passed'] for v in report.get('after_fit', {}).values()) and not recipe['unresolved_design'])
+    if report['passed']:
+        from .gate_receipt import binding, validate_receipt
+        report['binding'] = binding(new, args.capture, output)
+        validate_receipt(new, recipe, args.capture, output, report)
     (output / 'gates.json').write_text(json.dumps(report, indent=2, allow_nan=False) + '\n')
     print('MQ07_POSE: ' + ('PASS' if all(report['checks'].values()) else 'FAIL'))
     print('MQ07_FLOOR: ' + ('PASS' if report['floor_guard']['passed'] else 'FAIL') + '; exceptions=[]')

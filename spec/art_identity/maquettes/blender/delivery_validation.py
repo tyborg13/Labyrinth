@@ -21,6 +21,8 @@ BUILDS = ('cold', 'replay', 'independent_cold')
 
 def geometry_checks(spec):
     required = GEOMETRY_CHECKS
+    if spec.get('base', {}).get('socket_tucks'):
+        required += ('native_socket_tucks',)
     if spec.get('planted_leg'):
         required += ('floor_contact_correction',)
     if any(p.get('rig_bone') for p in spec['pieces']):
@@ -111,6 +113,9 @@ def validate_delivery(spec, folder, require_binding=True, views=('front', 'rear'
     if build.get('spec_hash') != current or capture.get('spec_hash') != current:
         raise ValueError('Missing current build/capture spec hash')
     required_geometry = geometry_checks(spec)
+    if spec.get('base', {}).get('socket_tucks'):
+        from .socket_proof import validate_reports
+        validate_reports(spec, build.get('geometry_details', {}).get('socket_tucks'))
     checks(build, required_geometry + ('board_facing_axis', 'required_solo_coverage', 'capture_geometry_unchanged')
            + (('rendered_torso_asymmetry',) if 'front' in views else ()), 'build')
     if any(capture.get('geometry_checks', {}).get(key) is not True for key in required_geometry) or any(

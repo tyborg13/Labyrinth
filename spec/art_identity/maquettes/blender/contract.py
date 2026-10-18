@@ -228,12 +228,22 @@ def validate(spec):
         if piece['type'] == 'gem' and (piece['sides'] < 3 or min(piece['length'], piece['width'], piece['depth']) <= 0):
             raise ValueError('Invalid bipyramid gem dimensions')
     by_id = {p['id']: p for p in spec['pieces']}
+    tuck_ids = set()
     for tuck in spec['base'].get('socket_tucks', []):
+        if not isinstance(tuck.get('id'), str) or not tuck['id'] or tuck['id'] in tuck_ids or tuck['id'] in by_id:
+            raise ValueError('Socket tuck requires a unique object id')
+        tuck_ids.add(tuck['id'])
         socket = by_id.get(tuck['socket'], {}).get('socket')
         if (not socket or tuck['part'] != tuck['source_region'] or tuck['part'] not in labels or
                 tuck['adjacent_region'] not in spec['base'].get('covered_regions', []) or
                 tuck['end_joint'] not in spec['joints']):
             raise ValueError('Socket tuck requires its own anatomy label, a covered neighbour and an open socket')
+        vector(socket.get('mouth'), 3, 'socket mouth')
+        vector(socket.get('axis'), 3, 'socket axis')
+        if (sum(value * value for value in socket['axis']) <= BUILD_DEFAULTS['zero_length_squared_epsilon'] or
+                not isinstance(socket.get('inner_radius'), (int, float)) or
+                not math.isfinite(socket['inner_radius']) or socket['inner_radius'] <= 0):
+            raise ValueError('Socket requires a nonzero axis and positive finite bore')
     if spec.get('foot_contacts'):
         contact=spec['foot_contacts']
         if not math.isfinite(contact['plane_z']) or not contact['pieces'] or len(set(contact['pieces']))!=len(contact['pieces']):
