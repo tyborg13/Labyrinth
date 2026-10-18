@@ -1,0 +1,10 @@
+{
+  "authority": "mq-06 feedback 5",
+  "accepted_rear": true,
+  "geometry_frozen": true,
+  "reviewed_sheet": "rear_turn/feedback4/rear_sheet.png",
+  "reviewed_sheet_sha256": "6e55f61a7c3e88f4b8d2066a267c91c9b5bc875f6fccb6753fb2c7655327977d",
+  "front_files_frozen": true,
+  "registration_gate": "fixed_original_mq04",
+  "reason": "Director reviewed and accepted the planted rear; fixed-original registration gates the Seer rear only. Dynamic ground-centroid IoU remains a diagnostic of the different ground anchors."
+}

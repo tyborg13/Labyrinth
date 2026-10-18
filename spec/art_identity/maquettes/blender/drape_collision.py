@@ -107,6 +107,9 @@ def prepare(obj, body, piece, spec):
     if piece['drape'].get('yoke_seam_joint'):
         obj['attachment_report']=json.dumps({'joint':piece['drape']['yoke_seam_joint'],
             'source_seam_length':piece['yoke_seam_length'],'pin_targets':{str(i):list(p) for i,p in targets.items()}})
+    if spec.get('rear_body', {}).get('hem_piece') == piece['id']:
+        from .rear_body import prepare_floor
+        prepare_floor(obj, piece, spec, collection)
     return collection, support, targets
 
 

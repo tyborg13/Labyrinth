@@ -1,0 +1,331 @@
+{
+  "passed": false,
+  "checks": {
+    "front_bytes_and_joints_frozen": true,
+    "native_build": true,
+    "rear_iou": false,
+    "rear_coverage": true,
+    "pan_only_frame": true
+  },
+  "rear_iou_before": 0.7550728331405493,
+  "rear_iou_dynamic": 0.20540387838762533,
+  "rear_iou_fixed_original": 0.7609076185083125,
+  "rear_iou_min": 0.6,
+  "rear_fixed_frame_with_pan": {
+    "head_top": 176.00000963660955,
+    "sole_bottom": 959.0000096366095,
+    "ground_x": 341.0416666666667
+  },
+  "rear_capture_frame": {
+    "passed": true,
+    "bounds_probe": "native clay alpha at the existing render sample count",
+    "pan_px": [
+      0.0,
+      -24.999990363390452
+    ],
+    "original_target": [
+      0.0,
+      0.0,
+      1.12
+    ],
+    "target": [
+      0.02071601099478718,
+      0.02071601099478718,
+      1.0692563435568854
+    ],
+    "ortho_scale": 2.4000000953674316,
+    "camera_rotation_unchanged": true,
+    "geometry_bounds_before_pan_px": [
+      [
+        227.3946276465382,
+        97.35907896096893
+      ],
+      [
+        839.0796490532354,
+        1039.9999903633905
+      ]
+    ],
+    "pixel_bounds": [
+      [
+        227,
+        72
+      ],
+      [
+        839,
+        1015
+      ]
+    ],
+    "edge_margins_px_left_top_right_bottom": [
+      227,
+      72,
+      184,
+      8
+    ],
+    "required_margin_px": 8
+  },
+  "rear_image_margins_px": {
+    "rear_solo_collar.png": [
+      360,
+      301,
+      389,
+      554
+    ],
+    "rear_solo_skirt_near.png": [
+      227,
+      494,
+      370,
+      55
+    ],
+    "rear_silhouette.png": [
+      227,
+      73,
+      185,
+      9
+    ],
+    "rear_solo_hand_near.png": [
+      275,
+      635,
+      703,
+      326
+    ],
+    "rear_solo_upper_near.png": [
+      241,
+      294,
+      321,
+      407
+    ],
+    "rear_solo_hand_far.png": [
+      682,
+      475,
+      270,
+      461
+    ],
+    "rear_solo_head.png": [
+      377,
+      176,
+      389,
+      577
+    ],
+    "rear_solo_upper_far.png": [
+      241,
+      294,
+      321,
+      407
+    ],
+    "rear_solo_skirt_far.png": [
+      243,
+      511,
+      350,
+      48
+    ],
+    "rear_solo_torso.png": [
+      241,
+      251,
+      321,
+      407
+    ],
+    "rear_solo_fore_near.png": [
+      236,
+      294,
+      321,
+      383
+    ],
+    "rear_solo_foot_near.png": [
+      287,
+      907,
+      646,
+      65
+    ],
+    "rear_parts.png": [
+      227,
+      73,
+      185,
+      9
+    ],
+    "rear_solo_fore_far.png": [
+      241,
+      294,
+      307,
+      407
+    ],
+    "rear_solo_staff_shaft.png": [
+      646,
+      316,
+      236,
+      69
+    ],
+    "rear_clay.png": [
+      227,
+      72,
+      184,
+      8
+    ],
+    "rear_solo_staff_crystal.png": [
+      742,
+      73,
+      185,
+      679
+    ],
+    "rear_solo_foot_far.png": [
+      555,
+      947,
+      383,
+      9
+    ]
+  },
+  "per_part_coverage": {
+    "head": {
+      "visible_pixels": 31339,
+      "solo_pixels": 44489,
+      "visible_fraction_of_solo": 0.7044213176290769,
+      "depth_tested_owner_pixels": 31339,
+      "pure_owner_pixels": 29077,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "collar": {
+      "visible_pixels": 8735,
+      "solo_pixels": 32424,
+      "visible_fraction_of_solo": 0.26939921046138665,
+      "depth_tested_owner_pixels": 8828,
+      "pure_owner_pixels": 6841,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "torso": {
+      "visible_pixels": 32046,
+      "solo_pixels": 68547,
+      "visible_fraction_of_solo": 0.467504048317213,
+      "depth_tested_owner_pixels": 32055,
+      "pure_owner_pixels": 28069,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "skirt_near": {
+      "visible_pixels": 20811,
+      "solo_pixels": 78140,
+      "visible_fraction_of_solo": 0.26632966470437675,
+      "depth_tested_owner_pixels": 20811,
+      "pure_owner_pixels": 18681,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "skirt_far": {
+      "visible_pixels": 108899,
+      "solo_pixels": 115565,
+      "visible_fraction_of_solo": 0.9423181759183143,
+      "depth_tested_owner_pixels": 108903,
+      "pure_owner_pixels": 105936,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "upper_near": {
+      "visible_pixels": 18928,
+      "solo_pixels": 21840,
+      "visible_fraction_of_solo": 0.8666666666666667,
+      "depth_tested_owner_pixels": 18928,
+      "pure_owner_pixels": 17802,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "fore_near": {
+      "visible_pixels": 8431,
+      "solo_pixels": 14043,
+      "visible_fraction_of_solo": 0.6003702912483088,
+      "depth_tested_owner_pixels": 8491,
+      "pure_owner_pixels": 7671,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "hand_near": {
+      "visible_pixels": 1216,
+      "solo_pixels": 1337,
+      "visible_fraction_of_solo": 0.9094988780852655,
+      "depth_tested_owner_pixels": 1216,
+      "pure_owner_pixels": 629,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "upper_far": {
+      "visible_pixels": 18635,
+      "solo_pixels": 25182,
+      "visible_fraction_of_solo": 0.7400127074894766,
+      "depth_tested_owner_pixels": 18912,
+      "pure_owner_pixels": 17311,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "fore_far": {
+      "visible_pixels": 2944,
+      "solo_pixels": 8267,
+      "visible_fraction_of_solo": 0.3561146727954518,
+      "depth_tested_owner_pixels": 3200,
+      "pure_owner_pixels": 2416,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "hand_far": {
+      "visible_pixels": 3151,
+      "solo_pixels": 4705,
+      "visible_fraction_of_solo": 0.6697130712008501,
+      "depth_tested_owner_pixels": 3151,
+      "pure_owner_pixels": 2405,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "staff_shaft": {
+      "visible_pixels": 11140,
+      "solo_pixels": 11874,
+      "visible_fraction_of_solo": 0.9381842681488968,
+      "depth_tested_owner_pixels": 11325,
+      "pure_owner_pixels": 8361,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "staff_crystal": {
+      "visible_pixels": 14307,
+      "solo_pixels": 14586,
+      "visible_fraction_of_solo": 0.9808720691073632,
+      "depth_tested_owner_pixels": 14355,
+      "pure_owner_pixels": 12880,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    },
+    "foot_near": {
+      "visible_pixels": 4,
+      "solo_pixels": 3084,
+      "visible_fraction_of_solo": 0.0012970168612191958,
+      "depth_tested_owner_pixels": 4,
+      "pure_owner_pixels": 0,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": {
+        "basis": "native depth-tested map over complete solo",
+        "occluding_labels": {
+          "collar": 1,
+          "skirt_near": 100,
+          "skirt_far": 2974,
+          "foot_far": 5
+        }
+      }
+    },
+    "foot_far": {
+      "visible_pixels": 3082,
+      "solo_pixels": 3825,
+      "visible_fraction_of_solo": 0.8057516339869281,
+      "depth_tested_owner_pixels": 3526,
+      "pure_owner_pixels": 2611,
+      "clipped_at_canvas": false,
+      "recorded_occlusion": null
+    }
+  },
+  "view_roots_px": {
+    "front_frozen": [
+      512.0,
+      925.84
+    ],
+    "rear_candidate": [
+      512.0,
+      900.84
+    ]
+  }
+}

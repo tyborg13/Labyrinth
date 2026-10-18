@@ -1,0 +1,16 @@
+label,genuine_colour_pixels,solo_pixels,recorded_occlusion
+head,29077,44489,null
+collar,6841,32424,null
+torso,28069,68547,null
+skirt_near,18681,78140,null
+skirt_far,105936,115565,null
+upper_near,17802,21840,null
+fore_near,7671,14043,null
+hand_near,629,1337,null
+upper_far,17311,25182,null
+fore_far,2416,8267,null
+hand_far,2405,4705,null
+staff_shaft,8361,11874,null
+staff_crystal,12880,14586,null
+foot_near,0,3084,"{""basis"": ""native depth-tested map over complete solo"", ""occluding_labels"": {""collar"": 1, ""skirt_near"": 100, ""skirt_far"": 2974, ""foot_far"": 5}}"
+foot_far,2611,3825,null

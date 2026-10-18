@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "base_views": [
+    "front"
+  ],
+  "base_spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+  "frozen_front": {
+    "files": {
+      "front_solo_upper_near.png": "f67f3e831dffd8a97ecb0a0471ac9969162b5a7f46a5d22372c00b76dd988bde",
+      "front_torso_frontal_control.png": "d0c8cb4639d96bc814eca6ec101832588666bcd8671b44031dc4f49c65ba09e4",
+      "front_solo_collar.png": "d2e7d3c49ee679b49f6ddf155b7bb3409287832378e003a227ea4d06d0bc614c",
+      "front_solo_skirt_near.png": "fd143a5b6d65f4e604506d543b3b5a5fa8119691477a796e8bd7a0f394695cdf",
+      "front_solo_foot_far.png": "51aecde22220774e08b2a1d5dd34a6f1f31a84665c5ea343831f9bb722a13a8a",
+      "front_solo_fore_far.png": "671d812e7628d31314e17b7957dd11b89522b50869a35f117b03c33cd61dcf4d",
+      "front_solo_fore_near.png": "cce59bd65f2d5a1162b18db3e220183ce9c3e9273c413880a4ed0bc5414d4382",
+      "front_solo_foot_near.png": "6774755b3d655ea2b628cd071b98230b5e894491d24e0378785520e1e9c7ef2f",
+      "front_silhouette.png": "5798e1d72b93a7eedb03fce2038001152511b7edb666632ce3070c10dccdcc9e",
+      "front_solo_skirt_far.png": "daab8b30b55f92af250cdd138b953e14d32c432259e1dd8f87410fc6203360b8",
+      "front_clay.png": "a9981f9bdc1db100cc456a9ac495e2730614066389c7a60f257f08f4e80d9e10",
+      "front_solo_upper_far.png": "0e887532c2e6556f634be38a8a39513764e0e7cb36b64c3bddcc0a0e3aed70b7",
+      "front_torso.png": "df40585a2f1f12ff647770612aba2e3c4b8eb6a3e996e8e8fce873e51c92ec9d",
+      "front_solo_head.png": "8c32aa9b82c45c9a86a8ef9e7ae4238da9bdb21e26e6f3383005964ba3714f3f",
+      "front_solo_hand_near.png": "4a700f407be21cc684a6d9a66fdac8292384455a56988415aa2535e1859fc9e6",
+      "front_proportion_report.json": "6418f3e904dd44d5693f96ea8f81f22979f1cbb9e70e6f7417cef904a0485866",
+      "front_solo_torso.png": "a2849e2933b6006b6b8bdc089adfb00073d16acf6e4ecf13a6042dfc375a89bf",
+      "front_solo_hand_far.png": "9c30695618e5689517eeaa91e42203e3647692f82b096c5924ffcc7821e4d0e0",
+      "front_solo_staff_crystal.png": "f2ad533fe24e24da1ab12c397405c4d63e92710799e6200052f86907233a7975",
+      "front_parts.png": "4150fd95628d0f908431aa0b4b159f6dce88d3b0acc64b4419598b116bc50efd",
+      "front_solo_staff_shaft.png": "bed75ed4ac28218e3e486b2f5326d94e4f6ca4f509312052dd02a2f6c8e53da6"
+    },
+    "joints": {
+      "root": [
+        512.0,
+        925.84
+      ],
+      "pelvis": [
+        554.0,
+        588.0
+      ],
+      "torso": [
+        546.0,
+        476.0
+      ],
+      "head": [
+        516.0,
+        328.0
+      ],
+      "head_tip": [
+        526.0,
+        228.0
+      ],
+      "shoulder_near": [
+        654.0,
+        464.0
+      ],
+      "shoulder_far": [
+        420.0,
+        476.0
+      ],
+      "elbow_near": [
+        726.0,
+        556.0
+      ],
+      "elbow_far": [
+        368.0,
+        576.0
+      ],
+      "hand_near": [
+        734.0,
+        640.0
+      ],
+      "hand_far": [
+        306.0,
+        552.0
+      ],
+      "hand_tip_near": [
+        732.0,
+        704.0
+      ],
+      "hand_tip_far": [
+        312.0,
+        584.0
+      ],
+      "hip_near": [
+        602.0,
+        632.0
+      ],
+      "hip_far": [
+        500.0,
+        632.0
+      ],
+      "knee_near": [
+        626.0,
+        760.0
+      ],
+      "knee_far": [
+        468.0,
+        744.0
+      ],
+      "ankle_near": [
+        662.0,
+        916.0
+      ],
+      "ankle_far": [
+        432.0,
+        848.0
+      ],
+      "foot_tip_near": [
+        652.0,
+        960.0
+      ],
+      "foot_tip_far": [
+        400.0,
+        872.0
+      ]
+    }
+  },
+  "overrides": {
+    "rear": {
+      "recipe": "rear_turn/feedback4/rear_recipe.json",
+      "recipe_sha256": "985dd8fab402ad5fb3983f9a873bf01d4e30879822d509673f209dbc94ef7790",
+      "spec_hash": "1b2d2d50598b78cac94c0a80d513c472904f5991f25fada4584a71fdcde9a099",
+      "certificate": "rear_native"
+    }
+  },
+  "fit_policy": "rear_turn/feedback5/fit_policy.json",
+  "fit_report": "rear_proportion_report.json",
+  "authority": "mq-06 feedback 5; director accepts feedback4/rear_sheet.png"
+}

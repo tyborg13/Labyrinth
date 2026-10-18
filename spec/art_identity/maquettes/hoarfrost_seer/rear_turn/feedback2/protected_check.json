@@ -1,0 +1,13 @@
+{
+  "checked": 533,
+  "changed": [
+    "spec/art_identity/maquettes/blender/build.py",
+    "spec/art_identity/maquettes/blender/compile_recipe.py"
+  ],
+  "unexpected_changes": [],
+  "all_other_figure_and_painting_bytes_unchanged": true,
+  "correction_recipe_original_fields_unchanged": true,
+  "correction_recipe_only_added_fields": [
+    "floor_contact_correction"
+  ]
+}

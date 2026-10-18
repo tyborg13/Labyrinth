@@ -172,6 +172,9 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         bpy.context.view_layer.update()
         if body_side_report:
             view_owner_hashes[view] = {name: digest(owners[name]) for name in body_side_report}
+        if view == 'rear' and spec.get('rear_capture'):
+            from .capture_frame import pan_capture
+            pan_capture(spec, view, objects, scene, cam, capture, output, RENDER_DEFAULTS['size'])
         if view == 'front':
             from .facing_probe import probe
             facing = probe(spec, objects, output, root, cam, capture)

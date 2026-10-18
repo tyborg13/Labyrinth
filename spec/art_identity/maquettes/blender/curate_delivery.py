@@ -1,8 +1,8 @@
 """Stage compact native deliveries, hash discarded evidence, and remove it.
 
 The measured recipe is the build input. spec_native.json, blends and caches
-are generated intermediates. Native PNG files are copied byte for byte.
-Canonical PNG encoding is used only for temporary comparison copies.
+are generated intermediates. Native PNG files are copied byte for byte by default. Optional packing
+preserves clay RGBA and every mask alpha/visible pixel, then reseals the binding.
 """
 import argparse
 import hashlib
@@ -18,7 +18,7 @@ from PIL import Image
 from .capture_manifest import read_manifest, write_manifest
 from .compile_recipe import compile_recipe
 from .contract import digest
-from .delivery_validation import validate_delivery
+from .delivery_validation import validate_delivery, seal_delivery
 
 CURATION_DEFAULTS = {'budget_bytes': 6_000_000, 'png_compression': 9}
 
@@ -66,22 +66,28 @@ def canonical_png(source, destination, mask=False):
         raise ValueError('Mask packing changed a visible pixel or alpha')
 
 
-def stage(folder, source):
+def stage(folder, source, pack_pngs=False):
     folder, source = Path(folder), Path(source)
     spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
     validate_delivery(spec, source)
     manifest = read_manifest(source, digest(spec), ('full',))
+    scoped = (source / 'view_sources.json').is_file()
+    frozen = json.loads((source / 'view_sources.json').read_text())['frozen_front']['files'] if scoped else {}
     output = folder / 'delivery'
     output.mkdir(exist_ok=True)
     original, pixel_hashes = {}, {}
     for name in manifest['images']:
         original[name] = sha(source / name)
         clay = name in ('front_clay.png', 'rear_clay.png')
-        shutil.copyfile(source / name, output / name)
+        if pack_pngs and name not in frozen:
+            canonical_png(source / name, output / name, mask=not clay)
+        else:
+            shutil.copyfile(source / name, output / name)
         if clay:
             pixel_hashes[name] = hashlib.sha256(Image.open(source / name).convert('RGBA').tobytes()).hexdigest()
     for name in ('joints_px.json', 'build_report.json', 'capture_checks.json', 'facing_report.json',
-                 'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json', 'fit_report.json', 'fit_overlay.png'):
+                 'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json', 'fit_report.json', 'fit_overlay.png',
+                 'capture_frame.json'):
         if (source / name).exists():
             shutil.copyfile(source / name, output / name)
     write(output / 'native_capture_manifest.json', manifest)
@@ -93,7 +99,8 @@ def stage(folder, source):
         'recipe_sha256': sha(folder / 'measurements.json'), 'native_image_sha256': original,
         'native_clay_rgba_sha256': pixel_hashes,
         'generated_spec': 'spec_native.json is compiled output, not a tracked input. Regenerate from measurements.json.',
-        'packing': 'Native PNG bytes are retained unchanged. Regeneration compares temporary canonical copies only.'}
+        'packing': ('Clay RGBA unchanged; mask alpha and visible RGBA unchanged; hidden mask RGB cleared and PNG metadata packed. Native byte hashes are retained above.' if pack_pngs else
+                    'Native PNG bytes are retained unchanged. Regeneration compares temporary canonical copies only.')}
     packing_path = source / 'capture_packing.json'
     if packing_path.exists():
         packing = json.loads(packing_path.read_text())
@@ -101,6 +108,12 @@ def stage(folder, source):
         shutil.copyfile(source / 'native_render_manifest.json', output / 'native_render_manifest.json')
         provenance['native_raw_image_sha256'] = {name: value['native_sha256'] for name, value in packing['images'].items()}
         provenance['packing'] = 'Capture masks are losslessly packed before staging; alpha and every visible RGBA value are unchanged. Native clay PNG bytes and all staged PNG bytes are copied unchanged.'
+    if scoped:
+        from .view_delivery import copy_sources, refresh_override
+        copy_sources(source, output)
+        refresh_override(output)
+    if pack_pngs or scoped:
+        seal_delivery(spec, output)
     write(output / 'provenance.json', provenance)
     print('DELIVERY_STAGE: PASS; ' + folder.name)
 
@@ -130,6 +143,11 @@ def curate(folder):
     manifest = folder / 'COMMIT_MANIFEST.txt'
     keep = {p for p in inventory(folder) if p.is_relative_to(folder / 'delivery')}
     keep |= {folder / 'measurements.json', folder / 'README.md', folder / '.gdignore', archive, manifest}
+    if (folder / 'delivery/view_sources.json').is_file():
+        from .view_delivery import local
+        sources = json.loads((folder / 'delivery/view_sources.json').read_text())
+        keep |= {local(folder, sources['fit_policy'])}
+        keep |= {local(folder, value['recipe']) for value in sources['overrides'].values()}
     if not (folder / 'delivery/provenance.json').is_file() or not (folder / 'README.md').is_file():
         raise ValueError('Stage and document the delivery before curation')
     spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
@@ -181,11 +199,12 @@ def main():
     parser.add_argument('operation', choices=('stage', 'curate', 'verify'))
     parser.add_argument('folder', type=Path)
     parser.add_argument('--capture', type=Path)
+    parser.add_argument('--pack-pngs', action='store_true', help='Lossless visible-pixel packing with a fresh delivery seal')
     args = parser.parse_args()
     if args.operation == 'stage':
         if args.capture is None:
             parser.error('stage requires --capture')
-        stage(args.folder, args.capture)
+        stage(args.folder, args.capture, pack_pngs=args.pack_pngs)
     elif args.operation == 'curate':
         curate(args.folder)
     else:

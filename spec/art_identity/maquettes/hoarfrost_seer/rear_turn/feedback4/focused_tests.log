@@ -1,0 +1,89 @@
+test_board_facing_normalizes_asset_and_rest_rig_without_moving_pose_paths (tests.test_maquette_blender.NativeContractTests) ... ok
+test_bone_cycles_and_zero_length_fail_before_launch (tests.test_maquette_blender.NativeContractTests) ... ok
+test_bridge_protocol_is_atomic_and_returns_director_log (tests.test_maquette_blender.NativeContractTests) ... ok
+test_bridge_rejects_other_scripts_and_excessive_timeouts (tests.test_maquette_blender.NativeContractTests) ... ok
+test_collar_pattern_is_closed_and_symmetric_before_simulation (tests.test_maquette_blender.NativeContractTests) ... ok
+test_command_disables_autorun_and_selects_cpu_backend (tests.test_maquette_blender.NativeContractTests) ... ok
+test_fit_never_changes_accessory_design_or_joint_xy (tests.test_maquette_blender.NativeContractTests) ... ok
+test_heat_weight_regions_cover_each_face_or_fail (tests.test_maquette_blender.NativeContractTests) ... ok
+test_lancer_r3_contains_every_brief_piece_as_source_measured_proposal (tests.test_maquette_blender.NativeContractTests) ... ok
+test_mesh_hash_uses_coordinates_topology_and_ownership (tests.test_maquette_blender.NativeContractTests) ... ok
+test_real_blender_build_and_geometry_gates (tests.test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'
+test_real_lancer_cloth_cache_replay_has_identical_raw_hashes (tests.test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'
+test_render_adapter_rejects_stale_spec_hash (tests.test_maquette_blender.NativeContractTests) ... ok
+test_render_adapter_uses_solo_alpha_and_actual_joints (tests.test_maquette_blender.NativeContractTests) ... ok
+test_round2_conformance_and_preserved_director_features (tests.test_maquette_blender.NativeContractTests) ... ok
+test_seeded_rag_notches_only_change_the_hem_before_simulation (tests.test_maquette_blender.NativeContractTests) ... ok
+test_shared_authoring_rotations_do_not_turn_other_attachments (tests.test_maquette_blender.NativeContractTests) ... ok
+test_tabard_is_one_connected_pattern_with_four_lower_strips (tests.test_maquette_blender.NativeContractTests) ... ok
+test_v2_cannot_silently_use_v1_rasteriser (tests.test_maquette_blender.NativeContractTests) ... ok
+test_valid_contract_and_unknown_labels (tests.test_maquette_blender.NativeContractTests) ... ok
+test_all_recipes_recompile_without_changing_their_protected_sources (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_bridge_quick_result_needs_no_run_line (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_bridge_start_deadline_is_independent_of_execution_budget (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... BLENDER_BRIDGE_STARTED: long
+ok
+test_bridge_unstarted_job_stops_at_start_deadline (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_capture_assembly_rejects_stale_checks_after_failed_recapture (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_compiler_rear_authored_panel_is_still_one_common_mesh (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_corrective_shape_inverts_blended_native_skinning (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_gale_view_states_change_only_native_banner_cloth (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_hem_obeys_both_source_lower_contours (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_hollow_bell_has_closed_wall_and_open_lumen (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_incompatible_views_leave_observable_residual (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_measured_hood_tip_anchor_changes_only_its_cloth (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_occluded_profile_preserves_native_depth_while_fitting_observed_view (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_panel_preserves_measured_edges (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_raw_replay_proof_is_bound_to_current_spec_and_keeps_quality_separate (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_rear_source_panel_projects_in_rear_and_retains_body_space (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_registered_overlay_uses_fit_frame_not_canvas_size (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_side_labels_require_distinct_registered_parts (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_source_cage_uses_measured_scanline_bounds (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_source_ray_intersects_named_plane (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_spatial_plate_rejects_unpaired_source_corners (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_stereo_prop_path_retains_one_common_three_dimensional_model (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_tube_rejects_collapsed_lumen_and_path (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_two_view_triangulation_round_trip (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_whole_cloth_feature_ownership_does_not_split_glyphs_or_drips (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_adjacent_cloth_sleeves_share_the_elbow_ring (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_armhole_cut_pins_new_seam_without_pinning_all_fabric (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_bands_follow_bent_path_and_keep_prop_ownership (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_both_skirt_labels_are_owned_by_real_cloth_faces (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_cloth_resolution_preserves_authored_fold_control_points (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_continuous_sleeve_has_independent_upper_and_fore_face_owners (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_gnarled_pipe_preserves_wall_and_rejects_collapsed_lumen (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_measured_pleats_leave_attachment_and_retain_fabric_allowance (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_native_report_rejects_exploding_fabric_and_unconstrained_pins (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_only_attachment_row_is_pinned_and_free_fabric_is_refined (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_regional_contact_rejects_missing_anatomy_and_invalid_resolution (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_rejected_rigid_pin_and_single_frame_mutations_fail_contract (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_round_two_specs_match_their_current_recipes (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_sewn_crown_span_keeps_interpolated_attachment_fabric_pinned (spec.art_identity.maquettes.blender.test_drape.DrapeTests) ... ok
+test_collision_and_ownership_details_cannot_hide_behind_true_summary (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_hash_binding_is_required_and_current (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_passed_and_check_field_rejects_false_or_missing_even_before_sealing (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_every_report_is_required (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_required_part_rejection_is_exercised_directly (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_staging_preserves_native_png_bytes_including_stamps (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_valid_current_delivery (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests) ... ok
+test_all_four_canonical_specs_match_source_recipes (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_back_sheet_allowance_is_a_free_grid_in_the_native_shoulder_frame (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_cache_integrity_binds_sewn_owner_tags_too (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_coverage_excludes_colour_spill_outside_solos_and_requires_real_part_colour (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_crescent_is_a_closed_sculpted_volume_with_one_tapering_tip (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_director_collar_and_chain_values_are_exact (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_lathed_profile_preserves_measured_axis_controls_and_bell_radii (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_mask_contour_keeps_its_concavity (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_metric_oval_dimensions_include_wire_and_alternate_space (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_neck_ring_fits_the_native_cross_section_and_tilts_forward (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_rounded_cowl_uses_native_skull_and_oval_opening (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_sewn_ownership_is_independent_of_mutated_material_slots (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_sewn_rest_is_one_surface_with_neck_waist_and_two_open_cuffs (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+test_sewn_yoke_preserves_the_entire_measured_banner_and_seam_length (spec.art_identity.maquettes.blender.test_round3.RoundThreeTests) ... ok
+
+----------------------------------------------------------------------
+Ran 82 tests in 3.041s
+
+OK (skipped=2)
+DELIVERY_STAGE: PASS; staged

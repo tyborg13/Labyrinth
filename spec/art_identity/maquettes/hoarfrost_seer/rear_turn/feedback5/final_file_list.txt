@@ -1,0 +1,178 @@
+# Worktree-relative status: M modified, D removed, ?? new. All changes uncommitted.
+# rr07_reader.patch is a proposal; its unowned target has NOT been edited.
+ M spec/art_identity/maquettes/blender/backend.py
+ M spec/art_identity/maquettes/blender/build.py
+ M spec/art_identity/maquettes/blender/capture_manifest.py
+ M spec/art_identity/maquettes/blender/cloth.py
+ M spec/art_identity/maquettes/blender/compile_recipe.py
+ M spec/art_identity/maquettes/blender/curate_delivery.py
+ M spec/art_identity/maquettes/blender/delivery_validation.py
+ M spec/art_identity/maquettes/blender/drape_collision.py
+ M spec/art_identity/maquettes/blender/render.py
+ M spec/art_identity/maquettes/hoarfrost_seer/COMMIT_MANIFEST.txt
+ M spec/art_identity/maquettes/hoarfrost_seer/README.md
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/build_report.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/capture_checks.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/capture_manifest.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/cloak_side.json
+ D spec/art_identity/maquettes/hoarfrost_seer/delivery/fit_overlay.png
+ D spec/art_identity/maquettes/hoarfrost_seer/delivery/frozen_geometry.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/joints_px.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/native_capture_manifest.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/provenance.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_clay.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_parts.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_proportion_report.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_silhouette.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_collar.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_foot_far.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_foot_near.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_fore_far.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_fore_near.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_hand_far.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_hand_near.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_head.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_skirt_far.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_skirt_near.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_staff_crystal.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_staff_shaft.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_torso.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_upper_far.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_upper_near.png
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/recipe_proof.json
+ D spec/art_identity/maquettes/hoarfrost_seer/delivery/regeneration.json
+ M spec/art_identity/maquettes/hoarfrost_seer/delivery/solo_coverage.json
+ M spec/art_identity/maquettes/hoarfrost_seer/discarded_proof_sha256.json
+?? spec/art_identity/maquettes/blender/capture_frame.py
+?? spec/art_identity/maquettes/blender/floor_contact.py
+?? spec/art_identity/maquettes/blender/floor_contact_native.py
+?? spec/art_identity/maquettes/blender/front_gate.py
+?? spec/art_identity/maquettes/blender/ray_contacts.py
+?? spec/art_identity/maquettes/blender/ray_search.py
+?? spec/art_identity/maquettes/blender/rear_body.py
+?? spec/art_identity/maquettes/blender/view_delivery.py
+?? spec/art_identity/maquettes/blender/view_fit.py
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/capture_frame.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_acceptance.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/build_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/capture_checks.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/capture_frame.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/capture_manifest.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/cloak_side.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/exact_native_replay.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/joints_px.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/native_capture_manifest.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/ownership_validation.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/recipe_proof.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_native/solo_coverage.json
+?? spec/art_identity/maquettes/hoarfrost_seer/delivery/view_sources.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/.gdignore
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/README.md
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline_build.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/baseline_rear_capture.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/diagnose.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/README.md
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/attempt_floor.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/floor_guard_before.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/front_diff.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/front_gate_sheet.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/front_pixel_diff.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/native_floor_correction.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/native_front_capture_manifest.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback1/scan_floor_contacts.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/README.md
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/baseline_build.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/bridge_timeout.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/collision_regions3.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/correction_recipe.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/fit_registration_diagnostic.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/floor_guard.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/floor_guard_exceptions.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/front_proof.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/gate_contract.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/native_front8_gate.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/proof_contract.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/protected_check.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/scan_floor_contacts.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/status.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/README.md
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/baseline_recipe.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/correction_recipe.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/decisions.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/floor_guard.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/front10_gate.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/front_proof.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/native_build_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/proof.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/protected_check.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/ray_only_build_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/scan_floor_contacts.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback3/status.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/README.md
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/art_identity.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/audit.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/audit.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/build1.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/build1_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/build2.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/curation.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/diff_check.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/exact_native_replay.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/exact_native_replay.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/floor_guard.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/focused_tests.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/front_freeze.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/full_python.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/height_table.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/native_build_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/output_gdignore.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/proof.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/proof.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/proof_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/protected_check.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_capture.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_coverage.csv
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_extent.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_extent.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_extent.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_fit_report.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_recipe.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_registration_comparison.png
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear_sheet.png
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/recipe_proof.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/recipe_proof.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/status.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/turn_audit.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/turn_regression.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/verification.txt
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/README.md
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/art_identity.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/audit.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/audit.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/curation.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/delivery_validation.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/diff_check.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/final_file_list.txt
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/fit_policy.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/floor_guard.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/focused_tests.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/full_python.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/original_front_native_binding.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/output_gdignore.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/proposed_reader_probe.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/protected_check.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/rr07_reader.patch
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/stage.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/stage_rear.py
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/staged_rear_sha256.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/staged_rear_sha256.txt
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/status.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/turn_audit.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/turn_regression.log
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback5/verification.txt
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/historical_test_result_lines.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/native_reproduction.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/protected_sha256.json
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/rear_coverage_before.csv
+?? spec/art_identity/maquettes/hoarfrost_seer/rear_turn/root_cause.json
+?? tests/test_maquette_rear_turn.py

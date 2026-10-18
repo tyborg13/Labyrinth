@@ -273,5 +273,8 @@
     },
     "front_chest_attachment_axes": {}
   },
-  "passed": true
+  "passed": true,
+  "geometry_scope": [
+    "front"
+  ]
 }

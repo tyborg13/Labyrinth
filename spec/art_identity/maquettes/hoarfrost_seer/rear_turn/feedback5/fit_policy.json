@@ -1,0 +1,18 @@
+{
+  "authority": "mq-06 feedback 5; director accepts feedback4/rear_sheet.png",
+  "figure": "hoarfrost_seer",
+  "view": "rear",
+  "method": "fixed_original_mq04",
+  "iou_min": 0.6,
+  "fixed_source_frame": {
+    "head_top": 51.0,
+    "sole_bottom": 246.0,
+    "ground_x": 81.02173913043478
+  },
+  "fixed_maquette_frame_before_pan": {
+    "head_top": 201.0,
+    "sole_bottom": 984.0,
+    "ground_x": 341.0416666666667
+  },
+  "reason": "Dynamic ground-centroid registration anchors the old painting on its lower-left robe edge and the planted body on its lower-right foot. Its 0.2054 measures that anchor mismatch. The director accepts the planted rear and gates this Seer rear on the fixed original mq-04 offset; other figures retain their existing method."
+}

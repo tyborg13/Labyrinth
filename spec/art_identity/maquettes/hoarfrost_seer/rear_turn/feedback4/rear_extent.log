@@ -1,0 +1,7 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-2f3230c446fb476eb434d6b83136239c
+BLENDER_BRIDGE_STARTED: mq03-2f3230c446fb476eb434d6b83136239c
+00:00.295  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/build2/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ06_REAR_EXTENT: PASS; height_px=942.6409114024216; limit_px=1008
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=0.8; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-2f3230c446fb476eb434d6b83136239c.log

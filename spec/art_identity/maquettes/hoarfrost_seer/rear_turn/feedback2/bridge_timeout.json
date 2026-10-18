@@ -1,0 +1,22 @@
+{
+  "exit": -1,
+  "seconds": 120.0,
+  "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-f8a2c749685741c5ac41f75383443b86.log",
+  "command": [
+    "/Applications/Blender.app/Contents/MacOS/Blender",
+    "-b",
+    "--factory-startup",
+    "--disable-autoexec",
+    "--python-exit-code",
+    "2",
+    "-P",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/blender/build.py",
+    "--",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/production_spec.json",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback2/native_corrected9",
+    "--build-only"
+  ],
+  "client_deadline_s": 120,
+  "retry_attempted": false,
+  "active_constraint_solver_removed": true
+}

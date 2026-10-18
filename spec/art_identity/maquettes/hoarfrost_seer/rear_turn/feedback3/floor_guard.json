@@ -1,0 +1,438 @@
+{
+  "basis": "fitted ankle joints and prop path endpoints; explicit per-figure exceptions",
+  "figures": {
+    "arc_thrall": {
+      "floor_m": 0.24856193744190866,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.24856193744190866,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.31892650149939433,
+          "above_floor_m": 0.07036456405748567,
+          "within_floor_limit": false,
+          "exception": {
+            "point": "ankle_far",
+            "reason": "Existing 0.070 m fitted lift is assigned to mq-07; do not change the Thrall in mq-06.",
+            "authority": "mq-06 feedback 2, Guard findings"
+          },
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "excepted_offenders": [
+        "ankle_far"
+      ],
+      "passed": true
+    },
+    "gale_herald": {
+      "floor_m": 0.18902269093172858,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.18902269093172858,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.23773661989460335,
+          "above_floor_m": 0.04871392896287477,
+          "within_floor_limit": false,
+          "exception": {
+            "point": "ankle_far",
+            "reason": "Existing 0.049 m fitted lift is deferred to the Herald humanoid rig v2 unit.",
+            "authority": "mq-06 feedback 2, Guard findings"
+          },
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "excepted_offenders": [
+        "ankle_far"
+      ],
+      "passed": true
+    },
+    "gloam_stalker": {
+      "floor_m": 0.286450548857478,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.286450548857478,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.29186320763113066,
+          "above_floor_m": 0.005412658773652657,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "excepted_offenders": [],
+      "passed": true
+    },
+    "hoarfrost_seer": {
+      "floor_m": 0.026642927722146444,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.026642927722146444,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.18361003215807584,
+          "above_floor_m": 0.1569671044359294,
+          "within_floor_limit": false,
+          "exception": null,
+          "passed": false
+        },
+        "staff_shaft.prop_foot": {
+          "height_m": -0.0022594720980433068,
+          "above_floor_m": -0.02890239982018975,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        }
+      },
+      "offenders": [
+        "ankle_far"
+      ],
+      "excepted_offenders": [],
+      "passed": false
+    },
+    "frostglass_lancer": {
+      "floor_m": 0.16,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.16,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.16,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "spear_shaft.prop_foot": {
+          "height_m": 0.42963663067424485,
+          "above_floor_m": 0.2696366306742448,
+          "within_floor_limit": false,
+          "exception": {
+            "point": "spear_shaft.prop_foot",
+            "reason": "Existing 0.270 m spear butt lift may be intentional; defer its decision to the Lancer humanoid rig v2 unit.",
+            "authority": "mq-06 feedback 2, Guard findings"
+          },
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "excepted_offenders": [
+        "spear_shaft.prop_foot"
+      ],
+      "passed": true
+    }
+  },
+  "exceptions": {
+    "hoarfrost_seer": [],
+    "gloam_stalker": [],
+    "arc_thrall": [
+      {
+        "point": "ankle_far",
+        "reason": "Existing 0.070 m fitted lift is assigned to mq-07; do not change the Thrall in mq-06.",
+        "authority": "mq-06 feedback 2, Guard findings"
+      }
+    ],
+    "gale_herald": [
+      {
+        "point": "ankle_far",
+        "reason": "Existing 0.049 m fitted lift is deferred to the Herald humanoid rig v2 unit.",
+        "authority": "mq-06 feedback 2, Guard findings"
+      }
+    ],
+    "frostglass_lancer": [
+      {
+        "point": "spear_shaft.prop_foot",
+        "reason": "Existing 0.270 m spear butt lift may be intentional; defer its decision to the Lancer humanoid rig v2 unit.",
+        "authority": "mq-06 feedback 2, Guard findings"
+      }
+    ]
+  },
+  "passed": false,
+  "diagnostic_candidate": {
+    "native_build_passed": true,
+    "floor_contact": {
+      "floor_m": 0.026642927722146444,
+      "before_heights_m": {
+        "ankle_far": 0.18361003215807584,
+        "robe_skirt.hem_far_min": 0.11621001362800598,
+        "robe_skirt.hem_far_max": 0.31396347284317017,
+        "staff_shaft.prop_foot": -0.0022594720980433068
+      },
+      "before_lifts_m": {
+        "ankle_far": 0.1569671044359294,
+        "robe_skirt.hem_far_min": 0.08956708590585954,
+        "robe_skirt.hem_far_max": 0.28732054512102373,
+        "staff_shaft.prop_foot": -0.02890239982018975
+      },
+      "after": {
+        "floor_m": 0.026642927722146444,
+        "maximum_lift_m": 0.02,
+        "points": {
+          "ankle_far": {
+            "height_m": 0.026642927722146437,
+            "above_floor_m": -6.938893903907228e-18,
+            "within_floor_limit": true,
+            "exception": null,
+            "passed": true
+          },
+          "robe_skirt.hem_far_min": {
+            "height_m": -0.030114040887842253,
+            "above_floor_m": -0.056756968609988696,
+            "within_floor_limit": true,
+            "exception": null,
+            "passed": true
+          },
+          "robe_skirt.hem_far_max": {
+            "height_m": 0.04203710314731829,
+            "above_floor_m": 0.015394175425171845,
+            "within_floor_limit": true,
+            "exception": null,
+            "passed": true
+          },
+          "staff_shaft.prop_foot": {
+            "height_m": -0.0022594720980433068,
+            "above_floor_m": -0.02890239982018975,
+            "within_floor_limit": true,
+            "exception": null,
+            "passed": true
+          }
+        },
+        "offenders": [],
+        "excepted_offenders": [],
+        "passed": true
+      },
+      "hem_contact_vertices": 121,
+      "front_projection_error_px": {
+        "robe_skirt_render": 39.702835365348164,
+        "body_foot_far": 2.001821735575504e-05,
+        "body_foot_near": 2.001821735575504e-05,
+        "body_hand_far": 2.001821735575504e-05,
+        "body_hand_near": 2.001821735575504e-05,
+        "body_head": 2.001821735575504e-05
+      },
+      "native_skin": {
+        "corrective_shape": "floor_contact_fit",
+        "maximum_skinning_error_m": 3.5886748369909214e-07,
+        "passed": true
+      },
+      "covered_body_contact": {
+        "mapped_vertices": 1004,
+        "unresolved_ray_intervals": 0,
+        "maximum_additional_displacement_m": 0.26670247843269135
+      },
+      "robe_contact_clearance": {
+        "method": "nearest bidirectional front-ray exit; barycentric contact constraints",
+        "normal_fallback_vertices": [
+          1211,
+          1212,
+          1213,
+          6565,
+          6566,
+          6567,
+          6568,
+          7453,
+          7454,
+          7455,
+          7456,
+          18637,
+          18638,
+          18639,
+          18646,
+          18647,
+          18648,
+          19887,
+          19888,
+          19889,
+          25241,
+          25242,
+          25243,
+          25244,
+          26129,
+          26130,
+          26131,
+          26132,
+          37313,
+          37314,
+          37315,
+          37322,
+          37323
+        ],
+        "normal_fallback_reason": "ray-only contact constraints cannot clear while floor anchors remain planted; minimum outward regional contact normal for the remaining constraints; full native anatomy is still the acceptance surface",
+        "history": [
+          {
+            "pass": 0,
+            "constraints": 231,
+            "intersecting_face_pairs": 59
+          },
+          {
+            "pass": 1,
+            "constraints": 227,
+            "intersecting_face_pairs": 63
+          },
+          {
+            "pass": 2,
+            "constraints": 203,
+            "intersecting_face_pairs": 56
+          },
+          {
+            "pass": 3,
+            "constraints": 197,
+            "intersecting_face_pairs": 56
+          },
+          {
+            "pass": 4,
+            "constraints": 192,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 5,
+            "constraints": 192,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 6,
+            "constraints": 191,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 7,
+            "constraints": 192,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 8,
+            "constraints": 185,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 9,
+            "constraints": 180,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 10,
+            "constraints": 182,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 11,
+            "constraints": 182,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 12,
+            "constraints": 182,
+            "intersecting_face_pairs": 55
+          },
+          {
+            "pass": 13,
+            "constraints": 180,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 14,
+            "constraints": 180,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 15,
+            "constraints": 180,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 16,
+            "constraints": 180,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 17,
+            "constraints": 180,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 18,
+            "constraints": 176,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 19,
+            "constraints": 174,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 20,
+            "constraints": 171,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 21,
+            "constraints": 169,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 22,
+            "constraints": 169,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 23,
+            "constraints": 168,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 24,
+            "constraints": 167,
+            "intersecting_face_pairs": 54
+          },
+          {
+            "pass": 25,
+            "constraints": 164,
+            "intersecting_face_pairs": 65
+          },
+          {
+            "pass": 26,
+            "constraints": 30,
+            "intersecting_face_pairs": 12
+          },
+          {
+            "pass": 27,
+            "constraints": 0,
+            "intersecting_face_pairs": 0
+          }
+        ],
+        "maximum_displacement_m": 0.16180495467381947
+      },
+      "method": "front-ray lowering after native solve; original evaluated triangles retained",
+      "passed": true
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "dynamic_registration_iou": 0.3694658391976506,
+  "fixed_original_registration_iou": 0.7425047355334919,
+  "fixed_source_frame": {
+    "head_top": 51.0,
+    "sole_bottom": 246.0,
+    "ground_x": 81.02173913043478
+  },
+  "fixed_maquette_frame": {
+    "head_top": 201.0,
+    "sole_bottom": 984.0,
+    "ground_x": 341.0416666666667
+  }
+}
