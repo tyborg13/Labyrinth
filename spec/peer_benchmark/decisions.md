@@ -235,3 +235,8 @@
   mapped texels are transparent in the approved painting; closing it would change the approved rest silhouette; it is
   in the owner-approved clip). Re-review Low 2 (direct tests for the continuation generator's guards) moves to rr-11,
   which generalizes that module.
+
+## 2026-10-18 knee direction (rr-14 review)
+- Knees bend toward the figure's facing: screen-left in the front view (facing the lower-left), screen-right in the
+  rear view (facing the upper-right). Straight-at-rest legs must declare it per view in case anatomy; bent legs keep
+  their rest side. Recorded in `humanoid_cutout_rig.md` §3.

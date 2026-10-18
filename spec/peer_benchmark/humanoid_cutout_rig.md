@@ -68,6 +68,8 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
 - Feet and hem anchors stay planted, except in move and death.
 - **Walking legs bend at the knee** (owner, Thrall 2026-10-18: "Walk is unnatural with no knee bend"):
   - Feet are two-bone targets for thigh and shin, and the knee keeps its rest bend side.
+  - Knees bend toward the figure's facing: screen-left in the front view, screen-right in the rear view. A leg that is
+    straight at rest declares this per view in its case anatomy (required; missing data fails).
   - Each foot steps on the floor: planted while in stance, lifted and carried forward in swing.
   - The pelvis dips 1–2 px at each passing, so the stance knee visibly flexes.
   - The swing knee bends more than the stance knee.
