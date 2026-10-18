@@ -12,11 +12,16 @@ sys.path.insert(0,str(PROJECT/'tools'))
 from cutout_pipeline.cases import digest
 from humanoid_cutout.gates import structure_errors,source_errors,bone_errors
 from humanoid_cutout.seam_proof import fixture_masks,seam_holes
-from humanoid_cutout.tucks import TORSO_SHOULDER_TUCK_PX,SLEEVE_INNER_EXTENSION_PX
+
 from maquette_motion.features import source_pixels
 from maquette_motion.material_palette import rules,outline_class
 
 CASE=PROJECT/'experiments/cutouts/hoarfrost_seer/rr10'
+from humanoid_cutout.anatomy import load, owner_ids
+ANATOMY = load(CASE)
+TORSO_SHOULDER_TUCK_PX = ANATOMY['tucks']['pieces']['torso']['depth_px']
+SLEEVE_INNER_EXTENSION_PX = ANATOMY['tucks']['pieces']['sleeve_near']['extension_px']
+
 FIXTURES=PROJECT/'tests/rr10/feedback5'
 # The fixture body is a pre-rr-13 GPU capture. Under rr-13's stricter seam locality it shows one 2 px opening that
 # rr-13's hidden fills later closed (current native gates PASS). Pinned exactly so any growth still fails.

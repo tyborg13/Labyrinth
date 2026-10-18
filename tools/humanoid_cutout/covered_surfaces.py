@@ -26,7 +26,8 @@ def extend_down(outline, bottom):
     return result
 
 
-def sleeve_domains(visible, solos):
+def sleeve_domains(visible, solos, roles):
+    upper, lower = roles['upper'], roles['lower']
     """Cover both full sleeve footprints, within torso/robe source outlines.
 
     The torso outline continues to the robe top. All additions are clipped to
@@ -34,32 +35,31 @@ def sleeve_domains(visible, solos):
     """
     own = {name: image[..., 3] > 0 for name, image in visible.items()}
     rest = np.logical_or.reduce(list(own.values()))
-    sleeves = (own['sleeve_near'] | own['sleeve_far'] |
-               solos['sleeve_near'] | solos['sleeve_far']) & rest
-    robe_top = int(np.flatnonzero(own['robe'].any(axis=1))[0])
-    torso = extend_down(row_outline(solos['torso'] | own['torso']), robe_top)
+    sleeves = np.logical_or.reduce([own[n] | solos[n] for n in roles['arms']]) & rest
+    robe_top = int(np.flatnonzero(own[lower].any(axis=1))[0])
+    torso = extend_down(row_outline(solos[upper] | own[upper]), robe_top)
     # At the waist the robe must continue beneath the same sleeve footprint,
     # even where categorical rest ownership made its top narrower than the
     # chest. Use the torso's outline only from the existing robe top down.
     waist = torso.copy()
     waist[:robe_top] = False
-    robe = row_outline(solos['robe'] | own['robe'] | waist)
+    robe = row_outline(solos[lower] | own[lower] | waist)
     return {
-        'torso': connected_mask(own['torso'], torso & sleeves & ~own['torso']),
+        upper: connected_mask(own[upper], torso & sleeves & ~own[upper]),
         # The covered waist joins the sleeve footprint back to the robe;
         # clipping to sleeve ownership alone creates hidden-only islands.
-        'robe': connected_mask(own['robe'], robe & (sleeves | own['torso']) & ~own['robe']),
+        lower: connected_mask(own[lower], robe & (sleeves | own[upper]) & ~own[lower]),
     }
 
 
-def hem_domain(visible, robe_outline):
+def hem_domain(visible, robe_outline, roles):
     """Continue the hem beneath the full covered boot tops, including steps.
 
     The existing hem dilation can miss the inside of a boot's rest footprint.
     The covered layer shares the robe field and stays behind the rigid boots.
     """
-    own = visible['robe'][..., 3] > 0
-    feet = (visible['foot_near'][..., 3] > 0) | (visible['foot_far'][..., 3] > 0)
+    own = visible[roles['lower']][..., 3] > 0
+    feet = np.logical_or.reduce([visible[n][..., 3] > 0 for n in roles['feet']])
     rows = np.flatnonzero(feet.any(axis=1))
     outline = row_outline(robe_outline | own)
     if len(rows):

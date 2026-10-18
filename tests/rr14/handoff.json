@@ -1,0 +1,257 @@
+{
+  "task_id": "rr-14",
+  "branch": "codex/rr-14",
+  "implementation": "complete; changes intentionally uncommitted",
+  "files_changed": [
+    "experiments/cutouts/hoarfrost_seer/rr10/anatomy.json",
+    "experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json",
+    "experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json",
+    "experiments/cutouts/hoarfrost_seer/rr10_build.py",
+    "experiments/cutouts/hoarfrost_seer/rr10_seam_fixtures.py",
+    "experiments/cutouts/hoarfrost_seer/rr10_tuck_diagnostic.py",
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "tests/rr10/bindings.gd",
+    "tests/rr10/native_capture.gd",
+    "tests/rr14/design_owner_proof.sh",
+    "tests/rr14/fixture.py",
+    "tests/rr14/handoff.json",
+    "tests/rr14/mutations.py",
+    "tests/rr14/refresh_bindings.py",
+    "tests/rr14/runtime_checks.gd",
+    "tests/rr14/seer_identity.json",
+    "tests/rr14/verify_samples.py",
+    "tests/test_rr10_feedback.py",
+    "tests/test_rr10_humanoid.py",
+    "tests/test_rr10_rear.py",
+    "tests/test_rr10_silhouette_gates.py",
+    "tests/test_rr10_tucks.py",
+    "tests/test_rr12_production.py",
+    "tests/test_rr13_continuations.py",
+    "tests/test_rr14_continuation_domains.py",
+    "tests/test_rr14_foundations.py",
+    "tests/test_rr14_seer_identity.py",
+    "tools/humanoid_cutout/anatomy.py",
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/bone_contracts.py",
+    "tools/humanoid_cutout/covered_surfaces.py",
+    "tools/humanoid_cutout/cpu_pose.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/integration.py",
+    "tools/humanoid_cutout/joint_continuations.py",
+    "tools/humanoid_cutout/materials.py",
+    "tools/humanoid_cutout/mesh.py",
+    "tools/humanoid_cutout/promotion.py",
+    "tools/humanoid_cutout/seam_proof.py",
+    "tools/humanoid_cutout/seams.py",
+    "tools/humanoid_cutout/silhouette_gates.py",
+    "tools/humanoid_cutout/skin_layers.py",
+    "tools/humanoid_cutout/source_view.py",
+    "tools/humanoid_cutout/tucks.py"
+  ],
+  "numbered_requirements": [
+    {
+      "number": 1,
+      "status": "met",
+      "implementation": "Shared two-bone runtime solve for thigh/shin/foot; hierarchy excludes hem-parented feet. Reach clamp, rotations, lengths, stance/swing and bend sides have direct headless assertions."
+    },
+    {
+      "number": 2,
+      "status": "met",
+      "implementation": "Case anatomy.json owns required hierarchy/mesh fields, idle groups, held/depth/ownership/joint roles, production/registry/scale targets and original tuck/cuff depths. anatomy.schema.json documents the contract. Existing Seer layouts/paint/motion unchanged. Native idle proof selects each group's own anchor, including a lagged weapon arm; the capture probe uses the same case data."
+    },
+    {
+      "number": 3,
+      "status": "met",
+      "implementation": "Replayable diagnostic case generator has visible skinned legs, rigid feet, near tube/tube_tip without a hand, skinned far arm/rigid claw and pelvis loincloth. Compiler, source/structure/bone gates and actual runtime pass."
+    },
+    {
+      "number": 4,
+      "status": "met",
+      "implementation": "Direct generator guards, held-item rename, IK regressions, independent bone gates, 777-file byte closure, fresh 1258-pose identity, requested focused/compatibility/runtime checks and ten mutations pass."
+    }
+  ],
+  "proofs": [
+    {
+      "name": "focused",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && LABYRINTH_TASK_ID=rr-14 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_rr1[0-4]*.py' -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 98 tests in 118.088s",
+        "OK",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-9_a15w7t/sheets)",
+        "RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)",
+        "RR14 RUNTIME: PASS (104 checks; headless synthetic anatomy and foot IK)",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/focused-final.log"
+    },
+    {
+      "name": "compatibility",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && LABYRINTH_TASK_ID=rr-14 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.test_rr07_production tests.test_maquette_rear_turn -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 23 tests in 85.930s",
+        "OK"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/compatibility-final.log"
+    },
+    {
+      "name": "seer gates",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && LABYRINTH_TASK_ID=rr-14 PYTHONDONTWRITEBYTECODE=1 python3 experiments/cutouts/hoarfrost_seer/rr10_gates.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 BONE/CUT GATES: PASS (0 errors)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/seer-gates.log"
+    },
+    {
+      "name": "rr10 runtime",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr10/runtime_checks.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 RUNTIME: PASS (10 checks; headless logic only)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/rr10-runtime-final.log"
+    },
+    {
+      "name": "rr07 runtime",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr07/runtime_test.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "RR07 RUNTIME: PASS (73057 checks, 0 failures; headless logic only)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/rr07-runtime-final.log"
+    },
+    {
+      "name": "native probe setup only",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr10/native_capture.gd -- --output /private/tmp/labyrinth_codex/rr-14/native-load --validate-only",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/native-load-final.log"
+    },
+    {
+      "name": "foot IK and synthetic anatomy",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr14/runtime_checks.gd -- --case /private/tmp/labyrinth_codex/rr-14/synthetic-case --report /private/tmp/labyrinth_codex/rr-14/synthetic-case/proof/samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR14 RUNTIME: PASS (104 checks; headless synthetic anatomy and foot IK)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/synthetic-runtime-final.log"
+    },
+    {
+      "name": "mutations",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && PYTHONDONTWRITEBYTECODE=1 python3 tests/rr14/mutations.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR14 MUTATION idle_group_anchor: CAUGHT",
+        "RR14 MUTATION named_cover: CAUGHT",
+        "RR14 MUTATION garment_bounds: CAUGHT",
+        "RR14 MUTATION connectivity: CAUGHT",
+        "RR14 MUTATION foot_dispatch: CAUGHT",
+        "RR14 MUTATION reach_clamp: CAUGHT",
+        "RR14 MUTATION bend_side: CAUGHT",
+        "RR14 MUTATION shin_rotation: CAUGHT",
+        "RR14 MUTATION required_hierarchy: CAUGHT",
+        "RR14 MUTATION required_meshes: CAUGHT",
+        "RR14 MUTATIONS: 10 caught; 0 survived"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/mutations.log"
+    },
+    {
+      "name": "byte identity",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.test_rr14_seer_identity -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 1 test in 0.065s",
+        "OK",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/identity-final.log"
+    },
+    {
+      "name": "fresh samples",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr10/samples.gd -- --output /private/tmp/labyrinth_codex/rr-14/seer-samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (1258 poses; headless transforms only)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/seer-samples.log"
+    },
+    {
+      "name": "fresh sample identity",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && PYTHONDONTWRITEBYTECODE=1 python3 tests/rr14/verify_samples.py --samples /private/tmp/labyrinth_codex/rr-14/seer-samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR14 SEER SAMPLES: PASS (1258 poses; byte-identical outside input bindings)"
+      ],
+      "log": "/private/tmp/labyrinth_codex/rr-14/seer-samples-identity.log"
+    }
+  ],
+  "capture_paths": {
+    "worker_windowed_captures": [],
+    "fresh_headless_samples": "/private/tmp/labyrinth_codex/rr-14/seer-samples.json",
+    "synthetic_case": "/private/tmp/labyrinth_codex/rr-14/synthetic-case",
+    "owner_native_capture_planned": "/private/tmp/labyrinth_codex/rr-14/director/seer-native",
+    "owner_native_result_planned": "/private/tmp/labyrinth_codex/rr-14/director/seer-native-result.json",
+    "owner_sheets_planned": "/private/tmp/labyrinth_codex/rr-14/director/seer-sheets"
+  },
+  "proof_for_design_owner": {
+    "script": "tests/rr14/design_owner_proof.sh",
+    "run": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && sh tests/rr14/design_owner_proof.sh",
+    "exact_windowed_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/visual_probe_runner.py --task-id rr-14 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/rr10/render_contract.json --result-manifest /private/tmp/labyrinth_codex/rr-14/director/seer-native-result.json tests/rr10/native_capture.gd -- --output /private/tmp/labyrinth_codex/rr-14/director/seer-native",
+    "inspection_fixture": "Not applicable per recorded task contract: no player-visible change; owner owns later inspection/publication."
+  },
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "scope": "Diagnostic/test-only values; no production artwork, motion, tuning or authored depths chosen.",
+    "fixture_texture_rgba": [
+      80,
+      100,
+      120,
+      255
+    ],
+    "fixture_canvas_size_px": [
+      255,
+      255
+    ],
+    "fixture_clip_seconds": 1.0,
+    "fixture_projection_forward": [
+      1.0,
+      0.0
+    ],
+    "fixture_projection_lean_sign": 1,
+    "fixture_mesh_blend_half_width_px": 1,
+    "fixture_mesh_cuff_rows_px": 0,
+    "fixture_graph_positions": "Plain joint.position fields generated by tests/rr14/fixture.py; includes mirrored 5/5 leg chains and arbitrary diagnostic arm/cloth attachments.",
+    "fixture_floor_end_px": [
+      28,
+      19
+    ],
+    "fixture_swing_carry_px": 2,
+    "continuation_domain_canvas_px": 16,
+    "integration_fixture_scale": 1.25,
+    "proof_timeout_seconds": 180,
+    "other_fixture_metadata": "Synthetic IDs, paths, colour and layout are diagnostic fields in tests/rr14/fixture.py and tests/test_rr14_foundations.py.",
+    "fixture_rigid_texture_size_px": [
+      2,
+      4
+    ],
+    "fixture_skinned_texture_bounds": "Joint-chain bounds plus the 2x4 diagnostic thickness, so every weighted bone has nonzero paint coverage."
+  },
+  "open_issues": [
+    "Owner must run windowed native proof and full Python/Godot suites at merge, as assigned in the brief. No worker windowed run was attempted."
+  ],
+  "log_diagnostics": [
+    "Headless Godot prints macOS certificate lookup error (ret != noErr); successful processes return 0 and all requested assertions pass.",
+    "Requested Python checks emit NumPy and unclosed-image resource warnings in unchanged art tools.",
+    "Initial compileall: PermissionError: [Errno 1] Operation not permitted: '/Users/borgerding/Library/Caches/com.apple.python/Users/borgerding/workspace/Labyrinth.worktrees/rr-14'. Rerun with PYTHONPYCACHEPREFIX=/private/tmp/labyrinth_codex/rr-14/pycache passed."
+  ],
+  "workflow_handoff": {
+    "commit": "not performed; assigned to design owner",
+    "peer_review": "not performed; expressly excluded by user",
+    "push_merge_cleanup": "not performed",
+    "full_suites": "not run, expressly deferred by unit proof instructions"
+  }
+}

@@ -19,6 +19,9 @@ from humanoid_cutout.mesh import robe_weights, sleeve_weights
 from humanoid_cutout.compiler import compile_motion
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
+from humanoid_cutout.anatomy import load, owner_ids
+ANATOMY = load(CASE)
+
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-10/motion_tracks.json'
 PROOF_TIMEOUT_SECONDS = 180
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-13')
@@ -68,12 +71,12 @@ class HumanoidTests(unittest.TestCase):
         self.assertEqual(bone_errors(self.layout, self.data, self.samples, self.current_bindings), [])
 
     def test_weights_top_hem_elbow_and_normalization(self):
-        weights = robe_weights([[0,0],[0,4],[0,10],[12,10],[6,10]], [0,0,12,10])
+        weights = robe_weights([[0,0],[0,4],[0,10],[12,10],[6,10]], [0,0,12,10], True, ANATOMY['meshes']['robe']['top_rows_px'], ANATOMY['meshes']['robe']['bones'])
         self.assertEqual(weights['pelvis'][:2], [1,1])
         self.assertEqual(weights['hem_far'][2], 1)
         self.assertEqual(weights['hem_near'][3], 1)
         self.assertEqual(weights['hem_near'][4], .5)
-        weights = sleeve_weights([[0,6],[0,10],[4,10]], [0,0],[0,10],[10,10], 'near')
+        weights = sleeve_weights([[0,6],[0,10],[4,10]], [0,0],[0,10],[10,10], ANATOMY['meshes']['sleeve_near']['bones'], ANATOMY['meshes']['sleeve_near']['cuff_rows_px'], ANATOMY['meshes']['sleeve_near']['blend_half_width_px'])
         self.assertTrue(np.allclose(weights['fore_near'], [0,.5,1]))
         layout=copy.deepcopy(self.layout)
         mesh=next(m for m in layout['joint_meshes'] if m['name']=='robe')
@@ -180,12 +183,12 @@ class HumanoidTests(unittest.TestCase):
         self.assertEqual(clean_metrics([(row,mutant,checks)])['interior_hole_sizes'],[4])
         old=np.zeros((10,10),dtype=bool); old[4:6,4:6]=True
         seam=old.copy()
-        from humanoid_cutout.silhouette_gates import OWNER_IDS
+        OWNER_IDS=owner_ids(ANATOMY['ownership'])
         owners=np.full(old.shape,OWNER_IDS['upper_far'],dtype=np.uint8)
         owners[5:]=OWNER_IDS['fore_far']
-        self.assertEqual(joint_holes(mutant[...,3]>0,seam,owners,[old]),[])
+        self.assertEqual(joint_holes(mutant[...,3]>0,seam,owners,[old], ownership=ANATOMY['ownership']),[])
         displaced=np.zeros_like(old); displaced[3,3:5]=True
-        self.assertEqual(joint_holes(mutant[...,3]>0,seam,owners,[displaced]),[4])
+        self.assertEqual(joint_holes(mutant[...,3]>0,seam,owners,[displaced], ownership=ANATOMY['ownership']),[4])
         occupied=np.zeros((14,14),dtype=bool); occupied[1:13,1:13]=True
         occupied[3:5,3:5]=False; occupied[8:10,8:10]=False
         reference=np.zeros_like(occupied); reference[3:5,3:5]=True
@@ -194,9 +197,9 @@ class HumanoidTests(unittest.TestCase):
         seam=np.zeros_like(occupied);seam[9,9]=True
         owners=np.full(occupied.shape,OWNER_IDS['upper_far'],dtype=np.uint8)
         owners[9:]=OWNER_IDS['fore_far']
-        self.assertEqual(joint_holes(occupied,seam,owners),[4])
+        self.assertEqual(joint_holes(occupied,seam,owners, ownership=ANATOMY['ownership']),[4])
         seam[:]=False
-        self.assertEqual(joint_holes(occupied,seam,owners),[])
+        self.assertEqual(joint_holes(occupied,seam,owners, ownership=ANATOMY['ownership']),[])
 
     def test_stray_gate_rejects_all_five_director_regression_frames(self):
         from PIL import Image
@@ -231,7 +234,7 @@ class HumanoidTests(unittest.TestCase):
         from humanoid_cutout.materials import held_depths
         depths={p['name']:p['z_index'] for p in self.layout['parts']}
         for view in ('front','rear'):
-            result=held_depths(depths,view,self.layout['held_item_depth'])
+            result=held_depths(depths,view,ANATOMY['held_depth_roles'])
             body=[result[n] for n in ('torso','sleeve_near','sleeve_far','robe')]
             self.assertTrue(result['staff']<min(body) if view=='front' else result['staff']>max(body))
             self.assertGreater(result['hand_far'],result['staff'])

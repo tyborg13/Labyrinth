@@ -8,7 +8,8 @@ from PIL import Image
 
 from cutout_pipeline.cases import digest
 from maquette_motion.pixels import render, unpack
-from .silhouette_gates import joint_holes, OWNER_IDS
+from .silhouette_gates import joint_holes
+from .anatomy import load, owner_ids
 
 
 def fixture_masks(folder, record):
@@ -21,6 +22,8 @@ def fixture_masks(folder, record):
 
 
 def seam_holes(case, layout, pose, masks, rigid_tucks, replacement=None):
+    ownership=load(case)['ownership']
+    ids=owner_ids(ownership)
     owners=masks['owners'].copy()
     body=owners>0
     parts={p['name']:p for p in layout['parts']}
@@ -31,6 +34,6 @@ def seam_holes(case, layout, pose, masks, rigid_tucks, replacement=None):
         else:
             image=Image.open(case/part['file']).convert('RGBA')
             opaque=render(image,unpack(pose['parts'][name]['transform']))[...,3]>0
-        owners[opaque & ~body]=OWNER_IDS[part['logical_part']]
+        owners[opaque & ~body]=ids[part['logical_part']]
     references=[(masks['rest_holes']&(1<<index))>0 for index in range(8)]
-    return joint_holes(owners>0,masks['seam']>0,owners,[m for m in references if m.any()])
+    return joint_holes(owners>0,masks['seam']>0,owners,[m for m in references if m.any()],ownership)

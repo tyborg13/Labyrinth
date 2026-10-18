@@ -66,7 +66,7 @@ def prepare(project, case, inputs, view, pieces, registration, palette_for, dept
     paint = np.asarray(Image.open(source / 'processed.png').convert('RGBA'))
     owners, reassigned = nearest_labels(labels, paint[..., 3] > 0, names, native_depth)
     # rr-07 neighbour ownership cleanup for unsupported tiny categorical
-    # fringes. A boot-outline pixel must not ride a distant staff simply
+    # fringes. A boot-outline pixel must not ride a distant held item simply
     # because the nearest unoccluded maquette label was the shaft.
     transfers=[]
     for index,name in enumerate(names):

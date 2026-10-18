@@ -15,6 +15,7 @@ sys.path.insert(0,str(PROJECT/'tools'))
 from cutout_pipeline.cases import read_json,write_json,digest
 from humanoid_cutout.seam_proof import seam_holes
 from humanoid_cutout.silhouette_gates import posed_owners
+from humanoid_cutout.anatomy import load as load_anatomy
 from maquette_motion.pixels import PROOF_DEFAULTS
 from rr10_seam_fixtures import CASE,RIGID_TUCKS
 
@@ -34,7 +35,7 @@ def main():
     for key,pose in poses.items():
         rows=grouped['pieces'][key]
         layers=[(r,np.asarray(Image.open(capture/r['file']).convert('RGBA')),None) for r in rows if r['name'] not in RIGID_TUCKS]
-        owners=posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'])
+        owners=posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'], load_anatomy(CASE)['ownership'])
         seam=np.logical_or.reduce([np.asarray(Image.open(capture/r['file']).convert('RGBA'))[...,3]>0 for r in grouped['joint_seams'][key]])
         references=np.zeros(owners.shape,dtype=np.uint8)
         for index,row in enumerate(grouped['rest_holes'][key]):

@@ -8,13 +8,10 @@ from PIL import Image
 from cutout_pipeline.cases import read_json, digest
 from maquette_motion.compiler import evaluate
 from .silhouette_gates import detached_metrics, joint_holes, posed_owners
+from .anatomy import for_layout, load
 
 EPSILON = 0.0001  # Serialized Bone2D float tolerance, not animation tuning.
 FAILURE_CROP_ZOOM = 3
-GROUP_BONES = {
-    'upper_body': ('torso', 'head', 'upper_near', 'fore_near', 'hand_near'),
-    'still_staff_arm': ('upper_far', 'fore_far', 'hand_far', 'staff'),
-    'still_lower_body': ('root', 'pelvis', 'hem_near', 'hem_far', 'foot_near', 'foot_far')}
 
 
 def matrix(values):
@@ -35,36 +32,42 @@ def view_build(layout, build):
 
 
 def structure_errors(layout, build):
+    anatomy = for_layout(layout)
     build = view_build(layout, build)
     errors = []
-    required = {'root': None, 'pelvis': 'root', 'torso': 'pelvis', 'head': 'torso',
-                'hem_near': 'root', 'hem_far': 'root', 'foot_near': 'hem_near',
-                'foot_far': 'hem_far', 'staff': 'hand_far'}
+    required = anatomy['required_parents']
     for name, parent in required.items():
         if layout['joints'].get(name, {}).get('parent', 'missing') != parent:
             errors.append('hierarchy: ' + name)
+    from .bone_contracts import visible_leg, leg_bend_side
+    for side in ('near', 'far'):
+        if visible_leg(layout['joints'], side):
+            try:
+                leg_bend_side(layout, anatomy, side, layout['facing'])
+            except ValueError as error:
+                errors.append(str(error))
     meshes = {m['name']: m for m in layout.get('joint_meshes', []) if not m.get('hidden_material')}
-    if set(meshes) != {'robe', 'sleeve_near', 'sleeve_far'}:
-        errors.append('cut: exactly one robe and two sleeve meshes required')
-    if any(n in layout['joints'] for n in ('collar', 'skirt_near', 'skirt_far', 'staff_crystal')):
+    if set(meshes) != set(anatomy['meshes']):
+        errors.append('cut: required meshes differ: ' + ', '.join(anatomy['meshes']))
+    if any(n in layout['joints'] for n in anatomy['forbidden_joints']):
         errors.append('cut: independently moving fused piece')
-    if set(layout.get('idle_groups', {})) != set(GROUP_BONES):
+    if set(layout.get('idle_groups', {})) != set(anatomy['idle_groups']):
         errors.append('idle: exactly three groups required')
     for mesh in layout.get('joint_meshes', []):
         weights = np.asarray(list(mesh['weights'].values()))
         if mesh.get('grid_px') != 2 or not np.isfinite(weights).all() or weights.min() < 0 or not np.allclose(weights.sum(0), 1):
             errors.append('mesh: invalid grid or normalized weights: ' + mesh['name'])
-        from .mesh import grid, robe_weights, sleeve_weights
+        from .mesh import grid, weights_for
         vertices,uvs,triangles=grid(mesh['bbox'])
         if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
             errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
         garment=mesh.get('garment',mesh['name'])
         if mesh.get('hidden_material') and (garment not in meshes or mesh.get('weight_bounds') != meshes[garment]['bbox']):
             errors.append('mesh: hidden layer must share its garment field: '+mesh['name'])
-        if garment=='robe': expected=robe_weights(vertices,mesh.get('weight_bounds',mesh['bbox']), layout['joints']['hem_near']['position'][0] > layout['joints']['hem_far']['position'][0])
-        else:
-            side=garment.split('_')[-1]
-            expected=sleeve_weights(vertices,*[layout['joints'][n+side]['position'] for n in ('upper_','fore_','hand_')],side)
+        if garment not in anatomy['meshes']:
+            errors.append('mesh: unknown garment: ' + garment)
+            continue
+        expected=weights_for(vertices,mesh.get('weight_bounds',mesh['bbox']),layout['joints'],anatomy['meshes'][garment])
         if set(mesh['weights'])!=set(expected) or any(not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
             errors.append('mesh: director weight rule differs: '+mesh['name'])
     for tuck in build['tucks']:
@@ -72,17 +75,16 @@ def structure_errors(layout, build):
             errors.append('tuck: insufficient continuation: ' + tuck['piece'])
     if build['front_rest_mismatch_pixels']:
         errors.append('rest: source ownership mismatch')
-    policy = layout.get('held_item_depth', {})
-    if policy != {'front': 'behind_body', 'rear': 'in_front_of_body'}:
-        errors.append('held depth: front far side / rear near side required')
     depths = {p['name']: p['z_index'] for p in layout['parts']}
-    body = [depths[n] for n in ('torso','sleeve_near','sleeve_far','robe')]
-    if layout['facing'] == 'front' and depths['staff'] >= min(body):
-        errors.append('held depth: front staff must be behind body')
-    if layout['facing'] == 'rear' and depths['staff'] <= max(body):
-        errors.append('held depth: rear staff must be in front of body')
-    if depths['hand_far'] <= depths['staff']:
-        errors.append('held depth: gripping hand must be in front of staff')
+    for item, role in anatomy['held_depth_roles'].items():
+        body = [depths[n] for n in role['body']]
+        policy = role['policy'][layout['facing']]
+        if ((policy == 'behind_body' and depths[item] >= min(body)) or
+                (policy == 'in_front_of_body' and depths[item] <= max(body))):
+            errors.append('held depth: ' + item + ' must be ' + policy)
+        grip = role.get('grip')
+        if grip is not None and depths[grip] <= depths[item]:
+            errors.append('held depth: gripping piece must be in front of ' + item)
     return errors
 
 
@@ -151,6 +153,7 @@ def bone_errors(layout, data, report, current_bindings):
     errors = evidence_errors(data, report, current_bindings, EPSILON)
     if errors:
         return errors
+    anatomy = for_layout(layout)
     joints = layout['joints']
     forward = np.asarray(data['projection'][layout['facing']]['forward'])
     step = report['step_distance_px'] / report['screen_pixel_scale']
@@ -164,8 +167,12 @@ def bone_errors(layout, data, report, current_bindings):
                 values.setdefault(track['bone'], {})[track['channel']] = evaluate(track['keys'], phase)
                 modes[track['bone']] = track['forward_mode']
             root_progress = values.get('root', {}).get('forward_px', 0.)
+            from .bone_contracts import target_chains, fk_world, ik_errors
+            chains = target_chains(layout, values)
+            solved = {chain[key] for chain in chains for key in ('first', 'second', 'target')}
+            fk = fk_world(layout, values, modes, forward, step)
             for name, channels in values.items():
-                if name.startswith('hand_') or name == 'staff': continue
+                if name in solved or name in layout.get('held_items', {}): continue
                 position = np.asarray(joints[name]['position'])
                 parent = joints[name]['parent']
                 origin = position - (np.asarray(joints[parent]['position']) if parent else 0.)
@@ -179,34 +186,15 @@ def bone_errors(layout, data, report, current_bindings):
                     errors.append(tag + ': signed translation: ' + name)
                 if abs(angle(bones[name]['local']) - channels.get('lean_deg', 0.)) > EPSILON:
                     errors.append(tag + ': signed rotation: ' + name)
-            for side in ('near', 'far'):
-                upper, fore, hand = ['%s_%s' % (n, side) for n in ('upper', 'fore', 'hand')]
-                if hand not in values: continue
-                a, b, c = [np.asarray(bones[n]['global'][4:]) for n in (upper, fore, hand)]
-                ra, rb, rc = [np.asarray(joints[n]['position']) for n in (upper, fore, hand)]
-                if not np.allclose([np.linalg.norm(b-a), np.linalg.norm(c-b)],
-                                   [np.linalg.norm(rb-ra), np.linalg.norm(rc-rb)], atol=EPSILON, rtol=0):
-                    errors.append(tag + ': IK length: ' + side)
-                def cross(u, v): return u[0] * v[1] - u[1] * v[0]
-                if cross(c-a, b-a) * cross(rc-ra, rb-ra) < -EPSILON:
-                    errors.append(tag + ': IK changed rest bend side: ' + side)
-                torso = matrix(bones['torso']['global'])
-                delta = values[hand]
-                target_local = rc - np.asarray(joints['torso']['position'])
-                target_local = target_local + forward * delta.get('forward_px', 0.) + [
-                    np.sign(joints['root']['position'][0] - rc[0]) * delta.get('inward_px', 0.), -delta.get('lift_px', 0.)]
-                target = (torso @ [*target_local, 1])[:2]
-                ray = target - a
-                distance = min(max(np.linalg.norm(ray), abs(np.linalg.norm(rb-ra)-np.linalg.norm(rc-rb)) + 1e-6),
-                               np.linalg.norm(rb-ra) + np.linalg.norm(rc-rb) - 1e-6)
-                expected = a + ray / np.linalg.norm(ray) * distance
-                if not np.allclose(c, expected, atol=EPSILON, rtol=0):
-                    errors.append(tag + ': signed hand target: ' + side)
-            expected_angle = values.get('staff', {}).get('angle_deg', 0.)
-            if abs(angle(bones['staff']['global']) - expected_angle) > EPSILON:
-                errors.append(tag + ': world-relative staff angle')
+            for chain in chains:
+                errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON, anatomy)]
+            for item in layout.get('held_items', {}):
+                expected_angle = values.get(item, {}).get('angle_deg', 0.)
+                if abs(angle(bones[item]['global']) - expected_angle) > EPSILON:
+                    errors.append(tag + ': world-relative ' + item + ' angle')
         if clip == 'idle':
-            for group, names in GROUP_BONES.items():
+            for group, definition in anatomy['idle_groups'].items():
+                names = definition['bones']
                 offsets = []
                 for name in names:
                     transform = matrix(bones[name]['global'])
@@ -215,20 +203,21 @@ def bone_errors(layout, data, report, current_bindings):
                     offsets.append(transform[:2, 2] - joints[name]['position'])
                 if not np.allclose(offsets, offsets[0], atol=EPSILON, rtol=0):
                     errors.append(tag + ': idle group deformed: ' + group)
-                if group != 'upper_body' and not np.allclose(offsets, 0, atol=EPSILON, rtol=0):
+                if definition['stationary'] and not np.allclose(offsets, 0, atol=EPSILON, rtol=0):
                     errors.append(tag + ': planted idle group moved: ' + group)
                 if row['kind'] == 'presented' and not np.allclose(offsets, np.round(offsets), atol=EPSILON, rtol=0):
                     errors.append(tag + ': fractional idle group')
         if clip not in ('move', 'death'):
-            for name in ('hem_near', 'hem_far', 'foot_near', 'foot_far'):
+            for name in anatomy['planted_bones']:
                 if not np.allclose(bones[name]['global'][4:], joints[name]['position'], atol=EPSILON, rtol=0):
                     errors.append(tag + ': planted anchor moved: ' + name)
         if abs(angle(bones['torso']['local'])) > (25 if clip == 'death' else 4) + EPSILON:
             errors.append(tag + ': torso lean limit')
         if abs(relative_angle(bones['head']['global'], bones['torso']['global'])) > (20 if clip == 'death' else 6) + EPSILON:
             errors.append(tag + ': head nod limit')
-        if clip != 'death' and abs(angle(bones['staff']['global'])) > 35 + EPSILON:
-            errors.append(tag + ': staff angle limit')
+        for item in layout.get('held_items', {}):
+            if clip != 'death' and abs(angle(bones[item]['global'])) > 35 + EPSILON:
+                errors.append(tag + ': ' + item + ' angle limit')
     return sorted(set(errors))
 
 
@@ -240,6 +229,11 @@ def idle_pixel_errors(rest, frame, offset):
     expected[max(0,dy):min(h,h+dy), max(0,dx):min(w,w+dx)] = rest[max(0,-dy):min(h,h-dy), max(0,-dx):min(w,w-dx)]
     visible=(expected[...,3]>0)|(frame[...,3]>0)
     return int((np.any(expected != frame, axis=-1)&visible).sum())
+
+
+def idle_group_offset(layout, bones, group, anatomy):
+    anchor = anatomy['idle_groups'][group]['bones'][0]
+    return np.asarray(bones[anchor]['global'][4:]) - layout['joints'][anchor]['position']
 
 
 def dark_slab_blocks(mask):
@@ -303,6 +297,7 @@ def unexplained_holes(occupied, references):
 def native_errors(case, capture, failure_output=None, hole_details=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
+    anatomy = load(case)
     errors = list(manifest.get('errors', []))
     from .native_exceptions import load as load_exceptions, frame_errors
     try:
@@ -347,8 +342,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         expected=expected_poses.get((row['view'],'idle',row['frame']))
         if expected is None: errors.append(row['file']+': missing independent idle pose')
         else:
-            bone='torso' if row['group']=='upper_body' else 'root'
-            offset=np.asarray(expected['bones'][bone]['global'][4:])-layouts[row['view']]['joints'][bone]['position']
+            offset=idle_group_offset(layouts[row['view']],expected['bones'],row['group'],anatomy)
             if not np.allclose(offset,row['offset'],atol=EPSILON,rtol=0): errors.append(row['file']+': idle offset differs from authored group')
         rest = np.asarray(Image.open(capture / row['rest']).convert('RGBA'))
         frame = np.asarray(Image.open(capture / row['file']).convert('RGBA'))
@@ -406,7 +400,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
             new_holes = []
         else:
             from maquette_motion.pixels import PROOF_DEFAULTS
-            owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'])
+            owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
             new_holes = joint_holes(occupied, seam, owners, references)
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
@@ -437,15 +431,18 @@ def bindings(case):
              and 'proof' not in p.relative_to(case).parts]
     result = {str(p.relative_to(case)): digest(p) for p in paths}
     project = Path(__file__).resolve().parents[2]
-    for folder in ('tools/humanoid_cutout', 'scripts/maquette_cutout_runtime', 'tests/rr10'):
+    integration = load(case)['integration']
+    for folder in integration['binding_folders']:
         for path in (project / folder).rglob('*'):
             if path.is_file() and path.suffix in ('.gd','.py','.json'):
                 result['runtime:' + str(path.relative_to(project))] = digest(path)
-    production = project / 'assets/units/hoarfrost_seer_cutout'
-    for path in (production / 'humanoid_v2').rglob('*'):
+    if integration['production_root'] is None:
+        return result  # Diagnostic anatomy with no production integration.
+    production = project / integration['production_root']
+    for path in (production / integration['rig_directory']).rglob('*'):
         if path.is_file() and path.suffix in ('.json','.png'):
             result['production:' + str(path.relative_to(project))] = digest(path)
-    for name in ('rig.gd','renderer.gd','actions.gd'):
+    for name in integration['binding_files']:
         path=production/name
         result['production:' + str(path.relative_to(project))] = digest(path)
     return result

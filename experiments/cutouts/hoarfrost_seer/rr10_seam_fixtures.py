@@ -13,6 +13,7 @@ PROJECT = Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(PROJECT/'tools'))
 from cutout_pipeline.cases import read_json, write_json, digest
 from humanoid_cutout.silhouette_gates import posed_owners
+from humanoid_cutout.anatomy import load as load_anatomy
 from maquette_motion.pixels import PROOF_DEFAULTS
 
 CASE = PROJECT/'experiments/cutouts/hoarfrost_seer/rr10'
@@ -33,7 +34,7 @@ def main():
         rows=[r for r in manifest['pieces'] if selected(r)]
         layers=[(r,np.asarray(Image.open(capture/r['file']).convert('RGBA')),None) for r in rows if r['name'] not in RIGID_TUCKS]
         pose=next(r for r in samples['samples'] if selected(r) and r['kind']=='presented')
-        owners=posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'])
+        owners=posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'], load_anatomy(CASE)['ownership'])
         seam=np.logical_or.reduce([np.asarray(Image.open(capture/r['file']).convert('RGBA'))[...,3]>0 for r in manifest['joint_seams'] if selected(r)])
         references=np.zeros(owners.shape,dtype=np.uint8)
         holes=[r for r in manifest['rest_holes'] if selected(r)]

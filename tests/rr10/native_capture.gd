@@ -18,6 +18,7 @@ const IDLE_COMPARISON_LOOPS: int = 5
 var directory: String = "res://experiments/cutouts/hoarfrost_seer/rr10"
 var output: String
 var data: Dictionary
+var anatomy: Dictionary
 var rigs: Array[Node2D]
 var primary: Dictionary = {}
 var groups: Dictionary = {}
@@ -49,6 +50,7 @@ func _run() -> void:
 		return
 	output = args[args.find("--output") + 1]
 	data = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
+	anatomy = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
 	if args.has("--validate-only"):
 		for view: String in data["view_tracks"]:
 			var rig: Node2D = make_rig(view)
@@ -180,7 +182,7 @@ func _run() -> void:
 						var group_rig: Node2D = groups[key]
 						var file: String = "groups/" + key + "/frame_%04d.png" % frame
 						picture(group_rig).save_png(path(file))
-						var anchor: String = "torso" if key.ends_with("upper_body") else "root"
+						var anchor: String = str(anatomy["idle_groups"][key.get_slice("/",1)]["bones"][0])
 						var bone: Bone2D = group_rig.bones[anchor]
 						var offset: Vector2 = bone.global_position - ORIGIN - Motion.point(group_rig.layout["joints"][anchor]["position"])
 						idle_groups.append({"view":key.get_slice("/",0),"group":key.get_slice("/",1),"frame":frame,

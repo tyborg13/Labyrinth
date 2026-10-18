@@ -2,6 +2,9 @@
 import hashlib
 import json
 
+from .anatomy import for_layout
+from .bone_contracts import visible_leg, leg_bend_side
+
 CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg'}
 
 
@@ -13,6 +16,13 @@ def compile_motion(source, creature, layouts, projection):
               'director_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
               'projection': projection, 'clips': {}, 'view_tracks': {}, 'TODO_DESIGN': {}}
     for view, layout in layouts.items():
+        anatomy = for_layout(layout)
+        for side in ('near', 'far'):
+            if not visible_leg(layout['joints'], side): continue
+            leg_bend_side(layout, anatomy, side, view)
+            policy = anatomy.get('legs', {}).get(side, {}).get(view)
+            if policy is not None:
+                result.setdefault('legs', {}).setdefault(side, {})[view] = dict(policy)
         result['view_tracks'][view] = {}
         for clip, definition in author['clips'].items():
             result['clips'][clip] = {k: v for k, v in definition.items() if k != 'keys'}
