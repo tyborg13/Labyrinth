@@ -1,0 +1,62 @@
+extends RefCounted
+
+const Dump = preload("res://tests/fixtures/static_floor_diff_dump.gd")
+const SIZE := Vector2i(8, 6)
+const OUTPUT: String = "user://bug_01_diff_checks"
+const CROP := Rect2i(1, 1, 5, 4)
+const RGB_PIXEL := Vector2i(2, 2)
+const ALPHA_PIXEL := Vector2i(4, 3)
+const FRESH_PIXEL := Vector2i(5, 4)
+const OUTSIDE_PIXEL := Vector2i(7, 5)
+const RGB_VALUE := Color("020100ff")
+const ALPHA_VALUE := Color("000000fd")
+const FRESH_VALUE := Color("000003ff")
+const CASE_ID: int = 10
+const OUTSIDE_CASE_ID: int = 11
+
+static func run(expect: Callable) -> bool:
+	var original: Image = Image.create(SIZE.x, SIZE.y, false, Image.FORMAT_RGBA8)
+	original.fill(Color.BLACK)
+	var restored: Image = original.duplicate()
+	var fresh: Image = original.duplicate()
+	restored.set_pixelv(RGB_PIXEL, RGB_VALUE)
+	restored.set_pixelv(ALPHA_PIXEL, ALPHA_VALUE)
+	fresh.set_pixelv(FRESH_PIXEL, FRESH_VALUE)
+	var delta: Dictionary = Dump.compare(restored, original)
+	var metrics: Dictionary = Dump.metrics(delta, CROP)
+	expect.call(metrics["differing_pixel_count"] == 2, "Dump counts colour and alpha-only pixel differences")
+	expect.call(metrics["bounding_box"] == {"x": 1, "y": 1, "width": 3, "height": 2}, "Dump bounding box is crop-relative and includes both endpoints")
+	expect.call(metrics["max_per_channel_delta"] == {"r": 2, "g": 1, "b": 0, "a": 2}, "Dump preserves exact channel deltas including alpha")
+	expect.call(is_equal_approx(metrics["mean_delta"], 5.0 / 80.0), "Dump mean includes all cropped pixels and four channels")
+	expect.call(is_equal_approx(metrics["mean_delta_changed_pixels"], 5.0 / 8.0), "Dump also reports the changed-pixel mean")
+	expect.call((delta["mask"] as Image).get_pixel(4, 3) == Color.WHITE and (delta["mask"] as Image).get_pixel(0, 0) == Color.BLACK, "Dump mask marks alpha differences without masking actors")
+	var equal: Dictionary = Dump.metrics(Dump.compare(original, original), CROP)
+	expect.call(equal["differing_pixel_count"] == 0 and equal["bounding_box"] == null and equal["mean_delta"] == 0.0, "Dump represents identical images exactly")
+	expect.call(Dump.mutation_error(original, restored, RGB_PIXEL).begins_with(Dump.MUTATION_ERROR), "Mutation error names the changed pixel distinctly")
+	expect.call(Dump.mutation_error(original, restored, Vector2i.ZERO).is_empty(), "Mutation error ignores unrelated pixels")
+	var dump := Dump.new()
+	var written: Dictionary = dump.write_case(CASE_ID, "diagnostic fixture", original, restored, fresh, Rect2(CROP), {"headless_fixture": true}, OUTPUT, false)
+	expect.call(written["errors"].is_empty(), "Dump writes all images and JSON headlessly")
+	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(written["path"]))
+	expect.call(report["images"].size() == 6 and report["comparisons"].size() == 3, "Dump contains three captures and all three pairwise masks/metrics")
+	var saved: Image = Image.load_from_file(report["images"]["restored"])
+	expect.call(saved.get_size() == CROP.size and saved.get_data() == restored.get_region(CROP).get_data(), "Dump crop round-trips without altering pixels")
+	var saved_mask: Image = Image.load_from_file(report["images"]["diff_mask"])
+	saved_mask.convert(Image.FORMAT_RGBA8)
+	expect.call(saved_mask.get_data() == (delta["mask"] as Image).get_region(CROP).get_data(), "Lossless data masks must round-trip every RGBA byte")
+	var index: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(OUTPUT.path_join("index.json")))
+	expect.call(index["cases"].size() == 1 and int(index["cases"][0]["case"]) == CASE_ID, "Dump index preserves the case identifier")
+	expect.call(dump.has_case(CASE_ID) and not dump.has_case(OUTSIDE_CASE_ID) and dump.case_count() == 1, "Dump can preserve the first snapshot of each failing case")
+	# A difference outside board geometry must expand the crop, never disappear.
+	fresh.set_pixelv(OUTSIDE_PIXEL, Color.WHITE)
+	written = dump.write_case(OUTSIDE_CASE_ID, "outside geometry", original, restored, fresh, Rect2(CROP), {}, OUTPUT, false)
+	expect.call(written["report"]["crop_viewport"] == {"x": 1, "y": 1, "width": 7, "height": 5}, "Dump crop retains every differing pixel outside geometry")
+	# Remove synthetic fixtures so the visual runner only finds native captures.
+	for case_id: int in [CASE_ID, OUTSIDE_CASE_ID]:
+		var directory: String = OUTPUT.path_join("case_%03d" % case_id)
+		for file: String in DirAccess.get_files_at(directory): DirAccess.remove_absolute(directory.path_join(file))
+		DirAccess.remove_absolute(directory)
+	DirAccess.remove_absolute(OUTPUT.path_join("index.json"))
+	DirAccess.remove_absolute(OUTPUT)
+	expect.call(not DirAccess.dir_exists_absolute(OUTPUT), "Synthetic dump fixtures must be removed before native image validation")
+	return true

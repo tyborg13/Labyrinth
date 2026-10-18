@@ -47,6 +47,7 @@ func _run() -> void:
 	for original: bool in [false, true]:
 		var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 		if original: scene.set_script(Reference)
+		scene._run_play_clock = preload("res://tests/fixtures/retention_play_clock.gd").new()
 		root.add_child(scene)
 		scenes.append(scene)
 	await _settle(8)

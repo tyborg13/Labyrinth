@@ -1,4 +1,6 @@
 extends "res://tests/retained_character_inventory_equivalence_test.gd"
+const MAX_CANCELLATION_BOUNDARIES: int = 64
+
 var boundary: int = 0
 var cancel_boundary: int = -1
 var source_mutation_boundary: int = -1
@@ -9,7 +11,7 @@ var live_bindings: Dictionary
 var checks: int = 0
 var boundaries: Dictionary = {}
 var termination: String = ""
-var termination_boundary: int = -1
+var termination_reached: bool = false
 
 func _run() -> void:
 	for mode: String in ["equipment", "magic"]:
@@ -32,13 +34,24 @@ func _run() -> void:
 	await _prepare()
 	var total: int = boundary
 	await _teardown()
-	for point: int in range(1, total + 1):
+	var cancellation_scan_complete: bool = false
+	for point: int in range(1, MAX_CANCELLATION_BOUNDARIES + 1):
 		cancel_boundary = point
 		await _setup("equipment", false)
 		await _prepare()
+		# Row time slices depend on machine load. Stop at the first boundary
+		# that does not exist in this run, after proving completion instead of
+		# calling a completed (and never interrupted) view a cancellation.
+		if boundary < point:
+			_check(not scenes[0]._character_inventory_rows._views.get("magic", {}).is_empty(), "An uninterrupted preparation must publish its complete view")
+			cancellation_scan_complete = true
+			total = point - 1
+			await _teardown()
+			break
 		_check(scenes[0]._character_inventory_rows._views.get("magic", {}).is_empty(), "An interrupted future view must never remain eligible")
 		await _compare_live("switch boundary " + str(point))
 		await _teardown()
+	_check(cancellation_scan_complete, "Cancellation scan must cover every observed unfinished boundary before its safety limit")
 	cancel_boundary = -1
 	for point: int in [1, 2]:
 		source_mutation_boundary = point
@@ -51,10 +64,11 @@ func _run() -> void:
 	source_mutation_boundary = -1
 	for change: String in ["revision", "close", "detach", "queue_free", "free"]:
 		termination = change
-		termination_boundary = total - 1
+		termination_reached = false
 		await _setup("equipment", false)
 		var actual: Variant = scenes[0]
 		await _prepare()
+		_check(termination_reached, "Owner termination must exercise the complete-column ownership boundary: " + change)
 		if is_instance_valid(actual): _check(actual._character_inventory_rows._views.get("magic", {}).is_empty(), "An invalid owner must not publish a future dialog: " + change)
 		await _teardown()
 		cases += 1
@@ -69,6 +83,7 @@ func _setup(mode: String, large: bool) -> void:
 	for original: bool in [false, true]:
 		var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
 		if original: scene.set_script(Reference)
+		scene._run_play_clock = preload("res://tests/fixtures/retention_play_clock.gd").new()
 		root.add_child(scene)
 		scenes.append(scene)
 	await _settle(8)
@@ -109,7 +124,8 @@ func _present_other() -> void:
 	boundary += 1
 	_check(scenes[0]._upgrade_dialog.get_instance_id() == live_id and scenes[0]._progression_overlay_mode == live_mode, "Each preparation boundary must retain the live dialog and mode")
 	_check(scenes[0]._character_view_bindings() == live_bindings, "Every synchronous job must restore all live controls and drop bindings before yielding")
-	if boundary == termination_boundary and not termination.is_empty():
+	if not termination.is_empty() and _future_magic_columns_attached():
+		termination_reached = true
 		match termination:
 			"revision": scenes[0]._character_other_view_preparation_revision += 1
 			"close": scenes[0]._close_card_upgrade_overlay()
@@ -122,8 +138,23 @@ func _present_other() -> void:
 		for scene: Node in scenes: scene._switch_character_overlay_mode("magic")
 		return
 	if boundary == source_mutation_boundary:
-		for scene: Node in scenes: scene._run_state["magic_inventory"].reverse()
+		# deck-01 migrates the reserve into the active deck on load. Mutate the
+		# owned deck that is actually displayed, and prove the mutation is real.
+		for scene: Node in scenes:
+			var before: Dictionary = scene._character_row_preparation_key().duplicate(true)
+			scene._run_state["attuned_magic_cards"].reverse()
+			_check(scene._character_row_preparation_key() != before, "Source mutation must change the captured presentation input")
 	await process_frame
+
+func _future_magic_columns_attached() -> bool:
+	# Time-sliced row/glyph boundaries vary with load. Invalidate the owner at
+	# an actual transfer boundary: both future columns exist under their final
+	# dialog, before publication. A prior run's frame count cannot identify it.
+	for child: Node in scenes[0]._upgrade_center.get_children():
+		if child == scenes[0]._upgrade_dialog or not child is PanelContainer: continue
+		if child.find_child("MagicAttunedPanel", true, false) != null and child.find_child("CurrentDeckPanel", true, false) != null:
+			return true
+	return false
 
 func _compare_live(label: String) -> void:
 	await _settle(6)
