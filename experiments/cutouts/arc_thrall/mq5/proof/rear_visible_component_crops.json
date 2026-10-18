@@ -1,0 +1,19 @@
+{
+  "parts": [
+    {
+      "source": "loincloth",
+      "node": "loincloth",
+      "pixels": 2077,
+      "bone": "loincloth",
+      "z_index": 14
+    },
+    {
+      "source": "loincloth",
+      "node": "loincloth_component_02",
+      "pixels": 243,
+      "bone": "loincloth",
+      "z_index": 14
+    }
+  ],
+  "policy": "Lossless connected storage crops; no paint reassignment or deletion"
+}

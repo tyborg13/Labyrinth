@@ -14,7 +14,10 @@ const FIXTURE_PARTNER_ID: int = 3
 
 static func run(engine: RefCounted, fixture: Callable, intent: Callable, enemy: Callable, expect: Callable) -> void:
 	for type: String in ROSTER:
-		expect.call(Data.enemy_def(type).has("intents") and Context.STATIC_ENEMY_TYPES.has(type) and Scene.TURN_ORDER_PORTRAITS.has(type) and Strikes.REGISTRY.has(type), "%s retains enemy, static, strike and portrait registrations" % type)
+		var registered: bool = Context.STATIC_ENEMY_TYPES.has(type)
+		if type in ["hoarfrost_seer", "arc_thrall"]:
+			registered = Context.FAMILY_KEYS.get(type) == type + "_motion" and not Context.STATIC_ENEMY_TYPES.has(type)
+		expect.call(Data.enemy_def(type).has("intents") and registered and Scene.TURN_ORDER_PORTRAITS.has(type) and Strikes.REGISTRY.has(type), "%s retains enemy, presentation, strike and portrait registrations" % type)
 	var state: Dictionary = fixture.call(engine, "gale_herald")
 	state["enemies"].append(enemy.call(2, Vector2i(6, 5), 12, "burrow_grub"))
 	state["enemies"][1].merge({"burrowed": true, "erupt_tile": Vector2i(5, 5), "intent": intent.call("burrow_grub", "erupt")}, true)

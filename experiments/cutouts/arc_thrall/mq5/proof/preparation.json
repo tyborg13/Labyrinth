@@ -1,0 +1,81 @@
+{
+  "input_ok": true,
+  "feature_declarations_ok": true,
+  "production_ready": false,
+  "features": [
+    {
+      "feature": "spark_upper",
+      "view": "front",
+      "owner": "club",
+      "seed_pixels": 46,
+      "mask_pixels": 97,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "0350a414f6bc5558c07ceb62409539c326085b12d5dc61591dd1758b70ceb5f1",
+      "outline_crop": "proof/features/front_spark_upper_outline.png"
+    },
+    {
+      "feature": "spark_upper",
+      "view": "rear",
+      "owner": "club",
+      "seed_pixels": 87,
+      "mask_pixels": 162,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "4d3fac1dd6a94467e58ade45067f55bf67575b967c96224460ba25bb6bbe9a28",
+      "outline_crop": "proof/features/rear_spark_upper_outline.png"
+    },
+    {
+      "feature": "spark_lower",
+      "view": "front",
+      "owner": "club",
+      "seed_pixels": 59,
+      "mask_pixels": 127,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "7b8056c8ae6cd4cc3d9d51dd612d1d07e7d9cf0637ab441570c853c0e5392bf7",
+      "outline_crop": "proof/features/front_spark_lower_outline.png"
+    },
+    {
+      "feature": "spark_lower",
+      "view": "rear",
+      "owner": "club",
+      "seed_pixels": 50,
+      "mask_pixels": 106,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "92e69849814c6610d1db8f317f7e9b5dee8cfa046be274ecc7dc652ac1dcaf6d",
+      "outline_crop": "proof/features/rear_spark_lower_outline.png"
+    },
+    {
+      "feature": "chain_stub",
+      "view": "front",
+      "owner": "collar",
+      "seed_pixels": 128,
+      "mask_pixels": 257,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "b5f6fa93e0c62d179a50309dfcc7158079735ab233db5afe5b7cf5484bf53947",
+      "outline_crop": "proof/features/front_chain_stub_outline.png"
+    },
+    {
+      "feature": "chain_stub",
+      "view": "rear",
+      "owner": "collar",
+      "seed_pixels": 0,
+      "mask_pixels": 0,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8",
+      "outline_crop": null
+    }
+  ],
+  "TODO_DESIGN": [],
+  "unrun_gates": [
+    "native exact-tie agreement",
+    "native production pixels",
+    "real-time MP4 review",
+    "native density rest rebake"
+  ],
+  "headless_ready": true
+}

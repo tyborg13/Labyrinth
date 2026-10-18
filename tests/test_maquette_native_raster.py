@@ -18,11 +18,11 @@ from maquette_motion.gates import unpack
 
 FIXTURES = PROJECT / 'tests/maquette_cutout/native_fixtures'
 SYNTHETIC_STEP_DISTANCE_PX = 80
+SYNTHETIC_STALE_TRANSLATION_PX = 0.01
 
 
 class NativeRasterTests(unittest.TestCase):
-    def fixtures(self):
-        manifests = ('manifest.json', 'wisp_manifest.json', 'seam_manifest.json')
+    def fixtures(self, manifests=('manifest.json', 'wisp_manifest.json', 'seam_manifest.json')):
         rows = [row for name in manifests for row in json.loads((FIXTURES / name).read_text())['fixtures']]
         for row in rows:
             source = PROJECT / row['source']
@@ -65,6 +65,72 @@ class NativeRasterTests(unittest.TestCase):
         for x in (308, 311, 312):
             self.assertTrue(samples.ties[274, x])
             np.testing.assert_array_equal(actual[274, x], samples.alternative[274, x])
+
+    def test_rr07_rotated_before_fixtures_require_the_subtexel_band(self):
+        for row, source, actual in self.fixtures(('rr07_manifest.json',)):
+            with self.subTest(creature=row['creature'], part=row['part'], frame=row['frame']):
+                self.assertEqual(row['kind'], 'before')
+                with patch('maquette_motion.raster.SUBTEXEL_TIE_EPSILON', 1e-6):
+                    exact = pixels.render(source, unpack(row['transform']), with_ties=True)
+                self.assertEqual(int(pixels.changed(actual, exact.default).sum()), row['default_diff_pixels'])
+                self.assertFalse(pixels.native_frame_matches(actual, exact.default, exact))
+                samples = pixels.render(source, unpack(row['transform']), with_ties=True)
+                selected, invalid = native_ties.select(actual, samples)
+                self.assertFalse(invalid.any())
+                self.assertEqual(int(pixels.changed(actual, selected).sum()), row['subtexel_residual_pixels'])
+                self.assertTrue(pixels.native_frame_matches(actual, samples.default, samples))
+                transform = unpack(row['transform'])
+                full = pixels.render(source, transform, with_ties=True)
+                bounds = (128, 128, 384, 384)
+                cropped = pixels.render(source, transform, bounds, with_ties=True)
+                for field in ('default', 'alternative', 'alternative_u', 'alternative_v', 'ties'):
+                    np.testing.assert_array_equal(getattr(cropped, field), getattr(full, field)[128:384, 128:384])
+
+    def test_rr07_outer_edge_fixture_passes_as_one_counted_invalid_tie(self):
+        for row, source, actual in self.fixtures(('rr07_edge_manifest.json',)):
+            samples = pixels.render(source, unpack(row['transform']), with_ties=True)
+            selected, invalid = native_ties.select(actual, samples)
+            x, y = row['invalid_pixel_xy']
+            self.assertTrue(invalid[y, x])
+            self.assertEqual(int(invalid.sum()), row['invalid_tie_pixels'])
+            self.assertEqual(int(pixels.changed(actual, selected).sum()), row['counted_changed_pixels'])
+            self.assertEqual(int(actual[y, x, 3]), 0)
+            for candidate in samples.candidates:
+                self.assertEqual(int(candidate[y, x, 3]), 255)
+            self.assertTrue(pixels.native_frame_matches(actual, samples.default, samples))
+
+    def test_invalid_ties_are_reported_per_part_and_frame_without_counting_wrap_twice(self):
+        fixture = json.loads((FIXTURES / 'rr07_edge_manifest.json').read_text())
+        row = fixture['fixtures'][0]
+        self.assertEqual(digest(FIXTURES / row['after_capture']), row['after_capture_sha256'])
+        case = PROJECT / fixture['case']
+        read_json = pixels.read_json
+
+        def one_part_layout(path):
+            result = read_json(path)
+            if path.name == 'rear.json':
+                historical = dict(fixture['historical_part'])
+                historical['file'] = str(PROJECT / historical['file'])
+                result['parts'] = [historical]
+            elif path.name == 'front.json':
+                result['parts'] = []
+            return result
+
+        sample = fixture['sample']
+        poses = [dict(sample, view='front', parts={}), sample]
+        native = {'directory': FIXTURES, 'samples': poses, 'frames': [
+            {'view': row['view'], 'part': row['part'], 'frame': row['frame'],
+             'before': row['capture'], 'after': row['after_capture']}]}
+        report = {'samples': poses, 'step_distance_px': fixture['step_distance_px']}
+        with patch.object(pixels, 'read_json', side_effect=one_part_layout):
+            errors, metric = pixels.shimmer(case, report, native)
+        self.assertEqual(errors, [])
+        self.assertEqual(metric['invalid_tie_totals'], {'before': 1, 'after': 0})
+        self.assertEqual(len(metric['parts']), 1)
+        self.assertEqual(metric['parts'][0]['invalid_ties'], {
+            'total': {'before': 1, 'after': 0},
+            'frames': [{'frame': row['frame'], 'before': 1, 'after': 0}]})
+        self.assertEqual(metric['totals']['after']['held_unexplained_pixels'], 0)
 
     def test_native_loop_rejects_a_held_flip_between_valid_candidates(self):
         row, source, actual = next(item for item in self.fixtures() if item[0]['part'] == 'seam_core_arc_right')
@@ -130,9 +196,17 @@ class NativeRasterTests(unittest.TestCase):
             errors, metric = pixels.shimmer(case, fixture['report'], native)
             self.assertEqual(errors, [])
             self.assertEqual(metric['totals']['after']['held_unexplained_pixels'], 0)
-            # These independently captured matrices differ only by float32
-            # cancellation, but straddle a native vertex subpixel boundary.
-            wrong = dict(native, samples=fixture['report']['samples'])
+            # Float32 cancellation straddles a vertex subpixel boundary, but
+            # the resulting UVs are now legal sub-texel ties (rr-07 feedback 2).
+            # Preserve the historical fixture and require a stale-clock
+            # mutation beyond that band to remain observable.
+            import copy
+            stale_samples = copy.deepcopy(fixture['report']['samples'])
+            for row in stale_samples:
+                for part in row['parts'].values():
+                    part['before'][4] += SYNTHETIC_STALE_TRANSLATION_PX
+                    part['transform'][4] += SYNTHETIC_STALE_TRANSLATION_PX
+            wrong = dict(native, samples=stale_samples)
             errors, _ = pixels.shimmer(case, fixture['report'], wrong)
             self.assertTrue(any('does not match its source transform' in e for e in errors))
 

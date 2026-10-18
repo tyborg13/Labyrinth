@@ -141,6 +141,10 @@ integer frame-size rounding can differ slightly from that ideal ratio.
 | gust_shrike_rear | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.25% / 3.513 | 1.25% / 3.513 | 0.40% / 4.111 | 2.634 → 3.083 |
 | gust_shrike_cutout / front | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.29% / 5.210 | 3.63% / 3.033 | 3.23% / 3.251 | 2.275 → 2.438 |
 | gust_shrike_cutout / rear | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.25% / 3.513 | 8.22% / 2.138 | 7.94% / 2.314 | 1.603 → 1.735 |
+| arc_thrall_cutout / front | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 1.43% / 2.545 | 3.08% / 2.593 | 2.16% / 2.643 | 2.593 → 2.643 |
+| arc_thrall_cutout / rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 4.57% / 2.595 | 6.89% / 2.991 | 4.02% / 3.112 | 2.991 → 3.112 |
+| hoarfrost_seer_cutout / front | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.87% / 2.500 | 5.00% / 2.946 | 3.54% / 3.054 | 2.946 → 3.054 |
+| hoarfrost_seer_cutout / rear | 1.000000 | 1.0520 | 1.05 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 6.04% / 2.374 | 5.81% / 3.028 | 3.17% / 3.248 | 3.028 → 3.248 |
 
 ## Fixed rig geometry
 
@@ -1519,4 +1523,269 @@ A † marks changed decoded pixels or dimensions relative to untouched source pa
 - `assets/units/gust_shrike_cutout/segmented/rear/wing_near.png` †
 - `assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_head.png` (pixels unchanged)
 - `assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_tail.png` (pixels unchanged)
+
+
+### arc_thrall_cutout
+
+- `assets/units/arc_thrall_cutout/hidden/front/club.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/collar.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/foot_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/foot_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/fore_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/fore_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/hand_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/hand_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/head.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/loincloth.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/shin_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/shin_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/thigh_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/thigh_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/torso.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/upper_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/front/upper_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/club.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/collar.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/foot_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/foot_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/hidden/rear/fore_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/fore_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/hand_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/hand_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/head.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/loincloth.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/shin_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/shin_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/thigh_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/thigh_near.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/torso.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/upper_far.png` †
+- `assets/units/arc_thrall_cutout/hidden/rear/upper_near.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_collar_collar_component_02.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_collar_torso.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_collar_torso_component_02.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_collar_upper_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_fore_far_hand_far.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_fore_near_club.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_fore_near_club_component_02.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_fore_near_hand_near.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_hand_near_club.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_hand_near_club_component_03.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_head_collar.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_head_collar_component_02.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_loincloth_component_02_thigh_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_loincloth_foot_far.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_loincloth_shin_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_loincloth_thigh_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_loincloth_thigh_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_shin_far_foot_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_shin_near_foot_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_thigh_far_shin_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_thigh_near_shin_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_torso_loincloth.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_torso_loincloth_component_02.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_torso_thigh_near.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_torso_upper_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/front/seam_upper_far_fore_far.png` †
+- `assets/units/arc_thrall_cutout/seams/front/seam_upper_near_fore_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_fore_far_hand_far.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_fore_near_club.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_fore_near_hand_near.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_hand_near_club.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_head_collar.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_head_torso.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_head_upper_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_component_02_thigh_far.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_foot_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_shin_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_thigh_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_shin_far_foot_far.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_shin_near_foot_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_thigh_far_shin_far.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_torso_loincloth.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_torso_loincloth_component_02.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_torso_thigh_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/seams/rear/seam_torso_upper_far.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_torso_upper_near.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_upper_far_fore_far.png` †
+- `assets/units/arc_thrall_cutout/seams/rear/seam_upper_near_fore_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/club.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/club_component_02.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/club_component_03.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/club_component_04.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/collar.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/collar_component_02.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/feature_chain_stub.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/feature_spark_lower.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/feature_spark_upper.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/foot_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/foot_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/fore_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/fore_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/hand_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/hand_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/head.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/loincloth.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/loincloth_component_02.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/shin_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/shin_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/thigh_far.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/thigh_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/torso.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/torso_component_02.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/front/upper_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/front/upper_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/club.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/collar.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/feature_spark_lower.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/feature_spark_upper.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/foot_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/foot_near.png` (pixels unchanged)
+- `assets/units/arc_thrall_cutout/segmented/rear/fore_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/fore_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/hand_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/hand_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/head.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/loincloth.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/loincloth_component_02.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/shin_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/shin_near.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/thigh_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/torso.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/upper_far.png` †
+- `assets/units/arc_thrall_cutout/segmented/rear/upper_near.png` †
+
+### hoarfrost_seer_cutout
+
+- `assets/units/hoarfrost_seer_cutout/hidden/front/collar.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/foot_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/fore_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/hand_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/head.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/skirt_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/skirt_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/staff_shaft.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/torso.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/front/upper_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/collar.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/foot_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/fore_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/hand_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/head.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/skirt_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/skirt_near.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/staff_crystal.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/staff_shaft.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/torso.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/hidden/rear/upper_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_torso.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_upper_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_far_hand_far.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_far_staff_shaft.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_far_staff_shaft_component_03.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_near_hand_near.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_hand_far_staff_shaft_component_02.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_hand_far_staff_shaft_component_03.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_hand_far_staff_shaft_component_04.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_02.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_03.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_04.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_05.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_head_torso.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_far_foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_far_staff_shaft.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_foot_near.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_skirt_far.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_staff_shaft_foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_far_component_01.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_far_component_02.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_near_component_02.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_upper_far_component_01.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_upper_far_component_02.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_upper_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_upper_far_fore_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_upper_far_hand_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/front/seam_upper_near_fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_component_02_torso.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_component_02_upper_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_torso.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_fore_far_hand_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_fore_far_staff_shaft.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_fore_near_hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_hand_far_staff_shaft.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_head_torso.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_foot_far.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_foot_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_staff_shaft.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_upper_far.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_foot_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_skirt_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_upper_near.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_staff_shaft_foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_staff_shaft_staff_crystal.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_skirt_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_skirt_near.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_skirt_near_component_02.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_upper_near.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_upper_far_fore_far.png` †
+- `assets/units/hoarfrost_seer_cutout/seams/rear/seam_upper_near_fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/collar.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_02.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_03.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_04.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_05.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/front/feature_ice_crystal.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/foot_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/fore_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/hand_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/head.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/skirt_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/skirt_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/skirt_near_component_02.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft_component_02.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft_component_03.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft_component_04.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/front/torso.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/front/upper_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/collar.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/collar_component_02.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/feature_ice_crystal.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/foot_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/foot_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/fore_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/fore_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/hand_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/hand_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/head.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/skirt_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/skirt_near.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/skirt_near_component_02.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/staff_crystal.png` (pixels unchanged)
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/staff_shaft.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/torso.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/upper_far.png` †
+- `assets/units/hoarfrost_seer_cutout/segmented/rear/upper_near.png` †
 

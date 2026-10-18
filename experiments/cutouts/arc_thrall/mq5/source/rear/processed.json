@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    198,
+    197
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.12522404246817742,
+    "edge_light_share": 0.0,
+    "feature_px": 5.717053567401421,
+    "height": 197,
+    "height_drawn": 197.0,
+    "orphan_share": 0.04572178777327473,
+    "regions": 536,
+    "run_length": 2.5954074074074076,
+    "symmetry": 0.5187659999132208,
+    "thin_abs": 0.009760831097665346,
+    "thin_rel": 0.03921456704149784,
+    "value": 0.17349626657444187,
+    "width": 198
+  },
+  "pixel_sha256": "a39e7c89aa34959ac2fd022f57baa5288f67c6ce94b290f2b74c1b7e0f98367a",
+  "placement": [
+    29,
+    49
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/arc_thrall/mq5_front/kit.json",
+        "pixel_sha256": "cdcd69b3b7b2b933530cca5d5b7be3e3e735943d5c01257314f2aa791c950cd3"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "fe412737538ae6d742c06b344974d916daa0aa3956fc80a1f5a0876fb3c2ad6e",
+      "protected_body_share": {
+        "front": 5.778342771293193e-05,
+        "rear": 0.001835493862567397
+      },
+      "reference_pixel_sha256": "cdcd69b3b7b2b933530cca5d5b7be3e3e735943d5c01257314f2aa791c950cd3",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "a39e7c89aa34959ac2fd022f57baa5288f67c6ce94b290f2b74c1b7e0f98367a",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "37777c237be74775c62a6b77242cc2f8db81c74f7bcf6ec2a6b54894d5cbb686",
+  "shift": [
+    0,
+    0
+  ]
+}

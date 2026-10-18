@@ -1,0 +1,299 @@
+{
+  "ok": true,
+  "views": {
+    "front": {
+      "reassignment": {
+        "head": {
+          "painted_pixels": 1972,
+          "reassigned_pixels": 343,
+          "reassigned_share": 0.17393509127789047,
+          "above_15_percent": true
+        },
+        "collar": {
+          "painted_pixels": 571,
+          "reassigned_pixels": 110,
+          "reassigned_share": 0.19264448336252188,
+          "above_15_percent": true
+        },
+        "torso": {
+          "painted_pixels": 2844,
+          "reassigned_pixels": 287,
+          "reassigned_share": 0.10091420534458509,
+          "above_15_percent": false
+        },
+        "skirt_near": {
+          "painted_pixels": 4601,
+          "reassigned_pixels": 615,
+          "reassigned_share": 0.13366659421864813,
+          "above_15_percent": false
+        },
+        "skirt_far": {
+          "painted_pixels": 1389,
+          "reassigned_pixels": 113,
+          "reassigned_share": 0.08135349172066235,
+          "above_15_percent": false
+        },
+        "upper_near": {
+          "painted_pixels": 998,
+          "reassigned_pixels": 49,
+          "reassigned_share": 0.04909819639278557,
+          "above_15_percent": false
+        },
+        "fore_near": {
+          "painted_pixels": 426,
+          "reassigned_pixels": 77,
+          "reassigned_share": 0.1807511737089202,
+          "above_15_percent": true
+        },
+        "hand_near": {
+          "painted_pixels": 129,
+          "reassigned_pixels": 89,
+          "reassigned_share": 0.689922480620155,
+          "above_15_percent": true
+        },
+        "upper_far": {
+          "painted_pixels": 731,
+          "reassigned_pixels": 99,
+          "reassigned_share": 0.1354309165526676,
+          "above_15_percent": false
+        },
+        "fore_far": {
+          "painted_pixels": 262,
+          "reassigned_pixels": 67,
+          "reassigned_share": 0.25572519083969464,
+          "above_15_percent": true
+        },
+        "hand_far": {
+          "painted_pixels": 335,
+          "reassigned_pixels": 115,
+          "reassigned_share": 0.34328358208955223,
+          "above_15_percent": true
+        },
+        "staff_shaft": {
+          "painted_pixels": 627,
+          "reassigned_pixels": 351,
+          "reassigned_share": 0.5598086124401914,
+          "above_15_percent": true
+        },
+        "staff_crystal": {
+          "painted_pixels": 876,
+          "reassigned_pixels": 178,
+          "reassigned_share": 0.20319634703196346,
+          "above_15_percent": true
+        },
+        "foot_near": {
+          "painted_pixels": 262,
+          "reassigned_pixels": 105,
+          "reassigned_share": 0.40076335877862596,
+          "above_15_percent": true
+        },
+        "foot_far": {
+          "painted_pixels": 225,
+          "reassigned_pixels": 56,
+          "reassigned_share": 0.24888888888888888,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "foot_near",
+        "foot_far",
+        "skirt_near",
+        "skirt_far",
+        "hand_near",
+        "staff_shaft",
+        "fore_near",
+        "fore_far",
+        "hand_far",
+        "upper_near",
+        "upper_far",
+        "torso",
+        "collar",
+        "head",
+        "staff_crystal"
+      ],
+      "bone_mapping": {
+        "head": "head",
+        "collar": "collar",
+        "torso": "torso",
+        "skirt_near": "skirt_near",
+        "skirt_far": "skirt_far",
+        "upper_near": "upper_near",
+        "fore_near": "fore_near",
+        "hand_near": "hand_near",
+        "upper_far": "upper_far",
+        "fore_far": "fore_far",
+        "hand_far": "hand_far",
+        "staff_shaft": "staff_shaft",
+        "staff_crystal": "staff_crystal",
+        "foot_near": "foot_near",
+        "foot_far": "foot_far"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    },
+    "rear": {
+      "reassignment": {
+        "head": {
+          "painted_pixels": 2209,
+          "reassigned_pixels": 398,
+          "reassigned_share": 0.18017202354006337,
+          "above_15_percent": true
+        },
+        "collar": {
+          "painted_pixels": 622,
+          "reassigned_pixels": 190,
+          "reassigned_share": 0.3054662379421222,
+          "above_15_percent": true
+        },
+        "torso": {
+          "painted_pixels": 2022,
+          "reassigned_pixels": 295,
+          "reassigned_share": 0.14589515331355093,
+          "above_15_percent": false
+        },
+        "skirt_near": {
+          "painted_pixels": 1841,
+          "reassigned_pixels": 134,
+          "reassigned_share": 0.07278652906029331,
+          "above_15_percent": false
+        },
+        "skirt_far": {
+          "painted_pixels": 4844,
+          "reassigned_pixels": 387,
+          "reassigned_share": 0.07989265070189926,
+          "above_15_percent": false
+        },
+        "upper_near": {
+          "painted_pixels": 1198,
+          "reassigned_pixels": 109,
+          "reassigned_share": 0.09098497495826377,
+          "above_15_percent": false
+        },
+        "fore_near": {
+          "painted_pixels": 506,
+          "reassigned_pixels": 39,
+          "reassigned_share": 0.07707509881422925,
+          "above_15_percent": false
+        },
+        "hand_near": {
+          "painted_pixels": 121,
+          "reassigned_pixels": 82,
+          "reassigned_share": 0.6776859504132231,
+          "above_15_percent": true
+        },
+        "upper_far": {
+          "painted_pixels": 1146,
+          "reassigned_pixels": 103,
+          "reassigned_share": 0.08987783595113438,
+          "above_15_percent": false
+        },
+        "fore_far": {
+          "painted_pixels": 195,
+          "reassigned_pixels": 42,
+          "reassigned_share": 0.2153846153846154,
+          "above_15_percent": true
+        },
+        "hand_far": {
+          "painted_pixels": 238,
+          "reassigned_pixels": 93,
+          "reassigned_share": 0.3907563025210084,
+          "above_15_percent": true
+        },
+        "staff_shaft": {
+          "painted_pixels": 1250,
+          "reassigned_pixels": 736,
+          "reassigned_share": 0.5888,
+          "above_15_percent": true
+        },
+        "staff_crystal": {
+          "painted_pixels": 1169,
+          "reassigned_pixels": 359,
+          "reassigned_share": 0.30710008554319934,
+          "above_15_percent": true
+        },
+        "foot_near": {
+          "painted_pixels": 253,
+          "reassigned_pixels": 102,
+          "reassigned_share": 0.4031620553359684,
+          "above_15_percent": true
+        },
+        "foot_far": {
+          "painted_pixels": 234,
+          "reassigned_pixels": 59,
+          "reassigned_share": 0.25213675213675213,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "foot_near",
+        "foot_far",
+        "skirt_near",
+        "skirt_far",
+        "hand_near",
+        "fore_near",
+        "hand_far",
+        "fore_far",
+        "staff_shaft",
+        "upper_far",
+        "upper_near",
+        "torso",
+        "collar",
+        "staff_crystal",
+        "head"
+      ],
+      "bone_mapping": {
+        "head": "head",
+        "collar": "collar",
+        "torso": "torso",
+        "skirt_near": "skirt_near",
+        "skirt_far": "skirt_far",
+        "upper_near": "upper_near",
+        "fore_near": "fore_near",
+        "hand_near": "hand_near",
+        "upper_far": "upper_far",
+        "fore_far": "fore_far",
+        "hand_far": "hand_far",
+        "staff_shaft": "staff_shaft",
+        "staff_crystal": "staff_crystal",
+        "foot_near": "foot_near",
+        "foot_far": "foot_far"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    }
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "41c8a688345d67e2f3286e4b99c13176a454b4f3c3b66470e929d99d8097a351"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "58f6904609ce271ee7fe8c5d6b82867fc7270fa4e7994a5ee06d4ef725919dab"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "hoarfrost_seer",
+    "layouts": {
+      "front": {
+        "joints": 16,
+        "parts": 29,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 16,
+        "parts": 31,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  }
+}

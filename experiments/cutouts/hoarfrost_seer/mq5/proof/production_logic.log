@@ -1,0 +1,14 @@
+Running task-local command:
+  task: rr-07
+  run: rr-07-1792299920089855000-53788
+  HOME: /private/tmp/labyrinth-godot-home/rr-07-1792299920089855000-53788
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-07-1792299920089855000-53788/godot.log --headless --path . --script tests/rr07/production_capture.gd -- --type hoarfrost_seer --output experiments/cutouts/hoarfrost_seer/mq5/proof/production_logic --logic-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE PRODUCTION LOGIC: PASS (1607 frames)
+Saved experiments/cutouts/hoarfrost_seer/mq5/proof/production_logic

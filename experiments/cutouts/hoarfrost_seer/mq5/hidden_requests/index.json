@@ -1,0 +1,1740 @@
+{
+  "exposure_basis": "sample after director motion binding",
+  "requests": [
+    {
+      "part": "head",
+      "view": "front",
+      "image": "hidden_requests/front_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 920,
+      "bounding_box": [
+        112,
+        83,
+        169,
+        111
+      ],
+      "solo_outside_paint_pixels": 123,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "collar",
+          "pixels": 263,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 657,
+          "material": "torso approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "collar",
+          "pixels": 19,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 20,
+          "material": "torso approved paint"
+        }
+      ],
+      "material": "head approved paint",
+      "paint_nodes": [
+        "hidden_head"
+      ]
+    },
+    {
+      "part": "collar",
+      "view": "front",
+      "image": "hidden_requests/front_collar.png",
+      "status": "measured",
+      "hidden_pixel_count": 1390,
+      "bounding_box": [
+        106,
+        85,
+        165,
+        126
+      ],
+      "solo_outside_paint_pixels": 30,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 725,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 665,
+          "material": "torso approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 60,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 66,
+          "material": "torso approved paint"
+        }
+      ],
+      "material": "collar approved paint",
+      "paint_nodes": [
+        "hidden_collar"
+      ]
+    },
+    {
+      "part": "torso",
+      "view": "front",
+      "image": "hidden_requests/front_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 1514,
+      "bounding_box": [
+        87,
+        75,
+        181,
+        169
+      ],
+      "solo_outside_paint_pixels": 40,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 945,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 460,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 5,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 83,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 10,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 11,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 71,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 38,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 7,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 75,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 31,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 20,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "torso approved paint",
+      "paint_nodes": [
+        "hidden_torso"
+      ]
+    },
+    {
+      "part": "skirt_near",
+      "view": "front",
+      "image": "hidden_requests/front_skirt_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 254,
+      "bounding_box": [
+        123,
+        135,
+        171,
+        214
+      ],
+      "solo_outside_paint_pixels": 15,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 243,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 11,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 71,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 19,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 2,
+          "material": "upper_near approved paint"
+        }
+      ],
+      "material": "skirt_near approved paint",
+      "paint_nodes": [
+        "hidden_skirt_near"
+      ]
+    },
+    {
+      "part": "skirt_far",
+      "view": "front",
+      "image": "hidden_requests/front_skirt_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 2549,
+      "bounding_box": [
+        97,
+        135,
+        183,
+        215
+      ],
+      "solo_outside_paint_pixels": 68,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 991,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 1553,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 5,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 80,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 218,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 8,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "skirt_far approved paint",
+      "paint_nodes": [
+        "hidden_skirt_far"
+      ]
+    },
+    {
+      "part": "upper_near",
+      "view": "front",
+      "image": "hidden_requests/front_upper_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 268,
+      "bounding_box": [
+        87,
+        92,
+        175,
+        156
+      ],
+      "solo_outside_paint_pixels": 213,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 8,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 142,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 98,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 9,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 11,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 12,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 38,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 77,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 33,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 20,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "upper_near approved paint",
+      "paint_nodes": [
+        "hidden_upper_near"
+      ]
+    },
+    {
+      "part": "fore_near",
+      "view": "front",
+      "image": "hidden_requests/front_fore_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 375,
+      "bounding_box": [
+        87,
+        108,
+        199,
+        156
+      ],
+      "solo_outside_paint_pixels": 124,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 23,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 331,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 9,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 11,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 54,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 54,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 33,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 20,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "fore_near approved paint",
+      "paint_nodes": [
+        "hidden_fore_near"
+      ]
+    },
+    {
+      "part": "hand_near",
+      "view": "front",
+      "image": "hidden_requests/front_hand_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 29,
+      "bounding_box": [
+        188,
+        158,
+        194,
+        166
+      ],
+      "solo_outside_paint_pixels": 4,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 29,
+          "material": "fore_near approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 16,
+          "material": "fore_near approved paint"
+        }
+      ],
+      "material": "hand_near approved paint",
+      "paint_nodes": [
+        "hidden_hand_near"
+      ]
+    },
+    {
+      "part": "upper_far",
+      "view": "front",
+      "image": "hidden_requests/front_upper_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 877,
+      "bounding_box": [
+        87,
+        96,
+        181,
+        159
+      ],
+      "solo_outside_paint_pixels": 23,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 396,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 136,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 274,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 33,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 38,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 54,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 11,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 59,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 48,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 37,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "upper_far approved paint",
+      "paint_nodes": [
+        "hidden_upper_far"
+      ]
+    },
+    {
+      "part": "fore_far",
+      "view": "front",
+      "image": "hidden_requests/front_fore_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 164,
+      "bounding_box": [
+        86,
+        108,
+        181,
+        154
+      ],
+      "solo_outside_paint_pixels": 7,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 23,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 33,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 91,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 16,
+          "material": "hand_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 54,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 48,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 57,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 14,
+          "material": "hand_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 2,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "fore_far approved paint",
+      "paint_nodes": [
+        "hidden_fore_far"
+      ]
+    },
+    {
+      "part": "hand_far",
+      "view": "front",
+      "image": "hidden_requests/front_hand_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 2,
+      "bounding_box": [
+        80,
+        127,
+        88,
+        145
+      ],
+      "solo_outside_paint_pixels": 23,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 1,
+          "material": "fore_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 1,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 2,
+          "material": "fore_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 2,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "hand_far approved paint",
+      "paint_nodes": [
+        "hidden_hand_far"
+      ]
+    },
+    {
+      "part": "staff_shaft",
+      "view": "front",
+      "image": "hidden_requests/front_staff_shaft.png",
+      "status": "measured",
+      "hidden_pixel_count": 222,
+      "bounding_box": [
+        66,
+        91,
+        99,
+        207
+      ],
+      "solo_outside_paint_pixels": 34,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 4,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 47,
+          "material": "fore_far approved paint"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 83,
+          "material": "hand_far approved paint"
+        },
+        {
+          "part": "staff_crystal",
+          "pixels": 88,
+          "material": "staff_crystal approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 4,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 20,
+          "material": "fore_far approved paint"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 34,
+          "material": "hand_far approved paint"
+        },
+        {
+          "part": "staff_crystal",
+          "pixels": 16,
+          "material": "staff_crystal approved paint"
+        }
+      ],
+      "material": "staff_shaft approved paint",
+      "paint_nodes": [
+        "hidden_staff_shaft"
+      ]
+    },
+    {
+      "part": "staff_crystal",
+      "view": "front",
+      "image": "hidden_requests/front_staff_crystal.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 74,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "staff_crystal approved paint"
+    },
+    {
+      "part": "foot_near",
+      "view": "front",
+      "image": "hidden_requests/front_foot_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 54,
+      "bounding_box": [
+        173,
+        231,
+        190,
+        238
+      ],
+      "solo_outside_paint_pixels": 18,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "skirt_near",
+          "pixels": 54,
+          "material": "skirt_near approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "skirt_near",
+          "pixels": 19,
+          "material": "skirt_near approved paint"
+        }
+      ],
+      "material": "foot_near approved paint",
+      "paint_nodes": [
+        "hidden_foot_near"
+      ]
+    },
+    {
+      "part": "foot_far",
+      "view": "front",
+      "image": "hidden_requests/front_foot_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 50,
+      "bounding_box": [
+        108,
+        208,
+        123,
+        216
+      ],
+      "solo_outside_paint_pixels": 5,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 50,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 17,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "material": "foot_far approved paint",
+      "paint_nodes": [
+        "hidden_foot_far"
+      ]
+    },
+    {
+      "part": "head",
+      "view": "rear",
+      "image": "hidden_requests/rear_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 793,
+      "bounding_box": [
+        86,
+        80,
+        144,
+        113
+      ],
+      "solo_outside_paint_pixels": 1,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "collar",
+          "pixels": 221,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 568,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 4,
+          "material": "upper_near approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "collar",
+          "pixels": 20,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 26,
+          "material": "torso approved paint"
+        }
+      ],
+      "material": "head approved paint",
+      "paint_nodes": [
+        "hidden_head"
+      ]
+    },
+    {
+      "part": "collar",
+      "view": "rear",
+      "image": "hidden_requests/rear_collar.png",
+      "status": "measured",
+      "hidden_pixel_count": 1451,
+      "bounding_box": [
+        83,
+        82,
+        150,
+        119
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 943,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 469,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 11,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 28,
+          "material": "upper_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 47,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 60,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 6,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 11,
+          "material": "upper_far approved paint"
+        }
+      ],
+      "material": "collar approved paint",
+      "paint_nodes": [
+        "hidden_collar"
+      ]
+    },
+    {
+      "part": "torso",
+      "view": "rear",
+      "image": "hidden_requests/rear_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 2331,
+      "bounding_box": [
+        69,
+        69,
+        165,
+        155
+      ],
+      "solo_outside_paint_pixels": 20,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1274,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 495,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 6,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 7,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 260,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 288,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 1,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 66,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 33,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 3,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 8,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 79,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 3,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 73,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 4,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "torso approved paint",
+      "paint_nodes": [
+        "hidden_torso"
+      ]
+    },
+    {
+      "part": "skirt_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_skirt_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 2621,
+      "bounding_box": [
+        71,
+        130,
+        131,
+        232
+      ],
+      "solo_outside_paint_pixels": 121,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 890,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 1687,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 22,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 20,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 2,
+          "material": "hand_near approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 49,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 148,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 11,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 12,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 2,
+          "material": "upper_far approved paint"
+        }
+      ],
+      "material": "skirt_near approved paint",
+      "paint_nodes": [
+        "hidden_skirt_near"
+      ]
+    },
+    {
+      "part": "skirt_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_skirt_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 290,
+      "bounding_box": [
+        71,
+        134,
+        158,
+        208
+      ],
+      "solo_outside_paint_pixels": 69,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 170,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 36,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 1,
+          "material": "hand_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 79,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 4,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 55,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_near",
+          "pixels": 48,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 14,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 6,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "skirt_far approved paint",
+      "paint_nodes": [
+        "hidden_skirt_far"
+      ]
+    },
+    {
+      "part": "upper_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_upper_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 191,
+      "bounding_box": [
+        71,
+        86,
+        165,
+        155
+      ],
+      "solo_outside_paint_pixels": 28,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 121,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 40,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 9,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 19,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 1,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 5,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 34,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 48,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 2,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 9,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 46,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 4,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "upper_near approved paint",
+      "paint_nodes": [
+        "hidden_upper_near"
+      ]
+    },
+    {
+      "part": "fore_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 347,
+      "bounding_box": [
+        53,
+        86,
+        165,
+        155
+      ],
+      "solo_outside_paint_pixels": 40,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 5,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 321,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 19,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 1,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 5,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 1,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 16,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 2,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 104,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 46,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 4,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "fore_near approved paint",
+      "paint_nodes": [
+        "hidden_fore_near"
+      ]
+    },
+    {
+      "part": "hand_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 9,
+      "bounding_box": [
+        60,
+        165,
+        69,
+        180
+      ],
+      "solo_outside_paint_pixels": 8,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "skirt_near",
+          "pixels": 6,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 3,
+          "material": "fore_near approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "skirt_near",
+          "pixels": 5,
+          "material": "skirt_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 6,
+          "material": "fore_near approved paint"
+        }
+      ],
+      "material": "hand_near approved paint",
+      "paint_nodes": [
+        "hidden_hand_near"
+      ]
+    },
+    {
+      "part": "upper_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_upper_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 433,
+      "bounding_box": [
+        69,
+        86,
+        165,
+        155
+      ],
+      "solo_outside_paint_pixels": 48,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 185,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 143,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 41,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 54,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 10,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 50,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 6,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 52,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 95,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 3,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 9,
+          "material": "fore_far approved paint"
+        }
+      ],
+      "material": "upper_far approved paint",
+      "paint_nodes": [
+        "hidden_upper_far"
+      ]
+    },
+    {
+      "part": "fore_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 326,
+      "bounding_box": [
+        69,
+        86,
+        171,
+        157
+      ],
+      "solo_outside_paint_pixels": 7,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "head approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 5,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 54,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 182,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 61,
+          "material": "hand_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 23,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 5,
+          "material": "head approved paint"
+        },
+        {
+          "part": "collar",
+          "pixels": 1,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 16,
+          "material": "torso approved paint"
+        },
+        {
+          "part": "skirt_far",
+          "pixels": 2,
+          "material": "skirt_far approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 95,
+          "material": "upper_near approved paint"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 3,
+          "material": "fore_near approved paint"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 71,
+          "material": "upper_far approved paint"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 19,
+          "material": "hand_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 13,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "fore_far approved paint",
+      "paint_nodes": [
+        "hidden_fore_far"
+      ]
+    },
+    {
+      "part": "hand_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 121,
+      "bounding_box": [
+        162,
+        125,
+        179,
+        147
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 11,
+          "material": "fore_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 110,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 15,
+          "material": "fore_far approved paint"
+        },
+        {
+          "part": "staff_shaft",
+          "pixels": 20,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "hand_far approved paint",
+      "paint_nodes": [
+        "hidden_hand_far"
+      ]
+    },
+    {
+      "part": "staff_shaft",
+      "view": "rear",
+      "image": "hidden_requests/rear_staff_shaft.png",
+      "status": "measured",
+      "hidden_pixel_count": 32,
+      "bounding_box": [
+        180,
+        85,
+        189,
+        92
+      ],
+      "solo_outside_paint_pixels": 5,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "staff_crystal",
+          "pixels": 32,
+          "material": "staff_crystal approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "staff_crystal",
+          "pixels": 16,
+          "material": "staff_crystal approved paint"
+        }
+      ],
+      "material": "staff_shaft approved paint",
+      "paint_nodes": [
+        "hidden_staff_shaft"
+      ]
+    },
+    {
+      "part": "staff_crystal",
+      "view": "rear",
+      "image": "hidden_requests/rear_staff_crystal.png",
+      "status": "measured",
+      "hidden_pixel_count": 8,
+      "bounding_box": [
+        182,
+        90,
+        186,
+        93
+      ],
+      "solo_outside_paint_pixels": 6,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "staff_shaft",
+          "pixels": 8,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "staff_shaft",
+          "pixels": 6,
+          "material": "staff_shaft approved paint"
+        }
+      ],
+      "material": "staff_crystal approved paint",
+      "paint_nodes": [
+        "hidden_staff_crystal"
+      ]
+    },
+    {
+      "part": "foot_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 4,
+      "bounding_box": [
+        82,
+        234,
+        84,
+        237
+      ],
+      "solo_outside_paint_pixels": 5,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 4,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 4,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "material": "foot_near approved paint",
+      "paint_nodes": [
+        "hidden_foot_near"
+      ]
+    },
+    {
+      "part": "foot_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 37,
+      "bounding_box": [
+        131,
+        214,
+        146,
+        223
+      ],
+      "solo_outside_paint_pixels": 14,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 37,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "skirt_far",
+          "pixels": 21,
+          "material": "skirt_far approved paint"
+        }
+      ],
+      "material": "foot_far approved paint",
+      "paint_nodes": [
+        "hidden_foot_far"
+      ]
+    }
+  ]
+}

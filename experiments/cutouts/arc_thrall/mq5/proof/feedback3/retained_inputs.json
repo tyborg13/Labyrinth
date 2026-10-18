@@ -1,0 +1,9 @@
+{
+  "frames.json": "0cedb877feee3c1f54babb0504a6d53849115a8ace3dfae2a25c29367d219f94",
+  "pixel_frames.json": "5d122fb6acfd4805afd306b8e5e981570c7118fda57fd221cb7a193388771e64",
+  "seam_frames.json": "8fe276f556cd32918cb6fd1ef763d5c410c6695f0c13b78df6d91194a1045887",
+  "pixel_samples.json": "ddb866183cff39b8d1fbd31c7eaf18236e08870da01e4dcab27464e9096ec0fd",
+  "front_rest.png": "623076aa9ec32822044aa78b82d323be3869a6b27c90eb931bb424cf086d1aeb",
+  "rear_rest.png": "042eb962e1d37e0ecb267a66443f0d5fe08ed293a315786856f398ba94837d24",
+  "rest_pair.png": "73e97373dd7fd0beb2fd625e8ca05bd0ac7197d8dc37326487f05c869777fa6a"
+}

@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "audited_git_delta_paths": 116645,
+  "outside_scope": [],
+  "feedback3_shared_code": [
+    "tools/maquette_motion/pixels.py",
+    "tools/maquette_motion/native_ties.py",
+    "tests/test_maquette_native_ties.py",
+    "tests/test_maquette_native_raster.py"
+  ],
+  "branch": "codex/rr-07",
+  "staged_changes": false,
+  "original_inventory": "../changed_files.json",
+  "old_committed_native_fixture_files_unchanged": 29,
+  "captures": "unchanged; fourteen top-level manifest/rest hashes retained; PNG hashes validated by native gates",
+  "temporary_test_checkouts": "cleaned up by full suite before final audit"
+}

@@ -192,7 +192,7 @@ func _audit_action_envelope(actor: String) -> void:
 	var renderer: Node = _renderer(actor)
 	renderer.set_process(false)
 	var case_actor: String = "stone_warden" if actor == "warden" else actor
-	var version: String = "v04" if actor == "warden" else "v02" if actor == "harrier" else "v01"
+	var version: String = "mq5" if actor in ["hoarfrost_seer", "arc_thrall"] else "v04" if actor == "warden" else "v02" if actor == "harrier" else "v01"
 	var config: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/cutouts/%s/%s/cutout.json" % [case_actor, version]))
 	var rigs: Dictionary = renderer.get("rigs")
 	var union := Rect2()
@@ -213,6 +213,11 @@ func _audit_action_envelope(actor: String) -> void:
 				await RenderingServer.frame_post_draw
 				var bounds: Rect2 = Rect2((renderer.call("texture") as Texture2D).get_image().get_used_rect())
 				bounds.position -= Vector2(128, 128) + anchor
+				if actor in ["hoarfrost_seer", "arc_thrall"] and clip == "move":
+					var motion: Script = preload("res://scripts/maquette_cutout_runtime/motion.gd")
+					var data: Dictionary = motion.data_for(rig.layout)
+					var channels: Dictionary = motion.channels_at(data, clip, phase, facing, float(rig.layout.get("step_distance_px", 0.0)))
+					bounds.position -= motion.translation(channels.get("root", {}), motion.point(data["projection"][facing]["forward"])) / maxf(float(rig.layout.get("screen_pixel_scale", 1.0)), 0.000001)
 				union = bounds if not union.has_area() else union.merge(bounds)
 				var reflected := Rect2(Vector2(-bounds.end.x, bounds.position.y), bounds.size)
 				union = union.merge(reflected)

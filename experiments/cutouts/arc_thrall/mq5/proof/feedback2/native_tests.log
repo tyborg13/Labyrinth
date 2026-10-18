@@ -1,0 +1,25 @@
+test_eroded_rest_reference_uses_the_same_canvas_alpha_packing (test_maquette_native_alpha.NativeAlphaTests) ... ok
+test_godot_reference_erosion_matches_independent_pillow_masks (test_maquette_native_alpha.NativeAlphaTests) ... ok
+test_native_late_fade_matches_model_without_phantom_body_pixels (test_maquette_native_alpha.NativeAlphaTests) ... ok
+test_crop_preserves_fixed_canvas_sampling (test_maquette_native_raster.NativeRasterTests) ... ok
+test_native_loop_rejects_a_held_flip_between_valid_candidates (test_maquette_native_raster.NativeRasterTests) ... ok
+test_native_replay_uses_the_matrices_that_staged_its_surfaces (test_maquette_native_raster.NativeRasterTests) ... ok
+test_rr07_rotated_before_fixtures_require_the_subtexel_band (test_maquette_native_raster.NativeRasterTests) ... ok
+test_saved_native_surfaces_match_source_transform (test_maquette_native_raster.NativeRasterTests) ... ok
+test_seam_fixture_exercises_the_opposite_exact_tie_choice (test_maquette_native_raster.NativeRasterTests) ... ok
+test_both_axes_allow_independent_adjacent_choices (test_maquette_native_ties.NativeTieTests) ... ok
+test_high_tie_occupancy_is_report_only_in_the_pixel_gate (test_maquette_native_ties.NativeTieTests) ... ok
+test_native_choice_is_explained_at_boundary_but_never_during_hold (test_maquette_native_ties.NativeTieTests) ... ok
+test_non_ties_keep_the_existing_rule_and_allowance (test_maquette_native_ties.NativeTieTests) ... ok
+test_other_neighbour_at_001_texel_is_not_a_candidate (test_maquette_native_ties.NativeTieTests) ... ok
+test_report_counts_only_occupied_ties_even_for_whole_scanlines (test_maquette_native_ties.NativeTieTests) ... ok
+test_saved_capture_keeps_render_bindings_exact_across_oracle_revision (test_maquette_native_ties.NativeTieTests) ... ok
+test_texture_edge_ties_never_accept_nonexistent_transparent_texels (test_maquette_native_ties.NativeTieTests) ... ok
+test_third_colour_at_a_tie_is_not_an_edge_allowance (test_maquette_native_ties.NativeTieTests) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 1.745s
+
+OK
+MAQUETTE REFERENCE MASKS: PASS (8 Godot image-operation masks = independent Pillow; no renderer claim)
+MAQUETTE NATIVE ALPHA: PASS (death/0069 and /0070: 0px mask diff; old /0070 model invented 13007px)

@@ -1,0 +1,17 @@
+Running task-local command:
+  task: rr-07
+  run: rr-07-1792300240087618000-57755
+  HOME: /private/tmp/labyrinth-godot-home/rr-07-1792300240087618000-57755
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-07-1792300240087618000-57755/godot.log --headless --path . --script tests/suites/full_scene_controls_program.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAIN DOMAIN ASSERTIONS full_scene_controls_program: 82
+MAIN DOMAIN RUNTIME full_scene_controls_program: 13.500 seconds
+TEST RESULT: PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

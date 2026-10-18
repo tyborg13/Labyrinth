@@ -166,7 +166,7 @@ def update_rest_identity_ledger(creature):
 
 def seal_density(creature):
     import process_board_density as density
-    entry = next(e for e in density.load_registry()['entries'] if e.get('unit_type', e['id']) == ('bile_bloomer' if creature=='shale_bloomer' else creature) and e['dir'].endswith(creature+'_cutout'))
+    entry = next(e for e in density.load_registry()['entries'] if e.get('unit_type', e['id']) == ('bile_bloomer' if creature=='shale_bloomer' else creature) and e.get('dir', '').endswith(creature+'_cutout'))
     outputs = read_json(density.MANIFEST)
     failures = density.paint_errors([entry],outputs) + density.rest_errors([entry],outputs)
     if failures: raise builder.CutoutError('Native rebake and --record-rests required: ' + str(failures))

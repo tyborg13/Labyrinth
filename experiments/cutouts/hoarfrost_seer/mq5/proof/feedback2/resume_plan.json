@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "execution": "Stubbed Python command planner only; no engine, renderer or windowed tool executed.",
+  "commands": {
+    "hoarfrost_seer": [
+      "-B experiments/cutouts/hoarfrost_seer/rr07_gates.py review --creature hoarfrost_seer --input /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/mq5/proof/native --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/mq5/proof/hoarfrost_seer_review.mp4",
+      "tools/visual_probe_runner.py --task-id rr-07 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 255x255 --proof-contract tests/rr07/hoarfrost_seer_density_contract.json tools/rebake_cutout_rests.gd -- --only hoarfrost_seer_cutout",
+      "tools/process_board_density.py --only hoarfrost_seer_cutout --record-rests",
+      "-B experiments/cutouts/hoarfrost_seer/rr07_release.py seal-density --creature hoarfrost_seer",
+      "tools/godot_task_runner.py --task-id rr-07 --stream -- godot --headless --path . --script tools/generate_unit_shadow_cache.gd",
+      "tools/visual_probe_runner.py --task-id rr-07 --no-headless --display-driver macos --audio-driver Dummy --timeout 300 --expect-size 1920x1080 --proof-contract tests/rr07/hoarfrost_seer_production_contract.json tests/rr07/production_capture.gd -- --type hoarfrost_seer --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/mq5/proof/production_native",
+      "-B experiments/cutouts/hoarfrost_seer/rr07_gates.py production --creature hoarfrost_seer --input /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/mq5/proof/production_native/frames.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/mq5/proof/production_native/verification.json"
+    ],
+    "arc_thrall": [
+      "-B experiments/cutouts/hoarfrost_seer/rr07_gates.py review --creature arc_thrall --input /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/arc_thrall/mq5/proof/native --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/arc_thrall/mq5/proof/arc_thrall_review.mp4",
+      "tools/visual_probe_runner.py --task-id rr-07 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 255x255 --proof-contract tests/rr07/arc_thrall_density_contract.json tools/rebake_cutout_rests.gd -- --only arc_thrall_cutout",
+      "tools/process_board_density.py --only arc_thrall_cutout --record-rests",
+      "-B experiments/cutouts/hoarfrost_seer/rr07_release.py seal-density --creature arc_thrall",
+      "tools/godot_task_runner.py --task-id rr-07 --stream -- godot --headless --path . --script tools/generate_unit_shadow_cache.gd",
+      "tools/visual_probe_runner.py --task-id rr-07 --no-headless --display-driver macos --audio-driver Dummy --timeout 300 --expect-size 1920x1080 --proof-contract tests/rr07/arc_thrall_production_contract.json tests/rr07/production_capture.gd -- --type arc_thrall --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/arc_thrall/mq5/proof/production_native",
+      "-B experiments/cutouts/hoarfrost_seer/rr07_gates.py production --creature arc_thrall --input /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/arc_thrall/mq5/proof/production_native/frames.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/arc_thrall/mq5/proof/production_native/verification.json"
+    ]
+  }
+}

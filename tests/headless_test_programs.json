@@ -382,5 +382,8 @@
   },
   {
     "path": "tests/maquette_cutout_test.gd"
+  },
+  {
+    "path": "tests/rr07/runtime_test.gd"
   }
 ]

@@ -28,6 +28,8 @@ static func bindings(directory: String) -> Dictionary:
 	var result: Dictionary = {}
 	for path: String in paths: result[path] = FileAccess.get_sha256(directory.path_join(path))
 	for path: String in RUNTIME_PATHS: result["runtime:" + path] = FileAccess.get_sha256("res://" + path)
+	var config: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("cutout.json")))
+	for path: String in config.get("runtime_paths", []): result["runtime:" + path] = FileAccess.get_sha256("res://" + path)
 	return result
 
 static func production_bindings(base: String) -> Dictionary:

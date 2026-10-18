@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "approved_sha256": {
+    "front": "50cb831186da2ae47833f9a8133c65b7b637890a2db3440a779f5e8925b7d528",
+    "rear": "02508b9cb96829ef8927dd2ff0c08287bc7112d6fbce51247818de018cc59230"
+  },
+  "features": [
+    {
+      "name": "ice_crystal",
+      "views": {
+        "front": {
+          "owner": "staff_crystal",
+          "mask": "features/front_ice_crystal.png"
+        },
+        "rear": {
+          "owner": "staff_crystal",
+          "mask": "features/rear_ice_crystal.png"
+        }
+      }
+    }
+  ]
+}

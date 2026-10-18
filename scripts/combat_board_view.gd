@@ -72,6 +72,7 @@ var _grave_surgeon_renderers: Dictionary = {}
 var _harrier_renderers: Dictionary = {}
 var _iskaldra_renderers: Dictionary = {}
 var _lightning_wisp_renderers: Dictionary = {}
+var _rr07_renderers: Dictionary = {"hoarfrost_seer": {}, "arc_thrall": {}}
 const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
 var _noctyrax_renderers: Dictionary = {}
 var _tharokh_renderers: Dictionary = {}
@@ -1089,6 +1090,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
 
 func _unit_uses_cutout(unit: Dictionary) -> bool:
+	if str(unit.get("type", "")) in ["hoarfrost_seer", "arc_thrall"]: return true
 	if str(unit.get("type", "")) == "gust_shrike": return GustShrikeCutout.available()
 	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 
@@ -1102,6 +1104,9 @@ func bile_bloomer_source_pixel_scale() -> float:
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
 
 func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	var rr07_type: String = str(unit.get("type", ""))
+	if _rr07_renderers.has(rr07_type):
+		return (_rr07_renderers[rr07_type] as Dictionary).get("enemy_%d" % int(unit.get("id", -1)), null) as Node
 	if str(unit.get("type", "")) == "gust_shrike": return GustShrikePresentation.renderer_for_unit(self, unit)
 	if GuardianCutout.handles(str(unit.get("type", ""))):
 		return _guardian_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
@@ -2192,7 +2197,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
 			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_gust_shrike_renderers", "_cinder_droplet_renderers",
-			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
+			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_rr07_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
@@ -2985,6 +2990,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	roster_phase_started = _record_submission_performance_phase("roster_iskaldra", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("lightning_wisp_motion"):
 		_sync_lightning_wisp_renderers()
+	for rr07_type: String in _rr07_renderers:
+		if refresh_cutout_roster or presentation_changes.has(rr07_type + "_motion"):
+			MaquettePresentation.sync(self, rr07_type, _rr07_renderers[rr07_type])
 	roster_phase_started = _record_submission_performance_phase("roster_lightning_wisp", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("noctyrax_motion"):
 		_sync_noctyrax_renderers()
@@ -14533,6 +14541,8 @@ func unit_rig_preparation_manifest(state: Dictionary) -> Dictionary:
 		"vyraketh": VyrakethCutout, "zekarion": ZekarionCutout,
 	}
 	var sources := PackedStringArray()
+	for rr07_type: String in _rr07_renderers:
+		families[rr07_type] = MaquettePresentation.renderer_script(rr07_type)
 	if GustShrikeCutout.available(): families["gust_shrike"] = GustShrikeCutout
 	var textures: Dictionary = {}
 	for enemy: Dictionary in state.get("enemies", []):

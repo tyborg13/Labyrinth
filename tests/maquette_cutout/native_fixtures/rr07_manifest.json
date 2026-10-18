@@ -1,0 +1,57 @@
+{
+  "capture_basis": "Director rr-07 native proof; feedback 2 rotated unsnapped before surfaces. Source and capture PNGs copied byte for byte; no recapture.",
+  "subtexel_tie_epsilon": 0.001953125,
+  "fixtures": [
+    {
+      "unit": "rr-07",
+      "creature": "hoarfrost_seer",
+      "view": "front",
+      "part": "skirt_far",
+      "frame": 67,
+      "kind": "before",
+      "capture": "hoarfrost_seer_front_skirt_far_before_0067.png",
+      "capture_sha256": "0bd2441babb8c473cf382cbac7427d04f509fff3dcb461a4221f8e9965a504d9",
+      "source": "tests/maquette_cutout/native_fixtures/source_hoarfrost_seer_front_skirt_far.png",
+      "source_sha256": "1f86a2e863fdc8047f74cb227aae0933df9d68f1996a44a21fe46029decc55aa",
+      "transform": [
+        0.999976933002472,
+        -0.00678731827065349,
+        0.00678731827065349,
+        0.999976933002472,
+        97.0842132568359,
+        152.396469116211
+      ],
+      "default_diff_pixels": 19,
+      "capture_origin": "experiments/cutouts/hoarfrost_seer/mq5/proof/native/pixels/front/skirt_far/before_0067.png",
+      "manifest_origin": "experiments/cutouts/hoarfrost_seer/mq5/proof/native/pixel_frames.json",
+      "manifest_sha256": "ed62be4f14402785e4d681f8ad4788af8ff7d5df5b80fc87f4b6369fde2f28f7",
+      "subtexel_residual_pixels": 3
+    },
+    {
+      "unit": "rr-07",
+      "creature": "arc_thrall",
+      "view": "rear",
+      "part": "fore_near",
+      "frame": 116,
+      "kind": "before",
+      "capture": "arc_thrall_rear_fore_near_before_0116.png",
+      "capture_sha256": "e972bd9c73da65453def4de7aea5cc13fff7e32ea02dbad34d92461540af77eb",
+      "source": "tests/maquette_cutout/native_fixtures/source_arc_thrall_rear_fore_near.png",
+      "source_sha256": "7cfb2849a31880a7326956d0ee04eecf91d6037d3ae18f3cd346e5f65e390db5",
+      "transform": [
+        0.99999874830246,
+        -0.00156581390183419,
+        0.00156581390183419,
+        0.99999874830246,
+        53.2242050170898,
+        120.517570495605
+      ],
+      "default_diff_pixels": 38,
+      "capture_origin": "experiments/cutouts/arc_thrall/mq5/proof/native/pixels/rear/fore_near/before_0116.png",
+      "manifest_origin": "experiments/cutouts/arc_thrall/mq5/proof/native/pixel_frames.json",
+      "manifest_sha256": "5d122fb6acfd4805afd306b8e5e981570c7118fda57fd221cb7a193388771e64",
+      "subtexel_residual_pixels": 0
+    }
+  ],
+  "residual_policy": "Keep rr-05 native edge allowance unchanged. Seer retains 3 non-tie edge pixels; all legal candidate choices are exact RGBA matches."
+}

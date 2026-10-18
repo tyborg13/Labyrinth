@@ -1,0 +1,40 @@
+test_both_committed_deliveries_have_every_label_and_joint (test_rr07_delivery.DeliveryTests) ... ok
+test_changed_actual_bone_and_missing_contact_sample_fail (test_rr07_delivery.DeliveryTests) ... ok
+test_changed_solo_is_rejected (test_rr07_delivery.DeliveryTests) ... ok
+test_director_hierarchy_and_every_signed_key_match_independent_oracle (test_rr07_delivery.DeliveryTests) ... ok
+test_every_authored_key_midpoint_and_contact_reaches_real_bones (test_rr07_delivery.DeliveryTests) ... ok
+test_extra_runtime_sources_are_bound_in_python_and_godot (test_rr07_delivery.DeliveryTests) ... ok
+test_features_preserve_opaque_source_and_fill_holes (test_rr07_delivery.DeliveryTests) ... ok
+test_joint_mutation_is_rejected_after_refreshing_checksum (test_rr07_delivery.DeliveryTests) ... ok
+test_missing_raw_never_accepts_an_unbound_image (test_rr07_delivery.DeliveryTests) ... ok
+test_missing_solo_is_rejected (test_rr07_delivery.DeliveryTests) ... ok
+test_protected_director_copies_remain_byte_identical (test_rr07_delivery.DeliveryTests) ... ok
+test_raw_step_replay_matches_approved_pixels (test_rr07_delivery.DeliveryTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+ok
+test_transparent_feature_mutation_is_rejected (test_rr07_delivery.DeliveryTests) ... ok
+test_wrong_compiler_sign_is_rejected_by_independent_oracle (test_rr07_delivery.DeliveryTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/rr07_geometry.py:112: DeprecationWarning: Arrays of 2-dimensional vectors are deprecated. Use arrays of 3-dimensional vectors instead. (deprecated in NumPy 2.0)
+  item = {'lean_deg': float(np.sign(np.cross(up, forward))), 'joint_3d': pivot}
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/rr07_geometry.py:116: DeprecationWarning: Arrays of 2-dimensional vectors are deprecated. Use arrays of 3-dimensional vectors instead. (deprecated in NumPy 2.0)
+  cross = float(np.cross(ray, up))
+ok
+test_frozen_idle_is_rejected (test_rr07_production.ProductionTests) ... ok
+test_icefall_marks_begin_at_contact (test_rr07_production.ProductionTests) ... ok
+test_real_callbacks_have_six_changing_frames_and_contact (test_rr07_production.ProductionTests) ... ok
+test_removed_contact_and_missing_action_are_rejected (test_rr07_production.ProductionTests) ... ok
+test_tether_animates_only_the_actor_and_vfx_begins_at_contact (test_rr07_production.ProductionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 77.539s
+
+OK
