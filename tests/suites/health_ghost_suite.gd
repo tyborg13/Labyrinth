@@ -7,14 +7,16 @@ const Run = preload("res://scripts/run_engine.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
+const FrameDeltaProbe = preload("res://tests/helpers/health_ghost_frame_delta_probe.gd")
 
 # Debug-only fixture values; production presentation values live in Tracker.
 const FIXTURE_HP: float = 24.0
 const FIXTURE_DAMAGE: float = 6.0
 const FIXTURE_HERO_DAMAGE: float = 5.0
 const FIXTURE_HEAL: float = 3.0
-const CLOCK_TEST_SECONDS: float = 0.08
-const CLOCK_TOLERANCE_SECONDS: float = 0.06
+const CLOCK_TEST_FRAMES: int = 8
+const LONG_FRAME_TIMER_SECONDS: float = 0.08
+const FORCED_LONG_FRAME_MSEC: int = 150
 const SETTLE_FRAMES: int = 8
 const HUD_TEST_SIZE: Vector2 = Vector2(140.0, 160.0)
 const CLOCK_SPEED_MULTIPLIER: float = 2.0
@@ -149,18 +151,7 @@ static func run_integration(tree: SceneTree, expect: Callable) -> void:
 	var hud: Control = scene.call("_turn_order_health_bar", {"kind": "player", "actor_key": "player", "team": "player", "hp": hero_hp, "max_hp": combat["player"]["max_hp"]}, HUD_TEST_SIZE)
 	expect.call(hud.ghost_tracker == tracker and hud.ghost_sample()["hp"] == hero_hp - FIXTURE_HERO_DAMAGE, "Rebuilt hero HUD meter shares contact HP with the board")
 	expect.call((board.get("_hud_render_layer") as Control).health_ghost_tracker == tracker, "Retained HUD renderer shares the owner tracker")
-	var frozen: Dictionary = tracker.sample("player")
-	var previous_scale: float = Engine.time_scale
-	Engine.time_scale = 0.0
-	await tree.create_timer(CLOCK_TEST_SECONDS, true, false, true).timeout
-	expect.call(tracker.sample("player") == frozen, "Engine hit-stop freezes the production presentation clock")
-	Engine.time_scale = CLOCK_SPEED_MULTIPLIER
-	var started: int = Time.get_ticks_usec()
-	await tree.create_timer(CLOCK_TEST_SECONDS, true, false, true).timeout
-	var real_seconds: float = float(Time.get_ticks_usec() - started) / 1000000.0
-	var elapsed: float = float((tracker.get("_bars") as Dictionary)["player"]["elapsed"])
-	expect.call(absf(elapsed - real_seconds * Engine.time_scale) < CLOCK_TOLERANCE_SECONDS, "Combat speed scales the production ghost clock through Engine.time_scale")
-	Engine.time_scale = previous_scale
+	await _test_presentation_clock(tree, tracker, expect)
 	var dead: Dictionary = combat.duplicate(true)
 	dead["enemies"] = []
 	var death_unit: Dictionary = boss.duplicate(true)
@@ -178,6 +169,54 @@ static func run_integration(tree: SceneTree, expect: Callable) -> void:
 	hud.free()
 	scene.queue_free()
 	await tree.process_frame
+
+static func _test_presentation_clock(tree: SceneTree, tracker: RefCounted, expect: Callable) -> void:
+	var clock: Node = tracker.get("_clock")
+	var probe := FrameDeltaProbe.new(clock)
+	clock.add_child(probe)
+	var previous_scale: float = Engine.time_scale
+	Engine.time_scale = 0.0
+	# process_frame is emitted after the current frame's delta was computed.
+	# Cross that boundary before sampling a new scale or newly attached probe.
+	await tree.process_frame
+	_restart_player_ghost(tracker)
+	probe.reset()
+	var frozen: Dictionary = tracker.sample("player")
+	var frozen_elapsed: float = _player_elapsed(tracker)
+	for frame: int in range(CLOCK_TEST_FRAMES):
+		await tree.process_frame
+	expect.call(probe.frame_count == CLOCK_TEST_FRAMES and is_zero_approx(probe.total_delta), "Engine hit-stop delivers zero process deltas to the active ghost clock")
+	expect.call(tracker.sample("player") == frozen and _player_elapsed(tracker) == frozen_elapsed, "Engine hit-stop freezes the production presentation clock")
+	Engine.time_scale = CLOCK_SPEED_MULTIPLIER
+	await tree.process_frame
+	probe.reset()
+	var elapsed_before: float = _player_elapsed(tracker)
+	for frame: int in range(CLOCK_TEST_FRAMES):
+		await tree.process_frame
+	expect.call(probe.frame_count > 0 and probe.total_delta > 0.0, "Combat speed delivers positive scaled process deltas to the ghost clock")
+	expect.call(is_equal_approx(_player_elapsed(tracker) - elapsed_before, probe.total_delta), "Combat speed scales the production ghost clock through Engine.time_scale")
+	_restart_player_ghost(tracker)
+	probe.reset()
+	elapsed_before = _player_elapsed(tracker)
+	# Timers finish after node processing. The clock has not received this delay
+	# in any delta yet, but the old wall-clock comparison counted it and failed.
+	var clock_timer: SceneTreeTimer = tree.create_timer(LONG_FRAME_TIMER_SECONDS, true, false, true)
+	clock_timer.timeout.connect(func() -> void: OS.delay_msec(FORCED_LONG_FRAME_MSEC))
+	await clock_timer.timeout
+	var matches_frame_deltas: bool = probe.frame_count > 0 and probe.total_delta > 0.0 and is_equal_approx(_player_elapsed(tracker) - elapsed_before, probe.total_delta)
+	expect.call(matches_frame_deltas, "A forced long frame at the timer edge preserves exact ghost-clock accounting")
+	print("HEALTH GHOST LONG-FRAME REGRESSION: %s" % ("PASS" if matches_frame_deltas else "FAIL"))
+	Engine.time_scale = previous_scale
+	probe.free()
+
+static func _player_elapsed(tracker: RefCounted) -> float:
+	return float((tracker.get("_bars") as Dictionary)["player"]["elapsed"])
+
+static func _restart_player_ghost(tracker: RefCounted) -> void:
+	# A loaded machine may finish the previous ghost in a single long frame.
+	var player: Dictionary = tracker.sample("player")
+	tracker.observe("player", float(player["max_hp"]), float(player["max_hp"]))
+	tracker.observe("player", float(player["hp"]), float(player["max_hp"]))
 
 static func fixture_run(boss: bool = true) -> Dictionary:
 	var state: Dictionary = Run.new().create_debug_boss_run(Progression.default_data())
