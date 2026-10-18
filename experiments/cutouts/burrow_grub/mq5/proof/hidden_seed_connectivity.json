@@ -1,0 +1,102 @@
+{
+  "front/hidden_seg_1": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_seg_2": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_seg_3": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_seg_4": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_seg_5": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_seg_6": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_tail": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_leg_near_1": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_leg_near_3": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_leg_far_1": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/leg_far_2": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/leg_far_3": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_head": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_seg_1": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_seg_2": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_seg_3": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_seg_4": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_seg_5": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_seg_6": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/leg_near_1": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/leg_near_2": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/leg_near_3": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_leg_far_1": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_leg_far_2": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_leg_far_3": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  }
+}

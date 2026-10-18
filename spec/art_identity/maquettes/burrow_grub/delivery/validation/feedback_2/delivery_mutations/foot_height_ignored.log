@@ -1,0 +1,69 @@
+test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... 
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_near_1_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_near_2_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_near_3_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_near_4_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_far_1_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_far_2_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_far_3_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+======================================================================
+FAIL: test_each_foot_rejects_unpainted_projection_and_wrong_height (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (foot='leg_far_4_lower', mutation='height')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 108, in test_each_foot_rejects_unpainted_projection_and_wrong_height
+    self.assertFalse(result['passed'])
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.404s
+
+FAILED (failures=8)

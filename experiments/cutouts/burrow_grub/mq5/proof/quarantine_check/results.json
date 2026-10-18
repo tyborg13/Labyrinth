@@ -1,0 +1,234 @@
+[
+  {
+    "path": "tests/boot_splash_export_test.gd",
+    "exit": 1,
+    "seconds": 0.35,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/boot_splash_export_test.gd.log",
+    "entrypoint": "tests/boot_splash_export_test.gd",
+    "follow_up": "qa-12"
+  },
+  {
+    "path": "tests/card_presentation_export_test.gd",
+    "exit": 1,
+    "seconds": 0.353,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/card_presentation_export_test.gd.log",
+    "entrypoint": "tests/card_presentation_export_test.gd",
+    "follow_up": "qa-12"
+  },
+  {
+    "path": "tests/combat_board_navigation_test.gd",
+    "exit": 1,
+    "seconds": 3.777,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/combat_board_navigation_test.gd.log",
+    "entrypoint": "tests/combat_board_navigation_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/combat_boundary_equivalence_test.gd",
+    "exit": 1,
+    "seconds": 7.717,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/combat_boundary_equivalence_test.gd.log",
+    "entrypoint": "tests/combat_boundary_equivalence_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/combat_hud_badges_test.gd",
+    "exit": 1,
+    "seconds": 11.454,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/combat_hud_badges_test.gd.log",
+    "entrypoint": "tests/combat_hud_badges_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/committed_hand_queries_test.gd",
+    "exit": 1,
+    "seconds": 8.591,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/committed_hand_queries_test.gd.log",
+    "entrypoint": "tests/committed_hand_queries_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/contextual_creature_motion_test.gd",
+    "exit": 124,
+    "seconds": 180.066,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/contextual_creature_motion_test.gd.log",
+    "entrypoint": "tests/contextual_creature_motion_test.gd",
+    "follow_up": "qa-10"
+  },
+  {
+    "path": "tests/cutout_rig_data_test.gd",
+    "exit": 1,
+    "seconds": 0.719,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/cutout_rig_data_test.gd.log",
+    "entrypoint": "tests/cutout_rig_data_test.gd",
+    "follow_up": "qa-10"
+  },
+  {
+    "path": "tests/dragon_area_presentation_test.gd",
+    "exit": 1,
+    "seconds": 2.0,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/dragon_area_presentation_test.gd.log",
+    "entrypoint": "tests/dragon_area_presentation_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/dragon_pressure_escape_probe.gd",
+    "exit": 124,
+    "seconds": 180.064,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/dragon_pressure_escape_probe.gd.log",
+    "entrypoint": "tests/dragon_pressure_escape_probe.gd",
+    "follow_up": "qa-11"
+  },
+  {
+    "path": "tests/dragon_rewards_test.gd",
+    "exit": 1,
+    "seconds": 7.43,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/dragon_rewards_test.gd.log",
+    "entrypoint": "tests/dragon_rewards_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/en05_integration_sync_test.gd",
+    "exit": 1,
+    "seconds": 3.176,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/en05_integration_sync_test.gd.log",
+    "entrypoint": "tests/en05_integration_sync_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/equipment_inventory_readability_test.gd",
+    "exit": 1,
+    "seconds": 6.787,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/equipment_inventory_readability_test.gd.log",
+    "entrypoint": "tests/equipment_inventory_readability_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/lightning_wisp_cutout_pack_test.gd",
+    "exit": 1,
+    "seconds": 0.697,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/lightning_wisp_cutout_pack_test.gd.log",
+    "entrypoint": "tests/lightning_wisp_cutout_pack_test.gd",
+    "follow_up": "qa-10"
+  },
+  {
+    "path": "tests/noncombat_move_equivalence_test.gd",
+    "exit": 1,
+    "seconds": 31.903,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/noncombat_move_equivalence_test.gd.log",
+    "entrypoint": "tests/noncombat_move_equivalence_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/owned_combat_creation_equivalence_test.gd",
+    "exit": 124,
+    "seconds": 180.063,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/owned_combat_creation_equivalence_test.gd.log",
+    "entrypoint": "tests/owned_combat_creation_equivalence_test.gd",
+    "follow_up": "qa-11"
+  },
+  {
+    "path": "tests/prepared_encounter_equivalence_test.gd",
+    "exit": 1,
+    "seconds": 13.676,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/prepared_encounter_equivalence_test.gd.log",
+    "entrypoint": "tests/prepared_encounter_equivalence_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/prepared_equipment_combat_test.gd",
+    "exit": 1,
+    "seconds": 21.097,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/prepared_equipment_combat_test.gd.log",
+    "entrypoint": "tests/prepared_equipment_combat_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/prepared_equipment_scene_handoff_test.gd",
+    "exit": 1,
+    "seconds": 9.767,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/prepared_equipment_scene_handoff_test.gd.log",
+    "entrypoint": "tests/prepared_equipment_scene_handoff_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/prepared_reward_choices_test.gd",
+    "exit": 1,
+    "seconds": 14.186,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/prepared_reward_choices_test.gd.log",
+    "entrypoint": "tests/prepared_reward_choices_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/prepared_shop_glyph_equivalence_test.gd",
+    "exit": 1,
+    "seconds": 5.491,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/prepared_shop_glyph_equivalence_test.gd.log",
+    "entrypoint": "tests/prepared_shop_glyph_equivalence_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/prepared_travel_combat_test.gd",
+    "exit": 1,
+    "seconds": 8.28,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/prepared_travel_combat_test.gd.log",
+    "entrypoint": "tests/prepared_travel_combat_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/retained_character_deck_equivalence_test.gd",
+    "exit": 124,
+    "seconds": 180.107,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/retained_character_deck_equivalence_test.gd.log",
+    "entrypoint": "tests/retained_character_deck_equivalence_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/retained_section_map_equivalence_test.gd",
+    "exit": 1,
+    "seconds": 5.045,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/retained_section_map_equivalence_test.gd.log",
+    "entrypoint": "tests/retained_section_map_equivalence_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/retained_shop_rows_equivalence_test.gd",
+    "exit": 124,
+    "seconds": 180.086,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/retained_shop_rows_equivalence_test.gd.log",
+    "entrypoint": "tests/retained_shop_rows_equivalence_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/scavenger_visual_pass_4_test.gd",
+    "exit": 1,
+    "seconds": 10.92,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/scavenger_visual_pass_4_test.gd.log",
+    "entrypoint": "tests/scavenger_visual_pass_4_test.gd",
+    "follow_up": "qa-09"
+  },
+  {
+    "path": "tests/suites/dragon_area_presentation_suite.gd",
+    "exit": 1,
+    "seconds": 2.0,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/dragon_area_presentation_test.gd.log",
+    "entrypoint": "tests/dragon_area_presentation_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/surface_feedback_ui_test.gd",
+    "exit": 1,
+    "seconds": 7.211,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/surface_feedback_ui_test.gd.log",
+    "entrypoint": "tests/surface_feedback_ui_test.gd",
+    "follow_up": "design-01"
+  },
+  {
+    "path": "tests/surface_query_handoff_test.gd",
+    "exit": 1,
+    "seconds": 6.977,
+    "log": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/quarantine_check/surface_query_handoff_test.gd.log",
+    "entrypoint": "tests/surface_query_handoff_test.gd",
+    "follow_up": "qa-09"
+  }
+]

@@ -1,0 +1,263 @@
+{
+  "character_id": "ember_tick",
+  "joints": {
+    "root": {
+      "joint": "root",
+      "position_3d": [
+        0,
+        0,
+        0
+      ],
+      "parent": null
+    },
+    "head": {
+      "joint": "head_base",
+      "position_3d": [
+        0.7424621202458751,
+        0.09280776503073437,
+        0.6490986866922117
+      ],
+      "parent": "shell"
+    },
+    "shell": {
+      "joint": "shell_base",
+      "position_3d": [
+        -0.16572815184059705,
+        0.019887378220871745,
+        0.6599240042395171
+      ],
+      "parent": "root"
+    },
+    "leg_near_1_upper": {
+      "joint": "leg_near_1_0",
+      "position_3d": [
+        0.4574096990800482,
+        0.15246989969334934,
+        0.6761619805604753
+      ],
+      "parent": "shell"
+    },
+    "leg_near_1_lower": {
+      "joint": "leg_near_1_1",
+      "position_3d": [
+        0.6728562964728244,
+        0.5866776575157135,
+        0.6923999568814335
+      ],
+      "parent": "leg_near_1_upper"
+    },
+    "leg_near_2_upper": {
+      "joint": "leg_near_2_0",
+      "position_3d": [
+        0.2386485386504601,
+        0.3844893122701854,
+        0.7248759095233499
+      ],
+      "parent": "shell"
+    },
+    "leg_near_2_lower": {
+      "joint": "leg_near_2_1",
+      "position_3d": [
+        0.5038135815954153,
+        0.8220116331293614,
+        0.6869872981077808
+      ],
+      "parent": "leg_near_2_upper"
+    },
+    "leg_near_3_upper": {
+      "joint": "leg_near_3_0",
+      "position_3d": [
+        -0.07623494984667446,
+        0.4872407664113556,
+        0.7248759095233499
+      ],
+      "parent": "shell"
+    },
+    "leg_near_3_lower": {
+      "joint": "leg_near_3_1",
+      "position_3d": [
+        0.0696058237730512,
+        0.8982465829760363,
+        0.6599240042395171
+      ],
+      "parent": "leg_near_3_upper"
+    },
+    "leg_near_4_upper": {
+      "joint": "leg_near_4_0",
+      "position_3d": [
+        -0.4176349426383046,
+        0.3646019340493136,
+        0.7302885682970026
+      ],
+      "parent": "shell"
+    },
+    "leg_near_4_lower": {
+      "joint": "leg_near_4_1",
+      "position_3d": [
+        -0.33808542975481803,
+        0.7358329941722513,
+        0.6328607103712534
+      ],
+      "parent": "leg_near_4_upper"
+    },
+    "leg_far_1_upper": {
+      "joint": "leg_far_1_0",
+      "position_3d": [
+        0.3281417406443823,
+        -0.06297669769942679,
+        0.6328607103712532
+      ],
+      "parent": "shell"
+    },
+    "leg_far_1_lower": {
+      "joint": "leg_far_1_1",
+      "position_3d": [
+        0.4110058165646808,
+        -0.27842329509220304,
+        0.44883031206706014
+      ],
+      "parent": "leg_far_1_upper"
+    },
+    "leg_far_2_upper": {
+      "joint": "leg_far_2_0",
+      "position_3d": [
+        0.006629126073623959,
+        -0.29831067331307454,
+        0.6653366630131697
+      ],
+      "parent": "shell"
+    },
+    "leg_far_2_lower": {
+      "joint": "leg_far_2_1",
+      "position_3d": [
+        0.17235727791422087,
+        -0.5966213466261494,
+        0.45965562961436546
+      ],
+      "parent": "leg_far_2_upper"
+    },
+    "leg_far_3_upper": {
+      "joint": "leg_far_3_0",
+      "position_3d": [
+        -0.33477086671800627,
+        -0.40769125352786867,
+        0.6869872981077807
+      ],
+      "parent": "shell"
+    },
+    "leg_far_3_lower": {
+      "joint": "leg_far_3_1",
+      "position_3d": [
+        -0.30825436242351095,
+        -0.8584718265342929,
+        0.5787341226347257
+      ],
+      "parent": "leg_far_3_upper"
+    },
+    "leg_far_4_upper": {
+      "joint": "leg_far_4_0",
+      "position_3d": [
+        -0.573419405368466,
+        -0.3281417406443819,
+        0.7194632507496971
+      ],
+      "parent": "shell"
+    },
+    "leg_far_4_lower": {
+      "joint": "leg_far_4_1",
+      "position_3d": [
+        -0.6430252291415169,
+        -0.8551572634974809,
+        0.6923999568814334
+      ],
+      "parent": "leg_far_4_upper"
+    }
+  },
+  "parts": {
+    "head": "head",
+    "shell": "shell",
+    "leg_near_1_upper": "leg_near_1_upper",
+    "leg_near_1_lower": "leg_near_1_lower",
+    "leg_near_2_upper": "leg_near_2_upper",
+    "leg_near_2_lower": "leg_near_2_lower",
+    "leg_near_3_upper": "leg_near_3_upper",
+    "leg_near_3_lower": "leg_near_3_lower",
+    "leg_near_4_upper": "leg_near_4_upper",
+    "leg_near_4_lower": "leg_near_4_lower",
+    "leg_far_1_upper": "leg_far_1_upper",
+    "leg_far_1_lower": "leg_far_1_lower",
+    "leg_far_2_upper": "leg_far_2_upper",
+    "leg_far_2_lower": "leg_far_2_lower",
+    "leg_far_3_upper": "leg_far_3_upper",
+    "leg_far_3_lower": "leg_far_3_lower",
+    "leg_far_4_upper": "leg_far_4_upper",
+    "leg_far_4_lower": "leg_far_4_lower"
+  },
+  "director_decisions": {
+    "authority": "rr-12 brief, committed mq-05 anatomy",
+    "body": "Director body tracks bind to runtime root; no material belongs to root",
+    "rings": "seg_3 outward in both directions; pivots at native inter-ring meeting planes",
+    "legs": "Native ring children for Grub; shell > upper > lower for Tick"
+  },
+  "motion": "motion.gd",
+  "features": "features.json",
+  "rigid_bones": [],
+  "contact_feet": [],
+  "materials": {
+    "head": "head approved paint",
+    "shell": "shell approved paint",
+    "leg_near_1_upper": "leg_near_1_upper approved paint",
+    "leg_near_1_lower": "leg_near_1_lower approved paint",
+    "leg_near_2_upper": "leg_near_2_upper approved paint",
+    "leg_near_2_lower": "leg_near_2_lower approved paint",
+    "leg_near_3_upper": "leg_near_3_upper approved paint",
+    "leg_near_3_lower": "leg_near_3_lower approved paint",
+    "leg_near_4_upper": "leg_near_4_upper approved paint",
+    "leg_near_4_lower": "leg_near_4_lower approved paint",
+    "leg_far_1_upper": "leg_far_1_upper approved paint",
+    "leg_far_1_lower": "leg_far_1_lower approved paint",
+    "leg_far_2_upper": "leg_far_2_upper approved paint",
+    "leg_far_2_lower": "leg_far_2_lower approved paint",
+    "leg_far_3_upper": "leg_far_3_upper approved paint",
+    "leg_far_3_lower": "leg_far_3_lower approved paint",
+    "leg_far_4_upper": "leg_far_4_upper approved paint",
+    "leg_far_4_lower": "leg_far_4_lower approved paint"
+  },
+  "design_placeholders": {},
+  "clips": {
+    "idle": {
+      "frames": 66,
+      "duration": 1.1,
+      "loop": true
+    },
+    "move": {
+      "frames": 42,
+      "duration": 0.7,
+      "loop": false
+    },
+    "bite": {
+      "frames": 36,
+      "duration": 0.6,
+      "loop": false
+    },
+    "kindle": {
+      "frames": 54,
+      "duration": 0.9,
+      "loop": false
+    },
+    "hit": {
+      "frames": 30,
+      "duration": 0.5,
+      "loop": false
+    },
+    "death": {
+      "frames": 54,
+      "duration": 0.9,
+      "loop": false
+    }
+  },
+  "proof_defaults": {
+    "native_fps": 60,
+    "render_size": 1024
+  }
+}

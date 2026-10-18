@@ -1,0 +1,63 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328651501549000-48066
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328651501549000-48066
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328651501549000-48066/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/dragon_rewards_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Failed to acknowledge progression analytics event batch.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _reconcile_progression_analytics_outbox (res://scripts/run_scene.gd:32319)
+       [1] _test_claim_outbox (res://tests/dragon_rewards_test.gd:125)
+       [2] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Failed to persist committed run boundary: dragon_reward_continued
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _persist_run_state_snapshot (res://scripts/run_scene.gd:28870)
+       [1] _commit_dragon_reward_continue (res://scripts/run_scene.gd:16167)
+       [2] _test_claim_outbox (res://tests/dragon_rewards_test.gd:144)
+       [3] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Final Continue transfers the claim to the profile before clearing the run
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] expect (res://tests/dragon_rewards_test.gd:34)
+       [1] _test_claim_outbox (res://tests/dragon_rewards_test.gd:159)
+       [2] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Failed to persist committed run boundary: dragon_reward_continued
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _persist_run_state_snapshot (res://scripts/run_scene.gd:28870)
+       [1] _commit_dragon_reward_continue (res://scripts/run_scene.gd:16167)
+       [2] _test_claim_outbox (res://tests/dragon_rewards_test.gd:178)
+       [3] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Either terminal retry path finishes with exactly one claim
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] expect (res://tests/dragon_rewards_test.gd:34)
+       [1] _test_claim_outbox (res://tests/dragon_rewards_test.gd:199)
+       [2] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Failed to persist committed run boundary: dragon_reward_continued
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _persist_run_state_snapshot (res://scripts/run_scene.gd:28870)
+       [1] _commit_dragon_reward_continue (res://scripts/run_scene.gd:16167)
+       [2] _test_claim_outbox (res://tests/dragon_rewards_test.gd:178)
+       [3] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Failed to persist committed run boundary: terminal_claim_still_blocked
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _persist_run_state_snapshot (res://scripts/run_scene.gd:28870)
+       [1] _test_claim_outbox (res://tests/dragon_rewards_test.gd:185)
+       [2] _initialize (res://tests/dragon_rewards_test.gd:21)
+ERROR: Either terminal retry path finishes with exactly one claim
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] expect (res://tests/dragon_rewards_test.gd:34)
+       [1] _test_claim_outbox (res://tests/dragon_rewards_test.gd:199)
+       [2] _initialize (res://tests/dragon_rewards_test.gd:21)

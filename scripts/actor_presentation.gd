@@ -7,6 +7,8 @@ const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/pres
 ## HUD heights use each painted rest view; raised weapons never lift a nameplate.
 const SOURCE_SIZE: float = 255.0
 const PROFILES: Dictionary = {
+	"ember_tick": {"front": Vector2(117.0, 226.46), "rear": Vector2(135.75, 225.21), "height": Vector2(127.46000000000001, 132.21)},
+	"burrow_grub": {"front": Vector2(120.0, 236.46), "rear": Vector2(128.0, 241.21), "height": Vector2(132.46, 137.21)},
 	"hoarfrost_seer": {"front": Vector2(135.0, 232.46), "rear": Vector2(119.75, 231.71), "height": Vector2(192.46, 208.71)},
 	"arc_thrall": {"front": Vector2(132.0, 230.46), "rear": Vector2(124.75, 239.96), "height": Vector2(189.46, 190.96)},
 	"ash_hound": {"front": Vector2(120.2500, 217.0000), "rear": Vector2(130.2500, 217.7500), "height": Vector2(171.0000, 171.7500)},
@@ -56,6 +58,8 @@ static func height_above_floor(unit_type: String, facing: String = "") -> float:
 	return heights.y if facing == "rear" else heights.x if facing == "front" else maxf(heights.x, heights.y)
 
 const ACTION_BOUNDS: Dictionary = {
+	"ember_tick": Rect2(-128.0, -150.0, 256.0, 178.0),
+	"burrow_grub": Rect2(-127.0, -160.0, 254.0, 224.0),
 	"arc_thrall": Rect2(-172.0, -196.0, 344.0, 232.0),
 	"hoarfrost_seer": Rect2(-163.0, -223.0, 326.0, 263.0),
 	"crawler": Rect2(-158.2500, -159.5000, 316.5000, 209.2500),

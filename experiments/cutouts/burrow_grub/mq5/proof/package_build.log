@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328700769938000-48673
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328700769938000-48673
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328700769938000-48673/godot.log --headless --path . --script experiments/cutouts/burrow_grub/rr12_pack_build.gd -- /Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/rr12-package-cj9etr9s/godot_runtime.pck
+  timeout: 120s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+RR12 PACKAGE BUILD: PASS
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)

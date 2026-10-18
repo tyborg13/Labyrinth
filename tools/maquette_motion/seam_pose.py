@@ -10,6 +10,23 @@ from maquette_motion import pixels, silhouette
 from maquette_motion.bleed import source_transform
 
 INTERIOR_EROSION_PX = 1
+# RendererCanvasCull::_cull_canvas_item skips inherited modulate.a < 0.007,
+# before vertex-colour packing (Godot 4.5, servers/rendering/renderer_canvas_cull.cpp).
+CANVAS_ITEM_ALPHA_CULL_THRESHOLD = 0.007
+
+
+def native_reference_matches(actual, expected, row):
+    """An entirely culled presentation requires an empty native reference.
+
+    Check every part, including children with their own alpha. A visible part
+    keeps the ordinary source-mask comparison; transform checks remain blocking
+    in either case. Do not infer invisibility from an empty captured surface.
+    """
+    if row['parts'] and all(np.float32(p['alpha']) < CANVAS_ITEM_ALPHA_CULL_THRESHOLD
+                            for p in row['parts'].values()):
+        return not actual.any()
+    a, b = (np.repeat(m[..., None], 4, axis=-1).astype(np.uint8) * 255 for m in (actual, expected))
+    return pixels.native_frame_matches(a, b)
 
 
 def summary(report):
@@ -160,8 +177,7 @@ def report(case, samples, native=None, historical_reference_model=False):
                     # The pre-existing native source-transform tolerances also
                     # apply to these source masks. Seam metrics are report-only.
                     for kind, actual, expected_mask in zip(('rest', 'interior'), native_references, expected_masks):
-                        a, b = (np.repeat(m[..., None], 4, axis=-1).astype(np.uint8) * 255 for m in (actual, expected_mask))
-                        if not pixels.native_frame_matches(a, b):
+                        if not native_reference_matches(actual, expected_mask, row):
                             errors.append('/'.join(map(str, key)) + ': native ' + kind + ' reference differs from source transform')
                 masks = [np.array(Image.open(native['directory'] / frame[k + '_file']).convert('RGBA'))[..., 3] > 0
                          for k in ('parts', 'seams')]

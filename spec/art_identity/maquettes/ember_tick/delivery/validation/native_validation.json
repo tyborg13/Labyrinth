@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "figures": {
+    "ember_tick": {
+      "passed": true,
+      "spec_hash": "d7dc7a16bfffdcc39df4bb8c533ff2beaafa08d761d908317e700b3b5aaef737",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true,
+        "required_native_checks_present": true,
+        "disabled_modifiers_rejected": true,
+        "frozen_base_mesh_rejected": true
+      },
+      "details": {
+        "disabled_modifier_mutations": {
+          "shell/rounded_mass_subdivision/show_viewport": true,
+          "shell/rounded_mass_subdivision/show_render": true,
+          "shell/modelled_surface_relief/show_viewport": true,
+          "shell/modelled_surface_relief/show_render": true,
+          "shell/carved_whole_cracks/show_viewport": true,
+          "shell/carved_whole_cracks/show_render": true,
+          "head/rounded_mass_subdivision/show_viewport": true,
+          "head/rounded_mass_subdivision/show_render": true,
+          "head/modelled_surface_relief/show_viewport": true,
+          "head/modelled_surface_relief/show_render": true,
+          "leg_near_1_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_near_1_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_near_1_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_near_1_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_near_2_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_near_2_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_near_2_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_near_2_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_near_3_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_near_3_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_near_3_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_near_3_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_near_4_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_near_4_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_near_4_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_near_4_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_far_1_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_far_1_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_far_1_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_far_1_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_far_2_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_far_2_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_far_2_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_far_2_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_far_3_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_far_3_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_far_3_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_far_3_upper_joint/modelled_surface_relief/show_render": true,
+          "leg_far_4_upper_joint/rounded_mass_subdivision/show_viewport": true,
+          "leg_far_4_upper_joint/rounded_mass_subdivision/show_render": true,
+          "leg_far_4_upper_joint/modelled_surface_relief/show_viewport": true,
+          "leg_far_4_upper_joint/modelled_surface_relief/show_render": true
+        }
+      }
+    }
+  }
+}

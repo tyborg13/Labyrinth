@@ -25,6 +25,9 @@ COMPILE_DEFAULTS = {'static_drape_frames': 1, 'ring_samples': 32, 'seam_epsilon'
 
 
 def compile_recipe(recipe):
+    if recipe.get('native_solids'):
+        from spec.art_identity.maquettes.blender.creature_recipe import compile_solids
+        return compile_solids(recipe)
     baseline = board_spec(json.loads((PROJECT / 'spec/art_identity/maquettes/frostglass_lancer/spec_r3.json').read_text()))
     physics = {key: deepcopy(baseline['pieces'][0][key]) for key in
                ('frames', 'stiffness', 'collision_margin', 'solver_margin',

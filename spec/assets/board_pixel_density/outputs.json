@@ -2416,6 +2416,618 @@
     "grid": 1.74,
     "facing": "rear"
   },
+  "assets/units/burrow_grub_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "burrow_grub_cutout",
+    "pixel_sha256": "af67a54643257d87823c23a0c35e7f183311f78fa7c8d4785b3de23a0eb50c5d",
+    "parts_pixel_sha256": "8d252125865a869c2d07c39efa16796aaf0011e55facfdf21d7ccf5d8cfd3e72"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/leg_far_1.png": {
+    "pixel_sha256": "a1f17881d6921beaf0e9c41fb11a295afa5f846868b575453ce4e10225216aeb",
+    "source_pixel_sha256": "66695a7243f6bbdbfd5be688a9ddd40a288ac8c78152904aa8ed741e5b125caa",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/leg_far_2.png": {
+    "pixel_sha256": "e2200e0c6ef9248172f6c55121e9ee996725d6c97ecf86f3686d5a538045abae",
+    "source_pixel_sha256": "e2200e0c6ef9248172f6c55121e9ee996725d6c97ecf86f3686d5a538045abae",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/leg_far_3.png": {
+    "pixel_sha256": "c36f43b3668faa931b38085c848bd1bece696fdc3a97e75b3c5c482edb91eed2",
+    "source_pixel_sha256": "c36f43b3668faa931b38085c848bd1bece696fdc3a97e75b3c5c482edb91eed2",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/leg_near_1.png": {
+    "pixel_sha256": "5ea8412d0ece34c75714602dc5c4d65f9df063c92582471de3426e9114477c61",
+    "source_pixel_sha256": "45a030a3bbf61489064402b393367b6d1c0262ad7d6fc4a3bc0bc492f33c3066",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/leg_near_3.png": {
+    "pixel_sha256": "3c3b6f58c427d3854e295ccf64a1e481e0a7a161b2441f19f6c168a7bb06dba3",
+    "source_pixel_sha256": "d9771c0ceeda34863349d12e40300dea90be69d29f18e0b065c569b4772f34c5",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/seg_1.png": {
+    "pixel_sha256": "353044e37abcaf24c5b224e3e01360de07496996a3d10c2d9468b421bc440cf0",
+    "source_pixel_sha256": "3645056fb44d9f797d96d35e166adf3d06eca3472340f7aee84062d1eb46c6b1",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/seg_2.png": {
+    "pixel_sha256": "00ce582a69fd5984e300466fa68b96eb2b761138a1baf4d9e38f675f9351f036",
+    "source_pixel_sha256": "d4296303252af124abd0fc9b1e89c413cb64a4bde9af6af989c4b1588212a47b",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/seg_3.png": {
+    "pixel_sha256": "3baa198c68e8c5a665b32c8c353575a1c9133be3bc8c6debe4d602617a6975dd",
+    "source_pixel_sha256": "e90b9875db41af7081fbf7d3c624d44771f7a6cc0e83a405c0d95fb16d2178dc",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/seg_4.png": {
+    "pixel_sha256": "92b20df000480fedf0df169fbb45dd43d9db0fc71eee29cbf3cf6a15e6a04d86",
+    "source_pixel_sha256": "637ad52eb89cba9a0147ecf7e08d1e8f7328ec675e3b88eb26dfac33354bb7ce",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/seg_5.png": {
+    "pixel_sha256": "a8a1e99ac2dd8b56905261a0db07e05bf323be25f64a31786d517683917348a8",
+    "source_pixel_sha256": "3f4dc9ccbb6a4ce3ac76c8b50c41eabb9cb941cba8fb5f2811e6db550eda2f63",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/seg_6.png": {
+    "pixel_sha256": "368699d82ffcf3e3be6eea313e074459d429db7fe6f88b741f3c8de5d08c7f1b",
+    "source_pixel_sha256": "979cc223b7cdbe03331b6b6caa1ee8e8d41915661bcbe21c9e59f3cc928cc903",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/front/tail.png": {
+    "pixel_sha256": "7e370285efff05e6ebca99e886057fbc5877219e54ee24667ce2645979bb3b1e",
+    "source_pixel_sha256": "2f42c8278aa62c14c46eb80d07dc134a5a0bbf0f6c8226912e39bbcf4b5c4d49",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/head.png": {
+    "pixel_sha256": "0ad771b5d410416b0dacea63b01a709a3ee1996a73e9572e3f164c77ebe5478e",
+    "source_pixel_sha256": "53f79f5e0b218b7d44dd5fdf94e4f126713a9feac7475cc9d8678a8166bbf5a6",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/leg_far_1.png": {
+    "pixel_sha256": "86a4dd0bf6e98a25c48b9e4ea7477b46f3b3a1de119c137e5861dfd5204e486d",
+    "source_pixel_sha256": "d189adbbc7a0886193312c85f17e9056a95c44baf19f7dcee73ab0648032a9a5",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/leg_far_2.png": {
+    "pixel_sha256": "a9ac317a285e27cd7415cb5cbb80349fae07c5288852ea990d57dbf2286b5a2d",
+    "source_pixel_sha256": "9302d9e8aea0421eb4ba9aa87a3f3d079eb0338a1103e63559c7376a18d96489",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/leg_far_3.png": {
+    "pixel_sha256": "a8c652d8e8829bbabe3a7c1a4fc6a3f9060f83d311a4bbc1c587f9afffe4a15a",
+    "source_pixel_sha256": "4fad58237896212cf1779c6dafe230ddd79ab5a990f4b22974fac26f6ce04473",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/leg_near_1.png": {
+    "pixel_sha256": "a9bce98e95512a0f19be04c5dbb3a0cdd3a24c9e785be7f853115c400884d2b3",
+    "source_pixel_sha256": "a9bce98e95512a0f19be04c5dbb3a0cdd3a24c9e785be7f853115c400884d2b3",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/leg_near_2.png": {
+    "pixel_sha256": "8b63ab1538c5cb10e3b196db21d962d64dc3026eefd5742de9867dbcbd8ec833",
+    "source_pixel_sha256": "8b63ab1538c5cb10e3b196db21d962d64dc3026eefd5742de9867dbcbd8ec833",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/leg_near_3.png": {
+    "pixel_sha256": "779c3f48b3a146da81fe07d374376c42bc6220ed852d917a3043c4d4f576ae57",
+    "source_pixel_sha256": "779c3f48b3a146da81fe07d374376c42bc6220ed852d917a3043c4d4f576ae57",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/seg_1.png": {
+    "pixel_sha256": "ceb2aa390ca90567302b2ba38a4bd607fe266af9651e15ac8b617f2eb23a6748",
+    "source_pixel_sha256": "154e6a66d711929fbd5b61602602970cc5be0a485771d0848ad4edfdaa966092",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/seg_2.png": {
+    "pixel_sha256": "38ccda42ac811cdd9a989166c0281e302d46af974773b508205e29b7c09d64d8",
+    "source_pixel_sha256": "3731c86b54088de2528ddd5009d2fa3c813e1a4c769d10d519a3c34114f49568",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/seg_3.png": {
+    "pixel_sha256": "4af6bc2a94db05138076bacb56e93cde41e6ef2040de5e5e5e71b973696c7649",
+    "source_pixel_sha256": "ecbdfef18c1a4121d7223c32b3c0e5b917e677d165c685c732aa3270290ad40b",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/seg_4.png": {
+    "pixel_sha256": "dfcf6c97818f25ea436ef248af1a7e3a6f34cc1323669159abd97f825a091bf8",
+    "source_pixel_sha256": "bea670d40eb220bed404ff23976c554ea7a8e9733c18edafed2d0de15696c9f9",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/seg_5.png": {
+    "pixel_sha256": "85ab4254fee5cfc87776b874c443bef005187fe0147fa8f680501632d4cfc55d",
+    "source_pixel_sha256": "ddea7669075210cf0c9cbcb3275d09d76cd71f9299647b3c2416d47f1268aede",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/hidden/rear/seg_6.png": {
+    "pixel_sha256": "506c650590b6e21abf7b2b3443c225e4a884071e32322ce570c91f1913bb506b",
+    "source_pixel_sha256": "570a16bba07b0ffb102be860a9b6ee7eb66ac6959659a4a99dc2dd0259cd4097",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "burrow_grub_cutout",
+    "pixel_sha256": "cfae706577d502b32c5c6dd858421d50ee217b35b2cba6386a7fc2db6f870825",
+    "parts_pixel_sha256": "8d252125865a869c2d07c39efa16796aaf0011e55facfdf21d7ccf5d8cfd3e72"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_head_leg_far_1.png": {
+    "pixel_sha256": "b8156471a2ca14a3d10eb3ac10f0b8e06301c3906b168c0975bc2721814f69e1",
+    "source_pixel_sha256": "cb33a91483327f7a59340cc1a1d84b6a714b7cb491bc1567a8fd308c6a7d2627",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_head_seg_1.png": {
+    "pixel_sha256": "f825a5fd575002d5b7ec9645c6f83acf559dd3b7627df5d617f7fd5e8a3719f5",
+    "source_pixel_sha256": "f825a5fd575002d5b7ec9645c6f83acf559dd3b7627df5d617f7fd5e8a3719f5",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_leg_near_2_leg_near_3.png": {
+    "pixel_sha256": "ecdad0f294f2432783a313d8bdfc847afcfccfd37927a9093d1732e2810afd49",
+    "source_pixel_sha256": "1a1a7e52c00461e5a85f89bedf471ce70f55d8e7eb315ac90c6924cb2697bc6c",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_1_leg_near_1.png": {
+    "pixel_sha256": "0ced6d8a9e0a6d8bb2bfeafa0e23d87d65f40ce1ebc65d8c3224bd2e06b0c97e",
+    "source_pixel_sha256": "0ced6d8a9e0a6d8bb2bfeafa0e23d87d65f40ce1ebc65d8c3224bd2e06b0c97e",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_1_seg_2.png": {
+    "pixel_sha256": "ad0f042420a253b0f7cb5cb5f735ce0880d873a19216b81f79828762620365e4",
+    "source_pixel_sha256": "3fcbff6705361fc958b3179ba5039ddf66305616628d27e75b62e2bdecb0a41e",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_2_leg_near_2.png": {
+    "pixel_sha256": "175f4e03241da8e34b5ad57bb59ade9ab9ddd54585d3d7157a8643ba123be77a",
+    "source_pixel_sha256": "175f4e03241da8e34b5ad57bb59ade9ab9ddd54585d3d7157a8643ba123be77a",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_2_seg_3.png": {
+    "pixel_sha256": "faee6ce748ee42424448cecab1fab044763d0031da52246476880a4959eafde3",
+    "source_pixel_sha256": "ae2490ce1088b0a3c60abff2d2a0a8246e33e9651fed7c24aac1cf5eb8f8a5cc",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_3_leg_near_3.png": {
+    "pixel_sha256": "bfbc36cb3ff23e888b366bfb2250b20b390f3a3140607195645eeac6a671c73e",
+    "source_pixel_sha256": "bfbc36cb3ff23e888b366bfb2250b20b390f3a3140607195645eeac6a671c73e",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_3_seg_4.png": {
+    "pixel_sha256": "4e15549c98caa0e6544b7a3353d231468156b67e06ec0f43d9ed69ded2663059",
+    "source_pixel_sha256": "f28216039fce88ecec3382af540bbe13e6820c4b7ba7e669113e3ba3bb65f048",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_4_leg_near_3.png": {
+    "pixel_sha256": "0cc8c9cc6c7e27fecc77bab115b75fcefb48476f104d8551e2e353ae9aa5a47d",
+    "source_pixel_sha256": "0cc8c9cc6c7e27fecc77bab115b75fcefb48476f104d8551e2e353ae9aa5a47d",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_4_seg_5.png": {
+    "pixel_sha256": "b0a25322a434c271233286d42ba1b510a01b9e18490e14d9397385cd10274f27",
+    "source_pixel_sha256": "3724d24ccdbbe392a71bbb6b5ed6751f2da54672044dd587a2c1adb8d90919db",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_5_seg_6.png": {
+    "pixel_sha256": "d7c2c21549dd6cdb8bd6143c259d200dadcfc57f32925294192ab0bff10da613",
+    "source_pixel_sha256": "1d707c4a214312a25812bed6d66b7e07e3ce0bd080bc7d676a01055a588d152c",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/front/seam_seg_6_tail.png": {
+    "pixel_sha256": "c71fa06460913fa5118d56594e00d1d753bfff0c720507bb4ff9009b7696e243",
+    "source_pixel_sha256": "27c592cd8fab3e42655785521f16f6e686f3c32bbea01cf1167a0f4bd3ba572f",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_head_leg_far_1.png": {
+    "pixel_sha256": "f8869216e1b35e006a5a2909b08c2335ccca3f0df5882cc4190663083c773bc1",
+    "source_pixel_sha256": "b8bdda6fd1d5d910b0271f5ea779686cf45e964c33cdafd1662b25f507f34df6",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_head_seg_1.png": {
+    "pixel_sha256": "e30eb2a38230cc5e90a9ae7868a993a57b96e621186d09c859914d01adba410d",
+    "source_pixel_sha256": "7e13af1a442f0fad9524d6ebbcbfa56d0f140305375bf883fedf76946c192b49",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_1_leg_far_1.png": {
+    "pixel_sha256": "cb412c0b1a4d56aca376e21da3567aa76720f87bd25b480e1ef2d34fb76aa699",
+    "source_pixel_sha256": "cb412c0b1a4d56aca376e21da3567aa76720f87bd25b480e1ef2d34fb76aa699",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_1_leg_far_2.png": {
+    "pixel_sha256": "bc40c0186c12f19a8351760fe194521d6d0fd2fcf0b5a11958c6ee7627da8208",
+    "source_pixel_sha256": "b964974f46367b67c6708f721bf7ce4a3140f69d816bf788555fa1a0e58696e9",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_1_seg_2.png": {
+    "pixel_sha256": "91cc3e17699c0bbf9636affc8381760a6a03f3884999d61e8fe559de3bae56e4",
+    "source_pixel_sha256": "8c6f7acf0e081f79261bcf3ad931fc05841878c199afb302dc54d33959a5fb3b",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_2_leg_far_2.png": {
+    "pixel_sha256": "14c21ee7b95f1424b88b91d2b86d6f66d2e5781b6afc7094f684d1508004218a",
+    "source_pixel_sha256": "14c21ee7b95f1424b88b91d2b86d6f66d2e5781b6afc7094f684d1508004218a",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_2_leg_far_3.png": {
+    "pixel_sha256": "d0c66973fce7d8ee95e3a6c4d69b4044f3b70beee01e47e6d34392f1e2c22895",
+    "source_pixel_sha256": "080b2ce346f454b06da12149293e2424a9564575c97854d586ce8fda41d16120",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_2_seg_3.png": {
+    "pixel_sha256": "e9b3bd3b4132af4a2559c8d852dd1d0be30de74bb852667eb520ab5013eaa2c2",
+    "source_pixel_sha256": "7f163166fd2f46663552f63875deff5c3e22367d3123e16b90629f254dfad4a6",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_3_leg_far_3.png": {
+    "pixel_sha256": "ce3186a7566ab86e99978025c6f0d8a5c52a12287833c20593d1ffc6db0c22f4",
+    "source_pixel_sha256": "ce3186a7566ab86e99978025c6f0d8a5c52a12287833c20593d1ffc6db0c22f4",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_3_seg_4.png": {
+    "pixel_sha256": "f8854f5b0073d6bbce1dc099b100a71305031a89fe65b94bd98e2d8afefb8426",
+    "source_pixel_sha256": "a74cdfb39e39d4ac516263433df8ba4cbd81df8f4c3d96254c6e77e3d98a16e8",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_4_seg_5.png": {
+    "pixel_sha256": "b3a826acfc4c6f308601d53dfe6713db675cf2a80c565322e17d5ab33f52009a",
+    "source_pixel_sha256": "1f74a32d3d7ff0e1a13064b98dcda9463dfb75d1dee53a6f017100c97efdf8c6",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_5_seg_6.png": {
+    "pixel_sha256": "29ebbbcdc826880c1da3acaafcaa6179ea59a05e9f36fae27d685daeb018a6ed",
+    "source_pixel_sha256": "29ebbbcdc826880c1da3acaafcaa6179ea59a05e9f36fae27d685daeb018a6ed",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/seams/rear/seam_seg_6_tail.png": {
+    "pixel_sha256": "5dc20bdbe63ab9330909fa7d6fc4600b9e11feb098d2a31e338108b1e27f27bf",
+    "source_pixel_sha256": "dfd59fccb98a3f2cb183411e2c28fbc84deb496a57f8db6db8be3feeb4434fa5",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/feature_maw_tooth_ring.png": {
+    "pixel_sha256": "c88d407c46899f6e0d866034d7c6b60a6b48cf3447a022c1021c3dddc6b1d143",
+    "source_pixel_sha256": "9e90566ce2f49a35492f34f0c1e6908dd7213098884ff3986fbfb379da651b49",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/head.png": {
+    "pixel_sha256": "26bc07a1d384587e557735668f3b7b34e13232a3f8120a46c9a9a82aa56faa6f",
+    "source_pixel_sha256": "e9e1645cb278f76627236061a4285f845eaba3a4b9ed244755c8f110ecc97cd2",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/leg_far_1.png": {
+    "pixel_sha256": "29d788fc7719ecbda0f71bc8b8a111af7859a7947ce77084a8edd20cdd7cfd24",
+    "source_pixel_sha256": "39f923fe4dae4b344a098c78f0c85f9954a975e0ce4c625eb8f4a70b147d09d4",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/leg_near_1.png": {
+    "pixel_sha256": "b215a364a17b46e58ecf84fecad4da77076fc315f3003f91bdd35f980227219e",
+    "source_pixel_sha256": "79b04bb24054b7b9bd0deacb99168763c0712680fa146e08b06f6f3197caec37",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/leg_near_2.png": {
+    "pixel_sha256": "9f76b1c3e52e6d8c0671d178b52ed6118eb2d64e28669387cd7acfb28a43e8d8",
+    "source_pixel_sha256": "9625521408993d1c0c04885e53fa4a6454654ca71d6b848c8bb197ac7f7830c3",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/leg_near_3.png": {
+    "pixel_sha256": "7467fb47dfa08ede829c51ff5432e156556e924392e08691923bd4236c25dedb",
+    "source_pixel_sha256": "412b55b6eea739ddc2fbf897383e31e1e6a7af3ec9477a00f705c4bae1d5292c",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/seg_1.png": {
+    "pixel_sha256": "81eff49e0ed346e9a5e9df5e4ef91488a7a526e920f616475b2e37a60f1f2420",
+    "source_pixel_sha256": "3bfca836102bea23274d8f52088e558c7ee043a028e7ca26adae7c748923959f",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/seg_2.png": {
+    "pixel_sha256": "58b831bf2f984058d9118f0def886ebe93273a49b67519e1454e6e81d8b12e3e",
+    "source_pixel_sha256": "e41e9ada18ea852057ba5bdbbf43b8fa108348704ae59268b960898ebe612041",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/seg_3.png": {
+    "pixel_sha256": "4ce9d5b7e08e028486f3050d825b31032b5751a3b67b5f7fecbff1e2640db4c1",
+    "source_pixel_sha256": "7387394c3bb4d8f1ab8724172681a42517deac84f705c3ad5a2305ec172bafc3",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/seg_4.png": {
+    "pixel_sha256": "f00c73e7084fe97baf120b606e99729138cffce6eee4544673defe920084e808",
+    "source_pixel_sha256": "8774d7f7a3fdf1e44232be3ad0e2947063e5867018d1d9a7a3b640f2dd23ea73",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/seg_5.png": {
+    "pixel_sha256": "c1ee09e6b10d3176050b8fe5bdf3d7f69320ff18e50259a985d8f7f09b1a2e82",
+    "source_pixel_sha256": "9acb734aa6946695f041a83cd8d53e5665abb16a20713dda19d61d9598304678",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/seg_6.png": {
+    "pixel_sha256": "fadd9229a42fa805f4dd64cef38aa2f584415b2a9a326d0480620c6f9f5bf336",
+    "source_pixel_sha256": "c5b0bebd9d26561801356c15ce706fbcae165f422acc9e989d6da57f49037a04",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/front/tail.png": {
+    "pixel_sha256": "7e8f2612636cb465d465c3a12318b2cdfd58eed029d396ccbbce9178686bfb38",
+    "source_pixel_sha256": "0b9232c169f63108680f279a94c96b74f861fba7cf260733831a15ee732f3e31",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "front"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/head.png": {
+    "pixel_sha256": "619916a3f80ba8de70856dfc8b6f43f06cd0cbd532649b91ad987d38e007820a",
+    "source_pixel_sha256": "713f6617de2c0d1d59c49dd24c51f60995588bc2948286becf2cc103779f50f9",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/leg_far_1.png": {
+    "pixel_sha256": "16ab37a617adcbaf373b2d13a3a2e68ba972f00ff853628357a76fea143e7f94",
+    "source_pixel_sha256": "a010f7100c8299747d2a54998e7ef3aff2fd6e8de37dc925290c28e05a5014d6",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/leg_far_2.png": {
+    "pixel_sha256": "76133400b0eae0c62da1122d1552b9c511d1ed678e189d554acc0e00be287d0b",
+    "source_pixel_sha256": "c95ac2ce4c4a73a8b83370a176ba686c7e201c54d694d78f8cd8403693a9e63e",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/leg_far_3.png": {
+    "pixel_sha256": "91646ff1d593cc267415e65844e8ec60f5c5baa7dd23d18c7e041750f3b5bc3e",
+    "source_pixel_sha256": "1f4d887430e348eb3abbe3ad996760fc5907fe3fed86e9f1ee998d56677db713",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/seg_1.png": {
+    "pixel_sha256": "a4dffcd492073183b5ed6eb3fc58ef4f251c56199db49cdddec39219ae1966a2",
+    "source_pixel_sha256": "20544beaa113145dc9c76521cdefbe8d96215ba7c3aa3c2673707ccec312fc3a",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/seg_2.png": {
+    "pixel_sha256": "adb9de860645c0d0d016fc07f781cd683f7935ffc5e87663f83daafcb44b3aeb",
+    "source_pixel_sha256": "c8037d4c8b91c3b6f013a532512fcf0c4e32c4596a4ef677d023228eddbc684b",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/seg_3.png": {
+    "pixel_sha256": "7b124ee18e8097c00d5abbfe9cd1a144ab7874abcf569074fff16521d9092249",
+    "source_pixel_sha256": "8bfc79cfbc4bec880ef9328b69738941442aa585f6a071199b5fa17368b313a6",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/seg_4.png": {
+    "pixel_sha256": "26f6e48156c088841eb6db050a31eecdba239480a2499ba7dce0bbc137953bca",
+    "source_pixel_sha256": "635ea0ea9e1dfbfba42981af2cea3526273b17004ba93d39819077dd330db35f",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/seg_5.png": {
+    "pixel_sha256": "4ee0aff3d1a9ed1eceebcf606030d77b5211b8a766301b3be80792824cfce147",
+    "source_pixel_sha256": "4dbf6b729161717e7b59f681db694534484716f2f3c8da5ae73909d143ab4732",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/seg_6.png": {
+    "pixel_sha256": "4c85ea80bfe228a375575f8d81fb79707e9f1be28e2da4eefea2a8a69a510057",
+    "source_pixel_sha256": "cf157957ff8046fc428a467fe47d0a5bb38fea08ab5502ee5c33d8844fd5ed1a",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
+  "assets/units/burrow_grub_cutout/segmented/rear/tail.png": {
+    "pixel_sha256": "8e2a9d8ba20758e213bf48e6c308f2dfcc8ade16f148dd84184da38ec789867d",
+    "source_pixel_sha256": "a1a0338c061f0f760efa0ab90975446db8f86a2baa74b6f9cc01088885d6dda2",
+    "id": "burrow_grub_cutout",
+    "mode": "clean",
+    "grid": 1.18,
+    "facing": "rear"
+  },
   "assets/units/chainbound_gaoler_cutout/front/arm_fist.png": {
     "pixel_sha256": "1c5d109bd61f1027d47c958f2cb001c71f2aa8ccecec31bab7b2698bf1b643c0",
     "source_pixel_sha256": "4ab77ec2fd2cd0c269ed95eae2ba94c2203cdacbc69baacb5455e776f104ccc3",
@@ -3438,6 +4050,1026 @@
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "ember_tick_cutout",
+    "pixel_sha256": "e52467d2eb05e8c6218ddd90a8eef2d90039accd679c5b18f6bb679b39efaaa4",
+    "parts_pixel_sha256": "2ff2f533207ca19408f5bdd8f6b58c7ee592a55cd715e6f05c65260d66f5adaf"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_1_lower.png": {
+    "pixel_sha256": "ccaf78f519d29d8d61b5decf3cbaa5e283882c0d03bad112f0eef146f1f5d73e",
+    "source_pixel_sha256": "53fc49a4ce3e47afcc1e619d5e6be3066125ea35ce562df12346c0f9a3e8b28f",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_1_upper.png": {
+    "pixel_sha256": "a806b37d948eb31d9f55c6e96315a7df6af6b2bc1383a1346ea54ee4eb4e5934",
+    "source_pixel_sha256": "7305f8665cb4c0b8d8fb6870958f7e8c575b9c54304ed8ff5e3976f25f1fe381",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_2_lower.png": {
+    "pixel_sha256": "8de4d19038f5aa1c0da01adeda1ec49446690aa9a9cff1e1298ac7ede1082c46",
+    "source_pixel_sha256": "06350c4b3c3338b936b053bfab55bcb2db69ed54658498a7e0e3165efa9a5d76",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_2_upper.png": {
+    "pixel_sha256": "ca0e7f21dcccf44c541eade836bcecea002bd8102c3977e73bade6ec563bd900",
+    "source_pixel_sha256": "af5a653f5b1ecb86d67c8e0800719ee0b7798fc6da6fe4af27fd1ceb915169be",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_3_lower.png": {
+    "pixel_sha256": "a014d16abc436872450348bfbcc60cf222e469592c5a91652c37d8a4ca80f76a",
+    "source_pixel_sha256": "da0322cc4ec085a9d784d849a2d607ab1ff0c35f328cd9cfac7a5f7ac3d3f2ad",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_3_upper.png": {
+    "pixel_sha256": "be6fa44667fa6a4441410be7b728b593707a2635479304e86a1b78425d682d72",
+    "source_pixel_sha256": "3b12e0100fee26cb88cdce4ab5e426b322fcac028c5c9eaf0d77bc659f9412de",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_4_lower.png": {
+    "pixel_sha256": "e4468e3a29ece500ad47be3b90375d9687fbad9c01c702adc24bc6a18b724bb8",
+    "source_pixel_sha256": "fbf7cf74a51f86591d760fc847195e1b31bb5ab2d83286363466f975f71eba03",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_far_4_upper.png": {
+    "pixel_sha256": "106046aa9df3a10a6587e8a7f6dbefc09d833a4ab68204d27aec885cbe46bb70",
+    "source_pixel_sha256": "95979bb3865c36efda60ff0f1a297c4450ff4870c092a0f26998731a84b767b0",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_1_lower.png": {
+    "pixel_sha256": "34d9a05d32b0acc2916019c659b853578819784ddc04d9b8d131f441b755e6bf",
+    "source_pixel_sha256": "26d3a40947e5e7b38447953cd1ed8c31adc97ef255231f403501b653d12f451a",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_1_upper.png": {
+    "pixel_sha256": "a0c8139579980c6927582e89000e0b1af99fbcaedd637491b529bc8bf8885c48",
+    "source_pixel_sha256": "9bb583a2e47dc563aaf086eaacff07abf4af7a05352ff96b7fc6358ac93c4512",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_2_lower.png": {
+    "pixel_sha256": "152af5a22c3be07db1560c2f121fd135d85f3363f62749358193e028d5bb952c",
+    "source_pixel_sha256": "fc6776ada9290f926c94eb9cdb07a19a0649b6488781691b826a8c46a2d836c9",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_2_upper.png": {
+    "pixel_sha256": "7454c9d9c8c69c3f52e266e09e8be37f95fc2fd0ba84db34ef997b52f8e81d8b",
+    "source_pixel_sha256": "bfb1137330b2e1a55abfa277d635f8dfc71383ce8ac285c3740f7ccfdfed8473",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_3_lower.png": {
+    "pixel_sha256": "a5343dfb24268ec2f9140bb59fa0ce5a43e14ac9259a33e46021fe04da9099ce",
+    "source_pixel_sha256": "4fdc1e0438169ce2ed4c85c9b4408619685788f73067034dd34eaa60132b3530",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_3_upper.png": {
+    "pixel_sha256": "f1d585fd2d261f60eae5fd161669a609cdf68d3cdcd47948f8f5334caea8aa51",
+    "source_pixel_sha256": "46fe13762cc36751ff49e376f2265bf3bc806ea835dcfcc845f4e00aff6376d4",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_4_lower.png": {
+    "pixel_sha256": "e189a55c3346049765af75e0f82536c2f99dc9d5b98622a6386336b769460598",
+    "source_pixel_sha256": "e76201ac53b40ef4698551ca2f61a1bd1b26dd38371073eae395e5e1a2714571",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/leg_near_4_upper.png": {
+    "pixel_sha256": "81a65e6b065f11a350863377b868e1bfe4b3b8670bebd99051047b2562f74eac",
+    "source_pixel_sha256": "a72a677dd96d835f6fc2ce9e388848800f7072f16bf87a107042d8fafd480f06",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/front/shell.png": {
+    "pixel_sha256": "91b6377c010aa21037ef64e1f7370f091920fb3215a681c5b8dd6c145971b742",
+    "source_pixel_sha256": "0db112dc0b860d0170d2dfb05b9681b6a4aaa2ae3e06ab2564499176091f7aa7",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/head.png": {
+    "pixel_sha256": "0b53ae5cf480c3266ed8fcf87beef089299f9aafc140a029bfae24c732aa4d14",
+    "source_pixel_sha256": "13bcd2cb529a5844a6d8363536be2cf210fde8ca200ce537e38a6d862c76b8e0",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_1_lower.png": {
+    "pixel_sha256": "63cd149489a4784899daac0a6ee296f4c3ff9aa1cf004bfb82945e36c24d7970",
+    "source_pixel_sha256": "08b8f6e86bb0b170bae177553b8c1253e35e6aab94b17a1c77ee56d7c268a4e9",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_1_upper.png": {
+    "pixel_sha256": "7a0e3ef0195f0cabb56f5529edb2757185501aa69317937c1bb39386c055e6cd",
+    "source_pixel_sha256": "95b25bf38ff0809c01cb419795bcbccaaf067c82c7d007c61dee8cbc4ad9cdc2",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_2_lower.png": {
+    "pixel_sha256": "077c64dfee19972b8e5dd898d46a3cb7453e8fe8083219fe3ba064af259c1e08",
+    "source_pixel_sha256": "b47e35b1b753c39ad17cab21e22300d3ecc435fdecdafefe63d0c25efbc751ac",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_2_upper.png": {
+    "pixel_sha256": "3aadc782c1fe7f47e4b6af9d393dc3209a6e55ed1c2b23babd139e508e9cb32a",
+    "source_pixel_sha256": "a561bc300e999e1b01c25dc5b2358d29d87d62e318845658edbd53a8a699e77b",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_3_lower.png": {
+    "pixel_sha256": "6b285465c93687614a7b255ec7f4e98bcd27a7b9858c50135e7fec235e2fefbb",
+    "source_pixel_sha256": "9fc0b12697ea02398e3264d8ced84a78cc5ab2b0f24fd78c8b7767fed482d9c9",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_3_upper.png": {
+    "pixel_sha256": "289741a0682510e0fc51e9987973d3b0a62fe2bad57f287e27d382e5fa3ffe3c",
+    "source_pixel_sha256": "0428b9dbf671c49eef291319a06d228e4740af91c9708e4692283c9fb37f0fdf",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_4_lower.png": {
+    "pixel_sha256": "1f55fc230191f19bf9c49e6cb596ef6cc485974c2208a37995b89ef17824d5d8",
+    "source_pixel_sha256": "61f0304de977cdbc4f597c647baeee8e61526d092a48925ddb80a44deb086be0",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_far_4_upper.png": {
+    "pixel_sha256": "0e461b862dc104677734a58b68e452eca8661ce399aa15bbbdffd95d44fa7139",
+    "source_pixel_sha256": "38b2188bf6abd281a0543ba9601a8ad31f3a5cb3ac15f0a4f70670f3f15920a2",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_1_lower.png": {
+    "pixel_sha256": "6f256c1dc5121ac34f32660d91ab6bbd7ce3302a3acbab686ebf8664e9aac73b",
+    "source_pixel_sha256": "2629879b97c851a5c636050a9fcef94d0170bb01eadd61d9d673c2a48f8b4de2",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_1_upper.png": {
+    "pixel_sha256": "215df2353b0face194bdf24c4a638f0d1e5a6c9f4ef0553b2609dfba0b660b59",
+    "source_pixel_sha256": "3fbadc13fd06429a04e393437046d5166382a0cf9c97a1e693924fc1d73b3a20",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_2_lower.png": {
+    "pixel_sha256": "893a699156f0dc36ecbe7a4896f6ee5ea296e9341d3c116017a9a11bf09e9c02",
+    "source_pixel_sha256": "b8879edcb9988f912d5ea859cd00d12818634e5058a5091cc6dad5a28c59c3fa",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_2_upper.png": {
+    "pixel_sha256": "2fe260d7a08841b2011eb155bc161d791e05565c39eaadc686a10982e201e54b",
+    "source_pixel_sha256": "16d237c839f922f1519c9c3713bada2a689997e1849da2bdc5e14ea98c75f95d",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_3_lower.png": {
+    "pixel_sha256": "c9a595564baeb0c080b8ff60f081096bb16a107d781973348e49c07a8480e465",
+    "source_pixel_sha256": "88ab741bbb6726a8df0ac8200f44cbcd6b835953c96d25f32e314b8c69c2a211",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_3_upper.png": {
+    "pixel_sha256": "5793440da396d1bd56db31f1dc8132df0c67320d21b1c6ccd72c3b8885d0512d",
+    "source_pixel_sha256": "ea016c0d3a0b26959a78e5a4c90516c157ca8f8751df661dbbca67ce591d15ec",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_4_lower.png": {
+    "pixel_sha256": "1e2a2c163e7359dea4608b730f2ebf81cdf52ce64c727a10ec13ae798d5c33af",
+    "source_pixel_sha256": "d55d0d78c9e00ea8c2fdd5f2d18e978576055e1b1715ccc79be81957c410a535",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/leg_near_4_upper.png": {
+    "pixel_sha256": "a1fd986dfbbc8be416f1825fbbd6b3e3dcacd41f99ecab5c1baf69a6e598428e",
+    "source_pixel_sha256": "3a8307134cfde90214ede8956da89738577bc7c8e60ed8bf7672452526dd845a",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/hidden/rear/shell.png": {
+    "pixel_sha256": "775842505dce789593ab03b49bbb76c12e53909846fd5b46142f559d98529f1b",
+    "source_pixel_sha256": "769cbbc9dba3e39cf2f9558837a3940709686aa2cb4ed128648045ee61ae344a",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "ember_tick_cutout",
+    "pixel_sha256": "8383ca8c6dffc01be5f815d8962283315503bd99e46fd7bd7f3aede862680bbc",
+    "parts_pixel_sha256": "2ff2f533207ca19408f5bdd8f6b58c7ee592a55cd715e6f05c65260d66f5adaf"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_head_leg_far_1_lower.png": {
+    "pixel_sha256": "7c3596e385049170e3f569856a276724caccce75e04db5346bc914d92c368009",
+    "source_pixel_sha256": "dd292b5a4c6364a0523a162827cceaade6fcd43c3706cf9a99ddf6cc1e1f28fa",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_head_leg_far_1_upper.png": {
+    "pixel_sha256": "f5419395699fc5d23ede1132c7bccc0f7cfd8d83ceb0e488e30bcbf3bc064d13",
+    "source_pixel_sha256": "f5419395699fc5d23ede1132c7bccc0f7cfd8d83ceb0e488e30bcbf3bc064d13",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_head_leg_far_2_lower.png": {
+    "pixel_sha256": "8b1bf133c51d3293a687ffaf8254bbbbd9ef576869a7b91addbb4fc32964f0ea",
+    "source_pixel_sha256": "09e442f5828861638f32bac7f7f729d6ee8678ab7707e07d11e22725d82b0830",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_head_shell.png": {
+    "pixel_sha256": "82a75f7e85d23e49838865afd6227553995fd1f32e340be754ac494158325b58",
+    "source_pixel_sha256": "82a75f7e85d23e49838865afd6227553995fd1f32e340be754ac494158325b58",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_far_1_lower_leg_far_2_lower.png": {
+    "pixel_sha256": "b2fb77d54c0268a696ec7fa2273262dc26242be083204cf8e80562f7f81b7131",
+    "source_pixel_sha256": "b2fb77d54c0268a696ec7fa2273262dc26242be083204cf8e80562f7f81b7131",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_far_2_upper_leg_far_2_lower.png": {
+    "pixel_sha256": "8f04ea787a1979beeaa01d2fd8b86c176736a4eaab8d89610f68da21259e0be3",
+    "source_pixel_sha256": "8f04ea787a1979beeaa01d2fd8b86c176736a4eaab8d89610f68da21259e0be3",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_far_2_upper_leg_far_3_lower.png": {
+    "pixel_sha256": "b8b246326424a110308aad4c751a9881f4ae0c967a057382bc103608a691be58",
+    "source_pixel_sha256": "de49443a41539a13b917f561cd286a311db9fa21885da74753e0a63ac54fa3d0",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_far_3_upper_leg_far_3_lower.png": {
+    "pixel_sha256": "b1f31579763bb02b6a45e83982f30f2f023432ad57566df104947f838af726ad",
+    "source_pixel_sha256": "b1f31579763bb02b6a45e83982f30f2f023432ad57566df104947f838af726ad",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_far_4_upper_leg_far_4_lower.png": {
+    "pixel_sha256": "f7d67da6eeb8236d4fe78284f1cfe407a6ec155233a58e46b1de54344a67b10a",
+    "source_pixel_sha256": "e6a42832f4f9a38f5bb448049434727815f4f232bd14e264e5d48c81a0e2db7e",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_near_1_upper_leg_near_1_lower.png": {
+    "pixel_sha256": "838720a3a5019af6fb4f9aaf62c765cc0612549fc6661a5dffcad40c0c9dbde9",
+    "source_pixel_sha256": "838720a3a5019af6fb4f9aaf62c765cc0612549fc6661a5dffcad40c0c9dbde9",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_near_2_upper_leg_near_2_lower.png": {
+    "pixel_sha256": "2d2b57cd81f515efa5e648117b02888ff4df62afb552eccc0e19107f90ab6367",
+    "source_pixel_sha256": "c53e0971aa7cb0243a929661b49c94dc8b298c0930491633316dee44b28eee0f",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_near_3_upper_leg_near_3_lower.png": {
+    "pixel_sha256": "83ea3df6a45b8345af591dacd94f4711c05e0e62c3756ac04bb66f6c06de3679",
+    "source_pixel_sha256": "c0136f7574e7174f67a328e344d63981314556b35aa4f6728f410fd87eba272e",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_leg_near_4_upper_leg_near_4_lower.png": {
+    "pixel_sha256": "1d70bdc831388bee1c8a15aa3899aefb8efad16ee751d370bfc7cf9b7da4db54",
+    "source_pixel_sha256": "1d70bdc831388bee1c8a15aa3899aefb8efad16ee751d370bfc7cf9b7da4db54",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_1_upper.png": {
+    "pixel_sha256": "6381600fdd1ed275d69f9a53377a67220c54df9feb457eb4ef524450e25f1560",
+    "source_pixel_sha256": "6381600fdd1ed275d69f9a53377a67220c54df9feb457eb4ef524450e25f1560",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_2_upper.png": {
+    "pixel_sha256": "7960e070262d3a1230aaa9f88513be143aa56d241cfaa036b633f202ef6dbff0",
+    "source_pixel_sha256": "aa622218c14619fbeea5e6f8ab8537a288ea743ba33911459c878667044e68d9",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_3_lower.png": {
+    "pixel_sha256": "fd6986f2b8e0142ec2f847ba42eddb7d1529e1802e2f4dbe710096d2df05a16a",
+    "source_pixel_sha256": "14235e6a8d456d8e4290c1fc168d85badf30b5e112449a4a1a524222ad545f08",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_3_upper.png": {
+    "pixel_sha256": "0e910077b570ed19b2d2bb4e053b3a1baf62dc18c7e6947c1611f6fbdf5db42d",
+    "source_pixel_sha256": "895c46329ee020612bc59dc44c9e05025a3ca83177c1da6b690645d34e503e9f",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_4_lower.png": {
+    "pixel_sha256": "74f6e9813820a5fcadb089e9aba1c7e120e08e38750cdab06d2369b4ae37d981",
+    "source_pixel_sha256": "d4fa45d88f0e993fead93af8ba531182883bfe117658c2d2f1113da84c5396f0",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_far_4_upper.png": {
+    "pixel_sha256": "a9bbc8d2f424f1059a0529863b2709fef23e7f5a8e90c16fe30968b411b881c9",
+    "source_pixel_sha256": "a9bbc8d2f424f1059a0529863b2709fef23e7f5a8e90c16fe30968b411b881c9",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_1_lower.png": {
+    "pixel_sha256": "610d26e05e00427511d7d2b9503608748d96d0b16bf503eecc4f03e87fbf00d5",
+    "source_pixel_sha256": "610d26e05e00427511d7d2b9503608748d96d0b16bf503eecc4f03e87fbf00d5",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_1_upper.png": {
+    "pixel_sha256": "76553e44f3f1c28212d03fa8022a7d6ca91980e886656a45ef62fa74e307e473",
+    "source_pixel_sha256": "685b96bb4ccc03854b4a31c2f3caa4da3c80b5627081cb717ed3aa498e219e92",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_2_upper.png": {
+    "pixel_sha256": "16de2e2d7f96f0ebdd7bdc8a334030bb96ed8dc0d501bfc0e0bfd80b54a4b6ba",
+    "source_pixel_sha256": "16de2e2d7f96f0ebdd7bdc8a334030bb96ed8dc0d501bfc0e0bfd80b54a4b6ba",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_3_upper.png": {
+    "pixel_sha256": "0eaa95826f2778ee7c6b88a030de20d77415e449792d158e62d604c997610a11",
+    "source_pixel_sha256": "7ab838ca46525410699181c83e7f6dc97b2905f4b7d74a8d7c1413196017ad62",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/front/seam_shell_leg_near_4_upper.png": {
+    "pixel_sha256": "a9943d7ba3b3fc7a85dc7e28a25dacd4b168fa3b977e58b2be0ad38a3496c5af",
+    "source_pixel_sha256": "a9943d7ba3b3fc7a85dc7e28a25dacd4b168fa3b977e58b2be0ad38a3496c5af",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_head_shell.png": {
+    "pixel_sha256": "24771b2574abda1b9b8bf0b63ad87544115871a7410a4f08358debe4510eefe2",
+    "source_pixel_sha256": "9a3768517218c15a9f0e466a4a8223b33009551e1ed1f36755bdd846e11ee9d8",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_1_lower_leg_far_2_upper.png": {
+    "pixel_sha256": "b1ffb72d2e7067d3547d703af265b94b8f17be1909ddcdaae911894df32c7f4c",
+    "source_pixel_sha256": "8b98a921cf41d6860344d9f490db31a29cfcb75d7005641ed964863997f8e2fa",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_1_upper_leg_far_1_lower.png": {
+    "pixel_sha256": "613f3cb940681fa8e038c016ab8dc753ccac22699b7c7b60e2552e55929a0599",
+    "source_pixel_sha256": "66713049f5186f300ef1e9de81cbf27120b38dc05bef1e96d9c3874016bb5667",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_1_upper_leg_far_2_upper.png": {
+    "pixel_sha256": "a5a9eef34d026822cb49351e5a1f26edb7e320333e0d68d99ccab0e20fe712e2",
+    "source_pixel_sha256": "4a4c0978ed5c9293ff7e9aa367b99c08f96051f165cf2e0f426037aff2df6353",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_2_lower_leg_far_3_lower.png": {
+    "pixel_sha256": "38b498d91c99ec3bdfc34bc4b7dab9cf58e665258e6e7118f48e3eb19845ae81",
+    "source_pixel_sha256": "ba45d50943cbb352c4f6e1c46f30bddd30299bc52739926faf5cebace0597144",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_2_upper_leg_far_2_lower.png": {
+    "pixel_sha256": "33a676dccb86c0086e2f5e007f4c9c0dc9e53b5812dc3bc311f2774f5206a0f4",
+    "source_pixel_sha256": "71be467c4ff361d0da1e2b6844ee4a36dd65c747837abf023d8dbdaca0d0ddad",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_3_upper_leg_far_3_lower.png": {
+    "pixel_sha256": "3e66ad927eb7b2253a0e80dba3ca2052386a08dc980f6e0a5a1c7bf8df89a7b8",
+    "source_pixel_sha256": "02c1ae3688b07c9ff2484b15fd56b4f8168e7ddcc0310b2e09800c85c18137eb",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_3_upper_leg_far_4_upper.png": {
+    "pixel_sha256": "efa4eb9f590a550d054b36b59951ef9fed4a472ef909c3d5013b7aba62c5531f",
+    "source_pixel_sha256": "b0e2eb060b4130ff0a94bb279afe38d098a41473371f364b855b7ffc21e3a607",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_far_4_upper_leg_far_4_lower.png": {
+    "pixel_sha256": "cd37de8d7d16b3521009c2eb7e34870c81b060e9258413590eabcf600a3631d4",
+    "source_pixel_sha256": "c4f54430d42475d3445f7308049dfd34a95cf271cae95bda0683d1c6bcfd1f87",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_1_upper_leg_near_1_lower.png": {
+    "pixel_sha256": "9f30d0c6e7c47893a1d367a7ef3d9290c53b4644835b40691e70d924f5275d8a",
+    "source_pixel_sha256": "0ee62139f63c0adbc3ea1e7200f78da5172a54524d0042f6ae1589496421e178",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_2_upper_leg_near_2_lower.png": {
+    "pixel_sha256": "b5a54d7020e0a69d040c2b8bbdab3bf7787fe480866df01df2b63b9bcc9698a4",
+    "source_pixel_sha256": "3696784f58529d72fdbaa8c13a99174919298e51bc38c62c011cada9679c65ac",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_3_lower_leg_near_4_upper.png": {
+    "pixel_sha256": "e0d8f077124223710f20d5d9f217c6ebe5df8955655ced3e7e7e5f484770a160",
+    "source_pixel_sha256": "280b18b3ec32547bf6939dda2ea7c79c22fbf87e85082b116520b7bc1ef25f30",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_3_upper_leg_near_3_lower.png": {
+    "pixel_sha256": "efd966caa1486a0b10e82a011b9e0ed8121ca077bdeefdb2e74d39812ac598b5",
+    "source_pixel_sha256": "7b5231315b6c9623a8ea18d8dbf3cdf0cfa49e9a1b41f00446b43adf0e5e20ce",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_leg_near_4_upper_leg_near_4_lower.png": {
+    "pixel_sha256": "e170887a2112b9c2918f8d267fe4feb290846bb643729ba018e8e779c79b04c8",
+    "source_pixel_sha256": "8b8bac281e6452e953886319311634801f5f1ab44b945955b37ad91e36ebcd3b",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_1_upper.png": {
+    "pixel_sha256": "45a79078119c569a9e1c4d6cea3120c17392dfa1156aa382e287d97b4324ecd6",
+    "source_pixel_sha256": "1ad651746e7c25d78236840ca5b9520941668d0360dd4d6ca129d3660f5047a6",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_2_upper.png": {
+    "pixel_sha256": "77e0cf70fad830a629dc6f0752325469420fbe1629f25ae0e211c0c2ee76a915",
+    "source_pixel_sha256": "1cc485e08585dec38d6c54c54b9942f215b6fdaf97a7f5e543ca8a6378c991bc",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_3_upper.png": {
+    "pixel_sha256": "dff962ff0e3145e9424b08ef2561c356845032705407f4f407c28575528c830f",
+    "source_pixel_sha256": "1ce8b2e879201c1fd25d2f80e2a2d8b25f1c3ce71d8511d8d39b55ef29c3b8b3",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_far_4_upper.png": {
+    "pixel_sha256": "0f90312e531c0ea120b8b20d7f97057db675a24df9953497c1e3e3fda6814cbc",
+    "source_pixel_sha256": "f93962ed2b1521d59055fe5947bb009b6630923c141c610b41455efe1d070338",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_1_upper.png": {
+    "pixel_sha256": "f8f95caa98ce5c79efde9eee3fa82c8b22bc4f8620833b80b58eb9c16bfb0d05",
+    "source_pixel_sha256": "f1d94a43ad0691032ec7aa8aac69a37894adce951e849d112bac39540c0ef4b7",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_2_lower.png": {
+    "pixel_sha256": "f11d31e7b5229f0e8dc25a73b8d2fe9a022d1ca0591b40b25ed64f9f587c8ce1",
+    "source_pixel_sha256": "b683c3fe942347ce93dac0f5254883fcf202a5e424c04ee2cdebf4e1a049c98e",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_2_upper.png": {
+    "pixel_sha256": "4e585dfbdcdf9d2edb3b1e8b7f56fbee7b10fccf2a45e7437b3ba611d21f726e",
+    "source_pixel_sha256": "8601f8057b0756d9bc06b318ee31e6ce7e4e970b6477023b1c3abb2393aa66d6",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_3_lower.png": {
+    "pixel_sha256": "50cb6b435b81bdc2ed3dc5a410c62eee450e0713a52746ddd13107478fdd9f87",
+    "source_pixel_sha256": "a6185d145187d486940c82fd2fda35567acb1f5ef00f1cc44bb79e8206172fd0",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_3_upper.png": {
+    "pixel_sha256": "8b692643ce344b2d097d19522ffdd8955dadf4e48241bcc61eb8ad85fe2e5f83",
+    "source_pixel_sha256": "00375dc84116d0961778210644ec88590608f6104a5758d15f7237b5a2aedade",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/seams/rear/seam_shell_leg_near_4_upper.png": {
+    "pixel_sha256": "c3a0d96ea3cd442794cc7af719facb647da3fea06f7d81a0dcda1e30d48d8219",
+    "source_pixel_sha256": "e3ef93700742b494ee2f838e1528fd670c276d53b8dd81d365979fd4667e74ba",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/feature_ember_crack_front_01.png": {
+    "pixel_sha256": "ca869218f527d5f8fcd95a400e0aebd30763d5c310c76c89466c8827729599bd",
+    "source_pixel_sha256": "b93d29c54306e4a60f8dd6c44d8e5ce2ceb7d69d77ba4ce3d15fe77eea0129d9",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/feature_ember_crack_front_02.png": {
+    "pixel_sha256": "1b404bdb6a6d6784bf4554fc60c2a39447643d0ca2eb1c44fa344168637a7f5a",
+    "source_pixel_sha256": "5a6bddea8b7b489074c2fb33f4208bedcd76cfa4a41d1f248975e5a93847d4be",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/feature_ember_crack_front_03.png": {
+    "pixel_sha256": "9a5e53d4f93e73b30d71de1b16c98e5961f1e135b5be583f4f779a06101ba7e3",
+    "source_pixel_sha256": "34692af15f83a9ce31f2e999a23ecf19cf100763c74dfca66866e4e8e333ffec",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/head.png": {
+    "pixel_sha256": "f0cde37a0aa4a9bb8f547162e740fa561e038cdcdcc6409ba6dd7b178b2ab4a0",
+    "source_pixel_sha256": "d1ff72abdd497d4670b733f8a9d0afa89208246fc727ce7c101e8b509c7d1240",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_1_lower.png": {
+    "pixel_sha256": "8a441ba268ea68773b957783b3c3a5a549af9dd6eee7d4b98cd45851b7a2de14",
+    "source_pixel_sha256": "8a441ba268ea68773b957783b3c3a5a549af9dd6eee7d4b98cd45851b7a2de14",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_1_upper.png": {
+    "pixel_sha256": "229624975e8f458a79a9ad8043c39ebe99ed23e8b49dedc963a31697b884bfc7",
+    "source_pixel_sha256": "fd96f255d9fa9f49e915be1a53ba09f2a898b80e370b97f5eef170563f1e4f5b",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_2_lower.png": {
+    "pixel_sha256": "22cc3bdf44723817f604228b077c2d4aaf3df092319f8755945b94b23f13dbfa",
+    "source_pixel_sha256": "c25a5999f8dd5ec650f782b4a44b74cfe12bd36e9cf7b9206b1cdf47a43f9db1",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_2_upper.png": {
+    "pixel_sha256": "2b393e56de7036b33e36ba7bbf82151fd5267b0b2be0eabd62cbf84ec18ebc3c",
+    "source_pixel_sha256": "1587ec8feceaddc51066b026f281409e83570225b2ce35e055a074f83cfd6dcd",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_3_lower.png": {
+    "pixel_sha256": "54fbc80cd553daa04f09ca2fc5d9d676cbfb7a4b3faf45417bd01324b804ec66",
+    "source_pixel_sha256": "36e047f8a7c138a2aadb2b5cf7d162fc05246c0e2f70f2ec9cd2735ee92d86a8",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_3_upper.png": {
+    "pixel_sha256": "4c51abdcea14e5a8e7ee6620427b5f6e9c095a21ac6e88b9d74f8a635b940969",
+    "source_pixel_sha256": "4c51abdcea14e5a8e7ee6620427b5f6e9c095a21ac6e88b9d74f8a635b940969",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_4_lower.png": {
+    "pixel_sha256": "6bb9d11fead702c20a2f6f1e074a2af2bd6eeab17003bd2aef883759919d4ac5",
+    "source_pixel_sha256": "6bb9d11fead702c20a2f6f1e074a2af2bd6eeab17003bd2aef883759919d4ac5",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_far_4_upper.png": {
+    "pixel_sha256": "5d91667a7a57b7b80a45dddef87d290361a18643c5740bc250cde12fa1d4ba40",
+    "source_pixel_sha256": "69687d73881b9bda751beadca5aca8e1103cf55ab4866e919022d1684c9dab8d",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_1_lower.png": {
+    "pixel_sha256": "b0160e72c142e3e92b30e91fbd75a287256a35c1450ea33b13dd25b8b7f0ff22",
+    "source_pixel_sha256": "963cc0c106793129a2ea20d9e0856217ba84d50b15d10b23677f87c0f0cfa8cf",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_1_upper.png": {
+    "pixel_sha256": "b5ca755166e2d13bfee0986548605d6f46c3cef71ce2f133b5517e9354922dae",
+    "source_pixel_sha256": "a26a82682949876abe2fba2ce47df00125cdb8058ef943e19b3f6294b3613f6c",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_2_lower.png": {
+    "pixel_sha256": "4bdb8b61bb2aaa545429587ed87de73ac1276ccdca2ea8e2100edee141400325",
+    "source_pixel_sha256": "7a8e25c16d3c5a61b53ea27fd22090fb2245028300b2d0ca7bc67a6dc7a73131",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_2_upper.png": {
+    "pixel_sha256": "d736ca4af6d551a46dc2886c357096666742ce5c3a89bf2a9330e6f42a1bc797",
+    "source_pixel_sha256": "181ebbcf8b8cc04cd8d402b027336683db40383a6177961897cf73dfabf45354",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_3_lower.png": {
+    "pixel_sha256": "ce3610b6f9d18cfc11c78a59edf55bb1a9360cd2e83f584701b5b717f46ec66f",
+    "source_pixel_sha256": "37a0db19f68ff8b599bbe03cb06b7af71358fa3cc708bdaa21ccb53ba74b9212",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_3_upper.png": {
+    "pixel_sha256": "4288c10f04078bb08dd72de1f418c02d54e2aa9a483fba3a04cfa1e142067610",
+    "source_pixel_sha256": "0320a86ffab632df0bc0d98b40043a8c2261b3e6b242f88113d45c4806a3d405",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_4_lower.png": {
+    "pixel_sha256": "eac4f604abe74648d24407eb9cd2e51727c0251b94f8b9ceeb56f397d9796d7c",
+    "source_pixel_sha256": "40909582fc3ebf6a3c049efb7f3176c24bb683aea683bb5c39b39e7352715299",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/leg_near_4_upper.png": {
+    "pixel_sha256": "bd7e65eaad6001c0e7b54a7e33fd27421c01067abb74a528b51d03ab6c6d2f8b",
+    "source_pixel_sha256": "bd7e65eaad6001c0e7b54a7e33fd27421c01067abb74a528b51d03ab6c6d2f8b",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/front/shell.png": {
+    "pixel_sha256": "56161ea1d7e91a58dc4cd553f0a1d55c5b2b43ff04d1176f8a380eca6326b2b2",
+    "source_pixel_sha256": "511110f4a58ef561c1afcdbf15884a18ae46a1917ea0e9bf05954acdb737032f",
+    "id": "ember_tick_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_01.png": {
+    "pixel_sha256": "9e21b4a7013d112c6ac83a3892221517dd7bcf6aaa31f13517cc90f74d7bad8a",
+    "source_pixel_sha256": "cf168ccf13a7ce9809272a4cea1dbc66b4b29b98bd471872bef68eaeae705d15",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_02.png": {
+    "pixel_sha256": "9a3d77bcced70c25ea9be6afacce0689085e742f6c8a7b2c4976af9a0f8ae60c",
+    "source_pixel_sha256": "5ca9de644bcd121abad10ad6cca992dd2bdd66eb2c602a3cd5becfdbc6b2ef38",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_03.png": {
+    "pixel_sha256": "dd1ff94c591ad2095697f8ff858f9b10b0c891658f5a75026ea557c8ae6a383d",
+    "source_pixel_sha256": "5dbcec977aaafccab6798a5e164ba3c1e261a5fce30998f9b65885e5ca2405d3",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/feature_ember_crack_rear_04.png": {
+    "pixel_sha256": "38519c56f56bea7ee36460951ceba401a3a65de0fd3966f8818a16eddf2c4ff2",
+    "source_pixel_sha256": "de820e9237cbbb3d16f615e5bf62ac36f8632e30e796add7189616d16ab228b8",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/head.png": {
+    "pixel_sha256": "9d6389e3e063f6cfe7b80f1d69e3b66882c66a009f4ce23ef2a59bf022238d06",
+    "source_pixel_sha256": "f8845abcede94bc73b0f31bc31bdaaa47dd5c3b48138ae554ed11835894d0051",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_1_lower.png": {
+    "pixel_sha256": "768b9e978893b51d782180173b7fcddbb7ce6b807ae3799adc3b3e53d65b7ab2",
+    "source_pixel_sha256": "18c9bfb97992f067eece6beb2f4bdde03b315f604ea2818055722ca9484ca208",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_1_upper.png": {
+    "pixel_sha256": "70343272c06d2f2e2b5801a377eed3f4f09c03361c8df85278e699d6a948ec97",
+    "source_pixel_sha256": "32acc9f44c18adf0438e8cce1b487393cb402396d4f8304c466c1f1d3db1a4bf",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_2_lower.png": {
+    "pixel_sha256": "9934e991ba7a4e35fc0aecc410330af77424060e29e7abfb2621798a2ed3b759",
+    "source_pixel_sha256": "3f88d75f6ffe3634d4dfde466930c2bf017adf8fba731135ed9917f7e3c9f0ba",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_2_upper.png": {
+    "pixel_sha256": "42eb1a493e7fe4a4e66cf5e6c3c89d079fb17ae4ce672b72e2633968d6d073d8",
+    "source_pixel_sha256": "b93595340fedbd13700d2b5af7e582953f49670a428bfb0f5e72875a0892a4d0",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_3_lower.png": {
+    "pixel_sha256": "f33bf91af7025e826c14d36bc4896af4310f4b81d0846f4b99402b670b3d8091",
+    "source_pixel_sha256": "729cf487494a6c9ca9f66ac4a15c1f5fd6b4384359630c24bc2e2ca22f002200",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_3_upper.png": {
+    "pixel_sha256": "8ab19bf52bb5f85b50d08c8546a1af8d63463f1112f07a579ddaa0773e8fe84a",
+    "source_pixel_sha256": "b4230441da002443bdf1887fd8ab2f1bfd8cd9d9d889be28596c74b85018d327",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_4_lower.png": {
+    "pixel_sha256": "8f74eccc78d007c32edd6b38d6ad19c3d20a020e29c06ca19a8c084691a7dabe",
+    "source_pixel_sha256": "c08f715f07d486049ec438a28e7f1c6f1ebc1fb3ef3d1ed904e88529b3618aa1",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_far_4_upper.png": {
+    "pixel_sha256": "7162e02b618f9a26d072bcce3cccaa7a24c71adaf8a92474509f7650b60bf8e4",
+    "source_pixel_sha256": "3dccb1cd7b6f393ba9b619aa633f1b1b5ae704a2c332b01b42eded131994ff72",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_1_lower.png": {
+    "pixel_sha256": "0cf7ab924576ba03563cdaf81ea039d53b0c31c943ec011b17c6e6fc1a2d9367",
+    "source_pixel_sha256": "f25ded469d987f33e23ad806f007da7c077adf81c8d883223907d1e3acadc7b2",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_1_upper.png": {
+    "pixel_sha256": "b86572d5e1abe7a760890f2d3418bdb7d0152c5f8e966967f40859a1b62c19d3",
+    "source_pixel_sha256": "2333fadc5765ac77992cdb5a61a765aa2bd9b329143881bb83dc1885f9d86d33",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_2_lower.png": {
+    "pixel_sha256": "0fc2935ee693c75d6b3aa7ce5c5a0277607395bfc6a7b85d90c0e60f0b34fb61",
+    "source_pixel_sha256": "481990352f1b5d94321dbdeba18d2ff8b8355c84459f7d27f757d1367dd0026a",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_2_upper.png": {
+    "pixel_sha256": "816aab4a71c429cb6f0ebf8ef758b7df34b0149403cfada5f8138e1eb124859c",
+    "source_pixel_sha256": "c1953837ad8f9d3f0ae6713a9e3ecc698957d221733b496286b20c7d3fecc1bc",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_3_lower.png": {
+    "pixel_sha256": "f59848e0a06627c3af44f76cc3230c333d828f5e02d89960fccca6dd27c1042a",
+    "source_pixel_sha256": "a3cfd5c817c318971c80fb10f097da5f56d6e57c4f654a22d52d7ce9dc8e4f21",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_3_upper.png": {
+    "pixel_sha256": "93adeab625717e6538b38e5b380c570d584bb5c753626d223287302c35f41a35",
+    "source_pixel_sha256": "a5644de6b0272297428fc00b716ed83924b1967b7365b6d675c00cb7d018f1de",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_4_lower.png": {
+    "pixel_sha256": "f85b2f4702e85f028c33ed93988196135a54b10460d17c6b23d3a55ce6ae3558",
+    "source_pixel_sha256": "fbe05159c4a6b7d1feded2ff2f7f5cb596dc9cc9377e960e64b6678aa974e844",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/leg_near_4_upper.png": {
+    "pixel_sha256": "1e3a62d882e689f09bba3c3402a3812b5f321d3d5875b0a9422167e48e917d23",
+    "source_pixel_sha256": "b3abcab1cbd2f00bedc59f434878b0ebfee6cf8ca20604ea12a0bee3f2f0eb2a",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
+    "facing": "rear"
+  },
+  "assets/units/ember_tick_cutout/segmented/rear/shell.png": {
+    "pixel_sha256": "9c5a43ff3b5090380087140beafc2c4913785782ab4825446bdb6955660505f4",
+    "source_pixel_sha256": "59b6d8c5b8a01a6fc169d7e04d311e0e5f6ec7ea342c9a882fcfa3120b3d8bba",
+    "id": "ember_tick_cutout",
+    "mode": "regrid",
+    "grid": 1.31,
     "facing": "rear"
   },
   "assets/units/frostglass_lancer_cutout/front/arm_l.png": {

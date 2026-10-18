@@ -1,0 +1,20 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328830063044000-49688
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328830063044000-49688
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328830063044000-49688/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/scavenger_visual_pass_4_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Controller trade buys the inspected card
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _fail (res://tests/scavenger_shop_probe.gd:625)
+       [1] _expect (res://tests/scavenger_visual_pass_4_test.gd:252)
+       [2] _initialize (res://tests/scavenger_visual_pass_4_test.gd:125)
+       [3] _settle (res://tests/scavenger_shop_probe.gd:546)
+SCAVENGER VISUAL PASS 4: FAIL

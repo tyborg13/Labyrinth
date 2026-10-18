@@ -1,0 +1,56 @@
+{
+  "K": 4,
+  "anatomy": "crawler",
+  "id": "ember_tick",
+  "job_id": "mq-tick-front-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "a3c0903ac10d24ab036854366abd7e7471b9f892a20eaec6ae210714e972c0f0",
+  "method": "maquette paint-over r1 (+ one darkening revision) from the Blender-native mq-05 maquette (3/4 board facing); the 1254 px output was resized to 1024 with Lanczos; peer ref = owner-approved Shale Bloomer rr-05",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "ca0c0c6a6bc446405e99d454127490328bada469e2657a58b08991b0f294c254",
+  "prompt_source": "spec/art_identity/maquettes/ember_tick/prompt_front_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq05",
+      "file": "refs/01_maquette_front_parts_mq05.png",
+      "pixel_sha256": "f497420330dc1e192c7db6495222f78e23b8fedd8fe0b31efcc745fc0742d36e",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-front-r1/refs/01_maquette_front_parts.png"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq05",
+      "file": "refs/02_maquette_front_clay_mq05.png",
+      "pixel_sha256": "353937a2662ae6de5c60faf3fd5b3f6eed17d2eb2e42e3588fdc98c0939bd5b9",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-front-r1/refs/02_maquette_front_clay.png"
+    },
+    {
+      "canon_id": "identity_ember_tick_current",
+      "file": "refs/03_identity_ember_tick_current.png",
+      "pixel_sha256": "c89592a95c0d33a36ec8d808a838bf8b4ffc021c28ee7ad0480b22be0ec8d387",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-front-r1/refs/03_identity_ember_tick_front.png"
+    },
+    {
+      "canon_id": "approved_shale_bloomer_front",
+      "file": "refs/04_approved_shale_bloomer_front.png",
+      "pixel_sha256": "8c67492248d4e31e2e883899e19032a3de0852dc117c0ce1c29079034c3e5d7b",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-front-r1/refs/04_peer.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-front-r1/refs/05_hero_front.png"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 146,
+  "view": "beast_front"
+}

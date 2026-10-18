@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792328726312808000-48806
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792328726312808000-48806
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792328726312808000-48806/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-12 --script tests/prepared_equipment_scene_handoff_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PREPARED EQUIPMENT SCENE HANDOFF RESULT: {"checks":38,"errors":["A complete actual callback must use the exact owned ready factory","The actual preview must preserve the complete original combat state","The actual preview must preserve the complete original combat state","The actual preview must preserve the complete original combat state"],"orphans":0}

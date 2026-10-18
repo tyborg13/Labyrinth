@@ -1,0 +1,29 @@
+test_required_parts_reject_missing_zero_and_negative_solos (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... 
+======================================================================
+FAIL: test_required_parts_reject_missing_zero_and_negative_solos (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) (counts={'head': 1})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_delivery.py", line 28, in test_required_parts_reject_missing_zero_and_negative_solos
+    require_solos(['head', 'torso'], counts)
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_required_parts_reject_missing_zero_and_negative_solos (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) (counts={'head': 1, 'torso': 0})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_delivery.py", line 28, in test_required_parts_reject_missing_zero_and_negative_solos
+    require_solos(['head', 'torso'], counts)
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_required_parts_reject_missing_zero_and_negative_solos (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) (counts={'head': -1, 'torso': 5})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_delivery.py", line 28, in test_required_parts_reject_missing_zero_and_negative_solos
+    require_solos(['head', 'torso'], counts)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=3)

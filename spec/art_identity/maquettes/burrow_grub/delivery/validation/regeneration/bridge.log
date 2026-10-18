@@ -1,0 +1,68 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: seg_1
+BUILD_STAGE: seg_2
+BUILD_STAGE: seg_3
+BUILD_STAGE: seg_4
+BUILD_STAGE: seg_5
+BUILD_STAGE: seg_6
+BUILD_STAGE: tail
+BUILD_STAGE: maw_ring
+BUILD_STAGE: maw_throat
+BUILD_STAGE: tooth_00
+BUILD_STAGE: tooth_01
+BUILD_STAGE: tooth_02
+BUILD_STAGE: tooth_03
+BUILD_STAGE: tooth_04
+BUILD_STAGE: tooth_05
+BUILD_STAGE: tooth_06
+BUILD_STAGE: tooth_07
+BUILD_STAGE: tooth_08
+BUILD_STAGE: tooth_09
+BUILD_STAGE: leg_near_1
+BUILD_STAGE: leg_near_2
+BUILD_STAGE: leg_near_3
+BUILD_STAGE: leg_far_1
+BUILD_STAGE: leg_far_2
+BUILD_STAGE: leg_far_3
+00:07.605  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:09.968  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:12.505  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_parts.png'
+00:20.310  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_clay.png'
+00:22.465  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:24.507  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:26.560  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:28.671  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:30.858  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:32.935  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:35.035  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:37.120  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:39.331  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:41.504  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:43.771  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:46.038  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:48.131  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:50.272  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:52.340  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:55.017  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/front_silhouette.png'
+00:57.281  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_parts.png'
+01:04.164  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_clay.png'
+01:06.292  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:08.280  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:10.286  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:12.270  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:14.319  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:16.312  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:18.301  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:20.312  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:22.335  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:24.322  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:26.296  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:28.306  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:30.304  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:32.267  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:34.242  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+01:36.733  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/regeneration/clean_project/spec/art_identity/maquettes/burrow_grub/capture/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

@@ -1,0 +1,81 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: head
+BUILD_STAGE: torso
+BUILD_STAGE: pelvis
+BUILD_STAGE: upper_near
+BUILD_STAGE: fore_near
+BUILD_STAGE: hand_near
+BUILD_STAGE: upper_far
+BUILD_STAGE: fore_far
+BUILD_STAGE: hand_far
+BUILD_STAGE: thigh_near
+BUILD_STAGE: shin_near
+BUILD_STAGE: foot_near
+BUILD_STAGE: thigh_far
+BUILD_STAGE: shin_far
+BUILD_STAGE: foot_far
+BUILD_STAGE: ice_mirror_slab
+BUILD_STAGE: shoulder_far_mass
+BUILD_STAGE: shoulder_near_crest
+BUILD_STAGE: upper_near_joint
+BUILD_STAGE: upper_chest_stone
+BUILD_STAGE: ankle_near_link
+BUILD_STAGE: ankle_near_boulder
+BUILD_STAGE: ankle_far_boulder
+BUILD_STAGE: mirror_frame_0
+BUILD_STAGE: mirror_frame_1
+BUILD_STAGE: mirror_frame_2
+BUILD_STAGE: mirror_frame_3
+BUILD_STAGE: mirror_frame_4
+BUILD_STAGE: mirror_frame_5
+BUILD_STAGE: mirror_frame_6
+BUILD_STAGE: mirror_frame_7
+BUILD_STAGE: mirror_lower_bedding
+BUILD_STAGE: mirror_side_bedding
+BUILD_STAGE: shoulder_far_bedding
+BUILD_STAGE: elbow_far_bedding
+00:30.524  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+00:33.659  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+00:37.280  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_parts.png'
+00:52.031  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_clay.png'
+00:55.871  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+00:58.842  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:02.017  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:05.037  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:08.349  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:11.033  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:13.845  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:16.565  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:19.413  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:22.099  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:25.100  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:28.117  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:31.014  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:34.153  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:38.194  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:43.121  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:49.357  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/front_silhouette.png'
+01:54.588  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_parts.png'
+02:15.299  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_clay.png'
+02:21.268  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:26.001  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:30.911  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:35.634  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:40.109  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:44.906  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:49.760  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:54.527  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+02:59.049  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:03.342  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:07.763  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:12.357  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:17.233  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:22.015  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:26.706  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:31.484  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+03:37.993  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/capture/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

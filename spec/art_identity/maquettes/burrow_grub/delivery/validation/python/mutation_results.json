@@ -1,0 +1,22 @@
+{
+  "constant_torso": {
+    "caught": true,
+    "result": "MUTATION_CAUGHT: constant_torso; assertion_failures=1; errors=0",
+    "stderr": ""
+  },
+  "material_index_zero": {
+    "caught": true,
+    "result": "MUTATION_CAUGHT: material_index_zero; assertion_failures=1; errors=0",
+    "stderr": ""
+  },
+  "omitted_cloth_context": {
+    "caught": true,
+    "result": "MUTATION_CAUGHT: omitted_cloth_context; assertion_failures=1; errors=0",
+    "stderr": ""
+  },
+  "disabled_cache_integrity": {
+    "caught": true,
+    "result": "MUTATION_CAUGHT: disabled_cache_integrity; assertion_failures=1; errors=0",
+    "stderr": ""
+  }
+}

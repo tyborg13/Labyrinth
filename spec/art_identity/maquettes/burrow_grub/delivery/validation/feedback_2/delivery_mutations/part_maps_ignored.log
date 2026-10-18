@@ -1,0 +1,14 @@
+test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests) ... FAIL
+
+======================================================================
+FAIL: test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_delivery_validation.py", line 214, in test_correct_clays_cannot_mask_missing_or_red_maps
+    self.assertFalse(passed())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.015s
+
+FAILED (failures=1)

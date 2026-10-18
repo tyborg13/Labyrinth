@@ -1,0 +1,44 @@
+{
+  "shared_results": "experiments/cutouts/burrow_grub/mq5/proof/verification_results.json",
+  "creature": {
+    "required_delivery_files": 41,
+    "director_copy_byte_identical": true,
+    "signed_motion": {
+      "ok": true,
+      "errors": []
+    },
+    "bone_poses": 168,
+    "pixel_gate_ok": true,
+    "sampled_poses": 564,
+    "rest_identity": {
+      "ok": true,
+      "views": {
+        "front": {
+          "different_pixels": 0,
+          "pixel_identical": true
+        },
+        "rear": {
+          "different_pixels": 0,
+          "pixel_identical": true
+        }
+      }
+    },
+    "shimmer_after": {
+      "held_unexplained_pixels": 0,
+      "boundary_unexplained_pixels": 0
+    },
+    "stray_components": 0,
+    "production_logic_ok": true,
+    "production_callback_frames": 982,
+    "production_gate": {
+      "ok": true,
+      "errors": []
+    },
+    "native_proof": "not run; director-owned windowed proof",
+    "logs": {
+      "motion_gates": "experiments/cutouts/ember_tick/mq5/proof/motion_gates.log",
+      "pixels_gates": "experiments/cutouts/ember_tick/mq5/proof/pixels_gates.log",
+      "production_capture": "experiments/cutouts/ember_tick/mq5/proof/production_capture.log"
+    }
+  }
+}

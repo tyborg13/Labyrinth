@@ -1,0 +1,50 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-b55dac1da6be4f73ae53dbb0c558609d
+BLENDER_BRIDGE_STARTED: mq03-b55dac1da6be4f73ae53dbb0c558609d
+SOLID_WORKFLOW: glacial_mirror/capture; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-43dc9475632d47edae9c0f51c11be987
+BLENDER_BRIDGE_STARTED: mq03-43dc9475632d47edae9c0f51c11be987
+SOLID_WORKFLOW: glacial_mirror/cold_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-c490782bc2824c5bb8d0b6232f618737
+BLENDER_BRIDGE_STARTED: mq03-c490782bc2824c5bb8d0b6232f618737
+SOLID_WORKFLOW: glacial_mirror/exact_replay; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-f49f0612135b44229df13fadfe4f70d0
+BLENDER_BRIDGE_STARTED: mq03-f49f0612135b44229df13fadfe4f70d0
+SOLID_WORKFLOW: glacial_mirror/material_mutation; exit=0
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12648419; packed_bytes=3763881
+DELIVERY_STAGE: PASS; glacial_mirror
+BLENDER_BRIDGE_SUBMITTED: mq03-625d2528c0a648d5a97f7c692c18623b
+BLENDER_BRIDGE_STARTED: mq03-625d2528c0a648d5a97f7c692c18623b
+ALL_ANATOMICAL_CONTACTS: {'surface_intersections': {'torso/head': 474, 'torso/pelvis': 916, 'torso/upper_near': 900, 'upper_near/fore_near': 653, 'fore_near/hand_near': 312, 'pelvis/thigh_near': 678, 'thigh_near/shin_near': 475, 'shin_near/foot_near': 2348, 'torso/upper_far': 1492, 'upper_far/fore_far': 496, 'fore_far/hand_far': 433, 'pelvis/thigh_far': 522, 'thigh_far/shin_far': 189, 'shin_far/foot_far': 1261}, 'passed': True, 'blend_sha256': 'ede9547ae10219f8537c72c12b0a8473eb1b37f14568afdec60c0eb4a23ec803'}
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/clean_project/spec/art_identity/maquettes/glacial_mirror/spec_native.json
+| Figure | Front IoU ≥0.70 | Rear IoU ≥0.65 | Fit and all parts |
+|---|---:|---:|---|
+| burrow_grub | 0.730941 | 0.681472 | PASS |
+| ember_tick | 0.715149 | 0.661600 | PASS |
+| glacial_mirror | 0.769370 | 0.729297 | PASS |
+SOLID_ROSTER_REVIEW: PASS
+BLENDER_BRIDGE_SUBMITTED: mq03-98e227c132114586b0466be757e12fd1
+BLENDER_BRIDGE_STARTED: mq03-98e227c132114586b0466be757e12fd1
+NATIVE_CAPTURE_PACKING: PASS; raw_bytes=12651117; packed_bytes=3764023
+CLEAN_REGENERATION: PASS; glacial_mirror; canonical_png_sha256=true
+FINAL_ATTACHED_FORMS: PASS
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/hoarfrost_seer/clean_project/spec/art_identity/maquettes/hoarfrost_seer/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-b6dc7243b681499b9f70de6e0ceb9f00
+BLENDER_BRIDGE_STARTED: mq03-b6dc7243b681499b9f70de6e0ceb9f00
+CLEAN_REGENERATION: PASS; hoarfrost_seer; canonical_png_sha256=true
+BATCH_A_REGENERATION_UNCHANGED: hoarfrost_seer
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/gale_herald/clean_project/spec/art_identity/maquettes/gale_herald/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-e07d547a126947a3af5d4cb72d4c1740
+BLENDER_BRIDGE_STARTED: mq03-e07d547a126947a3af5d4cb72d4c1740
+CLEAN_REGENERATION: PASS; gale_herald; canonical_png_sha256=true
+BATCH_A_REGENERATION_UNCHANGED: gale_herald
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-ad2f5bc539cc43b0810255fc1a65dd6e
+BLENDER_BRIDGE_STARTED: mq03-ad2f5bc539cc43b0810255fc1a65dd6e
+CLEAN_REGENERATION: PASS; arc_thrall; canonical_png_sha256=true
+BATCH_A_REGENERATION_UNCHANGED: arc_thrall
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-33dd96a0ee0e4053973bf105a4dbeb09
+BLENDER_BRIDGE_STARTED: mq03-33dd96a0ee0e4053973bf105a4dbeb09
+CLEAN_REGENERATION: PASS; gloam_stalker; canonical_png_sha256=true
+BATCH_A_REGENERATION_UNCHANGED: gloam_stalker
+BATCH_A_FINAL_REGRESSION: PASS; figures=4

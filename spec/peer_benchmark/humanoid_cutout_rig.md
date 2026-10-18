@@ -66,6 +66,22 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
   - Cloak, cape and banner chains trail the body by at most 4 px of follow-through, and they settle by the end of the
     clip.
 - Feet and hem anchors stay planted, except in move and death.
+- **Walking legs bend at the knee** (owner, Thrall 2026-10-18: "Walk is unnatural with no knee bend"):
+  - Feet are two-bone targets for thigh and shin, and the knee keeps its rest bend side.
+  - Each foot steps on the floor: planted while in stance, lifted and carried forward in swing.
+  - The pelvis dips 1–2 px at each passing, so the stance knee visibly flexes.
+  - The swing knee bends more than the stance knee.
+  - Use the protagonist's walk as the reference.
+- **Shoulders attach at the real shoulder** (owner, Thrall: "Right arm doesn't seem to connect high enough to match
+  the left"):
+  - Each `upper_<side>` pivots at the top of the deltoid, under the collar or trapezius edge, on the maquette's
+    shoulder line.
+  - The near and far shoulders differ in height only by the 3/4 perspective.
+  - Neither arm may appear to grow out of the chest side.
+  - Measured on the maquette's front `joints_px.json` (1024 px): the far shoulder must sit higher than the near one,
+    by `0.15 × |x_near − x_far|` ± 10 px.
+  - mq-04 shipped the far shoulder below the near one for the Thrall (52 px low), the Gloam (56 px) and the Seer
+    (12 px).
 - **Hit** (0.5 s):
   - At 0.18: the torso moves 3 px back (opposite forward) and 1 px down, with a 3° lean back. It recovers by 0.6.
   - The head nods 4° back. The free hand trails 1 px.
@@ -91,14 +107,14 @@ relative to its parent's animated frame.
 - `release_at` (held items, death only): the phase where the item leaves the hand and pivots about its floor end.
 - `forward_mode: "world_step"` (feet and hem anchors in move): values are fractions of the tile step in ground space.
   The runtime subtracts the root's progress, so a planted foot stays put on the floor.
-- Hands with `forward_px`, `lift_px` or `inward_px` keys are two-bone targets. Arms without hand keys follow forward
+- Hands with `forward_px`, `lift_px` or `inward_px` keys are two-bone targets, and so are feet (thigh, shin). Arms without hand keys follow forward
   kinematics: their `upper_<side>` translation moves the whole arm rigidly. The idle weapon-arm group uses this.
 
 ## 5. Per-figure assignment (initial; each unit confirms it)
 | Figure | Robe / cloth pieces | Held item and weapon arm | Idle weapon arm |
 |---|---|---|---|
 | Seer | robe = skirt_near ∪ skirt_far; the collar fuses into the torso | staff = shaft ∪ crystal, far hand | still (staff planted) |
-| Thrall | loincloth on the pelvis; the collar ring fuses into the torso | the club follows the near forearm | lagged bob |
+| Thrall | loincloth on the pelvis; the collar ring fuses into the torso | the iron tube sheathes the near forearm (part of the near sleeve; capped, no hand) | lagged bob |
 | Herald | tabard on the pelvis; the belt fuses into the torso; cape_near and cape_far are banners on the torso | horn, far hand | lagged bob |
 | Gloam | cape_near and cape_far drapes on the torso; the carapace fuses into the torso | the claws follow their forearms | near arm lagged |
 | Lancer | cloak on the torso; the split loin cloth on the pelvis; the scarf/mantle fuses into the torso | spear, far hand | still if the butt rests on the floor, otherwise lagged |

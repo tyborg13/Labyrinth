@@ -37,10 +37,11 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 		var constants: Dictionary = renderer.get_script_constant_map()
 		var cycle_seconds: float = constants["WALK_CYCLE_SECONDS"]
 		var frame_seconds: float = constants["WALK_FRAME_SECONDS"]
-		if actor in ["hoarfrost_seer", "arc_thrall"]:
-			# rr-07 supplies an authored duration per resolved step. Validate
+		if actor in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick"]:
+			# rr-07/rr-12 supply an authored duration per resolved step. Validate
 			# against protected data instead of inventing a source-space gait pace.
-			var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/rr-07/motion_tracks.json"))
+			var task: String = "rr-12" if actor in ["burrow_grub", "ember_tick"] else "rr-07"
+			var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/" + task + "/motion_tracks.json"))
 			var seconds: float = float(director[actor]["clips"]["move"]["seconds"])
 			var scale: float = board.call("source_pixel_scale_for_type", actor)
 			expect.call(scale > 0.0 and is_equal_approx(cycle_seconds, seconds), actor + " retains protected step duration")

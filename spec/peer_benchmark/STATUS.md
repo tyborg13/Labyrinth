@@ -18,23 +18,35 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight (2026-10-18 morning; maquette roster wave 1 + humanoid rig v2)
+## In flight (2026-10-18 late morning; humanoid rig v2 + roster wave 1)
 - Merged on integration since playtest 10: map-02, cbt-01, boon-01, fix-05, flow-01, qa-07, qa-08, bug-01, mq-04,
-  rr-05, det-01, rr-07. Owner approved: section transition, Bloomer rr-05 clip, roster plan, Lancer look.
-- **Owner rejected the rr-07 Seer rig (2026-10-18):** the rear is mirrored, the idle ripples instead of the
-  protagonist's cut-out bob, and the pieces cut apart in actions. → humanoid rig v2, binding spec
-  `spec/peer_benchmark/humanoid_cutout_rig.md` (decisions 2026-10-18). All humanoids follow it.
-- Running: mq-05 (batch B maquettes, r2), rr-06 (Lancer rig, OLD style), rr-08 (Herald + Gloam rigs, OLD style).
-  Don't kill them (owner rule). When the rr-06/rr-08 results arrive, review them only for reusable pipeline parts.
-  Don't post their clips. Each figure moves to v2 after rr-10.
-- Blender bridge: a tracked director job, `bridge.py mq-05 rr-06` (add mq-06 when it launches).
+  rr-05, det-01, rr-07, mq-05 (d2560b9c9). Owner approved: section transition, Bloomer rr-05 clip, roster plan, Lancer
+  look.
+- **The owner rejected the rr-07 Seer and Thrall rigs (2026-10-18).** → humanoid rig v2, binding spec
+  `spec/peer_benchmark/humanoid_cutout_rig.md`, decisions 2026-10-18. Seer and Thrall inbox items are answered and
+  closed.
+- Running / state:
+  - rr-10 (Seer v2): front r1 checkpoint a65f89a25; resumed with the director rope mask (feedback 2). Next: the
+    director runs `rest`, `native` and `sheets`; the rear waits for mq-06 and the repaint.
+  - mq-06 (Seer rear): root cause found (the fit lifted the far ankle 0.157 m). Fixing via the front view ray;
+    feedback 3 covers the bridge deadline, robe contact, rear frame and fit.
+  - mq-07 (Thrall maquette r2, checkpoint 881aae937): the shoulder and tube are accepted. Waits for mq-06 to land.
+    Then: the floor fix for the far ankle (+0.070 m), promote r2 to delivery, and the director repaints the Thrall.
+    Its brief also says "120 s"; clarify as in mq-06 feedback 3.
+  - rr-12 (Grub + Tick rigs, rr-05 pipeline): running after the director recorded the task contract.
+  - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; resume them for v2 after rr-10.
+- Done 2026-10-18: rr-10 and rr-12 branches squashed without proof captures (477e6d24a, 624f80f93); unreachable objects pruned (1.28 GB). Proof dirs now gitignore native/, production_native/, contact_sheets/, logs/ and *.mp4.
+- Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
+  Workers can't write Git metadata.
 - Next (in order):
-  1. Launch rr-10 (Seer v2, front first) and mq-06 (Seer rear turn fix; queued for a slot).
-  2. After mq-06: the director repaints the Seer rear from the new clay → job `jobs/hoarfrost_seer/mq6_rear`
-     (identity gate), merges both into integration and rr-10, then resumes rr-10 for the rear.
-  3. Post the v2 Seer to the inbox (idle side by side with the protagonist, plus the full clip).
-  4. v2 motion data and units for Thrall, Lancer, Herald and Gloam (spec §5 table).
-  5. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01.
+  1. mq-06 lands → repaint the Seer rear (job `jobs/hoarfrost_seer/mq6_rear`, identity gate, rope mask for the rear)
+     → resume rr-10 for the rear → windowed proof → post the Seer to the inbox (idle beside the protagonist, plus the
+     full clip).
+  2. mq-07 floor fix + promotion → Thrall repaint (mq7_front, mq7_rear) → rr-11 (Thrall v2, motion
+     `staged/rr-11`).
+  3. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
+     conversions (resume rr-06/rr-08).
+  4. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01.
 - Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,
   gloam_stalker}/mq5_{front,rear}`. Motion data: `staged/rr-07`, `staged/rr-08`.
 - Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10 (owner's call).
