@@ -27,7 +27,7 @@ def geometry_checks(spec):
         required += ('native_sculpted_surfaces',)
     if any(p.get('sculpt') for p in spec['pieces']):
         required += ('native_sculpted_sections',)
-    if spec.get('native_contacts') or any('support_z' in p for p in spec['pieces']):
+    if spec.get('native_contacts') or spec.get('foot_contacts') or any('support_z' in p for p in spec['pieces']):
         required += ('native_contacts',)
     if spec.get('native_features'):
         required += ('whole_native_features',)
@@ -70,7 +70,7 @@ def validate_delivery(spec, folder, require_binding=True):
     for view in ('front', 'rear'):
         for kind in ('clay', 'parts'):
             require_image(manifest, view + '_' + kind + '.png')
-    report_names = REPORTS + (('capture_packing.json',) if spec.get('native_solid_revision') else ())
+    report_names = REPORTS + (('capture_packing.json', 'fit_report.json') if spec.get('native_solid_revision') else ())
     reports = {name: load(folder / name) for name in report_names}
     for name, report in reports.items():
         passing(report, name)
@@ -79,6 +79,8 @@ def validate_delivery(spec, folder, require_binding=True):
         if 'spec_hash' in report and report['spec_hash'] != current:
             raise ValueError('Stale delivery report: ' + name)
     if spec.get('native_solid_revision'):
+        from .solid_fit import validate_fit
+        validate_fit(spec,folder)
         packing = reports['capture_packing.json']
         if any(packing.get(key) is not True for key in ('alpha_and_visible_rgba_unchanged','native_clay_bytes_unchanged')):
             raise ValueError('Native capture packing changed visible pixels or clay bytes')

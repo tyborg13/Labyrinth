@@ -4,7 +4,7 @@
   "mode": "full",
   "images": {
     "front_clay.png": {
-      "sha256": "bcf27d612450f3ee93d580c3ba54d608a5fe5df2de0170400dcc8b3c03e5be06",
+      "sha256": "be45aea8782f518b60310f41e9153eb94e355991c8ea9a4278cad3538a0addff",
       "size": [
         1024,
         1024
@@ -144,7 +144,7 @@
       ]
     },
     "rear_clay.png": {
-      "sha256": "2a8a31d64577d390906ba01e2a07b5dfdafa775f85342f22e5fc56a43b773eb3",
+      "sha256": "a1eb98d8f66acc1721261d3625b14d5d24e6e3c227341128b3015f083e8cb4fd",
       "size": [
         1024,
         1024

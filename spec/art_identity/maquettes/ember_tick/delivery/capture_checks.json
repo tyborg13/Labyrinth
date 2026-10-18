@@ -1,6 +1,6 @@
 {
   "passed": true,
-  "spec_hash": "e46ac41a30de3bf6d7b5b23a23e505eb74b0a39918d17e9517bf6702755a255f",
+  "spec_hash": "d7dc7a16bfffdcc39df4bb8c533ff2beaafa08d761d908317e700b3b5aaef737",
   "geometry_unchanged": true,
   "geometry_checks": {
     "labels_cover_every_face": true,
@@ -15,6 +15,7 @@
     "native_sculpted_surfaces": true,
     "whole_native_features": true,
     "native_sculpted_sections": true,
+    "native_contacts": true,
     "sculpted_blade_roots_attached": true,
     "board_facing_axis": true,
     "front_chest_attachment_axes": true,

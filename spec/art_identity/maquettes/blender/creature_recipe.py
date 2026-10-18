@@ -108,6 +108,8 @@ def compile_solids(recipe):
     spec['native_features'] = deepcopy(native.get('features', {}))
     if native.get('contacts'):
         spec['native_contacts'] = deepcopy(native['contacts'])
+    if native.get('foot_contacts'):
+        spec['foot_contacts']=deepcopy(native['foot_contacts'])
     spec['fit'] = deepcopy(recipe['fit']['front'])
     spec['fit'].update(source=recipe['sources']['front'],head_part=recipe.get('head_part','head'),weapon_parts=[])
     spec['measurement_residuals_px'] = measurement_residuals(spec, recipe['joints_px'])

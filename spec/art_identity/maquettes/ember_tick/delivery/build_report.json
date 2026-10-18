@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "spec_hash": "e46ac41a30de3bf6d7b5b23a23e505eb74b0a39918d17e9517bf6702755a255f",
+  "spec_hash": "d7dc7a16bfffdcc39df4bb8c533ff2beaafa08d761d908317e700b3b5aaef737",
   "board_frame": {
     "yaw_radians": -0.0,
     "pivot": [
@@ -40,27 +40,27 @@
       0
     ]
   },
-  "context_key": "8b9e228cddc2f5c45799373f056f1680b1cee76d47298c68a0f73fdf66c0794b",
+  "context_key": "85b3bf77f08a0b0376887775edfdecce5217e0ff0ba3632a31fd1d32c3b18cdf",
   "blender": "5.2.1 LTS",
   "mesh_hashes": {
     "shell_render": "a7a33ecafe6fb7c3c401cfc671ee99bbf6d4a97aeb5f2af243414f97486f4be8",
     "head_render": "61660fdffc34ae8f0b8930a4b500fb0dafa8150c393ad90d3ba279bfb40f1d0a",
     "leg_near_1_upper_render": "ff3dad0baea432b5ccf8ee4d3a8e1d66e10a11c6090db6d0a4587e23d520b1ac",
-    "leg_near_1_lower_render": "61d7529bba26584a963fe2b6747b3a091e9550d6b0570a86514ed3c121fcb248",
+    "leg_near_1_lower_render": "fba9b55c61a2f1fb88fc16f50f14c6d5fc93eb4b6d9593dd401d72dc0356e80a",
     "leg_near_2_upper_render": "97b8447cc619486521d9b94b5e400318c666a49fb6e3437759d20a281fa8dbf7",
-    "leg_near_2_lower_render": "2f36b8b7d2adb8e2931d72bd7f5c8b033f689415cb8188220d7b239e3eeb5695",
+    "leg_near_2_lower_render": "51c68d17abb6d0b0b201b4bcffb0ec4b55f4584bc65a7e51cdb20d16c8e30b1f",
     "leg_near_3_upper_render": "e16e96427297de64faa0d55bcc5cbae04b9504ebfacbb84fb72c257ec7df7614",
-    "leg_near_3_lower_render": "1c8fbbf232e0075fe6ac7edc996482d218baa2215b549b981ea752f44a66ab3d",
+    "leg_near_3_lower_render": "7bed3164e7692ba0e94b02f874f27fc4175022d4113e99c356f5cdc064ecfafd",
     "leg_near_4_upper_render": "b7a14405b93a06da2be5e4882d00c9b94f8e56c30cc40a2d0e9d2d74a109e974",
-    "leg_near_4_lower_render": "4faa1455d2e62bf8bebb900fdb17983140057792db23c28106f616c10a675269",
+    "leg_near_4_lower_render": "6eb3f6f8038195fd8d7a761d486148e92de005a992add667c6bc1f6ae4147375",
     "leg_far_1_upper_render": "d3cce349ee49f93f4a9478962a8d603248898d222029e41809591d4eeebe2820",
-    "leg_far_1_lower_render": "ccc2933ba5b2bf71b22e43034df6332cee89517636aec61f4c82fe78ad2c5a0d",
+    "leg_far_1_lower_render": "27381357e1fa2662c9e2a72a78ccbdd6b25f79c3155e1e18c1e7c05ad473a9bb",
     "leg_far_2_upper_render": "e82e98598ed6e8b14feb609a8b71802fb051d32d564a4497994d4a940760bade",
-    "leg_far_2_lower_render": "28782434445ff23b1d3e0a06949dfd6781320160317315077709e96a4c213049",
+    "leg_far_2_lower_render": "77b218cb95dc8e381ca01dab1020116152a48a04c1b3fd6fad43a75184721853",
     "leg_far_3_upper_render": "20de1cd87c15ddb34961e6e844caf25b21f5db7f848fcca2dda33528259bb237",
-    "leg_far_3_lower_render": "047ababb7c9beeed214e743fb73f996c459de154087d27a3560d3f7a2d7068fc",
+    "leg_far_3_lower_render": "cfe13774f29f64a586a5d0f633433181a75f97fbda7f3bd3328ef27d82c2a4a1",
     "leg_far_4_upper_render": "daaabcbf99e377cc0a80df65ffd85fdc03e99c9f2221c23da8666a5cb3c3d904",
-    "leg_far_4_lower_render": "1f819c2214963963993533c431c4815605dd05933d03fe8420c3002fbd1a1a1e",
+    "leg_far_4_lower_render": "a2d180ad64d34ee178a4a919ad6a95f25c1cc48568406d0396ee19c98a98cfb2",
     "mouthpart_-1_render": "f0b6e981edaea5c1bf8d26654aa1b572e7f319ddebbf5088fc2576ccdf4f2c85",
     "mouthpart_1_render": "8fe48f240a2bd5808c566d0d782a5af922800f0dd5e8f980a1e354024e2bf149",
     "leg_near_1_upper_joint_render": "e846ec898134528fc97891d6d4afe10694cd3e53dd0a75dd7e9a2b85174e4d4a",
@@ -74,7 +74,7 @@
     "palp_-1_render": "ebbe5bc0031afbd774d20d7a61bcabd0132ca0be83f72686710458cce8cd60ff",
     "palp_1_render": "d582ea9c8ca8f42a480121389246d08b1f01406b7c9511958b75e781b00b7eeb"
   },
-  "combined_mesh_hash": "de321f60d10af41147d988c5e966fbd47f8517c6c4673ececf4637546df527ac",
+  "combined_mesh_hash": "6adf2307f2983091f2364f0b708c3e86bb4efb1c76bfff9ddc6d60ff1346f5c5",
   "checks": {
     "labels_cover_every_face": true,
     "view_piece_ownership": true,
@@ -88,6 +88,7 @@
     "native_sculpted_surfaces": true,
     "whole_native_features": true,
     "native_sculpted_sections": true,
+    "native_contacts": true,
     "sculpted_blade_roots_attached": true,
     "board_facing_axis": true,
     "front_chest_attachment_axes": true,
@@ -111,6 +112,61 @@
         "visibility": {},
         "passed": true
       }
+    },
+    "native_contacts": {
+      "pairs": {},
+      "supports": {},
+      "feet": {
+        "leg_near_1_lower": {
+          "minimum_z": 0.25382766127586365,
+          "plane_z": 0.25,
+          "ground_error_m": 0.0038276612758636475,
+          "passed": true
+        },
+        "leg_near_2_lower": {
+          "minimum_z": 0.25388824939727783,
+          "plane_z": 0.25,
+          "ground_error_m": 0.003888249397277832,
+          "passed": true
+        },
+        "leg_near_3_lower": {
+          "minimum_z": 0.2605223059654236,
+          "plane_z": 0.25,
+          "ground_error_m": 0.010522305965423584,
+          "passed": true
+        },
+        "leg_near_4_lower": {
+          "minimum_z": 0.26515868306159973,
+          "plane_z": 0.25,
+          "ground_error_m": 0.015158683061599731,
+          "passed": true
+        },
+        "leg_far_1_lower": {
+          "minimum_z": 0.2122480571269989,
+          "plane_z": 0.25,
+          "ground_error_m": 0.0377519428730011,
+          "passed": true
+        },
+        "leg_far_2_lower": {
+          "minimum_z": 0.2119847536087036,
+          "plane_z": 0.25,
+          "ground_error_m": 0.03801524639129639,
+          "passed": true
+        },
+        "leg_far_3_lower": {
+          "minimum_z": 0.27140650153160095,
+          "plane_z": 0.25,
+          "ground_error_m": 0.021406501531600952,
+          "passed": true
+        },
+        "leg_far_4_lower": {
+          "minimum_z": 0.26135891675949097,
+          "plane_z": 0.25,
+          "ground_error_m": 0.011358916759490967,
+          "passed": true
+        }
+      },
+      "passed": true
     },
     "blade_attachments": {},
     "facing": {

@@ -160,11 +160,12 @@ class CreatureContractTests(unittest.TestCase):
     def test_native_modifier_stack_rejects_flattened_stone_and_removed_cracks(self):
         from .sculpted_mass import native_stack_matches
         stone=compile_recipe(recipe('glacial_mirror'))['pieces'][0]
-        subdiv=SimpleNamespace(name='rounded_mass_subdivision',type='SUBSURF',render_levels=stone['subdivision_levels'])
+        subdiv=SimpleNamespace(name='rounded_mass_subdivision',type='SUBSURF',levels=stone['subdivision_levels'],render_levels=stone['subdivision_levels'])
         relief=SimpleNamespace(name='modelled_surface_relief',type='DISPLACE',strength=stone['relief']['strength'])
         bevel=SimpleNamespace(name='modelled_chipped_bevel',type='BEVEL',width=stone['bevel']['width'],segments=stone['bevel']['segments'])
         fracture=SimpleNamespace(name='modelled_fracture_0',type='BOOLEAN',operation='DIFFERENCE',solver='EXACT',object=object())
         source=SimpleNamespace(modifiers=[subdiv,relief,bevel,fracture],get=lambda key: key=='modelled_profile')
+        for mod in source.modifiers:mod.show_render=mod.show_viewport=True
         self.assertTrue(native_stack_matches(stone,source))
         source.modifiers=[subdiv,relief]
         self.assertFalse(native_stack_matches(stone,source))

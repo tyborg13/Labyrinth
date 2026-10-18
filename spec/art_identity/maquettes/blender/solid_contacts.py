@@ -26,5 +26,15 @@ def report(spec, objects):
         thickness=max(heights)-min(heights) if heights else 0
         supports[piece['id']]={'plane_z':piece['support_z'],'contact_error':error,
             'thickness':thickness,'passed':bool(heights) and error<=CONTACT_DEFAULTS['ground_epsilon'] and thickness>=piece['minimum_support_thickness']}
-    return {'pairs':pairs,'supports':supports,
-            'passed':all(v['passed'] for v in list(pairs.values())+list(supports.values()))}
+    feet={}
+    if spec.get('foot_contacts'):
+        from .foot_projection import FOOT_LIMITS
+        plane=spec['foot_contacts']['plane_z']
+        for name in spec['foot_contacts']['pieces']:
+            obj=by_id.get(name)
+            heights=[(obj.matrix_world @ v.co).z for v in obj.data.vertices] if obj else []
+            error=abs(min(heights)-plane) if heights else None
+            feet[name]={'minimum_z':min(heights) if heights else None,'plane_z':plane,
+                'ground_error_m':error,'passed':bool(heights) and error<=FOOT_LIMITS['ground_tolerance_m']}
+    return {'pairs':pairs,'supports':supports,'feet':feet,
+            'passed':all(v['passed'] for v in list(pairs.values())+list(supports.values())+list(feet.values()))}

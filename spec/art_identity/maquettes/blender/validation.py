@@ -114,8 +114,9 @@ def geometry_report(spec, objects, cloth_reports, details=None):
                                                         bpy.data.objects['maquette_armature'])
     masses = [p for p in spec['pieces'] if p['type'] == 'sculpted_mass']
     if masses:
-        from .sculpted_mass import native_stack_matches
-        result['native_sculpted_surfaces'] = all(native_stack_matches(p, bpy.data.objects.get(p['id']))
+        from .sculpted_mass import native_stack_matches, frozen_differs_from_base
+        result['native_sculpted_surfaces'] = all(native_stack_matches(p, bpy.data.objects.get(p['id'])) and
+            frozen_differs_from_base(bpy.data.objects.get(p['id']),bpy.data.objects.get(p['id']+'_render'))
                                                for p in masses)
     if spec.get('native_features'):
         from .solid_features import feature_report
@@ -128,7 +129,7 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             bpy.data.objects[p['id']].get('integral_spine_count') == len(p['sculpt'].get('spines',[])) and
             all(face.use_smooth for face in bpy.data.objects[p['id']+'_render'].data.polygons)
             for p in sections)
-    if spec.get('native_contacts') or any('support_z' in p for p in spec['pieces']):
+    if spec.get('native_contacts') or spec.get('foot_contacts') or any('support_z' in p for p in spec['pieces']):
         from .solid_contacts import report
         details['native_contacts'] = report(spec,objects)
         result['native_contacts'] = details['native_contacts']['passed']

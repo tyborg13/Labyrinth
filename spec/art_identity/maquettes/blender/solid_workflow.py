@@ -51,6 +51,8 @@ def build_and_prove(folder):
     native_job(folder,'material_mutation','native_delivery_checks.py',[job,folder/'proof/native_validation.json'])
     from .compact_capture import compact_capture
     compact_capture(spec,capture)
+    from .solid_fit import write_fit
+    write_fit(folder,capture)
     seal_delivery(spec,capture)
     validate_delivery(spec,capture)
     stage(folder,capture)
@@ -58,7 +60,11 @@ def build_and_prove(folder):
     validation=folder/'delivery/validation'
     validation.mkdir(exist_ok=True)
     shutil.copyfile(folder/'proof/native_validation.json',validation/'native_validation.json')
-    shutil.copytree(folder/'proof/bridge',validation/'bridge',dirs_exist_ok=True)
+    (validation/'bridge').mkdir(exist_ok=True)
+    for step in ('capture','cold_replay','exact_replay','material_mutation'):
+        for suffix in ('.json','.log'):
+            name=step+suffix
+            shutil.copyfile(folder/'proof/bridge'/name,validation/'bridge'/name)
     return spec
 
 

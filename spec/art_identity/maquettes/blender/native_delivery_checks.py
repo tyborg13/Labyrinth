@@ -37,6 +37,26 @@ def main(job_path, output):
         checks = {'current_spec': report['spec_hash'] == digest(spec), 'native_geometry': all(native.values()),
                   'material_mutation_caught': not mutation['polygon_material_ownership']}
         details = {}
+        from spec.art_identity.maquettes.blender.delivery_validation import geometry_checks
+        checks['required_native_checks_present']=all(native.get(key) is True for key in geometry_checks(spec))
+        masses=[p for p in spec['pieces'] if p['type']=='sculpted_mass']
+        if masses:
+            from spec.art_identity.maquettes.blender.sculpted_mass import native_stack_matches, frozen_differs_from_base
+            disabled={}
+            for piece in masses:
+                source=bpy.data.objects[piece['id']]
+                for modifier in source.modifiers:
+                    if modifier.type not in ('SUBSURF','DISPLACE','BEVEL','BOOLEAN'):continue
+                    for mode in ('show_viewport','show_render'):
+                        before=getattr(modifier,mode)
+                        try:
+                            setattr(modifier,mode,False)
+                            caught=not native_stack_matches(piece,source)
+                        finally:setattr(modifier,mode,before)
+                        disabled[piece['id']+'/'+modifier.name+'/'+mode]=caught
+            checks['disabled_modifiers_rejected']=bool(disabled) and all(disabled.values())
+            checks['frozen_base_mesh_rejected']=all(not frozen_differs_from_base(bpy.data.objects[p['id']],bpy.data.objects[p['id']]) for p in masses)
+            details['disabled_modifier_mutations']=disabled
         if spec['id'] == 'gale_herald':
             hood = bpy.data.objects['masked_hood_render']
             rest = json.loads(hood['rounded_hood_report'])

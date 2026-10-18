@@ -182,10 +182,15 @@ def native_stack_matches(piece, source):
     if source is None:
         return False
     modifiers = {m.name: m for m in source.modifiers}
+    # Hidden editable sources still require active viewport AND render stacks.
+    if any(not getattr(m,'show_viewport',False) or not getattr(m,'show_render',False)
+           for m in source.modifiers if m.type != 'ARMATURE'):
+        return False
     subdiv = modifiers.get('rounded_mass_subdivision')
     relief = modifiers.get('modelled_surface_relief')
     passed = (subdiv is not None and subdiv.type == 'SUBSURF' and
               subdiv.render_levels == piece['subdivision_levels'] and
+              getattr(subdiv,'levels',None) == piece['subdivision_levels'] and
               relief is not None and relief.type == 'DISPLACE' and
               abs(relief.strength-piece['relief']['strength']) <= MASS_DEFAULTS['weight_epsilon'])
     if piece['surface'] == 'boulder':
@@ -210,3 +215,13 @@ def native_stack_matches(piece, source):
     if piece.get('profile'):
         passed &= bool(source.get('modelled_profile'))
     return bool(passed)
+
+
+def frozen_differs_from_base(source,frozen):
+    """Compare actual mesh data, not a claimed modifier flag or cached summary."""
+    if source is None or frozen is None:return False
+    from .contract import digest
+    def geometry(obj):
+        return {'vertices':[list(v.co) for v in obj.data.vertices],
+                'faces':[list(p.vertices) for p in obj.data.polygons]}
+    return digest(geometry(source)) != digest(geometry(frozen))

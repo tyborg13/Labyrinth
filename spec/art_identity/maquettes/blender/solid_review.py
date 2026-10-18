@@ -9,17 +9,12 @@ import hashlib
 import json
 from pathlib import Path
 
-import numpy as np
 from PIL import Image, ImageDraw
 
-from .backend import load_render
 from .compile_recipe import compile_recipe, PROJECT
-from .contract import digest
 from .curate_delivery import sha, write
 from .delivery_validation import validate_delivery
-from .fit_delivery import overlay_parts, registered_parts
-from ..fitting import frame, keyed_mask, normalise_points, warp_mask, FIT_DEFAULTS
-from .pixel_coverage import part_coverage
+from .solid_fit import silhouette_fit
 
 REVIEW_DEFAULTS = {'cell_size': 768, 'capture_size': 1024, 'caption_height': 28, 'padding': 4,
                    'background': (24,24,24,255), 'caption_colour': 'white',
@@ -41,67 +36,12 @@ def save_review_sheet(sheet,path):
             'rgba_sha256':hashlib.sha256(expected).hexdigest(),'file_sha256':sha(path)}
 
 
-def silhouette_fit(source, raster, minimum):
-    """Batch-A registration, with the brief's silhouette-only acceptance gate.
-
-    Crawlers have no humanoid shoulder/ankle height contract. Whole-body top,
-    bottom and ground-contact centroid are observable in the approved alpha.
-    """
-    source_mask = keyed_mask(source)
-    native_mask = raster.silhouette
-    source_frame, native_frame = frame(source_mask), frame(native_mask)
-    extents = []
-    for mask, definition in ((source_mask,source_frame),(native_mask,native_frame)):
-        y,x = np.nonzero(mask)
-        extents.extend([normalise_points([x.min(),y.min()],definition),
-                        normalise_points([x.max()+1,y.max()+1],definition)])
-    extents = np.array(extents)
-    padding = FIT_DEFAULTS['overlay_padding']/FIT_DEFAULTS['normalised_height']
-    bounds = [(extents.min(0)-padding).tolist(),(extents.max(0)+padding).tolist()]
-    a,b = [warp_mask(mask, definition, bounds, FIT_DEFAULTS['normalised_height'])
-           for mask,definition in ((source_mask,source_frame),(native_mask,native_frame))]
-    iou = float((a&b).sum()/(a|b).sum())
-    return {'iou':iou,'iou_min':minimum,'passed':iou>=minimum,
-            'source_frame':source_frame,'maquette_frame':native_frame,
-            'normalisation':'whole silhouette top to bottom; ground-contact centroid aligned'}
-
-
 def inspect_figure(folder):
-    folder = Path(folder)
-    recipe = json.loads((folder/'measurements.json').read_text())
-    spec = compile_recipe(recipe)
-    capture = folder/'delivery'
-    validate_delivery(spec,capture)
-    if spec['ortho_scale'] != 2.4:
-        raise ValueError('Clay comparison requires Lancer native scale')
-    views, overlays = {}, []
-    for view in ('front','rear'):
-        path = PROJECT/recipe['sources'][view]
-        if sha(path) != recipe['source_sha256'][view]:
-            raise ValueError('Protected source artwork changed: '+str(path))
-        source = Image.open(path).convert('RGBA')
-        raster = load_render(spec,capture,view)
-        report = silhouette_fit(source,raster,recipe['fit'][view]['gate']['iou_min'])
-        parts = Image.open(capture/(view+'_parts.png')).convert('RGBA')
-        coverage = part_coverage(spec,raster,parts)
-        for name,values in coverage.items():
-            values['explicit_occlusion'] = recipe['occlusions'].get(view,{}).get(name)
-        missing = [name for name,v in coverage.items() if not v['solo_pixels'] or v['clipped_at_canvas'] or
-                   (not v['pure_owner_pixels'] and not v['explicit_occlusion'])]
-        # Leg parts remain explicit rows in coverage; occlusions cannot be
-        # inferred from a failed capture or a zero-pixel part.
-        report.update(per_part_coverage=coverage,missing_unoccluded_parts=missing)
-        report['passed'] &= not missing
-        overlays.append(overlay_parts(source,registered_parts(parts,report,source.size),REVIEW_DEFAULTS['overlay_opacity']))
-        views[view] = report
-    overlay = Image.new('RGBA',(sum(p.width for p in overlays),max(p.height for p in overlays)))
-    x = 0
-    for image in overlays:
-        overlay.paste(image,(x,0));x+=image.width
-    overlay.save(capture/'fit_overlay.png',optimize=True)
-    result = {'id':spec['id'],'spec_hash':digest(spec),'passed':all(v['passed'] for v in views.values()),'views':views}
-    write(capture/'fit_report.json',result)
-    return result,overlay
+    folder=Path(folder)
+    spec=compile_recipe(json.loads((folder/'measurements.json').read_text()))
+    validate_delivery(spec,folder/'delivery')
+    from .solid_fit import compute_fit
+    return compute_fit(folder)
 
 
 def front_crop(folder):
@@ -140,6 +80,17 @@ def review(folders, output):
             for name,v in fit['per_part_coverage'].items():
                 coverage_rows.append([folder.name,view,name,v['visible_pixels'],v['solo_pixels'],v['visible_fraction_of_solo'],v['pure_owner_pixels'],v['clipped_at_canvas'],v['explicit_occlusion'] or ''])
     (output/'fit_table.md').write_text('\n'.join(table)+'\n')
+    contacts=['| Foot | Front distance (source px) | Rear distance (source px) | Native minimum z (m) | Ground error (m) |',
+              '|---|---:|---:|---:|---:|']
+    for (report,_),folder in zip(results,folders):
+        if not report.get('contacts'):continue
+        native=json.loads((folder/'delivery/build_report.json').read_text())['geometry_details']['native_contacts']['feet']
+        for name,foot in report['contacts']['feet'].items():
+            v=foot['views'];actual=native[name]
+            contacts.append(f"| {name} | {v['front']['distance_px']:.6f} | {v['rear']['distance_px']:.6f} | {actual['minimum_z']:.6f} | {actual['ground_error_m']:.6f} |")
+    if len(contacts)>2:
+        (output/'contact_table.md').write_text('Limits: 2 source px / 0.05 m; plane and exact projections are bound in fit_report.json; no lifted-foot exceptions.\n\n'+'\n'.join(contacts)+'\n')
+
     with (output/'per_part_coverage.csv').open('w',newline='') as handle:
         writer=csv.writer(handle)
         writer.writerow(['figure','view','part','visible_pixels','solo_pixels','visible_fraction_of_solo','pure_owner_pixels','clipped_at_canvas','explicit_occlusion'])

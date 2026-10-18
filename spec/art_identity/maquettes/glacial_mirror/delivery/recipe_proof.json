@@ -35,14 +35,15 @@
     "spec_hash": "3246cbe99d4274d88a9e19dd6c5d43c6c1d77182b68fb54d49f212c7e0e680e3",
     "cold_mesh_hash": "f8c8f9627f54d21edd1700e8cd2390d3773bef390f6a0c41e953114330b09974",
     "report_sha256": {
-      "build_report.json": "4605e213ba1a7c6f140f9a38f4c09c85ce755575417cc7bceb3173d8d72b309d",
+      "build_report.json": "c40c733d2b6b2d9d32e52fd417178c7cad9d0f36db458e279a8e0cda1157c451",
       "capture_checks.json": "77f3db5725a0664363981be256edb85118e20e11c273b3376c388d4594a44064",
       "facing_report.json": "d4dc9dd596cc0bfa0565cf0ad9e7c65d031c121a19aa662891f2ce821b78dbba",
       "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
       "solo_coverage.json": "936fd0a7692df644b3ac42195b613ae238a486fe3fd7a860742054ac12146706",
-      "capture_packing.json": "01491d682f845173566af162fd221ad9214b5ea39cf905f4e513b79b213a7b55",
-      "capture_manifest.json": "2f7d29c0330a035d539ad54e944e2e85c7569ad869be788ca1d834fb205473e1",
-      "native_render_manifest.json": "1c5911f36ec383267ecf84c09829f68d3e550bf6f2537d31f69cc46124f9c95b"
+      "capture_packing.json": "61646b990ae90dd4fdf98617ce0f9dbab7e78998987c20c99500af0ed25a5deb",
+      "fit_report.json": "7f45ab4ae1617dfd89f77769cdc4c4960d36a56541e15e78419c4af49beaebec",
+      "capture_manifest.json": "0c33bd0b05868b53f71783d2e5688dc81783ecced85d081aa29901a5bc3b9c0b",
+      "native_render_manifest.json": "7d31d55baaca31ba7ec4b3e9b2d274e0024301a4b73632bc12a704a65aa27097"
     },
     "exact_native_replay_sha256": "789fad3a995f26dd02d777c2ef510663c14787f8aab089d69c2281e3b7cac377"
   }

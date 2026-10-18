@@ -81,7 +81,7 @@ def stage(folder, source):
         if clay:
             pixel_hashes[name] = hashlib.sha256(Image.open(source / name).convert('RGBA').tobytes()).hexdigest()
     for name in ('joints_px.json', 'build_report.json', 'capture_checks.json', 'facing_report.json',
-                 'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json'):
+                 'ownership_validation.json', 'solo_coverage.json', 'cloak_side.json', 'fit_report.json', 'fit_overlay.png'):
         if (source / name).exists():
             shutil.copyfile(source / name, output / name)
     write(output / 'native_capture_manifest.json', manifest)

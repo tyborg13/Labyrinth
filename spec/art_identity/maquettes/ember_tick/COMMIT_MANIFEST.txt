@@ -62,6 +62,7 @@ delivery/rear_solo_leg_near_4_upper.png
 delivery/rear_solo_shell.png
 delivery/recipe_proof.json
 delivery/regeneration.json
+delivery/review/contact_table.md
 delivery/review/fit_table.md
 delivery/review/front_clay_2x.json
 delivery/review/front_clay_2x.webp

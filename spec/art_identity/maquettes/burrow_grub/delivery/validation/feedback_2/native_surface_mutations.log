@@ -1,0 +1,5 @@
+00:00.350  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/native/maquette.blend"
+00:02.284  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/ember_tick/proof/native/maquette.blend"
+00:06.192  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/glacial_mirror/proof/native/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+NATIVE_DELIVERY_CHECKS: PASS; actual_material_mutations_caught=3

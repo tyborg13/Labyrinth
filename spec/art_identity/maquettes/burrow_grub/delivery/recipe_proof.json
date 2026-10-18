@@ -39,9 +39,10 @@
       "facing_report.json": "60c43528c5f4d714f3b330287d2ab188f44c35d9ec792ce48af20c46c4056b0d",
       "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
       "solo_coverage.json": "fcd6008a4bafb60dbb668de4e5cd92d728594c4c3419b057830c56b98286128c",
-      "capture_packing.json": "598eeb5462a99c26627d2e98d9db0266184c4d76b4c45936f4b173eae52c2512",
-      "capture_manifest.json": "82b3fa9ada6366f6e77ce903b00744c2c8e9e5bcee5ae03db33fce295d2479bf",
-      "native_render_manifest.json": "8846ba26c3ec2fc6bec591ddec635fcd50809d90d8f2c861cca79d728c770faf"
+      "capture_packing.json": "6f8be3a072dcbd0894761f13bfe31590b0b68fec1f1736256e68f4c1281dfe7e",
+      "fit_report.json": "c65745d4c841b8a90a3508d144255c82f850764d477ecc61b70bd5f5bdb72778",
+      "capture_manifest.json": "408b965d99960c161e61cac87bd3d8065b278d71d4266a8d87a9fe5527abb7e5",
+      "native_render_manifest.json": "8e168e8ad5e62cde6f5bc883b218d32242a72ef572fdad20acde1d31d2ea347b"
     },
     "exact_native_replay_sha256": "be9588038833d1369c994a88ac906991f186a49ed0def4e114576e4bd2a5b151"
   }

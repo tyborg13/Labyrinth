@@ -228,6 +228,15 @@ def validate(spec):
         if piece['type'] == 'gem' and (piece['sides'] < 3 or min(piece['length'], piece['width'], piece['depth']) <= 0):
             raise ValueError('Invalid bipyramid gem dimensions')
     by_id = {p['id']: p for p in spec['pieces']}
+    if spec.get('foot_contacts'):
+        contact=spec['foot_contacts']
+        if not math.isfinite(contact['plane_z']) or not contact['pieces'] or len(set(contact['pieces']))!=len(contact['pieces']):
+            raise ValueError('Foot contacts require a finite shared support plane and unique pieces')
+        by_id={p['id']:p for p in spec['pieces']}
+        if any(n not in by_id or by_id[n]['type']!='curve' or not by_id[n].get('path') for n in contact['pieces']):
+            raise ValueError('Foot contact must name an actual distal path')
+        if contact.get('exceptions'):
+            raise ValueError('No lifted-foot design exceptions are approved for this native contract')
     for pair in spec.get('native_contacts', []):
         if len(pair) != 2 or len(set(pair)) != 2 or any(name not in by_id for name in pair):
             raise ValueError('Native contact requires two distinct existing solids')
