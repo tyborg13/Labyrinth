@@ -1,0 +1,56 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hoarfrost_seer",
+  "job_id": "mq-seer-front-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "135a478b16d1e7d5766a5d64c3fafa98873ecb16b98f01d046d06bf5369daa5f",
+  "method": "maquette paint-over r1 from the Blender-native mq-04 r3 maquette (3/4 board facing); peer ref = owner-approved Frostglass Lancer mq4",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "2d8da40aae7f04872c0a29cf7f8fb0b339e37cd80b48804263c1125f6fd74293",
+  "prompt_source": "spec/art_identity/maquettes/hoarfrost_seer/prompt_front_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq04r3",
+      "file": "refs/01_maquette_front_parts_mq04r3.png",
+      "pixel_sha256": "554ca1aca37a98150ebd3b31b097865d1778df4ba04a11e2382698a687e81313",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-front-r1/refs/01_maquette_front_parts.png"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq04r3",
+      "file": "refs/02_maquette_front_clay_mq04r3.png",
+      "pixel_sha256": "722711913078280624c3639b72be5bf2f33ed2db25c21dcfa6e1fb810f53fb2b",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-front-r1/refs/02_maquette_front_clay.png"
+    },
+    {
+      "canon_id": "identity_hoarfrost_seer_current",
+      "file": "refs/03_identity_hoarfrost_seer_current.png",
+      "pixel_sha256": "84e974dcb55ac4fcfbf173734975bd0e14dcd95913b4308c9ead94688eb1cea2",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-front-r1/refs/03_identity_hoarfrost_seer_front.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_front",
+      "file": "refs/04_approved_frostglass_lancer_mq4_front.png",
+      "pixel_sha256": "5ae6ac1f259665257abf87af1e79a90f68421e52af16ab7941cc45d01ac90a26",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-front-r1/refs/04_peer.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-seer-front-r1/refs/05_hero_front.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 210,
+  "view": "creature_front"
+}
