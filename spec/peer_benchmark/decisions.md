@@ -178,3 +178,10 @@
   cap) in a later rig unit.
 - Glacial Mirror is rebuilt from irregular, chipped boulders with modelled relief, never clean cubes (owner: no "toy
   soldier" shapes).
+
+## 2026-10-18 rr-05 accepted at 0ebbc5b07
+- Re-review 0ebbc5b07 verified all three round-13 fixes (12/12 mutations caught, full Godot pass).
+- Its one remaining item asked for the native capture bundles, which are untracked by design (about 57k files under
+  the worktree's `output/rr-05/`). The director ran the native recheck at HEAD 0ebbc5b07 in the rr-05 worktree:
+  `native_errors` 0 and pixel gate ok with 0 errors, for both the Shale Bloomer and the Lightning Wisp.
+- The owner approved the final Bloomer clip on 2026-10-18.
