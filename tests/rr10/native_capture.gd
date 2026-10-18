@@ -28,6 +28,8 @@ var pieces: Array[Dictionary]
 var idle_groups: Array[Dictionary]
 var hole_rigs: Dictionary = {}
 var rest_holes: Array[Dictionary]
+var seam_rigs: Dictionary = {}
+var joint_seams: Array[Dictionary]
 var failures: Array[String]
 var canvas: SubViewport
 var label: Label
@@ -56,6 +58,9 @@ func _run() -> void:
 				if mask.get_size() != (node.get("texture") as Texture2D).get_size(): failures.append("Check texture dimensions differ: "+str(part["name"]))
 			for hole: Dictionary in rig.layout.get("proof_rest_holes", []):
 				var reference: Node2D = make_hole_rig(view,hole)
+				reference.apply_pose("death",1.0)
+			for seam: Dictionary in rig.layout.get("proof_joint_seams", []):
+				var reference: Node2D = make_hole_rig(view,seam)
 				reference.apply_pose("death",1.0)
 		print("RR10 NATIVE PROBE LOAD: " + ("PASS" if failures.is_empty() else "FAIL"))
 		quit(0 if failures.is_empty() else 1)
@@ -89,6 +94,8 @@ func _run() -> void:
 		if not args.has("--rest-only") and not args.has("--idle-comparison"):
 			for hole: Dictionary in rig.layout.get("proof_rest_holes", []):
 				hole_rigs[view+"/"+str(hole["name"])] = make_hole_rig(view,hole)
+			for seam: Dictionary in rig.layout.get("proof_joint_seams", []):
+				seam_rigs[view+"/"+str(seam["name"])] = make_hole_rig(view,seam)
 			for part: Dictionary in rig.layout["parts"]:
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
@@ -163,6 +170,11 @@ func _run() -> void:
 					picture(hole_rigs[key]).save_png(path(hole_file))
 					rest_holes.append({"view":key.get_slice("/",0),"clip":clip,"frame":frame,"file":hole_file,
 						"sha256":FileAccess.get_sha256(path(hole_file))})
+				for key: String in seam_rigs:
+					var seam_file: String = "seams/"+clip+"/%04d/" % frame+key+".png"
+					picture(seam_rigs[key]).save_png(path(seam_file))
+					joint_seams.append({"view":key.get_slice("/",0),"clip":clip,"frame":frame,"file":seam_file,
+						"sha256":FileAccess.get_sha256(path(seam_file))})
 				if clip == "idle":
 					for key: String in groups:
 						var group_rig: Node2D = groups[key]
@@ -176,7 +188,8 @@ func _run() -> void:
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"native_pixels": true, "size": [1920,1080], "ui_scale": 1.0, "fps": FPS,
 		"inputs": _binding_script.for_case(directory), "frames": records, "pairs": pairs, "pieces": pieces,
-		"idle_groups": idle_groups, "rest_holes":rest_holes, "errors": failures, "ok": failures.is_empty()}))
+		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams,
+		"errors": failures, "ok": failures.is_empty()}))
 	print("RR10 NATIVE CAPTURE: " + ("PASS" if failures.is_empty() else "FAIL"))
 	print(ProjectSettings.globalize_path(output.path_join("rest_pair.png")))
 	if args.has("--idle-comparison"):

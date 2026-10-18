@@ -19,6 +19,9 @@ from maquette_motion.material_palette import rules, outline_class
 from maquette_motion.silhouette import holes
 from tools.humanoid_cutout.compiler import compile_motion
 from tools.humanoid_cutout.mesh import grid, robe_weights, sleeve_weights
+from tools.humanoid_cutout.materials import connected_mask, clean_continuation, held_depths
+from tools.humanoid_cutout.seams import build_masks
+from tools.humanoid_cutout.ownership import read_mask, apply_override
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 ASSETS = PROJECT / 'assets/units/hoarfrost_seer_cutout/humanoid_v2'
@@ -99,6 +102,25 @@ def build():
             native_silhouette |= np.asarray(Image.open(base / f'registered/front_solo_{label}.png').convert('RGBA'))[...,3] > 128
         fill[(paint[..., 3] == 0) | (image[..., 3] > 0) | ~native_silhouette] = 0
         hidden[name] = fill
+    rope = dict(inputs['rope_masks']['front'])
+    rope_mask = read_mask(CASE, rope, paint.shape[:2])
+    underlay = rope['underlay']
+    # Preserve the exact former robe ownership as the required cloth surface
+    # behind the now rigid rope tails. No colour selector or mask dilation.
+    rope_underlay = rope_mask & (visible[underlay][..., 3] > 0)
+    previous_owners = apply_override(visible, paint, rope_mask, rope['owner'])
+    material_rules = rules(base, 'front')
+    cloth = edge_texels(visible[underlay], rope_underlay, material_rules)
+    hidden[underlay][rope_underlay] = cloth[rope_underlay]
+    required_path = CASE / 'ownership/front_rope_underlay.png'
+    required_path.parent.mkdir(exist_ok=True)
+    Image.fromarray(rope_underlay.astype('uint8') * 255).save(required_path)
+    rope['underlay_required_mask'] = str(required_path.relative_to(CASE))
+    for name in PIECES:
+        # Maquette clipping split old hidden seeds into unsupported fragments.
+        hidden[name][visible[name][..., 3] > 0] = 0
+        hidden[name] = clean_continuation(visible[name], hidden[name], material_rules,
+                                         replace_all=name == 'robe')
     reconstructed = np.zeros_like(paint)
     count = np.zeros(paint.shape[:2], dtype=int)
     for image in visible.values():
@@ -129,24 +151,28 @@ def build():
     joint('staff', 'hand_far', 'hand_far')
     depths = {p['logical_part']: p['z_index'] for p in old['parts'] if not any(
         p.get(k) for k in ('hidden_material', 'seam_underlay', 'silhouette_backing'))}
+    depths = held_depths({name: depths[DEPTH_SOURCE.get(name, name)] for name in PIECES},
+                         'front', inputs['held_item_depth'])
     parts, meshes, tuck_report = [], [], []
     tuck_masks = {}
-    derived = {name: np.zeros(paint.shape[:2], dtype=bool) for name in PIECES}
     # rr-05 same-material interior texel continuation, only in the explicit
     # three-pixel tuck. Exact approved seed paint is never repainted.
     for name, cover in [('robe', 'torso'), ('sleeve_near', 'torso'), ('sleeve_far', 'torso'),
                         ('hand_near', 'sleeve_near'), ('hand_far', 'sleeve_far'), ('head', 'torso')]:
-        required = dilate(visible[name][..., 3] > 0, TUCK_PX) & (visible[cover][..., 3] > 0)
+        own = visible[name][..., 3] > 0
+        required = connected_mask(own, dilate(own, TUCK_PX) & (visible[cover][..., 3] > 0))
         missing = required & (hidden[name][..., 3] == 0)
         tuck_masks[name] = required
-        derived[name] |= missing
         donors = visible[name].copy()
         donors[hidden[name][..., 3] > 0] = hidden[name][hidden[name][..., 3] > 0]
         continuation = edge_texels(donors, missing, rules(base, 'front'))
         hidden[name][missing] = continuation[missing]
+    # One deterministic cloth field across both old fills and new tucks. This
+    # prevents a flat seed band ending in a horizontal seam below the belt.
+    hidden['robe'] = clean_continuation(visible['robe'], hidden['robe'], material_rules, replace_all=True)
     for name, image in visible.items():
         bone = 'upper_' + name.split('_')[-1] if name.startswith('sleeve_') else 'pelvis' if name == 'robe' else name
-        z = depths[DEPTH_SOURCE.get(name, name)]
+        z = depths[name]
         fill = hidden[name]
         is_mesh = name == 'robe' or name.startswith('sleeve_')
         if is_mesh:
@@ -154,10 +180,11 @@ def build():
             # texels occluded by a higher visible layer at rest.
             higher = np.zeros(paint.shape[:2], dtype=bool)
             for other, material in visible.items():
-                if depths[DEPTH_SOURCE.get(other, other)] > z:
+                if depths[other] > z:
                     higher |= material[..., 3] > 0
             combined = image.copy()
             allowed = (fill[..., 3] > 0) & higher
+            allowed = connected_mask(image[..., 3] > 0, allowed)
             combined[allowed] = fill[allowed]
             part = store(combined, CASE / 'pieces/front', name)
             vertices, uvs, triangles = grid(part['bbox'])
@@ -174,13 +201,14 @@ def build():
             if (fill[..., 3] > 0).any():
                 underlay = store(fill, CASE / 'pieces/front', 'hidden_' + name)
                 hidden_depth = max(p['z_index'] for p in old['parts'] if p.get('hidden_material') and p.get('logical_part') in PIECES[name])
+                if name == 'staff': hidden_depth = z - 1
                 parts.append(dict(underlay, bone=bone, z_index=hidden_depth, hidden_material=True,
                                   logical_part=name, presentation_anchor=part['offset']))
         parts.append(dict(part, bone=bone, z_index=z, logical_part=name))
     for name, cover in [('robe', 'torso'), ('sleeve_near', 'torso'), ('sleeve_far', 'torso'),
                         ('hand_near', 'sleeve_near'), ('hand_far', 'sleeve_far'), ('head', 'torso')]:
         own = visible[name][..., 3] > 0
-        required = dilate(own, TUCK_PX) & (visible[cover][..., 3] > 0)
+        required = tuck_masks[name]
         provided = hidden[name][..., 3] > 0
         missing = required & ~provided
         mask_path = CASE / f'tucks/front_{name}.png'
@@ -196,6 +224,9 @@ def build():
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': 'front', 'canvas_size': [255, 255],
               'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
               'held_items': {'staff': {'hand': 'hand_far', 'floor_end': floor_end}},
+              'held_item_depth': inputs['held_item_depth'],
+              'continuation_policy': {'robe': 'rr05_visible_cloth_edge_texels'},
+              'source_labels': PIECES, 'ownership_overrides': [rope],
               'rest_source': 'source/front/processed.png', 'motion_data': 'res://' +
               str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     layers = {}
@@ -206,14 +237,15 @@ def build():
         stored = source_pixels(CASE, part)
         allowed = stored[..., 3] > 0
         # A packed source mask is rendered by the same GPU geometry as paint:
-        # R=own silhouette, G=tuck, B=derived outline class. No CPU skin oracle.
+        # R=own silhouette, G=all continuation, B=all outline class. Exposed
+        # continuation is allowed, but must never expose an outline fragment.
         checks = np.zeros_like(stored)
         checks[allowed] = [255, 0, 0, 255]
-        tuck = tuck_masks.get(piece, np.zeros_like(allowed)) & allowed
+        tuck = (hidden[piece][..., 3] > 0) & allowed
         if not part.get('hidden_material') and name not in mesh_names:
             tuck[:] = False  # Rigid tucks live in their hidden underlay.
         checks[tuck, 1] = 255
-        dark = derived[piece] & allowed & outline_class(stored, rules(base, 'front'))
+        dark = allowed & outline_class(stored, material_rules)
         checks[dark, 2] = 255
         mask = store(checks, CASE / 'checks/front', name)
         layers[name] = {'mask': mask['file'], 'mask_offset': mask['offset'],
@@ -248,6 +280,7 @@ def build():
             record['mesh_template']=str(template.relative_to(CASE))
         rest_holes.append(record)
     layout['proof_rest_holes']=rest_holes
+    layout['proof_joint_seams'] = build_masks(CASE, layout, visible)
     write_json(CASE / 'layouts/front.json', layout)
     projection = read_json(base / 'compiled_motion.json')['projection']['front']
     compiled = compile_motion(DIRECTOR, 'hoarfrost_seer', {'front': layout}, {'front': {
@@ -255,8 +288,7 @@ def build():
     write_json(CASE / 'compiled_motion.json', compiled)
     write_json(CASE / 'cutout.json', {'character_id': 'hoarfrost_seer', 'rig': 'humanoid_v2',
         'layouts': {'front': 'layouts/front.json'}, 'design_placeholders': {
-        'TODO_DESIGN_mq6_rear_delivery_and_paint': 'Wait for both approved mq6 inputs before promotion.',
-        'TODO_DESIGN_rope_belt_ownership_mask': 'Inherited torso/robe ownership splits the hanging rope tail; owner must supply its exact mask before rigid torso ownership can be completed.'},
+        'TODO_DESIGN_mq6_rear_delivery_and_paint': 'Wait for both approved mq6 inputs before promotion.'},
         'clips': compiled['clips'], 'runtime_paths': ['scripts/maquette_cutout_runtime/humanoid_motion.gd',
         'scripts/maquette_cutout_runtime/humanoid_presentation.gd']})
     # Stage a production-shaped candidate. Existing production registration is
@@ -275,9 +307,14 @@ def build():
         record['mask'] = 'res://' + str(CASE.relative_to(PROJECT) / record['mask'])
     staged['features'] = [dict(f,mask='res://' + str(CASE.relative_to(PROJECT) / f['mask'])) for f in staged['features']]
     staged['proof_rest_holes'] = []
+    staged['proof_joint_seams'] = []
+    staged['ownership_overrides'] = [dict(rope, file='res://' + str(CASE.relative_to(PROJECT) / rope['file']),
+        underlay_required_mask='res://' + str(CASE.relative_to(PROJECT) / rope['underlay_required_mask']))]
     write_json(ASSETS / 'front.json', staged)
     write_json(CASE / 'proof/build.json', {'front_rest_mismatch_pixels': int(np.any(reconstructed != paint, axis=-1).sum()),
         'director_sha256': digest(DIRECTOR), 'tucks': tuck_report,
+        'ownership_overrides': [dict(rope, previous_owners=previous_owners,
+            underlay_pixels=int(rope_underlay.sum()))],
         'source_ownership': str(base.relative_to(PROJECT) / 'layouts/front.json'),
         'source_ownership_sha256': digest(base / 'layouts/front.json'),
         'hidden_fill_index_sha256': digest(base / 'hidden_fills/index.json'),

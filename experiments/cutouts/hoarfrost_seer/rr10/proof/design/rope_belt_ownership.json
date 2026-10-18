@@ -12,5 +12,5 @@
     "inherited torso ownership",
     "inherited robe ownership"
   ],
-  "design_placeholder": "TODO_DESIGN_rope_belt_ownership_mask"
+  "resolved_by": "inputs/rope_mask_front.png"
 }

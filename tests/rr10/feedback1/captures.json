@@ -1,0 +1,40 @@
+{
+  "origin": "Director windowed proof at 963d00f61, feedback 1; known failing native frames, never current proof.",
+  "frames": [
+    {
+      "clip": "mark",
+      "frame": 30,
+      "file": "mark_0030.png",
+      "director_capture_sha256": "a71cc4c41d96170e1c7ccf0024042499a8e7954d79627aa2987a9530e73a5777",
+      "fixture_sha256": "96035168ca8af4a270e0800062a53b729502eab7c386ec47b6abc82d589a32a5"
+    },
+    {
+      "clip": "bolt",
+      "frame": 27,
+      "file": "bolt_0027.png",
+      "director_capture_sha256": "a4d0fa01c2e5f70598abce011a80d821f536325647df098fd0c35af0f145e31d",
+      "fixture_sha256": "993d8e6ce41828e1a1797c1f6403296d7099deedbfdef0925acb915781556d6b"
+    },
+    {
+      "clip": "ward",
+      "frame": 29,
+      "file": "ward_0029.png",
+      "director_capture_sha256": "adce7300fdce0293a5d623b7bb9ce31bbb3918a9b61f32bcaca5bc45a6c1c87f",
+      "fixture_sha256": "430b83e1a30bf778bee014aae5f4cc6cc0b04b7c65c7cf038c37ceacf7a0cea0"
+    },
+    {
+      "clip": "move",
+      "frame": 29,
+      "file": "move_0029.png",
+      "director_capture_sha256": "589d0d36ce828296aa9d1adfa1a9fdc02d2dc20d4bec95dc21ed65f5ba571f78",
+      "fixture_sha256": "7c02710dfda8124512a32293074fb297ac9a0b523e3370c9bbe159d296f62651"
+    },
+    {
+      "clip": "death",
+      "frame": 64,
+      "file": "death_0064.png",
+      "director_capture_sha256": "3d7ee2430628f5a31ed29a1b9d89db272894c152dc7d00b5126fe0bfe181d304",
+      "fixture_sha256": "181c956c7697d6f0b1963281dbfd2339dbbea1927532d72f0d7ecc88cd3fc242"
+    }
+  ]
+}

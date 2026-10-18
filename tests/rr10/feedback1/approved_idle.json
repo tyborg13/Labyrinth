@@ -1,0 +1,77 @@
+{
+  "clip": {
+    "seconds": 0.84,
+    "loop": true,
+    "intents": [],
+    "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the staff arm and staff stay planted; robe and feet still",
+    "release_at": {}
+  },
+  "tracks": [
+    {
+      "source": "torso.lift_px",
+      "bone": "torso",
+      "channel": "lift_px",
+      "keys": [
+        {
+          "at": 0,
+          "value": 0,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 0.18,
+          "value": -2,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 0.55,
+          "value": -2,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 0.91,
+          "value": 0,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 1,
+          "value": 0,
+          "interpolation": "smoothstep"
+        }
+      ],
+      "forward_mode": "pixels"
+    },
+    {
+      "source": "upper_far.lift_px",
+      "bone": "upper_far",
+      "channel": "lift_px",
+      "keys": [
+        {
+          "at": 0,
+          "value": 0,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 0.18,
+          "value": 2,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 0.55,
+          "value": 2,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 0.91,
+          "value": 0,
+          "interpolation": "smoothstep"
+        },
+        {
+          "at": 1,
+          "value": 0,
+          "interpolation": "smoothstep"
+        }
+      ],
+      "forward_mode": "pixels"
+    }
+  ]
+}

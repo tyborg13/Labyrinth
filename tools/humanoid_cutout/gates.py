@@ -7,6 +7,7 @@ from PIL import Image
 
 from cutout_pipeline.cases import read_json, digest
 from maquette_motion.compiler import evaluate
+from .silhouette_gates import detached_metrics, joint_holes, posed_owners
 
 EPSILON = 0.0001  # Serialized Bone2D float tolerance, not animation tuning.
 FAILURE_CROP_ZOOM = 3
@@ -63,6 +64,17 @@ def structure_errors(layout, build):
             errors.append('tuck: insufficient continuation: ' + tuck['piece'])
     if build['front_rest_mismatch_pixels']:
         errors.append('rest: source ownership mismatch')
+    policy = layout.get('held_item_depth', {})
+    if policy != {'front': 'behind_body', 'rear': 'in_front_of_body'}:
+        errors.append('held depth: front far side / rear near side required')
+    depths = {p['name']: p['z_index'] for p in layout['parts']}
+    body = [depths[n] for n in ('torso','sleeve_near','sleeve_far','robe')]
+    if layout['facing'] == 'front' and depths['staff'] >= min(body):
+        errors.append('held depth: front staff must be behind body')
+    if layout['facing'] == 'rear' and depths['staff'] <= max(body):
+        errors.append('held depth: rear staff must be in front of body')
+    if depths['hand_far'] <= depths['staff']:
+        errors.append('held depth: gripping hand must be in front of staff')
     return errors
 
 
@@ -70,6 +82,7 @@ def source_errors(case, layout, build):
     from maquette_motion.features import source_pixels
     errors = []
     images = {p['name']: source_pixels(case,p) for p in layout['parts']}
+    continuations = {}
     rest = Image.new('RGBA',(255,255))
     for part in sorted(layout['parts'],key=lambda p:p['z_index']):
         rest.alpha_composite(Image.fromarray(images[part['name']]))
@@ -80,10 +93,13 @@ def source_errors(case, layout, build):
         checks_image = Image.fromarray(checks)
         checks_image.paste(mask,tuple(record['mask_offset']))
         checks = np.asarray(checks_image)
+        continuations[part['name']] = checks[..., 1] > 0
         if np.any((images[part['name']][...,3]>0) & (checks[...,0]==0)):
             errors.append('piece source outside own silhouette/tuck: '+part['name'])
     approved = np.asarray(Image.open(case / layout['rest_source']).convert('RGBA'))
     if not np.array_equal(np.asarray(rest),approved): errors.append('rest: composed source mismatch')
+    from .ownership import partition_errors
+    errors += partition_errors(case,layout,build,images,continuations,approved)
     for tuck in build['tucks']:
         mask = np.asarray(Image.open(case / tuck['required_mask'])) > 0
         supplied = np.zeros((255,255),dtype=bool)
@@ -95,6 +111,23 @@ def source_errors(case, layout, build):
         mask = np.asarray(Image.open(case / feature['mask'])) > 0
         if not np.array_equal(images[feature['piece']][mask],approved[mask]):
             errors.append('feature integrity: '+feature['name'])
+    # A colour can occur in the painting and still form a false horizontal
+    # band. Check the exact rr-05 donor field in SOURCE space; meshes remain
+    # exempt from every CPU posed raster comparison.
+    from maquette_motion.bleed import edge_texels
+    from maquette_motion.material_palette import rules
+    for name, policy in layout.get('continuation_policy', {}).items():
+        if policy != 'rr05_visible_cloth_edge_texels':
+            errors.append('unknown cloth continuation policy: ' + name)
+            continue
+        record=layout['proof_layers'][name]
+        checks_image=Image.new('RGBA',(255,255))
+        checks_image.paste(Image.open(case/record['mask']).convert('RGBA'),tuple(record['mask_offset']))
+        continuation=np.asarray(checks_image)[...,1]>0
+        donors=images[name].copy(); donors[continuation]=0
+        expected=edge_texels(donors,continuation,rules(case,layout['facing']))
+        if np.any(images[name][continuation]!=expected[continuation]):
+            errors.append('dark-slab/cloth continuity: non-continuous robe fill: '+name)
     return errors
 
 
@@ -193,24 +226,36 @@ def idle_pixel_errors(rest, frame, offset):
     return int((np.any(expected != frame, axis=-1)&visible).sum())
 
 
-def clean_metrics(layers):
+def clean_metrics(layers, outline_rules=None):
     """Inspect isolated native surfaces; no deformation or resampling here."""
-    from maquette_motion.silhouette import components
+    from maquette_motion.silhouette import components, dilate
+    from maquette_motion.material_palette import outline_class
     occupied = np.zeros(layers[0][1].shape[:2],dtype=bool)
-    derived_dark=np.zeros_like(occupied)
-    result = {'outside_pixels':0, 'exposed_tuck_pixels':0, 'dark_slab_blocks':0}
+    visible = np.zeros_like(layers[0][1])
+    exposed_dark=np.zeros_like(occupied)
+    silhouette=np.logical_or.reduce([(checks[...,0]>0)&(checks[...,3]>0) for _,_,checks in layers])
+    outside_outline=np.zeros_like(occupied)
+    result = {'outside_pixels':0, 'exposed_continuation_pixels':0,
+              'exposed_outline_pixels':0, 'dark_slab_blocks':0}
     for row,image,checks in sorted(layers,key=lambda item:item[0]['z_index'],reverse=True):
         paint = image[...,3]>0
         allowed = (checks[...,0]>0) & (checks[...,3]>0)
         result['outside_pixels'] += int((paint & ~allowed).sum())
-        result['exposed_tuck_pixels'] += int(((checks[...,1]>0) & (checks[...,3]>0) & ~occupied).sum())
-        dark = (checks[...,2]>0) & paint & ~occupied
-        derived_dark |= dark
+        exposed = paint & ~occupied
+        visible[exposed] = image[exposed]
+        continuation = (checks[...,1]>0) & (checks[...,3]>0) & exposed
+        outline = outline_class(image, outline_rules) if outline_rules is not None else checks[...,2]>0
+        result['exposed_continuation_pixels'] += int(continuation.sum())
+        exposed_dark |= continuation & outline
+        outside_outline |= exposed & outline & ~dilate(silhouette, 1)
         occupied |= paint
-    h,w=derived_dark.shape
+    result['exposed_outline_pixels'] = int(exposed_dark.sum())
+    result['outline_outside_pixels'] = int(outside_outline.sum())
+    result.update(detached_metrics(visible))
+    h,w=exposed_dark.shape
     blocks=np.ones((h-2,w-2),dtype=bool)
     for y in range(3):
-        for x in range(3): blocks &= derived_dark[y:y+h-2,x:x+w-2]
+        for x in range(3): blocks &= exposed_dark[y:y+h-2,x:x+w-2]
     result['dark_slab_blocks']=int(blocks.sum())
     labels,groups=components(~occupied)
     edge=set(np.concatenate((labels[0],labels[-1],labels[:,0],labels[:,-1])).tolist())
@@ -232,7 +277,7 @@ def unexplained_holes(occupied, references):
     return unexplained
 
 
-def native_errors(case, capture):
+def native_errors(case, capture, failure_output=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     errors = list(manifest.get('errors', []))
@@ -246,6 +291,8 @@ def native_errors(case, capture):
     if sampled.get('inputs')!=bound_inputs: errors.append('stale headless pose reference; rerun samples.gd')
     expected_poses={(r['view'],r['clip'],r['frame']):r for r in sampled['samples'] if r['kind']=='presented'}
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
+    for layout in layouts.values():
+        errors += source_errors(case,layout,read_json(case/'proof/build.json'))
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
     for view in data['view_tracks']:
         rest = np.asarray(Image.open(capture / (view + '_rest.png')).convert('RGBA'))
@@ -288,6 +335,12 @@ def native_errors(case, capture):
     for row in manifest.get('rest_holes',[]):
         if digest(capture / row['file'])!=row['sha256']: errors.append('changed native rest-hole reference: '+row['file'])
         hole_frames.setdefault((row['view'],row['clip'],row['frame']),[]).append(row)
+    seam_frames = {}
+    for row in manifest.get('joint_seams', []):
+        if digest(capture / row['file']) != row['sha256']: errors.append('changed native joint seam: ' + row['file'])
+        seam_frames.setdefault((row['view'],row['clip'],row['frame']), []).append(row)
+    from maquette_motion.material_palette import rules
+    outline_rules = {view: rules(case,view) for view in layouts}
     for key, rows in layer_frames.items():
         view, clip, frame = key
         layout = layouts[view]
@@ -305,12 +358,24 @@ def native_errors(case, capture):
             layers.append((row,image,checks))
         if len(layers)!=len(layout['parts']) or {r['name'] for r,_,_ in layers} != {p['name'] for p in layout['parts']}:
             errors.append(str(key) + ': missing isolated pieces')
-        metric = clean_metrics(layers)
+        metric = clean_metrics(layers, outline_rules[view])
         expected_holes=len(layout.get('proof_rest_holes',[]))
         if len(hole_frames.get(key,[]))!=expected_holes: errors.append(str(key)+': missing GPU rest-hole transport')
         occupied=np.logical_or.reduce([image[...,3]>0 for _,image,_ in layers])
         references=[np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3]>0 for row in hole_frames.get(key,[])]
-        new_holes=unexplained_holes(occupied,references)
+        if len(seam_frames.get(key, [])) != len(layout.get('proof_joint_seams', [])):
+            errors.append(str(key) + ': missing GPU joint-seam transport')
+        seam = np.zeros_like(occupied)
+        for row in seam_frames.get(key, []):
+            seam |= np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3] > 0
+        pose = expected_poses.get(key)
+        if pose is None:
+            errors.append(str(key) + ': missing independent joint-boundary pose')
+            new_holes = []
+        else:
+            from maquette_motion.pixels import PROOF_DEFAULTS
+            owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'])
+            new_holes = joint_holes(occupied, seam, owners, references)
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -319,12 +384,16 @@ def native_errors(case, capture):
             from maquette_motion.pixels import changed
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
         if metric['outside_pixels']: errors.append(str(key) + ': outside own silhouette/tuck')
-        if metric['exposed_tuck_pixels']: errors.append(str(key) + ': exposed tuck')
-        if metric['dark_slab_blocks']: errors.append(str(key) + ': derived dark slab')
-        if new_holes: errors.append(str(key) + ': new interior hole larger than 1px')
-        if any(metric[k] for k in ('outside_pixels','exposed_tuck_pixels','dark_slab_blocks')) or new_holes:
+        if metric['exposed_outline_pixels']: errors.append(str(key) + ': outline in exposed continuation')
+        if metric['dark_slab_blocks']: errors.append(str(key) + ': exposed dark slab')
+        if metric['stray_components']: errors.append(str(key) + ': detached opaque component outside outline exemption')
+        if metric['outline_outside_pixels']: errors.append(str(key) + ': outline more than 1px outside posed silhouettes')
+        if new_holes: errors.append(str(key) + ': new joint-seam hole larger than 1px')
+        if any(metric[k] for k in ('outside_pixels','exposed_outline_pixels','dark_slab_blocks',
+                                   'stray_components','outline_outside_pixels')) or new_holes:
             # Save renderer crops for the director's weight/coverage diagnosis.
-            target = case / ('proof/native_failures/%s_%s_%04d.png' % key)
+            folder = failure_output if failure_output is not None else case / 'proof/native_failures'
+            target = folder / ('%s_%s_%04d.png' % key)
             target.parent.mkdir(parents=True,exist_ok=True)
             crop = composite.crop(composite.getbbox())
             crop.resize((crop.width*FAILURE_CROP_ZOOM,crop.height*FAILURE_CROP_ZOOM),Image.Resampling.NEAREST).save(target)

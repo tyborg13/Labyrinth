@@ -1,5 +1,13 @@
 # rr-10 front handoff
 
+**Current handoff:** [director feedback 3](feedback3.md), with current result
+lines in [feedback verification](proof/feedback3_verification.md). The exact
+protected rope mask from [feedback 2](feedback2.md) remains unchanged. The new
+boundary and outline criteria reduce the existing native flags to 217 hole
+frames and one detached-component frame; they do not yet permit native
+acceptance or contact sheet composition. The original covered-tuck and
+rest-hole rules were superseded by [feedback 1](feedback1.md).
+
 This is the front-only humanoid v2 candidate. The approved mq6 rear painting and
 rebuilt rear delivery are absent. `inputs.json` owns the rear job and delivery
 paths. The existing production Seer remains registered until both views can be
@@ -16,11 +24,8 @@ Risk: **high**, because the opt-in sampler/presentation shares runtime entrypoin
    Pelvis is at the supplied belt joint, hems at the robe alpha's lower bounding
    corners on its floor line, feet parented to hems. Three real `joint_meshes`
    replace the two sleeves and one robe through the existing protagonist loader.
-   Inspection found that rr-07 ownership cuts through the hanging rope belt:
-   its lower tail remains in the robe. The exact replacement boundary is
-   `TODO_DESIGN_rope_belt_ownership_mask`, recorded in `inputs.json`; see the
-   source-pixel crop in `proof/design/rope_belt_ownership.png`. No boundary was
-   guessed. This must be resolved before the cut meets the full requirement.
+   The original hanging-rope split is now resolved by the exact protected
+   director mask; see `feedback2.md` for ownership and cloth-under-tail proof.
 2. **Weights:** source-space 2 px grid; top four robe rows entirely pelvis,
    linear vertical hem blend and middle-third smoothstep near/far split. Sleeve
    weights project onto the arm segments and blend over elbow ±4 px. See
@@ -119,9 +124,9 @@ this front-only candidate has no published playable fixture.
 
 ## TODO_DESIGN and remaining work
 
-`TODO_DESIGN_mq6_rear_delivery_and_paint` and
-`TODO_DESIGN_rope_belt_ownership_mask` are in `inputs.json` and `cutout.json`.
-Supply the approved rear inputs and rope ownership mask, resume the worker,
+`TODO_DESIGN_mq6_rear_delivery_and_paint` remains in `inputs.json` and `cutout.json`.
+The front rope ownership mask is supplied and wired. Supply the approved rear
+inputs and its rope mask, resume the worker,
 then build/prove the rear and complete production promotion/density/native rests.
 Native renderer identity, clean pieces/tuck coverage/dark slabs/holes, mesh
 tears/folds and visual review remain unobserved in this sandbox.

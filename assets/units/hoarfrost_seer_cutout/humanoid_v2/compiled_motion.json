@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "hoarfrost_seer",
-  "director_sha256": "33dac3797c03190d36ed00de038d686075f7dcb9fb6e878fc2e837088c98673b",
+  "director_sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
   "projection": {
     "front": {
       "forward": [
@@ -34,7 +34,7 @@
       "intents": [
         "icefall:icefall_mark"
       ],
-      "note": "raises the staff straight up 16 px, upright, hood tipped back to listen, free hand lifted open; holds; then thrusts it forward and tips the crystal 30 degrees down the marked line (contact)",
+      "note": "raises the staff straight up 26 px, upright, hood tipped back to listen, free hand lifted open; holds; then thrusts it forward and tips the crystal 30 degrees down the marked line (contact)",
       "release_at": {}
     },
     "land": {
@@ -43,7 +43,7 @@
       "intents": [
         "icefall_land:icefall_land"
       ],
-      "note": "lifts the upright staff 8 px, then drives its butt straight down to the floor (contact) with a hunched lurch; the robe top jolts 1 px and settles",
+      "note": "lifts the upright staff 12 px, then drives its butt straight down to the floor (contact) with a hunched lurch; the robe top jolts 1 px and settles",
       "release_at": {}
     },
     "bolt": {
@@ -598,22 +598,22 @@
             },
             {
               "at": 0.35,
-              "value": 16,
+              "value": 26,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.6,
-              "value": 16,
+              "value": 26,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.72,
-              "value": 5,
+              "value": 8,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.85,
-              "value": 4,
+              "value": 6,
               "interpolation": "smoothstep"
             },
             {
@@ -917,7 +917,7 @@
             },
             {
               "at": 0.3,
-              "value": 8,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {

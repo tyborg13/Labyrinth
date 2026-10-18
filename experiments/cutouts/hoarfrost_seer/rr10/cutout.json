@@ -5,8 +5,7 @@
     "front": "layouts/front.json"
   },
   "design_placeholders": {
-    "TODO_DESIGN_mq6_rear_delivery_and_paint": "Wait for both approved mq6 inputs before promotion.",
-    "TODO_DESIGN_rope_belt_ownership_mask": "Inherited torso/robe ownership splits the hanging rope tail; owner must supply its exact mask before rigid torso ownership can be completed."
+    "TODO_DESIGN_mq6_rear_delivery_and_paint": "Wait for both approved mq6 inputs before promotion."
   },
   "clips": {
     "idle": {
@@ -30,7 +29,7 @@
       "intents": [
         "icefall:icefall_mark"
       ],
-      "note": "raises the staff straight up 16 px, upright, hood tipped back to listen, free hand lifted open; holds; then thrusts it forward and tips the crystal 30 degrees down the marked line (contact)",
+      "note": "raises the staff straight up 26 px, upright, hood tipped back to listen, free hand lifted open; holds; then thrusts it forward and tips the crystal 30 degrees down the marked line (contact)",
       "release_at": {}
     },
     "land": {
@@ -39,7 +38,7 @@
       "intents": [
         "icefall_land:icefall_land"
       ],
-      "note": "lifts the upright staff 8 px, then drives its butt straight down to the floor (contact) with a hunched lurch; the robe top jolts 1 px and settles",
+      "note": "lifts the upright staff 12 px, then drives its butt straight down to the floor (contact) with a hunched lurch; the robe top jolts 1 px and settles",
       "release_at": {}
     },
     "bolt": {

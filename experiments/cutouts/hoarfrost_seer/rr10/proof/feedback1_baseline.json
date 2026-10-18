@@ -1,0 +1,105 @@
+{
+  "acceptance_proof": false,
+  "origin": "Director native capture at 963d00f61, before feedback fixes. Inputs are stale; this is baseline regression diagnosis only.",
+  "idle_group_pixel_mismatches": 0,
+  "defect_frames": [
+    {
+      "clip": "mark",
+      "frame": 30,
+      "metrics": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 321,
+        "exposed_outline_pixels": 32,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 5,
+        "stray_pixels": 9,
+        "interior_hole_sizes": [
+          477,
+          18,
+          17,
+          7,
+          6,
+          5,
+          4,
+          4,
+          3
+        ]
+      }
+    },
+    {
+      "clip": "bolt",
+      "frame": 27,
+      "metrics": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 163,
+        "exposed_outline_pixels": 23,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 1,
+        "stray_pixels": 1,
+        "interior_hole_sizes": [
+          173,
+          18,
+          7
+        ]
+      }
+    },
+    {
+      "clip": "ward",
+      "frame": 29,
+      "metrics": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 203,
+        "exposed_outline_pixels": 23,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 1,
+        "stray_pixels": 1,
+        "interior_hole_sizes": [
+          18,
+          13,
+          8,
+          3,
+          2
+        ]
+      }
+    },
+    {
+      "clip": "move",
+      "frame": 29,
+      "metrics": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 154,
+        "exposed_outline_pixels": 23,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 1,
+        "stray_pixels": 1,
+        "interior_hole_sizes": [
+          13,
+          5,
+          2
+        ]
+      }
+    },
+    {
+      "clip": "death",
+      "frame": 64,
+      "metrics": {
+        "outside_pixels": 0,
+        "exposed_continuation_pixels": 217,
+        "exposed_outline_pixels": 19,
+        "dark_slab_blocks": 0,
+        "outline_outside_pixels": 0,
+        "stray_components": 2,
+        "stray_pixels": 2,
+        "interior_hole_sizes": [
+          8,
+          7,
+          2
+        ]
+      }
+    }
+  ]
+}

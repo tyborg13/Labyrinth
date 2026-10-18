@@ -5,5 +5,21 @@
   "rear_delivery": "spec/art_identity/maquettes/hoarfrost_seer/delivery",
   "baseline": "experiments/cutouts/hoarfrost_seer/mq5",
   "rear_status": "TODO_DESIGN_mq6_rear_delivery_and_paint",
-  "rope_belt_ownership_mask": "TODO_DESIGN_rope_belt_ownership_mask"
+  "held_item_depth": {"front": "behind_body", "rear": "in_front_of_body"},
+  "rope_masks": {
+    "front": {
+      "file": "inputs/rope_mask_front.png",
+      "sha256": "26bc001a33b23ba21dada83c27e8c0e1d7fd21eb067e7b5ded4329509595444c",
+      "owner": "torso",
+      "underlay": "robe",
+      "pixels": 465,
+      "components": 1
+    },
+    "rear": {
+      "file": "inputs/rope_mask_rear.png",
+      "sha256": null,
+      "owner": "torso",
+      "underlay": "robe"
+    }
+  }
 }

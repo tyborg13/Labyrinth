@@ -13,7 +13,7 @@ import numpy as np
 
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT / 'tools'))
-from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, idle_pixel_errors, matrix, clean_metrics, bindings, unexplained_holes
+from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, idle_pixel_errors, matrix, clean_metrics, bindings, joint_holes
 from humanoid_cutout.mesh import robe_weights, sleeve_weights
 from humanoid_cutout.compiler import compile_motion
 
@@ -45,6 +45,9 @@ class HumanoidTests(unittest.TestCase):
         self.assertEqual((CASE / 'director_motion.json').read_bytes(), DIRECTOR.read_bytes())
         self.assertEqual(compile_motion(DIRECTOR, 'hoarfrost_seer', {'front': self.layout}, self.data['projection']), self.data)
         self.assertEqual(self.build['front_rest_mismatch_pixels'], 0)
+        idle=read(PROJECT/'tests/rr10/feedback1/approved_idle.json')
+        self.assertEqual(self.data['clips']['idle'],idle['clip'])
+        self.assertEqual(self.data['view_tracks']['front']['idle'],idle['tracks'])
 
     def test_unpromoted_paint_stays_outside_registered_density_family(self):
         assets=PROJECT/'assets/units/hoarfrost_seer_cutout/humanoid_v2'
@@ -152,25 +155,81 @@ class HumanoidTests(unittest.TestCase):
         checks=np.zeros_like(image)
         checks[2:8,2:8]=[255,0,0,255]
         row={'z_index':0}
-        self.assertEqual(clean_metrics([(row,image,checks)]),{'outside_pixels':0,'exposed_tuck_pixels':0,'dark_slab_blocks':0,'interior_hole_sizes':[]})
+        baseline=clean_metrics([(row,image,checks)])
+        self.assertTrue(all(not value for value in baseline.values()),baseline)
         mutant=image.copy(); mutant[1,1]=[30,30,30,255]
         self.assertEqual(clean_metrics([(row,mutant,checks)])['outside_pixels'],1)
-        mutant=checks.copy(); mutant[3:6,3:6,2]=255
+        mutant=checks.copy(); mutant[3:6,3:6,1:3]=255
         self.assertGreater(clean_metrics([(row,image,mutant)])['dark_slab_blocks'],0)
         mutant=checks.copy(); mutant[2,2,1]=255
-        self.assertEqual(clean_metrics([(row,image,mutant)])['exposed_tuck_pixels'],1)
+        self.assertEqual(clean_metrics([(row,image,mutant)])['exposed_continuation_pixels'],1)
+        self.assertEqual(clean_metrics([(row,image,mutant)])['exposed_outline_pixels'],0)
+        mutant[2,2,2]=255
+        self.assertEqual(clean_metrics([(row,image,mutant)])['exposed_outline_pixels'],1)
         cover=np.zeros_like(image); cover[2,2]=[30,30,30,255]
-        self.assertEqual(clean_metrics([(row,image,mutant),({'z_index':1},cover,checks)])['exposed_tuck_pixels'],0)
+        self.assertEqual(clean_metrics([(row,image,mutant),({'z_index':1},cover,checks)])['exposed_outline_pixels'],0)
         mutant=image.copy(); mutant[4:6,4:6]=0
         self.assertEqual(clean_metrics([(row,mutant,checks)])['interior_hole_sizes'],[4])
         old=np.zeros((10,10),dtype=bool); old[4:6,4:6]=True
-        self.assertEqual(unexplained_holes(mutant[...,3]>0,[old]),[])
+        seam=old.copy()
+        from humanoid_cutout.silhouette_gates import OWNER_IDS
+        owners=np.full(old.shape,OWNER_IDS['upper_far'],dtype=np.uint8)
+        owners[5:]=OWNER_IDS['fore_far']
+        self.assertEqual(joint_holes(mutant[...,3]>0,seam,owners,[old]),[])
         displaced=np.zeros_like(old); displaced[3,3:5]=True
-        self.assertEqual(unexplained_holes(mutant[...,3]>0,[displaced]),[4])
+        self.assertEqual(joint_holes(mutant[...,3]>0,seam,owners,[displaced]),[4])
         occupied=np.zeros((14,14),dtype=bool); occupied[1:13,1:13]=True
         occupied[3:5,3:5]=False; occupied[8:10,8:10]=False
         reference=np.zeros_like(occupied); reference[3:5,3:5]=True
-        self.assertEqual(unexplained_holes(occupied,[reference]),[4])
+        # Unjoined negative space may change freely. Only the second, joint
+        # local opening is a defect; a one-pixel opening remains allowed.
+        seam=np.zeros_like(occupied);seam[9,9]=True
+        owners=np.full(occupied.shape,OWNER_IDS['upper_far'],dtype=np.uint8)
+        owners[9:]=OWNER_IDS['fore_far']
+        self.assertEqual(joint_holes(occupied,seam,owners),[4])
+        seam[:]=False
+        self.assertEqual(joint_holes(occupied,seam,owners),[])
+
+    def test_stray_gate_rejects_all_five_director_regression_frames(self):
+        from PIL import Image
+        from cutout_pipeline.cases import digest
+        folder=PROJECT/'tests/rr10/feedback1'
+        for row in read(folder/'captures.json')['frames']:
+            with self.subTest(clip=row['clip'],frame=row['frame']):
+                self.assertEqual(digest(folder/row['file']),row['fixture_sha256'])
+                image=np.asarray(Image.open(folder/row['file']).convert('RGBA'))
+                checks=np.zeros_like(image); checks[image[...,3]>0]=[255,0,0,255]
+                metrics=clean_metrics([({'z_index':0},image,checks)])
+                self.assertGreater(metrics['stray_components'],0)
+        image=np.zeros((20,20,4),dtype=np.uint8);image[4:16,4:16]=[50,60,70,255]
+        checks=np.zeros_like(image);checks[image[...,3]>0]=[255,0,0,255]
+        image[1,1]=[0,0,0,255]
+        definition={'visible_luma_cutoff':1,'outline_palette':[]}
+        metrics=clean_metrics([({'z_index':0},image,checks)],definition)
+        self.assertEqual(metrics['outline_outside_pixels'],1)
+        self.assertEqual(metrics['stray_pixels'],1)
+
+    def test_derived_continuations_have_no_outline_fragments(self):
+        from PIL import Image
+        from maquette_motion.material_palette import rules,outline_class
+        definition=rules(CASE,'front')
+        for name,record in self.layout['proof_layers'].items():
+            checks=np.asarray(Image.open(CASE/record['mask']).convert('RGBA'))
+            image=np.asarray(Image.open(CASE/record['source']).convert('RGBA'))
+            with self.subTest(piece=name):
+                self.assertFalse(((checks[...,1]>0)&outline_class(image,definition)).any())
+
+    def test_staff_depth_policy_in_both_views_and_mutation(self):
+        from humanoid_cutout.materials import held_depths
+        depths={p['name']:p['z_index'] for p in self.layout['parts']}
+        for view in ('front','rear'):
+            result=held_depths(depths,view,self.layout['held_item_depth'])
+            body=[result[n] for n in ('torso','sleeve_near','sleeve_far','robe')]
+            self.assertTrue(result['staff']<min(body) if view=='front' else result['staff']>max(body))
+            self.assertGreater(result['hand_far'],result['staff'])
+        bad=copy.deepcopy(self.layout)
+        next(p for p in bad['parts'] if p['name']=='staff')['z_index']=40
+        self.assertTrue(any('held depth' in e for e in structure_errors(bad,self.build)))
 
     def test_rigid_native_agreement_rejects_changed_paint(self):
         from maquette_motion.pixels import native_frame_matches

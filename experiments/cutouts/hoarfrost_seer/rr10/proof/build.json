@@ -1,6 +1,6 @@
 {
   "front_rest_mismatch_pixels": 0,
-  "director_sha256": "33dac3797c03190d36ed00de038d686075f7dcb9fb6e878fc2e837088c98673b",
+  "director_sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
   "tucks": [
     {
       "piece": "robe",
@@ -8,7 +8,7 @@
       "minimum_px": 3,
       "required_mask": "tucks/front_robe.png",
       "missing_pixels": 0,
-      "required_pixels": 269
+      "required_pixels": 330
     },
     {
       "piece": "sleeve_near",
@@ -24,7 +24,7 @@
       "minimum_px": 3,
       "required_mask": "tucks/front_sleeve_far.png",
       "missing_pixels": 0,
-      "required_pixels": 172
+      "required_pixels": 170
     },
     {
       "piece": "hand_near",
@@ -49,6 +49,22 @@
       "required_mask": "tucks/front_head.png",
       "missing_pixels": 0,
       "required_pixels": 489
+    }
+  ],
+  "ownership_overrides": [
+    {
+      "file": "inputs/rope_mask_front.png",
+      "sha256": "26bc001a33b23ba21dada83c27e8c0e1d7fd21eb067e7b5ded4329509595444c",
+      "owner": "torso",
+      "underlay": "robe",
+      "pixels": 465,
+      "components": 1,
+      "underlay_required_mask": "ownership/front_rope_underlay.png",
+      "previous_owners": {
+        "torso": 391,
+        "robe": 74
+      },
+      "underlay_pixels": 74
     }
   ],
   "source_ownership": "experiments/cutouts/hoarfrost_seer/mq5/layouts/front.json",
