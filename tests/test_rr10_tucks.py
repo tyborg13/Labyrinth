@@ -102,12 +102,14 @@ class TuckTests(unittest.TestCase):
         for record in self.fixtures['frames']:
             if record['target']!='hidden_hand_far':continue
             masks=fixture_masks(FIXTURES,record)
-            self.assertTrue(self.check_fixture(record,{record['target']:masks['regression_tuck']}))
+            baseline=sum(HISTORICAL_RESIDUALS.get((record['clip'],record['frame']),[]))
+            self.assertGreater(sum(self.check_fixture(record,{record['target']:masks['regression_tuck']})),baseline)
 
     def test_foot_mutation_reopens_move_nine_seam(self):
         record=next(r for r in self.fixtures['frames'] if r['target']=='hidden_foot_near')
         masks=fixture_masks(FIXTURES,record)
-        self.assertTrue(self.check_fixture(record,{record['target']:masks['regression_tuck']}))
+        baseline=sum(HISTORICAL_RESIDUALS.get((record['clip'],record['frame']),[]))
+        self.assertGreater(sum(self.check_fixture(record,{record['target']:masks['regression_tuck']})),baseline)
 
 
 if __name__=='__main__':unittest.main()

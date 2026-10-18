@@ -94,7 +94,8 @@ class RearTests(unittest.TestCase):
             masks=fixture_masks(FIXTURES,record)
             pose=poses[record['clip'],record['frame']]
             self.assertEqual(seam_holes(CASE,layout,pose,masks,fixtures['rigid_tucks']),HISTORICAL_RESIDUALS.get((record['clip'],record['frame']),[]))
-            self.assertTrue(seam_holes(CASE,layout,pose,masks,fixtures['rigid_tucks'],{'hidden_torso':masks['regression_tuck']}))
+            baseline=sum(HISTORICAL_RESIDUALS.get((record['clip'],record['frame']),[]))
+            self.assertGreater(sum(seam_holes(CASE,layout,pose,masks,fixtures['rigid_tucks'],{'hidden_torso':masks['regression_tuck']})),baseline)
 
 
 if __name__=='__main__':unittest.main()
