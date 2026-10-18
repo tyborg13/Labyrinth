@@ -5,9 +5,7 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {
-    "TODO_DESIGN_rear_foot_near_hidden_paint": "No visible near-foot paint in the true rear. Transparent registered solo pending director donor decision."
-  },
+  "design_placeholders": {},
   "clips": {
     "idle": {
       "seconds": 0.84,

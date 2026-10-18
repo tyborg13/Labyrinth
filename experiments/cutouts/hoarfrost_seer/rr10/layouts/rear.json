@@ -357,6 +357,29 @@
       "logical_part": "robe"
     },
     {
+      "name": "hidden_foot_near",
+      "file": "pieces/rear/hidden_foot_near.png",
+      "offset": [
+        63,
+        214
+      ],
+      "bbox": [
+        63,
+        214,
+        91,
+        236
+      ],
+      "bone": "foot_near",
+      "z_index": -1,
+      "hidden_material": true,
+      "logical_part": "foot_near",
+      "presentation_anchor": [
+        66,
+        221
+      ],
+      "occluded_surface": true
+    },
+    {
       "name": "foot_near",
       "file": "pieces/rear/foot_near.png",
       "offset": [
@@ -117507,6 +117530,47 @@
   ],
   "rest_source": "source/rear/processed.png",
   "motion_data": "res://experiments/cutouts/hoarfrost_seer/rr10/compiled_motion.json",
+  "occluded_surfaces": [
+    {
+      "donor": "foot_far",
+      "alignment": "bottom_center",
+      "clip_to_rest_alpha": true,
+      "decision": "rr-10 feedback 6: same-boot visible rear heel including outline; clip to near solo, nearest donor for remaining pixels",
+      "piece": "foot_near",
+      "surface_part": "hidden_foot_near",
+      "donor_file": "rear_baseline/pieces/rear/foot_far.png",
+      "donor_offset": [
+        133,
+        235
+      ],
+      "donor_sha256": "acdfac791ce1ec2a48859a265d9e6351b9a26ba47d89bb3745122de818e7c1e4",
+      "solo_file": "rear_baseline/registered/rear_solo_foot_near.png",
+      "solo_sha256": "f494f60a59ad2cda8c1456d7a89e7e57f5f7b65913b3e9afd755e3056e17a9b3",
+      "derivation": {
+        "translation_px": [
+          -66,
+          -12
+        ],
+        "solo_pixels": 191,
+        "copied_pixels": 152,
+        "nearest_pixels": 36,
+        "rest_alpha_clipped_yx": [
+          [
+            230,
+            87
+          ],
+          [
+            231,
+            87
+          ],
+          [
+            233,
+            78
+          ]
+        ]
+      }
+    }
+  ],
   "proof_layers": {
     "hidden_head": {
       "mask": "checks/rear/hidden_head.png",
@@ -117651,6 +117715,17 @@
       "rigid": false,
       "source_sha256": "04165590c51500d3346ddea41c4c726872ee090184b8a6ec378837d6a03ee56c"
     },
+    "hidden_foot_near": {
+      "mask": "checks/rear/hidden_foot_near.png",
+      "mask_offset": [
+        63,
+        214
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/hidden_foot_near.png",
+      "rigid": true,
+      "source_sha256": "ffe8f88dd2f8309c8c19bccae023407d653da35417452e51b3d0fb4d3b9d2d14"
+    },
     "foot_near": {
       "mask": "checks/rear/foot_near.png",
       "mask_offset": [
@@ -117759,6 +117834,12 @@
       "bone": "pelvis",
       "file": "seams/rear_robe.png",
       "mesh_template": "seams/rear_robe_mesh.json"
+    },
+    {
+      "name": "JointSeam_foot_near",
+      "owner": "foot_near",
+      "bone": "foot_near",
+      "file": "seams/rear_foot_near.png"
     },
     {
       "name": "JointSeam_foot_far",

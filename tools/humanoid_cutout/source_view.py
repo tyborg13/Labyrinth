@@ -90,10 +90,11 @@ def prepare(project, case, inputs, view, pieces, registration, palette_for, dept
         image[selected] = paint[selected]
         ys, xs = np.nonzero(selected)
         if not len(xs):
-            # A fully occluded solo has no owned paint to extrapolate. Keep
-            # its source-space crop transparent until its donor is decided.
+            # Visible ownership stays empty even when a separately approved
+            # donor supplies this fully covered surface.
             placeholder='TODO_DESIGN_' + view + '_' + name + '_hidden_paint'
-            if placeholder not in inputs.get('design_placeholders',{}):
+            donor = inputs.get('occluded_donors', {}).get(view, {}).get(name)
+            if donor is None and placeholder not in inputs.get('design_placeholders',{}):
                 raise ValueError(placeholder)
             ys, xs = np.nonzero(solos[name])
         bounds = [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]

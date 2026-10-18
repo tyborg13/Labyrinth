@@ -9268,6 +9268,14 @@
     "grid": 1.0,
     "facing": "rear"
   },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+    "pixel_sha256": "bb4a9f07d9fabe8e5d7962abadf684920173f2371ec3beaabf47999e8ac4c731",
+    "source_pixel_sha256": "63300ae961bd5eb39a65face2aa7a929d2ccb5cff98cef4f9b83ebdd9a4caf86",
+    "id": "hoarfrost_seer_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_far.png": {
     "pixel_sha256": "1a0452f5539b3c30e049e17ac9c33c2ca671955f5550c5b75d351da486519a06",
     "source_pixel_sha256": "1a0452f5539b3c30e049e17ac9c33c2ca671955f5550c5b75d351da486519a06",

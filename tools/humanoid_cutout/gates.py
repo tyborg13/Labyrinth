@@ -109,6 +109,12 @@ def source_errors(case, layout, build):
     if not np.array_equal(np.asarray(rest),approved): errors.append('rest: composed source mismatch')
     from .ownership import partition_errors
     errors += partition_errors(case,layout,build,images,continuations,approved)
+    from .occluded_surface import source_errors as occluded_errors
+    errors += occluded_errors(case,layout,images,continuations,approved)
+    from maquette_motion.material_palette import outline_class, rules
+    for part in layout['parts']:
+        if part.get('occluded_surface') and dark_slab_blocks(outline_class(images[part['name']], rules(case,layout['facing']))):
+            errors.append('dark-slab: occluded donor surface: ' + part['logical_part'])
     for tuck in build['tucks']:
         mask = np.asarray(Image.open(case / tuck['required_mask'])) > 0
         supplied = np.zeros((255,255),dtype=bool)
@@ -235,6 +241,15 @@ def idle_pixel_errors(rest, frame, offset):
     return int((np.any(expected != frame, axis=-1)&visible).sum())
 
 
+def dark_slab_blocks(mask):
+    """The existing 3×3 all-outline slab rule, shared with occluded boots."""
+    h, w = mask.shape
+    blocks = np.ones((h - 2, w - 2), dtype=bool)
+    for y in range(3):
+        for x in range(3): blocks &= mask[y:y+h-2, x:x+w-2]
+    return int(blocks.sum())
+
+
 def clean_metrics(layers, outline_rules=None):
     """Inspect isolated native surfaces; no deformation or resampling here."""
     from maquette_motion.silhouette import components, dilate
@@ -242,6 +257,7 @@ def clean_metrics(layers, outline_rules=None):
     occupied = np.zeros(layers[0][1].shape[:2],dtype=bool)
     visible = np.zeros_like(layers[0][1])
     exposed_dark=np.zeros_like(occupied)
+    slab_dark=np.zeros_like(occupied)
     silhouette=np.logical_or.reduce([(checks[...,0]>0)&(checks[...,3]>0) for _,_,checks in layers])
     outside_outline=np.zeros_like(occupied)
     result = {'outside_pixels':0, 'exposed_continuation_pixels':0,
@@ -256,16 +272,13 @@ def clean_metrics(layers, outline_rules=None):
         outline = outline_class(image, outline_rules) if outline_rules is not None else checks[...,2]>0
         result['exposed_continuation_pixels'] += int(continuation.sum())
         exposed_dark |= continuation & outline
+        slab_dark |= (exposed if row.get('occluded_surface') else continuation) & outline
         outside_outline |= exposed & outline & ~dilate(silhouette, 1)
         occupied |= paint
     result['exposed_outline_pixels'] = int(exposed_dark.sum())
     result['outline_outside_pixels'] = int(outside_outline.sum())
     result.update(detached_metrics(visible))
-    h,w=exposed_dark.shape
-    blocks=np.ones((h-2,w-2),dtype=bool)
-    for y in range(3):
-        for x in range(3): blocks &= exposed_dark[y:y+h-2,x:x+w-2]
-    result['dark_slab_blocks']=int(blocks.sum())
+    result['dark_slab_blocks']=dark_slab_blocks(slab_dark)
     labels,groups=components(~occupied)
     edge=set(np.concatenate((labels[0],labels[-1],labels[:,0],labels[:,-1])).tolist())
     result['interior_hole_sizes'] = [size for label,size in groups if label not in edge and size>1]
@@ -364,7 +377,8 @@ def native_errors(case, capture, failure_output=None):
                 source=Image.open(case / row['source']).convert('RGBA')
                 expected=render(source,unpack(row['transform']),(0,0,512,512))
                 if not native_frame_matches(image,expected): errors.append(row['file']+': rigid native agreement')
-            layers.append((row,image,checks))
+            part = next(p for p in layout['parts'] if p['name'] == row['name'])
+            layers.append((dict(row, occluded_surface=part.get('occluded_surface', False)),image,checks))
         if len(layers)!=len(layout['parts']) or {r['name'] for r,_,_ in layers} != {p['name'] for p in layout['parts']}:
             errors.append(str(key) + ': missing isolated pieces')
         metric = clean_metrics(layers, outline_rules[view])

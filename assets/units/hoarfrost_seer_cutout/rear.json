@@ -357,6 +357,29 @@
       "logical_part": "robe"
     },
     {
+      "name": "hidden_foot_near",
+      "file": "humanoid_v2/rear/hidden_foot_near.png",
+      "offset": [
+        63,
+        214
+      ],
+      "bbox": [
+        63,
+        214,
+        91,
+        236
+      ],
+      "bone": "foot_near",
+      "z_index": -1,
+      "hidden_material": true,
+      "logical_part": "foot_near",
+      "presentation_anchor": [
+        66,
+        221
+      ],
+      "occluded_surface": true
+    },
+    {
       "name": "foot_near",
       "file": "humanoid_v2/rear/foot_near.png",
       "offset": [

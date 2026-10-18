@@ -21,6 +21,7 @@ from tools.humanoid_cutout.mesh import grid, robe_weights, sleeve_weights
 from tools.humanoid_cutout.materials import connected_mask, clean_continuation, held_depths
 from tools.humanoid_cutout.seams import build_masks
 from tools.humanoid_cutout.ownership import read_mask, apply_override
+from tools.humanoid_cutout.occluded_surface import bind as bind_occluded, derive as derive_occluded
 from tools.humanoid_cutout.tucks import TUCK_DEPTHS_PX, TUCK_COVERS, required_tuck
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
@@ -139,6 +140,15 @@ def build_view(view, inputs):
         hidden[name][visible[name][..., 3] > 0] = 0
         hidden[name] = clean_continuation(visible[name], hidden[name], material_rules,
                                          replace_all=name == 'robe')
+    occluded, donor_records = {}, []
+    for name, recipe in inputs.get('occluded_donors', {}).get(view, {}).items():
+        if (visible[name][..., 3] > 0).any():
+            raise ValueError('Occluded donor may not replace visible ownership: ' + name)
+        record = bind_occluded(CASE, base, old, view, name, recipe)
+        occluded[name], record['derivation'] = derive_occluded(CASE, record, paint)
+        hidden[name] = occluded[name].copy()
+        donor_records.append(record)
+    surfaces = dict(visible, **occluded)
     reconstructed = np.zeros_like(paint)
     count = np.zeros(paint.shape[:2], dtype=int)
     for image in visible.values():
@@ -178,7 +188,7 @@ def build_view(view, inputs):
     # rr-05 same-material continuation at the director's per-edge depths.
     # Approved visible paint and protected source inputs remain unchanged.
     for name, cover in TUCK_COVERS.items():
-        own = visible[name][..., 3] > 0
+        own = surfaces[name][..., 3] > 0
         occlusion = None
         if name.startswith(('hand_', 'foot_')) or name == 'robe':
             # A wrist edge can be hidden by the staff as well as the cuff;
@@ -187,7 +197,8 @@ def build_view(view, inputs):
             under_depth = depths[name] if name == 'robe' else underlay_depth(old, PIECES[name], depths)
             occlusion = np.logical_or.reduce([material[...,3]>0 for other,material in visible.items()
                 if depths[other] > under_depth and other != name])
-        required = required_tuck(name, visible, joints, occlusion, hidden[name][...,3]>0)
+        tuck_surfaces = surfaces if name in occluded else visible
+        required = required_tuck(name, tuck_surfaces, joints, occlusion, hidden[name][...,3]>0)
         missing = required & (hidden[name][..., 3] == 0)
         tuck_masks[name] = required
         donors = visible[name].copy()
@@ -234,6 +245,7 @@ def build_view(view, inputs):
                 if name == 'staff': hidden_depth = z - 1
                 parts.append(dict(underlay, bone=bone, z_index=hidden_depth, hidden_material=True,
                                   logical_part=name, presentation_anchor=part['offset']))
+                if name in occluded: parts[-1]['occluded_surface'] = True
         parts.append(dict(part, bone=bone, z_index=z, logical_part=name))
     for name, cover in TUCK_COVERS.items():
         own = visible[name][..., 3] > 0
@@ -259,6 +271,7 @@ def build_view(view, inputs):
               'source_labels': PIECES, 'ownership_overrides': [rope],
               'rest_source': 'source/' + view + '/processed.png', 'motion_data': 'res://' +
               str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
+    if donor_records: layout['occluded_surfaces'] = donor_records
     layers = {}
     mesh_names = {m['name'] for m in meshes}
     for part in parts:
@@ -272,6 +285,7 @@ def build_view(view, inputs):
         checks = np.zeros_like(stored)
         checks[allowed] = [255, 0, 0, 255]
         tuck = (hidden[piece][..., 3] > 0) & allowed
+        if piece in occluded: tuck &= occluded[piece][..., 3] == 0
         if not part.get('hidden_material') and name not in mesh_names:
             tuck[:] = False  # Rigid tucks live in their hidden underlay.
         checks[tuck, 1] = 255
@@ -315,7 +329,7 @@ def build_view(view, inputs):
             record['mesh_template']=str(template.relative_to(CASE))
         rest_holes.append(record)
     layout['proof_rest_holes']=rest_holes
-    layout['proof_joint_seams'] = build_masks(CASE, layout, visible)
+    layout['proof_joint_seams'] = build_masks(CASE, layout, surfaces)
     write_json(CASE / f'layouts/{view}.json', layout)
     report = {'front_rest_mismatch_pixels': int(np.any(reconstructed != paint, axis=-1).sum()),
         'rest_mismatch_pixels': int(np.any(reconstructed != paint, axis=-1).sum()),

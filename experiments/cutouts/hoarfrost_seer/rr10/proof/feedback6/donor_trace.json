@@ -1,0 +1,117 @@
+{
+  "scope": "source-pixel donor provenance only; no native renderer claim",
+  "donor": {
+    "donor": "foot_far",
+    "alignment": "bottom_center",
+    "clip_to_rest_alpha": true,
+    "decision": "rr-10 feedback 6: same-boot visible rear heel including outline; clip to near solo, nearest donor for remaining pixels",
+    "piece": "foot_near",
+    "surface_part": "hidden_foot_near",
+    "donor_file": "rear_baseline/pieces/rear/foot_far.png",
+    "donor_offset": [
+      133,
+      235
+    ],
+    "donor_sha256": "acdfac791ce1ec2a48859a265d9e6351b9a26ba47d89bb3745122de818e7c1e4",
+    "solo_file": "rear_baseline/registered/rear_solo_foot_near.png",
+    "solo_sha256": "f494f60a59ad2cda8c1456d7a89e7e57f5f7b65913b3e9afd755e3056e17a9b3",
+    "derivation": {
+      "translation_px": [
+        -66,
+        -12
+      ],
+      "solo_pixels": 191,
+      "copied_pixels": 152,
+      "nearest_pixels": 36,
+      "rest_alpha_clipped_yx": [
+        [
+          230,
+          87
+        ],
+        [
+          231,
+          87
+        ],
+        [
+          233,
+          78
+        ]
+      ]
+    }
+  },
+  "production_density_rgb_changes": [
+    {
+      "xy": [
+        89,
+        222
+      ],
+      "source_rgba": [
+        45,
+        19,
+        9,
+        255
+      ],
+      "density_rgba": [
+        24,
+        4,
+        0,
+        255
+      ]
+    },
+    {
+      "xy": [
+        70,
+        226
+      ],
+      "source_rgba": [
+        69,
+        43,
+        32,
+        255
+      ],
+      "density_rgba": [
+        88,
+        47,
+        36,
+        255
+      ]
+    },
+    {
+      "xy": [
+        70,
+        227
+      ],
+      "source_rgba": [
+        132,
+        82,
+        64,
+        255
+      ],
+      "density_rgba": [
+        103,
+        63,
+        51,
+        255
+      ]
+    },
+    {
+      "xy": [
+        79,
+        227
+      ],
+      "source_rgba": [
+        64,
+        34,
+        27,
+        255
+      ],
+      "density_rgba": [
+        83,
+        48,
+        37,
+        255
+      ]
+    }
+  ],
+  "production_density_alpha_mismatches": 0
+}

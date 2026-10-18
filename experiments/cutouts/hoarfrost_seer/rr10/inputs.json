@@ -27,7 +27,15 @@
       "components": 1
     }
   },
-  "design_placeholders": {
-    "TODO_DESIGN_rear_foot_near_hidden_paint": "No visible near-foot paint in the true rear. Transparent registered solo pending director donor decision."
-  }
+  "occluded_donors": {
+    "rear": {
+      "foot_near": {
+        "donor": "foot_far",
+        "alignment": "bottom_center",
+        "clip_to_rest_alpha": true,
+        "decision": "rr-10 feedback 6: same-boot visible rear heel including outline; clip to near solo, nearest donor for remaining pixels"
+      }
+    }
+  },
+  "design_placeholders": {}
 }

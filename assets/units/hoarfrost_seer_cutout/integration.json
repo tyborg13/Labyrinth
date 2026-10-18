@@ -3,9 +3,7 @@
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/hoarfrost_seer/rr10",
   "director_sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
-  "design_placeholders": {
-    "TODO_DESIGN_rear_foot_near_hidden_paint": "No visible near-foot paint in the true rear. Transparent registered solo pending director donor decision."
-  },
+  "design_placeholders": {},
   "native_proof": "pending director rest/native/production/idle/review",
   "rest_identity": {
     "scope": "offline approved-source ownership, not native proof",
@@ -80,6 +78,8 @@
     "humanoid_v2/rear/head.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/hidden_foot_far.png": "d05dffd6d0ad540119f2abeff22d38f077c3c5656315c9f73f414b32428786e4",
     "humanoid_v2/rear/hidden_foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
+    "humanoid_v2/rear/hidden_foot_near.png": "8e7e812e348b2cc659b23d4815194fdcd77a0096b22f62ffa3352363c881c016",
+    "humanoid_v2/rear/hidden_foot_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/hidden_hand_far.png": "fa2b030689860f842c46f1ae1925e668bea1aabef8ae922f11f4aaad54462842",
     "humanoid_v2/rear/hidden_hand_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/hidden_hand_near.png": "12022493e1ceb1d2d519b870e0b35a20885cc76e2c4fafece191eef8d33b3972",
@@ -102,8 +102,8 @@
     "humanoid_v2/rear/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/torso.png": "eb2912b4ecf4aaff5b38c30d7f773ae15717cbc97558eea8a5ca94c365ac3380",
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "a56ff1eef0d2a9bf59625a6e65683d3c3f5b4f00110effb5e3824b5c27c4ec5f",
-    "rear.json": "73721b9a7962d8a33e4bfcd595382b606465856d2133ed4499e16cc1463d1ebb",
+    "humanoid_v2/rear.json": "b26b5f62df4252ea53d8b6a29a58a4feb38278b64cd833cc1956e200f72a7b42",
+    "rear.json": "00a2ad635c10d80552dcab8e76e13a73f28cd6f6621bb40195800788b8b8db52",
     "renderer.gd": "0f607acd367d0acb5af8102c0f0cb9acbe57dad147f2300b74974dbd8fcf5e5a",
     "rig.gd": "e44395d3bf6080fa72d4de05a183f65ab8d1ccf2b6f643fa198dfba7be04e421"
   }

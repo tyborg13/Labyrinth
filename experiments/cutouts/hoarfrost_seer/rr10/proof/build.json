@@ -293,6 +293,14 @@
           "required_pixels": 295
         },
         {
+          "piece": "foot_near",
+          "cover": "robe",
+          "minimum_px": 4,
+          "required_mask": "tucks/rear_foot_near.png",
+          "missing_pixels": 0,
+          "required_pixels": 296
+        },
+        {
           "piece": "foot_far",
           "cover": "robe",
           "minimum_px": 4,
