@@ -36,7 +36,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Next (in order):
   1. rr-13 review signoff → merge `codex/rr-13` into integration (import, Godot suite, Python suite) → remove the rr-10
      and rr-13 worktrees and branches (rr-10 case has ~390 MB of ignored captures).
-  2. rr-11 (Thrall v2; motion `staged/rr-11`, maquette and mq7 paintings on integration): contract + preflight, launch.
+  2. rr-14 (humanoid foundations: foot IK, case-driven anatomy; brief `briefs/rr-14.md`) → merge → rr-11 (Thrall v2;
+     motion `staged/rr-11`, maquette and mq7 paintings on integration). Contract + preflight before each launch.
   3. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
      conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
   4. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
