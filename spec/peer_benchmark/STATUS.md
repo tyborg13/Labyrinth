@@ -28,6 +28,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   - Seer v2 (rr-10 + rr-13) MERGED 66d07be81: owner approved; Codex SIGNOFF 3c6363908; integration Godot PASS, Python
     974 OK. rr-10/rr-13 worktrees removed.
   - rr-14 (humanoid foundations: foot IK, case-driven anatomy, Thrall-shaped fixture) running.
+  - det-02 merged (test-only); the full Godot/Python suites cover it at the rr-14 merge.
   - Parked: rr-06 (2ceaf8ed4) and rr-08 (bb84ed68e), old rig style; convert to v2 later.
 - Usage discipline (memory `codex-usage-discipline`): at most 3 fix rounds per session, then a fresh unit; workers run
   focused tests in fix rounds; full suites only at merge.
