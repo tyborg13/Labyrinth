@@ -7,7 +7,7 @@ const Run = preload("res://scripts/run_engine.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
-const FrameDeltaProbe = preload("res://tests/helpers/health_ghost_frame_delta_probe.gd")
+const FrameDeltaProbe = preload("res://tests/helpers/health_ghost_frame_delta_observer.gd")
 
 # Debug-only fixture values; production presentation values live in Tracker.
 const FIXTURE_HP: float = 24.0

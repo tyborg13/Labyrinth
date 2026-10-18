@@ -28,7 +28,9 @@ while (( $# )); do
   esac
 done
 
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-05
+# Run from the checkout that holds this script, never a fixed worktree path.
+RR05_ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
+cd "$RR05_ROOT"
 mkdir -p output/rr-05
 python3 tools/output_gdignore.py
 
@@ -57,7 +59,7 @@ fi
 if [[ "$RR05_START_STAGE" != adopt ]]; then
 for creature in "${RR05_CREATURES[@]}"; do
   rr05_select "$creature"
-  python3 tools/godot_task_runner.py --task-id rr-05 --stream -- godot --headless --path . --script tests/maquette_cutout/pixel_samples.gd -- --case "$RR05_CASE" --output "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/$RR05_PREFIX-headless-pixels.json"
+  python3 tools/godot_task_runner.py --task-id rr-05 --stream -- godot --headless --path . --script tests/maquette_cutout/pixel_samples.gd -- --case "$RR05_CASE" --output "$RR05_ROOT/output/rr-05/$RR05_PREFIX-headless-pixels.json"
   python3 tools/maquette_cutout_polish.py gate --case "$RR05_CASE" --samples "output/rr-05/$RR05_PREFIX-headless-pixels.json" --output "output/rr-05/$RR05_PREFIX-headless-gates.json"
 done
 
@@ -123,7 +125,7 @@ python3 tools/process_board_density.py --check
 # Actual resolver -> RunScene callbacks -> selected production capture.
 for creature in "${RR05_CREATURES[@]}"; do
   rr05_select "$creature"
-  python3 tools/visual_probe_runner.py --task-id rr-05 --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract "tests/maquette_cutout/${RR05_CREATURE}_production_contract.json" --result-manifest "output/rr-05/$RR05_PREFIX-production-result.json" tests/maquette_cutout/production_capture.gd -- --type "$RR05_TYPE" --output "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/$RR05_PREFIX-production"
+  python3 tools/visual_probe_runner.py --task-id rr-05 --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract "tests/maquette_cutout/${RR05_CREATURE}_production_contract.json" --result-manifest "output/rr-05/$RR05_PREFIX-production-result.json" tests/maquette_cutout/production_capture.gd -- --type "$RR05_TYPE" --output "$RR05_ROOT/output/rr-05/$RR05_PREFIX-production"
   python3 tools/maquette_cutout_gates.py --case "$RR05_CASE" --production "output/rr-05/$RR05_PREFIX-production/frames.json" --output "output/rr-05/$RR05_PREFIX-production-gates.json"
 done
 # Playable inspection is deliberately separate from this proof/adoption pass.
