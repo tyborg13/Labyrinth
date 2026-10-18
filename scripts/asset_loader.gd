@@ -134,6 +134,10 @@ static func _produce_owned_cpu_value(producer: Callable, result: SourceImageResu
 
 static func prepare_audio_for(root: Node, paths: PackedStringArray, present_frame: Callable, still_active: Callable, prepare_loop: bool = false) -> void:
 	for path: String in paths:
+		# Imported streams and warm loop copies can finish synchronously, without
+		# entering the owned-worker cancellation checks. Consult request state
+		# before either path can publish, even when no frame has been presented.
+		if not bool(still_active.call()): return
 		if _audio_cache.has(path) and (not prepare_loop or _looping_audio_cache.has(_audio_cache[path])): continue
 		if _audio_cache.has(path):
 			if prepare_loop: looping_audio_copy(_audio_cache[path] as AudioStream)

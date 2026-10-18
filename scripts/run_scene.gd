@@ -1934,6 +1934,10 @@ func _ready() -> void:
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
+	# Both direct and staged startup need live arrow geometry. Physics samples
+	# precede the idle centering tween, whose transform changes redraw the arrow.
+	if not board_view.item_rect_changed.is_connected(_sync_card_targeting_arrow_after_layout):
+		board_view.item_rect_changed.connect(_sync_card_targeting_arrow_after_layout)
 	call_deferred("_sync_board_view_rect")
 	if _initial_ui_staging_requested:
 		return
@@ -8163,7 +8167,9 @@ func _controller_card_targeting_endpoint(candidate: Dictionary = {}) -> Vector2:
 	if not resolved_candidate.is_empty():
 		var candidate_kind: String = str(resolved_candidate.get("kind", "tile"))
 		if candidate_kind in ["tile", "door", "enemy", "equipment", "item"]:
-			return resolved_candidate.get("point", _controller_virtual_board_position) as Vector2
+			var point: Vector2 = _controller_board_point(resolved_candidate.get("tile", _controller_board_tile))
+			resolved_candidate["point"] = point
+			return point
 	if _controller_board_tile != INVALID_TARGET_TILE:
 		return _controller_board_point(_controller_board_tile)
 	if is_finite(_controller_virtual_board_position.x) and is_finite(_controller_virtual_board_position.y):
