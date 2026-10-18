@@ -179,7 +179,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await keyboard_focus_hero(scene)
 	await settle_keyboard(tree)
 	await assert_keyboard_stay_focus(scene, expect)
-	await _test_presented_arrow_frame(tree, scene, expect)
+	await _test_presented_arrow_frame(tree, scene, expect, "direct")
 	assert_stay_preview(scene, expect)
 	var neutral_stick := InputEventJoypadMotion.new()
 	neutral_stick.axis = JOY_AXIS_LEFT_X
@@ -244,6 +244,36 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	assert_stay_preview(scene, expect)
 	scene.queue_free()
 	await tree.process_frame
+	await _test_staged_arrow_startup(tree, expect)
+
+static func _test_staged_arrow_startup(tree: SceneTree, expect: Callable) -> void:
+	var scene: Node = load("res://scenes/run_scene.tscn").instantiate()
+	scene.set_script(preload("res://tests/fixtures/cbt_01_presentation_scene.gd"))
+	# Match MenuRunTransition: request staging before _ready, disable destination
+	# processing while loading owns it, then run the production UI preparation.
+	scene.call("request_staged_initial_ui")
+	scene.process_mode = Node.PROCESS_MODE_DISABLED
+	tree.root.add_child(scene)
+	expect.call(not bool(scene.get("_initial_ui_complete")), "Staged arrow fixture takes the early return before UI preparation")
+	await tree.process_frame
+	await scene.get_script().call("prepare_initial_ui_for", scene, _present_loading_frame.bind(tree), func() -> bool: return is_instance_valid(scene) and not scene.is_queued_for_deletion())
+	expect.call(bool(scene.get("_initial_ui_complete")), "Staged arrow fixture completes the production startup jobs")
+	scene.process_mode = Node.PROCESS_MODE_INHERIT
+	await settle(tree)
+	install(scene, "guarded_step")
+	await scene.call("_on_card_pressed", 0)
+	var router: Node = tree.root.get_node_or_null("InputRouter")
+	if router != null: router.call("set_forced_state_for_test", "pointer", "steam_deck")
+	await keyboard_focus_hero(scene)
+	await settle_keyboard(tree)
+	await assert_keyboard_stay_focus(scene, expect)
+	await _test_presented_arrow_frame(tree, scene, expect, "staged")
+	if router != null: router.call("clear_forced_state_for_test")
+	scene.queue_free()
+	await tree.process_frame
+
+static func _present_loading_frame(tree: SceneTree) -> void:
+	await tree.process_frame
 
 static func _test_keyboard_cancel_reselect(tree: SceneTree, scene: Node, expect: Callable) -> void:
 	var before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
@@ -303,8 +333,13 @@ static func presented_frame(tree: SceneTree) -> void:
 		RenderingServer.frame_pre_draw.emit.call_deferred()
 	await RenderingServer.frame_pre_draw
 
-static func _test_presented_arrow_frame(tree: SceneTree, scene: Node, expect: Callable) -> void:
+static func _test_presented_arrow_frame(tree: SceneTree, scene: Node, expect: Callable, startup_path: String) -> void:
 	var board: Control = scene.get("board_view")
+	var callback := Callable(scene, "_sync_card_targeting_arrow_after_layout")
+	var connection_count: int = 0
+	for connection: Dictionary in board.item_rect_changed.get_connections():
+		if connection["callable"] == callback: connection_count += 1
+	expect.call(connection_count == 1, "%s startup connects the board transform to the arrow exactly once" % startup_path)
 	var centering: Tween = scene.get("_board_centering_tween")
 	if centering != null and centering.is_valid(): centering.kill()
 	var original_position: Vector2 = board.position
@@ -321,7 +356,9 @@ static func _test_presented_arrow_frame(tree: SceneTree, scene: Node, expect: Ca
 	await assert_arrow_at_hero(scene, expect)
 	var candidate: Dictionary = scene.get("_controller_focus_candidate")
 	expect.call((candidate.get("point", Vector2.INF) as Vector2).distance_to(scene.call("_controller_board_point", HERO)) <= ARROW_ENDPOINT_TOLERANCE_PX, "Controller focus candidate and arrow retain the same presented board geometry")
-	print("DET-01 ARROW FRAME: physics=%s presented=%s" % [sampled_point, moved_point])
+	var arrow: Control = scene.get("_drag_target_arrow")
+	var endpoint: Vector2 = arrow.get_global_transform_with_canvas() * (arrow.call("targeting_end") as Vector2)
+	print("DET-01 ARROW STARTUP %s: connections=%d physics=%s presented=%s endpoint_error=%.6f" % [startup_path, connection_count, sampled_point, moved_point, endpoint.distance_to(scene.call("_controller_board_point", HERO))])
 	tween.kill()
 	board.position = original_position
 	scene.set_physics_process(physics_enabled)

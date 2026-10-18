@@ -1934,6 +1934,10 @@ func _ready() -> void:
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
+	# Both direct and staged startup need live arrow geometry. Physics samples
+	# precede the idle centering tween, whose transform changes redraw the arrow.
+	if not board_view.item_rect_changed.is_connected(_sync_card_targeting_arrow_after_layout):
+		board_view.item_rect_changed.connect(_sync_card_targeting_arrow_after_layout)
 	call_deferred("_sync_board_view_rect")
 	if _initial_ui_staging_requested:
 		return
@@ -1942,9 +1946,6 @@ func _ready() -> void:
 	_layout_mini_map_overlay()
 	ready_started = _record_runtime_performance_phase("startup_style", ready_started)
 	_build_overlay_ui()
-	# Physics samples precede the idle centering tween. Follow its actual board
-	# transform changes so the arrow is redrawn with the same presented geometry.
-	board_view.item_rect_changed.connect(_sync_card_targeting_arrow_after_layout)
 	ready_started = _record_runtime_performance_phase("startup_overlays", ready_started)
 	_build_controller_interface()
 	_build_context_choice_overlay()
