@@ -1,0 +1,14 @@
+Running task-local command:
+  task: rr-12
+  run: rr-12-1792329345243833000-53313
+  HOME: /private/tmp/labyrinth-godot-home/rr-12-1792329345243833000-53313
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-12-1792329345243833000-53313/godot.log --headless --path . --script tests/rr12/production_capture.gd -- --type ember_tick --output res://experiments/cutouts/ember_tick/mq5/proof/production_logic --logic-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE PRODUCTION LOGIC: PASS (982 frames)
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/ember_tick/mq5/proof/production_logic

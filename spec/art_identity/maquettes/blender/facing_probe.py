@@ -14,6 +14,8 @@ from .torso_reflection import asymmetry, passes_asymmetry
 
 
 def probe(spec, objects, output, root, cam, capture):
+    if spec.get('facing_parts'):
+        return probe_mattes(spec, objects, output, root, cam, capture)
     if any(o.get('piece_type') == 'body' and o.get('part') == 'torso' for o in objects):
         return probe_mattes(spec, objects, output, root, cam, capture)
     # A robe legitimately covers the complete chest. Its proof still uses
@@ -45,7 +47,9 @@ def probe_mattes(spec, objects, output, root, cam, capture):
     forward = list(rig['posed_forward'])
     report = axis_report(spec, forward)
     original = root.matrix_world.copy()
-    names = {o.name for o in objects if o.get('piece_type') == 'body' and o.get('part') == 'torso'}
+    names = ({o.name for o in objects if o.get('part') in spec['facing_parts']}
+             if spec.get('facing_parts') else
+             {o.name for o in objects if o.get('piece_type') == 'body' and o.get('part') == 'torso'})
     if not names:
         raise ValueError('Facing proof requires weighted torso anatomy')
     def take(filename):
@@ -56,7 +60,7 @@ def probe_mattes(spec, objects, output, root, cam, capture):
         mask = np.asarray(image.pixels[:], float).reshape(image.size[1], image.size[0], 4)[::-1, :, 3] >= .5
         bpy.data.images.remove(image)
         line = []
-        for name in ('torso', 'head'):
+        for name in spec.get('facing_joints', ('torso', 'head')):
             co = world_to_camera_view(bpy.context.scene, cam, root.matrix_world @ Vector(spec['joints'][name]))
             line.append([co.x * mask.shape[1], (1 - co.y) * mask.shape[0]])
         return asymmetry(mask, line)

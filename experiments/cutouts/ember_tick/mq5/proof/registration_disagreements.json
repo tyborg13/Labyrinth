@@ -1,0 +1,117 @@
+{
+  "features": [
+    {
+      "view": "front",
+      "feature": "ember_crack_front_01",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 40,
+      "mask_pixels": 536,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "ember_crack_front_02",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 46,
+      "mask_pixels": 526,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "ember_crack_front_03",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 8,
+      "mask_pixels": 121,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "ember_crack_rear_01",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "ember_crack_rear_02",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "ember_crack_rear_03",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "ember_crack_rear_04",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_front_01",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_front_02",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_front_03",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_rear_01",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 2,
+      "mask_pixels": 697,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_rear_02",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 332,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_rear_03",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 28,
+      "mask_pixels": 326,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ember_crack_rear_04",
+      "owner": "shell",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 115,
+      "paint_moved": false
+    }
+  ],
+  "policy": "Report categorical disagreement; approved paint remains at its original coordinates."
+}

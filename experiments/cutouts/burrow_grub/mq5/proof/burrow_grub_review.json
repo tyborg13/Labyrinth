@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "fps": 60,
+  "frames": 948,
+  "seconds": 15.8,
+  "plan": [
+    [
+      "idle",
+      3
+    ],
+    [
+      "move",
+      3
+    ],
+    [
+      "gnaw",
+      2
+    ],
+    [
+      "burrow",
+      2
+    ],
+    [
+      "erupt",
+      2
+    ],
+    [
+      "hit",
+      2
+    ],
+    [
+      "death",
+      1
+    ]
+  ],
+  "death_hold_seconds": 1,
+  "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-12/experiments/cutouts/burrow_grub/mq5/proof/native",
+  "native_manifest_sha256": "2d8abbc8561f5795d530a68958b582c13a7a85395051e8bba3f9a450f54ef289",
+  "video_sha256": "fd3720aab3d0d22056e39b9548569c5810291e8e975ab8a19e6495159e7a2a47"
+}

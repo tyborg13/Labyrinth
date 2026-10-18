@@ -1,0 +1,36 @@
+{
+  "forward_world": [
+    0.9967920184135437,
+    0.08003439009189606,
+    0.0
+  ],
+  "anatomical_forward_world": [
+    0.9967920184135437,
+    0.08003439009189606,
+    0.0
+  ],
+  "front_forward_screen": [
+    -0.6482455356907335,
+    0.3807156278074759
+  ],
+  "rear_forward_screen": [
+    0.6482455356907335,
+    -0.3807156278074759
+  ],
+  "board_axis_cosine": 0.997730658794628,
+  "passed": true,
+  "torso_three_quarter": {
+    "left_area_px": 81513,
+    "right_area_px": 83668,
+    "area_imbalance": 0.013046294670694571,
+    "mirror_difference": 0.12600971138137593
+  },
+  "torso_frontal_control": {
+    "left_area_px": 77291,
+    "right_area_px": 79708,
+    "area_imbalance": 0.015395002515939593,
+    "mirror_difference": 0.03269259686231266
+  },
+  "torso_asymmetry_passed": true,
+  "frontal_axis_rejected": true
+}

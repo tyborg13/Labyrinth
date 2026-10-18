@@ -1,0 +1,424 @@
+{
+  "schema": 2,
+  "spec_hash": "e9a1b95cf18da5f944ea92fafafafabe30b91d436da797fb39145e8c76ed0f57",
+  "board_frame": {
+    "yaw_radians": -0.7853981633974483,
+    "pivot": [
+      0.06629126073623862,
+      -0.4110058165646809,
+      1.12
+    ],
+    "matrix": [
+      [
+        0.7071067811865476,
+        0.7071067811865475,
+        0.0,
+        0.31004126073623883
+      ],
+      [
+        -0.7071067811865475,
+        0.7071067811865476,
+        0.0,
+        -0.07350581656468091
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "920f423526099e2a112bdc7de999bf584c79f98c8ffd00187860342fe5c1f35d",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "hood_render": "3e049d1de2dddb7ea1f381f73696956a8ad53fdda34d66d2fc577b4e7a7cb8ad",
+    "face_plate_render": "01277481f238a4f123ebbfae40c09cdeb7e12b530cbe652c3069c67cf1dfcb82",
+    "face_crossbar_accent_render": "ba394c6e724e06c6038efdebb1ec7f4ef047bd70c8144db9bcfca655fa213f85",
+    "face_slit_accent_render": "dd80ad5a5ddf324b59699c2f62fd184da392045f925b62d6e68542c73924d4cc",
+    "collar_render": "88bf71f623e1f4cec0ebb6c5273f5722f1481a8cfb066241f88a26f229bc4253",
+    "pauldron_near_00_render": "07461b7641df80c8b4554900441f7bee6ac430ef3222bc4073aa35e98527fc11",
+    "pauldron_near_01_render": "79ace96a975e5d4eaadf72e88e7dd771bdebc7cd550d5d3dcf1528df6815cf80",
+    "pauldron_near_02_render": "28397b10d0170c9083cbc9b8408b71a2a52e06a5b4452ee05b5d2f7a820c568b",
+    "pauldron_far_00_render": "1a81d8c7688aa1793ad36664c605f363069367be00a245cc55e6cd955c10d8b1",
+    "pauldron_far_01_render": "a7c22816055db1fba7395cc996760d00a431aaa4de1c4c42ad7debc24cea26cc",
+    "pauldron_far_02_render": "c886f90613b41db9b7fb38eee7a07008193179c982eac8dd0e015d26b8fb9dfd",
+    "breastplate_render": "0606b480aa8ce44ddc579ff922285107c126806f254c88f4f1f915643368de39",
+    "chest_gem_render": "856590aa14f30d7f83f238f3a881d3b212de4247cc102a67c2158c29dd28036e",
+    "belt_render": "ce9739543108dbe527e3fef461d968980eedebd31e786250b2731bfe1eab82b9",
+    "diagonal_strap_render": "13a9ea829d5c0ddce3288ab185e483ae34edeb921e34851b178b24c7562d5c7d",
+    "tabard_front_render": "2b85d33432134ba04d989e9463738fa068f6e597cd829105b267f9d1dafa51d9",
+    "tasset_far_00_render": "b19cc96db2d99f0a2f0ad9b4a76ae2ee7592fa149531e6046d353350bbd1772f",
+    "tasset_far_01_render": "0df83f431864f5ad5fca3af84bf59f4c9502e3502ff3ebb24bcd7da876a7f9bd",
+    "tasset_near_00_render": "1f07bde194a926db1e1a254da0d39ebee140d20081bd4a76ce9d96b624feee5f",
+    "tasset_near_01_render": "4c7bdad58f74c81e122f738b1d84e56bf2d43e264aa7486fd55c4b15c6d89a09",
+    "cloak_render": "14e3fdabc67583dedd5a5b02786d9cbd0243f7ba89a737658a70700f715e6e5b",
+    "vambrace_near_render": "eeabfb7d7052037c1402a83e200c5ff021c1dfb05fde72724ed551be902d3e54",
+    "gauntlet_near_render": "5ee8dcdad57fc6c71dee94fefb54255bb6df03a185b8d88a349b615d5f418e2f",
+    "cuisse_near_render": "54ac081ef464b69fd9ef0e660a451f1b4b9d8cedc193a6dc951487b14a851158",
+    "poleyn_near_render": "649cfef4fe9dadbdb177cdd956bd5a9eb4a4c006e246df7f57fc1624c68cd899",
+    "greave_near_render": "601c548fdb48d7aca0b39c8de20a67cbe8f953908ccfdf90f90ba2c789a67461",
+    "boot_near_render": "fc0b98c6b0adf632f9107bb7b25857247ed790326d640706c43f3241c7e99b8f",
+    "sabaton_near_00_render": "cd331f35bcf86727412be3fa0ee3ba07522196a41d7377f023c223775cbae83f",
+    "sabaton_near_01_render": "9fdca2ecba3012968973fde94e127999afb167cf208476f4cd78d4a91f8629cd",
+    "sabaton_near_02_render": "94ad7dfc59a066932fab6b44c1592d459174a42ce3d77d5e33d1b20d7e83ddf5",
+    "vambrace_far_render": "213161b2c700fc062767be6dc2fdbf8abdcac4c558e393ba0e4fce1f8543a24e",
+    "gauntlet_far_render": "f8ea79630c1be2304b7a8a8305f248bb7254a021dd17f4cfe6033ab5a04a9a96",
+    "cuisse_far_render": "0ef400cdbeef65036dd4e4fc71f997adbb50c33e0920e60514a98ad42b918c36",
+    "poleyn_far_render": "f7bc115a2813f34c051479023077f47d13e940080759ab7e03267c53becaeaa8",
+    "greave_far_render": "ecd425fe85de4dad6889edde4c55e73ff5184823951b3ed83436570eb03c7cf4",
+    "boot_far_render": "cb495c2c777cf6ef2ac2674575d6e4d6a81169697896167dad6ca5ed64d82d7a",
+    "sabaton_far_00_render": "501bc5045429ec4ac9ee20b2dede1fa6e875188d5d9ade491e5af1c26eee9673",
+    "sabaton_far_01_render": "cd8aaf7699b41f25a357e144f6ff5ebccfc4f980cbd19b58932827e589d58d1e",
+    "sabaton_far_02_render": "292b26cc7233d0dcc25516b44292536a3b6a0c413b2abc50aa1e3aee03d5962d",
+    "spear_shaft_render": "0d3f837fecf0e6bb7375526252422d22f42aea69554cda3d1e0fc03f58bb62fe",
+    "spear_blade_render": "b663a846a5836114f344346076d766a4a01540b82ad8e1fc8effbf7ae13db314",
+    "body_fore_far": "a0ca0b8a4b3ba21d1878b47cc8e8ac6e67014b8e0d82664b59f4eeadeb077398",
+    "body_fore_near": "2df4b9435eab8a5dfb904a687282f39b02309ea86af2e9ded376355bf09e8d8a",
+    "body_pelvis": "d494db2d7407c89eb715412faca75a14f64f4ce3aba723286155767aa245294f",
+    "body_shin_far": "476a22bb0635fc6006da56bc8cab50ede0359aa8d79e493a7de409efbfd9a649",
+    "body_shin_near": "07e73fffbad4d8f65c5cdd51b213d68af56a195eaf666f76c71890428a2b6c43",
+    "body_thigh_far": "e51ed12dff938e2376ff4d952e79721e8fb393a376d7b3872616687f5a25c696",
+    "body_thigh_near": "fa079ee67129dacf941ed6c6b28a3e0321b98d767702a4c7026e564620b868e6",
+    "body_torso": "ed69313003968eee61f5678896af14ec3e09c21458299ec5e7b20e36e2a320bb",
+    "body_upper_far": "c98607736cdc461d62dbd5ae218d25aaaf3372506ee4ac03850f6048c63457f7",
+    "body_upper_near": "6c63a466ae2d2818b1337898fdcfb53d1aa7de90d2c6ddd86242d15a970a5850"
+  },
+  "combined_mesh_hash": "4bef30f1f6f26724127eecdb5db0c17ffcac0800ff9830c5c2476581f8e7b57f",
+  "checks": {
+    "labels_cover_every_face": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "rendered_torso_asymmetry": true,
+    "required_solo_coverage": true
+  },
+  "cloth": {
+    "hood": {
+      "minimum_signed_distance": 0.03177497908473015,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "collar": {
+      "minimum_signed_distance": 0.009649410843849182,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "tabard_front": {
+      "minimum_signed_distance": 0.04870523139834404,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    },
+    "cloak": {
+      "minimum_signed_distance": 0.03435620665550232,
+      "margin": 0.003,
+      "samples_below_margin": 0,
+      "intersecting_face_pairs": 0,
+      "passed": true
+    }
+  },
+  "geometry_details": {
+    "collar_widths": {
+      "collar": {
+        "front": 0.3230745196342468,
+        "back": 0.33347177505493164
+      }
+    },
+    "corner_errors": {},
+    "conformance": {
+      "face_plate": {
+        "max_distance": 0.012498491443693638,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "face_crossbar_accent": {
+        "max_distance": 0.010938200168311596,
+        "allowed": 0.011000999999999999,
+        "shrinkwrap_offset": 0.006,
+        "passed": true
+      },
+      "face_slit_accent": {
+        "max_distance": 0.010999844409525394,
+        "allowed": 0.011000999999999999,
+        "shrinkwrap_offset": 0.006,
+        "passed": true
+      },
+      "pauldron_near_00": {
+        "max_distance": 0.01850057765841484,
+        "allowed": 0.024501000000000002,
+        "shrinkwrap_offset": 0.014,
+        "passed": true
+      },
+      "pauldron_near_01": {
+        "max_distance": 0.015674620866775513,
+        "allowed": 0.021501,
+        "shrinkwrap_offset": 0.011,
+        "passed": true
+      },
+      "pauldron_near_02": {
+        "max_distance": 0.012500220909714699,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "pauldron_far_00": {
+        "max_distance": 0.01850041374564171,
+        "allowed": 0.024501000000000002,
+        "shrinkwrap_offset": 0.014,
+        "passed": true
+      },
+      "pauldron_far_01": {
+        "max_distance": 0.015500645153224468,
+        "allowed": 0.021501,
+        "shrinkwrap_offset": 0.011,
+        "passed": true
+      },
+      "pauldron_far_02": {
+        "max_distance": 0.012501067481935024,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "breastplate": {
+        "max_distance": 0.023034822195768356,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "belt": {
+        "max_distance": 0.0389641597867012,
+        "allowed": 0.039001,
+        "shrinkwrap_offset": 0.003,
+        "passed": true
+      },
+      "diagonal_strap": {
+        "max_distance": 0.02698868326842785,
+        "allowed": 0.027001,
+        "shrinkwrap_offset": 0.003,
+        "passed": true
+      },
+      "tasset_far_00": {
+        "max_distance": 0.015512547455728054,
+        "allowed": 0.021501,
+        "shrinkwrap_offset": 0.011,
+        "passed": true
+      },
+      "tasset_far_01": {
+        "max_distance": 0.012552283704280853,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "tasset_near_00": {
+        "max_distance": 0.01584792695939541,
+        "allowed": 0.021501,
+        "shrinkwrap_offset": 0.011,
+        "passed": true
+      },
+      "tasset_near_01": {
+        "max_distance": 0.01250018086284399,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "vambrace_near": {
+        "max_distance": 0.023712504655122757,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "gauntlet_near": {
+        "max_distance": 0.021223444491624832,
+        "allowed": 0.024501000000000002,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "cuisse_near": {
+        "max_distance": 0.012732851319015026,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "poleyn_near": {
+        "max_distance": 0.02275976724922657,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "greave_near": {
+        "max_distance": 0.023763291537761688,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "boot_near": {
+        "max_distance": 0.005000023171305656,
+        "allowed": 0.005001,
+        "shrinkwrap_offset": 0.003,
+        "passed": true
+      },
+      "sabaton_near_00": {
+        "max_distance": 0.018499748781323433,
+        "allowed": 0.024501000000000002,
+        "shrinkwrap_offset": 0.014,
+        "passed": true
+      },
+      "sabaton_near_01": {
+        "max_distance": 0.015499603003263474,
+        "allowed": 0.021501,
+        "shrinkwrap_offset": 0.011,
+        "passed": true
+      },
+      "sabaton_near_02": {
+        "max_distance": 0.012707612477242947,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "vambrace_far": {
+        "max_distance": 0.02627263218164444,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "gauntlet_far": {
+        "max_distance": 0.021469581872224808,
+        "allowed": 0.024501000000000002,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "cuisse_far": {
+        "max_distance": 0.012500024400651455,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "poleyn_far": {
+        "max_distance": 0.023721395060420036,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "greave_far": {
+        "max_distance": 0.023991134017705917,
+        "allowed": 0.030501,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      },
+      "boot_far": {
+        "max_distance": 0.005000033415853977,
+        "allowed": 0.005001,
+        "shrinkwrap_offset": 0.003,
+        "passed": true
+      },
+      "sabaton_far_00": {
+        "max_distance": 0.01913703978061676,
+        "allowed": 0.024501000000000002,
+        "shrinkwrap_offset": 0.014,
+        "passed": true
+      },
+      "sabaton_far_01": {
+        "max_distance": 0.016000989824533463,
+        "allowed": 0.021501,
+        "shrinkwrap_offset": 0.011,
+        "passed": true
+      },
+      "sabaton_far_02": {
+        "max_distance": 0.012498841620981693,
+        "allowed": 0.018501000000000004,
+        "shrinkwrap_offset": 0.008,
+        "passed": true
+      }
+    },
+    "facing": {
+      "forward_world": [
+        0.9879846572875977,
+        2.356535151193384e-05,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.9879846572875977,
+        2.356535151193384e-05,
+        0.15455184876918793
+      ],
+      "front_forward_screen": [
+        -0.6985939876564723,
+        0.3493136570480913
+      ],
+      "rear_forward_screen": [
+        0.6985939876564723,
+        -0.3493136570480913
+      ],
+      "board_axis_cosine": 0.9999999998179419,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {
+      "breastplate_render": {
+        "forward_world": [
+          1.0,
+          -7.549790126404332e-08,
+          0.0
+        ],
+        "anatomical_forward_world": [
+          1.0,
+          -7.549790126404332e-08,
+          0.0
+        ],
+        "front_forward_screen": [
+          -0.7071068345716254,
+          0.3535533639007348
+        ],
+        "rear_forward_screen": [
+          0.7071068345716254,
+          -0.3535533639007348
+        ],
+        "board_axis_cosine": 0.9999999999999984,
+        "passed": true
+      },
+      "chest_gem_render": {
+        "forward_world": [
+          1.0,
+          -7.549790126404332e-08,
+          0.0
+        ],
+        "anatomical_forward_world": [
+          1.0,
+          -7.549790126404332e-08,
+          0.0
+        ],
+        "front_forward_screen": [
+          -0.7071068345716254,
+          0.3535533639007348
+        ],
+        "rear_forward_screen": [
+          0.7071068345716254,
+          -0.3535533639007348
+        ],
+        "board_axis_cosine": 0.9999999999999984,
+        "passed": true
+      }
+    }
+  },
+  "passed": true
+}

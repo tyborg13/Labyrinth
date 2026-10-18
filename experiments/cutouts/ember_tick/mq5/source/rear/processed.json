@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    167,
+    153
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.19238483941909537,
+    "edge_light_share": 0.0,
+    "feature_px": 7.105856547870324,
+    "height": 153,
+    "height_drawn": 153.0,
+    "orphan_share": 0.074503199730549,
+    "regions": 294,
+    "run_length": 4.147806649902208,
+    "symmetry": 0.7012360211889347,
+    "thin_abs": 0.003839676658807689,
+    "thin_rel": 0.04392051195688784,
+    "value": 0.1279482234065738,
+    "width": 167
+  },
+  "pixel_sha256": "f96c4b00894a9c74905cb4f2742e73ae632f7db2d1d9450f8d2085cc1eed9a86",
+  "placement": [
+    45,
+    93
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/ember_tick/mq5_front/kit.json",
+        "pixel_sha256": "a17e556eafef7b9041d21155101896902a9bd8e92af96da52a71edc743ebfaf1"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "cb919ce82f6ab0b11e802a9c5519dabf4a07f9433e6f781d88c2b850c0dc3dcc",
+      "protected_body_share": {
+        "front": 0.03254761731007808,
+        "rear": 0.024390243902439025
+      },
+      "reference_pixel_sha256": "a17e556eafef7b9041d21155101896902a9bd8e92af96da52a71edc743ebfaf1",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "f96c4b00894a9c74905cb4f2742e73ae632f7db2d1d9450f8d2085cc1eed9a86",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "6259e88f3131f5fd68a92915f207684629f1c2ed33105f0ff0d5ed7c73d38e96",
+  "shift": [
+    0,
+    0
+  ]
+}

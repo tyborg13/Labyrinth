@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "crawler",
+  "id": "ember_tick",
+  "job_id": "mq-tick-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "2bd33b9c15b337c31f11eb1dd9185f8b0c93bea81c107df708f7729ea258027e",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/ember_tick/mq5_front/kit.json",
+    "pixel_sha256": "a17e556eafef7b9041d21155101896902a9bd8e92af96da52a71edc743ebfaf1"
+  },
+  "method": "maquette paint-over r1 (rear) from the Blender-native mq-05 maquette; palette matched to the approved mq5 front job",
+  "peers": [
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "9be8c7a6582f0b3b4c8341562d23bb2086d35716e5c579696bc255333ef8882f",
+  "prompt_source": "spec/art_identity/maquettes/ember_tick/prompt_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq05",
+      "file": "refs/01_maquette_rear_parts_mq05.png",
+      "pixel_sha256": "f8d550f0acbfcd88193dd3dd22ccb38c0df0ecf3b4a76c37efab021439e231b1",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-rear-r1/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq05",
+      "file": "refs/02_maquette_rear_clay_mq05.png",
+      "pixel_sha256": "83226500bd987a856565c72a107b007b48dd02fe57c5c283a8c8371f1a9ff0b7",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-rear-r1/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "ember_tick_front_mq5_raw",
+      "file": "refs/03_ember_tick_front_mq5_raw.png",
+      "pixel_sha256": "0ae58c3fc81eb589e1870db992769ec6db3c8a27ae0c73da6b937aa45b852769",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-rear-r1/refs/03_ember_tick_front_approved.png"
+    },
+    {
+      "canon_id": "approved_shale_bloomer_rear",
+      "file": "refs/04_approved_shale_bloomer_rear.png",
+      "pixel_sha256": "e3b957d6ce450eeebfec7e8275a9c65d28202114348d9b1fe55ea815c7912c2a",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-rear-r1/refs/04_peer_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-tick-rear-r1/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 147,
+  "view": "beast_rear"
+}

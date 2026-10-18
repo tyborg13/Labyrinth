@@ -11,7 +11,7 @@ import uuid
 
 BRIDGE_DEFAULTS = {'root': '/private/tmp/labyrinth_codex/blender_bridge',
                    'timeout_s': 120, 'start_timeout_s': 120,
-                   'result_grace_s': 30, 'poll_s': 1}
+                   'result_grace_s': 30, 'poll_s': 1, 'lease_timeout_s': 120}
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 ARG_ROOTS = [SCRIPT_ROOT.parents[2], Path('/private/tmp/labyrinth_codex')]
 
@@ -68,7 +68,15 @@ def run_job(script, args, timeout_s=120, root=None):
         raise ValueError('The director bridge requires its POSIX shared-filesystem lease')
     bridge_root = Path(root or BRIDGE_DEFAULTS['root'])
     with (bridge_root / 'mq03-client.lock').open('a') as lease:
-        fcntl.flock(lease, fcntl.LOCK_EX)
+        deadline = time.monotonic() + BRIDGE_DEFAULTS['lease_timeout_s']
+        while True:
+            try:
+                fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except BlockingIOError:
+                if time.monotonic() >= deadline:
+                    raise TimeoutError('Bridge serial lease unavailable within 120 s; no job submitted')
+                time.sleep(BRIDGE_DEFAULTS['poll_s'])
         identifier = submit(script, args, timeout_s, root)
         print('BLENDER_BRIDGE_SUBMITTED: ' + identifier, flush=True)
         return wait(identifier, timeout_s, root)

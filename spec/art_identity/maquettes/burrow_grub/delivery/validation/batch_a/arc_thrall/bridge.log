@@ -1,0 +1,69 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: collar_ring
+BUILD_STAGE: loincloth_front
+CLOTH_PATTERN: loincloth_front; vertices=271; pins=15
+CLOTH_FRAME: loincloth_front; 8/160
+CLOTH_FRAME: loincloth_front; 16/160
+CLOTH_FRAME: loincloth_front; 24/160
+CLOTH_FRAME: loincloth_front; 32/160
+CLOTH_FRAME: loincloth_front; 40/160
+CLOTH_FRAME: loincloth_front; 48/160
+CLOTH_FRAME: loincloth_front; 56/160
+CLOTH_FRAME: loincloth_front; 64/160
+CLOTH_FRAME: loincloth_front; 72/160
+CLOTH_FRAME: loincloth_front; 80/160
+CLOTH_FRAME: loincloth_front; 88/160
+CLOTH_FRAME: loincloth_front; 96/160
+CLOTH_FRAME: loincloth_front; 104/160
+CLOTH_FRAME: loincloth_front; 112/160
+CLOTH_FRAME: loincloth_front; 120/160
+CLOTH_FRAME: loincloth_front; 128/160
+CLOTH_FRAME: loincloth_front; 136/160
+CLOTH_FRAME: loincloth_front; 144/160
+CLOTH_FRAME: loincloth_front; 152/160
+CLOTH_FRAME: loincloth_front; 160/160
+BUILD_STAGE: loincloth_back
+CLOTH_PATTERN: loincloth_back; vertices=398; pins=16
+CLOTH_FRAME: loincloth_back; 8/160
+CLOTH_FRAME: loincloth_back; 16/160
+CLOTH_FRAME: loincloth_back; 24/160
+CLOTH_FRAME: loincloth_back; 32/160
+CLOTH_FRAME: loincloth_back; 40/160
+CLOTH_FRAME: loincloth_back; 48/160
+CLOTH_FRAME: loincloth_back; 56/160
+CLOTH_FRAME: loincloth_back; 64/160
+CLOTH_FRAME: loincloth_back; 72/160
+CLOTH_FRAME: loincloth_back; 80/160
+CLOTH_FRAME: loincloth_back; 88/160
+CLOTH_FRAME: loincloth_back; 96/160
+CLOTH_FRAME: loincloth_back; 104/160
+CLOTH_FRAME: loincloth_back; 112/160
+CLOTH_FRAME: loincloth_back; 120/160
+CLOTH_FRAME: loincloth_back; 128/160
+CLOTH_FRAME: loincloth_back; 136/160
+CLOTH_FRAME: loincloth_back; 144/160
+CLOTH_FRAME: loincloth_back; 152/160
+CLOTH_FRAME: loincloth_back; 160/160
+BUILD_STAGE: club
+BUILD_STAGE: club_band_0
+BUILD_STAGE: club_band_1
+BUILD_STAGE: club_band_2
+00:13.362  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_silhouette.png'
+00:15.639  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_silhouette.png'
+00:17.951  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_parts.png'
+00:25.540  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_clay.png'
+00:27.760  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_silhouette.png'
+00:29.936  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_silhouette.png'
+00:32.085  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_silhouette.png'
+00:34.285  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/front_silhouette.png'
+00:36.325  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/rear_parts.png'
+00:43.866  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/rear_clay.png'
+00:45.932  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/rear_silhouette.png'
+00:47.988  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/rear_silhouette.png'
+00:50.001  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/rear_silhouette.png'
+00:52.069  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/burrow_grub/proof/feedback_1_batch_a/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/capture/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

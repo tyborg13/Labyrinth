@@ -1,0 +1,21 @@
+test_native_contacts_and_sculpted_sections_cannot_be_omitted (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... 
+======================================================================
+FAIL: test_native_contacts_and_sculpted_sections_cannot_be_omitted (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='burrow_grub', key='native_sculpted_sections')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 65, in test_native_contacts_and_sculpted_sections_cannot_be_omitted
+    validate_delivery(spec,folder/'delivery',require_binding=False)
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_native_contacts_and_sculpted_sections_cannot_be_omitted (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) (figure='ember_tick', key='native_sculpted_sections')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 65, in test_native_contacts_and_sculpted_sections_cannot_be_omitted
+    validate_delivery(spec,folder/'delivery',require_binding=False)
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 3.671s
+
+FAILED (failures=2)

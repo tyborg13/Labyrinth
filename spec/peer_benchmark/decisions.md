@@ -216,3 +216,11 @@
   results are reviewed for reusable pipeline parts only, and each figure moves to v2 in a later unit.
 - Seer v2 motion: `staged/rr-10/motion_tracks.json`, in source pixels. The ward pushes the staff out ahead rather than
   across the body, because the staff is on the body's far side in the front view and would hide behind the torso.
+
+## 2026-10-18 mq-06 scope change (fix round 4)
+- Root cause: the Seer fit faked the far foot's screen height by lifting it 0.157 m. The 180° turn itself was exact.
+- After three rounds of preserving the front pixel-exactly while re-posing the body (the cloth solver fights it), the
+  front is frozen instead (approved painting + delivery; rr-10 uses them). Only the rear is rebuilt, from a body with
+  the far leg planted. The small 3D mismatch at the far foot is hidden under the robe in the front view.
+- Rear capture is pan-only framing, never rescaled. The rear IoU gate drops to ≥ 0.60 against the old painting
+  because the corrected stance legitimately differs; the director repaints the rear anyway.

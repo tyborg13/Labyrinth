@@ -1,0 +1,14 @@
+test_frozen_surface_must_differ_from_base_mesh (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests) ... FAIL
+
+======================================================================
+FAIL: test_frozen_surface_must_differ_from_base_mesh (spec.art_identity.maquettes.blender.test_feedback2.FeedbackTwoTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-05/spec/art_identity/maquettes/blender/test_feedback2.py", line 84, in test_frozen_surface_must_differ_from_base_mesh
+    self.assertFalse(frozen_differs_from_base(mesh,deepcopy(mesh)))
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (failures=1)

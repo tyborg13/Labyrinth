@@ -37,17 +37,22 @@ def build(spec, output, bundle, cache):
     bpy.context.scene.gravity = spec['simulation']['gravity']
     bpy.context.scene.render.fps = spec['simulation']['fps']
     print('BUILD_STAGE: append anatomy', flush=True)
-    body = append_body(spec, bundle)
-    print(f'BUILD_STAGE: bind {len(body.data.vertices)} anatomy vertices', flush=True)
-    fitting_spec = spec
-    if spec.get('source_fit_joints'):
-        fitting_spec = deepcopy(spec)
-        fitting_spec['joints'] = spec['source_fit_joints']
-    rig, posed, owners = bind_and_pose(fitting_spec, body)
-    from spec.art_identity.maquettes.blender.source_cage import fit_body
-    source_fit = fit_body(fitting_spec, body, rig, posed)
-    from spec.art_identity.maquettes.blender.pose_adjustment import repose
-    repose(spec, body, rig, posed)
+    if spec['base']['asset'] == 'procedural_chain':
+        from spec.art_identity.maquettes.blender.creature_rig import create
+        rig, posed, owners = create(spec)
+        source_fit = None
+    else:
+        body = append_body(spec, bundle)
+        print(f'BUILD_STAGE: bind {len(body.data.vertices)} anatomy vertices', flush=True)
+        fitting_spec = spec
+        if spec.get('source_fit_joints'):
+            fitting_spec = deepcopy(spec)
+            fitting_spec['joints'] = spec['source_fit_joints']
+        rig, posed, owners = bind_and_pose(fitting_spec, body)
+        from spec.art_identity.maquettes.blender.source_cage import fit_body
+        source_fit = fit_body(fitting_spec, body, rig, posed)
+        from spec.art_identity.maquettes.blender.pose_adjustment import repose
+        repose(spec, body, rig, posed)
     posed['face_owners'] = json.dumps(owners)
     context_key = digest({'spec': spec, 'bundle_sha256': hashlib.sha256(Path(bundle).read_bytes()).hexdigest()})
     objects = []
@@ -69,9 +74,18 @@ def build(spec, output, bundle, cache):
             result = pieces.lames(piece, spec, posed)
         elif kind == 'plate':
             result = [pieces.plate(piece, spec, posed)]
+        elif kind == 'sculpted_mass':
+            from spec.art_identity.maquettes.blender.sculpted_mass import sculpted_mass
+            result = [sculpted_mass(piece, spec)]
+        elif kind == 'curve' and piece.get('sculpt'):
+            from spec.art_identity.maquettes.blender.limb_mesh import build as sculpted_limb
+            result = [sculpted_limb(piece, spec)]
         else:
             result = [getattr(pieces, kind)(piece, spec)]
         for obj in result:
+            if piece.get('rig_bone'):
+                bpy.context.view_layer.update()
+                obj['rig_bone'] = piece['rig_bone']
             data = evaluated_mesh(obj)
             # Keep the native curve/modifier stack editable in the saved blend;
             # render immutable evaluated copies so camera turns cannot change
@@ -81,6 +95,17 @@ def build(spec, output, bundle, cache):
             frozen.matrix_world = obj.matrix_world.copy()
             for key in obj.keys():
                 frozen[key] = obj[key]
+            if piece.get('rig_bone'):
+                # Freeze the measured world-space source before parenting.
+                # Bone-tail parenting must not feed a stale dependency-graph
+                # matrix back into the immutable capture geometry.
+                world = obj.matrix_world.copy()
+                obj.parent = rig
+                obj.parent_type = 'BONE'
+                obj.parent_bone = piece['rig_bone']
+                bpy.context.view_layer.update()
+                obj.matrix_world = world
+                bpy.context.view_layer.update()
             obj['native_source'] = True
             obj.hide_render = True
             obj.hide_set(True)

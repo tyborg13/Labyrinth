@@ -1,0 +1,12 @@
+test_director_joint_and_label_locks_survive_form_revision (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+test_fracture_chip_is_a_closed_tapered_volume (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+test_limb_sections_are_closed_curved_and_spines_are_real_volume (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+test_skin_caps_are_softened_folds_asymmetric_and_relief_nonconstant (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+test_stone_feet_require_real_contacts_and_thick_ground_supported_volumes (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+test_tick_knee_remains_the_upper_lower_boundary (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+test_two_times_crop_preserves_native_pixels_and_clay_file (spec.art_identity.maquettes.blender.test_sculpt_forms.SculptFormsTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.172s
+
+OK
