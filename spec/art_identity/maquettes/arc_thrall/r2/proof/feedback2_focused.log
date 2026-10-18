@@ -1,0 +1,22 @@
+test_cylinder_is_one_watertight_component_with_solid_rounded_tip (tests.test_arc_thrall_maquette_r2.GeometryHelperTests) ... ok
+test_open_sheath_has_an_annular_mouth_single_band_and_closed_distal_dome (tests.test_arc_thrall_maquette_r2.GeometryHelperTests) ... ok
+test_reachable_hand_stays_put_and_original_bend_side_is_retained (tests.test_arc_thrall_maquette_r2.GeometryHelperTests) ... ok
+test_socket_tuck_preserves_the_source_boundary_and_fits_the_authored_bore (tests.test_arc_thrall_maquette_r2.GeometryHelperTests) ... ok
+test_unreachable_target_clamps_to_nearest_reach_with_exact_lengths (tests.test_arc_thrall_maquette_r2.GeometryHelperTests) ... ok
+test_canonical_delivery_is_the_planted_r2 (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_claw_ends_at_nearest_reachable_point_and_elbow_straightens (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_feedback_decides_all_design_fields_and_cracks_are_paint_only (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_floor_plant_uses_merged_bone_method_and_keeps_front_projection (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_only_removed_labels_are_hand_and_club_and_anatomy_is_hidden (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_other_figure_spec_hashes_remain_their_delivered_values (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_review_sheet_copies_native_cells_without_resizing (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_sheath_uses_the_old_club_tip_and_feedback_dimensions (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_shoulder_turn_and_lengths_outside_the_new_leg_plant (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_single_body_reader_uses_native_pan_and_rejects_changed_scale (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_unchanged_joints_and_original_source_anatomy_are_preserved (tests.test_arc_thrall_maquette_r2.ThrallRevisionTests) ... ok
+test_both_committed_deliveries_have_every_label_and_joint (tests.test_rr07_delivery.DeliveryTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.434s
+
+OK

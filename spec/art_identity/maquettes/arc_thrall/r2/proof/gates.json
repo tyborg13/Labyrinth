@@ -1,0 +1,1084 @@
+{
+  "passed": true,
+  "checks": {
+    "shoulder_height": true,
+    "shoulder_height_is_perspective_only": true,
+    "far_shoulder_x": true,
+    "limb_lengths_outside_planted_leg": true,
+    "same_body_half_turn": true,
+    "lower_foot_right_in_both_views": true
+  },
+  "shoulder_table_px": {
+    "front": {
+      "near": {
+        "before": [
+          616.0,
+          351.9999999999999
+        ],
+        "after": [
+          616.0,
+          352.0
+        ]
+      },
+      "far": {
+        "before": [
+          338.0,
+          404.0000000000001
+        ],
+        "after": [
+          338.0,
+          310.3
+        ]
+      }
+    },
+    "rear": {
+      "near": {
+        "before": [
+          408.00000000000006,
+          344.0000000000001
+        ],
+        "after": [
+          408.0,
+          323.0
+        ]
+      },
+      "far": {
+        "before": [
+          686.0,
+          352.0
+        ],
+        "after": [
+          686.0,
+          364.7
+        ]
+      }
+    }
+  },
+  "expected_far_above_near_px": 41.699999999999996,
+  "limb_length_errors_m": {
+    "pelvis": 0.0,
+    "torso": 0.0,
+    "head": 0.0,
+    "shoulder_near": 0.0,
+    "elbow_near": 0.0,
+    "hand_near": 0.0,
+    "hip_near": 0.0,
+    "knee_near": 0.0,
+    "ankle_near": 0.0,
+    "shoulder_far": 1.1102230246251565e-16,
+    "elbow_far": 1.6653345369377348e-16,
+    "hand_far": 0.0,
+    "hip_far": 0.05998523069802575,
+    "knee_far": 0.06409071477358946,
+    "ankle_far": 0.0
+  },
+  "feet": {
+    "front": {
+      "lower_anatomical_side": "near",
+      "lower_foot_px": [
+        588.0,
+        960.0
+      ],
+      "other_foot_px": [
+        302.0,
+        784.0
+      ],
+      "passed": true
+    },
+    "rear": {
+      "lower_anatomical_side": "far",
+      "lower_foot_px": [
+        722.0,
+        996.0
+      ],
+      "other_foot_px": [
+        436.0,
+        800.0
+      ],
+      "passed": true
+    }
+  },
+  "joints_px": {
+    "front": {
+      "root": [
+        512.0,
+        925.84
+      ],
+      "pelvis": [
+        506.0,
+        584.0
+      ],
+      "torso": [
+        504.0,
+        432.0
+      ],
+      "head": [
+        394.0,
+        292.0
+      ],
+      "head_tip": [
+        384.0,
+        212.0
+      ],
+      "shoulder_near": [
+        616.0,
+        352.0
+      ],
+      "shoulder_far": [
+        338.0,
+        310.3
+      ],
+      "elbow_near": [
+        712.0,
+        496.0
+      ],
+      "elbow_far": [
+        273.3,
+        460.82
+      ],
+      "hand_near": [
+        766.0,
+        592.0
+      ],
+      "hand_far": [
+        209.06,
+        610.27
+      ],
+      "hand_tip_near": [
+        784.0,
+        640.0
+      ],
+      "hand_tip_far": [
+        211.06,
+        674.27
+      ],
+      "hip_near": [
+        588.0,
+        604.0
+      ],
+      "hip_far": [
+        438.0,
+        600.0
+      ],
+      "knee_near": [
+        634.0,
+        764.0
+      ],
+      "knee_far": [
+        404.0,
+        672.0
+      ],
+      "ankle_near": [
+        664.0,
+        892.0
+      ],
+      "ankle_far": [
+        392.0,
+        736.0
+      ],
+      "foot_tip_near": [
+        588.0,
+        960.0
+      ],
+      "foot_tip_far": [
+        302.0,
+        784.0
+      ]
+    },
+    "rear": {
+      "root": [
+        512.0,
+        904.84
+      ],
+      "pelvis": [
+        518.0,
+        551.0
+      ],
+      "torso": [
+        520.0,
+        383.0
+      ],
+      "head": [
+        630.0,
+        227.0
+      ],
+      "head_tip": [
+        640.0,
+        171.0
+      ],
+      "shoulder_near": [
+        408.0,
+        323.0
+      ],
+      "shoulder_far": [
+        686.0,
+        364.7
+      ],
+      "elbow_near": [
+        312.0,
+        471.0
+      ],
+      "elbow_far": [
+        750.7,
+        485.92
+      ],
+      "hand_near": [
+        258.0,
+        571.0
+      ],
+      "hand_far": [
+        814.94,
+        606.28
+      ],
+      "hand_tip_near": [
+        240.0,
+        607.0
+      ],
+      "hand_tip_far": [
+        812.94,
+        670.28
+      ],
+      "hip_near": [
+        436.0,
+        571.0
+      ],
+      "hip_far": [
+        586.0,
+        579.0
+      ],
+      "knee_near": [
+        390.0,
+        671.0
+      ],
+      "knee_far": [
+        620.0,
+        741.0
+      ],
+      "ankle_near": [
+        360.0,
+        755.0
+      ],
+      "ankle_far": [
+        632.0,
+        911.0
+      ],
+      "foot_tip_near": [
+        436.0,
+        779.0
+      ],
+      "foot_tip_far": [
+        722.0,
+        975.0
+      ]
+    }
+  },
+  "tube_geometry": {
+    "passed": true,
+    "checks": {
+      "shaft_width": true,
+      "mouth_offset": true,
+      "band_height": true,
+      "band_raise": true,
+      "dome_height": true,
+      "open_annular_mouth": true,
+      "one_band_only": true,
+      "closed_shell": true,
+      "distal_tip_unchanged": true,
+      "whole_fore_near_ownership": true
+    },
+    "dimensions": {
+      "mouth_offset_front_px": -8.000000000000032,
+      "shaft_diameter_front_px": 67.9217819215068,
+      "band_height_front_px": 12.000000000000016,
+      "band_raise_native_px": 3.999999999999986,
+      "dome_height_front_px": 23.80000000000002,
+      "inner_radius_native_px": 27.999999999999954
+    }
+  },
+  "spec_hash": "540ff35963d668b0a047a0440eb1b7a097aa908babdc921dc4126f2585014093",
+  "before_fit": {
+    "front": {
+      "iou": 0.722267224204742,
+      "maquette_frame": {
+        "head_top": 176.0,
+        "sole_bottom": 984.0,
+        "ground_x": 625.8505154639175
+      },
+      "source_frame": {
+        "head_top": 44.0,
+        "sole_bottom": 246.0,
+        "ground_x": 156.77777777777777
+      },
+      "checks": {
+        "iou": true,
+        "median_band_error": false,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      },
+      "dynamic_iou": 0.722267224204742,
+      "fixed_original_iou": 0.722267224204742,
+      "native_silhouette_sha256": "eded5d0e483c4a31a7e1c7ed6924a08b6d273b16e4776696b518c74fb5b5d7e6"
+    },
+    "rear": {
+      "iou": 0.7035146694952339,
+      "maquette_frame": {
+        "head_top": 168.0,
+        "sole_bottom": 984.0,
+        "ground_x": 580.7631578947369
+      },
+      "source_frame": {
+        "head_top": 42.0,
+        "sole_bottom": 246.0,
+        "ground_x": 143.2391304347826
+      },
+      "checks": {
+        "iou": true,
+        "median_band_error": true,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      },
+      "dynamic_iou": 0.7035146694952339,
+      "fixed_original_iou": 0.7035146694952339,
+      "native_silhouette_sha256": "3b2039f8198409e500e5c0133d227d0cbf971c4799fc13d2fb868a310090194c"
+    }
+  },
+  "unresolved_design": {},
+  "native_capture_available": true,
+  "floor_guard": {
+    "floor_m": 0.24856193744190866,
+    "maximum_lift_m": 0.02,
+    "points": {
+      "ankle_near": {
+        "height_m": 0.24856193744190866,
+        "above_floor_m": 0.0,
+        "within_floor_limit": true,
+        "exception": null,
+        "passed": true
+      },
+      "ankle_far": {
+        "height_m": 0.24856193744190866,
+        "above_floor_m": 0.0,
+        "within_floor_limit": true,
+        "exception": null,
+        "passed": true
+      }
+    },
+    "offenders": [],
+    "excepted_offenders": [],
+    "passed": true
+  },
+  "framing": {
+    "passed": true,
+    "views": {
+      "front": {
+        "pan_px": [
+          0,
+          0
+        ],
+        "required_margin_px": 8,
+        "edge_margins_px": {
+          "front_clay.png": [
+            149,
+            175,
+            154,
+            39
+          ],
+          "front_parts.png": [
+            150,
+            176,
+            155,
+            40
+          ],
+          "front_silhouette.png": [
+            150,
+            176,
+            155,
+            40
+          ],
+          "front_solo_collar.png": [
+            371,
+            268,
+            520,
+            635
+          ],
+          "front_solo_foot_far.png": [
+            272,
+            722,
+            532,
+            220
+          ],
+          "front_solo_foot_near.png": [
+            572,
+            879,
+            288,
+            40
+          ],
+          "front_solo_fore_far.png": [
+            181,
+            459,
+            708,
+            397
+          ],
+          "front_solo_fore_near.png": [
+            673,
+            465,
+            155,
+            172
+          ],
+          "front_solo_hand_far.png": [
+            150,
+            558,
+            750,
+            370
+          ],
+          "front_solo_head.png": [
+            301,
+            176,
+            507,
+            694
+          ],
+          "front_solo_loincloth.png": [
+            339,
+            466,
+            317,
+            269
+          ],
+          "front_solo_shin_far.png": [
+            345,
+            652,
+            570,
+            270
+          ],
+          "front_solo_shin_near.png": [
+            600,
+            732,
+            305,
+            129
+          ],
+          "front_solo_thigh_far.png": [
+            341,
+            522,
+            491,
+            314
+          ],
+          "front_solo_thigh_near.png": [
+            474,
+            545,
+            341,
+            233
+          ],
+          "front_solo_torso.png": [
+            356,
+            276,
+            378,
+            377
+          ],
+          "front_solo_upper_far.png": [
+            261,
+            303,
+            588,
+            541
+          ],
+          "front_solo_upper_near.png": [
+            553,
+            290,
+            286,
+            514
+          ],
+          "front_torso.png": [
+            356,
+            276,
+            378,
+            377
+          ],
+          "front_torso_frontal_control.png": [
+            348,
+            267,
+            428,
+            357
+          ]
+        },
+        "native_camera": {},
+        "passed": true
+      },
+      "rear": {
+        "pan_px": [
+          0.0,
+          -20.999988057246355
+        ],
+        "required_margin_px": 8,
+        "edge_margins_px": {
+          "rear_clay.png": [
+            154,
+            146,
+            149,
+            8
+          ],
+          "rear_parts.png": [
+            155,
+            147,
+            150,
+            9
+          ],
+          "rear_silhouette.png": [
+            155,
+            147,
+            150,
+            9
+          ],
+          "rear_solo_collar.png": [
+            520,
+            196,
+            371,
+            761
+          ],
+          "rear_solo_foot_far.png": [
+            532,
+            888,
+            272,
+            9
+          ],
+          "rear_solo_foot_near.png": [
+            288,
+            744,
+            572,
+            212
+          ],
+          "rear_solo_fore_far.png": [
+            708,
+            471,
+            181,
+            427
+          ],
+          "rear_solo_fore_near.png": [
+            155,
+            444,
+            673,
+            168
+          ],
+          "rear_solo_hand_far.png": [
+            750,
+            551,
+            150,
+            294
+          ],
+          "rear_solo_head.png": [
+            506,
+            147,
+            301,
+            729
+          ],
+          "rear_solo_loincloth.png": [
+            317,
+            440,
+            339,
+            260
+          ],
+          "rear_solo_shin_far.png": [
+            570,
+            712,
+            345,
+            111
+          ],
+          "rear_solo_shin_near.png": [
+            305,
+            667,
+            599,
+            247
+          ],
+          "rear_solo_thigh_far.png": [
+            491,
+            526,
+            341,
+            276
+          ],
+          "rear_solo_thigh_near.png": [
+            341,
+            509,
+            474,
+            303
+          ],
+          "rear_solo_torso.png": [
+            380,
+            214,
+            353,
+            401
+          ],
+          "rear_solo_upper_far.png": [
+            588,
+            331,
+            261,
+            514
+          ],
+          "rear_solo_upper_near.png": [
+            287,
+            280,
+            555,
+            542
+          ]
+        },
+        "native_camera": {
+          "passed": true,
+          "bounds_probe": "native clay alpha at the existing render sample count",
+          "pan_px": [
+            0.0,
+            -20.999988057246355
+          ],
+          "original_target": [
+            0.0,
+            0.0,
+            1.12
+          ],
+          "target": [
+            0.017401446047010244,
+            0.01740144604701024,
+            1.0773753363982537
+          ],
+          "ortho_scale": 2.4000000953674316,
+          "camera_rotation_unchanged": true,
+          "geometry_bounds_before_pan_px": [
+            [
+              155.01604026015696,
+              167.99990920062152
+            ],
+            [
+              874.0722779538578,
+              1035.9999880572464
+            ]
+          ],
+          "pixel_bounds": [
+            [
+              154,
+              146
+            ],
+            [
+              874,
+              1015
+            ]
+          ],
+          "edge_margins_px_left_top_right_bottom": [
+            154,
+            146,
+            149,
+            8
+          ],
+          "required_margin_px": 8
+        },
+        "passed": true
+      }
+    }
+  },
+  "after_fit": {
+    "front": {
+      "iou": 0.7081009475769559,
+      "dynamic_iou": 0.7081009475769559,
+      "fixed_original_iou": 0.7081009475769559,
+      "minimum": 0.7,
+      "passed": true,
+      "per_part_coverage": {
+        "head": {
+          "visible_pixels": 19562,
+          "solo_pixels": 19946,
+          "visible_fraction_of_solo": 0.9807480196530632,
+          "depth_tested_owner_pixels": 19562,
+          "pure_owner_pixels": 18249,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "collar": {
+          "visible_pixels": 3000,
+          "solo_pixels": 4888,
+          "visible_fraction_of_solo": 0.613747954173486,
+          "depth_tested_owner_pixels": 3047,
+          "pure_owner_pixels": 2280,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "torso": {
+          "visible_pixels": 56628,
+          "solo_pixels": 79290,
+          "visible_fraction_of_solo": 0.714188422247446,
+          "depth_tested_owner_pixels": 56634,
+          "pure_owner_pixels": 52873,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "loincloth": {
+          "visible_pixels": 31992,
+          "solo_pixels": 54373,
+          "visible_fraction_of_solo": 0.58838026226252,
+          "depth_tested_owner_pixels": 32001,
+          "pure_owner_pixels": 29816,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "upper_near": {
+          "visible_pixels": 19415,
+          "solo_pixels": 19723,
+          "visible_fraction_of_solo": 0.9843837144450641,
+          "depth_tested_owner_pixels": 19417,
+          "pure_owner_pixels": 17775,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "fore_near": {
+          "visible_pixels": 24988,
+          "solo_pixels": 27162,
+          "visible_fraction_of_solo": 0.9199617112141963,
+          "depth_tested_owner_pixels": 25018,
+          "pure_owner_pixels": 22451,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "upper_far": {
+          "visible_pixels": 11314,
+          "solo_pixels": 15498,
+          "visible_fraction_of_solo": 0.7300296812491934,
+          "depth_tested_owner_pixels": 11572,
+          "pure_owner_pixels": 10050,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "fore_far": {
+          "visible_pixels": 12264,
+          "solo_pixels": 12685,
+          "visible_fraction_of_solo": 0.9668111943240048,
+          "depth_tested_owner_pixels": 12408,
+          "pure_owner_pixels": 11140,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "hand_far": {
+          "visible_pixels": 4146,
+          "solo_pixels": 7860,
+          "visible_fraction_of_solo": 0.5274809160305344,
+          "depth_tested_owner_pixels": 4146,
+          "pure_owner_pixels": 2836,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "thigh_near": {
+          "visible_pixels": 24560,
+          "solo_pixels": 26710,
+          "visible_fraction_of_solo": 0.9195058030700113,
+          "depth_tested_owner_pixels": 24560,
+          "pure_owner_pixels": 23169,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "shin_near": {
+          "visible_pixels": 10716,
+          "solo_pixels": 13111,
+          "visible_fraction_of_solo": 0.8173289604149188,
+          "depth_tested_owner_pixels": 10723,
+          "pure_owner_pixels": 9869,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "foot_near": {
+          "visible_pixels": 12672,
+          "solo_pixels": 13446,
+          "visible_fraction_of_solo": 0.9424364123159303,
+          "depth_tested_owner_pixels": 12691,
+          "pure_owner_pixels": 11493,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "thigh_far": {
+          "visible_pixels": 1124,
+          "solo_pixels": 22744,
+          "visible_fraction_of_solo": 0.04941962715441435,
+          "depth_tested_owner_pixels": 1326,
+          "pure_owner_pixels": 794,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "shin_far": {
+          "visible_pixels": 1507,
+          "solo_pixels": 7620,
+          "visible_fraction_of_solo": 0.19776902887139108,
+          "depth_tested_owner_pixels": 1957,
+          "pure_owner_pixels": 1370,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "foot_far": {
+          "visible_pixels": 10986,
+          "solo_pixels": 13015,
+          "visible_fraction_of_solo": 0.84410295812524,
+          "depth_tested_owner_pixels": 11292,
+          "pure_owner_pixels": 10093,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        }
+      },
+      "all_fit_diagnostics": {
+        "iou": true,
+        "median_band_error": true,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      }
+    },
+    "rear": {
+      "iou": 0.7047716116687281,
+      "dynamic_iou": 0.7047716116687281,
+      "fixed_original_iou": 0.6921367393816438,
+      "minimum": 0.65,
+      "passed": true,
+      "per_part_coverage": {
+        "head": {
+          "visible_pixels": 19665,
+          "solo_pixels": 19859,
+          "visible_fraction_of_solo": 0.9902311294627121,
+          "depth_tested_owner_pixels": 19665,
+          "pure_owner_pixels": 18186,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "collar": {
+          "visible_pixels": 826,
+          "solo_pixels": 4222,
+          "visible_fraction_of_solo": 0.19564187588820464,
+          "depth_tested_owner_pixels": 879,
+          "pure_owner_pixels": 413,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "torso": {
+          "visible_pixels": 60222,
+          "solo_pixels": 80111,
+          "visible_fraction_of_solo": 0.751731971889004,
+          "depth_tested_owner_pixels": 60234,
+          "pure_owner_pixels": 57062,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "loincloth": {
+          "visible_pixels": 35630,
+          "solo_pixels": 57877,
+          "visible_fraction_of_solo": 0.6156158750453548,
+          "depth_tested_owner_pixels": 35633,
+          "pure_owner_pixels": 33564,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "upper_near": {
+          "visible_pixels": 12830,
+          "solo_pixels": 15376,
+          "visible_fraction_of_solo": 0.834417273673257,
+          "depth_tested_owner_pixels": 12830,
+          "pure_owner_pixels": 11487,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "fore_near": {
+          "visible_pixels": 27133,
+          "solo_pixels": 28809,
+          "visible_fraction_of_solo": 0.9418237356381687,
+          "depth_tested_owner_pixels": 27143,
+          "pure_owner_pixels": 24754,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "upper_far": {
+          "visible_pixels": 16455,
+          "solo_pixels": 16487,
+          "visible_fraction_of_solo": 0.998059076848426,
+          "depth_tested_owner_pixels": 16697,
+          "pure_owner_pixels": 15171,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "fore_far": {
+          "visible_pixels": 8163,
+          "solo_pixels": 9455,
+          "visible_fraction_of_solo": 0.8633527234267583,
+          "depth_tested_owner_pixels": 8297,
+          "pure_owner_pixels": 7109,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "hand_far": {
+          "visible_pixels": 14781,
+          "solo_pixels": 16412,
+          "visible_fraction_of_solo": 0.9006214964660005,
+          "depth_tested_owner_pixels": 14781,
+          "pure_owner_pixels": 12998,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "thigh_near": {
+          "visible_pixels": 43,
+          "solo_pixels": 24212,
+          "visible_fraction_of_solo": 0.0017759788534610936,
+          "depth_tested_owner_pixels": 43,
+          "pure_owner_pixels": 8,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "shin_near": {
+          "visible_pixels": 3760,
+          "solo_pixels": 8721,
+          "visible_fraction_of_solo": 0.4311432175209265,
+          "depth_tested_owner_pixels": 3778,
+          "pure_owner_pixels": 3435,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "foot_near": {
+          "visible_pixels": 5471,
+          "solo_pixels": 8040,
+          "visible_fraction_of_solo": 0.6804726368159204,
+          "depth_tested_owner_pixels": 5474,
+          "pure_owner_pixels": 4651,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "thigh_far": {
+          "visible_pixels": 22558,
+          "solo_pixels": 25111,
+          "visible_fraction_of_solo": 0.8983314085460555,
+          "depth_tested_owner_pixels": 22774,
+          "pure_owner_pixels": 21207,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "shin_far": {
+          "visible_pixels": 15536,
+          "solo_pixels": 15735,
+          "visible_fraction_of_solo": 0.9873530346361614,
+          "depth_tested_owner_pixels": 15926,
+          "pure_owner_pixels": 14632,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        },
+        "foot_far": {
+          "visible_pixels": 17447,
+          "solo_pixels": 18143,
+          "visible_fraction_of_solo": 0.9616380973378162,
+          "depth_tested_owner_pixels": 17753,
+          "pure_owner_pixels": 16137,
+          "clipped_at_canvas": false,
+          "recorded_occlusion": null,
+          "passed": true
+        }
+      },
+      "all_fit_diagnostics": {
+        "iou": true,
+        "median_band_error": true,
+        "max_band_error": false,
+        "landmark_error": false,
+        "design_complete": true
+      }
+    }
+  },
+  "tube_widths": {
+    "front": {
+      "widths_native_px": [
+        67.29999999999617,
+        66.99999999999619,
+        67.29999999999617
+      ],
+      "passed": true
+    },
+    "rear": {
+      "widths_native_px": [
+        66.99999999999619,
+        67.39999999999617,
+        66.69999999999621
+      ],
+      "passed": true
+    }
+  },
+  "native_tube_entry_passed": true,
+  "native_delivery_passed": true,
+  "height_table": {
+    "floor_m": 0.24856193744190866,
+    "rows": {
+      "hip_far": {
+        "before_m": 0.8818430139592796,
+        "after_m": 0.8818430139592796
+      },
+      "knee_far": {
+        "before_m": 0.6003847577293369,
+        "after_m": 0.565202475700594
+      },
+      "ankle_far": {
+        "before_m": 0.31892650149939433,
+        "after_m": 0.24856193744190866
+      },
+      "ankle_near": {
+        "before_m": 0.24856193744190866,
+        "after_m": 0.24856193744190866
+      },
+      "foot_tip_far": {
+        "before_m": 0.1673720558371177,
+        "after_m": 0.09700749177963203
+      }
+    },
+    "leg_lengths_m": {
+      "hip_far": {
+        "before": 0.32873826618793556,
+        "after": 0.3887234968859613
+      },
+      "knee_far": {
+        "before": 0.33936118756422357,
+        "after": 0.40345190233781303
+      },
+      "ankle_far": {
+        "before": 0.26243023626527856,
+        "after": 0.26243023626527856
+      }
+    }
+  },
+  "binding": {
+    "spec_hash": "540ff35963d668b0a047a0440eb1b7a097aa908babdc921dc4126f2585014093",
+    "recipe_sha256": "10d2f5ac59ed27d69590eddf4fc822504b566d7b8c70c58939646acad0774110",
+    "capture_manifest_sha256": "51e4b0544b1013bb586a1a7e4b7c86480e875b789e89a8b6b741acbab0032cfc",
+    "report_sha256": {
+      "build_report.json": "13e3ad98fd73c5cf3292d65abe138fce7c34ec1d3005688c7ebc5f81e451ddd1",
+      "capture_checks.json": "bba7aa71539fbca51865fea069ade6d724f2250bb1cce9068e652c37eb025684",
+      "facing_report.json": "2595529cf7c159e1862587cfc887a97821699b685ac2f8b34f79beccf9993c10",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "4080665f3623de572dceb2526a8ec56d8e4eeb4088867df6e95514f286363a93",
+      "capture_frame.json": "0d4c700cab7f9717d6dabd57db8a3b2f15ce35f9b666254926818374a1dae223",
+      "recipe_proof.json": "f437d54f411c1386e6cb8f1d9ccb5607773f163c19c70d3e944ce0db4d92307c",
+      "exact_native_replay.json": "27c74ac8de88c6ea246a53344d851fc6bc616a9b0bd48d2bd35ebe2c17854cdf"
+    },
+    "tube_receipt_sha256": "78d3cfb54c641c5f7d8673f5ade27ba9328bf4066b7e355f418f73606e90cbc8",
+    "sheet_sha256": "91b28ac077ef7d0ece7024c70467a418ba8e4595b45396d47155c9d1e1170e52"
+  },
+  "retention": "Planted r2 is promoted to delivery; native clay RGBA and every visible mask pixel/alpha are preserved by the shared lossless packer. Old native clays and immutable baseline recipe/registration remain for the 1024 sheet. Temporary blends, caches and duplicate captures are hash-inventoried before deletion."
+}

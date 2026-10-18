@@ -16,8 +16,8 @@ from .rig import evaluated_mesh
 REAR_POSE_DEFAULTS = {'bone_endpoint_error_max_m': 1e-4}
 
 
-def pose_leg(spec, body, rig, posed, target):
-    config = spec['rear_body']
+def pose_leg(spec, body, rig, posed, target, config=None):
+    config = spec['rear_body'] if config is None else config
     bones = require_leg_bones(spec, config)
     before = deepcopy(spec['joints'])
     for definition in spec['armature']['bones']:

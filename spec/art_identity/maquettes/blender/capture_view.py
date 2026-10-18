@@ -44,6 +44,9 @@ def main(argv):
     objects = [o for o in bpy.context.scene.objects if o.type == 'MESH' and o.get('part') and not o.get('native_source')]
     working = board_spec(spec)
     checks = geometry_report(working, objects, report['cloth'])
+    if working['base'].get('socket_tucks'):
+        from spec.art_identity.maquettes.blender.socket_proof import collect
+        checks['native_socket_tucks'] = collect(working, objects) == report.get('geometry_details', {}).get('socket_tucks')
     if not all(checks.values()) and not args.diagnostic:
         raise ValueError('Saved geometry failed validation: ' + str(checks))
     before = signature(objects)

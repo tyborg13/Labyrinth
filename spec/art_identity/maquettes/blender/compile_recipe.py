@@ -39,6 +39,8 @@ def compile_recipe(recipe):
             'simulation': deepcopy(baseline['simulation']), 'pieces': [], 'joints': {'root': [0, 0, 0]},
             'source_recipe': recipe['id'] + '/measurements.json'}
     spec['base']['covered_regions'] = recipe.get('covered_body_regions', [])
+    if recipe.get('socket_tucks'):
+        spec['base']['socket_tucks'] = deepcopy(recipe['socket_tucks'])
     spec['base'].pop('covered_above_z', None)
     spec['base'].pop('proposed', None)
     if recipe.get('view_registration_px'):
@@ -63,9 +65,18 @@ def compile_recipe(recipe):
         axis /= np.linalg.norm(axis)
         length = np.linalg.norm(np.subtract(spec['joints']['head_tip'], spec['joints']['head']))
         spec['joints']['head_tip'] = (np.array(spec['joints']['head']) + length * np.array([axis[0], 0, axis[1]])).tolist()
+    if recipe.get('pose_constraints'):
+        from spec.art_identity.maquettes.blender.pose_adjustment import corrected_joints
+        spec['source_fit_joints'] = deepcopy(spec['joints'])
+        spec['joints'] = corrected_joints(spec, recipe['pose_constraints'])
     for bone in spec['armature']['bones']:
         bone['region'] = recipe.get('region_map', {}).get(bone['region'], bone['region'])
         bone['scale'] = recipe['bone_scales'].get(bone['name'], [1, 1])
+    if recipe.get('planted_leg'):
+        from spec.art_identity.maquettes.blender.planted_leg import corrected_joints as plant
+        spec['planted_leg'] = deepcopy(recipe['planted_leg'])
+        spec['planted_leg']['fitted_joints'] = deepcopy(spec['joints'])
+        spec['joints'] = plant(spec, spec['planted_leg'])
     for item in recipe['surfaces']:
         first_piece = len(spec['pieces'])
         kind = item['shape']
@@ -186,6 +197,35 @@ def compile_recipe(recipe):
             piece.update(outline=[[p[0], p[2]] for p in points], outline_3d=points,
                          source_outline_px=item['front_outline_px'], conform_weights=[0] * len(points),
                          thick=item['thick'], bevel=item['bevel'], offset_surface=0)
+            spec['pieces'].append(piece)
+        elif kind == 'capped_cylinder':
+            from spec.art_identity.maquettes.blender.capped_cylinder import cylinder_mesh
+            path = path_points(spec, item)
+            radius = item['radius_px'] * spec['ortho_scale'] / 256
+            vertices, faces = cylinder_mesh(*path, radius, item['sides'], item['cap_rings'])
+            piece = common(item['id'], 'sculpted_blade', item['part'])
+            piece.update(vertices=vertices, faces=faces)
+            spec['pieces'].append(piece)
+        elif kind == 'open_cylinder':
+            from spec.art_identity.maquettes.blender.capped_cylinder import sheath_mesh
+            start, tip = (np.asarray(p, float) for p in path_points(spec, item))
+            direction = (tip - start) / np.linalg.norm(tip - start)
+            # Source dimensions along the axis are front-view measurements.
+            # Normalize the axis projection rather than silently foreshorten
+            # the owner's mouth offset, band height or dome height.
+            matrix, _, basis, scale = camera(spec, 'front')
+            projected_axis = basis[:2] @ matrix[:3, :3] @ direction
+            axial_unit = scale / 256 / np.linalg.norm(projected_axis)
+            radial_unit = scale / 256
+            start = start + item['elbow_offset_px'] * axial_unit * direction
+            vertices, faces = sheath_mesh(start, tip, item['diameter_px'] / 2 * radial_unit,
+                item['wall_px'] * radial_unit, item['dome_height_px'] * axial_unit,
+                item['band_height_px'] * axial_unit, item['band_raise_px'] * radial_unit,
+                item['sides'], item['cap_rings'])
+            piece = common(item['id'], 'sculpted_blade', item['part'])
+            piece.update(vertices=vertices, faces=faces)
+            piece['socket'] = {'mouth': start.tolist(), 'axis': direction.tolist(),
+                               'inner_radius': (item['diameter_px'] / 2 - item['wall_px']) * radial_unit}
             spec['pieces'].append(piece)
         elif kind in ('curve', 'tube', 'lathe'):
             path = path_points(spec, item)

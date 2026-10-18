@@ -40,11 +40,6 @@
       0.62,
       1.0
     ],
-    "hand_near": [
-      0.75,
-      0.82,
-      1.0
-    ],
     "upper_far": [
       0.5,
       0.1,
@@ -59,11 +54,6 @@
       0.92,
       0.62,
       1.0
-    ],
-    "club": [
-      0.8011866016249977,
-      0.85,
-      0.255
     ],
     "thigh_near": [
       0.1,
@@ -555,199 +545,38 @@
       }
     },
     {
-      "id": "club",
-      "part": "club",
-      "shape": "tube",
+      "id": "forearm_sheath",
+      "part": "fore_near",
+      "shape": "open_cylinder",
       "path_px": [
         [
-          185,
-          119
+          178.0,
+          124.00000000000001
         ],
         [
-          189,
-          136
-        ],
-        [
-          193,
-          151
-        ],
-        [
-          199,
-          168
-        ],
-        [
-          203,
-          189
-        ],
-        [
-          210,
-          211
+          211.0,
+          211.0
         ]
       ],
-      "radius_px": 10,
-      "taper": [
-        0.45,
-        0.55,
-        0.85,
-        0.95,
-        1.1,
-        1.05
-      ],
-      "plane_axis": 1,
-      "plane_coordinate": 0.37,
-      "closed": false,
       "rear_path_px": [
         [
-          72,
-          137
+          78.0,
+          122.99999999999999
         ],
         [
-          67,
-          155
-        ],
-        [
-          60,
-          174
-        ],
-        [
-          57,
-          185
-        ],
-        [
-          49,
-          203
-        ],
-        [
-          44,
-          218
+          45.0,
+          218.0
         ]
       ],
-      "sides": 16,
+      "sides": 32,
+      "cap_rings": 8,
+      "diameter_px": 17,
+      "elbow_offset_px": -2,
       "wall_px": 1.5,
-      "bands": [
-        {
-          "at": 0.31,
-          "thickness_px": 1.3
-        },
-        {
-          "at": 0.67,
-          "thickness_px": 1.3
-        },
-        {
-          "at": 0.93,
-          "thickness_px": 1.3
-        }
-      ],
-      "radial_profile": [
-        [
-          1,
-          0.98,
-          1.03,
-          1,
-          0.97,
-          1.02,
-          1,
-          0.98,
-          1.04,
-          1,
-          0.98,
-          1.01,
-          1,
-          0.97,
-          1.02,
-          1
-        ],
-        [
-          1.02,
-          0.97,
-          1,
-          1.05,
-          0.98,
-          1.02,
-          0.96,
-          1,
-          1.03,
-          0.97,
-          1.04,
-          1,
-          0.96,
-          1,
-          1.02,
-          0.98
-        ],
-        [
-          1,
-          0.94,
-          1.08,
-          1.02,
-          0.96,
-          1.07,
-          1,
-          0.93,
-          1.06,
-          0.98,
-          1.04,
-          1.08,
-          0.94,
-          1,
-          0.98,
-          1.05
-        ],
-        [
-          1.1,
-          1,
-          0.92,
-          1.05,
-          1.12,
-          0.98,
-          1.04,
-          0.93,
-          1.08,
-          1,
-          0.95,
-          1.12,
-          1.02,
-          0.94,
-          1.07,
-          1
-        ],
-        [
-          0.97,
-          1.12,
-          1.03,
-          0.94,
-          1.08,
-          1,
-          0.91,
-          1.07,
-          1.14,
-          0.97,
-          1.04,
-          0.93,
-          1.09,
-          1,
-          0.95,
-          1.05
-        ],
-        [
-          1.02,
-          0.96,
-          1.04,
-          1,
-          0.98,
-          1.04,
-          0.96,
-          1.03,
-          1,
-          0.97,
-          1.05,
-          0.98,
-          1.02,
-          0.96,
-          1.04,
-          1
-        ]
-      ]
+      "dome_height_px": 5.949999999999999,
+      "band_height_px": 3,
+      "band_raise_px": 1,
+      "rivets": false
     }
   ],
   "bone_scales": {
@@ -800,7 +629,7 @@
     "pelvis": "torso"
   },
   "weapon_parts": [
-    "club"
+    "fore_near"
   ],
   "fit": {
     "front": {
@@ -884,17 +713,17 @@
   },
   "features": {
     "lightning_cracks": {
-      "part": "club",
-      "whole": true
-    },
-    "club_hand": "hand_near"
+      "part": "fore_near",
+      "whole": true,
+      "geometry": false
+    }
   },
   "occlusions": {
     "front": {},
     "rear": {}
   },
   "unresolved_design": {},
-  "measurement_basis": "Art-02 paintings are identity and proportion references. Preserve the approved bare anatomy. Waist-pinned cloth is simulated under gravity; the paint-over follows this maquette (director feedback 2). Club centreline and taper follow the painted gnarled club; raised bands remain owned by club.",
+  "measurement_basis": "mq-07 feedback 1: constant 17 source-px shaft diameter; open rim at -2 source px from elbow, one 3-px band raised 1 px, no rivets; distal dome height 0.35 diameter. Axial dimensions measured in front projection. Old club distal tip and accepted shoulder pose retained. Wall 1.5 source px inherited unchanged from the mq-04 measured tube.",
   "body_source_profiles": {
     "head": {
       "front": [
@@ -2135,8 +1964,58 @@
     "row_step_px": 1,
     "method": "Observed full ground-contact foot contour; retain native depth for the occluded opposite view."
   },
-  "design_direction": "mq-04 feedback 3: metric horizontal neck ring and three gravity-hanging oval links; unchanged approved native anatomy.",
+  "design_direction": "mq-07 feedback 1: accepted raised far shoulder unchanged; narrow open elbow socket and single mouth band, closed oblate distal cap, no hand or separate club.",
   "cloth_registration": "The paired front/rear waist-line midpoints anchor both panels on the actual native waist surface. Front/rear here mean anatomical anterior/posterior panels, both always present in one model; they are not per-view states.",
   "collar_dimensions": "Feedback 3 dimensions are outer link length/width and round wire/tube diameters. Native neck section determines the radius; ring inner radius adds exactly 0.01 m.",
-  "simulation_basis": "Native Cloth uses the Lancer r3 stiffness preset with the fixed per-garment pre-roll recorded in drape.frames, free fabric, self-collision, measured attachments and the native anatomy collision skin. Sampling, solver timing and tolerances are implementation fields; source extents and director metric dimensions are retained."
+  "simulation_basis": "Native Cloth uses the Lancer r3 stiffness preset with the fixed per-garment pre-roll recorded in drape.frames, free fabric, self-collision, measured attachments and the native anatomy collision skin. Sampling, solver timing and tolerances are implementation fields; source extents and director metric dimensions are retained.",
+  "covered_body_regions": [
+    "fore_near",
+    "hand_near"
+  ],
+  "pose_constraints": [
+    {
+      "chain": [
+        "shoulder_far",
+        "elbow_far",
+        "hand_far"
+      ],
+      "shoulder_front_px": [
+        338,
+        310.3
+      ],
+      "translate_with_hand": [
+        "hand_tip_far"
+      ],
+      "shoulder_height_joint": "shoulder_near"
+    }
+  ],
+  "socket_tucks": [
+    {
+      "id": "upper_near_socket_tuck",
+      "part": "upper_near",
+      "source_region": "upper_near",
+      "adjacent_region": "fore_near",
+      "socket": "forearm_sheath",
+      "end_joint": "elbow_near"
+    }
+  ],
+  "planted_leg": {
+    "joint_chain": [
+      "hip_far",
+      "knee_far",
+      "ankle_far"
+    ],
+    "floor_joint": "ankle_near",
+    "translate_with_ankle": [
+      "foot_tip_far"
+    ],
+    "leg_bones": [
+      "hip_far",
+      "knee_far",
+      "ankle_far"
+    ]
+  },
+  "rear_capture": {
+    "edge_margin_px": 8
+  }
 }

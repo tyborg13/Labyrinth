@@ -3,13 +3,7 @@
   "figures": {
     "hoarfrost_seer": [],
     "gloam_stalker": [],
-    "arc_thrall": [
-      {
-        "point": "ankle_far",
-        "reason": "Existing 0.070 m fitted lift is assigned to mq-07; do not change the Thrall in mq-06.",
-        "authority": "mq-06 feedback 2, Guard findings"
-      }
-    ],
+    "arc_thrall": [],
     "gale_herald": [
       {
         "point": "ankle_far",

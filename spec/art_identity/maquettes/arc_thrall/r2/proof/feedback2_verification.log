@@ -1,0 +1,6 @@
+MQ07_POSE: PASS
+MQ07_FLOOR: PASS; exceptions=[]
+MQ07_FIT: front; dynamic=0.7081009475769559; fixed_original=0.7081009475769559
+MQ07_FIT: rear; dynamic=0.7047716116687281; fixed_original=0.6921367393816438
+MQ07_TUBE: PASS
+MQ07_DELIVERY: PASS; native_capture=true

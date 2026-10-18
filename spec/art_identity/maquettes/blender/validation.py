@@ -12,7 +12,8 @@ def geometry_report(spec, objects, cloth_reports, details=None):
     details.update(collar_widths={}, corner_errors={}, conformance={})
     epsilon = BUILD_DEFAULTS['collision_epsilon']
     labelled = all(o.get('part') in spec['labels'] and len(o.data.polygons) for o in objects)
-    expected = {b['region'] for b in spec['armature']['bones']} | {p['part'] for p in spec['pieces']}
+    from .view_states import view_parts
+    expected = view_parts(spec, 'front')
     import bpy
     forward = bpy.data.objects['maquette_armature']['posed_forward']
     assignments = {o.name: expected_materials(o, spec, forward) for o in objects}
