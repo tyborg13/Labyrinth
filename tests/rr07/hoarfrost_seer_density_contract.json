@@ -1,0 +1,18 @@
+{
+  "min_images": 2,
+  "expected_sizes": [
+    "255x255"
+  ],
+  "required_images": [
+    {
+      "pattern": "hoarfrost_seer_cutout_front.png",
+      "width": 255,
+      "height": 255
+    },
+    {
+      "pattern": "hoarfrost_seer_cutout_rear.png",
+      "width": 255,
+      "height": 255
+    }
+  ]
+}

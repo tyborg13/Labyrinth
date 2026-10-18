@@ -1,0 +1,14 @@
+{
+  "director_decisions": {
+    "authority": "Director rr-07 feedback 1",
+    "pelvis": "No pelvis bone. Torso is a root child, pivoting at the native lower-back/pelvis joint.",
+    "collar": "Torso child at native head joint (neck base); head bows independently.",
+    "seer_skirts": "Torso children at each native hip/waist joint above its half.",
+    "seer_feet": "Root children at their own native ankle joints; independent of torso lean.",
+    "seer_staff": "Shaft is a far-hand child at grip. Crystal is always a shaft child at the shaft tip, including death.",
+    "thrall_thighs": "Root children at native hip joints; shins and feet retain the native limb chains.",
+    "thrall_loincloth": "Torso child at native pelvis/waist joint, following hunch and death."
+  },
+  "unresolved": {},
+  "native_joint_positions": "source/maquette/joints_px.json"
+}

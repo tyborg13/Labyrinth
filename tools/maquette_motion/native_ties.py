@@ -1,11 +1,13 @@
-"""Exact native texel ties: candidate selection, occupancy report and temporal proof."""
+"""Native sub-texel ties: candidate selection, occupancy report and temporal proof."""
 import numpy as np
 
 def select(actual, samples):
     """Use a native tie choice only where it exactly equals a legal candidate.
 
     Transparent RGB is immaterial, as in the existing pixel difference metric.
-    An invalid tied colour is a hard source mismatch, never an edge allowance.
+    Invalid ties keep the deterministic source pixel and are returned for
+    counting. They use the ordinary raster mismatch allowance (rr-07 feedback
+    3); this never makes an out-of-range texel a legal matching candidate.
     """
     ideal = samples.default.copy()
     matched = np.zeros(samples.ties.shape, dtype=bool)

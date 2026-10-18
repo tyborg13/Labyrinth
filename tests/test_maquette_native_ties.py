@@ -1,4 +1,4 @@
-"""Exact-tie acceptance cannot hide third colours, held flips or stale paint."""
+"""Invalid ties count as changed pixels; held flips and excess changes fail."""
 from pathlib import Path
 import sys
 import unittest
@@ -8,13 +8,15 @@ import numpy as np
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT / 'tools'))
 from maquette_motion import pixels, native_ties, gates
-from maquette_motion.raster import nearest_quad, EXACT_TIE_EPSILON
+from maquette_motion.raster import nearest_quad, SUBTEXEL_TIE_EPSILON
 from maquette_motion.raster import QuadSamples
 
 SYNTHETIC_SIZE = 12
 SYNTHETIC_BOUNDS = (0, 0, SYNTHETIC_SIZE + 2, SYNTHETIC_SIZE + 2)
 SYNTHETIC_THIRD_COLOUR = (251, 7, 199, 255)
 SYNTHETIC_OPAQUE_COLOUR = (80, 100, 120, 255)
+SYNTHETIC_NON_TIE_DISTANCE_TEXELS = 0.01
+SYNTHETIC_SMALL_PART_SIZE = 2
 
 
 class NativeTieTests(unittest.TestCase):
@@ -34,12 +36,35 @@ class NativeTieTests(unittest.TestCase):
             actual[5, 5] = candidate[5, 5]
             self.assertTrue(pixels.native_frame_matches(actual, samples.default, samples))
 
-    def test_third_colour_at_a_tie_is_not_an_edge_allowance(self):
+    def test_invalid_tie_is_counted_under_the_existing_edge_allowance(self):
         samples = self.samples()
         actual = samples.default.copy()
         actual[5, 5] = SYNTHETIC_THIRD_COLOUR
-        # The old 1px + 1% rule alone would accept this single bad pixel.
+        selected, invalid = native_ties.select(actual, samples)
+        self.assertEqual(int(invalid.sum()), 1)
+        self.assertEqual(int(pixels.changed(actual, selected).sum()), 1)
+        np.testing.assert_array_equal(selected, samples.default)
         self.assertTrue(pixels.native_frame_matches(actual, samples.default))
+        self.assertTrue(pixels.native_frame_matches(actual, samples.default, samples))
+
+    def test_two_invalid_ties_exceed_a_small_parts_one_pixel_allowance(self):
+        paint = np.full((SYNTHETIC_SMALL_PART_SIZE, SYNTHETIC_SMALL_PART_SIZE, 4),
+                        SYNTHETIC_OPAQUE_COLOUR, np.uint8)
+        transform = np.eye(3)
+        transform[:2, 2] = 0.5
+        samples = nearest_quad(paint, transform,
+                               (0, 0, SYNTHETIC_SMALL_PART_SIZE + 1, SYNTHETIC_SMALL_PART_SIZE + 1),
+                               with_ties=True)
+        actual = samples.default.copy()
+        actual[0, 0] = SYNTHETIC_THIRD_COLOUR
+        self.assertTrue(pixels.native_frame_matches(actual, samples.default, samples))
+        actual[0, 1] = SYNTHETIC_THIRD_COLOUR
+        selected, invalid = native_ties.select(actual, samples)
+        self.assertEqual(int(invalid.sum()), 2)
+        self.assertEqual(int(pixels.changed(actual, selected).sum()), 2)
+        union = int(((actual[..., 3] > 0) | (samples.default[..., 3] > 0)).sum())
+        allowance = pixels.PROOF_DEFAULTS['native_raster_edge_pixels'] + union * pixels.PROOF_DEFAULTS['native_raster_fraction']
+        self.assertEqual(int(allowance), 1)
         self.assertFalse(pixels.native_frame_matches(actual, samples.default, samples))
 
     def test_texture_edge_ties_never_accept_nonexistent_transparent_texels(self):
@@ -51,6 +76,9 @@ class NativeTieTests(unittest.TestCase):
         actual[0, :] = 0
         actual[:, 0] = 0
         self.assertEqual(int(pixels.changed(actual, samples.default).sum()), 23)
+        selected, invalid = native_ties.select(actual, samples)
+        self.assertEqual(int(invalid.sum()), 23)
+        self.assertEqual(int(pixels.changed(actual, selected).sum()), 23)
         self.assertFalse(pixels.native_frame_matches(actual, samples.default))
         self.assertFalse(pixels.native_frame_matches(actual, samples.default, samples))
         for candidate in samples.candidates:
@@ -87,8 +115,29 @@ class NativeTieTests(unittest.TestCase):
         stable = native_ties.explanation(after, after, True, samples.default, samples.default)
         self.assertEqual(pixels.residual(second, second, *stable)[0], 0)
 
+    def test_other_neighbour_at_001_texel_is_not_a_candidate(self):
+        paint = np.full((SYNTHETIC_SIZE, 2, 4), SYNTHETIC_OPAQUE_COLOUR, np.uint8)
+        paint[:, 1] = SYNTHETIC_THIRD_COLOUR
+        transform = np.eye(3)
+        # Integer vertices survive the raster grid unchanged. The destination
+        # x=0.5 pixel centre maps to u=1.01 exactly, with both neighbours real.
+        scale = 0.5 / SYNTHETIC_NON_TIE_DISTANCE_TEXELS
+        transform[0, 0], transform[0, 2] = scale, -scale
+        samples = nearest_quad(paint, transform, (0, 0, 1, SYNTHETIC_SIZE), with_ties=True)
+        self.assertFalse(samples.ties.any())
+        actual = paint[:, :1].copy()
+        # Every sample in this column is 0.01 texel past an integer boundary.
+        # The wrong neighbour is never selected as a legal tie. Repeat that
+        # single-pixel mutation down the column to exceed the unchanged
+        # non-tie edge allowance as well.
+        selected, invalid = native_ties.select(actual, samples)
+        self.assertFalse(invalid.any())
+        np.testing.assert_array_equal(selected, samples.default)
+        self.assertTrue(pixels.changed(actual, selected).all())
+        self.assertFalse(pixels.native_frame_matches(actual, samples.default, samples))
+
     def test_report_counts_only_occupied_ties_even_for_whole_scanlines(self):
-        self.assertEqual(EXACT_TIE_EPSILON, 1e-6)
+        self.assertEqual(SUBTEXEL_TIE_EPSILON, 1 / 512)
         normal = native_ties.statistics(self.samples(offset=(0, 0)))
         broken = native_ties.statistics(self.samples())
         self.assertEqual(normal['pixels'], 0)

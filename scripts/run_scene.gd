@@ -24561,11 +24561,21 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			_combat_pacing.after_step(step)
 			continue
 		if step.has("en02_mechanic"):
+			var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
+			if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
+				await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+				_combat_pacing.after_step(step)
+				continue
 			if str(step["en02_mechanic"]).begins_with("icefall"): await preload("res://scripts/enemy_mechanics/icefall_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/wind_view.gd").animate(self, animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
 		if str(step.get("action_type", "")) == "tether_beam":
+			var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
+			if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
+				await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+				_combat_pacing.after_step(step)
+				continue
 			await preload("res://scripts/enemy_mechanics/tether_view.gd").animate(self, animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
@@ -24626,6 +24636,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", "Ground"))])
 				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
 			"block", "heal", "stoneskin", "status", "status_damage":
+				var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, step_actor_key)
+				if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
+					await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+					_combat_pacing.after_step(step)
+					continue
 				await MaquetteAction.play_utility(self, animated_state, step)
 				if GuardianCutout.handles(str(_animation_actor_unit(animated_state,step_actor_key).get("type",""))) and str(step["kind"]) in ["block","stoneskin"]:
 					await _animate_guardian_utility(animated_state,step,step_actor_key)

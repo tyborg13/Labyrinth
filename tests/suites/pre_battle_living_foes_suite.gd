@@ -13,7 +13,8 @@ const EXPECTED_COPY: Dictionary = {
 	"survive": "Survive until the marked time.",
 	"reach_exit": "Reach a marked door to escape."
 }
-const EXPECTED_STATIC: Array[String] = ["hoarfrost_seer", "gale_herald", "arc_thrall", "gloam_stalker", "burrow_grub", "ember_tick", "storm_capacitor", "hollow_mimic", "briar_weaver", "slag_mortar", "glacial_mirror"]
+const EXPECTED_STATIC := ["gale_herald", "gloam_stalker", "burrow_grub", "ember_tick", "storm_capacitor", "hollow_mimic", "briar_weaver", "slag_mortar", "glacial_mirror"]
+const MAQUETTE_FOES := ["bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall"]
 const TEST_STAGE_SIZE := Vector2(206, 365)
 const PROCESS_FRAMES: int = 3
 const PHASE_EPSILON: float = 0.000001
@@ -24,6 +25,8 @@ const OBJECTIVE_TEST_SIZE := Vector2(1000, 100)
 # Independent oracle: board constants plus explicit maquette Scripts, never the
 # selector under test. Shared Guardian instances must also carry their identity.
 const EXPECTED_RENDERERS: Dictionary = {
+	"hoarfrost_seer": preload("res://assets/units/hoarfrost_seer_cutout/renderer.gd"),
+	"arc_thrall": preload("res://assets/units/arc_thrall_cutout/renderer.gd"),
 	"crawler": Board.CrawlerCutout, "acolyte": Board.AcolyteCutout,
 	"harrier": Board.HarrierCutout, "warden": Board.WardenCutout,
 	"cinder_ooze": Board.CinderOozeCutout, "cinder_droplet": Board.CinderDropletCutout,
@@ -120,12 +123,12 @@ static func _test_roster(expect: Callable) -> void:
 			if expected == Board.GuardianCutout: expect.call(renderer.get("character_id") == identity, "Shared Guardian renderer carries character_id: " + identity)
 			var snapshot: Dictionary = renderer.call("snapshot")
 			expect.call(snapshot["facing"] == "front" and not bool(snapshot["mirrored"]) and snapshot.get("shown_clip", snapshot["clip"]) == "idle", "Board idle faces front: " + identity)
-			if identity in ["bile_bloomer", "lightning_wisp"]:
+			if identity in MAQUETTE_FOES:
 				expect.call(still.texture is AtlasTexture and (still.texture as AtlasTexture).atlas == renderer.call("texture"), "Source canvas shares the single live maquette renderer: " + identity)
 		expect.call(still.visible == (expected == null), "Only unrigged identities show the source still: " + identity)
 		var inspection: Control = host.call("_build_pre_battle_enemy_inspection_panel", {"type": identity, "hp": 1})
 		expect.call(inspection.find_child("PreBattleEnemyLiveActor", true, false) == null, "Inspection remains a cropped still: " + identity)
-		if identity in ["bile_bloomer", "lightning_wisp"]:
+		if identity in MAQUETTE_FOES:
 			var portrait_renderer: Node = inspection.find_child("MaquettePortraitRenderer", true, false)
 			expect.call(portrait_renderer != null and portrait_renderer.get_script() == expected, "Inspection resolves the maquette Script: " + identity)
 		inspection.free()
@@ -152,7 +155,7 @@ static func _test_roster(expect: Callable) -> void:
 	before = _clocks(actors)
 	await _frames(tree)
 	_assert_frozen(actors, before, expect, "Reduced-motion SceneTree idle stays frozen: ")
-	expect.call(count == 43 and actors.size() == 32, "Every identity is covered (32 cutouts / 11 stills)")
+	expect.call(count == 43 and actors.size() == 34, "Every identity is covered (34 cutouts / 9 stills)")
 	stage.free()
 	host.free()
 	Settings.apply_settings(saved_settings, null, false)
@@ -176,7 +179,7 @@ static func _test_applied_slot_phases(expect: Callable) -> void:
 	settings["reduced_motion"] = false
 	Settings.apply_settings(settings, null, false)
 	var host := RunScene.new()
-	for identity: String in ["crawler", "bile_bloomer", "lightning_wisp"]:
+	for identity: String in ["crawler", "bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall"]:
 		_test_slot_phases_for(host, tree, identity, expect)
 	host.free()
 	settings["reduced_motion"] = restore_reduced

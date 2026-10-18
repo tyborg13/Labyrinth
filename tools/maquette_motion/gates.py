@@ -126,6 +126,8 @@ def input_bindings(case):
             paths.update(d['mask'] for d in feature['views'].values() if not d['mask'].startswith('TODO_DESIGN_'))
     result={p:digest(case/p) for p in paths}
     result.update({'runtime:'+p:digest(PROJECT/p) for p in RUNTIME_PATHS})
+    for path in read_json(case / 'cutout.json').get('runtime_paths', []):
+        result['runtime:' + path] = digest(PROJECT / path)
     return result
 
 

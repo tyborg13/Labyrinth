@@ -1,0 +1,14 @@
+Running task-local command:
+  task: rr-07
+  run: rr-07-1792299963634225000-53950
+  HOME: /private/tmp/labyrinth-godot-home/rr-07-1792299963634225000-53950
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-07-1792299963634225000-53950/godot.log --headless --path . --script tests/rr07/production_capture.gd -- --type arc_thrall --output experiments/cutouts/arc_thrall/mq5/proof/production_logic --logic-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE PRODUCTION LOGIC: PASS (1053 frames)
+Saved experiments/cutouts/arc_thrall/mq5/proof/production_logic

@@ -7,6 +7,8 @@ const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/pres
 ## HUD heights use each painted rest view; raised weapons never lift a nameplate.
 const SOURCE_SIZE: float = 255.0
 const PROFILES: Dictionary = {
+	"hoarfrost_seer": {"front": Vector2(135.0, 232.46), "rear": Vector2(119.75, 231.71), "height": Vector2(192.46, 208.71)},
+	"arc_thrall": {"front": Vector2(132.0, 230.46), "rear": Vector2(124.75, 239.96), "height": Vector2(189.46, 190.96)},
 	"ash_hound": {"front": Vector2(120.2500, 217.0000), "rear": Vector2(130.2500, 217.7500), "height": Vector2(171.0000, 171.7500)},
 	"ashen_reaver": {"front": Vector2(135.0000, 229.5000), "rear": Vector2(120.5000, 243.5000), "height": Vector2(219.5000, 233.5000)},
 	"bell_tender": {"front": Vector2(144.0000, 241.0000), "rear": Vector2(106.0000, 240.5000), "height": Vector2(231.0000, 230.5000)},
@@ -54,6 +56,8 @@ static func height_above_floor(unit_type: String, facing: String = "") -> float:
 	return heights.y if facing == "rear" else heights.x if facing == "front" else maxf(heights.x, heights.y)
 
 const ACTION_BOUNDS: Dictionary = {
+	"arc_thrall": Rect2(-172.0, -196.0, 344.0, 232.0),
+	"hoarfrost_seer": Rect2(-163.0, -223.0, 326.0, 263.0),
 	"crawler": Rect2(-158.2500, -159.5000, 316.5000, 209.2500),
 	"acolyte": Rect2(-103.5000, -216.0000, 207.0000, 236.0000),
 	"harrier": Rect2(-192.5000, -246.0000, 385.0000, 276.5000),

@@ -1,0 +1,137 @@
+{
+  "ok": true,
+  "scope": "12 committed isolated native surfaces only; full native captures absent in this worktree",
+  "subtexel_tie_epsilon": 0.001953125,
+  "records": [
+    {
+      "manifest": "manifest.json",
+      "part": "tendril_high_r",
+      "frame": 35,
+      "kind": "before",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "9594b4c5685b34e1a20830964d8dfcf674e7aa569df4a7b43beab541ed6e019d",
+      "source_sha256": "35efdb4e8aadb4ad6f8da4df938fea41de5eb2bf4869d1693d818261e10a3728"
+    },
+    {
+      "manifest": "manifest.json",
+      "part": "root_stem_r",
+      "frame": 61,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "f0aec96464e107d413425b9ced5356812a4697a71862d950520c745bf23ddf50",
+      "source_sha256": "540c4501d458b871657ee885db47a3f8c37503982e7f51562abb847751431ac5"
+    },
+    {
+      "manifest": "manifest.json",
+      "part": "feature_amber_right",
+      "frame": 53,
+      "kind": "before",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "5c9d8813f180ab02c4c2af4fbd69b0e3e8ca57667a46e1de3615de8c9124d5d0",
+      "source_sha256": "71ae89b5feaf624bd908b4ef2bfcf37b89e8204bd75f3484c6ffdcf75327af8d"
+    },
+    {
+      "manifest": "manifest.json",
+      "part": "hidden_root_tip_r",
+      "frame": 41,
+      "kind": "before",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "e3bf1e2be83db2e717d2897d1d188a13767dc070e8f2ca279a9783f0ec8e19d1",
+      "source_sha256": "db89fb13ca5eeb92fd9f664f03d2fcef45b1a5b7d0ada6998e02b0fe696c1509"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "feature_eye",
+      "frame": 0,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "f6d954b3dfe0a16a1d92f7b7944f5e9959e8fc5817f4dc8d8085e5a17e07b904",
+      "source_sha256": "8fb9fbf9507b7b4b0312c60e1f0dc595dc366cf68edbc7b43fe6b569b2d2ff32"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "arc_left",
+      "frame": 12,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "00924bb9589d0a43aa12598f0cabdc8d5f131fcdfbd08d7090800db0a558d39f",
+      "source_sha256": "a14beb6ef441120f37933c17aa12beb00f927b907e53e573ed8f892bbefedd7b"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "arc_left",
+      "frame": 18,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "91372b7a65947f3118226a47d5bdf45d0662fc51ca5b5ed242eba3ea6ba7f862",
+      "source_sha256": "a14beb6ef441120f37933c17aa12beb00f927b907e53e573ed8f892bbefedd7b"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "arc_left",
+      "frame": 12,
+      "kind": "before",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "db18c7768614d894f2185ae77b4cc287aa787e226b98a17241708d57027b75ca",
+      "source_sha256": "a14beb6ef441120f37933c17aa12beb00f927b907e53e573ed8f892bbefedd7b"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "arc_right",
+      "frame": 18,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "35a64a4cab67c0c6b70dd4f8e337c3f26d9974c623ec72ed6a6200116559fb47",
+      "source_sha256": "74b318ca65674463feee220091db37d39ad1f1dcc411a9a4c1f2402559013916"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "arc_right",
+      "frame": 90,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "208b38c7addb2d76e5da34efd2e1b388b72e7842b44095dbb99eecec27399aa7",
+      "source_sha256": "74b318ca65674463feee220091db37d39ad1f1dcc411a9a4c1f2402559013916"
+    },
+    {
+      "manifest": "wisp_manifest.json",
+      "part": "arc_right",
+      "frame": 90,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "b4aea46e92192310e6445b295912a2cd251ce8f324c36baf33e40d21b066fef2",
+      "source_sha256": "76f70e1da88575170a92d458187fd9585f5d39427ba40a3a11a33fabbad7badf"
+    },
+    {
+      "manifest": "seam_manifest.json",
+      "part": "seam_core_arc_right",
+      "frame": 12,
+      "kind": "after",
+      "ok": true,
+      "residual_pixels": 0,
+      "capture_sha256": "647ac125bddba2fd4d86c0121f7d4ebb9f2b6a12d0465fcf46200c1ff6334c4d",
+      "source_sha256": "d36482b4c1099642ad8216b55296f5a112e9976e7a699bb62adced665cfaa7ff"
+    }
+  ],
+  "full_native_captures": {
+    "shale_bloomer": {
+      "path": "output/rr-05/shale-native",
+      "exists": false
+    },
+    "lightning_wisp": {
+      "path": "output/rr-05/wisp-native",
+      "exists": false
+    }
+  }
+}

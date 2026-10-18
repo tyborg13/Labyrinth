@@ -7,6 +7,7 @@ const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RR07_TRAVEL_QUERY_DISTANCES := [96.0, 131.52, 192.0] # Debug-only query fixtures.
 
 static func run(expect: Callable) -> void:
 	var board := CombatBoardView.new()
@@ -36,6 +37,16 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 		var constants: Dictionary = renderer.get_script_constant_map()
 		var cycle_seconds: float = constants["WALK_CYCLE_SECONDS"]
 		var frame_seconds: float = constants["WALK_FRAME_SECONDS"]
+		if actor in ["hoarfrost_seer", "arc_thrall"]:
+			# rr-07 supplies an authored duration per resolved step. Validate
+			# against protected data instead of inventing a source-space gait pace.
+			var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/rr-07/motion_tracks.json"))
+			var seconds: float = float(director[actor]["clips"]["move"]["seconds"])
+			var scale: float = board.call("source_pixel_scale_for_type", actor)
+			expect.call(scale > 0.0 and is_equal_approx(cycle_seconds, seconds), actor + " retains protected step duration")
+			for source_distance: float in RR07_TRAVEL_QUERY_DISTANCES:
+				expect.call(is_equal_approx(float(renderer.call("walk_segment_frames", source_distance)) * frame_seconds, seconds), actor + " resolved step retains authored clock")
+			continue
 		var guardian: bool = preload("res://scripts/guardian_cutout/renderer.gd").handles(actor)
 		if guardian: cycle_seconds = renderer.call("walk_cycle_seconds", actor)
 		var cycle_distance: float = renderer.call("walk_cycle_distance", actor) if guardian else renderer.call("walk_cycle_distance")

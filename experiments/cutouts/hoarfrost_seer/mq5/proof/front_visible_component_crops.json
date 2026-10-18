@@ -1,0 +1,82 @@
+{
+  "parts": [
+    {
+      "source": "collar",
+      "node": "collar",
+      "pixels": 370,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "collar",
+      "node": "collar_component_02",
+      "pixels": 167,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "collar",
+      "node": "collar_component_03",
+      "pixels": 28,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "collar",
+      "node": "collar_component_04",
+      "pixels": 5,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "collar",
+      "node": "collar_component_05",
+      "pixels": 1,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "skirt_near",
+      "node": "skirt_near",
+      "pixels": 4607,
+      "bone": "skirt_near",
+      "z_index": 2
+    },
+    {
+      "source": "skirt_near",
+      "node": "skirt_near_component_02",
+      "pixels": 2,
+      "bone": "skirt_near",
+      "z_index": 2
+    },
+    {
+      "source": "staff_shaft",
+      "node": "staff_shaft",
+      "pixels": 390,
+      "bone": "staff_shaft",
+      "z_index": 5
+    },
+    {
+      "source": "staff_shaft",
+      "node": "staff_shaft_component_02",
+      "pixels": 177,
+      "bone": "staff_shaft",
+      "z_index": 5
+    },
+    {
+      "source": "staff_shaft",
+      "node": "staff_shaft_component_03",
+      "pixels": 9,
+      "bone": "staff_shaft",
+      "z_index": 5
+    },
+    {
+      "source": "staff_shaft",
+      "node": "staff_shaft_component_04",
+      "pixels": 6,
+      "bone": "staff_shaft",
+      "z_index": 5
+    }
+  ],
+  "policy": "Lossless connected storage crops; no paint reassignment or deletion"
+}

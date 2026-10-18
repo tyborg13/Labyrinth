@@ -1,0 +1,12 @@
+test_card_widget_consumes_the_central_role_emblem_inventory (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_distinct_player_facing_concepts_own_distinct_assets (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_en01_approved_enemy_icon_identities (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_every_data_action_resolves_through_the_central_icon_inventory (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_grimoire_icons_are_registered_and_semantically_exact (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_next_attack_owns_its_purpose_built_icon (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+test_policy_is_mandatory_for_ui_work (test_icon_identity_policy.IconIdentityPolicyTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.060s
+
+OK

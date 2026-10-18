@@ -1,0 +1,13 @@
+{
+  "front": {
+    "pixel_identical": true,
+    "different_pixels": 0,
+    "rgba_sha256": "cdcd69b3b7b2b933530cca5d5b7be3e3e735943d5c01257314f2aa791c950cd3"
+  },
+  "rear": {
+    "pixel_identical": true,
+    "different_pixels": 0,
+    "rgba_sha256": "a39e7c89aa34959ac2fd022f57baa5288f67c6ce94b290f2b74c1b7e0f98367a"
+  },
+  "ok": true
+}

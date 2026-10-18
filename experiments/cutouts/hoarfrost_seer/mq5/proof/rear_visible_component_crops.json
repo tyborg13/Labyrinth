@@ -1,0 +1,33 @@
+{
+  "parts": [
+    {
+      "source": "collar",
+      "node": "collar",
+      "pixels": 993,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "collar",
+      "node": "collar_component_02",
+      "pixels": 282,
+      "bone": "collar",
+      "z_index": 12
+    },
+    {
+      "source": "skirt_near",
+      "node": "skirt_near",
+      "pixels": 1835,
+      "bone": "skirt_near",
+      "z_index": 2
+    },
+    {
+      "source": "skirt_near",
+      "node": "skirt_near_component_02",
+      "pixels": 6,
+      "bone": "skirt_near",
+      "z_index": 2
+    }
+  ],
+  "policy": "Lossless connected storage crops; no paint reassignment or deletion"
+}

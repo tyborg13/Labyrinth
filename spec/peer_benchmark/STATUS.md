@@ -21,7 +21,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 ## In flight (2026-10-18 early; maquette roster wave 1)
 - Merged on integration since playtest 10: map-02, cbt-01, boon-01, fix-05, flow-01, qa-07, qa-08, bug-01, mq-04,
   rr-05 (latest merge 19fe623f8). Owner approved: section transition, Bloomer rr-05 clip, roster plan, Lancer look.
-- Running: rr-07 (Seer + Thrall rigs; uses committed mq-04 delivery solos) and det-01 (bug-02 + qa-13 determinism).
+- Running: rr-07 (Seer + Thrall rigs; uses the committed mq-04 delivery solos), mq-05 (batch B maquettes) and rr-06
+  (Lancer rig). Blender bridge: a tracked director job, `bridge.py mq-05 rr-06`. det-01 merged.
 - Next (in order):
   1. After about 01:07 the mq-04 Blender bridge idles out on its own; the owner said not to kill running things.
      Then launch mq-05 (batch B maquettes, brief ready) and start the bridge for it. rr-06 (Lancer rig) needs the

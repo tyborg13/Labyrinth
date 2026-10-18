@@ -1,0 +1,37 @@
+{
+  "input_ok": true,
+  "feature_declarations_ok": true,
+  "production_ready": false,
+  "features": [
+    {
+      "feature": "ice_crystal",
+      "view": "front",
+      "owner": "staff_crystal",
+      "seed_pixels": 912,
+      "mask_pixels": 921,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "8f7a8b8a66ca3a7c886213f4838abd410e6d44eede5f381bccc15fc1b24f5810",
+      "outline_crop": "proof/features/front_ice_crystal_outline.png"
+    },
+    {
+      "feature": "ice_crystal",
+      "view": "rear",
+      "owner": "staff_crystal",
+      "seed_pixels": 1162,
+      "mask_pixels": 1171,
+      "rim_px": 1,
+      "holes_filled": true,
+      "mask_sha256": "8c18ea30569de3b69af39033c82070cc18d12d7fe08e778d5c79fbd4a75991b0",
+      "outline_crop": "proof/features/rear_ice_crystal_outline.png"
+    }
+  ],
+  "TODO_DESIGN": [],
+  "unrun_gates": [
+    "native exact-tie agreement",
+    "native production pixels",
+    "real-time MP4 review",
+    "native density rest rebake"
+  ],
+  "headless_ready": true
+}

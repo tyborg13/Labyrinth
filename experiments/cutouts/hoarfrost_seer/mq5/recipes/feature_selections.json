@@ -1,0 +1,35 @@
+{
+  "source": "Approved mq5 paintings; rr-07 feature ownership",
+  "selections": {
+    "ice_crystal": {
+      "owner": "staff_crystal",
+      "colour": "ice",
+      "front": [
+        50,
+        39,
+        82,
+        101
+      ],
+      "rear": [
+        174,
+        22,
+        205,
+        89
+      ]
+    }
+  },
+  "policy": "Source colour seeds in explicit source rectangles; one 8-neighbour pixel rim; fill bounded holes; intersect approved opaque paint",
+  "chain_colour_selection": {
+    "r_minus_g_max": 16,
+    "g_minus_b_exclusive_min": 10
+  },
+  "proof_defaults": {
+    "input_cell_px": 255,
+    "input_columns": 6,
+    "input_label_height_px": 30,
+    "outline_zoom": 8,
+    "outline_crop_margin_px": 3,
+    "full_godot_timeout_seconds": 900,
+    "registration_joint_tolerance_px": 0.02
+  }
+}

@@ -15,8 +15,12 @@ static func phase_for(data: Dictionary, clip: String, phase: float) -> float:
 	var held_seconds: float = floorf(elapsed * LOOP_FPS + CLOCK_EPSILON) / LOOP_FPS
 	return fposmod(held_seconds, seconds) / seconds
 
-static func snapped_transform(source: Transform2D) -> Transform2D:
-	return Transform2D(snappedf(source.get_rotation(), ROTATION_STEP), source.get_scale(), source.get_skew(), source.origin.round())
+static func snapped_transform(source: Transform2D, authored_angle: float = NAN) -> Transform2D:
+	if is_nan(authored_angle):
+		return Transform2D(snappedf(source.get_rotation(), ROTATION_STEP), source.get_scale(), source.get_skew(), source.origin.round())
+	var angle: float = authored_angle
+	var snapped: float = signf(angle) * floorf(absf(angle / ROTATION_STEP) + 0.5) * ROTATION_STEP
+	return Transform2D(snapped, source.get_scale(), source.get_skew(), source.origin.round())
 
 static func shared_anchors(layout: Dictionary) -> Dictionary:
 	# Every crop on a bone shares its owner transform: visible paint, features,
@@ -41,14 +45,15 @@ static func apply(rig: Node2D) -> void:
 		var offset := Vector2(float(part["offset"][0]), float(part["offset"][1]))
 		var pivot := Vector2(float(rig.layout["joints"][part["bone"]]["position"][0]), float(rig.layout["joints"][part["bone"]]["position"][1]))
 		var painted: Transform2D = bone_pose * Transform2D(0.0, offset - pivot)
-		var presented: Transform2D = snapped_transform(painted)
+		var angle: float = rig.precise_angles.get(part["bone"], NAN)
+		var presented: Transform2D = snapped_transform(painted, angle)
 		if anchors.has(part["bone"]):
 			var anchor: Dictionary = anchors[part["bone"]]
 			# Growing storage bounds for joint bleed must not move existing paint.
 			var reference: Array = anchor.get("presentation_anchor", anchor["offset"])
 			var anchor_offset := Vector2(float(reference[0]), float(reference[1]))
 			var owner_paint: Transform2D = bone_pose * Transform2D(0.0, anchor_offset - pivot)
-			presented = snapped_transform(owner_paint) * Transform2D(0.0, offset - anchor_offset)
+			presented = snapped_transform(owner_paint, angle) * Transform2D(0.0, offset - anchor_offset)
 		sprite.transform = bone_pose.affine_inverse() * presented
 
 ## The board already supports texture-only origins for root travel. Align the

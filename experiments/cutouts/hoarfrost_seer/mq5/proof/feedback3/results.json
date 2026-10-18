@@ -1,0 +1,123 @@
+{
+  "status": "Feedback 3 implemented and verified; director --from-review steps pending",
+  "requirements": [
+    {
+      "requirement": "Invalid ties use ordinary mismatch allowance",
+      "status": "PASS",
+      "evidence": "native_frame_matches retains invalid pixels in its existing changed-pixel count; allowance values unchanged"
+    },
+    {
+      "requirement": "Tie band, candidates, held consistency, shimmer and reporting",
+      "status": "PASS",
+      "evidence": "1/512 band and in-range candidates unchanged; held flips still rejected; existing tie report retained; exact before/after invalid counts per native view/part/frame added"
+    },
+    {
+      "requirement": "Retained and synthetic regressions",
+      "status": "PASS",
+      "evidence": "Thrall pixel (193,252) retained, 1 counted invalid tie passes; 23-pixel rr-05 erasure fails; 2 invalid pixels on 2x2 part fail"
+    },
+    {
+      "requirement": "Existing native capture re-gates",
+      "status": "PASS",
+      "evidence": "Both creatures 0 errors; original captures and manifests unchanged; both current certificates verified"
+    },
+    {
+      "requirement": "Focused maquette and full suites",
+      "status": "PASS except expected missing native density records",
+      "evidence": "172 focused tests OK, full Godot PASS, Python 839 tests with only four missing rest-record prerequisite failure"
+    }
+  ],
+  "tests": {
+    "targeted_native": {
+      "exit_code": 0,
+      "lines": [
+        "Ran 21 tests in 1.212s",
+        "OK"
+      ],
+      "log": "native_tests.log"
+    },
+    "focused_maquette": {
+      "exit_code": 0,
+      "lines": [
+        "Ran 172 tests in 236.897s",
+        "OK (skipped=2)"
+      ],
+      "log": "maquette_tests.log"
+    },
+    "full_godot": {
+      "exit_code": 0,
+      "lines": [
+        "MAIN BODY ASSERTIONS: 378792",
+        "RR07 RUNTIME: PASS (120088 checks, 0 failures; headless logic only)",
+        "FULL SUITE RUNTIME: 418.548 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ],
+      "log": "full_godot.log"
+    },
+    "full_python": {
+      "exit_code": 1,
+      "lines": [
+        "Ran 839 tests in 737.306s",
+        "FAILED (failures=1, skipped=63)"
+      ],
+      "only_failure": "test_shipped_derivations_and_manifest_are_current: front/rear native rest records missing for both rr-07 production rigs",
+      "log": "full_python.log"
+    }
+  },
+  "native_summary": {
+    "hoarfrost_seer": {
+      "ok": true,
+      "errors": [],
+      "invalid_tie_totals": {
+        "before": 0,
+        "after": 0
+      },
+      "nonzero_invalid_tie_frames": [],
+      "presented_shimmer_residuals": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 0
+      },
+      "report": "experiments/cutouts/hoarfrost_seer/mq5/proof/native/verification.json",
+      "retained_manifests_and_rests_unchanged": true,
+      "certificate_current": true
+    },
+    "arc_thrall": {
+      "ok": true,
+      "errors": [],
+      "invalid_tie_totals": {
+        "before": 1,
+        "after": 0
+      },
+      "nonzero_invalid_tie_frames": [
+        {
+          "view": "rear",
+          "part": "seam_upper_near_fore_near",
+          "frame": 65,
+          "before": 1,
+          "after": 0
+        }
+      ],
+      "presented_shimmer_residuals": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 0
+      },
+      "report": "experiments/cutouts/arc_thrall/mq5/proof/native/verification.json",
+      "retained_manifests_and_rests_unchanged": true,
+      "certificate_current": true
+    }
+  },
+  "TODO_DESIGN": [],
+  "resolved_placeholder": "TODO_DESIGN_native_outer_uv_edge_policy",
+  "chosen_defaults": {
+    "SYNTHETIC_SMALL_PART_SIZE": 2,
+    "test_destination_bounds": "derived from size + 1"
+  },
+  "windowed_runs_by_worker": false,
+  "review_composition_by_worker": false,
+  "committed": false,
+  "peer_review_run": false,
+  "resume_commands": {
+    "hoarfrost_seer": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && sh experiments/cutouts/hoarfrost_seer/rr07_proof.sh hoarfrost_seer --from-review",
+    "arc_thrall": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && sh experiments/cutouts/hoarfrost_seer/rr07_proof.sh arc_thrall --from-review"
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "capture_basis": "Director rr-07 retained native capture; feedback 3 outer-quad coverage rounding. PNGs copied byte for byte; no recapture.",
+  "case": "experiments/cutouts/arc_thrall/mq5",
+  "historical_part": {
+    "name": "seam_upper_near_fore_near",
+    "seam_underlay": true,
+    "bone": "upper_near",
+    "file": "tests/maquette_cutout/native_fixtures/source_arc_thrall_rear_seam_upper_near_fore_near.png",
+    "offset": [
+      65,
+      118
+    ],
+    "bbox": [
+      65,
+      118,
+      87,
+      135
+    ],
+    "z_index": -20
+  },
+  "sample": {
+    "clip": "idle",
+    "frame": 65,
+    "parts": {
+      "seam_upper_near_fore_near": {
+        "alpha": 1.0,
+        "before": [
+          0.999863803386688,
+          -0.0165051780641079,
+          0.0165051780641079,
+          0.999863803386688,
+          65.4010467529297,
+          118.549713134766
+        ],
+        "bone": "upper_near",
+        "transform": [
+          0.999657273292542,
+          -0.0261769481003284,
+          0.0261769481003284,
+          0.999657273292542,
+          66.048095703125,
+          118.064819335938
+        ]
+      }
+    },
+    "phase": 0.361111111111111,
+    "presented_phase": 0.333333333333333,
+    "view": "rear"
+  },
+  "step_distance_px": 96.0,
+  "fixtures": [
+    {
+      "view": "rear",
+      "part": "seam_upper_near_fore_near",
+      "frame": 65,
+      "kind": "before",
+      "source": "tests/maquette_cutout/native_fixtures/source_arc_thrall_rear_seam_upper_near_fore_near.png",
+      "source_sha256": "9503608a75049e5f60a61b827b98eaf689f194a1e7be613df4a3420030c9eb74",
+      "transform": [
+        0.999863803386688,
+        -0.0165051780641079,
+        0.0165051780641079,
+        0.999863803386688,
+        65.4010467529297,
+        118.549713134766
+      ],
+      "presented_transform": [
+        0.999657273292542,
+        -0.0261769481003284,
+        0.0261769481003284,
+        0.999657273292542,
+        66.048095703125,
+        118.064819335938
+      ],
+      "invalid_pixel_xy": [
+        193,
+        252
+      ],
+      "invalid_tie_pixels": 1,
+      "counted_changed_pixels": 1,
+      "capture": "arc_thrall_rear_seam_upper_near_fore_near_before_0065.png",
+      "capture_sha256": "3e2db0832927b52d58de309447e1d21244b5788a22c8515ea703173aa5fe9315",
+      "after_capture": "arc_thrall_rear_seam_upper_near_fore_near_after_0065.png",
+      "after_capture_sha256": "7987c4b0b8abe53929af2acce881ff58121ca385329717ed87fe90524451f3b0",
+      "capture_origin": "experiments/cutouts/arc_thrall/mq5/proof/native/pixels/rear/seam_upper_near_fore_near/before_0065.png",
+      "manifest_sha256": "5d122fb6acfd4805afd306b8e5e981570c7118fda57fd221cb7a193388771e64"
+    }
+  ]
+}

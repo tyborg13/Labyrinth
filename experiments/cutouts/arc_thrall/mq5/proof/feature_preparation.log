@@ -1,0 +1,20 @@
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+RR07 INPUT/FEATURE PREPARATION: PASS (arc_thrall)
+FEATURE front/spark_upper: 97 px; proof/features/front_spark_upper_outline.png
+FEATURE rear/spark_upper: 162 px; proof/features/rear_spark_upper_outline.png
+FEATURE front/spark_lower: 127 px; proof/features/front_spark_lower_outline.png
+FEATURE rear/spark_lower: 106 px; proof/features/rear_spark_lower_outline.png
+FEATURE front/chain_stub: 257 px; proof/features/front_chain_stub_outline.png
+FEATURE rear/chain_stub: 0 px; None
+RR07 PRODUCTION: BLOCKED (TODO_DESIGN_thrall_collar_attachment, TODO_DESIGN_thrall_loincloth_attachment)

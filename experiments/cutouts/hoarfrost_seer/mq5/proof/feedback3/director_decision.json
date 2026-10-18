@@ -1,0 +1,16 @@
+{
+  "source": "Director rr-07 feedback 3",
+  "resolved_placeholder": "TODO_DESIGN_native_outer_uv_edge_policy",
+  "subtexel_tie_epsilon": 0.001953125,
+  "invalid_ties": "One ordinary changed pixel per invalid tie under existing native_raster_edge_pixels + native_raster_fraction * union_area; no standalone failure",
+  "native_raster_edge_pixels": 1,
+  "native_raster_fraction": 0.01,
+  "legal_candidates": "Only existing in-range source texels; out-of-range alternatives never match",
+  "held_frames": "Unchanged: held flips fail with zero residual tolerance",
+  "shimmer_rules": "Unchanged",
+  "reporting": "Invalid-tie counts for every native view/part/frame, before and after; totals exclude duplicate loop-wrap comparison",
+  "new_chosen_defaults": {
+    "SYNTHETIC_SMALL_PART_SIZE": 2
+  },
+  "TODO_DESIGN": []
+}

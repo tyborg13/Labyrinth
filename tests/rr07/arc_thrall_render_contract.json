@@ -1,0 +1,80 @@
+{
+  "min_images": 39,
+  "expected_sizes": [
+    "1920x1080",
+    "255x255"
+  ],
+  "required_images": [
+    {
+      "pattern": "rest_pair.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            100,
+            100,
+            800,
+            850
+          ],
+          "min_luma_range": 8
+        },
+        {
+          "rect": [
+            1060,
+            100,
+            800,
+            850
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    },
+    {
+      "pattern": "front_rest.png",
+      "width": 255,
+      "height": 255
+    },
+    {
+      "pattern": "rear_rest.png",
+      "width": 255,
+      "height": 255
+    },
+    {
+      "pattern": "*/pair_idle/frame_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*/pair_move/frame_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*/pair_tether/frame_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*/pair_jab/frame_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*/pair_hit/frame_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    },
+    {
+      "pattern": "*/pair_death/frame_*.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6
+    }
+  ]
+}

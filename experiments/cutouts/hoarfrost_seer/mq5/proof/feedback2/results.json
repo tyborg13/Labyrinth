@@ -1,0 +1,90 @@
+{
+  "status": "Shared tie-band change implemented; native acceptance blocked on one new Thrall outer-edge pixel; rr-05 full native captures absent",
+  "requirements": [
+    {
+      "number": 1,
+      "status": "PASS",
+      "evidence": "SUBTEXEL_TIE_EPSILON = 1/512 in raster.py; 8-bit and retained rr-07 frame comment"
+    },
+    {
+      "number": 2,
+      "status": "PASS",
+      "evidence": "In-range candidates, strict invalid-tie rejection, held-frame rule, non-tie allowance and tie reports unchanged"
+    },
+    {
+      "number": 3,
+      "status": "PARTIAL",
+      "evidence": "18 focused tests PASS; both requested before fixtures retained; 0.01 texel regression rejects the wrong neighbour; 12 rr-05 retained native surfaces replay with 0 residual pixels. Full native captures absent."
+    },
+    {
+      "number": 4,
+      "status": "PARTIAL",
+      "evidence": "Seer native 0 errors; Thrall original 4 cleared but one new outer-UV-edge tie fails. No recapture or binding exemptions. Resume from review added and stub-checked."
+    }
+  ],
+  "tests": {
+    "focused": {
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 18 tests in 1.745s",
+        "OK"
+      ],
+      "log": "native_tests.log"
+    },
+    "full_godot": {
+      "exit_code": 0,
+      "result_lines": [
+        "MAIN BODY ASSERTIONS: 378792",
+        "RR07 RUNTIME: PASS (120088 checks, 0 failures; headless logic only)",
+        "FULL SUITE RUNTIME: 489.835 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ],
+      "log": "full_godot.log"
+    },
+    "full_python": {
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 836 tests in 881.109s",
+        "FAILED (failures=1, skipped=63)"
+      ],
+      "log": "full_python.log",
+      "only_failure": "test_shipped_derivations_and_manifest_are_current: four rr-07 native rest records missing"
+    }
+  },
+  "native": {
+    "hoarfrost_seer": {
+      "report": "experiments/cutouts/hoarfrost_seer/mq5/proof/native/verification.json",
+      "ok": true,
+      "errors": []
+    },
+    "arc_thrall": {
+      "report": "experiments/cutouts/arc_thrall/mq5/proof/native/verification.json",
+      "ok": false,
+      "errors": [
+        "rear/seam_upper_near_fore_near/65: native part does not match its source transform"
+      ]
+    }
+  },
+  "TODO_DESIGN": [
+    "TODO_DESIGN_native_outer_uv_edge_policy"
+  ],
+  "chosen_defaults": {
+    "SYNTHETIC_STALE_TRANSLATION_PX": 0.01,
+    "SYNTHETIC_NON_TIE_DISTANCE_TEXELS": 0.01,
+    "test_source_columns": 2,
+    "test_crop_bounds": [
+      128,
+      128,
+      384,
+      384
+    ],
+    "test_transform_scale": "derived 0.5 / 0.01 = 50"
+  },
+  "resume": {
+    "hoarfrost_seer": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && sh experiments/cutouts/hoarfrost_seer/rr07_proof.sh hoarfrost_seer --from-review",
+    "arc_thrall": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && sh experiments/cutouts/hoarfrost_seer/rr07_proof.sh arc_thrall --from-review"
+  },
+  "windowed_runs_by_worker": false,
+  "committed": false,
+  "peer_review_run": false
+}

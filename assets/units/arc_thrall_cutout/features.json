@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "approved_sha256": {
+    "front": "28c716515eab41775ebe9ced51089ee44935fa3053b178ad6cbe31d14bb66c7b",
+    "rear": "4d43a2a5114f70e00c7ed848b4a6bd3ec2eecceaa6cde1c8d2882b2a6daae424"
+  },
+  "features": [
+    {
+      "name": "spark_upper",
+      "views": {
+        "front": {
+          "owner": "club",
+          "mask": "features/front_spark_upper.png"
+        },
+        "rear": {
+          "owner": "club",
+          "mask": "features/rear_spark_upper.png"
+        }
+      }
+    },
+    {
+      "name": "spark_lower",
+      "views": {
+        "front": {
+          "owner": "club",
+          "mask": "features/front_spark_lower.png"
+        },
+        "rear": {
+          "owner": "club",
+          "mask": "features/rear_spark_lower.png"
+        }
+      }
+    },
+    {
+      "name": "chain_stub",
+      "views": {
+        "front": {
+          "owner": "collar",
+          "mask": "features/front_chain_stub.png"
+        },
+        "rear": {
+          "owner": "collar",
+          "mask": "features/rear_chain_stub.png",
+          "occluded_reason": "The collar chain stub is on the front; the rear view occludes it (rr-07 brief)."
+        }
+      }
+    }
+  ]
+}

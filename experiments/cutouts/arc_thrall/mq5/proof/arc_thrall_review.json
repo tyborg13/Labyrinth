@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "fps": 60,
+  "frames": 1131,
+  "seconds": 18.85,
+  "plan": [
+    [
+      "idle",
+      3
+    ],
+    [
+      "move",
+      3
+    ],
+    [
+      "tether",
+      2
+    ],
+    [
+      "jab",
+      2
+    ],
+    [
+      "hit",
+      2
+    ],
+    [
+      "death",
+      1
+    ]
+  ],
+  "death_hold_seconds": 1,
+  "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/arc_thrall/mq5/proof/native",
+  "native_manifest_sha256": "0cedb877feee3c1f54babb0504a6d53849115a8ace3dfae2a25c29367d219f94",
+  "video_sha256": "f72be3ffde50aad013ef30a483e1f0f33b402f1ba4c8ef1048917ab61857aca7"
+}

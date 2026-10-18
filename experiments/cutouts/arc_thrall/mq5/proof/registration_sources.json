@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "views": [
+    {
+      "view": "front",
+      "job": "spec/art_identity/jobs/arc_thrall/mq5_front",
+      "expected_raw_sha256": null,
+      "expected_raw_pixel_sha256": "c8e461ee15502b4346cc711192d523ab765632128b3429e0125d2797dd5b7481",
+      "ok": true,
+      "kind": "approved_raw_steps",
+      "source": "kit.json"
+    },
+    {
+      "view": "rear",
+      "job": "spec/art_identity/jobs/arc_thrall/mq5_rear",
+      "expected_raw_sha256": "37777c237be74775c62a6b77242cc2f8db81c74f7bcf6ec2a6b54894d5cbb686",
+      "expected_raw_pixel_sha256": null,
+      "ok": true,
+      "kind": "approved_file",
+      "source": "spec/art_identity/jobs/arc_thrall/mq5_rear/refs/raw_1024_lanczos.png"
+    }
+  ]
+}

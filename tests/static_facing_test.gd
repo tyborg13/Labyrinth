@@ -30,6 +30,9 @@ func _initialize() -> void:
 
 func _run() -> void:
 	for type: String in ["arc_thrall", "slag_mortar", "gust_shrike"]:
+		if type == "arc_thrall":
+			_expect(not Facing.handles(type), "rr-07 Thrall uses articulated facing; its runtime suite covers each direction")
+			continue
 		# Once promoted, rr-03's production probe owns articulated facing proof.
 		if type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): continue
 		var board: Control = Board.new()

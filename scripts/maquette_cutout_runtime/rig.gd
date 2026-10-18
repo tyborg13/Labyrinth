@@ -4,6 +4,7 @@ const SemanticMotion = preload("motion.gd")
 const Pixels = preload("pixel_presentation.gd")
 var character_id: String = "shale_bloomer"
 var case_directory: String = ""
+var precise_angles: Dictionary = {}
 
 func base_path() -> String:
 	return case_directory if not case_directory.is_empty() else "res://assets/units/" + character_id + "_cutout"
@@ -26,5 +27,11 @@ func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 	layout["motion_data"] = base_path().path_join("compiled_motion.json")
 	var pose: Dictionary = SemanticMotion.sample_pose(clip_name, phase_value, layout, facing)
 	_apply_sampled_pose(pose, true)
+	precise_angles.clear()
+	if bool(layout.get("native_angle_ties", false)) and clip_name != "rest":
+		preload("res://assets/units/hoarfrost_seer_cutout/precision.gd").apply_bones(
+			self, SemanticMotion.data_for(layout), clip_name, phase_value)
+		precise_angles = preload("res://assets/units/hoarfrost_seer_cutout/precision.gd").angles(
+			SemanticMotion.data_for(layout), layout, facing, clip_name, phase_value)
 	for bone: String in bones:
 		(bones[bone] as Bone2D).modulate.a = float(pose.get(bone, {}).get("alpha", 1.0))

@@ -1,0 +1,21 @@
+{
+  "features": [
+    {
+      "view": "front",
+      "feature": "ice_crystal",
+      "owner": "staff_crystal",
+      "painted_pixels_outside_native_label": 180,
+      "mask_pixels": 921,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "ice_crystal",
+      "owner": "staff_crystal",
+      "painted_pixels_outside_native_label": 287,
+      "mask_pixels": 1171,
+      "paint_moved": false
+    }
+  ],
+  "policy": "Report categorical disagreement; approved paint remains at its original coordinates."
+}

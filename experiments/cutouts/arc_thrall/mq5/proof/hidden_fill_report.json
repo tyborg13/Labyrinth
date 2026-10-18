@@ -1,0 +1,43 @@
+{
+  "complete": true,
+  "method": "diffusion",
+  "requests": 34,
+  "filled_requests": 34,
+  "pending_design": [],
+  "review_decisions": {},
+  "cross_view_requests": 0,
+  "remaining_magenta_pixels": 0,
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "cdcd69b3b7b2b933530cca5d5b7be3e3e735943d5c01257314f2aa791c950cd3"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "a39e7c89aa34959ac2fd022f57baa5288f67c6ce94b290f2b74c1b7e0f98367a"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "arc_thrall",
+    "layouts": {
+      "front": {
+        "joints": 17,
+        "parts": 37,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 17,
+        "parts": 35,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true
+}
