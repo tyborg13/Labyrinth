@@ -1,4 +1,4 @@
-# mq-05 feedback 2: sculpted, organic forms (director review of the clay sheet)
+# mq-05 feedback 1: sculpted, organic forms (director review of the clay sheet)
 
 Fit, gates, delivery and curation pass; keep all of that. The **form quality** is below batch A's bar. The owner has
 rejected "toy soldier" shapes, and the paint-over follows the clay's forms, so these need real modelling detail.
