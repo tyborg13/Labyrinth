@@ -2,7 +2,7 @@
   "ready": true,
   "case": "experiments/cutouts/burrow_grub/mq5",
   "director_sha256": "a278c6205fee0ffb1c42265ce72392897f1d89b0e6f88311add227ce3289a503",
-  "native_proof": "pending design-owner windowed proof and density rest rebake",
+  "native_proof": "density native-rest record complete; final captures remain separately bound",
   "rest_identity": {
     "front": {
       "pixel_identical": true,
@@ -178,14 +178,27 @@
     "seams/front/seam_seg_6_tail.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "seams/front/seam_seg_1_leg_near_1.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "rear/rest.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "rear/rest.png": "dc1048d1c3f233b645a381b45c7dac218b902ae2f56042484924969e3d6eb775",
+    "rear/rest.png": "67b2f8d8feb026c1a2da86845dd500d5e73cf3d7115ceae221c51ccab0a0652a",
     "front/rest.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "front/rest.png": "d41ee5510a68b280c31a4a9b9e39d47e10ea53b8ef3e8d9412d54ebeb506e6ef"
+    "front/rest.png": "3c8651927d6ec01588dcb10a1fba4a8906bf84ca3d7fd09696eb0877a3d58303"
   },
   "density": {
     "entry": "burrow_grub_cutout",
-    "paint": "processed from untouched adopted parts",
-    "native_rests": "pending director windowed rebake; no rest record fabricated"
+    "parts_pixel_sha256": "8d252125865a869c2d07c39efa16796aaf0011e55facfdf21d7ccf5d8cfd3e72",
+    "native_rests": {
+      "assets/units/burrow_grub_cutout/front/rest.png": {
+        "kind": "rest",
+        "id": "burrow_grub_cutout",
+        "pixel_sha256": "af67a54643257d87823c23a0c35e7f183311f78fa7c8d4785b3de23a0eb50c5d",
+        "parts_pixel_sha256": "8d252125865a869c2d07c39efa16796aaf0011e55facfdf21d7ccf5d8cfd3e72"
+      },
+      "assets/units/burrow_grub_cutout/rear/rest.png": {
+        "kind": "rest",
+        "id": "burrow_grub_cutout",
+        "pixel_sha256": "cfae706577d502b32c5c6dd858421d50ee217b35b2cba6386a7fc2db6f870825",
+        "parts_pixel_sha256": "8d252125865a869c2d07c39efa16796aaf0011e55facfdf21d7ccf5d8cfd3e72"
+      }
+    }
   },
   "headless_pixel_certificate_sha256": "b14bc0bcd9a9233d13aebdd0c0374c3109b0059bce15fd6a573b0c5039c57014"
 }
