@@ -33,15 +33,24 @@ func _ready() -> void:
 	viewport.world_2d = World2D.new()
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	add_child(viewport)
-	for view: String in ["front", "rear"]:
-		var rig := CommonRig.new()
-		rig.character_id = character_id
+	for view: String in _rig_views():
+		var rig: Node2D = _new_rig()
 		rig.name = view.capitalize()
 		rig.facing = view
 		viewport.add_child(rig)
 		if not rig.load_rig(): push_error("Maquette cutout could not load: " + str(rig.load_errors))
 		rigs[view] = rig
 	_apply_pose()
+
+func _rig_views() -> Array[String]:
+	var result: Array[String]
+	result.assign(["front", "rear"])
+	return result
+
+func _new_rig() -> Node2D:
+	var rig := CommonRig.new()
+	rig.character_id = character_id
+	return rig
 
 func motion_data() -> Dictionary:
 	return Motion.data_for({"motion_data": "res://assets/units/" + character_id + "_cutout/compiled_motion.json"})

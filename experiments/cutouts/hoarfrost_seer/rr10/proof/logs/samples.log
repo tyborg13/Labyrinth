@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-10
+  run: rr-10-1792325933989295000-34051
+  HOME: /private/tmp/labyrinth-godot-home/rr-10-1792325933989295000-34051
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-10-1792325933989295000-34051/godot.log --headless --path . --script tests/rr10/samples.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR10 BONE SAMPLES: PASS (629 poses; headless transforms only)

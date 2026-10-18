@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "errors": [],
+  "production_ready": false,
+  "design_placeholders": {
+    "TODO_DESIGN_mq6_rear_delivery_and_paint": "Wait for both approved mq6 inputs before promotion.",
+    "TODO_DESIGN_rope_belt_ownership_mask": "Inherited torso/robe ownership splits the hanging rope tail; owner must supply its exact mask before rigid torso ownership can be completed."
+  },
+  "scope": "front; headless structure and real bones"
+}
