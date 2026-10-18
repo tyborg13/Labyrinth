@@ -20,12 +20,13 @@
 - Rerun the headless suites. The director reruns `native` and `sheets`, and the gate must pass with 0 errors.
 
 ## 2. The rear
-`codex/peer-benchmark` now has the rear inputs. Merge it into your branch before starting; the director has merged
-mq-06:
+The director has already merged `codex/peer-benchmark` and `codex/mq-06` into your branch (c2845b4cc; builder
+conflicts with mq-05 resolved), plus a test fix (98c4e16df). Don't merge again. The rear inputs:
 - Rear maquette delivery (mq-06, a true 180° turn with planted feet): the rear files in
   `spec/art_identity/maquettes/hoarfrost_seer/delivery/` and `joints_px.json`. The front delivery is byte-unchanged.
 - Rear painting (approved, identity gate PASS, palette-matched to the front):
-  `spec/art_identity/jobs/hoarfrost_seer/mq6_rear`.
+  `spec/art_identity/jobs/hoarfrost_seer/mq6_rear`, on `codex/peer-benchmark` at 545cdfbb7 or later, already in your
+  branch via the merge.
 - Rear rope mask (director data, 242 px: the belt band across the back plus its 1 px outline):
   `spec/peer_benchmark/staged/rr-10/rope_mask_rear.png`. Every masked pixel belongs to `torso`.
 
