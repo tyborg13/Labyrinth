@@ -13,11 +13,13 @@ func _initialize() -> void:
 		return
 	if args[0] == "build":
 		var pack := PCKPacker.new()
+		var packed_scripts: Dictionary = {}
+		var script_packer: Script = load("res://tests/helpers/source_script_pack.gd")
 		_check(pack.pck_start(args[1]) == OK, "PCK opens")
 		for file: String in ["scripts/enemy_cutout_facing.gd", "scripts/frostglass_lancer_cutout/rig.gd", "scripts/frostglass_lancer_cutout/motion.gd", "scripts/frostglass_lancer_cutout/renderer.gd", "scripts/asset_loader.gd", "scripts/protagonist_cutout/rig.gd", "scripts/protagonist_cutout/motion.gd"]:
-			_check(pack.add_file("res://" + file, "res://" + file) == OK, "Packs " + file)
+			_check(script_packer.add_tree(pack, "res://" + file, packed_scripts) == OK, "Packs " + file)
 		for file: String in ["scripts/frostglass_lancer_cutout/action.gd", "scripts/attack_fx_library.gd", "scripts/attack_sfx_library.gd", "scripts/protagonist_cutout/renderer.gd"]:
-			_check(pack.add_file("res://" + file, "res://" + file) == OK, "Packs presentation timing dependency " + file)
+			_check(script_packer.add_tree(pack, "res://" + file, packed_scripts) == OK, "Packs presentation timing dependency " + file)
 		_pack_directory(pack, "res://assets/units/frostglass_lancer_cutout")
 		# A tiny boot scene also lets the unmodified export template run this
 		# package directly, without its deliberately disabled --path override.

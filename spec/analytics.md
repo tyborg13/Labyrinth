@@ -1110,6 +1110,12 @@ failed boon appends transfer to the existing durable profile analytics outbox
 with the original run context and the same idempotency keys. If that transfer
 cannot be saved, the old run remains intact. Outbox delivery and acknowledgment
 use the normal batch replay path; retrying either copy cannot duplicate JSONL.
+An animation-held terminal snapshot already contains its settled wallet. If
+Save & Quit occurs while its heirloom prompt is pending, persist the profile
+and retained receipts before replacing the unprocessed fallback with that held
+snapshot. A failed profile write leaves the original fallback unchanged; a
+successful retry keeps the unanswered prompt resumable and settles the wallet
+exactly once.
 Replacement also reconciles and durably acknowledges the saved run's newer
 progression before creating its successor, including consumed heirlooms and
 settled terminal wallets. Unsettled held Embers still follow abandonment rules.

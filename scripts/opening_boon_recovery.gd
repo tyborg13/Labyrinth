@@ -19,6 +19,17 @@ static func retaining_events(host: Node, state: Dictionary, profile: Dictionary)
 		next = Store.queue_progression_analytics_event(next, str(event["type"]), Rules.event_key(context, index, event), context, event["payload"])
 	return next
 
+static func persist_held_prompt_before_quit(host: Node, state: Dictionary) -> bool:
+	# The held animation snapshot is already settled. Keep the original
+	# unprocessed fallback until its profile is durable, matching the ordinary
+	# terminal Quit ordering and its exact-fallback recovery contract.
+	var retained: Dictionary = retaining_events(host, state, host.get("_progression"))
+	if not Store.save_data(retained):
+		push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
+		return false
+	host.set("_progression", retained)
+	return true
+
 static func acknowledge_before_replacement(host: Node, state: Dictionary) -> bool:
 	var disk: Dictionary = Store.load_data()
 	var embedded: Dictionary = Store.normalized_data(state.get("progression", {}))

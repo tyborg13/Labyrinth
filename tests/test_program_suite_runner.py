@@ -26,11 +26,37 @@ STARTUP_TIMEOUT_SECONDS = 5
 HUNG_CHILD_TIMEOUT_SECONDS = STARTUP_TIMEOUT_SECONDS + 0.2
 POLL_SECONDS = 0.02
 EXTRACTED_PROGRAMS = [
-    "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
+    "suites/full_scene_presentation_program", "suites/full_scene_cutouts_program",
+    "suites/full_scene_creature_cutouts_program", "suites/full_scene_audio_program",
+    "suites/full_scene_navigation_program", "suites/full_scene_card_drag_program",
+    "suites/full_scene_controls_program",
     "suites/full_scene_clock_program",
-    "suites/full_scene_interaction_program",
+    "suites/full_scene_choices_program", "suites/full_scene_interaction_program",
 ]
+MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
+                   "suites/section_map_performance_program"]
+SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
+FIXTURE_TEST_TIMEOUT_SECONDS = 30
+# Independent of the manifest: recognized but incorrect modes must fail too.
+REQUIRED_FIXTURE_MODES = {
+    **{name + "_cutout_pack_test": "cutout_pack" for name in (
+        "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "crawler",
+        "frostglass_lancer", "grave_surgeon", "gust_shrike", "harrier", "iskaldra", "noctyrax",
+        "protagonist", "stone_warden", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion",
+    )},
+    **{name + "_cutout_pack_test": "roster_pack" for name in (
+        "graftwright", "guardian", "scavenger",
+    )},
+    "enemy_cutout_roster_pack_test": "roster_pack",
+    "demo_capture_settings_test": "capture_settings",
+}
 SPLIT_PROGRAMS = {
+    "forced_movement_query_equivalence_test": [
+        "suites/forced_movement_query_%s_program" % fixture
+        for fixture in ("open", "dense", "heart", "surface_ready", "blocked")
+    ],
+    "section_map_v5_test": ["suites/section_map_v5_program", "suites/section_map_legacy_hashes_0_program",
+                            "suites/section_map_legacy_hashes_1_program"],
     "encounter_tables_test": [
         "suites/encounter_rules_program", "suites/encounter_placement_0_program",
         "suites/encounter_placement_1_program", "suites/encounter_placement_summary_program",
@@ -42,6 +68,7 @@ DEADLINE_CLEANUP_SECONDS = 0.04
 
 sys.path.insert(0, str(ROOT / "tools"))
 import program_suite_runner as runner
+import program_suite_fixture as fixture
 
 FAKE_GODOT = '''#!/usr/bin/env python3
 import json, os, sys, time
@@ -51,12 +78,22 @@ case = json.loads(os.environ['RUNNER_TEST_CASES']).get(name, {})
 def event(kind):
     row = dict(kind=kind, name=name, pid=os.getpid(), seconds=time.monotonic(),
                home=os.environ['HOME'], task=os.environ['LABYRINTH_TASK_ID'],
+               appdata=os.environ['APPDATA'], localappdata=os.environ['LOCALAPPDATA'],
+               xdg_data=os.environ['XDG_DATA_HOME'], xdg_config=os.environ['XDG_CONFIG_HOME'],
+               xdg_cache=os.environ['XDG_CACHE_HOME'], xdg_state=os.environ['XDG_STATE_HOME'],
                user=os.environ['LABYRINTH_USER_DIR_NAME'], args=sys.argv[1:])
     fd = os.open(os.environ['RUNNER_TEST_EVENTS'], os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
     os.write(fd, (json.dumps(row) + '\\n').encode())
     os.close(fd)
 event('start')
 print('CHILD LOG START ' + name, flush=True)
+if case.get('barrier', 0):
+    deadline = time.monotonic() + case['barrier_timeout']
+    while sum(json.loads(line)['kind'] == 'start' for line in Path(os.environ['RUNNER_TEST_EVENTS']).read_text().splitlines()) < case['barrier']:
+        if time.monotonic() >= deadline:
+            print('TEST RESULT: FAIL concurrency barrier not reached', flush=True)
+            sys.exit(1)
+        time.sleep(case['poll'])
 time.sleep(case.get('sleep', 0))
 print(case.get('output', 'child output ' + name), flush=True)
 print('CHILD LOG END ' + name, flush=True)
@@ -100,9 +137,15 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         for path in ("tests/static_facing_program_suites.gd", "tests/helpers/program_sub_suites.gd"):
             source = (ROOT / path).read_text().split("const SUITES:", 1)[1].split("=", 1)[1].split("]", 1)[0]
             expected.extend(re.findall(r'"([a-z0-9_]+)"', source))
-        expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         expected.extend(EXTRACTED_PROGRAMS)
+        expected.extend(MERGED_PROGRAMS)
+        supplemental = json.loads(SUPPLEMENTAL_MANIFEST.read_text())
+        # 116 accepted; owned_cpu_asset_preparation_test moved to quarantine (bug-02) at the integration merge.
+        self.assertEqual(len(supplemental), 115, "Preserve the accepted supplemental set")
+        expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
+        expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)
+        self.assertEqual(len(set(actual)), len(actual), "No child may be silently overwritten")
         for suite in EXTRACTED_PROGRAMS + [part for parts in SPLIT_PROGRAMS.values() for part in parts]:
             self.assertTrue((ROOT / "tests" / (suite + ".gd")).is_file())
 
@@ -115,6 +158,78 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
             with self.subTest(removed=removed), self.assertRaises(AssertionError):
                 self.assert_complete_manifest([name for name in runner.SUITES if name not in removed])
 
+    def test_removing_any_supplemental_or_merged_program_fails_manifest_guard(self):
+        names = [part for name in [*MERGED_PROGRAMS, *runner.SUPPLEMENTAL_BY_NAME]
+                 for part in SPLIT_PROGRAMS.get(name, [name])]
+        for name in names:
+            with self.subTest(removed=name), self.assertRaises(AssertionError):
+                self.assert_complete_manifest([suite for suite in runner.SUITES if suite != name])
+
+    def assert_supplemental_modes(self, programs):
+        self.assertLessEqual(REQUIRED_FIXTURE_MODES.keys(), programs.keys())
+        for name, program in programs.items():
+            self.assertEqual(program["path"], "tests/" + name + ".gd")
+            self.assertTrue((ROOT / program["path"]).is_file())
+            self.assertIn(program.get("mode", "script"), ("script", "cutout_pack", "roster_pack", "capture_settings"))
+            self.assertEqual(program.get("mode", "script"), REQUIRED_FIXTURE_MODES.get(name, "script"), name)
+
+    def test_supplemental_modes_and_paths_are_guarded(self):
+        self.assert_supplemental_modes(runner.SUPPLEMENTAL_BY_NAME)
+
+    def test_changing_any_supplemental_fixture_mode_fails_guard(self):
+        for name, program in runner.SUPPLEMENTAL_BY_NAME.items():
+            with self.subTest(name=name), self.assertRaises(AssertionError):
+                changed = dict(program, mode="script" if program.get("mode", "script") != "script" else "cutout_pack")
+                self.assert_supplemental_modes(dict(runner.SUPPLEMENTAL_BY_NAME, **{name: changed}))
+        print("RUNNER MUTATION REJECTED: all %d supplemental mode changes (including Bile Bloomer to script)" % len(runner.SUPPLEMENTAL_BY_NAME))
+
+    def assert_fixture_runtime_paths(self, execute):
+        directory = self.directory / "runtime-paths"
+        directory.mkdir()
+        foreign = self.directory / "foreign-project"
+        foreign.mkdir()
+        script = "tests/acolyte_cutout_pack_test.gd"
+        stages = [(ROOT, script, []), (foreign, str(ROOT / script), [])]
+        with mock.patch.object(fixture, "fixture_stages", return_value=stages), \
+                mock.patch.object(fixture.subprocess, "run", return_value=subprocess.CompletedProcess([], 0)), \
+                mock.patch.object(runner, "task_command", return_value=["unused"]):
+            result = execute(["--project", str(ROOT), "--suite", "acolyte_cutout_pack_test",
+                              "--directory", str(directory), "--godot", "unused", "--task-id", "runtime-paths",
+                              "--timeout", str(FIXTURE_TEST_TIMEOUT_SECONDS)])
+        self.assertEqual(result, 0)
+        root_bootstrap = (directory / "acolyte_cutout_pack_test.gd").read_text()
+        foreign_bootstrap = (directory / "stage-1/acolyte_cutout_pack_test.gd").read_text()
+        resource = 'preload("res://scripts/parallel_runtime.gd")'
+        absolute = 'preload(' + json.dumps(str(ROOT / "scripts/parallel_runtime.gd")) + ')'
+        self.assertIn(resource, root_bootstrap)
+        self.assertNotIn(absolute, root_bootstrap)
+        self.assertIn(absolute, foreign_bootstrap)
+        self.assertNotIn(resource, foreign_bootstrap)
+
+    def test_fixture_runtime_uses_resource_path_only_in_repository_project(self):
+        self.assert_fixture_runtime_paths(fixture.main)
+
+    def test_absolute_runtime_in_root_fails_bootstrap_path_guard(self):
+        path = ROOT / "tools/program_suite_fixture.py"
+        source = path.read_text()
+        original = 'project.resolve() == root'
+        self.assertIn(original, source)
+        mutated = {"__file__": str(path), "__name__": "runtime_path_mutation"}
+        exec(compile(source.replace(original, "False", 1), str(path), "exec"), mutated)
+        with self.assertRaises(AssertionError):
+            self.assert_fixture_runtime_paths(mutated["main"])
+        print("RUNNER MUTATION REJECTED: absolute runtime preload in repository project")
+
+    def test_map_performance_regression_has_an_exclusive_program_slot(self):
+        self.assertIn("suites/section_map_performance_program", runner.SUITES)
+        map_source = (ROOT / "tests/suites/section_map_v5_suite.gd").read_text()
+        self.assertNotIn("section_map_performance_suite.gd", map_source,
+                         "Keep the slow-seed performance regression out of the map aggregate")
+        child = (ROOT / "tests/suites/section_map_performance_program.gd").read_text()
+        self.assertIn('preload("res://tests/suites/section_map_performance_suite.gd")', child)
+        self.assertIn('Suite.run(Callable(self, "_expect"))', child,
+                      "The separate child must retain the entire regression")
+
     def test_full_harness_waits_for_coroutine_tests_before_reporting(self):
         source = (ROOT / "tests/run_tests.gd").read_text()
         methods = dict(re.findall(r"^func (\w+)\([^\n]*\n(.*?)(?=^func |\Z)", source, re.M | re.S))
@@ -126,8 +241,9 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                 if re.search(r"^\s+await ", methods[name], re.M):
                     self.assertTrue(awaited, name + " must complete before assertion counts and final reporting")
 
-    def test_children_overlap_but_never_exceed_three_and_keep_namespaces_separate(self):
-        cases = {"child_%d" % index: {"sleep": CASE_SLEEP_SECONDS} for index in range(7)}
+    def test_children_overlap_but_never_exceed_limit_and_keep_namespaces_separate(self):
+        cases = {"child_%d" % index: {"sleep": CASE_SLEEP_SECONDS, "barrier": runner.MAX_CHILDREN,
+                 "barrier_timeout": STARTUP_TIMEOUT_SECONDS, "poll": POLL_SECONDS} for index in range(7)}
         result, report = self.run_scheduler(cases)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         active = peak = 0
@@ -136,13 +252,88 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
             active += 1 if event["kind"] == "start" else -1
             peak = max(peak, active)
         self.assertEqual(active, 0)
-        self.assertEqual(peak, 3)
+        self.assertEqual(peak, runner.MAX_CHILDREN)
         starts = [event for event in events if event["kind"] == "start"]
-        for field in ("home", "task", "user"):
+        for field in ("home", "task", "user", "appdata", "localappdata", "xdg_data", "xdg_config", "xdg_cache", "xdg_state"):
             self.assertEqual(len({event[field] for event in starts}), len(cases))
         self.assertEqual([row["name"] for row in report["results"]], list(cases))
         self.assertTrue(all(row["seconds"] > 0 for row in report["results"]))
         self.assertTrue(report["complete"])
+
+    def test_fixture_stages_keep_one_slot_and_preserve_build_verify_arguments(self):
+        cases = {"acolyte_cutout_pack_test": {}, "demo_capture_settings_test": {}, "enemy_cutout_roster_pack_test": {}}
+        result, report = self.run_scheduler(cases)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        starts = [event for event in self.read_events() if event["kind"] == "start"]
+        self.assertEqual(len(starts), 4)
+        pack = [event for event in starts if event["name"] == "acolyte_cutout_pack_test"]
+        self.assertEqual([event["args"][-2] for event in pack], ["build", "verify"])
+        self.assertEqual(pack[0]["args"][-1], pack[1]["args"][-1])
+        self.assertEqual(len({event["home"] for event in starts}), 4)
+        self.assertEqual(len({event["appdata"] for event in starts}), 4)
+        capture = next(event for event in starts if event["name"] == "demo_capture_settings_test")
+        project = Path(capture["args"][capture["args"].index("--path") + 1])
+        self.assertIn("mjpeg_quality=1.0", (project / "override.cfg").read_text())
+        self.assertEqual(capture["args"][-1], "--verify-movie-guard")
+        self.assertEqual(len(report["results"]), len(cases))
+
+    def test_reusing_fixture_report_path_keeps_staging_fresh(self):
+        for _iteration in range(2):
+            result, _report = self.run_scheduler({"acolyte_cutout_pack_test": {}, "demo_capture_settings_test": {}})
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        builds = [event["args"][-1] for event in self.read_events()
+                  if event["kind"] == "start" and event["name"] == "acolyte_cutout_pack_test" and event["args"][-2] == "build"]
+        self.assertEqual(len(set(builds)), 2)
+
+    def test_parent_pipe_eof_cancels_active_package_stage(self):
+        cases = {"acolyte_cutout_pack_test": {"sleep": 60}}
+        process = subprocess.Popen(self.command(cases, "--watch-parent-stdin"), env=self.environment(cases),
+                                   stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        try:
+            deadline = time.monotonic() + STARTUP_TIMEOUT_SECONDS
+            while not self.events.exists() and time.monotonic() < deadline:
+                time.sleep(POLL_SECONDS)
+            self.assertTrue(self.events.exists(), "Package stage did not start")
+            pid = self.read_events()[0]["pid"]
+            process.stdin.close()
+            process.stdin = None
+            stdout, stderr = process.communicate(timeout=TEST_TIMEOUT_SECONDS)
+            self.assertEqual(process.returncode, 1, stdout + stderr)
+            self.assertIn("parent interrupted", json.loads(self.report.read_text())["results"][0]["reason"])
+            deadline = time.monotonic() + runner.WRAPPER_CLEANUP_SECONDS
+            while time.monotonic() < deadline:
+                try:
+                    os.kill(pid, 0)
+                except ProcessLookupError:
+                    break
+                time.sleep(POLL_SECONDS)
+            with self.assertRaises(ProcessLookupError):
+                os.kill(pid, 0)
+        finally:
+            if process.poll() is None:
+                process.terminate()
+                process.communicate(timeout=TEST_TIMEOUT_SECONDS)
+
+    @unittest.skipUnless(shutil.which("godot"), "Needs native headless Godot for fixture stages")
+    def test_real_fixture_stages_initialize_namespaces_and_run_complete_contracts(self):
+        command = self.command(["acolyte_cutout_pack_test", "demo_capture_settings_test", "enemy_cutout_roster_pack_test"])
+        command[command.index("--godot") + 1] = shutil.which("godot")
+        result = subprocess.run(command, text=True, capture_output=True, timeout=FIXTURE_TEST_TIMEOUT_SECONDS)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        paths = []
+        logs = ""
+        for row in json.loads(self.report.read_text())["results"]:
+            log = Path(row["log_path"]).read_text()
+            logs += log
+            paths.extend(json.loads(value) for value in re.findall(r"^PROGRAM SUITE PATHS: (.+)$", log, re.M))
+        self.assertEqual(len(paths), 4)
+        for field in ("user_data", "log_file"):
+            self.assertEqual(len({value[field] for value in paths}), 4)
+        self.assertTrue(all(Path(value["log_file"]).is_file() for value in paths))
+        self.assertIn("ACOLYTE CUTOUT PACK TEST RESULT: PASS (build", logs)
+        self.assertIn("ACOLYTE CUTOUT PACK TEST RESULT: PASS (verify", logs)
+        self.assertIn("DEMO MOVIE GUARD TEST: PASS", logs)
+        self.assertIn("ENEMY CUTOUT ROSTER PACK BUILD TEST RESULT: PASS", logs)
 
     def test_nonzero_child_fails_scheduler_and_names_child(self):
         result, report = self.run_scheduler({"deliberate_failure": {"code": 7}, "success": {}})
@@ -277,11 +468,14 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.assertEqual(len(set(directories)), 2)
         self.assertTrue(all(path.is_dir() and path.parent == self.report.with_suffix(".logs").resolve() for path in directories))
 
-    def test_four_child_slots_are_rejected_because_main_owns_one(self):
-        result = subprocess.run(self.command(["unused"], "--jobs", "4"),
+    def test_worker_limit_follows_requested_logical_cpu_formula(self):
+        self.assertEqual(runner.MAX_CHILDREN, min(6, max(1, (os.cpu_count() or 1) // 3)))
+
+    def test_slots_above_worker_limit_are_rejected(self):
+        result = subprocess.run(self.command(["unused"], "--jobs", str(runner.MAX_CHILDREN + 1)),
                                 text=True, capture_output=True, timeout=TEST_TIMEOUT_SECONDS)
         self.assertEqual(result.returncode, 2)
-        self.assertIn("jobs must be 1..3", result.stderr)
+        self.assertIn("jobs must be 1..%d" % runner.MAX_CHILDREN, result.stderr)
 
     @unittest.skipUnless(shutil.which("godot"), "Needs native headless Godot to resolve storage paths")
     def test_children_resolve_distinct_user_storage_and_explicit_engine_logs(self):

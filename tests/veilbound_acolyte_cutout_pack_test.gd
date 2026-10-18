@@ -13,9 +13,11 @@ func _initialize() -> void:
 		return
 	if args[0] == "build":
 		var pack := PCKPacker.new()
+		var packed_scripts: Dictionary = {}
+		var script_packer: Script = load("res://tests/helpers/source_script_pack.gd")
 		_check(pack.pck_start(args[1]) == OK, "PCK opens")
 		for file: String in ["scripts/enemy_cutout_facing.gd", "scripts/veilbound_acolyte_cutout/rig.gd", "scripts/veilbound_acolyte_cutout/fx.gd", "scripts/veilbound_acolyte_cutout/motion.gd", "scripts/veilbound_acolyte_cutout/renderer.gd", "scripts/asset_loader.gd", "scripts/protagonist_cutout/rig.gd", "scripts/protagonist_cutout/motion.gd"]:
-			_check(pack.add_file("res://" + file, "res://" + file) == OK, "Packs " + file)
+			_check(script_packer.add_tree(pack, "res://" + file, packed_scripts) == OK, "Packs " + file)
 		_pack_directory(pack, "res://assets/units/veilbound_acolyte_cutout")
 		# A tiny boot scene also lets the unmodified export template run this
 		# package directly, without its deliberately disabled --path override.

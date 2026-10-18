@@ -1,5 +1,6 @@
 extends "res://tests/ui_flow_performance_workload.gd"
 
+const GameData = preload("res://scripts/game_data.gd")
 const Library = preload("res://scripts/grimoire_library.gd")
 const Search = preload("res://scripts/grimoire_search.gd")
 var _engine := RunEngine.new()

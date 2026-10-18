@@ -28896,6 +28896,8 @@ func _save_run_progress() -> void:
 	var committed_state: Dictionary = _committed_run_state()
 	var mode: String = str(committed_state.get("mode", ""))
 	if OpeningBoonRules.heirloom_prompt_pending(committed_state):
+		if not _committed_run_state_override.is_empty() and not OpeningBoonRecovery.persist_held_prompt_before_quit(self, committed_state):
+			return
 		_persist_committed_boundary("heirloom_prompt_resume")
 		return
 	if mode in ["victory", "defeat"] or committed_state.is_empty():

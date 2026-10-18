@@ -17,7 +17,11 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Badges = preload("res://scripts/intent_badges.gd")
+const Profile = preload("res://tests/helpers/en06_phase_profile.gd")
 const TEST_SEED: int = 61027
+# The old timestamp-seeded boot could enter the pre-fix-05 map search explosion
+# before installing the enemy fixture. Keep that startup case deterministic.
+const BOOT_REGRESSION_SEED: int = 1792274653
 const TEST_HERO_HP: int = 30
 const LIVE_SETTLE_FRAMES: int = 8
 const TEST_CHARGE_TURNS: int = 3
@@ -301,6 +305,7 @@ static func _preview_and_save(expect: Callable) -> void:
 	scene.free()
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	Profile.mark("live_storage")
 	var paths: Array = [Store._storage_path, Store._run_storage_path, Settings.storage_path(), Analytics.storage_dir()]
 	var previous: Dictionary = Settings.load_settings()
 	var prefix: String = "user://en06_live_%d" % Time.get_ticks_usec()
@@ -308,22 +313,41 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	Store.set_run_storage_path(prefix + "_run.save")
 	Settings.set_storage_path(prefix + "_settings.json")
 	Analytics.set_storage_dir(prefix + "_events")
+	Profile.mark("scene_instantiate")
 	var scene: Control = load("res://scenes/run_scene.tscn").instantiate()
+	var had_boot_seed: bool = tree.root.has_meta("labyrinth_performance_probe_seed")
+	var previous_boot_seed: Variant = tree.root.get_meta("labyrinth_performance_probe_seed") if had_boot_seed else null
+	tree.root.set_meta("labyrinth_performance_probe_seed", BOOT_REGRESSION_SEED)
+	Profile.mark("scene_ready", {"boot_seed": BOOT_REGRESSION_SEED})
 	tree.root.add_child(scene)
+	if had_boot_seed: tree.root.set_meta("labyrinth_performance_probe_seed", previous_boot_seed)
+	else: tree.root.remove_meta("labyrinth_performance_probe_seed")
+	expect.call(int(scene._run_state.get("seed", 0)) == BOOT_REGRESSION_SEED, "EN06 startup exercises the timestamp-window map regression seed")
+	Profile.mark("initial_settle", {"boot_seed": scene._run_state.get("seed", null)})
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
-	scene._load_run_state(Run.new().create_new_run(TEST_SEED, Store.default_data()))
+	Profile.mark("fixture_generation")
+	var initial_run: Dictionary = Run.new().create_new_run(TEST_SEED, Store.default_data())
+	Profile.mark("fixture_load")
+	scene._load_run_state(initial_run)
+	Profile.mark("fixture_settle")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	var value: Dictionary = capacitor()
+	Profile.mark("capacitor_install")
 	Fixtures.install(scene, value)
+	Profile.mark("capacitor_settle")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	scene._on_board_tile_hovered(value["enemies"][0]["pos"])
+	Profile.mark("capacitor_hover")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	expect.call(scene.board_view._damage_preview_map().get("enemy_2", {}).get("hp", -1) == int(value["enemies"][1]["hp"]) - 6, "Live RunScene shows capacitor friendly-fire HP preview")
 	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.\n3/3", "Live board exposes exact Charge badge tooltip")
 	value = mirror()
+	Profile.mark("mirror_install")
 	Fixtures.install(scene, value)
+	Profile.mark("mirror_settle")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	scene._on_board_tile_hovered(value["enemies"][0]["pos"])
+	Profile.mark("mirror_hover")
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	expect.call(scene.board_view.enemy_intent_tooltip("enemy_1").contains("Mirror\nCopies your last damaging card at base damage, without its effects. The copy is fixed when declared.\nWhirlwind Slash: 8 damage."), "Live board exposes the exact copied-card tooltip")
 	var descriptor: Dictionary = Compass.descriptors_for_state(value, [1])["enemy_1"]
@@ -331,7 +355,9 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	expect.call(scene.board_view._damage_preview_map().get("player", {}).get("hp", -1) == TEST_HERO_HP - 8, "Live Mirror preview shows its real moved-area outcome")
 	var mirrored_result: Dictionary = resolve_action(value)
 	var animated: Dictionary = value.duplicate(true)
+	Profile.mark("mirror_animation")
 	await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(scene, animated, mirrored_result["step"])
+	Profile.mark("mirror_animation_finished")
 	expect.call(animated["player"]["hp"] == mirrored_result["state"]["player"]["hp"] and animated["enemies"][0]["pos"] == mirrored_result["state"]["enemies"][0]["pos"], "Actual Mirror animation applies resolved movement and damage without resolving again")
 	value = capacitor()
 	Fixtures.install(scene, value)
@@ -339,15 +365,20 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var discharge_result: Dictionary = engine.resolve_enemy_turn_with_steps(value, 0)
 	animated = value.duplicate(true)
 	for step: Dictionary in discharge_result["steps"]:
-		if str(step.get("action_type", "")) == "chain_discharge": await CapacitorView.animate(scene, animated, step)
+		if str(step.get("action_type", "")) == "chain_discharge":
+			Profile.mark("chain_animation")
+			await CapacitorView.animate(scene, animated, step)
+			Profile.mark("chain_animation_finished")
 		elif step.has("en06_after"): scene._apply_animation_step(animated, step)
 	expect.call(animated["player"]["hp"] == discharge_result["state"]["player"]["hp"] and animated["enemies"][0]["charge"] == 0, "Actual chain animation applies per-hop snapshots then reset pips")
+	Profile.mark("cleanup")
 	scene.queue_free()
 	await tree.process_frame
 	await tree.process_frame
 	Store.set_storage_path(paths[0]); Store.set_run_storage_path(paths[1])
 	Settings.set_storage_path(paths[2]); Analytics.set_storage_dir(paths[3])
 	Settings.apply_settings(previous, tree.root, false)
+	Profile.mark("live_finished")
 
 static func mirror_after_play() -> Dictionary:
 	var engine := Combat.new()
