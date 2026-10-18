@@ -1,0 +1,44 @@
+{
+  "status": "Needs director clarification; no gate relaxation applied",
+  "creature": "arc_thrall",
+  "view": "rear",
+  "part": "seam_upper_near_fore_near",
+  "frame": 65,
+  "kind": "before",
+  "pixel_xy": [
+    193,
+    252
+  ],
+  "actual_rgba": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "in_range_candidate_rgba": [
+    40,
+    25,
+    20,
+    255
+  ],
+  "covered_triangle_uv": [
+    0.000576220854,
+    5.95059559
+  ],
+  "subtexel_tie_epsilon": 0.001953125,
+  "old_rule": "1e-6: non-tie; one edge discrepancy passes the existing allowance",
+  "new_rule": "1/512: tied; transparent actual matches no in-range candidate",
+  "files": {
+    "capture": {
+      "origin": "proof/native/pixels/rear/seam_upper_near_fore_near/before_0065.png",
+      "copy": "edge_capture.png",
+      "sha256": "3e2db0832927b52d58de309447e1d21244b5788a22c8515ea703173aa5fe9315"
+    },
+    "source": {
+      "origin": "seams/rear/seam_upper_near_fore_near.png",
+      "copy": "edge_source.png",
+      "sha256": "9503608a75049e5f60a61b827b98eaf689f194a1e7be613df4a3420030c9eb74"
+    }
+  },
+  "policy": "TODO_DESIGN_native_outer_uv_edge_policy"
+}

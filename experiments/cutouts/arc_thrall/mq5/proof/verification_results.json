@@ -1,0 +1,109 @@
+{
+  "status": "feedback 3 complete: both native gates, focused maquette tests and full Godot PASS; full Python has only expected missing density-rest records; director --from-review remains",
+  "full_godot": {
+    "exit_code": 0,
+    "result_lines": [
+      "MAIN BODY ASSERTIONS: 378792",
+      "RR07 RUNTIME: PASS (120088 checks, 0 failures; headless logic only)",
+      "FULL SUITE RUNTIME: 418.548 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "log": "full_godot.log"
+  },
+  "full_python": {
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 839 tests in 737.306s",
+      "FAILED (failures=1, skipped=63)"
+    ],
+    "log": "full_python.log",
+    "failure": "test_board_pixel_density.BoardPixelDensityTest.test_shipped_derivations_and_manifest_are_current",
+    "reason": "Only four missing rr-07 native density-rest records, expected until director windowed rebake; all other tests pass. No rest record fabricated."
+  },
+  "focused": {
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 19 tests in 77.539s",
+      "OK",
+      "RR07 RUNTIME: PASS (120088 checks, 0 failures; headless logic only)"
+    ],
+    "log": "focused_tests.log"
+  },
+  "art_identity": {
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 111 tests in 36.332s",
+      "OK"
+    ],
+    "log": "art_identity_tests.log"
+  },
+  "icon_identity": {
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 7 tests in 0.060s",
+      "OK"
+    ],
+    "log": "icon_identity_tests.log"
+  },
+  "program_registration": {
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 28 tests in 21.495s",
+      "OK"
+    ],
+    "log": "program_registration_tests.log"
+  },
+  "native": {
+    "captured_by": "design owner",
+    "windowed_run_by_worker": false,
+    "reverified_by_worker": true,
+    "ok": true,
+    "errors": [],
+    "report": "native/verification.json",
+    "resume_command": "sh experiments/cutouts/hoarfrost_seer/rr07_proof.sh arc_thrall --from-review",
+    "review_and_production": "pending director --from-review; no worker windowed run",
+    "retained_inputs": "feedback3/retained_inputs.json",
+    "invalid_tie_totals": {
+      "before": 1,
+      "after": 0
+    }
+  },
+  "intermediate_runs": {
+    "godot_first": "42 failures: obsolete static roster/travel-query expectations; fixed without changing protected design data",
+    "godot_second": "One failed program: existing targeting-arrow check (1.03 px against its 1 px tolerance). Assertion unchanged; independent rerun and final full run passed.",
+    "python_first": "Two failures: native density records and supplemental program count. Count guard now preserves previous 120 programs plus rr-07; final Python failure is only native density records."
+  },
+  "TODO_DESIGN": [],
+  "committed": false,
+  "peer_review_run": false,
+  "creature": "arc_thrall",
+  "director_sha256": "21a2bf36b5592cefd47930198b478c0c93a5b9c0115ec6d76a7ab7eeb42bbf6d",
+  "signed_bone_samples": 234,
+  "pixel_samples": 930,
+  "production_logic_frames": 1053,
+  "feedback2": {
+    "tests": [
+      "Ran 18 tests in 1.745s",
+      "OK"
+    ],
+    "test_log": "feedback2/native_tests.log",
+    "shared_subtexel_epsilon": 0.001953125,
+    "rr05_full_native_gates": "not run: full capture directories absent; 12 committed isolated surfaces replay with 0 residual pixels"
+  },
+  "feedback3": {
+    "targeted_tests": [
+      "Ran 21 tests in 1.212s",
+      "OK"
+    ],
+    "focused_maquette_tests": [
+      "Ran 172 tests in 236.897s",
+      "OK (skipped=2)"
+    ],
+    "directory": "feedback3/",
+    "resolved_placeholder": "TODO_DESIGN_native_outer_uv_edge_policy",
+    "full_python_result": [
+      "Ran 839 tests in 737.306s",
+      "FAILED (failures=1, skipped=63)"
+    ]
+  }
+}

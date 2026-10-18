@@ -1,0 +1,5 @@
+# Windowed native/production captures, their per-frame records and the review video stay local (rr-05 convention).
+native/
+production_native/
+native_rest/
+*.mp4

@@ -1,0 +1,53 @@
+{
+  "features": [
+    {
+      "view": "front",
+      "feature": "spark_upper",
+      "owner": "club",
+      "painted_pixels_outside_native_label": 12,
+      "mask_pixels": 97,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "spark_lower",
+      "owner": "club",
+      "painted_pixels_outside_native_label": 21,
+      "mask_pixels": 127,
+      "paint_moved": false
+    },
+    {
+      "view": "front",
+      "feature": "chain_stub",
+      "owner": "collar",
+      "painted_pixels_outside_native_label": 199,
+      "mask_pixels": 257,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "spark_upper",
+      "owner": "club",
+      "painted_pixels_outside_native_label": 9,
+      "mask_pixels": 162,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "spark_lower",
+      "owner": "club",
+      "painted_pixels_outside_native_label": 14,
+      "mask_pixels": 106,
+      "paint_moved": false
+    },
+    {
+      "view": "rear",
+      "feature": "chain_stub",
+      "owner": "collar",
+      "painted_pixels_outside_native_label": 0,
+      "mask_pixels": 0,
+      "paint_moved": false
+    }
+  ],
+  "policy": "Report categorical disagreement; approved paint remains at its original coordinates."
+}

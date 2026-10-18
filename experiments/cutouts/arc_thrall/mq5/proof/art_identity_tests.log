@@ -1,0 +1,141 @@
+test_absent_standard_inputs_still_reject_legacy_sidecar_byte_fields (test_art_identity_gate.GateTests) ... ok
+test_alpha_bbox_uses_strict_128 (test_art_identity_gate.GateTests) ... ok
+test_board_row_labels_survive_real_backdrop_crop (test_art_identity_gate.GateTests) ... ok
+test_bright_green_key_residue_is_not_protected (test_art_identity_gate.GateTests) ... ok
+test_canon_sheet_covers_both_views_objects_scales_and_exact_doubling (test_art_identity_gate.GateTests) ... ok
+test_changed_legacy_pixels_fail_and_readoption_refused (test_art_identity_gate.GateTests) ... ok
+test_committed_jobs_replay_approved_pixels_without_external_inputs (test_art_identity_gate.GateTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+ok
+test_committed_registry_has_no_pending_warnings_even_in_strict_mode (test_art_identity_gate.GateTests) ... ok
+test_composite_rejects_extra_parameters_and_out_of_bounds_boxes (test_art_identity_gate.GateTests) ... ok
+test_composite_resizes_edit_and_preserves_outside_box (test_art_identity_gate.GateTests) ... ok
+test_coverage_missing_duplicate_and_unknown_id_fail (test_art_identity_gate.GateTests) ... ok
+test_derived_match_reference_binds_source_config_and_output_digests (test_art_identity_gate.GateTests) ... ok
+test_diamond_passes_and_square_fails_base_v (test_art_identity_gate.GateTests) ... ok
+test_direct_match_reference_and_json_descriptor_cli (test_art_identity_gate.GateTests) ... ok
+test_director_regression_fixtures (test_art_identity_gate.GateTests) ... ok
+test_disk_symmetry_and_border_safe_opening (test_art_identity_gate.GateTests) ... ok
+test_dominant_accent_hues_use_pixel_weighted_bins_with_inclusive_five_percent (test_art_identity_gate.GateTests) ... ok
+test_edge_light_and_rear_consistency_bands (test_art_identity_gate.GateTests) ... ok
+test_existing_rear_palette_parameter_defaults_are_all_preserved (test_art_identity_gate.GateTests) ... ok
+test_explicit_match_front_conflict_cannot_override_kit (test_art_identity_gate.GateTests) ... ok
+test_fit_premultiplication_excludes_transparent_green (test_art_identity_gate.GateTests) ... ok
+test_front_job_path_requires_exact_identity_job_shape_and_no_self_reference (test_art_identity_gate.GateTests) ... ok
+test_front_job_reference_rejects_extra_keys (test_art_identity_gate.GateTests) ... ok
+test_front_job_reference_requires_scoped_path_matching_id_and_valid_view (test_art_identity_gate.GateTests) ... ok
+test_historical_rears_with_retained_raws_reprocess_to_approved_pixels (test_art_identity_gate.GateTests) ... ok
+test_hue_protection_requires_absolute_chroma_floor_and_own_percentile (test_art_identity_gate.GateTests) ... ok
+test_irrecoverable_historical_version_uses_bound_recorded_field (test_art_identity_gate.GateTests) ... ok
+test_job_certification_ignores_regenerable_reference_files_and_current_clauses (test_art_identity_gate.GateTests) ... ok
+test_kit_determinism_and_pixel_digest_binding (test_art_identity_gate.GateTests) ... ok
+test_kit_entry_requires_judge_and_landmarks_and_hard_limits (test_art_identity_gate.GateTests) ... ok
+test_kit_provenance_rejects_changed_prompt_refs_and_version (test_art_identity_gate.GateTests) ... ok
+test_kit_rejects_noncanon_wrong_kind_and_missing_rear_front (test_art_identity_gate.GateTests) ... ok
+test_lancer_and_wisp_rear_match_preserves_bright_cores_on_copies (test_art_identity_gate.GateTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+ok
+test_legacy_direct_png_must_be_repo_relative_and_maquette_job_local (test_art_identity_gate.GateTests) ... ok
+test_legacy_output_byte_fields_require_rerecording (test_art_identity_gate.GateTests) ... ok
+test_maquette_job_id_is_nonempty_and_matches_registry (test_art_identity_gate.GateTests) ... ok
+test_maquette_keeps_prompt_sidecar_approval_and_landmark_checks (test_art_identity_gate.GateTests) ... ok
+test_maquette_reference_paths_roles_and_ids_are_enforced (test_art_identity_gate.GateTests) ... ok
+test_maquette_reference_pixels_are_checked_even_when_record_bindings_match (test_art_identity_gate.GateTests) ... ok
+test_maquette_requires_mq_folder_prompt_source_and_string_ref_files (test_art_identity_gate.GateTests) ... ok
+test_maquette_resolved_inputs_reject_symlinks_outside_allowed_folders (test_art_identity_gate.GateTests) ... ok
+test_maquette_version_rejects_reordered_refs_and_matching_but_unreproducible_fields (test_art_identity_gate.GateTests) ... ok
+test_missing_inputs_do_not_bypass_empty_body_skip_record_validation (test_art_identity_gate.GateTests) ... ok
+test_missing_maquette_inputs_fail_and_standard_still_checks_present_inputs (test_art_identity_gate.GateTests) ... ok
+test_missing_standard_inputs_do_not_allow_a_direct_reference_without_digests (test_art_identity_gate.GateTests) ... ok
+test_missing_standard_inputs_do_not_bypass_post_step_structure_guards (test_art_identity_gate.GateTests) ... ok
+test_missing_standard_inputs_do_not_bypass_reference_or_final_raw_guards (test_art_identity_gate.GateTests) ... ok
+test_non_object_front_kit_is_a_clean_cli_error (test_art_identity_gate.GateTests) ... ok
+test_object_kit_guide_and_factor_boundary (test_art_identity_gate.GateTests) ... ok
+test_one_pixel_lines_are_thin (test_art_identity_gate.GateTests) ... ok
+test_pair_consistency_is_enforced_for_each_registered_view (test_art_identity_gate.GateTests) ... ok
+test_palette_accent_hue_wrap_boundaries_and_lightness_boundary (test_art_identity_gate.GateTests) ... ok
+test_palette_match_all_bright_pixels_has_no_body_to_transfer (test_art_identity_gate.GateTests) ... ok
+test_palette_match_and_outline_are_pixel_identical_to_prototypes (test_art_identity_gate.GateTests) ... ok
+test_palette_match_preserves_pale_cores_and_reference_accent_hues (test_art_identity_gate.GateTests) ... ok
+test_palette_match_zero_opaque_samples_precede_body_statistics (test_art_identity_gate.GateTests) ... ok
+test_plain_front_job_reference_checks_pixels_and_front_job_path (test_art_identity_gate.GateTests) ... ok
+test_plain_match_reference_rejects_existing_file_outside_maquette_input_folders (test_art_identity_gate.GateTests) ... ok
+test_post_steps_order_parameters_and_pre_step_digests (test_art_identity_gate.GateTests) ... ok
+test_process_cli_defaults_to_recorded_palette_and_requires_explicit_upgrade (test_art_identity_gate.GateTests) ... ok
+test_process_coverage_failure_is_atomic_and_override_is_recorded (test_art_identity_gate.GateTests) ... ok
+test_process_empty_body_requires_override_and_records_replayable_skip (test_art_identity_gate.GateTests) ... ok
+test_process_exact_k_size_placement_and_determinism (test_art_identity_gate.GateTests) ... ok
+test_process_fully_masked_reference_requires_override_and_replays_skip (test_art_identity_gate.GateTests) ... ok
+test_process_matches_prototype_premultiplied_box (test_art_identity_gate.GateTests) ... process.py:22: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+ok
+test_process_noninteger_factor_and_nonsquare_rejection (test_art_identity_gate.GateTests) ... ok
+test_process_off_size_1280_canvas_uses_effective_factor (test_art_identity_gate.GateTests) ... ok
+test_process_uniformly_fits_tall_sprite_without_clipping_paint (test_art_identity_gate.GateTests) ... ok
+test_process_uniformly_fits_wide_sprite (test_art_identity_gate.GateTests) ... ok
+test_process_unmixes_key_blends_instead_of_olive_fringe (test_art_identity_gate.GateTests) ... ok
+test_prompt_reconstructs_generation_version_for_both_factors (test_art_identity_gate.GateTests) ... ok
+test_protected_body_guard_is_inclusive_and_applies_to_both_images (test_art_identity_gate.GateTests) ... ok
+test_prototype_parity_three_canon_files (test_art_identity_gate.GateTests) ... ok
+test_raw_step_pixels_match_legacy_scripts_and_wrappers (test_art_identity_gate.GateTests) ... ok
+test_raw_steps_reject_changed_file_bytes_for_every_input_kind (test_art_identity_gate.GateTests) ... ok
+test_raw_steps_reject_output_chain_and_parameter_tampering (test_art_identity_gate.GateTests) ... ok
+test_raw_steps_replay_process_and_check_are_deterministic_and_read_only (test_art_identity_gate.GateTests) ... ok
+test_real_bodies_keep_at_least_ninety_percent_of_transfer_samples (test_art_identity_gate.GateTests) ... ok
+test_rear_consistency_uses_the_palette_match_non_accent_mask (test_art_identity_gate.GateTests) ... ok
+test_rear_front_reference_is_unchanged_and_peers_match_view (test_art_identity_gate.GateTests) ... ok
+test_rear_maquette_requires_identity (test_art_identity_gate.GateTests) ... ok
+test_recipe_exception_preserves_entry_failures_before_and_after_replay (test_art_identity_gate.GateTests) ... ok
+test_recipe_paths_cannot_escape_job_or_maquette_input_folders (test_art_identity_gate.GateTests) ... ok
+test_recipe_replay_uses_recorded_palette_parameters (test_art_identity_gate.GateTests) ... ok
+test_record_steps_ascii_stdout_keeps_input_changed_line_and_escapes_paths (test_art_identity_gate.GateTests) ... ok
+test_record_steps_cli_migrates_legacy_digests_and_is_idempotent (test_art_identity_gate.GateTests) ... ok
+test_record_steps_missing_inputs_never_partially_write_kit (test_art_identity_gate.GateTests) ... ok
+test_record_steps_refreshes_all_outputs_and_previous_output_links (test_art_identity_gate.GateTests) ... ok
+test_record_steps_refreshes_plain_and_masked_front_job_bindings (test_art_identity_gate.GateTests) ... ok
+test_record_steps_rejects_unsafe_paths_invalid_parameters_and_broken_legacy_chain (test_art_identity_gate.GateTests) ... ok
+test_record_steps_reports_changed_valid_input_hashes_separately_from_migration (test_art_identity_gate.GateTests) ... ok
+test_region_all_limits_are_finite_unit_numbers_and_ordered (test_art_identity_gate.GateTests) ... ok
+test_region_hue_wrap_and_seed_connectivity (test_art_identity_gate.GateTests) ... ok
+test_region_maximum_filters_are_inclusive_and_validate_limits (test_art_identity_gate.GateTests) ... ok
+test_registry_check_replays_recipe_in_addition_to_existing_certification (test_art_identity_gate.GateTests) ... ok
+test_registry_check_verifies_empty_body_skip_and_rejects_tampering (test_art_identity_gate.GateTests) ... ok
+test_registry_check_verifies_fully_masked_reference_even_without_raw_inputs (test_art_identity_gate.GateTests) ... ok
+test_registry_raw_steps_reject_legacy_raw_digest_even_with_valid_pixel_digest (test_art_identity_gate.GateTests) ... ok
+test_registry_warns_when_standard_recipe_inputs_are_absent (test_art_identity_gate.GateTests) ... ok
+test_replay_accepts_processed_png_reencoding_and_rejects_recipe_sidecar_changes (test_art_identity_gate.GateTests) ... ok
+test_retired_canon_resolves_for_provenance_but_not_for_new_kits (test_art_identity_gate.GateTests) ... ok
+test_sheet_backdrop_uses_real_capture_and_slot_contract (test_art_identity_gate.GateTests) ... ok
+test_sheet_fit_scale_info_matches_bound_process_sidecar (test_art_identity_gate.GateTests) ... ok
+test_sheet_synthetic_backdrop_front_rear_and_landmarks (test_art_identity_gate.GateTests) ... ok
+test_shrike_maquette_versions_reproduce_from_protected_jobs (test_art_identity_gate.GateTests) ... ok
+test_source_cannot_be_redirected_to_another_job (test_art_identity_gate.GateTests) ... ok
+test_source_digest_and_post_steps_are_verified_separately_from_production (test_art_identity_gate.GateTests) ... ok
+test_subject_rear_is_used_and_recorded_without_changing_front_subject (test_art_identity_gate.GateTests) ... ok
+test_tone_max_chroma_excludes_amber_while_toning_brown (test_art_identity_gate.GateTests) ... ok
+test_unknown_recorded_parameters_fail_instead_of_silently_using_current (test_art_identity_gate.GateTests) ... ok
+test_valid_maquette_front_and_rear_allow_active_and_retired_hand_references (test_art_identity_gate.GateTests) ... ok
+
+----------------------------------------------------------------------
+Ran 111 tests in 36.332s
+
+OK

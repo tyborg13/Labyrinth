@@ -1,0 +1,70 @@
+{
+  "head": {
+    "rejected_fringe_seeds": 93,
+    "genuine_seeds": 1131
+  },
+  "collar": {
+    "rejected_fringe_seeds": 66,
+    "genuine_seeds": 140
+  },
+  "torso": {
+    "rejected_fringe_seeds": 247,
+    "genuine_seeds": 3347
+  },
+  "loincloth": {
+    "rejected_fringe_seeds": 135,
+    "genuine_seeds": 1838
+  },
+  "upper_near": {
+    "rejected_fringe_seeds": 102,
+    "genuine_seeds": 1071
+  },
+  "fore_near": {
+    "rejected_fringe_seeds": 58,
+    "genuine_seeds": 439
+  },
+  "hand_near": {
+    "rejected_fringe_seeds": 38,
+    "genuine_seeds": 148
+  },
+  "upper_far": {
+    "rejected_fringe_seeds": 122,
+    "genuine_seeds": 564
+  },
+  "fore_far": {
+    "rejected_fringe_seeds": 72,
+    "genuine_seeds": 600
+  },
+  "hand_far": {
+    "rejected_fringe_seeds": 63,
+    "genuine_seeds": 116
+  },
+  "club": {
+    "rejected_fringe_seeds": 174,
+    "genuine_seeds": 1168
+  },
+  "thigh_near": {
+    "rejected_fringe_seeds": 84,
+    "genuine_seeds": 1445
+  },
+  "shin_near": {
+    "rejected_fringe_seeds": 58,
+    "genuine_seeds": 615
+  },
+  "foot_near": {
+    "rejected_fringe_seeds": 82,
+    "genuine_seeds": 712
+  },
+  "thigh_far": {
+    "rejected_fringe_seeds": 46,
+    "genuine_seeds": 42
+  },
+  "shin_far": {
+    "rejected_fringe_seeds": 38,
+    "genuine_seeds": 106
+  },
+  "foot_far": {
+    "rejected_fringe_seeds": 80,
+    "genuine_seeds": 630
+  }
+}

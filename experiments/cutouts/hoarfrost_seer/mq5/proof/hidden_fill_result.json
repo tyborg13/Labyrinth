@@ -1,0 +1,43 @@
+{
+  "complete": true,
+  "method": "diffusion",
+  "requests": 30,
+  "filled_requests": 29,
+  "pending_design": [],
+  "review_decisions": {},
+  "cross_view_requests": 0,
+  "remaining_magenta_pixels": 0,
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "41c8a688345d67e2f3286e4b99c13176a454b4f3c3b66470e929d99d8097a351"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "58f6904609ce271ee7fe8c5d6b82867fc7270fa4e7994a5ee06d4ef725919dab"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "hoarfrost_seer",
+    "layouts": {
+      "front": {
+        "joints": 16,
+        "parts": 29,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 16,
+        "parts": 31,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true
+}

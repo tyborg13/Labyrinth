@@ -1,0 +1,17 @@
+{
+  "ok": true,
+  "current_git_delta_paths": 116613,
+  "outside_scope": [],
+  "feedback2_shared_code": [
+    "tests/test_maquette_native_raster.py",
+    "tests/test_maquette_native_ties.py",
+    "tools/maquette_motion/pixels.py",
+    "tools/maquette_motion/raster.py"
+  ],
+  "existing_native_fixture_files_unchanged": 29,
+  "changed_old_fixture_files": [],
+  "branch": "codex/rr-07",
+  "staged_changes": false,
+  "native_capture_input_audit": "retained_inputs.json; original manifests/rests unchanged; capture PNG hashes checked by native gates",
+  "original_unit_inventory": "../changed_files.json"
+}

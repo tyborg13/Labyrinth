@@ -49,6 +49,7 @@ static func actor_for(state: Dictionary, key: String) -> Dictionary:
 	return {}
 
 static func decorate(state: Dictionary, presentation: Dictionary) -> void:
+	if bool(presentation.get("maquette_explicit_clip", false)): return
 	var effect: Dictionary = presentation.get("effect", {})
 	# Utility clips already run on their authored clock before outcome feedback.
 	# The following status popup must not replay that same clip a second time.

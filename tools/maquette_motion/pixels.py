@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 from cutout_pipeline.cases import read_json
 from maquette_motion.gates import expected_bones, bindings_match, unpack
-from maquette_motion.raster import nearest_quad, EXACT_TIE_EPSILON
+from maquette_motion.raster import nearest_quad, SUBTEXEL_TIE_EPSILON
 from maquette_motion import native_ties
 
 # Held frames have an exact zero tolerance; at most 1% of a part's occupied pixels
@@ -113,9 +113,10 @@ def native_frame_matches(actual, expected, samples=None):
     """A quiet blank/frozen surface is not evidence of shimmer-free paint."""
     reference = expected
     if samples is not None:
-        expected, invalid = native_ties.select(actual, samples)
-        if invalid.any():
-            return False
+        # rr-07 feedback 3: invalid ties remain ordinary changed pixels under
+        # the existing edge + union-area allowance, including quad coverage
+        # rounding. They never become legal source-texel candidates.
+        expected, _ = native_ties.select(actual, samples)
     expected_area = int((expected[..., 3] > 0).sum())
     if expected_area and not (actual[..., 3] > 0).any():
         return False
@@ -217,6 +218,7 @@ def shimmer(case, report, native=None):
             # Include the wrap from the final sampled pose back to frame zero.
             last_ideal_phase, last_transform = None, None
             ties = {'total': 0, 'max_per_frame': 0, 'max_fraction': 0.0}
+            invalid_frames = []
             for ordinal, row in enumerate([rows[-1], *rows]):
                 node = row['parts'][part['name']]
                 shown = phase_for(data['clips']['idle'], row['phase'])
@@ -258,7 +260,12 @@ def shimmer(case, report, native=None):
                     expected_before = render(image, unpack(node['before']), bounds, with_ties=True)
                     if not native_frame_matches(actual, canonical, candidates) or not native_frame_matches(baseline, expected_before.default, expected_before):
                         failures.append(f'{view}/{part["name"]}/{row["frame"]}: native part does not match its source transform')
-                    ideal, _ = native_ties.select(actual, candidates)
+                    ideal, invalid_after = native_ties.select(actual, candidates)
+                    _, invalid_before = native_ties.select(baseline, expected_before)
+                    if ordinal:
+                        invalid_frames.append({'frame': row['frame'],
+                                               'before': int(invalid_before.sum()),
+                                               'after': int(invalid_after.sum())})
                 if previous is not None:
                     held = row['presented_phase'] == previous[3]
                     for kind, observed, old in [('before', baseline, previous[0]), ('after', actual, previous[1])]:
@@ -270,11 +277,17 @@ def shimmer(case, report, native=None):
                         if kind == 'after' and ((held and count) or (not held and fraction > PROOF_DEFAULTS['boundary_residual_fraction'])):
                             failures.append(f'{view}/{part["name"]}/{row["frame"]}: unexplained shimmer ({count}px, {fraction:.6f})')
                 previous = (baseline, actual, ideal, row['presented_phase'], canonical)
-            metrics.append({'view': view, 'part': part['name'], 'ties': ties, **totals})
+            invalid_ties = None if native is None else {
+                'total': {kind: sum(frame[kind] for frame in invalid_frames) for kind in ('before', 'after')},
+                'frames': invalid_frames}
+            metrics.append({'view': view, 'part': part['name'], 'ties': ties, 'invalid_ties': invalid_ties, **totals})
     return failures, {'native_pixels': native is not None, 'metric': 'changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored',
                       'defaults': PROOF_DEFAULTS, 'parts': metrics,
-                      'tie_policy': {'epsilon': EXACT_TIE_EPSILON, 'occupancy_acceptance': 'report-only; exact candidates remain strict',
+                      'tie_policy': {'epsilon': SUBTEXEL_TIE_EPSILON, 'occupancy_acceptance': 'report-only; legal candidate matches remain exact',
+                                     'invalid_ties': 'ordinary changed pixels under the existing native raster allowance; no out-of-range candidate',
                                      'scope': 'presented idle frames, occupied candidate union; wrap comparison not counted twice',
                                      'total': sum(m['ties']['total'] for m in metrics),
                                      'max_per_frame': max((m['ties']['max_per_frame'] for m in metrics), default=0)},
+                      'invalid_tie_totals': None if native is None else {
+                          kind: sum(m['invalid_ties']['total'][kind] for m in metrics) for kind in ('before', 'after')},
                       'totals': {kind: {field: sum(m[kind][field] for m in metrics) for field in ('held_unexplained_pixels', 'boundary_unexplained_pixels')} for kind in ('before', 'after')}}

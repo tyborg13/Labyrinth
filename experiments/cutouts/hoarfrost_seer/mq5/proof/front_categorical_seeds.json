@@ -1,0 +1,62 @@
+{
+  "head": {
+    "rejected_fringe_seeds": 162,
+    "genuine_seeds": 1721
+  },
+  "collar": {
+    "rejected_fringe_seeds": 120,
+    "genuine_seeds": 473
+  },
+  "torso": {
+    "rejected_fringe_seeds": 237,
+    "genuine_seeds": 2581
+  },
+  "skirt_near": {
+    "rejected_fringe_seeds": 215,
+    "genuine_seeds": 3992
+  },
+  "skirt_far": {
+    "rejected_fringe_seeds": 85,
+    "genuine_seeds": 1305
+  },
+  "upper_near": {
+    "rejected_fringe_seeds": 87,
+    "genuine_seeds": 1115
+  },
+  "fore_near": {
+    "rejected_fringe_seeds": 66,
+    "genuine_seeds": 401
+  },
+  "hand_near": {
+    "rejected_fringe_seeds": 40,
+    "genuine_seeds": 40
+  },
+  "upper_far": {
+    "rejected_fringe_seeds": 100,
+    "genuine_seeds": 634
+  },
+  "fore_far": {
+    "rejected_fringe_seeds": 65,
+    "genuine_seeds": 196
+  },
+  "hand_far": {
+    "rejected_fringe_seeds": 49,
+    "genuine_seeds": 227
+  },
+  "staff_shaft": {
+    "rejected_fringe_seeds": 128,
+    "genuine_seeds": 287
+  },
+  "staff_crystal": {
+    "rejected_fringe_seeds": 78,
+    "genuine_seeds": 738
+  },
+  "foot_near": {
+    "rejected_fringe_seeds": 50,
+    "genuine_seeds": 162
+  },
+  "foot_far": {
+    "rejected_fringe_seeds": 38,
+    "genuine_seeds": 171
+  }
+}

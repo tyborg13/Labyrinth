@@ -1,0 +1,75 @@
+{
+  "parts": [
+    {
+      "source": "collar",
+      "node": "collar",
+      "pixels": 154,
+      "bone": "collar",
+      "z_index": 15
+    },
+    {
+      "source": "collar",
+      "node": "collar_component_02",
+      "pixels": 32,
+      "bone": "collar",
+      "z_index": 15
+    },
+    {
+      "source": "torso",
+      "node": "torso",
+      "pixels": 3190,
+      "bone": "torso",
+      "z_index": 14
+    },
+    {
+      "source": "torso",
+      "node": "torso_component_02",
+      "pixels": 8,
+      "bone": "torso",
+      "z_index": 14
+    },
+    {
+      "source": "loincloth",
+      "node": "loincloth",
+      "pixels": 1666,
+      "bone": "loincloth",
+      "z_index": 7
+    },
+    {
+      "source": "loincloth",
+      "node": "loincloth_component_02",
+      "pixels": 356,
+      "bone": "loincloth",
+      "z_index": 7
+    },
+    {
+      "source": "club",
+      "node": "club",
+      "pixels": 1343,
+      "bone": "hand_near",
+      "z_index": 2
+    },
+    {
+      "source": "club",
+      "node": "club_component_02",
+      "pixels": 71,
+      "bone": "hand_near",
+      "z_index": 2
+    },
+    {
+      "source": "club",
+      "node": "club_component_03",
+      "pixels": 11,
+      "bone": "hand_near",
+      "z_index": 2
+    },
+    {
+      "source": "club",
+      "node": "club_component_04",
+      "pixels": 2,
+      "bone": "hand_near",
+      "z_index": 2
+    }
+  ],
+  "policy": "Lossless connected storage crops; no paint reassignment or deletion"
+}

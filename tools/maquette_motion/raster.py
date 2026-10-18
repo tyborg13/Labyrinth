@@ -5,10 +5,10 @@ top-left/bottom-right quad diagonal. Pillow's 16.16 inverse-affine fast path
 does neither; it can choose adjacent texels across an entire scanline. Retained
 native fixtures pin this model without rendering or changing any gate tolerance.
 
-At an exact integer UV (within 1e-6 in float64 after vertex snapping), native
-interpolation rounding may select either adjacent texel. The default rendering
-is retained for reproducibility; optional per-axis candidates mark only these
-exact ties. Both neighbours must be real texels: at a texture boundary the
+Within half an 8-bit sub-texel step of an integer UV after vertex snapping,
+native interpolation rounding may select either adjacent texel. The default
+rendering is retained for reproducibility; optional per-axis candidates mark
+only this tie band. Both neighbours must be real texels: at a texture boundary the
 single in-range texel is the only candidate. No native tie direction is assumed.
 """
 from dataclasses import dataclass
@@ -17,7 +17,10 @@ import numpy as np
 SUBPIXEL_BITS = 8
 SUBPIXEL_SCALE = 1 << SUBPIXEL_BITS
 QUAD_TRIANGLES = ((0, 1, 2), (0, 2, 3))
-EXACT_TIE_EPSILON = 1e-6
+# GPUs quantise UVs to 8-bit sub-texel precision. Half a step covers the
+# rotated rr-07 before captures: Seer front/skirt_far/67 and Thrall
+# rear/fore_near/116 (director feedback 2); exact ties remain included.
+SUBTEXEL_TIE_EPSILON = 1 / 512
 
 
 @dataclass
@@ -84,12 +87,12 @@ def nearest_quad(image, transform, bounds, with_ties=False):
         raw_u = x * affine[0, 0] + y * affine[1, 0] + affine[2, 0]
         raw_v = x * affine[0, 1] + y * affine[1, 1] + affine[2, 1]
         # Preserve the existing deterministic default. This numerical rounding
-        # is not a claim about the GPU's choice at an exact integer UV.
+        # is not a claim about the GPU's choice within the sub-texel tie band.
         u = np.rint(raw_u.astype(np.float32) - 0.5).astype(int)
         v = np.rint(raw_v.astype(np.float32) - 0.5).astype(int)
         integer_u, integer_v = np.rint(raw_u).astype(int), np.rint(raw_v).astype(int)
-        tie_u = np.abs(raw_u - integer_u) <= EXACT_TIE_EPSILON
-        tie_v = np.abs(raw_v - integer_v) <= EXACT_TIE_EPSILON
+        tie_u = np.abs(raw_u - integer_u) <= SUBTEXEL_TIE_EPSILON
+        tie_v = np.abs(raw_v - integer_v) <= SUBTEXEL_TIE_EPSILON
         # At an outer UV edge there is only one real neighbouring texel.
         # Neither the default nor an alternative may invent transparent paint
         # by sampling a nonexistent row/column. Non-tie sampling is unchanged.

@@ -1,0 +1,116 @@
+{
+  "min_images": 36,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "frame_*_idle.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1320,
+            800
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "frame_*_move.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1320,
+            800
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "frame_*_tether.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1320,
+            800
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "frame_*_jab.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1320,
+            800
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "frame_*_hit.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1320,
+            800
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "frame_*_death.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            300,
+            100,
+            1320,
+            800
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    }
+  ]
+}

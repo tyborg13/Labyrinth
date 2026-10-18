@@ -1,0 +1,247 @@
+{
+  "character_id": "arc_thrall",
+  "director_decisions": {
+    "authority": "Director rr-07 feedback 1",
+    "pelvis": "No pelvis bone. Torso is a root child, pivoting at the native lower-back/pelvis joint.",
+    "collar": "Torso child at native head joint (neck base); head bows independently.",
+    "seer_skirts": "Torso children at each native hip/waist joint above its half.",
+    "seer_feet": "Root children at their own native ankle joints; independent of torso lean.",
+    "seer_staff": "Shaft is a far-hand child at grip. Crystal is always a shaft child at the shaft tip, including death.",
+    "thrall_thighs": "Root children at native hip joints; shins and feet retain the native limb chains.",
+    "thrall_loincloth": "Torso child at native pelvis/waist joint, following hunch and death."
+  },
+  "joints": {
+    "root": {
+      "joint": "root",
+      "position_3d": [
+        0,
+        0,
+        0
+      ],
+      "parent": null
+    },
+    "torso": {
+      "joint": "pelvis",
+      "position_3d": [
+        0.029831067331307443,
+        0.00994368911043576,
+        0.9413822604694597
+      ],
+      "parent": "root"
+    },
+    "head": {
+      "joint": "head",
+      "position_3d": [
+        0.2684796059817673,
+        -0.1226388323620418,
+        1.7749317116119814
+      ],
+      "parent": "torso"
+    },
+    "collar": {
+      "joint": "head",
+      "position_3d": [
+        0.2684796059817673,
+        -0.1226388323620418,
+        1.7749317116119814
+      ],
+      "parent": "torso"
+    },
+    "upper_near": {
+      "joint": "shoulder_near",
+      "position_3d": [
+        -0.1590990257669735,
+        0.18561553006146825,
+        1.563838019439525
+      ],
+      "parent": "torso"
+    },
+    "fore_near": {
+      "joint": "elbow_near",
+      "position_3d": [
+        -0.3248271776075701,
+        0.33808542975481815,
+        1.1687139289628747
+      ],
+      "parent": "upper_near"
+    },
+    "hand_near": {
+      "joint": "hand_near",
+      "position_3d": [
+        -0.4209495056751164,
+        0.42094950567511663,
+        0.9034936490538905
+      ],
+      "parent": "fore_near"
+    },
+    "thigh_near": {
+      "joint": "hip_near",
+      "position_3d": [
+        -0.10606601717798213,
+        0.14584077361972542,
+        0.887255672732932
+      ],
+      "parent": "root"
+    },
+    "shin_near": {
+      "joint": "knee_near",
+      "position_3d": [
+        -0.08286407592029849,
+        0.3215126145707584,
+        0.535432852445504
+      ],
+      "parent": "thigh_near"
+    },
+    "foot_near": {
+      "joint": "ankle_near",
+      "position_3d": [
+        -0.059662134662614795,
+        0.44415144693280023,
+        0.24856193744190866
+      ],
+      "parent": "shin_near"
+    },
+    "upper_far": {
+      "joint": "shoulder_far",
+      "position_3d": [
+        0.37454562315974965,
+        -0.20218834524552814,
+        1.4826481378347336
+      ],
+      "parent": "torso"
+    },
+    "fore_far": {
+      "joint": "elbow_far",
+      "position_3d": [
+        0.4772970773009199,
+        -0.3712310601229373,
+        1.1308253175473055
+      ],
+      "parent": "upper_far"
+    },
+    "hand_far": {
+      "joint": "hand_far",
+      "position_3d": [
+        0.5004990185586031,
+        -0.5402737750003465,
+        0.7681771797125719
+      ],
+      "parent": "fore_far"
+    },
+    "thigh_far": {
+      "joint": "hip_far",
+      "position_3d": [
+        0.12263883236204172,
+        -0.12263883236204202,
+        0.8818430139592796
+      ],
+      "parent": "root"
+    },
+    "shin_far": {
+      "joint": "knee_far",
+      "position_3d": [
+        0.0729203868098627,
+        -0.2850524211658269,
+        0.6003847577293369
+      ],
+      "parent": "thigh_far"
+    },
+    "foot_far": {
+      "joint": "ankle_far",
+      "position_3d": [
+        -0.039774756441743504,
+        -0.4375223208591766,
+        0.31892650149939433
+      ],
+      "parent": "shin_far"
+    },
+    "loincloth": {
+      "joint": "pelvis",
+      "position_3d": [
+        0.029831067331307443,
+        0.00994368911043576,
+        0.9413822604694597
+      ],
+      "parent": "torso"
+    }
+  },
+  "parts": {
+    "head": "head",
+    "collar": "collar",
+    "torso": "torso",
+    "loincloth": "loincloth",
+    "upper_near": "upper_near",
+    "fore_near": "fore_near",
+    "hand_near": "hand_near",
+    "upper_far": "upper_far",
+    "fore_far": "fore_far",
+    "hand_far": "hand_far",
+    "club": "hand_near",
+    "thigh_near": "thigh_near",
+    "shin_near": "shin_near",
+    "foot_near": "foot_near",
+    "thigh_far": "thigh_far",
+    "shin_far": "shin_far",
+    "foot_far": "foot_far"
+  },
+  "motion": "motion.gd",
+  "rigid_bones": [],
+  "contact_feet": [],
+  "design_placeholders": {},
+  "materials": {
+    "head": "native body skin",
+    "collar": "collar approved paint",
+    "torso": "native body skin",
+    "loincloth": "loincloth approved paint",
+    "upper_near": "native body skin",
+    "fore_near": "native body skin",
+    "hand_near": "native body skin",
+    "upper_far": "native body skin",
+    "fore_far": "native body skin",
+    "hand_far": "native body skin",
+    "club": "club approved paint",
+    "thigh_near": "native body skin",
+    "shin_near": "native body skin",
+    "foot_near": "native body skin",
+    "thigh_far": "native body skin",
+    "shin_far": "native body skin",
+    "foot_far": "native body skin"
+  },
+  "features": "features.json",
+  "clips": {
+    "idle": {
+      "frames": 180,
+      "duration": 3.0,
+      "loop": true
+    },
+    "move": {
+      "frames": 51,
+      "duration": 0.85,
+      "loop": false
+    },
+    "tether": {
+      "frames": 72,
+      "duration": 1.2,
+      "loop": false
+    },
+    "jab": {
+      "frames": 42,
+      "duration": 0.7,
+      "loop": false
+    },
+    "hit": {
+      "frames": 30,
+      "duration": 0.5,
+      "loop": false
+    },
+    "death": {
+      "frames": 90,
+      "duration": 1.5,
+      "loop": false
+    }
+  },
+  "proof_defaults": {
+    "native_fps": 60,
+    "render_size": 1024
+  }
+}

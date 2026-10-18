@@ -1,0 +1,1419 @@
+{
+  "policy": "Director feedback 9: local seam bands, never a whole-creature backing.\n\nRest ownership, including features assigned to their logical owners, supplies\nthe regions (hidden fills/bleed are not ownership). Feature pixels supply\nneither band paint nor band coverage.\nBoundary length is the number of shared unit pixel edges. Reach on each side\nis ceil(maximum sampled separation) + 1, capped at 4 source pixels. Siblings\nuse the lower-drawn part as owner and paint donor. Each retained 8-connected\nband component is one node; components smaller than 3 pixels are discarded.\n",
+  "minimum_shared_boundary_px": 3,
+  "width": "reach per side = min(ceil(max sampled separation) + 1 px, 4 px)",
+  "minimum_component_pixels": 3,
+  "paint": "nearest approved parent texel, excluding features; stable row/column distance ties",
+  "views": {
+    "front": [
+      {
+        "name": "seam_head_collar",
+        "parts": [
+          "head",
+          "collar"
+        ],
+        "shared_boundary_px": 55,
+        "parent": "collar",
+        "bone": "collar",
+        "maximum_sampled_separation_px": 9.50282594425562,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 68
+        },
+        "derived_reach_per_side_px": 11,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 330,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_head_collar",
+            "pixels": 330,
+            "file": "seams/front/seam_head_collar.png",
+            "sha256": "1923f2fc62e258ee19196e228f8b00f6e02521327cf35a78f3c7a826e2f495ca"
+          }
+        ],
+        "parent_z_index": 15
+      },
+      {
+        "name": "seam_head_collar_component_02",
+        "parts": [
+          "head",
+          "collar_component_02"
+        ],
+        "shared_boundary_px": 15,
+        "parent": "collar_component_02",
+        "bone": "collar",
+        "maximum_sampled_separation_px": 4.278365849391925,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "derived_reach_per_side_px": 6,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 109,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_head_collar_component_02",
+            "pixels": 109,
+            "file": "seams/front/seam_head_collar_component_02.png",
+            "sha256": "93dcab32b17851d40f23a8394bb9c75d653aa2aa76045db304cec01742eaa60b"
+          }
+        ],
+        "parent_z_index": 15
+      },
+      {
+        "name": "seam_collar_collar_component_02",
+        "parts": [
+          "collar",
+          "collar_component_02"
+        ],
+        "shared_boundary_px": 7,
+        "parent": "collar",
+        "bone": "collar",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "derived_reach_per_side_px": 1,
+        "reach_per_side_px": 1,
+        "band_width_px": 2,
+        "pixels": 8,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_collar_collar_component_02",
+            "pixels": 8,
+            "file": "seams/front/seam_collar_collar_component_02.png",
+            "sha256": "3121d2806bb0023b5d603213726799a989def90716d9c00c3c739f858daa66a7"
+          }
+        ],
+        "parent_z_index": 15
+      },
+      {
+        "name": "seam_collar_torso",
+        "parts": [
+          "collar",
+          "torso"
+        ],
+        "shared_boundary_px": 75,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 1.3615815675509177,
+        "worst_pose": {
+          "clip": "idle",
+          "frame": 120
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 337,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_collar_torso",
+            "pixels": 337,
+            "file": "seams/front/seam_collar_torso.png",
+            "sha256": "2f49391fdc0e21f7f55dc4fea2b12d75320839e3f762aca0071b0673179754cd"
+          }
+        ],
+        "parent_z_index": 14
+      },
+      {
+        "name": "seam_collar_torso_component_02",
+        "parts": [
+          "collar",
+          "torso_component_02"
+        ],
+        "shared_boundary_px": 4,
+        "parent": "torso_component_02",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 1.4295845918838306,
+        "worst_pose": {
+          "clip": "idle",
+          "frame": 120
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 8,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_collar_torso_component_02",
+            "pixels": 8,
+            "file": "seams/front/seam_collar_torso_component_02.png",
+            "sha256": "46db147945b3dbe9a3b59c7b615295631112b87756ab69239fb3340b760a1f52"
+          }
+        ],
+        "parent_z_index": 14
+      },
+      {
+        "name": "seam_collar_upper_far",
+        "parts": [
+          "collar",
+          "upper_far"
+        ],
+        "shared_boundary_px": 27,
+        "parent": "upper_far",
+        "bone": "upper_far",
+        "maximum_sampled_separation_px": 6.934213954214109,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 89
+        },
+        "derived_reach_per_side_px": 8,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 91,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_collar_upper_far",
+            "pixels": 91,
+            "file": "seams/front/seam_collar_upper_far.png",
+            "sha256": "485831d8bd35c301960267074d90b75a82a6366aa583375908ca81923ad315e8"
+          }
+        ],
+        "parent_z_index": 13
+      },
+      {
+        "name": "seam_torso_loincloth",
+        "parts": [
+          "torso",
+          "loincloth"
+        ],
+        "shared_boundary_px": 61,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 2.9731909203205698,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 33
+        },
+        "derived_reach_per_side_px": 4,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 432,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_loincloth",
+            "pixels": 432,
+            "file": "seams/front/seam_torso_loincloth.png",
+            "sha256": "8abc07eab231977b5d3b3d5bb067c7afe58eb77364e6dc68b981d20737a56c9d"
+          }
+        ],
+        "parent_z_index": 14
+      },
+      {
+        "name": "seam_torso_loincloth_component_02",
+        "parts": [
+          "torso",
+          "loincloth_component_02"
+        ],
+        "shared_boundary_px": 11,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 3.5990435603707223,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 54
+        },
+        "derived_reach_per_side_px": 5,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 103,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_loincloth_component_02",
+            "pixels": 103,
+            "file": "seams/front/seam_torso_loincloth_component_02.png",
+            "sha256": "760ce69096b9a66df1933adea55337c1332a74d780d678318658741aa0a3a963"
+          }
+        ],
+        "parent_z_index": 14
+      },
+      {
+        "name": "seam_torso_upper_near",
+        "parts": [
+          "torso",
+          "upper_near"
+        ],
+        "shared_boundary_px": 88,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 18.114563594803073,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 30
+        },
+        "derived_reach_per_side_px": 20,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 535,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_upper_near",
+            "pixels": 535,
+            "file": "seams/front/seam_torso_upper_near.png",
+            "sha256": "85324672349ab24c47cf6f079349bb6aba170a1faa43ed448da501d69dcbd6bf"
+          }
+        ],
+        "parent_z_index": 14
+      },
+      {
+        "name": "seam_torso_thigh_near",
+        "parts": [
+          "torso",
+          "thigh_near"
+        ],
+        "shared_boundary_px": 45,
+        "parent": "thigh_near",
+        "bone": "thigh_near",
+        "maximum_sampled_separation_px": 17.310290008278326,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 73
+        },
+        "derived_reach_per_side_px": 19,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 299,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_thigh_near",
+            "pixels": 299,
+            "file": "seams/front/seam_torso_thigh_near.png",
+            "sha256": "f6b8b0c6bfeae805b0bab78c44548f8f9316ae9ab74fe9e3f6bc34eeb6dcead2"
+          }
+        ],
+        "parent_z_index": 9
+      },
+      {
+        "name": "seam_loincloth_thigh_near",
+        "parts": [
+          "loincloth",
+          "thigh_near"
+        ],
+        "shared_boundary_px": 29,
+        "parent": "thigh_near",
+        "bone": "thigh_near",
+        "maximum_sampled_separation_px": 15.977493212510998,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 72
+        },
+        "derived_reach_per_side_px": 17,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 224,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_thigh_near",
+            "pixels": 224,
+            "file": "seams/front/seam_loincloth_thigh_near.png",
+            "sha256": "4bb85140b1d42ae9851e41931a0462d2b364590662bf0dca256d5573e71cbd41"
+          }
+        ],
+        "parent_z_index": 9
+      },
+      {
+        "name": "seam_loincloth_thigh_far",
+        "parts": [
+          "loincloth",
+          "thigh_far"
+        ],
+        "shared_boundary_px": 23,
+        "parent": "thigh_far",
+        "bone": "thigh_far",
+        "maximum_sampled_separation_px": 23.976956766360814,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 77
+        },
+        "derived_reach_per_side_px": 25,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 145,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_thigh_far",
+            "pixels": 145,
+            "file": "seams/front/seam_loincloth_thigh_far.png",
+            "sha256": "2a4c16c2ca8281839ff1e61d9364c94d97130b50f070784a0a953ac33ae5c16d"
+          }
+        ],
+        "parent_z_index": 3
+      },
+      {
+        "name": "seam_loincloth_shin_far",
+        "parts": [
+          "loincloth",
+          "shin_far"
+        ],
+        "shared_boundary_px": 25,
+        "parent": "shin_far",
+        "bone": "shin_far",
+        "maximum_sampled_separation_px": 33.14963262148441,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 75
+        },
+        "derived_reach_per_side_px": 35,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 175,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_shin_far",
+            "pixels": 175,
+            "file": "seams/front/seam_loincloth_shin_far.png",
+            "sha256": "0aa354d376742e05bc1bf7dee5ca1f275c97d21fe6d8b2571c34515ce0c2500b"
+          }
+        ],
+        "parent_z_index": 1
+      },
+      {
+        "name": "seam_loincloth_foot_far",
+        "parts": [
+          "loincloth",
+          "foot_far"
+        ],
+        "shared_boundary_px": 15,
+        "parent": "loincloth",
+        "bone": "loincloth",
+        "maximum_sampled_separation_px": 33.13804352353702,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 75
+        },
+        "derived_reach_per_side_px": 35,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 132,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_foot_far",
+            "pixels": 132,
+            "file": "seams/front/seam_loincloth_foot_far.png",
+            "sha256": "c80f0f2cc93ecaa33a1f3ebc500ce75329c7285204a48f72908ae54b54934fa4"
+          }
+        ],
+        "parent_z_index": 7
+      },
+      {
+        "name": "seam_loincloth_component_02_thigh_near",
+        "parts": [
+          "loincloth_component_02",
+          "thigh_near"
+        ],
+        "shared_boundary_px": 43,
+        "parent": "thigh_near",
+        "bone": "thigh_near",
+        "maximum_sampled_separation_px": 23.986600209088817,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 78
+        },
+        "derived_reach_per_side_px": 25,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 302,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_component_02_thigh_near",
+            "pixels": 302,
+            "file": "seams/front/seam_loincloth_component_02_thigh_near.png",
+            "sha256": "809d90bd2e94504ddfaf80eb73cf6a0ad86a0091392096a23e457635316e1178"
+          }
+        ],
+        "parent_z_index": 9
+      },
+      {
+        "name": "seam_upper_near_fore_near",
+        "parts": [
+          "upper_near",
+          "fore_near"
+        ],
+        "shared_boundary_px": 27,
+        "parent": "upper_near",
+        "bone": "upper_near",
+        "maximum_sampled_separation_px": 2.9353622817358436,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 39
+        },
+        "derived_reach_per_side_px": 4,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 183,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_upper_near_fore_near",
+            "pixels": 183,
+            "file": "seams/front/seam_upper_near_fore_near.png",
+            "sha256": "b1441d74caa5106a4037fe44489de69d509b9c503a4784abfe056843e49ee822"
+          }
+        ],
+        "parent_z_index": 12
+      },
+      {
+        "name": "seam_fore_near_hand_near",
+        "parts": [
+          "fore_near",
+          "hand_near"
+        ],
+        "shared_boundary_px": 20,
+        "parent": "fore_near",
+        "bone": "fore_near",
+        "maximum_sampled_separation_px": 1.4142243381779624,
+        "worst_pose": {
+          "clip": "idle",
+          "frame": 96
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 127,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_near_hand_near",
+            "pixels": 127,
+            "file": "seams/front/seam_fore_near_hand_near.png",
+            "sha256": "f892294e9ff7aeaba83dbe388dbd8c6933f844d9b04fd5920a70de2aa468cdfb"
+          }
+        ],
+        "parent_z_index": 11
+      },
+      {
+        "name": "seam_fore_near_club",
+        "parts": [
+          "fore_near",
+          "club"
+        ],
+        "shared_boundary_px": 13,
+        "parent": "fore_near",
+        "bone": "fore_near",
+        "maximum_sampled_separation_px": 1.4142135577632835,
+        "worst_pose": {
+          "clip": "idle",
+          "frame": 96
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 82,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_near_club",
+            "pixels": 82,
+            "file": "seams/front/seam_fore_near_club.png",
+            "sha256": "5b58b417f6168909bdd60f41487949faa4162da8f6e01dd3c18284342baeeae4"
+          }
+        ],
+        "parent_z_index": 11
+      },
+      {
+        "name": "seam_fore_near_club_component_02",
+        "parts": [
+          "fore_near",
+          "club_component_02"
+        ],
+        "shared_boundary_px": 23,
+        "parent": "fore_near",
+        "bone": "fore_near",
+        "maximum_sampled_separation_px": 1.4142135577632835,
+        "worst_pose": {
+          "clip": "idle",
+          "frame": 96
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 122,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_near_club_component_02",
+            "pixels": 122,
+            "file": "seams/front/seam_fore_near_club_component_02.png",
+            "sha256": "5b15fe4701dd30e0fc429e08e34131e3aa7c75c39f60139c5fbf365f0ead6494"
+          }
+        ],
+        "parent_z_index": 11
+      },
+      {
+        "name": "seam_hand_near_club",
+        "parts": [
+          "hand_near",
+          "club"
+        ],
+        "shared_boundary_px": 41,
+        "parent": "club",
+        "bone": "hand_near",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "derived_reach_per_side_px": 1,
+        "reach_per_side_px": 1,
+        "band_width_px": 2,
+        "pixels": 82,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_hand_near_club",
+            "pixels": 82,
+            "file": "seams/front/seam_hand_near_club.png",
+            "sha256": "ee9e1fb0cbea59be111c6675ffc0eefaebbb047f514db5e523e48b4982805b77"
+          }
+        ],
+        "parent_z_index": 2
+      },
+      {
+        "name": "seam_hand_near_club_component_03",
+        "parts": [
+          "hand_near",
+          "club_component_03"
+        ],
+        "shared_boundary_px": 19,
+        "parent": "club_component_03",
+        "bone": "hand_near",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "derived_reach_per_side_px": 1,
+        "reach_per_side_px": 1,
+        "band_width_px": 2,
+        "pixels": 34,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_hand_near_club_component_03",
+            "pixels": 34,
+            "file": "seams/front/seam_hand_near_club_component_03.png",
+            "sha256": "238bf6ad22bc3141174008a13ee61cdd906e78a5490eebf9aab8789604f9f9de"
+          }
+        ],
+        "parent_z_index": 2
+      },
+      {
+        "name": "seam_upper_far_fore_far",
+        "parts": [
+          "upper_far",
+          "fore_far"
+        ],
+        "shared_boundary_px": 26,
+        "parent": "upper_far",
+        "bone": "upper_far",
+        "maximum_sampled_separation_px": 1.4227280585512323,
+        "worst_pose": {
+          "clip": "idle",
+          "frame": 120
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 140,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_upper_far_fore_far",
+            "pixels": 140,
+            "file": "seams/front/seam_upper_far_fore_far.png",
+            "sha256": "05c5eb192737dd9bbd55ee1a67f8e2443a92e65200c7993d42a7032d0438aec1"
+          }
+        ],
+        "parent_z_index": 13
+      },
+      {
+        "name": "seam_fore_far_hand_far",
+        "parts": [
+          "fore_far",
+          "hand_far"
+        ],
+        "shared_boundary_px": 62,
+        "parent": "fore_far",
+        "bone": "fore_far",
+        "maximum_sampled_separation_px": 4.845531413682021,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 26
+        },
+        "derived_reach_per_side_px": 6,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 374,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_far_hand_far",
+            "pixels": 374,
+            "file": "seams/front/seam_fore_far_hand_far.png",
+            "sha256": "9ebb796a9203c66b313c17751564027f823cc332d765446e94300a339c83b54c"
+          }
+        ],
+        "parent_z_index": 10
+      },
+      {
+        "name": "seam_club_club_component_04",
+        "parts": [
+          "club",
+          "club_component_04"
+        ],
+        "shared_boundary_px": 4,
+        "parent": "club",
+        "bone": "hand_near",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "derived_reach_per_side_px": 1,
+        "reach_per_side_px": 1,
+        "band_width_px": 2,
+        "pixels": 2,
+        "discarded_component_pixels": [
+          2
+        ],
+        "components": [],
+        "parent_z_index": 2
+      },
+      {
+        "name": "seam_thigh_near_shin_near",
+        "parts": [
+          "thigh_near",
+          "shin_near"
+        ],
+        "shared_boundary_px": 28,
+        "parent": "thigh_near",
+        "bone": "thigh_near",
+        "maximum_sampled_separation_px": 8.807814671187693,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 52
+        },
+        "derived_reach_per_side_px": 10,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 201,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_thigh_near_shin_near",
+            "pixels": 201,
+            "file": "seams/front/seam_thigh_near_shin_near.png",
+            "sha256": "fb9486e9cd3ca512ddcde22cb0f735561bfca175dbbf0c2397916b03469f6fea"
+          }
+        ],
+        "parent_z_index": 9
+      },
+      {
+        "name": "seam_shin_near_foot_near",
+        "parts": [
+          "shin_near",
+          "foot_near"
+        ],
+        "shared_boundary_px": 32,
+        "parent": "shin_near",
+        "bone": "shin_near",
+        "maximum_sampled_separation_px": 1.517855204131837,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 50
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 183,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_shin_near_foot_near",
+            "pixels": 183,
+            "file": "seams/front/seam_shin_near_foot_near.png",
+            "sha256": "a93f55edafcd2515da8f107024f2d30e02454c847acd4382db11df329f378391"
+          }
+        ],
+        "parent_z_index": 6
+      },
+      {
+        "name": "seam_thigh_far_shin_far",
+        "parts": [
+          "thigh_far",
+          "shin_far"
+        ],
+        "shared_boundary_px": 7,
+        "parent": "thigh_far",
+        "bone": "thigh_far",
+        "maximum_sampled_separation_px": 8.237874337846169,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 60
+        },
+        "derived_reach_per_side_px": 10,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 58,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_thigh_far_shin_far",
+            "pixels": 58,
+            "file": "seams/front/seam_thigh_far_shin_far.png",
+            "sha256": "ff693976faa0d01b4f37f6f07dd887fcc152b43d1c67ab9af9c44491d17ef43a"
+          }
+        ],
+        "parent_z_index": 3
+      },
+      {
+        "name": "seam_shin_far_foot_far",
+        "parts": [
+          "shin_far",
+          "foot_far"
+        ],
+        "shared_boundary_px": 35,
+        "parent": "shin_far",
+        "bone": "shin_far",
+        "maximum_sampled_separation_px": 1.38935635943784,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 14
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 162,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_shin_far_foot_far",
+            "pixels": 162,
+            "file": "seams/front/seam_shin_far_foot_far.png",
+            "sha256": "7187db3347dea853989170609892b258257c545f9455d9d05ca7381ef21b5b56"
+          }
+        ],
+        "parent_z_index": 1
+      }
+    ],
+    "rear": [
+      {
+        "name": "seam_head_collar",
+        "parts": [
+          "head",
+          "collar"
+        ],
+        "shared_boundary_px": 40,
+        "parent": "head",
+        "bone": "head",
+        "maximum_sampled_separation_px": 12.330974302175076,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 76
+        },
+        "derived_reach_per_side_px": 14,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 278,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_head_collar",
+            "pixels": 278,
+            "file": "seams/rear/seam_head_collar.png",
+            "sha256": "beb8b6ed72f83eb1465e95b81b87cf1a98c6386069d24ef6bf1e9f3087247e95"
+          }
+        ],
+        "parent_z_index": 15
+      },
+      {
+        "name": "seam_head_torso",
+        "parts": [
+          "head",
+          "torso"
+        ],
+        "shared_boundary_px": 65,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 12.34728098032237,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 80
+        },
+        "derived_reach_per_side_px": 14,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 423,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_head_torso",
+            "pixels": 423,
+            "file": "seams/rear/seam_head_torso.png",
+            "sha256": "5582178e22f05bc5009734c693b5656d7a09d8247dc43fabd8c8878b22b3fb15"
+          }
+        ],
+        "parent_z_index": 12
+      },
+      {
+        "name": "seam_head_upper_far",
+        "parts": [
+          "head",
+          "upper_far"
+        ],
+        "shared_boundary_px": 3,
+        "parent": "upper_far",
+        "bone": "upper_far",
+        "maximum_sampled_separation_px": 11.110825135331028,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 89
+        },
+        "derived_reach_per_side_px": 13,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 36,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_head_upper_far",
+            "pixels": 36,
+            "file": "seams/rear/seam_head_upper_far.png",
+            "sha256": "4908c0802ae840ebb9040cb615666f6f99f0f3063872c70d9fd3b73766190d0d"
+          }
+        ],
+        "parent_z_index": 11
+      },
+      {
+        "name": "seam_torso_loincloth",
+        "parts": [
+          "torso",
+          "loincloth"
+        ],
+        "shared_boundary_px": 79,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 3.652569530114747,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 50
+        },
+        "derived_reach_per_side_px": 5,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 519,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_loincloth",
+            "pixels": 519,
+            "file": "seams/rear/seam_torso_loincloth.png",
+            "sha256": "839a0ad212a8688b6c8e27d86237d260710b73d888506135274281093ce2e05e"
+          }
+        ],
+        "parent_z_index": 12
+      },
+      {
+        "name": "seam_torso_loincloth_component_02",
+        "parts": [
+          "torso",
+          "loincloth_component_02"
+        ],
+        "shared_boundary_px": 20,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 3.9430211547163223,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 41
+        },
+        "derived_reach_per_side_px": 5,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 162,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_loincloth_component_02",
+            "pixels": 162,
+            "file": "seams/rear/seam_torso_loincloth_component_02.png",
+            "sha256": "86c3d07e79115640e723e8abadd66d968d726f2ec2c5c8028472f14b61e292eb"
+          }
+        ],
+        "parent_z_index": 12
+      },
+      {
+        "name": "seam_torso_upper_near",
+        "parts": [
+          "torso",
+          "upper_near"
+        ],
+        "shared_boundary_px": 55,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 14.339622463333884,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 57
+        },
+        "derived_reach_per_side_px": 16,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 351,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_upper_near",
+            "pixels": 351,
+            "file": "seams/rear/seam_torso_upper_near.png",
+            "sha256": "869ed35a2baf47ba597f79262629751fa907d79cda1eaffc826e2fdc8aeacfd0"
+          }
+        ],
+        "parent_z_index": 12
+      },
+      {
+        "name": "seam_torso_upper_far",
+        "parts": [
+          "torso",
+          "upper_far"
+        ],
+        "shared_boundary_px": 82,
+        "parent": "torso",
+        "bone": "torso",
+        "maximum_sampled_separation_px": 14.098057622306886,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 88
+        },
+        "derived_reach_per_side_px": 16,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 467,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_upper_far",
+            "pixels": 467,
+            "file": "seams/rear/seam_torso_upper_far.png",
+            "sha256": "4e2eb1e8d9a3c3759093781a5746988425690e77135d4a1518f571d976b1e0f4"
+          }
+        ],
+        "parent_z_index": 12
+      },
+      {
+        "name": "seam_torso_thigh_far",
+        "parts": [
+          "torso",
+          "thigh_far"
+        ],
+        "shared_boundary_px": 83,
+        "parent": "thigh_far",
+        "bone": "thigh_far",
+        "maximum_sampled_separation_px": 19.628317037947994,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 73
+        },
+        "derived_reach_per_side_px": 21,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 445,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_torso_thigh_far",
+            "pixels": 445,
+            "file": "seams/rear/seam_torso_thigh_far.png",
+            "sha256": "f09ee54937fe17b14257bb8ed13d70cbff7878b9806531f92bc0d640686f83e1"
+          }
+        ],
+        "parent_z_index": 7
+      },
+      {
+        "name": "seam_loincloth_shin_near",
+        "parts": [
+          "loincloth",
+          "shin_near"
+        ],
+        "shared_boundary_px": 36,
+        "parent": "shin_near",
+        "bone": "shin_near",
+        "maximum_sampled_separation_px": 42.49995352676737,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 78
+        },
+        "derived_reach_per_side_px": 44,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 228,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_shin_near",
+            "pixels": 228,
+            "file": "seams/rear/seam_loincloth_shin_near.png",
+            "sha256": "db86962586e3f60c470f4925b1fb15f2ce0155c06e9bdbf4ebee40285fce2e15"
+          }
+        ],
+        "parent_z_index": 1
+      },
+      {
+        "name": "seam_loincloth_foot_near",
+        "parts": [
+          "loincloth",
+          "foot_near"
+        ],
+        "shared_boundary_px": 8,
+        "parent": "loincloth",
+        "bone": "loincloth",
+        "maximum_sampled_separation_px": 36.64634229604739,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 78
+        },
+        "derived_reach_per_side_px": 38,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 75,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_foot_near",
+            "pixels": 75,
+            "file": "seams/rear/seam_loincloth_foot_near.png",
+            "sha256": "5b770d7a12c2c9c67b0f6ded3acb0ee8080e5fc5b1e774561773c44d00463cd3"
+          }
+        ],
+        "parent_z_index": 14
+      },
+      {
+        "name": "seam_loincloth_thigh_far",
+        "parts": [
+          "loincloth",
+          "thigh_far"
+        ],
+        "shared_boundary_px": 10,
+        "parent": "thigh_far",
+        "bone": "thigh_far",
+        "maximum_sampled_separation_px": 11.524189779957325,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 78
+        },
+        "derived_reach_per_side_px": 13,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 80,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_thigh_far",
+            "pixels": 80,
+            "file": "seams/rear/seam_loincloth_thigh_far.png",
+            "sha256": "c02c6cdbec47c7945d2b36c5d3d906bd62b9a2480962a0b8cb6bc04ac0446fa2"
+          }
+        ],
+        "parent_z_index": 7
+      },
+      {
+        "name": "seam_loincloth_component_02_thigh_far",
+        "parts": [
+          "loincloth_component_02",
+          "thigh_far"
+        ],
+        "shared_boundary_px": 29,
+        "parent": "thigh_far",
+        "bone": "thigh_far",
+        "maximum_sampled_separation_px": 24.996173047273576,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 78
+        },
+        "derived_reach_per_side_px": 26,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 202,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_loincloth_component_02_thigh_far",
+            "pixels": 202,
+            "file": "seams/rear/seam_loincloth_component_02_thigh_far.png",
+            "sha256": "04279fab04a2768aba8b2b40ed5119fccc0e9f65c94a551f869e8b8fdb620350"
+          }
+        ],
+        "parent_z_index": 7
+      },
+      {
+        "name": "seam_upper_near_fore_near",
+        "parts": [
+          "upper_near",
+          "fore_near"
+        ],
+        "shared_boundary_px": 30,
+        "parent": "upper_near",
+        "bone": "upper_near",
+        "maximum_sampled_separation_px": 3.799376477783337,
+        "worst_pose": {
+          "clip": "jab",
+          "frame": 19
+        },
+        "derived_reach_per_side_px": 5,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 198,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_upper_near_fore_near",
+            "pixels": 198,
+            "file": "seams/rear/seam_upper_near_fore_near.png",
+            "sha256": "9503608a75049e5f60a61b827b98eaf689f194a1e7be613df4a3420030c9eb74"
+          }
+        ],
+        "parent_z_index": 13
+      },
+      {
+        "name": "seam_fore_near_hand_near",
+        "parts": [
+          "fore_near",
+          "hand_near"
+        ],
+        "shared_boundary_px": 18,
+        "parent": "fore_near",
+        "bone": "fore_near",
+        "maximum_sampled_separation_px": 1.414197377993617,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 70
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 82,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_near_hand_near",
+            "pixels": 82,
+            "file": "seams/rear/seam_fore_near_hand_near.png",
+            "sha256": "fd6d1771dcb8bb3bcf49899f03f7a1d657a361fccac8fa619d3c020fc95f6398"
+          }
+        ],
+        "parent_z_index": 10
+      },
+      {
+        "name": "seam_fore_near_club",
+        "parts": [
+          "fore_near",
+          "club"
+        ],
+        "shared_boundary_px": 37,
+        "parent": "fore_near",
+        "bone": "fore_near",
+        "maximum_sampled_separation_px": 1.414210864977408,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 70
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 200,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_near_club",
+            "pixels": 200,
+            "file": "seams/rear/seam_fore_near_club.png",
+            "sha256": "601d496420129b1caf5ac5299b70a21efcd8b6051fb5196a04e9ac36e630c264"
+          }
+        ],
+        "parent_z_index": 10
+      },
+      {
+        "name": "seam_hand_near_club",
+        "parts": [
+          "hand_near",
+          "club"
+        ],
+        "shared_boundary_px": 21,
+        "parent": "club",
+        "bone": "hand_near",
+        "maximum_sampled_separation_px": 0.0,
+        "worst_pose": null,
+        "derived_reach_per_side_px": 1,
+        "reach_per_side_px": 1,
+        "band_width_px": 2,
+        "pixels": 42,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_hand_near_club",
+            "pixels": 42,
+            "file": "seams/rear/seam_hand_near_club.png",
+            "sha256": "63170b66c072b8a93fda140f64d628c99ef47e2a59ca10e4b6b073fa6f4b7a2b"
+          }
+        ],
+        "parent_z_index": 4
+      },
+      {
+        "name": "seam_upper_far_fore_far",
+        "parts": [
+          "upper_far",
+          "fore_far"
+        ],
+        "shared_boundary_px": 27,
+        "parent": "upper_far",
+        "bone": "upper_far",
+        "maximum_sampled_separation_px": 1.5130946632197966,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 8
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 147,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_upper_far_fore_far",
+            "pixels": 147,
+            "file": "seams/rear/seam_upper_far_fore_far.png",
+            "sha256": "97102080205441dcc6391d539ba9a86dbe05aa48ccdb74b361a8bd377a931d54"
+          }
+        ],
+        "parent_z_index": 11
+      },
+      {
+        "name": "seam_fore_far_hand_far",
+        "parts": [
+          "fore_far",
+          "hand_far"
+        ],
+        "shared_boundary_px": 54,
+        "parent": "fore_far",
+        "bone": "fore_far",
+        "maximum_sampled_separation_px": 4.62439856490488,
+        "worst_pose": {
+          "clip": "tether",
+          "frame": 47
+        },
+        "derived_reach_per_side_px": 6,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 328,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_fore_far_hand_far",
+            "pixels": 328,
+            "file": "seams/rear/seam_fore_far_hand_far.png",
+            "sha256": "450cfcc18d40a48791a07f90323fb1420646c0d8e9d4fa969a057712a61ae5c8"
+          }
+        ],
+        "parent_z_index": 9
+      },
+      {
+        "name": "seam_shin_near_foot_near",
+        "parts": [
+          "shin_near",
+          "foot_near"
+        ],
+        "shared_boundary_px": 25,
+        "parent": "shin_near",
+        "bone": "shin_near",
+        "maximum_sampled_separation_px": 1.057411870248394,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 38
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 108,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_shin_near_foot_near",
+            "pixels": 108,
+            "file": "seams/rear/seam_shin_near_foot_near.png",
+            "sha256": "d533597c81e9dda600b727bea2559b93b7ff23e00e1476cd552ce9cdf59e97e3"
+          }
+        ],
+        "parent_z_index": 1
+      },
+      {
+        "name": "seam_thigh_far_shin_far",
+        "parts": [
+          "thigh_far",
+          "shin_far"
+        ],
+        "shared_boundary_px": 34,
+        "parent": "thigh_far",
+        "bone": "thigh_far",
+        "maximum_sampled_separation_px": 9.118694046773403,
+        "worst_pose": {
+          "clip": "death",
+          "frame": 66
+        },
+        "derived_reach_per_side_px": 11,
+        "reach_per_side_px": 4,
+        "band_width_px": 8,
+        "pixels": 238,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_thigh_far_shin_far",
+            "pixels": 238,
+            "file": "seams/rear/seam_thigh_far_shin_far.png",
+            "sha256": "0f0a80f8bbd2cd03a2045ca23d7452fb5f8bf5967a4a4f39d55a8ccc202f9ca2"
+          }
+        ],
+        "parent_z_index": 7
+      },
+      {
+        "name": "seam_shin_far_foot_far",
+        "parts": [
+          "shin_far",
+          "foot_far"
+        ],
+        "shared_boundary_px": 47,
+        "parent": "shin_far",
+        "bone": "shin_far",
+        "maximum_sampled_separation_px": 1.4106104925572214,
+        "worst_pose": {
+          "clip": "move",
+          "frame": 33
+        },
+        "derived_reach_per_side_px": 3,
+        "reach_per_side_px": 3,
+        "band_width_px": 6,
+        "pixels": 261,
+        "discarded_component_pixels": [],
+        "components": [
+          {
+            "name": "seam_shin_far_foot_far",
+            "pixels": 261,
+            "file": "seams/rear/seam_shin_far_foot_far.png",
+            "sha256": "c9cb36d0c4d959ee8b85f8fd670b68bcaa0ac9ae8bd2ad1365cae7cd313724d2"
+          }
+        ],
+        "parent_z_index": 8
+      }
+    ]
+  },
+  "TODO_DESIGN": [],
+  "reference_body_bones": {
+    "front": "torso",
+    "rear": "torso"
+  }
+}

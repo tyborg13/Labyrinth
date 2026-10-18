@@ -1,0 +1,3901 @@
+{
+  "ok": true,
+  "transfers": {
+    "front": [
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 167,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 28,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 5,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 1,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "skirt_near",
+        "to": "skirt_near",
+        "pixels": 2,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "staff_shaft",
+        "to": "staff_shaft",
+        "pixels": 177,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "staff_shaft",
+        "to": "staff_shaft",
+        "pixels": 9,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "staff_shaft",
+        "to": "staff_shaft",
+        "pixels": 6,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "torso",
+        "to": "head",
+        "pixels": 749
+      },
+      {
+        "from": "torso",
+        "to": "head",
+        "pixels": 26
+      },
+      {
+        "from": "foot_near",
+        "to": "skirt_near",
+        "pixels": 8
+      },
+      {
+        "from": "fore_far",
+        "to": "upper_far",
+        "pixels": 2
+      }
+    ],
+    "rear": [
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 248,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 75,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 21,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "collar",
+        "to": "collar",
+        "pixels": 5,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "skirt_near",
+        "to": "skirt_near",
+        "pixels": 6,
+        "reason": "Native-supported occluded material: connected crop on unchanged director bone"
+      },
+      {
+        "from": "head",
+        "to": "collar",
+        "pixels": 644
+      },
+      {
+        "from": "hand_far",
+        "to": "staff_shaft",
+        "pixels": 72
+      },
+      {
+        "from": "torso",
+        "to": "collar",
+        "pixels": 5
+      },
+      {
+        "from": "upper_near",
+        "to": "collar",
+        "pixels": 4
+      },
+      {
+        "from": "torso",
+        "to": "upper_near",
+        "pixels": 4
+      },
+      {
+        "from": "upper_near",
+        "to": "torso",
+        "pixels": 1
+      },
+      {
+        "from": "upper_far",
+        "to": "skirt_far",
+        "pixels": 1
+      }
+    ]
+  },
+  "supports": [
+    {
+      "view": "front",
+      "part": "hidden_head",
+      "overlap_margin_px": 15,
+      "pixels": 4426,
+      "original_seed_pixels": 3010
+    },
+    {
+      "view": "front",
+      "part": "hidden_collar",
+      "overlap_margin_px": 15,
+      "pixels": 4374,
+      "original_seed_pixels": 1961
+    },
+    {
+      "view": "front",
+      "part": "hidden_torso",
+      "overlap_margin_px": 15,
+      "pixels": 8168,
+      "original_seed_pixels": 3557
+    },
+    {
+      "view": "front",
+      "part": "hidden_skirt_near",
+      "overlap_margin_px": 15,
+      "pixels": 7897,
+      "original_seed_pixels": 4863
+    },
+    {
+      "view": "front",
+      "part": "hidden_skirt_far",
+      "overlap_margin_px": 15,
+      "pixels": 8245,
+      "original_seed_pixels": 3886
+    },
+    {
+      "view": "front",
+      "part": "hidden_upper_near",
+      "overlap_margin_px": 15,
+      "pixels": 2943,
+      "original_seed_pixels": 1230
+    },
+    {
+      "view": "front",
+      "part": "hidden_fore_near",
+      "overlap_margin_px": 15,
+      "pixels": 2008,
+      "original_seed_pixels": 754
+    },
+    {
+      "view": "front",
+      "part": "hidden_hand_near",
+      "overlap_margin_px": 15,
+      "pixels": 1071,
+      "original_seed_pixels": 158
+    },
+    {
+      "view": "front",
+      "part": "hidden_upper_far",
+      "overlap_margin_px": 15,
+      "pixels": 4058,
+      "original_seed_pixels": 1558
+    },
+    {
+      "view": "front",
+      "part": "hidden_fore_far",
+      "overlap_margin_px": 15,
+      "pixels": 1718,
+      "original_seed_pixels": 363
+    },
+    {
+      "view": "front",
+      "part": "hidden_hand_far",
+      "overlap_margin_px": 15,
+      "pixels": 1132,
+      "original_seed_pixels": 337
+    },
+    {
+      "view": "front",
+      "part": "hidden_staff_shaft",
+      "overlap_margin_px": 15,
+      "pixels": 2466,
+      "original_seed_pixels": 804
+    },
+    {
+      "view": "front",
+      "part": "hidden_foot_near",
+      "overlap_margin_px": 15,
+      "pixels": 1060,
+      "original_seed_pixels": 308
+    },
+    {
+      "view": "front",
+      "part": "hidden_foot_far",
+      "overlap_margin_px": 15,
+      "pixels": 1050,
+      "original_seed_pixels": 275
+    },
+    {
+      "view": "rear",
+      "part": "hidden_head",
+      "overlap_margin_px": 15,
+      "pixels": 3901,
+      "original_seed_pixels": 2358
+    },
+    {
+      "view": "rear",
+      "part": "hidden_collar",
+      "overlap_margin_px": 15,
+      "pixels": 4552,
+      "original_seed_pixels": 2143
+    },
+    {
+      "view": "rear",
+      "part": "hidden_torso",
+      "overlap_margin_px": 15,
+      "pixels": 7830,
+      "original_seed_pixels": 4329
+    },
+    {
+      "view": "rear",
+      "part": "hidden_skirt_near",
+      "overlap_margin_px": 15,
+      "pixels": 8454,
+      "original_seed_pixels": 4462
+    },
+    {
+      "view": "rear",
+      "part": "hidden_skirt_far",
+      "overlap_margin_px": 15,
+      "pixels": 8806,
+      "original_seed_pixels": 5097
+    },
+    {
+      "view": "rear",
+      "part": "hidden_upper_near",
+      "overlap_margin_px": 15,
+      "pixels": 3253,
+      "original_seed_pixels": 1362
+    },
+    {
+      "view": "rear",
+      "part": "hidden_fore_near",
+      "overlap_margin_px": 15,
+      "pixels": 2015,
+      "original_seed_pixels": 781
+    },
+    {
+      "view": "rear",
+      "part": "hidden_hand_near",
+      "overlap_margin_px": 15,
+      "pixels": 967,
+      "original_seed_pixels": 130
+    },
+    {
+      "view": "rear",
+      "part": "hidden_upper_far",
+      "overlap_margin_px": 15,
+      "pixels": 3988,
+      "original_seed_pixels": 1520
+    },
+    {
+      "view": "rear",
+      "part": "hidden_fore_far",
+      "overlap_margin_px": 15,
+      "pixels": 1847,
+      "original_seed_pixels": 448
+    },
+    {
+      "view": "rear",
+      "part": "hidden_hand_far",
+      "overlap_margin_px": 15,
+      "pixels": 1255,
+      "original_seed_pixels": 287
+    },
+    {
+      "view": "rear",
+      "part": "hidden_staff_shaft",
+      "overlap_margin_px": 15,
+      "pixels": 2927,
+      "original_seed_pixels": 1347
+    },
+    {
+      "view": "rear",
+      "part": "hidden_staff_crystal",
+      "overlap_margin_px": 15,
+      "pixels": 326,
+      "original_seed_pixels": 13
+    },
+    {
+      "view": "rear",
+      "part": "hidden_foot_near",
+      "overlap_margin_px": 15,
+      "pixels": 687,
+      "original_seed_pixels": 257
+    },
+    {
+      "view": "rear",
+      "part": "hidden_foot_far",
+      "overlap_margin_px": 15,
+      "pixels": 1328,
+      "original_seed_pixels": 271
+    }
+  ],
+  "joint_overlap_margin_px": 15,
+  "part_gate": {
+    "ok": true,
+    "errors": [],
+    "parts": [
+      {
+        "view": "front",
+        "part": "seam_skirt_near_foot_near",
+        "components": 1,
+        "pixels": 298
+      },
+      {
+        "view": "front",
+        "part": "seam_skirt_far_foot_far",
+        "components": 1,
+        "pixels": 217
+      },
+      {
+        "view": "front",
+        "part": "seam_staff_shaft_foot_far",
+        "components": 1,
+        "pixels": 83
+      },
+      {
+        "view": "front",
+        "part": "seam_skirt_near_skirt_far",
+        "components": 1,
+        "pixels": 563
+      },
+      {
+        "view": "front",
+        "part": "seam_skirt_near_fore_near",
+        "components": 1,
+        "pixels": 179
+      },
+      {
+        "view": "front",
+        "part": "seam_skirt_near_hand_near",
+        "components": 1,
+        "pixels": 136
+      },
+      {
+        "view": "front",
+        "part": "seam_skirt_far_staff_shaft",
+        "components": 1,
+        "pixels": 199
+      },
+      {
+        "view": "front",
+        "part": "seam_fore_near_hand_near",
+        "components": 1,
+        "pixels": 142
+      },
+      {
+        "view": "front",
+        "part": "seam_fore_far_hand_far",
+        "components": 1,
+        "pixels": 113
+      },
+      {
+        "view": "front",
+        "part": "seam_fore_far_staff_shaft",
+        "components": 1,
+        "pixels": 86
+      },
+      {
+        "view": "front",
+        "part": "seam_fore_far_staff_shaft_component_03",
+        "components": 1,
+        "pixels": 67
+      },
+      {
+        "view": "front",
+        "part": "seam_hand_far_staff_shaft_component_02",
+        "components": 1,
+        "pixels": 102
+      },
+      {
+        "view": "front",
+        "part": "seam_hand_far_staff_shaft_component_03",
+        "components": 1,
+        "pixels": 40
+      },
+      {
+        "view": "front",
+        "part": "seam_hand_far_staff_shaft_component_04",
+        "components": 1,
+        "pixels": 83
+      },
+      {
+        "view": "front",
+        "part": "seam_collar_upper_near",
+        "components": 1,
+        "pixels": 242
+      },
+      {
+        "view": "front",
+        "part": "seam_upper_near_fore_near",
+        "components": 1,
+        "pixels": 253
+      },
+      {
+        "view": "front",
+        "part": "seam_collar_component_02_upper_far",
+        "components": 1,
+        "pixels": 151
+      },
+      {
+        "view": "front",
+        "part": "seam_upper_far_fore_far",
+        "components": 1,
+        "pixels": 237
+      },
+      {
+        "view": "front",
+        "part": "seam_upper_far_hand_far",
+        "components": 1,
+        "pixels": 119
+      },
+      {
+        "view": "front",
+        "part": "seam_head_torso",
+        "components": 1,
+        "pixels": 194
+      },
+      {
+        "view": "front",
+        "part": "seam_collar_torso",
+        "components": 1,
+        "pixels": 74
+      },
+      {
+        "view": "front",
+        "part": "seam_collar_component_02_torso",
+        "components": 1,
+        "pixels": 243
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_skirt_near",
+        "components": 1,
+        "pixels": 517
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_skirt_near_component_02",
+        "components": 1,
+        "pixels": 70
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_skirt_far_component_01",
+        "components": 1,
+        "pixels": 134
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_skirt_far_component_02",
+        "components": 1,
+        "pixels": 3
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_upper_near",
+        "components": 1,
+        "pixels": 380
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_upper_far_component_01",
+        "components": 1,
+        "pixels": 278
+      },
+      {
+        "view": "front",
+        "part": "seam_torso_upper_far_component_02",
+        "components": 1,
+        "pixels": 4
+      },
+      {
+        "view": "front",
+        "part": "seam_head_collar",
+        "components": 1,
+        "pixels": 671
+      },
+      {
+        "view": "front",
+        "part": "seam_head_collar_component_02",
+        "components": 1,
+        "pixels": 303
+      },
+      {
+        "view": "front",
+        "part": "seam_head_collar_component_03",
+        "components": 1,
+        "pixels": 177
+      },
+      {
+        "view": "front",
+        "part": "seam_head_collar_component_04",
+        "components": 1,
+        "pixels": 99
+      },
+      {
+        "view": "front",
+        "part": "seam_head_collar_component_05",
+        "components": 1,
+        "pixels": 63
+      },
+      {
+        "view": "front",
+        "part": "head",
+        "components": 1,
+        "pixels": 2747
+      },
+      {
+        "view": "front",
+        "part": "collar",
+        "components": 1,
+        "pixels": 370
+      },
+      {
+        "view": "front",
+        "part": "collar_component_02",
+        "components": 1,
+        "pixels": 167
+      },
+      {
+        "view": "front",
+        "part": "collar_component_03",
+        "components": 1,
+        "pixels": 28
+      },
+      {
+        "view": "front",
+        "part": "collar_component_04",
+        "components": 1,
+        "pixels": 5
+      },
+      {
+        "view": "front",
+        "part": "collar_component_05",
+        "components": 1,
+        "pixels": 1
+      },
+      {
+        "view": "front",
+        "part": "torso",
+        "components": 1,
+        "pixels": 2069
+      },
+      {
+        "view": "front",
+        "part": "skirt_near",
+        "components": 1,
+        "pixels": 4607
+      },
+      {
+        "view": "front",
+        "part": "skirt_near_component_02",
+        "components": 1,
+        "pixels": 2
+      },
+      {
+        "view": "front",
+        "part": "skirt_far",
+        "components": 1,
+        "pixels": 1389
+      },
+      {
+        "view": "front",
+        "part": "upper_near",
+        "components": 1,
+        "pixels": 998
+      },
+      {
+        "view": "front",
+        "part": "fore_near",
+        "components": 1,
+        "pixels": 426
+      },
+      {
+        "view": "front",
+        "part": "hand_near",
+        "components": 1,
+        "pixels": 129
+      },
+      {
+        "view": "front",
+        "part": "upper_far",
+        "components": 1,
+        "pixels": 733
+      },
+      {
+        "view": "front",
+        "part": "fore_far",
+        "components": 1,
+        "pixels": 260
+      },
+      {
+        "view": "front",
+        "part": "hand_far",
+        "components": 1,
+        "pixels": 335
+      },
+      {
+        "view": "front",
+        "part": "staff_shaft",
+        "components": 1,
+        "pixels": 390
+      },
+      {
+        "view": "front",
+        "part": "staff_shaft_component_02",
+        "components": 1,
+        "pixels": 177
+      },
+      {
+        "view": "front",
+        "part": "staff_shaft_component_03",
+        "components": 1,
+        "pixels": 9
+      },
+      {
+        "view": "front",
+        "part": "staff_shaft_component_04",
+        "components": 1,
+        "pixels": 6
+      },
+      {
+        "view": "front",
+        "part": "foot_near",
+        "components": 1,
+        "pixels": 254
+      },
+      {
+        "view": "front",
+        "part": "foot_far",
+        "components": 1,
+        "pixels": 225
+      },
+      {
+        "view": "front",
+        "part": "hidden_head",
+        "components": 1,
+        "pixels": 4426
+      },
+      {
+        "view": "front",
+        "part": "hidden_collar",
+        "components": 1,
+        "pixels": 4374
+      },
+      {
+        "view": "front",
+        "part": "hidden_torso",
+        "components": 1,
+        "pixels": 8168
+      },
+      {
+        "view": "front",
+        "part": "hidden_skirt_near",
+        "components": 1,
+        "pixels": 7897
+      },
+      {
+        "view": "front",
+        "part": "hidden_skirt_far",
+        "components": 1,
+        "pixels": 8245
+      },
+      {
+        "view": "front",
+        "part": "hidden_upper_near",
+        "components": 1,
+        "pixels": 2943
+      },
+      {
+        "view": "front",
+        "part": "hidden_fore_near",
+        "components": 1,
+        "pixels": 2008
+      },
+      {
+        "view": "front",
+        "part": "hidden_hand_near",
+        "components": 1,
+        "pixels": 1071
+      },
+      {
+        "view": "front",
+        "part": "hidden_upper_far",
+        "components": 1,
+        "pixels": 4058
+      },
+      {
+        "view": "front",
+        "part": "hidden_fore_far",
+        "components": 1,
+        "pixels": 1718
+      },
+      {
+        "view": "front",
+        "part": "hidden_hand_far",
+        "components": 1,
+        "pixels": 1132
+      },
+      {
+        "view": "front",
+        "part": "hidden_staff_shaft",
+        "components": 1,
+        "pixels": 2466
+      },
+      {
+        "view": "front",
+        "part": "hidden_foot_near",
+        "components": 1,
+        "pixels": 1060
+      },
+      {
+        "view": "front",
+        "part": "hidden_foot_far",
+        "components": 1,
+        "pixels": 1050
+      },
+      {
+        "view": "front",
+        "part": "staff_crystal",
+        "components": 1,
+        "pixels": 921
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_near_foot_near",
+        "components": 1,
+        "pixels": 60
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_far_foot_near",
+        "components": 1,
+        "pixels": 142
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_far_foot_far",
+        "components": 1,
+        "pixels": 226
+      },
+      {
+        "view": "rear",
+        "part": "seam_staff_shaft_foot_far",
+        "components": 1,
+        "pixels": 113
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_near_skirt_far",
+        "components": 1,
+        "pixels": 752
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_near_upper_near",
+        "components": 1,
+        "pixels": 66
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_near_fore_near",
+        "components": 1,
+        "pixels": 199
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_near_hand_near",
+        "components": 1,
+        "pixels": 131
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_far_upper_far",
+        "components": 1,
+        "pixels": 106
+      },
+      {
+        "view": "rear",
+        "part": "seam_skirt_far_staff_shaft",
+        "components": 1,
+        "pixels": 223
+      },
+      {
+        "view": "rear",
+        "part": "seam_fore_near_hand_near",
+        "components": 1,
+        "pixels": 116
+      },
+      {
+        "view": "rear",
+        "part": "seam_hand_far_staff_shaft",
+        "components": 1,
+        "pixels": 248
+      },
+      {
+        "view": "rear",
+        "part": "seam_fore_far_hand_far",
+        "components": 1,
+        "pixels": 183
+      },
+      {
+        "view": "rear",
+        "part": "seam_fore_far_staff_shaft",
+        "components": 1,
+        "pixels": 124
+      },
+      {
+        "view": "rear",
+        "part": "seam_staff_shaft_staff_crystal",
+        "components": 1,
+        "pixels": 31
+      },
+      {
+        "view": "rear",
+        "part": "seam_collar_upper_far",
+        "components": 1,
+        "pixels": 360
+      },
+      {
+        "view": "rear",
+        "part": "seam_upper_far_fore_far",
+        "components": 1,
+        "pixels": 313
+      },
+      {
+        "view": "rear",
+        "part": "seam_collar_component_02_upper_near",
+        "components": 1,
+        "pixels": 175
+      },
+      {
+        "view": "rear",
+        "part": "seam_upper_near_fore_near",
+        "components": 1,
+        "pixels": 269
+      },
+      {
+        "view": "rear",
+        "part": "seam_head_torso",
+        "components": 1,
+        "pixels": 647
+      },
+      {
+        "view": "rear",
+        "part": "seam_collar_torso",
+        "components": 1,
+        "pixels": 847
+      },
+      {
+        "view": "rear",
+        "part": "seam_collar_component_02_torso",
+        "components": 1,
+        "pixels": 406
+      },
+      {
+        "view": "rear",
+        "part": "seam_torso_skirt_near",
+        "components": 1,
+        "pixels": 91
+      },
+      {
+        "view": "rear",
+        "part": "seam_torso_skirt_near_component_02",
+        "components": 1,
+        "pixels": 88
+      },
+      {
+        "view": "rear",
+        "part": "seam_torso_skirt_far",
+        "components": 1,
+        "pixels": 416
+      },
+      {
+        "view": "rear",
+        "part": "seam_torso_upper_near",
+        "components": 1,
+        "pixels": 279
+      },
+      {
+        "view": "rear",
+        "part": "seam_torso_upper_far",
+        "components": 1,
+        "pixels": 330
+      },
+      {
+        "view": "rear",
+        "part": "head",
+        "components": 1,
+        "pixels": 1565
+      },
+      {
+        "view": "rear",
+        "part": "collar",
+        "components": 1,
+        "pixels": 993
+      },
+      {
+        "view": "rear",
+        "part": "collar_component_02",
+        "components": 1,
+        "pixels": 282
+      },
+      {
+        "view": "rear",
+        "part": "torso",
+        "components": 1,
+        "pixels": 2014
+      },
+      {
+        "view": "rear",
+        "part": "skirt_near",
+        "components": 1,
+        "pixels": 1835
+      },
+      {
+        "view": "rear",
+        "part": "skirt_near_component_02",
+        "components": 1,
+        "pixels": 6
+      },
+      {
+        "view": "rear",
+        "part": "skirt_far",
+        "components": 1,
+        "pixels": 4845
+      },
+      {
+        "view": "rear",
+        "part": "upper_near",
+        "components": 1,
+        "pixels": 1197
+      },
+      {
+        "view": "rear",
+        "part": "fore_near",
+        "components": 1,
+        "pixels": 506
+      },
+      {
+        "view": "rear",
+        "part": "hand_near",
+        "components": 1,
+        "pixels": 121
+      },
+      {
+        "view": "rear",
+        "part": "upper_far",
+        "components": 1,
+        "pixels": 1145
+      },
+      {
+        "view": "rear",
+        "part": "fore_far",
+        "components": 1,
+        "pixels": 195
+      },
+      {
+        "view": "rear",
+        "part": "hand_far",
+        "components": 1,
+        "pixels": 166
+      },
+      {
+        "view": "rear",
+        "part": "staff_shaft",
+        "components": 1,
+        "pixels": 1315
+      },
+      {
+        "view": "rear",
+        "part": "staff_crystal",
+        "components": 1,
+        "pixels": 5
+      },
+      {
+        "view": "rear",
+        "part": "foot_near",
+        "components": 1,
+        "pixels": 253
+      },
+      {
+        "view": "rear",
+        "part": "foot_far",
+        "components": 1,
+        "pixels": 234
+      },
+      {
+        "view": "rear",
+        "part": "hidden_head",
+        "components": 1,
+        "pixels": 3901
+      },
+      {
+        "view": "rear",
+        "part": "hidden_collar",
+        "components": 1,
+        "pixels": 4552
+      },
+      {
+        "view": "rear",
+        "part": "hidden_torso",
+        "components": 1,
+        "pixels": 7830
+      },
+      {
+        "view": "rear",
+        "part": "hidden_skirt_near",
+        "components": 1,
+        "pixels": 8454
+      },
+      {
+        "view": "rear",
+        "part": "hidden_skirt_far",
+        "components": 1,
+        "pixels": 8806
+      },
+      {
+        "view": "rear",
+        "part": "hidden_upper_near",
+        "components": 1,
+        "pixels": 3253
+      },
+      {
+        "view": "rear",
+        "part": "hidden_fore_near",
+        "components": 1,
+        "pixels": 2015
+      },
+      {
+        "view": "rear",
+        "part": "hidden_hand_near",
+        "components": 1,
+        "pixels": 967
+      },
+      {
+        "view": "rear",
+        "part": "hidden_upper_far",
+        "components": 1,
+        "pixels": 3988
+      },
+      {
+        "view": "rear",
+        "part": "hidden_fore_far",
+        "components": 1,
+        "pixels": 1847
+      },
+      {
+        "view": "rear",
+        "part": "hidden_hand_far",
+        "components": 1,
+        "pixels": 1255
+      },
+      {
+        "view": "rear",
+        "part": "hidden_staff_shaft",
+        "components": 1,
+        "pixels": 2927
+      },
+      {
+        "view": "rear",
+        "part": "hidden_staff_crystal",
+        "components": 1,
+        "pixels": 326
+      },
+      {
+        "view": "rear",
+        "part": "hidden_foot_near",
+        "components": 1,
+        "pixels": 687
+      },
+      {
+        "view": "rear",
+        "part": "hidden_foot_far",
+        "components": 1,
+        "pixels": 1328
+      },
+      {
+        "view": "rear",
+        "part": "feature_ice_crystal",
+        "components": 1,
+        "pixels": 1171
+      }
+    ]
+  },
+  "attempts": [
+    {
+      "margin": 0,
+      "errors": 12,
+      "max_detached_pixels": 807
+    },
+    {
+      "margin": 1,
+      "errors": 1,
+      "max_detached_pixels": 813
+    },
+    {
+      "margin": 2,
+      "errors": 1,
+      "max_detached_pixels": 825
+    },
+    {
+      "margin": 3,
+      "errors": 1,
+      "max_detached_pixels": 850
+    },
+    {
+      "margin": 4,
+      "errors": 1,
+      "max_detached_pixels": 884
+    },
+    {
+      "margin": 5,
+      "errors": 1,
+      "max_detached_pixels": 969
+    },
+    {
+      "margin": 6,
+      "errors": 1,
+      "max_detached_pixels": 534
+    },
+    {
+      "margin": 7,
+      "errors": 1,
+      "max_detached_pixels": 578
+    },
+    {
+      "margin": 8,
+      "errors": 9,
+      "max_detached_pixels": 732
+    },
+    {
+      "margin": 9,
+      "errors": 1,
+      "max_detached_pixels": 826
+    },
+    {
+      "margin": 10,
+      "errors": 1,
+      "max_detached_pixels": 919
+    },
+    {
+      "margin": 11,
+      "errors": 1,
+      "max_detached_pixels": 997
+    },
+    {
+      "margin": 12,
+      "errors": 1,
+      "max_detached_pixels": 1072
+    },
+    {
+      "margin": 13,
+      "errors": 2,
+      "max_detached_pixels": 1166
+    },
+    {
+      "margin": 14,
+      "errors": 2,
+      "max_detached_pixels": 1
+    },
+    {
+      "margin": 15,
+      "errors": 0,
+      "max_detached_pixels": 0
+    }
+  ],
+  "poses": {
+    "ok": true,
+    "errors": [],
+    "native_pixels": false,
+    "detached_distance_px": 2,
+    "minimum_new_hole_pixels": 2,
+    "detached_distance_metric": "Euclidean (conservative relative to 8-neighbour grid distance)",
+    "director_table_distance_metric": "8-neighbour grid distance >3 px; exactly reproduces supplied worst-pose table",
+    "background_connectivity": 4,
+    "hole_policy": "report-only: legacy holes and feedback9 seam measurements; detached components remain blocking",
+    "worst_by_clip": {
+      "front_idle": {
+        "view": "front",
+        "clip": "idle",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_move": {
+        "view": "front",
+        "clip": "move",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_mark": {
+        "view": "front",
+        "clip": "mark",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_land": {
+        "view": "front",
+        "clip": "land",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_bolt": {
+        "view": "front",
+        "clip": "bolt",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_ward": {
+        "view": "front",
+        "clip": "ward",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_hit": {
+        "view": "front",
+        "clip": "hit",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_death": {
+        "view": "front",
+        "clip": "death",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_idle": {
+        "view": "rear",
+        "clip": "idle",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_move": {
+        "view": "rear",
+        "clip": "move",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_mark": {
+        "view": "rear",
+        "clip": "mark",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_land": {
+        "view": "rear",
+        "clip": "land",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_bolt": {
+        "view": "rear",
+        "clip": "bolt",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_ward": {
+        "view": "rear",
+        "clip": "ward",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_hit": {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_death": {
+        "view": "rear",
+        "clip": "death",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      }
+    },
+    "worst_by_clip_distance_3px": {
+      "front_idle": {
+        "view": "front",
+        "clip": "idle",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_move": {
+        "view": "front",
+        "clip": "move",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_mark": {
+        "view": "front",
+        "clip": "mark",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_land": {
+        "view": "front",
+        "clip": "land",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_bolt": {
+        "view": "front",
+        "clip": "bolt",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_ward": {
+        "view": "front",
+        "clip": "ward",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_hit": {
+        "view": "front",
+        "clip": "hit",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "front_death": {
+        "view": "front",
+        "clip": "death",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_idle": {
+        "view": "rear",
+        "clip": "idle",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_move": {
+        "view": "rear",
+        "clip": "move",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_mark": {
+        "view": "rear",
+        "clip": "mark",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_land": {
+        "view": "rear",
+        "clip": "land",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_bolt": {
+        "view": "rear",
+        "clip": "bolt",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_ward": {
+        "view": "rear",
+        "clip": "ward",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_hit": {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      },
+      "rear_death": {
+        "view": "rear",
+        "clip": "death",
+        "frame": 0,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 0,
+        "new_holes": 0,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 0,
+          "new_holes": 0
+        }
+      }
+    },
+    "worst_holes_by_clip": {
+      "front_idle": {
+        "view": "front",
+        "clip": "idle",
+        "frame": 42,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 8,
+        "new_holes": 1,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 8,
+          "new_holes": 1
+        }
+      },
+      "front_move": {
+        "view": "front",
+        "clip": "move",
+        "frame": 40,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 28,
+        "new_holes": 5,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 28,
+          "new_holes": 5
+        }
+      },
+      "front_mark": {
+        "view": "front",
+        "clip": "mark",
+        "frame": 10,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 46,
+        "new_holes": 3,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 46,
+          "new_holes": 3
+        }
+      },
+      "front_land": {
+        "view": "front",
+        "clip": "land",
+        "frame": 17,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 35,
+        "new_holes": 4,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 35,
+          "new_holes": 4
+        }
+      },
+      "front_bolt": {
+        "view": "front",
+        "clip": "bolt",
+        "frame": 15,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 47,
+        "new_holes": 7,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 47,
+          "new_holes": 7
+        }
+      },
+      "front_ward": {
+        "view": "front",
+        "clip": "ward",
+        "frame": 7,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 42,
+        "new_holes": 3,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 42,
+          "new_holes": 3
+        }
+      },
+      "front_hit": {
+        "view": "front",
+        "clip": "hit",
+        "frame": 5,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 26,
+        "new_holes": 3,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 26,
+          "new_holes": 3
+        }
+      },
+      "front_death": {
+        "view": "front",
+        "clip": "death",
+        "frame": 48,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 81,
+        "new_holes": 4,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 81,
+          "new_holes": 4
+        }
+      },
+      "rear_idle": {
+        "view": "rear",
+        "clip": "idle",
+        "frame": 150,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 14,
+        "new_holes": 4,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 14,
+          "new_holes": 4
+        }
+      },
+      "rear_move": {
+        "view": "rear",
+        "clip": "move",
+        "frame": 30,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 51,
+        "new_holes": 8,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 51,
+          "new_holes": 8
+        }
+      },
+      "rear_mark": {
+        "view": "rear",
+        "clip": "mark",
+        "frame": 10,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 90,
+        "new_holes": 5,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 90,
+          "new_holes": 5
+        }
+      },
+      "rear_land": {
+        "view": "rear",
+        "clip": "land",
+        "frame": 10,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 78,
+        "new_holes": 8,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 78,
+          "new_holes": 8
+        }
+      },
+      "rear_bolt": {
+        "view": "rear",
+        "clip": "bolt",
+        "frame": 33,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 128,
+        "new_holes": 5,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 128,
+          "new_holes": 5
+        }
+      },
+      "rear_ward": {
+        "view": "rear",
+        "clip": "ward",
+        "frame": 7,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 81,
+        "new_holes": 3,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 81,
+          "new_holes": 3
+        }
+      },
+      "rear_hit": {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 12,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 25,
+        "new_holes": 3,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 25,
+          "new_holes": 3
+        }
+      },
+      "rear_death": {
+        "view": "rear",
+        "clip": "death",
+        "frame": 53,
+        "detached_pixels": 0,
+        "islands": 0,
+        "new_hole_pixels": 144,
+        "new_holes": 5,
+        "director_distance_3px": {
+          "detached_pixels": 0,
+          "islands": 0,
+          "new_hole_pixels": 144,
+          "new_holes": 5
+        }
+      }
+    },
+    "sampled_poses": 1266
+  },
+  "seams": {
+    "ok": true,
+    "errors": [],
+    "native_pixels": false,
+    "interior_erosion_px": 1,
+    "acceptance": "report-only: interior tears, natural negative space and underlay protrusion; director judges native MP4",
+    "blocking_checks": "native coverage, dimensions, reference transform and source-mask agreement",
+    "reference_frame": "approved rest silhouette projected through common body bone, including alpha; square 1px erosion before projection",
+    "protrusion_metric": "max Euclidean texel-centre distance of underlay outside posed material union to that union",
+    "natural_negative_space": "enclosed background outside projected uneroded rest silhouette; report only",
+    "native_reference": null,
+    "max_by_clip": {
+      "front_idle": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 48,
+          "interior_tear_pixels": 25,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar": 2,
+            "head|collar_component_03": 3,
+            "fore_far|staff_shaft": 15,
+            "skirt_near|hand_near": 1,
+            "skirt_near|skirt_far": 2,
+            "skirt_near|foot_near": 2
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 84,
+          "interior_tear_pixels": 8,
+          "natural_negative_space_pixels": 2,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "skirt_far|foot_far": 4,
+            "skirt_near|foot_near": 4
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "front_move": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 38,
+          "interior_tear_pixels": 463,
+          "natural_negative_space_pixels": 5,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 236,
+            "head|collar": 5,
+            "collar_component_02|upper_far": 116,
+            "hand_far|staff_shaft_component_02": 68,
+            "upper_far|hand_far": 7,
+            "hand_far|staff_shaft_component_03": 1,
+            "fore_far|hand_far": 5,
+            "fore_far|staff_shaft": 8,
+            "skirt_far|staff_shaft": 12,
+            "skirt_far|foot_far": 2,
+            "skirt_near|foot_near": 2,
+            "skirt_near|skirt_far": 1
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 7,
+          "interior_tear_pixels": 336,
+          "natural_negative_space_pixels": 6,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 188,
+            "collar_component_02|upper_far": 72,
+            "hand_far|staff_shaft_component_02": 46,
+            "upper_far|hand_far": 2,
+            "hand_far|staff_shaft_component_03": 1,
+            "fore_far|hand_far": 1,
+            "fore_far|staff_shaft": 12,
+            "skirt_far|staff_shaft": 9,
+            "skirt_far|foot_far": 1,
+            "skirt_near|skirt_far": 1,
+            "skirt_near|foot_near": 3
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "move",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "front_mark": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 35,
+          "interior_tear_pixels": 1222,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 42,
+            "head|collar_component_02": 778,
+            "head|collar": 11,
+            "hand_far|staff_shaft_component_02": 322,
+            "hand_far|staff_shaft_component_04": 24,
+            "hand_far|staff_shaft_component_03": 3,
+            "fore_far|hand_far": 10,
+            "skirt_near|skirt_far": 2,
+            "skirt_near|foot_near": 30
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 55,
+          "interior_tear_pixels": 974,
+          "natural_negative_space_pixels": 6,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 339,
+            "head|collar": 1,
+            "head|collar_component_02": 327,
+            "collar_component_02|upper_far": 123,
+            "hand_far|staff_shaft_component_02": 113,
+            "upper_far|hand_far": 23,
+            "hand_far|staff_shaft_component_04": 10,
+            "hand_far|staff_shaft_component_03": 19,
+            "fore_far|hand_far": 19
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "front_land": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 13,
+          "interior_tear_pixels": 623,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 171,
+            "head|collar_component_02": 255,
+            "head|collar": 1,
+            "hand_far|staff_shaft_component_02": 72,
+            "upper_far|hand_far": 12,
+            "hand_far|staff_shaft_component_04": 6,
+            "hand_far|staff_shaft_component_03": 19,
+            "fore_far|hand_far": 25,
+            "fore_far|staff_shaft": 24,
+            "skirt_far|staff_shaft": 1,
+            "skirt_near|hand_near": 8,
+            "skirt_near|foot_near": 26,
+            "skirt_near|skirt_far": 3
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 38,
+          "interior_tear_pixels": 1,
+          "natural_negative_space_pixels": 5,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 1
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "land",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "front_bolt": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 25,
+          "interior_tear_pixels": 950,
+          "natural_negative_space_pixels": 6,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 91,
+            "collar_component_02|upper_far": 698,
+            "hand_far|staff_shaft_component_02": 80,
+            "upper_far|hand_far": 18,
+            "hand_far|staff_shaft_component_04": 5,
+            "hand_far|staff_shaft_component_03": 15,
+            "fore_far|hand_far": 34,
+            "fore_far|staff_shaft": 4,
+            "skirt_far|staff_shaft": 5
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 14,
+          "interior_tear_pixels": 605,
+          "natural_negative_space_pixels": 31,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 112,
+            "hand_far|staff_shaft_component_02": 443,
+            "collar_component_02|upper_far": 19,
+            "fore_far|staff_shaft": 31
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 33,
+          "interior_tear_pixels": 905,
+          "natural_negative_space_pixels": 2,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "head|collar_component_03": 193,
+            "collar_component_02|upper_far": 553,
+            "hand_far|staff_shaft_component_02": 109,
+            "upper_far|hand_far": 9,
+            "hand_far|staff_shaft_component_03": 4,
+            "fore_far|hand_far": 15,
+            "fore_far|staff_shaft": 22
+          }
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 33,
+          "interior_tear_pixels": 905,
+          "natural_negative_space_pixels": 2,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "head|collar_component_03": 193,
+            "collar_component_02|upper_far": 553,
+            "hand_far|staff_shaft_component_02": 109,
+            "upper_far|hand_far": 9,
+            "hand_far|staff_shaft_component_03": 4,
+            "fore_far|hand_far": 15,
+            "fore_far|staff_shaft": 22
+          }
+        }
+      },
+      "front_ward": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 42,
+          "interior_tear_pixels": 953,
+          "natural_negative_space_pixels": 5,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "collar_component_02|upper_far": 799,
+            "head|collar": 2,
+            "hand_far|staff_shaft_component_02": 84,
+            "upper_far|hand_far": 25,
+            "hand_far|staff_shaft_component_04": 16,
+            "hand_far|staff_shaft_component_03": 3,
+            "fore_far|hand_far": 23,
+            "skirt_near|foot_near": 1
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 10,
+          "interior_tear_pixels": 897,
+          "natural_negative_space_pixels": 6,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "collar_component_02|upper_far": 763,
+            "head|collar": 2,
+            "head|collar_component_03": 1,
+            "hand_far|staff_shaft_component_02": 79,
+            "upper_far|hand_far": 10,
+            "hand_far|staff_shaft_component_03": 11,
+            "fore_far|hand_far": 29,
+            "fore_far|staff_shaft": 2
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 44,
+          "interior_tear_pixels": 895,
+          "natural_negative_space_pixels": 4,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "collar_component_02|upper_far": 779,
+            "head|collar": 1,
+            "hand_far|staff_shaft_component_02": 68,
+            "upper_far|hand_far": 9,
+            "fore_near|hand_near": 1,
+            "hand_far|staff_shaft_component_04": 3,
+            "hand_far|staff_shaft_component_03": 11,
+            "fore_far|hand_far": 23
+          }
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 44,
+          "interior_tear_pixels": 895,
+          "natural_negative_space_pixels": 4,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "collar_component_02|upper_far": 779,
+            "head|collar": 1,
+            "hand_far|staff_shaft_component_02": 68,
+            "upper_far|hand_far": 9,
+            "fore_near|hand_near": 1,
+            "hand_far|staff_shaft_component_04": 3,
+            "hand_far|staff_shaft_component_03": 11,
+            "fore_far|hand_far": 23
+          }
+        }
+      },
+      "front_hit": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 7,
+          "interior_tear_pixels": 665,
+          "natural_negative_space_pixels": 1,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_02": 317,
+            "head|collar_component_03": 10,
+            "head|collar": 6,
+            "hand_far|staff_shaft_component_02": 37,
+            "upper_far|hand_far": 3,
+            "hand_far|staff_shaft_component_03": 10,
+            "fore_far|hand_far": 15,
+            "fore_far|staff_shaft": 68,
+            "skirt_far|staff_shaft": 63,
+            "skirt_far|foot_far": 7,
+            "skirt_near|skirt_far": 29,
+            "skirt_near|foot_near": 100
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 20,
+          "interior_tear_pixels": 125,
+          "natural_negative_space_pixels": 4,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar_component_03": 64,
+            "collar_component_02|upper_far": 1,
+            "hand_far|staff_shaft_component_02": 4,
+            "fore_far|staff_shaft": 14,
+            "skirt_near|hand_near": 5,
+            "skirt_near|foot_near": 34,
+            "skirt_far|foot_far": 3
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "front_death": {
+        "interior_tear_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 89,
+          "interior_tear_pixels": 1474,
+          "natural_negative_space_pixels": 27,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|collar": 24,
+            "collar_component_02|upper_far": 647,
+            "hand_far|staff_shaft_component_02": 219,
+            "upper_far|hand_far": 1,
+            "skirt_near|foot_near": 297,
+            "fore_far|staff_shaft": 32,
+            "hand_far|staff_shaft_component_03": 13,
+            "fore_far|hand_far": 13,
+            "skirt_far|staff_shaft": 159,
+            "skirt_near|skirt_far": 62,
+            "skirt_far|foot_far": 7
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 73,
+          "interior_tear_pixels": 1167,
+          "natural_negative_space_pixels": 36,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "head|collar": 12,
+            "collar_component_02|upper_far": 586,
+            "hand_far|staff_shaft_component_02": 272,
+            "upper_far|hand_far": 1,
+            "hand_far|staff_shaft_component_03": 11,
+            "fore_far|hand_far": 29,
+            "fore_far|staff_shaft": 52,
+            "skirt_far|staff_shaft": 55,
+            "skirt_near|foot_near": 140,
+            "skirt_near|skirt_far": 1,
+            "skirt_far|foot_far": 8
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 72,
+          "interior_tear_pixels": 1175,
+          "natural_negative_space_pixels": 23,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "head|collar": 18,
+            "collar_component_02|upper_far": 634,
+            "head|collar_component_03": 4,
+            "hand_far|staff_shaft_component_02": 235,
+            "upper_far|hand_far": 1,
+            "hand_far|staff_shaft_component_03": 16,
+            "fore_far|hand_far": 26,
+            "fore_far|staff_shaft": 53,
+            "skirt_far|staff_shaft": 45,
+            "skirt_near|foot_near": 140,
+            "skirt_far|foot_far": 3
+          }
+        },
+        "underlay_protrusion_width_px": {
+          "view": "front",
+          "clip": "death",
+          "frame": 72,
+          "interior_tear_pixels": 1175,
+          "natural_negative_space_pixels": 23,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "head|collar": 18,
+            "collar_component_02|upper_far": 634,
+            "head|collar_component_03": 4,
+            "hand_far|staff_shaft_component_02": 235,
+            "upper_far|hand_far": 1,
+            "hand_far|staff_shaft_component_03": 16,
+            "fore_far|hand_far": 26,
+            "fore_far|staff_shaft": 53,
+            "skirt_far|staff_shaft": 45,
+            "skirt_near|foot_near": 140,
+            "skirt_far|foot_far": 3
+          }
+        }
+      },
+      "rear_idle": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 72,
+          "interior_tear_pixels": 52,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 18,
+            "hand_far|staff_shaft": 5,
+            "fore_far|staff_shaft": 16,
+            "fore_near|hand_near": 1,
+            "skirt_near|hand_near": 2,
+            "skirt_far|staff_shaft": 1,
+            "skirt_near|skirt_far": 9
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 42,
+          "interior_tear_pixels": 2,
+          "natural_negative_space_pixels": 3,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "skirt_near|skirt_far": 2
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "rear_move": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 11,
+          "interior_tear_pixels": 704,
+          "natural_negative_space_pixels": 3,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 467,
+            "hand_far|staff_shaft": 21,
+            "upper_far|fore_far": 2,
+            "fore_far|hand_far": 3,
+            "fore_far|staff_shaft": 46,
+            "skirt_far|staff_shaft": 13,
+            "skirt_near|skirt_far": 18,
+            "skirt_near|foot_near": 8,
+            "skirt_far|foot_far": 55,
+            "skirt_far|foot_near": 4,
+            "staff_shaft|foot_far": 67
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 40,
+          "interior_tear_pixels": 574,
+          "natural_negative_space_pixels": 25,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 397,
+            "hand_far|staff_shaft": 22,
+            "upper_far|fore_far": 4,
+            "fore_far|hand_far": 5,
+            "fore_far|staff_shaft": 42,
+            "skirt_far|staff_shaft": 6,
+            "skirt_near|skirt_far": 2,
+            "skirt_far|foot_far": 50,
+            "skirt_near|foot_near": 1,
+            "skirt_far|foot_near": 3,
+            "staff_shaft|foot_far": 42
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "rear_mark": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 23,
+          "interior_tear_pixels": 1685,
+          "natural_negative_space_pixels": 3,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 511,
+            "staff_shaft|staff_crystal": 655,
+            "hand_far|staff_shaft": 401,
+            "fore_far|hand_far": 12,
+            "skirt_far|staff_shaft": 30,
+            "skirt_far|foot_far": 76
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 9,
+          "interior_tear_pixels": 664,
+          "natural_negative_space_pixels": 17,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 423,
+            "upper_far|fore_far": 14,
+            "hand_far|staff_shaft": 84,
+            "fore_far|hand_far": 4,
+            "fore_far|staff_shaft": 98,
+            "skirt_far|staff_shaft": 8,
+            "skirt_near|skirt_far": 4,
+            "skirt_far|foot_far": 25,
+            "staff_shaft|foot_far": 4
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "rear_land": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 14,
+          "interior_tear_pixels": 905,
+          "natural_negative_space_pixels": 8,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 73,
+            "staff_shaft|staff_crystal": 473,
+            "hand_far|staff_shaft": 181,
+            "upper_far|fore_far": 18,
+            "fore_far|hand_far": 6,
+            "fore_far|staff_shaft": 84,
+            "skirt_far|staff_shaft": 6,
+            "skirt_near|hand_near": 5,
+            "skirt_near|skirt_far": 7,
+            "skirt_far|foot_far": 52
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 8,
+          "interior_tear_pixels": 475,
+          "natural_negative_space_pixels": 26,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 299,
+            "upper_far|fore_far": 6,
+            "hand_far|staff_shaft": 52,
+            "fore_far|hand_far": 3,
+            "fore_far|staff_shaft": 74,
+            "skirt_far|staff_shaft": 2,
+            "skirt_near|hand_near": 5,
+            "skirt_near|skirt_far": 9,
+            "skirt_far|foot_far": 14,
+            "skirt_near|foot_near": 2,
+            "skirt_far|foot_near": 2,
+            "staff_shaft|foot_far": 7
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 7,
+          "interior_tear_pixels": 414,
+          "natural_negative_space_pixels": 3,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 278,
+            "upper_far|fore_far": 5,
+            "hand_far|staff_shaft": 30,
+            "fore_far|hand_far": 2,
+            "fore_far|staff_shaft": 69,
+            "skirt_far|staff_shaft": 3,
+            "skirt_near|hand_near": 5,
+            "skirt_near|skirt_far": 9,
+            "skirt_far|foot_far": 5,
+            "staff_shaft|foot_far": 8
+          }
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 7,
+          "interior_tear_pixels": 414,
+          "natural_negative_space_pixels": 3,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 278,
+            "upper_far|fore_far": 5,
+            "hand_far|staff_shaft": 30,
+            "fore_far|hand_far": 2,
+            "fore_far|staff_shaft": 69,
+            "skirt_far|staff_shaft": 3,
+            "skirt_near|hand_near": 5,
+            "skirt_near|skirt_far": 9,
+            "skirt_far|foot_far": 5,
+            "staff_shaft|foot_far": 8
+          }
+        }
+      },
+      "rear_bolt": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 25,
+          "interior_tear_pixels": 1393,
+          "natural_negative_space_pixels": 28,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 499,
+            "staff_shaft|staff_crystal": 634,
+            "hand_far|staff_shaft": 122,
+            "upper_far|fore_far": 23,
+            "fore_far|hand_far": 2,
+            "fore_far|staff_shaft": 36,
+            "skirt_far|staff_shaft": 7,
+            "skirt_far|foot_far": 70
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 11,
+          "interior_tear_pixels": 703,
+          "natural_negative_space_pixels": 76,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 584,
+            "hand_far|staff_shaft": 20,
+            "fore_far|staff_shaft": 51,
+            "fore_near|hand_near": 3,
+            "skirt_far|staff_shaft": 5,
+            "staff_shaft|foot_far": 40
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "rear_ward": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 13,
+          "interior_tear_pixels": 1429,
+          "natural_negative_space_pixels": 4,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 667,
+            "staff_shaft|staff_crystal": 391,
+            "collar|upper_far": 57,
+            "upper_far|fore_far": 50,
+            "hand_far|staff_shaft": 179,
+            "fore_far|hand_far": 2,
+            "fore_near|hand_near": 1,
+            "fore_far|staff_shaft": 2,
+            "skirt_far|staff_shaft": 6,
+            "skirt_far|foot_far": 74
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 46,
+          "interior_tear_pixels": 1298,
+          "natural_negative_space_pixels": 21,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 272,
+            "staff_shaft|staff_crystal": 829,
+            "hand_far|staff_shaft": 68,
+            "upper_far|fore_far": 7,
+            "fore_near|hand_near": 2,
+            "fore_far|staff_shaft": 69,
+            "skirt_far|staff_shaft": 3,
+            "skirt_far|foot_far": 48
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "rear_hit": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 7,
+          "interior_tear_pixels": 926,
+          "natural_negative_space_pixels": 7,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 420,
+            "head|torso": 12,
+            "hand_far|staff_shaft": 55,
+            "upper_far|fore_far": 26,
+            "fore_far|hand_far": 7,
+            "fore_far|staff_shaft": 112,
+            "skirt_far|staff_shaft": 121,
+            "skirt_far|foot_far": 57,
+            "skirt_far|foot_near": 76,
+            "staff_shaft|foot_far": 40
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 3,
+          "interior_tear_pixels": 322,
+          "natural_negative_space_pixels": 11,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 193,
+            "hand_far|staff_shaft": 10,
+            "upper_far|fore_far": 1,
+            "fore_far|hand_far": 3,
+            "fore_far|staff_shaft": 38,
+            "skirt_far|staff_shaft": 1,
+            "staff_shaft|foot_far": 76
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 0,
+          "interior_tear_pixels": 0,
+          "natural_negative_space_pixels": 0,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {}
+        }
+      },
+      "rear_death": {
+        "interior_tear_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 84,
+          "interior_tear_pixels": 2164,
+          "natural_negative_space_pixels": 49,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 969,
+            "fore_near|hand_near": 3,
+            "collar|upper_far": 19,
+            "hand_far|staff_shaft": 265,
+            "upper_far|fore_far": 52,
+            "fore_far|hand_far": 4,
+            "fore_far|staff_shaft": 101,
+            "skirt_far|foot_near": 290,
+            "skirt_far|staff_shaft": 400,
+            "skirt_far|foot_far": 61
+          }
+        },
+        "natural_negative_space_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 50,
+          "interior_tear_pixels": 1325,
+          "natural_negative_space_pixels": 71,
+          "underlay_protrusion_pixels": 0,
+          "underlay_protrusion_width_px": 0.0,
+          "tear_joints": {
+            "head|torso": 881,
+            "collar|upper_far": 86,
+            "hand_far|staff_shaft": 164,
+            "upper_far|fore_far": 2,
+            "fore_far|staff_shaft": 72,
+            "skirt_far|staff_shaft": 4,
+            "skirt_near|skirt_far": 12,
+            "skirt_near|foot_near": 4,
+            "skirt_far|foot_near": 9,
+            "skirt_far|foot_far": 91
+          }
+        },
+        "underlay_protrusion_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 10,
+          "interior_tear_pixels": 214,
+          "natural_negative_space_pixels": 11,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 163,
+            "head|torso": 1,
+            "hand_far|staff_shaft": 1,
+            "fore_far|staff_shaft": 7,
+            "staff_shaft|foot_far": 42
+          }
+        },
+        "underlay_protrusion_width_px": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 10,
+          "interior_tear_pixels": 214,
+          "natural_negative_space_pixels": 11,
+          "underlay_protrusion_pixels": 1,
+          "underlay_protrusion_width_px": 1.0,
+          "tear_joints": {
+            "staff_shaft|staff_crystal": 163,
+            "head|torso": 1,
+            "hand_far|staff_shaft": 1,
+            "fore_far|staff_shaft": 7,
+            "staff_shaft|foot_far": 42
+          }
+        }
+      }
+    },
+    "sampled_poses": 1266
+  },
+  "exposed_hidden": {
+    "ok": true,
+    "errors": [],
+    "block_side_px": 3,
+    "blocking_scope": "Exposed derived source texels only; approved visible and hidden-request paint report-only",
+    "provenance_policy": "Exact original hidden-request mask/RGBA or visible source RGBA; seams, dilation, bleed and edited texels are derived",
+    "source_provenance": {
+      "front": {
+        "approved_painted_texels": 24645,
+        "derived_texels": 48739,
+        "approved_visible_sha256": "50cb831186da2ae47833f9a8133c65b7b637890a2db3440a779f5e8925b7d528",
+        "hidden_fill_index_sha256": "5422012bc58cf49bcd808d5028119e0d59836b96c593110a120c573944690d9a"
+      },
+      "rear": {
+        "approved_painted_texels": 26565,
+        "derived_texels": 50360,
+        "approved_visible_sha256": "02508b9cb96829ef8927dd2ff0c08287bc7112d6fbce51247818de018cc59230",
+        "hidden_fill_index_sha256": "5422012bc58cf49bcd808d5028119e0d59836b96c593110a120c573944690d9a"
+      }
+    },
+    "outline_rules": {
+      "front": {
+        "outline_palette": [
+          [
+            20,
+            16,
+            21
+          ]
+        ],
+        "visible_luma_percentile": 5,
+        "visible_luma_cutoff": 2.3419999999999996,
+        "luma_weights": [
+          0.299,
+          0.587,
+          0.114
+        ],
+        "approved_visible_sha256": "50cb831186da2ae47833f9a8133c65b7b637890a2db3440a779f5e8925b7d528"
+      },
+      "rear": {
+        "outline_palette": [
+          [
+            20,
+            16,
+            21
+          ]
+        ],
+        "visible_luma_percentile": 5,
+        "visible_luma_cutoff": 0.0,
+        "luma_weights": [
+          0.299,
+          0.587,
+          0.114
+        ],
+        "approved_visible_sha256": "02508b9cb96829ef8927dd2ff0c08287bc7112d6fbce51247818de018cc59230"
+      }
+    },
+    "max_by_clip": {
+      "front_idle": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 102,
+          "exposed_hidden_pixels": 821
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 108,
+          "derived_pixels": 733
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 30,
+          "approved_painted_pixels": 16267
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 72,
+          "exposed_approved_hidden_pixels": 121
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 0,
+          "largest_approved_dark_component": 27
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "idle",
+          "frame": 24,
+          "largest_approved_hidden_dark_component": 7
+        }
+      },
+      "front_move": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 9,
+          "exposed_hidden_pixels": 1464
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 9,
+          "derived_pixels": 1303
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "move",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 1,
+          "approved_painted_pixels": 16255
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "move",
+          "frame": 9,
+          "exposed_approved_hidden_pixels": 161
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "move",
+          "frame": 6,
+          "largest_approved_dark_component": 31
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "move",
+          "frame": 30,
+          "largest_approved_hidden_dark_component": 10
+        }
+      },
+      "front_mark": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 48,
+          "exposed_hidden_pixels": 2428
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 47,
+          "derived_pixels": 2216
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 0,
+          "approved_painted_pixels": 16248
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 44,
+          "exposed_approved_hidden_pixels": 274
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 20,
+          "largest_approved_dark_component": 32
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "mark",
+          "frame": 20,
+          "largest_approved_hidden_dark_component": 20
+        }
+      },
+      "front_land": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 25,
+          "exposed_hidden_pixels": 1664
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 25,
+          "derived_pixels": 1506
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "land",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 0,
+          "approved_painted_pixels": 16248
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "land",
+          "frame": 25,
+          "exposed_approved_hidden_pixels": 158
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "land",
+          "frame": 5,
+          "largest_approved_dark_component": 30
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "land",
+          "frame": 41,
+          "largest_approved_hidden_dark_component": 12
+        }
+      },
+      "front_bolt": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 27,
+          "exposed_hidden_pixels": 2748
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 27,
+          "derived_pixels": 2654
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 48,
+          "approved_painted_pixels": 16249
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 22,
+          "exposed_approved_hidden_pixels": 124
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 39,
+          "largest_approved_dark_component": 46
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 23,
+          "largest_approved_hidden_dark_component": 21
+        }
+      },
+      "front_ward": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 41,
+          "exposed_hidden_pixels": 2355
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 41,
+          "derived_pixels": 2231
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 1,
+          "approved_painted_pixels": 16250
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 9,
+          "exposed_approved_hidden_pixels": 143
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 0,
+          "largest_approved_dark_component": 27
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "ward",
+          "frame": 15,
+          "largest_approved_hidden_dark_component": 20
+        }
+      },
+      "front_hit": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 6,
+          "exposed_hidden_pixels": 1376
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 6,
+          "derived_pixels": 1136
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 26,
+          "approved_painted_pixels": 16250
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 5,
+          "exposed_approved_hidden_pixels": 249
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 4,
+          "largest_approved_dark_component": 47
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "hit",
+          "frame": 3,
+          "largest_approved_hidden_dark_component": 13
+        }
+      },
+      "front_death": {
+        "exposed_hidden_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 97,
+          "exposed_hidden_pixels": 4745
+        },
+        "derived_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 97,
+          "derived_pixels": 4417
+        },
+        "largest_dark_component": {
+          "view": "front",
+          "clip": "death",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 2,
+          "approved_painted_pixels": 16255
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "front",
+          "clip": "death",
+          "frame": 86,
+          "exposed_approved_hidden_pixels": 352
+        },
+        "largest_approved_dark_component": {
+          "view": "front",
+          "clip": "death",
+          "frame": 80,
+          "largest_approved_dark_component": 44
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "front",
+          "clip": "death",
+          "frame": 72,
+          "largest_approved_hidden_dark_component": 18
+        }
+      },
+      "rear_idle": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 102,
+          "exposed_hidden_pixels": 886
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 102,
+          "derived_pixels": 809
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 24,
+          "approved_painted_pixels": 17870
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 96,
+          "exposed_approved_hidden_pixels": 77
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 150,
+          "largest_approved_dark_component": 132
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "idle",
+          "frame": 156,
+          "largest_approved_hidden_dark_component": 10
+        }
+      },
+      "rear_move": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 38,
+          "exposed_hidden_pixels": 1741
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 38,
+          "derived_pixels": 1655
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 1,
+          "approved_painted_pixels": 17851
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 38,
+          "exposed_approved_hidden_pixels": 86
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 17,
+          "largest_approved_dark_component": 120
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "move",
+          "frame": 40,
+          "largest_approved_hidden_dark_component": 8
+        }
+      },
+      "rear_mark": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 25,
+          "exposed_hidden_pixels": 2751
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 34,
+          "derived_pixels": 2564
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 2,
+          "approved_painted_pixels": 17851
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 25,
+          "exposed_approved_hidden_pixels": 200
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 12,
+          "largest_approved_dark_component": 158
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 50,
+          "largest_approved_hidden_dark_component": 19
+        }
+      },
+      "rear_land": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 25,
+          "exposed_hidden_pixels": 1881
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 25,
+          "derived_pixels": 1820
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 45,
+          "approved_painted_pixels": 17851
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 26,
+          "exposed_approved_hidden_pixels": 106
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 9,
+          "largest_approved_dark_component": 124
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "land",
+          "frame": 16,
+          "largest_approved_hidden_dark_component": 11
+        }
+      },
+      "rear_bolt": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 27,
+          "exposed_hidden_pixels": 3137
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 26,
+          "derived_pixels": 2975
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 48,
+          "approved_painted_pixels": 17851
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 31,
+          "exposed_approved_hidden_pixels": 171
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 48,
+          "largest_approved_dark_component": 119
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "bolt",
+          "frame": 16,
+          "largest_approved_hidden_dark_component": 19
+        }
+      },
+      "rear_ward": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 14,
+          "exposed_hidden_pixels": 2763
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 14,
+          "derived_pixels": 2624
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 1,
+          "approved_painted_pixels": 17851
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 41,
+          "exposed_approved_hidden_pixels": 165
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 2,
+          "largest_approved_dark_component": 115
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "ward",
+          "frame": 12,
+          "largest_approved_hidden_dark_component": 19
+        }
+      },
+      "rear_hit": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 7,
+          "exposed_hidden_pixels": 1590
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 7,
+          "derived_pixels": 1526
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 0,
+          "approved_painted_pixels": 17848
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 6,
+          "exposed_approved_hidden_pixels": 91
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 1,
+          "largest_approved_dark_component": 124
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "hit",
+          "frame": 1,
+          "largest_approved_hidden_dark_component": 11
+        }
+      },
+      "rear_death": {
+        "exposed_hidden_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 97,
+          "exposed_hidden_pixels": 4855
+        },
+        "derived_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 97,
+          "derived_pixels": 4604
+        },
+        "largest_dark_component": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 0,
+          "largest_dark_component": 0
+        },
+        "slab_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 0,
+          "slab_pixels": 0
+        },
+        "approved_painted_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 0,
+          "approved_painted_pixels": 17848
+        },
+        "exposed_approved_hidden_pixels": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 88,
+          "exposed_approved_hidden_pixels": 297
+        },
+        "largest_approved_dark_component": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 46,
+          "largest_approved_dark_component": 135
+        },
+        "largest_approved_hidden_dark_component": {
+          "view": "rear",
+          "clip": "death",
+          "frame": 25,
+          "largest_approved_hidden_dark_component": 19
+        }
+      }
+    },
+    "sampled_poses": 1266
+  },
+  "TODO_DESIGN": []
+}

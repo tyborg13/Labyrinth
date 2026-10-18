@@ -1,0 +1,138 @@
+{
+  "front/hidden_head": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_collar": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_torso": {
+    "excluded_hidden_only_pixels": 7,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_loincloth": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_upper_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_fore_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_hand_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_upper_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_fore_far": {
+    "excluded_hidden_only_pixels": 1,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_hand_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_club": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_thigh_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_shin_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_foot_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_thigh_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_shin_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "front/hidden_foot_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_head": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_collar": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_torso": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_loincloth": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_upper_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_fore_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_hand_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_upper_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_fore_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_hand_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_club": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/thigh_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_shin_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_foot_near": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_thigh_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_shin_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  },
+  "rear/hidden_foot_far": {
+    "excluded_hidden_only_pixels": 0,
+    "policy": "rr-05: no isolated hidden-only seed; keep every visible ownership component"
+  }
+}

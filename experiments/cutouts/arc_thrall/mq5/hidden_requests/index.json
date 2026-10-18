@@ -1,0 +1,1546 @@
+{
+  "exposure_basis": "sample after director motion binding",
+  "requests": [
+    {
+      "part": "head",
+      "view": "front",
+      "image": "hidden_requests/front_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 21,
+      "bounding_box": [
+        97,
+        68,
+        130,
+        81
+      ],
+      "solo_outside_paint_pixels": 17,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "collar",
+          "pixels": 18,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 3,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "collar",
+          "pixels": 12,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 7,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_head"
+      ]
+    },
+    {
+      "part": "collar",
+      "view": "front",
+      "image": "hidden_requests/front_collar.png",
+      "status": "measured",
+      "hidden_pixel_count": 124,
+      "bounding_box": [
+        97,
+        66,
+        126,
+        80
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 124,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 62,
+          "material": "native body skin"
+        }
+      ],
+      "material": "collar approved paint",
+      "paint_nodes": [
+        "hidden_collar"
+      ]
+    },
+    {
+      "part": "torso",
+      "view": "front",
+      "image": "hidden_requests/front_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 1590,
+      "bounding_box": [
+        92,
+        68,
+        165,
+        160
+      ],
+      "solo_outside_paint_pixels": 121,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 223,
+          "material": "native body skin"
+        },
+        {
+          "part": "collar",
+          "pixels": 401,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 460,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 418,
+          "material": "native body skin"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 7,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 81,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 39,
+          "material": "native body skin"
+        },
+        {
+          "part": "collar",
+          "pixels": 14,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 47,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 41,
+          "material": "native body skin"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 12,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 40,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_torso"
+      ]
+    },
+    {
+      "part": "loincloth",
+      "view": "front",
+      "image": "hidden_requests/front_loincloth.png",
+      "status": "measured",
+      "hidden_pixel_count": 1334,
+      "bounding_box": [
+        105,
+        118,
+        172,
+        172
+      ],
+      "solo_outside_paint_pixels": 17,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 594,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 740,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 80,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 48,
+          "material": "native body skin"
+        }
+      ],
+      "material": "loincloth approved paint",
+      "paint_nodes": [
+        "hidden_loincloth"
+      ]
+    },
+    {
+      "part": "upper_near",
+      "view": "front",
+      "image": "hidden_requests/front_upper_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 20,
+      "bounding_box": [
+        143,
+        71,
+        163,
+        107
+      ],
+      "solo_outside_paint_pixels": 8,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 20,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 39,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_upper_near"
+      ]
+    },
+    {
+      "part": "fore_near",
+      "view": "front",
+      "image": "hidden_requests/front_fore_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 136,
+      "bounding_box": [
+        168,
+        116,
+        201,
+        153
+      ],
+      "solo_outside_paint_pixels": 3,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "upper_near",
+          "pixels": 101,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 35,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "upper_near",
+          "pixels": 24,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 18,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_fore_near"
+      ]
+    },
+    {
+      "part": "hand_near",
+      "view": "front",
+      "image": "hidden_requests/front_hand_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 49,
+      "bounding_box": [
+        187,
+        142,
+        203,
+        149
+      ],
+      "solo_outside_paint_pixels": 5,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 48,
+          "material": "native body skin"
+        },
+        {
+          "part": "club",
+          "pixels": 1,
+          "material": "club approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 16,
+          "material": "native body skin"
+        },
+        {
+          "part": "club",
+          "pixels": 2,
+          "material": "club approved paint"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_hand_near"
+      ]
+    },
+    {
+      "part": "upper_far",
+      "view": "front",
+      "image": "hidden_requests/front_upper_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 223,
+      "bounding_box": [
+        94,
+        85,
+        112,
+        111
+      ],
+      "solo_outside_paint_pixels": 1,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "collar",
+          "pixels": 154,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 69,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "collar",
+          "pixels": 44,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "torso",
+          "pixels": 20,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_upper_far"
+      ]
+    },
+    {
+      "part": "fore_far",
+      "view": "front",
+      "image": "hidden_requests/front_fore_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 62,
+      "bounding_box": [
+        46,
+        128,
+        78,
+        148
+      ],
+      "solo_outside_paint_pixels": 74,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "upper_far",
+          "pixels": 61,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 1,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "upper_far",
+          "pixels": 16,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 4,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_fore_far"
+      ]
+    },
+    {
+      "part": "hand_far",
+      "view": "front",
+      "image": "hidden_requests/front_hand_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 247,
+      "bounding_box": [
+        45,
+        146,
+        69,
+        166
+      ],
+      "solo_outside_paint_pixels": 93,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 247,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 31,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_hand_far"
+      ]
+    },
+    {
+      "part": "club",
+      "view": "front",
+      "image": "hidden_requests/front_club.png",
+      "status": "measured",
+      "hidden_pixel_count": 459,
+      "bounding_box": [
+        184,
+        116,
+        204,
+        164
+      ],
+      "solo_outside_paint_pixels": 17,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "upper_near",
+          "pixels": 4,
+          "material": "native body skin"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 291,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 164,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "upper_near",
+          "pixels": 5,
+          "material": "native body skin"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 37,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 9,
+          "material": "native body skin"
+        }
+      ],
+      "material": "club approved paint",
+      "paint_nodes": [
+        "hidden_club"
+      ]
+    },
+    {
+      "part": "thigh_near",
+      "view": "front",
+      "image": "hidden_requests/front_thigh_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 129,
+      "bounding_box": [
+        122,
+        135,
+        174,
+        194
+      ],
+      "solo_outside_paint_pixels": 41,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 34,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 85,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 10,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 34,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 27,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 10,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_thigh_near"
+      ]
+    },
+    {
+      "part": "shin_near",
+      "view": "front",
+      "image": "hidden_requests/front_shin_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 142,
+      "bounding_box": [
+        155,
+        182,
+        184,
+        222
+      ],
+      "solo_outside_paint_pixels": 87,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "thigh_near",
+          "pixels": 140,
+          "material": "native body skin"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 2,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "thigh_near",
+          "pixels": 20,
+          "material": "native body skin"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 4,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_shin_near"
+      ]
+    },
+    {
+      "part": "foot_near",
+      "view": "front",
+      "image": "hidden_requests/front_foot_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 40,
+      "bounding_box": [
+        160,
+        219,
+        182,
+        222
+      ],
+      "solo_outside_paint_pixels": 16,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "shin_near",
+          "pixels": 40,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "shin_near",
+          "pixels": 22,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_foot_near"
+      ]
+    },
+    {
+      "part": "thigh_far",
+      "view": "front",
+      "image": "hidden_requests/front_thigh_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 1346,
+      "bounding_box": [
+        91,
+        130,
+        137,
+        176
+      ],
+      "solo_outside_paint_pixels": 17,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 227,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 1083,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 36,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 52,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 74,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 16,
+          "material": "native body skin"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_thigh_far"
+      ]
+    },
+    {
+      "part": "shin_far",
+      "view": "front",
+      "image": "hidden_requests/front_shin_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 354,
+      "bounding_box": [
+        93,
+        162,
+        117,
+        186
+      ],
+      "solo_outside_paint_pixels": 4,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 332,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 22,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 44,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 2,
+          "material": "native body skin"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_shin_far"
+      ]
+    },
+    {
+      "part": "foot_far",
+      "view": "front",
+      "image": "hidden_requests/front_foot_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 120,
+      "bounding_box": [
+        93,
+        179,
+        120,
+        188
+      ],
+      "solo_outside_paint_pixels": 24,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 62,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 58,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 18,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 10,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_foot_far"
+      ]
+    },
+    {
+      "part": "head",
+      "view": "rear",
+      "image": "hidden_requests/rear_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 8,
+      "bounding_box": [
+        129,
+        71,
+        134,
+        73
+      ],
+      "solo_outside_paint_pixels": 171,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "collar",
+          "pixels": 8,
+          "material": "collar approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "collar",
+          "pixels": 4,
+          "material": "collar approved paint"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_head"
+      ]
+    },
+    {
+      "part": "collar",
+      "view": "rear",
+      "image": "hidden_requests/rear_collar.png",
+      "status": "measured",
+      "hidden_pixel_count": 212,
+      "bounding_box": [
+        129,
+        63,
+        160,
+        79
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 212,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 105,
+          "material": "native body skin"
+        }
+      ],
+      "material": "collar approved paint",
+      "paint_nodes": [
+        "hidden_collar"
+      ]
+    },
+    {
+      "part": "torso",
+      "view": "rear",
+      "image": "hidden_requests/rear_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 1286,
+      "bounding_box": [
+        93,
+        67,
+        165,
+        169
+      ],
+      "solo_outside_paint_pixels": 70,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 485,
+          "material": "native body skin"
+        },
+        {
+          "part": "collar",
+          "pixels": 3,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 390,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 16,
+          "material": "native body skin"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 274,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 118,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 51,
+          "material": "native body skin"
+        },
+        {
+          "part": "collar",
+          "pixels": 5,
+          "material": "collar approved paint"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 59,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 28,
+          "material": "native body skin"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 36,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 39,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_torso"
+      ]
+    },
+    {
+      "part": "loincloth",
+      "view": "rear",
+      "image": "hidden_requests/rear_loincloth.png",
+      "status": "measured",
+      "hidden_pixel_count": 1359,
+      "bounding_box": [
+        122,
+        124,
+        161,
+        179
+      ],
+      "solo_outside_paint_pixels": 204,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 707,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 652,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 60,
+          "material": "native body skin"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 42,
+          "material": "native body skin"
+        }
+      ],
+      "material": "loincloth approved paint",
+      "paint_nodes": [
+        "hidden_loincloth"
+      ]
+    },
+    {
+      "part": "upper_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_upper_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 114,
+      "bounding_box": [
+        94,
+        84,
+        113,
+        108
+      ],
+      "solo_outside_paint_pixels": 21,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 114,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 40,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_upper_near"
+      ]
+    },
+    {
+      "part": "fore_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 236,
+      "bounding_box": [
+        56,
+        121,
+        86,
+        158
+      ],
+      "solo_outside_paint_pixels": 7,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "upper_near",
+          "pixels": 109,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 7,
+          "material": "native body skin"
+        },
+        {
+          "part": "club",
+          "pixels": 120,
+          "material": "club approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "upper_near",
+          "pixels": 18,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 6,
+          "material": "native body skin"
+        },
+        {
+          "part": "club",
+          "pixels": 13,
+          "material": "club approved paint"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_fore_near"
+      ]
+    },
+    {
+      "part": "hand_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 138,
+      "bounding_box": [
+        56,
+        147,
+        70,
+        166
+      ],
+      "solo_outside_paint_pixels": 11,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 36,
+          "material": "native body skin"
+        },
+        {
+          "part": "club",
+          "pixels": 102,
+          "material": "club approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 7,
+          "material": "native body skin"
+        },
+        {
+          "part": "club",
+          "pixels": 51,
+          "material": "club approved paint"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_hand_near"
+      ]
+    },
+    {
+      "part": "upper_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_upper_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 11,
+      "bounding_box": [
+        145,
+        96,
+        156,
+        121
+      ],
+      "solo_outside_paint_pixels": 82,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 11,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 22,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_upper_far"
+      ]
+    },
+    {
+      "part": "fore_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 77,
+      "bounding_box": [
+        180,
+        129,
+        211,
+        167
+      ],
+      "solo_outside_paint_pixels": 46,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "upper_far",
+          "pixels": 41,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 36,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "upper_far",
+          "pixels": 15,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 18,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_fore_far"
+      ]
+    },
+    {
+      "part": "hand_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 87,
+      "bounding_box": [
+        195,
+        156,
+        211,
+        166
+      ],
+      "solo_outside_paint_pixels": 214,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 87,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 17,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_hand_far"
+      ]
+    },
+    {
+      "part": "club",
+      "view": "rear",
+      "image": "hidden_requests/rear_club.png",
+      "status": "measured",
+      "hidden_pixel_count": 16,
+      "bounding_box": [
+        58,
+        143,
+        73,
+        162
+      ],
+      "solo_outside_paint_pixels": 201,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 12,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 4,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_near",
+          "pixels": 19,
+          "material": "native body skin"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 6,
+          "material": "native body skin"
+        }
+      ],
+      "material": "club approved paint",
+      "paint_nodes": [
+        "hidden_club"
+      ]
+    },
+    {
+      "part": "thigh_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_thigh_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 1423,
+      "bounding_box": [
+        82,
+        141,
+        134,
+        194
+      ],
+      "solo_outside_paint_pixels": 67,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 156,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 1190,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 77,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 50,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 96,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 16,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "thigh_near"
+      ]
+    },
+    {
+      "part": "shin_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 305,
+      "bounding_box": [
+        80,
+        180,
+        102,
+        204
+      ],
+      "solo_outside_paint_pixels": 20,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 305,
+          "material": "loincloth approved paint"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 35,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 1,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_shin_near"
+      ]
+    },
+    {
+      "part": "foot_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 158,
+      "bounding_box": [
+        73,
+        200,
+        101,
+        208
+      ],
+      "solo_outside_paint_pixels": 299,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 27,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 131,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "loincloth",
+          "pixels": 11,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 22,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_foot_near"
+      ]
+    },
+    {
+      "part": "thigh_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_thigh_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 128,
+      "bounding_box": [
+        120,
+        146,
+        162,
+        194
+      ],
+      "solo_outside_paint_pixels": 169,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 30,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 37,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 61,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 44,
+          "material": "native body skin"
+        },
+        {
+          "part": "loincloth",
+          "pixels": 24,
+          "material": "loincloth approved paint"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 21,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_thigh_far"
+      ]
+    },
+    {
+      "part": "shin_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 6,
+      "bounding_box": [
+        152,
+        186,
+        161,
+        227
+      ],
+      "solo_outside_paint_pixels": 22,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "thigh_far",
+          "pixels": 5,
+          "material": "native body skin"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 1,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "thigh_far",
+          "pixels": 11,
+          "material": "native body skin"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_shin_far"
+      ]
+    },
+    {
+      "part": "foot_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 37,
+      "bounding_box": [
+        142,
+        223,
+        162,
+        229
+      ],
+      "solo_outside_paint_pixels": 436,
+      "motions": [],
+      "exposure_status": "pending_motion_samples",
+      "occluding_parts": [
+        {
+          "part": "shin_far",
+          "pixels": 37,
+          "material": "native body skin"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "shin_far",
+          "pixels": 25,
+          "material": "native body skin"
+        }
+      ],
+      "material": "native body skin",
+      "paint_nodes": [
+        "hidden_foot_far"
+      ]
+    }
+  ]
+}

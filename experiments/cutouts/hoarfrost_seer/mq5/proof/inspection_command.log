@@ -1,0 +1,14 @@
+Inspection fixture generator:
+  task: rr-07
+  run: rr-07-inspection
+  scenario: combat
+  command: cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 --task-id rr-07 --run-id rr-07-inspection --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture.gd -- --scenario combat --enemy-types hoarfrost_seer,arc_thrall,arc_thrall --enemy-intents icefall,tether,tether --summary 'rr-07 rig inspection'
+  verifier: cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 --task-id rr-07 --run-id rr-07-inspection --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture_verify.gd
+  manifest: /private/tmp/labyrinth-inspection-manifests/rr-07-inspection.json
+
+Inspection launch command (regenerates and verifies the pre-action state first):
+  cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/rr-07 --task-id rr-07 --run-id rr-07-inspection --godot godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /private/tmp/labyrinth-inspection-manifests/rr-07-inspection.json --launch --scenario combat --enemy-types hoarfrost_seer,arc_thrall,arc_thrall --enemy-intents icefall,tether,tether --summary 'rr-07 rig inspection'
+
+Verified handoff input:
+  --inspection-manifest /private/tmp/labyrinth-inspection-manifests/rr-07-inspection.json
+

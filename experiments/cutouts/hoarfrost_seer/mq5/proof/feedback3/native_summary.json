@@ -1,0 +1,42 @@
+{
+  "hoarfrost_seer": {
+    "ok": true,
+    "errors": [],
+    "invalid_tie_totals": {
+      "before": 0,
+      "after": 0
+    },
+    "nonzero_invalid_tie_frames": [],
+    "presented_shimmer_residuals": {
+      "held_unexplained_pixels": 0,
+      "boundary_unexplained_pixels": 0
+    },
+    "report": "experiments/cutouts/hoarfrost_seer/mq5/proof/native/verification.json",
+    "retained_manifests_and_rests_unchanged": true,
+    "certificate_current": true
+  },
+  "arc_thrall": {
+    "ok": true,
+    "errors": [],
+    "invalid_tie_totals": {
+      "before": 1,
+      "after": 0
+    },
+    "nonzero_invalid_tie_frames": [
+      {
+        "view": "rear",
+        "part": "seam_upper_near_fore_near",
+        "frame": 65,
+        "before": 1,
+        "after": 0
+      }
+    ],
+    "presented_shimmer_residuals": {
+      "held_unexplained_pixels": 0,
+      "boundary_unexplained_pixels": 0
+    },
+    "report": "experiments/cutouts/arc_thrall/mq5/proof/native/verification.json",
+    "retained_manifests_and_rests_unchanged": true,
+    "certificate_current": true
+  }
+}

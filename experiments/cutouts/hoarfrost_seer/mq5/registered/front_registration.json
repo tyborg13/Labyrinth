@@ -1,0 +1,52 @@
+{
+  "scale": [
+    0.25,
+    0.25
+  ],
+  "offset": [
+    7.0,
+    1.0
+  ],
+  "trace": {
+    "raw_size": [
+      1024,
+      1024
+    ],
+    "raw_crop": [
+      184,
+      156,
+      788,
+      980
+    ],
+    "reduced_size": [
+      151,
+      206
+    ],
+    "trim": [
+      0,
+      0,
+      151,
+      206
+    ],
+    "before_fit": [
+      151,
+      206
+    ],
+    "after_fit": [
+      151,
+      206
+    ],
+    "final_trim": [
+      0,
+      0,
+      151,
+      206
+    ],
+    "placement": [
+      53,
+      40
+    ],
+    "render_size": 1024,
+    "render_to_raw_scale": 1.0
+  }
+}

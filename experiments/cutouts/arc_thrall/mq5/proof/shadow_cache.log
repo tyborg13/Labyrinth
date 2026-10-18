@@ -1,0 +1,213 @@
+Running task-local command:
+  task: rr-07
+  run: rr-07-1792298920119056000-50633
+  HOME: /private/tmp/labyrinth-godot-home/rr-07-1792298920119056000-50633
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-07-1792298920119056000-50633/godot.log --headless --path . --script tools/generate_unit_shadow_cache.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/protagonist_cutout/front/front_default_gear_rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/acolyte_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/arc_thrall_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/arc_thrall_cutout/rear/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/ash_hound/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/ashen_reaver/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/bell_tender/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/shale_bloomer_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/shale_bloomer_cutout/rear/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/chainbound_gaoler_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/cinder_droplet_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/cinder_ooze_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/craghide/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/crawler_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/frostglass_lancer_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/gallows_roc/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/grave_surgeon_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/gust_shrike_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/harrier_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/hoarfrost_seer_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/hoarfrost_seer_cutout/rear/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/iskaldra_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/last_lamplighter/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/lightning_wisp_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/lightning_wisp_cutout/rear/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/noctyrax_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/rime_spitter/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/rime_whelp/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/rimejaw/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/roc_fledgling/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/stoneback_mite/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/storm_cantor/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/tharokh_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/vaeloryx_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/veilbound_acolyte_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/vyraketh_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/stone_warden_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/wick_shade/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/zekarion_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _build_cache (res://tools/generate_unit_shadow_cache.gd:74)
+         [1] _initialize (res://tools/generate_unit_shadow_cache.gd:14)
+UNIT SHADOW CACHE GENERATED: res://assets/generated/unit_shadow_cache.res entries=66 sources=60

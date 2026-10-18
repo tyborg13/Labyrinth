@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "views": [
+    {
+      "view": "front",
+      "job": "spec/art_identity/jobs/hoarfrost_seer/mq5_front",
+      "expected_raw_sha256": "5bafa6be8a1d3a4192494dbc02002f35117c413b35dfae33504fc8ef419056f0",
+      "expected_raw_pixel_sha256": null,
+      "ok": true,
+      "kind": "approved_file",
+      "source": "spec/art_identity/jobs/hoarfrost_seer/mq5_front/refs/raw_approved.png"
+    },
+    {
+      "view": "rear",
+      "job": "spec/art_identity/jobs/hoarfrost_seer/mq5_rear",
+      "expected_raw_sha256": "ff41c22a2cb0ad4bca4011adb006692c0be5bd9ea91304e501de195de69e7c6c",
+      "expected_raw_pixel_sha256": null,
+      "ok": true,
+      "kind": "approved_file",
+      "source": "spec/art_identity/jobs/hoarfrost_seer/mq5_rear/refs/raw_1024_lanczos.png"
+    }
+  ]
+}

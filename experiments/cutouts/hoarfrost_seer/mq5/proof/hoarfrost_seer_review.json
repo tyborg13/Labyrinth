@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "fps": 60,
+  "frames": 1494,
+  "seconds": 24.9,
+  "plan": [
+    [
+      "idle",
+      3
+    ],
+    [
+      "move",
+      3
+    ],
+    [
+      "mark",
+      2
+    ],
+    [
+      "land",
+      2
+    ],
+    [
+      "bolt",
+      2
+    ],
+    [
+      "ward",
+      2
+    ],
+    [
+      "hit",
+      2
+    ],
+    [
+      "death",
+      1
+    ]
+  ],
+  "death_hold_seconds": 1,
+  "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-07/experiments/cutouts/hoarfrost_seer/mq5/proof/native",
+  "native_manifest_sha256": "93a38754f85850e72ffb7abe9163b11bb345337ebc1bbad1a822615a54ea8060",
+  "video_sha256": "16705ddbbc4bbddade289028fe96b324fe2f2e99294ab68d24777712d07882b0"
+}

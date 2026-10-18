@@ -1,0 +1,56 @@
+{
+  "risk_tier": "high (runtime integration)",
+  "status": "feedback 3 complete: both native gates, focused maquette tests and full Godot PASS; full Python has only expected missing density-rest records; director --from-review remains",
+  "requirements": [
+    {
+      "requirement": 1,
+      "status": "PASS",
+      "evidence": [
+        "delivery.json",
+        "registration_sources.json",
+        "input_audit.log"
+      ]
+    },
+    {
+      "requirement": 2,
+      "status": "PASS including native rest equality (0 px)",
+      "evidence": [
+        "continuity.json",
+        "pixels_gates.json",
+        "../rig_recipe.json"
+      ]
+    },
+    {
+      "requirement": 3,
+      "status": "PASS",
+      "evidence": [
+        "preparation.json",
+        "features/",
+        "registration_disagreements.json",
+        "pixels_gates.json"
+      ]
+    },
+    {
+      "requirement": 4,
+      "status": "production integrated; callbacks PASS; native density rests pending",
+      "evidence": [
+        "production_logic/logic_frames.json",
+        "production_gates.json",
+        "actor_bounds.json"
+      ]
+    },
+    {
+      "requirement": 5,
+      "status": "Focused maquette tests, mutations, full Godot and both native gates PASS; full Python has only the expected four missing native density-rest records; director review/production/density proof pending",
+      "evidence": [
+        "motion_gates.json",
+        "pixels_gates.json",
+        "verification_results.json",
+        "native/verification.json",
+        "feedback2/",
+        "feedback3/"
+      ]
+    }
+  ],
+  "TODO_DESIGN": []
+}
