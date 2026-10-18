@@ -190,3 +190,9 @@
 - Seer: root body → torso (root body part) → collar and the head; skirts are torso children pivoting at the belt;
   feet are root children so they stay planted; staff_crystal is always a child of staff_shaft.
 - Thrall: root body → torso and both thighs; collar and loincloth are torso children.
+
+## 2026-10-18 det-01 accepted
+- The review (2c94e72b4) confirmed both root causes, with 5/5 mutations caught. Its Medium (the staged startup missed
+  the arrow connection) is fixed in round 2 with an idempotent connection that both paths run, plus regressions for
+  both paths: the removal mutation fails both.
+- Accepted by the director on that bounded delta. The Low was integration docs that arrived through the merge.
