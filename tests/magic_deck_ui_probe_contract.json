@@ -1,0 +1,212 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "character_magic_14.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_purge_service.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_grid_14.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_card_focus.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_confirm_affordable.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            700,
+            260,
+            520,
+            550
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_grid_4.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_confirm_unaffordable.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            700,
+            260,
+            520,
+            550
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "campfire_grid.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "campfire_confirm.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            700,
+            260,
+            520,
+            550
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "scavenger_grid_20_scrolled.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_motion_grid.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            226,
+            283,
+            1468,
+            572
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "reduced_motion_confirm.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            700,
+            260,
+            520,
+            550
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}
