@@ -1,0 +1,26 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-e9e40ef3f8c14147929d72caa87b0d28
+BLENDER_BRIDGE_STARTED: mq03-e9e40ef3f8c14147929d72caa87b0d28
+00:00.321  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/native/maquette.blend"
+00:03.162  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_parts.png'
+00:10.897  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_clay.png'
+00:13.197  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:15.439  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:17.698  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:20.026  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:22.344  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:24.661  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:27.056  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:29.402  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:31.843  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:34.181  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:36.437  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:38.674  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:40.890  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:43.056  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:45.273  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:47.578  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+00:50.293  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-07/spec/art_identity/maquettes/arc_thrall/r2/proof/rear/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+FITTED_VIEW_CAPTURE: PASS; view=rear
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=50.9; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-e9e40ef3f8c14147929d72caa87b0d28.log

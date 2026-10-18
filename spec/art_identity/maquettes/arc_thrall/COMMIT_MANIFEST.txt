@@ -1,5 +1,5 @@
 # Paths relative to this figure. Shared builder: ../blender/*.py
-# Canonical build specification: measurements.json; generated spec_native.json is omitted.
+# Accepted mq-04 input: measurements.json; mq-07 candidate: r2/measurements.json.
 .gdignore
 COMMIT_MANIFEST.txt
 README.md
@@ -61,7 +61,42 @@ delivery/rear_solo_upper_far.png
 delivery/rear_solo_upper_near.png
 delivery/recipe_proof.json
 delivery/regeneration.json
-delivery/review/clay_comparison_lancer_r3.png
 delivery/solo_coverage.json
 discarded_proof_sha256.json
 measurements.json
+prompt_front_r1.md
+prompt_front_r1_fix1.md
+prompt_rear_r1.md
+prompt_rear_r1_fix1.md
+prompt_rear_r1_fix2.md
+r2/README.md
+r2/assemble.py
+r2/curate.py
+r2/feedback_1.json
+r2/measurements.json
+r2/proof/art_identity.log
+r2/proof/bridge.log
+r2/proof/builder_focused.log
+r2/proof/curation.log
+r2/proof/determinism_bridge.log
+r2/proof/exact_bridge.log
+r2/proof/focused.log
+r2/proof/front_bridge.log
+r2/proof/full_python.log
+r2/proof/gates.json
+r2/proof/native_build_report.json
+r2/proof/native_capture_checks.json
+r2/proof/native_capture_manifest.json
+r2/proof/native_exact_native_replay.json
+r2/proof/native_facing_report.json
+r2/proof/native_joints_px.json
+r2/proof/native_ownership_validation.json
+r2/proof/native_recipe_proof.json
+r2/proof/native_solo_coverage.json
+r2/proof/proof.log
+r2/proof/rear_bridge.log
+r2/proof/shoulder_tube_sheet.png
+r2/proof/tube_bridge.log
+r2/proof/tube_geometry.json
+r2/proof.py
+r2/tube_proof.py

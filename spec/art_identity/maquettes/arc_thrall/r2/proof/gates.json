@@ -1,0 +1,374 @@
+{
+  "passed": true,
+  "checks": {
+    "shoulder_height": true,
+    "shoulder_height_is_perspective_only": true,
+    "far_shoulder_x": true,
+    "limb_lengths": true,
+    "same_body_half_turn": true,
+    "lower_foot_right_in_both_views": true
+  },
+  "shoulder_table_px": {
+    "front": {
+      "near": {
+        "before": [
+          616.0,
+          351.9999999999999
+        ],
+        "after": [
+          616.0,
+          351.9999999999999
+        ]
+      },
+      "far": {
+        "before": [
+          338.0,
+          404.0000000000001
+        ],
+        "after": [
+          338.0,
+          310.29999999999995
+        ]
+      }
+    },
+    "rear": {
+      "near": {
+        "before": [
+          408.00000000000006,
+          344.0000000000001
+        ],
+        "after": [
+          408.00000000000006,
+          344.0000000000001
+        ]
+      },
+      "far": {
+        "before": [
+          686.0,
+          352.0
+        ],
+        "after": [
+          686.0,
+          385.7
+        ]
+      }
+    }
+  },
+  "expected_far_above_near_px": 41.699999999999996,
+  "limb_length_errors_m": {
+    "pelvis": 0.0,
+    "torso": 0.0,
+    "head": 0.0,
+    "shoulder_near": 0.0,
+    "elbow_near": 0.0,
+    "hand_near": 0.0,
+    "hip_near": 0.0,
+    "knee_near": 0.0,
+    "ankle_near": 0.0,
+    "shoulder_far": 1.1102230246251565e-16,
+    "elbow_far": 1.6653345369377348e-16,
+    "hand_far": 0.0,
+    "hip_far": 0.0,
+    "knee_far": 0.0,
+    "ankle_far": 0.0
+  },
+  "feet": {
+    "front": {
+      "lower_anatomical_side": "near",
+      "lower_foot_px": [
+        588.0,
+        960.0
+      ],
+      "other_foot_px": [
+        302.0,
+        784.0
+      ],
+      "passed": true
+    },
+    "rear": {
+      "lower_anatomical_side": "far",
+      "lower_foot_px": [
+        722.0,
+        944.0000000000001
+      ],
+      "other_foot_px": [
+        436.0,
+        800.0
+      ],
+      "passed": true
+    }
+  },
+  "joints_px": {
+    "front": {
+      "root": [
+        512.0,
+        925.8446729551238
+      ],
+      "pelvis": [
+        506.0,
+        584.0
+      ],
+      "torso": [
+        504.0,
+        432.0
+      ],
+      "head": [
+        394.0,
+        292.00000000000017
+      ],
+      "head_tip": [
+        384.0,
+        212.0
+      ],
+      "shoulder_near": [
+        616.0,
+        351.9999999999999
+      ],
+      "shoulder_far": [
+        338.0,
+        310.29999999999995
+      ],
+      "elbow_near": [
+        712.0,
+        496.00000000000006
+      ],
+      "elbow_far": [
+        273.30157885933477,
+        460.81625546796204
+      ],
+      "hand_near": [
+        766.0,
+        592.0
+      ],
+      "hand_far": [
+        209.05851883446144,
+        610.273145825828
+      ],
+      "hand_tip_near": [
+        784.0,
+        640.0
+      ],
+      "hand_tip_far": [
+        211.05851883446132,
+        674.2731458258281
+      ],
+      "hip_near": [
+        588.0,
+        604.0000000000001
+      ],
+      "hip_far": [
+        438.0,
+        600.0
+      ],
+      "knee_near": [
+        634.0,
+        764.0
+      ],
+      "knee_far": [
+        404.0,
+        672.0000000000001
+      ],
+      "ankle_near": [
+        664.0,
+        892.0
+      ],
+      "ankle_far": [
+        391.99999999999994,
+        736.0
+      ],
+      "foot_tip_near": [
+        588.0,
+        960.0
+      ],
+      "foot_tip_far": [
+        302.0,
+        784.0
+      ]
+    },
+    "rear": {
+      "root": [
+        512.0,
+        925.8446729551238
+      ],
+      "pelvis": [
+        518.0,
+        572.0
+      ],
+      "torso": [
+        520.0,
+        404.00000000000006
+      ],
+      "head": [
+        630.0,
+        248.0000000000001
+      ],
+      "head_tip": [
+        640.0,
+        192.00000000000023
+      ],
+      "shoulder_near": [
+        408.00000000000006,
+        344.0000000000001
+      ],
+      "shoulder_far": [
+        686.0,
+        385.7
+      ],
+      "elbow_near": [
+        312.0,
+        491.99999999999994
+      ],
+      "elbow_far": [
+        750.6984211406652,
+        506.9171133228322
+      ],
+      "hand_near": [
+        258.0,
+        592.0
+      ],
+      "hand_far": [
+        814.9414811655386,
+        627.2810750694341
+      ],
+      "hand_tip_near": [
+        239.99999999999994,
+        628.0
+      ],
+      "hand_tip_far": [
+        812.9414811655387,
+        691.2810750694342
+      ],
+      "hip_near": [
+        436.0,
+        592.0000000000001
+      ],
+      "hip_far": [
+        586.0,
+        600.0
+      ],
+      "knee_near": [
+        390.0,
+        692.0
+      ],
+      "knee_far": [
+        620.0,
+        736.0
+      ],
+      "ankle_near": [
+        360.0,
+        776.0
+      ],
+      "ankle_far": [
+        632.0,
+        880.0000000000001
+      ],
+      "foot_tip_near": [
+        436.0,
+        800.0
+      ],
+      "foot_tip_far": [
+        722.0,
+        944.0000000000001
+      ]
+    }
+  },
+  "tube_geometry": {
+    "passed": true,
+    "checks": {
+      "shaft_width": true,
+      "mouth_offset": true,
+      "band_height": true,
+      "band_raise": true,
+      "dome_height": true,
+      "open_annular_mouth": true,
+      "one_band_only": true,
+      "closed_shell": true,
+      "distal_tip_unchanged": true,
+      "whole_fore_near_ownership": true
+    },
+    "dimensions": {
+      "mouth_offset_front_px": -8.000000000000032,
+      "shaft_diameter_front_px": 67.9217819215068,
+      "band_height_front_px": 12.000000000000016,
+      "band_raise_native_px": 3.999999999999986,
+      "dome_height_front_px": 23.80000000000002,
+      "inner_radius_native_px": 27.999999999999954
+    }
+  },
+  "spec_hash": "faf29b4fa11898565ecdd3715ef7881c686fb8486499af05fe487abbdf979524",
+  "before_fit": {
+    "front": {
+      "iou": 0.722267224204742,
+      "minimum": 0.7,
+      "passed": true,
+      "all_fit_diagnostics": {
+        "iou": true,
+        "median_band_error": false,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      }
+    },
+    "rear": {
+      "iou": 0.7035146694952339,
+      "minimum": 0.65,
+      "passed": true,
+      "all_fit_diagnostics": {
+        "iou": true,
+        "median_band_error": true,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      }
+    }
+  },
+  "unresolved_design": {},
+  "native_capture_available": true,
+  "after_fit": {
+    "front": {
+      "iou": 0.7071754384570761,
+      "minimum": 0.7,
+      "passed": true,
+      "all_fit_diagnostics": {
+        "iou": true,
+        "median_band_error": true,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      }
+    },
+    "rear": {
+      "iou": 0.7310500093806674,
+      "minimum": 0.65,
+      "passed": true,
+      "all_fit_diagnostics": {
+        "iou": true,
+        "median_band_error": true,
+        "max_band_error": false,
+        "landmark_error": true,
+        "design_complete": true
+      }
+    }
+  },
+  "tube_widths": {
+    "front": {
+      "widths_native_px": [
+        67.29999999999617,
+        66.99999999999619,
+        67.29999999999617
+      ],
+      "passed": true
+    },
+    "rear": {
+      "widths_native_px": [
+        66.69999999999621,
+        67.39999999999617,
+        66.69999999999621
+      ],
+      "passed": true
+    }
+  },
+  "native_tube_entry_passed": true,
+  "native_delivery_passed": true,
+  "retention": "Native 1024 cells retained in shoulder_tube_sheet.png; standalone candidate PNGs, blends and caches verified then hash-inventoried and discarded for the 6 MB budget. Compact native reports are retained with native_ prefixes. Rebuild commands are in r2/README.md."
+}

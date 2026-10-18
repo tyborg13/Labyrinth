@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Native entry: bridge_client.py blender/build.py -- SPEC OUT [--engine cycles]."""
 import argparse
+from copy import deepcopy
 import hashlib
 import json
 from pathlib import Path
@@ -38,9 +39,15 @@ def build(spec, output, bundle, cache):
     print('BUILD_STAGE: append anatomy', flush=True)
     body = append_body(spec, bundle)
     print(f'BUILD_STAGE: bind {len(body.data.vertices)} anatomy vertices', flush=True)
-    rig, posed, owners = bind_and_pose(spec, body)
+    fitting_spec = spec
+    if spec.get('source_fit_joints'):
+        fitting_spec = deepcopy(spec)
+        fitting_spec['joints'] = spec['source_fit_joints']
+    rig, posed, owners = bind_and_pose(fitting_spec, body)
     from spec.art_identity.maquettes.blender.source_cage import fit_body
-    source_fit = fit_body(spec, body, rig, posed)
+    source_fit = fit_body(fitting_spec, body, rig, posed)
+    from spec.art_identity.maquettes.blender.pose_adjustment import repose
+    repose(spec, body, rig, posed)
     posed['face_owners'] = json.dumps(owners)
     context_key = digest({'spec': spec, 'bundle_sha256': hashlib.sha256(Path(bundle).read_bytes()).hexdigest()})
     objects = []
@@ -94,6 +101,8 @@ def build(spec, output, bundle, cache):
         obj['owner_index'] = list(spec['labels']).index(region)
         obj['piece_type'] = 'body'
         objects.append(obj)
+    from spec.art_identity.maquettes.blender.socket_tuck import append_tucks
+    append_tucks(spec, posed, owners, objects)
     posed.hide_render = True
     posed.hide_set(True)
     rig.hide_render = True
@@ -119,6 +128,10 @@ def build(spec, output, bundle, cache):
                 bpy.data.objects[cloth_id + '_render'], bpy.data.objects[obstacle_id + '_render'], garment['collision_margin'])
         details['rigid_clearance'] = {o.name: json.loads(o['rigid_clearance_report']) for o in objects if 'rigid_clearance_report' in o}
     checks = geometry_report(spec, objects, cloth_reports, details)
+    if spec['base'].get('socket_tucks'):
+        details['socket_tucks'] = {o.name: json.loads(o['socket_tuck_report']) for o in objects if 'socket_tuck_report' in o}
+        checks['native_socket_tucks'] = len(details['socket_tucks']) == len(spec['base']['socket_tucks']) and all(
+            r['passed'] for r in details['socket_tucks'].values())
     details['blade_attachments'] = {o.name: json.loads(o['blade_attachment_report']) for o in objects
                                     if 'blade_attachment_report' in o}
     checks['sculpted_blade_roots_attached'] = all(r['passed'] for r in details['blade_attachments'].values())

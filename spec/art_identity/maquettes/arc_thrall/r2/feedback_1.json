@@ -1,0 +1,15 @@
+{
+  "native_size": 1024,
+  "diameter_px": 17,
+  "diameter_tolerance_px": 1,
+  "elbow_offset_px": -2,
+  "band_height_px": 3,
+  "band_raise_px": 1,
+  "dome_height_ratio": 0.35,
+  "rivets": false,
+  "wall_px_inherited_mq04": 1.5,
+  "shoulder_pose": "Keep the accepted r2 shoulder in both views",
+  "crop_magnification": 3,
+  "source_scale_px": 255,
+  "native_px_per_source_px": 4
+}

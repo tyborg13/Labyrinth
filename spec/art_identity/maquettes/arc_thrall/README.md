@@ -23,3 +23,10 @@ Shared review: `../gale_herald/delivery/review/fit_table.md`, `fit_overlay_conta
 Original r3 PNG byte restoration is pending an original-file backup. The eight Seer/Thrall clay/map pixel streams exactly match the paint-over kit refs after green compositing; see `../gale_herald/delivery/validation/feedback5_pixels.json`. The recorded original r3 file hashes remain in `delivery/provenance.json`; no replacement encoding is presented as the original file.
 
 Fresh feedback-5 regeneration: `delivery/regeneration.json` compares all four clay/map images and validates native build/capture/facing/collision/ownership against the retained cold proof. Clean input hashes, native discarded-build hashes and bridge log are shared at `../gale_herald/delivery/validation/feedback5_regeneration/arc_thrall/`.
+
+mq-07 feedback-1 candidate: see `r2/README.md`, `r2/measurements.json` and
+`r2/proof/shoulder_tube_sheet.png`. The owner has resolved the tube dimensions,
+open elbow mouth and single band; no design TODO remains. The mq-04 inputs and
+native captures above remain the unchanged comparison baseline. Curation
+replaces the historical multi-figure clay comparison with the native old/new
+shoulder sheet and 3× elbow crops, recording all discarded hashes.

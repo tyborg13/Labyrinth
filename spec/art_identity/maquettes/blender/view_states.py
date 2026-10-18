@@ -6,5 +6,5 @@ def active_in_view(obj, view):
 
 
 def view_parts(spec, view):
-    common = {b['region'] for b in spec['armature']['bones']}
+    common = {b['region'] for b in spec['armature']['bones']} - set(spec['base'].get('covered_regions', []))
     return common | {p['part'] for p in spec['pieces']}

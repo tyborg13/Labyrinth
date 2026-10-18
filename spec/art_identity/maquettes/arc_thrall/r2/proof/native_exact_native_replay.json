@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "byte_order": "little",
+  "rounding": null,
+  "spec_hash": "faf29b4fa11898565ecdd3715ef7881c686fb8486499af05fe487abbdf979524",
+  "mesh_count": 17,
+  "mesh_hashes": {
+    "cold": {
+      "body_foot_far": "36cc9abd6da46c5b7d4086fe167f409b5804b144723788d491c7607889a2587d",
+      "body_foot_near": "9e1c8a7fb329070274998bf5b798f9ffaedda7ed2c71821cb9f6297df69549d4",
+      "body_fore_far": "b68ab5335846b527138144401e64f5f42ce6b72199f611787426c266dfddbbde",
+      "body_hand_far": "5c839ea4f35de846ca6f91c2e5c5dd68e48913f9f0acb35a77e9d9d595e68670",
+      "body_head": "630a9efe047274259a1530bc01c24e8fe98594debbbb2cf94eb323f24344c741",
+      "body_shin_far": "0aef29c5b9563240baea3e4bede53b09b96aad304b18b7418823ddd42ff51f9f",
+      "body_shin_near": "ec037bbd4d60c1c55fb5954028d244d1a217816bc1b8bd443a1957673b2c9388",
+      "body_thigh_far": "f1e2b92681ef847269190bc0a5360765d5be1ec4e01cb295f886dee4e4167fda",
+      "body_thigh_near": "b254aa1572b4879da4997a5a9118c71006334f2d7e09f74bdd09b9aa4352e4e0",
+      "body_torso": "dfe50330c395059564d0420847ecd9bb93109aeee8059c71a67957bf44a39f25",
+      "body_upper_far": "b4b3de6aa0605882b4b0741414fb6283114dd9e44c0e9c536275a6b334326072",
+      "body_upper_near": "972b6121cb83df559c405f6b8f1c4ee4ed440f61e7009dd800cff05373c38241",
+      "collar_ring_render": "ebe35c19d1c6f319a6585029dc457f33655c8fc4e375700b211835df2837386a",
+      "forearm_sheath_render": "c593406789a1657402e47d298c5fa9eae093a89251d12f2c63d3c242344dcdbf",
+      "loincloth_back_render": "e088fc4148c51e7af6cff7925eb54bb29c31218d8d28b83e2e627d4e77522f1e",
+      "loincloth_front_render": "c58824a55d636b3cc2b30be674ca0b84f95bd73aeb64c771b9be366beea54540",
+      "upper_near_socket_tuck": "2fa385a05d2f312afdf8f02cac874aa412d8bfbefaa746aa13ebbb9de7720b99"
+    },
+    "replay": {
+      "body_foot_far": "36cc9abd6da46c5b7d4086fe167f409b5804b144723788d491c7607889a2587d",
+      "body_foot_near": "9e1c8a7fb329070274998bf5b798f9ffaedda7ed2c71821cb9f6297df69549d4",
+      "body_fore_far": "b68ab5335846b527138144401e64f5f42ce6b72199f611787426c266dfddbbde",
+      "body_hand_far": "5c839ea4f35de846ca6f91c2e5c5dd68e48913f9f0acb35a77e9d9d595e68670",
+      "body_head": "630a9efe047274259a1530bc01c24e8fe98594debbbb2cf94eb323f24344c741",
+      "body_shin_far": "0aef29c5b9563240baea3e4bede53b09b96aad304b18b7418823ddd42ff51f9f",
+      "body_shin_near": "ec037bbd4d60c1c55fb5954028d244d1a217816bc1b8bd443a1957673b2c9388",
+      "body_thigh_far": "f1e2b92681ef847269190bc0a5360765d5be1ec4e01cb295f886dee4e4167fda",
+      "body_thigh_near": "b254aa1572b4879da4997a5a9118c71006334f2d7e09f74bdd09b9aa4352e4e0",
+      "body_torso": "dfe50330c395059564d0420847ecd9bb93109aeee8059c71a67957bf44a39f25",
+      "body_upper_far": "b4b3de6aa0605882b4b0741414fb6283114dd9e44c0e9c536275a6b334326072",
+      "body_upper_near": "972b6121cb83df559c405f6b8f1c4ee4ed440f61e7009dd800cff05373c38241",
+      "collar_ring_render": "ebe35c19d1c6f319a6585029dc457f33655c8fc4e375700b211835df2837386a",
+      "forearm_sheath_render": "c593406789a1657402e47d298c5fa9eae093a89251d12f2c63d3c242344dcdbf",
+      "loincloth_back_render": "e088fc4148c51e7af6cff7925eb54bb29c31218d8d28b83e2e627d4e77522f1e",
+      "loincloth_front_render": "c58824a55d636b3cc2b30be674ca0b84f95bd73aeb64c771b9be366beea54540",
+      "upper_near_socket_tuck": "2fa385a05d2f312afdf8f02cac874aa412d8bfbefaa746aa13ebbb9de7720b99"
+    },
+    "independent_cold": {
+      "body_foot_far": "36cc9abd6da46c5b7d4086fe167f409b5804b144723788d491c7607889a2587d",
+      "body_foot_near": "9e1c8a7fb329070274998bf5b798f9ffaedda7ed2c71821cb9f6297df69549d4",
+      "body_fore_far": "b68ab5335846b527138144401e64f5f42ce6b72199f611787426c266dfddbbde",
+      "body_hand_far": "5c839ea4f35de846ca6f91c2e5c5dd68e48913f9f0acb35a77e9d9d595e68670",
+      "body_head": "630a9efe047274259a1530bc01c24e8fe98594debbbb2cf94eb323f24344c741",
+      "body_shin_far": "0aef29c5b9563240baea3e4bede53b09b96aad304b18b7418823ddd42ff51f9f",
+      "body_shin_near": "ec037bbd4d60c1c55fb5954028d244d1a217816bc1b8bd443a1957673b2c9388",
+      "body_thigh_far": "f1e2b92681ef847269190bc0a5360765d5be1ec4e01cb295f886dee4e4167fda",
+      "body_thigh_near": "b254aa1572b4879da4997a5a9118c71006334f2d7e09f74bdd09b9aa4352e4e0",
+      "body_torso": "dfe50330c395059564d0420847ecd9bb93109aeee8059c71a67957bf44a39f25",
+      "body_upper_far": "b4b3de6aa0605882b4b0741414fb6283114dd9e44c0e9c536275a6b334326072",
+      "body_upper_near": "972b6121cb83df559c405f6b8f1c4ee4ed440f61e7009dd800cff05373c38241",
+      "collar_ring_render": "ebe35c19d1c6f319a6585029dc457f33655c8fc4e375700b211835df2837386a",
+      "forearm_sheath_render": "c593406789a1657402e47d298c5fa9eae093a89251d12f2c63d3c242344dcdbf",
+      "loincloth_back_render": "e088fc4148c51e7af6cff7925eb54bb29c31218d8d28b83e2e627d4e77522f1e",
+      "loincloth_front_render": "c58824a55d636b3cc2b30be674ca0b84f95bd73aeb64c771b9be366beea54540",
+      "upper_near_socket_tuck": "2fa385a05d2f312afdf8f02cac874aa412d8bfbefaa746aa13ebbb9de7720b99"
+    }
+  },
+  "joint_matrix_hashes": {
+    "cold": "8fccec4062f7f1109fd373c15d55b174f734f3720dfd328c56f94146ef6ad1c7",
+    "replay": "8fccec4062f7f1109fd373c15d55b174f734f3720dfd328c56f94146ef6ad1c7",
+    "independent_cold": "8fccec4062f7f1109fd373c15d55b174f734f3720dfd328c56f94146ef6ad1c7"
+  }
+}

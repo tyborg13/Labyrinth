@@ -1,0 +1,50 @@
+test_all_recipes_recompile_without_changing_their_protected_sources (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_bridge_quick_result_needs_no_run_line (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_bridge_start_deadline_is_independent_of_execution_budget (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... BLENDER_BRIDGE_STARTED: long
+ok
+test_bridge_unstarted_job_stops_at_start_deadline (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_capture_assembly_rejects_stale_checks_after_failed_recapture (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_compiler_rear_authored_panel_is_still_one_common_mesh (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_corrective_shape_inverts_blended_native_skinning (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_gale_view_states_change_only_native_banner_cloth (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_hem_obeys_both_source_lower_contours (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_hollow_bell_has_closed_wall_and_open_lumen (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_incompatible_views_leave_observable_residual (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_measured_hood_tip_anchor_changes_only_its_cloth (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_occluded_profile_preserves_native_depth_while_fitting_observed_view (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_panel_preserves_measured_edges (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_raw_replay_proof_is_bound_to_current_spec_and_keeps_quality_separate (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_rear_source_panel_projects_in_rear_and_retains_body_space (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_registered_overlay_uses_fit_frame_not_canvas_size (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_side_labels_require_distinct_registered_parts (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_source_cage_uses_measured_scanline_bounds (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_source_ray_intersects_named_plane (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_spatial_plate_rejects_unpaired_source_corners (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_stereo_prop_path_retains_one_common_three_dimensional_model (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_tube_rejects_collapsed_lumen_and_path (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_two_view_triangulation_round_trip (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_whole_cloth_feature_ownership_does_not_split_glyphs_or_drips (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_canonical_png_strips_volatile_stamps_without_changing_clay (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_closed_cowl_has_one_hem_boundary_and_no_crown_or_seam_holes (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_curved_shell_preserves_rim_ridge_and_is_closed (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_deferred_cloth_obstacle_pair_rejects_missing_accessory (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_discard_records_the_actual_bytes_before_removing_proof (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_layered_shell_keeps_each_closed_plate_in_one_mesh (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_mask_packing_preserves_alpha_and_all_visible_samples (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_required_parts_reject_missing_zero_and_negative_solos (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_rigid_clearance_keeps_components_and_encloses_with_a_padding_cube (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_collision_and_ownership_details_cannot_hide_behind_true_summary (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_hash_binding_is_required_and_current (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_passed_and_check_field_rejects_false_or_missing_even_before_sealing (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_every_report_is_required (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_required_part_rejection_is_exercised_directly (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_staging_preserves_native_png_bytes_including_stamps (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_valid_current_delivery (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests) ... ok
+
+----------------------------------------------------------------------
+Ran 43 tests in 2.917s
+
+OK
+DELIVERY_STAGE: PASS; staged

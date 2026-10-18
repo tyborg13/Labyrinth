@@ -62,7 +62,7 @@ def validate(spec):
     for row in spec['base']['matrix']:
         vector(row, 4, 'base.matrix')
     for part, profiles in spec['base'].get('source_profiles', {}).items():
-        if part not in spec['labels'] or not profiles or not set(profiles) <= {'front', 'rear'}:
+        if part not in set(spec['labels']) | set(spec['base'].get('covered_regions', [])) or not profiles or not set(profiles) <= {'front', 'rear'}:
             raise ValueError('Source cage requires a registered part and measured front/rear views')
         for outline in profiles.values():
             if len(outline) < 3:
@@ -88,7 +88,7 @@ def validate(spec):
         for field in ('head', 'tail'):
             if b[field] not in rest or b[field] not in spec['joints']:
                 raise ValueError('Missing rest/pose joint: ' + b[field])
-        if b['region'] not in labels or (b.get('parent') is not None and b['parent'] not in names):
+        if b['region'] not in set(labels) | set(spec['base'].get('covered_regions', [])) or (b.get('parent') is not None and b['parent'] not in names):
             raise ValueError('Unknown bone parent or region: ' + b['name'])
         if sum((a - c) ** 2 for a, c in zip(rest[b['head']], rest[b['tail']])) < BUILD_DEFAULTS['zero_length_squared_epsilon']:
             raise ValueError('Zero-length rest bone: ' + b['name'])
@@ -217,6 +217,12 @@ def validate(spec):
         if piece['type'] == 'gem' and (piece['sides'] < 3 or min(piece['length'], piece['width'], piece['depth']) <= 0):
             raise ValueError('Invalid bipyramid gem dimensions')
     by_id = {p['id']: p for p in spec['pieces']}
+    for tuck in spec['base'].get('socket_tucks', []):
+        socket = by_id.get(tuck['socket'], {}).get('socket')
+        if (not socket or tuck['part'] != tuck['source_region'] or tuck['part'] not in labels or
+                tuck['adjacent_region'] not in spec['base'].get('covered_regions', []) or
+                tuck['end_joint'] not in spec['joints']):
+            raise ValueError('Socket tuck requires its own anatomy label, a covered neighbour and an open socket')
     for pair in spec.get('cloth_obstacles', []):
         if len(pair) != 2 or any(name not in by_id for name in pair) or by_id[pair[0]]['type'] != 'cloth' or by_id[pair[1]]['type'] != 'rigid_shell':
             raise ValueError('Cloth obstacle pair requires a cloth and a rigid shell')

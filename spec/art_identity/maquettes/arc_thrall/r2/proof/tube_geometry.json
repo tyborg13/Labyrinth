@@ -1,0 +1,73 @@
+{
+  "passed": true,
+  "checks": {
+    "shaft_width": true,
+    "mouth_offset": true,
+    "band_height": true,
+    "band_raise": true,
+    "dome_height": true,
+    "open_annular_mouth": true,
+    "one_band_only": true,
+    "closed_shell": true,
+    "distal_tip_unchanged": true,
+    "whole_fore_near_ownership": true
+  },
+  "dimensions": {
+    "mouth_offset_front_px": -8.000000000000032,
+    "shaft_diameter_front_px": 67.9217819215068,
+    "band_height_front_px": 12.000000000000014,
+    "band_raise_native_px": 3.999999999999986,
+    "dome_height_front_px": 23.79999999999998,
+    "inner_radius_native_px": 27.999999999999954
+  },
+  "spec_hash": "faf29b4fa11898565ecdd3715ef7881c686fb8486499af05fe487abbdf979524",
+  "native_entry": {
+    "passed": true,
+    "centre_ray_hit_distance_m": 1.0444515943527222,
+    "expected_inner_cap_distance_m": 1.0444517079604594,
+    "upper_near_vertices_inside_mouth": 23,
+    "upper_near_crosses_mouth_plane": true,
+    "upper_near_label": "upper_near",
+    "upper_near_axial_range_m": [
+      -0.5626913341163913,
+      0.022252181228442598
+    ],
+    "socket_tucks": {
+      "upper_near_socket_tuck": {
+        "passed": true,
+        "source_region": "upper_near",
+        "adjacent_region": "fore_near",
+        "source_vertex_indices": [
+          8101,
+          8190,
+          9584,
+          8203,
+          8202,
+          8102,
+          8201,
+          8199,
+          8200,
+          8127,
+          8198,
+          8197,
+          8196,
+          8260,
+          8259,
+          8141,
+          8140,
+          8194,
+          8193,
+          8192,
+          8191,
+          9599
+        ],
+        "source_boundary_vertices": 22,
+        "endpoint_joint": "elbow_near",
+        "minimum_insertion_m": 0.022252126106303997,
+        "maximum_endpoint_radius_m": 0.06562500000000013,
+        "inner_radius_m": 0.065625,
+        "maximum_source_boundary_error_m": 0
+      }
+    }
+  }
+}
