@@ -120593,9 +120593,12 @@
     }
   ],
   "planted_bones": [
-    "foot_near",
     "foot_far"
   ],
+  "leg_roles": {
+    "stride": "far",
+    "trailing": "near"
+  },
   "source_labels": {
     "head": [
       "head"

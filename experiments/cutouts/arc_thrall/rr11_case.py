@@ -50,9 +50,12 @@ def initialize():
             'weapon_arm': {'bones': ['upper_near', 'fore_near', 'tube_tip'], 'stationary': False},
             'lower_body': {'bones': ['root', 'pelvis', 'thigh_near', 'shin_near', 'foot_near',
                                     'thigh_far', 'shin_far', 'foot_far', 'loincloth_tip'], 'stationary': True}},
-        # Both native near knees are bent, so rr-14 derives their side from
-        # the protected joints. Do not silently reverse the supplied anatomy.
-        'legs': {}, 'planted_bones': ['foot_near', 'foot_far'], 'held_depth_roles': {},
+        # Director feedback 1: almost-straight rest knees use the facing
+        # policy. The longer leg owns the world-step support in each view.
+        'knee_policy': {'near_straight_deg': 6},
+        'legs': {side: {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}} for side in ('near', 'far')},
+        'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
+        'planted_bones': ['foot_stride'], 'planted_tolerance_px': 0.5, 'held_depth_roles': {},
         'ownership': {'names': list(PIECES) + ['upper_far', 'fore_far', 'thigh_near', 'shin_near', 'thigh_far', 'shin_far'],
             'segments': {n: {'joints': r['joints'], 'owners': r['bones']} for n, r in MESHES.items() if r['kind'] == 'two_segment'},
             'joint_pairs': [['torso', 'head'], ['torso', 'loincloth'], ['torso', 'upper_near'],
@@ -77,10 +80,7 @@ def initialize():
     write(CASE / 'inputs.json', {**{v + '_job': 'spec/art_identity/jobs/arc_thrall/mq7_' + v for v in ('front', 'rear')},
         **{v + '_delivery': 'spec/art_identity/maquettes/arc_thrall/delivery' for v in ('front', 'rear')},
         'fused_occlusion': True,
-        'design_placeholders': {
-            'TODO_DESIGN_near_knee_direction': 'mq-07 near knee bends opposite facing in both views; rr-14 preserves bent rest side. Approved correction required.',
-            'TODO_DESIGN_move_foot_targets': 'Protected move targets produce swing frames below 15 degrees and stance drift from parent-relative pelvis motion and reach clamping; approved anatomy or channel correction required.',
-            'TODO_DESIGN_jab_planted_feet': 'Protected jab pelvis translation overreaches native leg lengths. Length-preserving IK cannot keep both feet planted; approved anatomy or channel correction required.'}})
+        'design_placeholders': {}})
 
 
 if __name__ == '__main__': initialize()

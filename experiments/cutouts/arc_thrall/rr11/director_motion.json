@@ -131,7 +131,7 @@
     "intents": [
      "arc_jab:move_toward"
     ],
-    "note": "a lurching two-step shamble: each foot steps on the floor with a 4 px lift and a clearly bent knee, the pelvis dips 2 px after each landing, the torso pitches forward 4 degrees per step, the tube trails, the claw swings",
+    "note": "a lurching shamble: the long camera-side leg (stride) plants two world steps per tile with a 4 px lift and a clearly bent knee; the foreshortened leg (trailing) follows the body with a 3 px shuffle between strides; the pelvis never rises above rest and dips 3 px after each stride landing; the torso pitches forward 4 degrees per step, the tube trails, the claw swings",
     "keys": {
      "root.forward_px": [
       [
@@ -148,118 +148,6 @@
       ]
      ],
      "root.forward_mode": "fraction_of_step",
-     "foot_near.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.05,
-       0
-      ],
-      [
-       0.42,
-       1.0
-      ],
-      [
-       1,
-       1.0
-      ]
-     ],
-     "foot_near.forward_mode": "world_step",
-     "foot_near.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.05,
-       0
-      ],
-      [
-       0.2,
-       4
-      ],
-      [
-       0.42,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "foot_far.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.48,
-       0
-      ],
-      [
-       0.85,
-       1.0
-      ],
-      [
-       1,
-       1.0
-      ]
-     ],
-     "foot_far.forward_mode": "world_step",
-     "foot_far.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.48,
-       0
-      ],
-      [
-       0.63,
-       4
-      ],
-      [
-       0.85,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "pelvis.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.2,
-       0.5
-      ],
-      [
-       0.45,
-       -2
-      ],
-      [
-       0.6,
-       0
-      ],
-      [
-       0.75,
-       0.5
-      ],
-      [
-       0.9,
-       -2
-      ],
-      [
-       1,
-       0
-      ]
-     ],
      "torso.lean_deg": [
       [
        0,
@@ -395,7 +283,171 @@
        1,
        0
       ]
-     ]
+     ],
+     "foot_stride.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.05,
+       0
+      ],
+      [
+       0.38,
+       0.5
+      ],
+      [
+       0.5,
+       0.5
+      ],
+      [
+       0.83,
+       1.0
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "foot_stride.forward_mode": "world_step",
+     "foot_stride.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.05,
+       0
+      ],
+      [
+       0.2,
+       4
+      ],
+      [
+       0.38,
+       0
+      ],
+      [
+       0.5,
+       0
+      ],
+      [
+       0.65,
+       4
+      ],
+      [
+       0.83,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "foot_trailing.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.38,
+       0
+      ],
+      [
+       0.44,
+       2
+      ],
+      [
+       0.5,
+       0
+      ],
+      [
+       0.83,
+       0
+      ],
+      [
+       0.89,
+       2
+      ],
+      [
+       0.95,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "foot_trailing.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.38,
+       0
+      ],
+      [
+       0.44,
+       3
+      ],
+      [
+       0.5,
+       0
+      ],
+      [
+       0.83,
+       0
+      ],
+      [
+       0.89,
+       3
+      ],
+      [
+       0.95,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.05,
+       -2
+      ],
+      [
+       0.2,
+       -1
+      ],
+      [
+       0.4,
+       -3
+      ],
+      [
+       0.5,
+       -2
+      ],
+      [
+       0.65,
+       -1
+      ],
+      [
+       0.85,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "foot_trailing.forward_mode": "body"
     }
    },
    "tether": {
@@ -582,7 +634,7 @@
     "intents": [
      "arc_jab:melee"
     ],
-    "note": "draws the tube back and up a little, then swings it forward in one heavy stroke until it points about 60 degrees down toward the target (contact), the weight shifting onto the front foot; holds a beat and recovers; the claw swings back as a counterweight",
+    "note": "draws the tube back and up a little, then swings it forward in one heavy stroke until it points about 60 degrees down toward the target (contact), the weight shifting onto the front foot; holds a beat and recovers; the claw swings back as a counterweight; the weight sinks 3 px into the stroke; the stride foot stays planted and the trailing foot follows the body",
     "keys": {
      "tube_tip.forward_px": [
       [
@@ -733,7 +785,30 @@
        1,
        0
       ]
-     ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -1
+      ],
+      [
+       0.45,
+       -3
+      ],
+      [
+       0.65,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "foot_trailing.forward_mode": "body"
     }
    },
    "hit": {

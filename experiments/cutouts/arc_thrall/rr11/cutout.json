@@ -5,11 +5,7 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {
-    "TODO_DESIGN_near_knee_direction": "mq-07 near knee bends opposite facing in both views; rr-14 preserves bent rest side. Approved correction required.",
-    "TODO_DESIGN_move_foot_targets": "Protected move targets produce swing frames below 15 degrees and stance drift from parent-relative pelvis motion and reach clamping; approved anatomy or channel correction required.",
-    "TODO_DESIGN_jab_planted_feet": "Protected jab pelvis translation overreaches native leg lengths. Length-preserving IK cannot keep both feet planted; approved anatomy or channel correction required."
-  },
+  "design_placeholders": {},
   "clips": {
     "idle": {
       "seconds": 0.84,
@@ -23,7 +19,7 @@
       "intents": [
         "arc_jab:move_toward"
       ],
-      "note": "a lurching two-step shamble: each foot steps on the floor with a 4 px lift and a clearly bent knee, the pelvis dips 2 px after each landing, the torso pitches forward 4 degrees per step, the tube trails, the claw swings",
+      "note": "a lurching shamble: the long camera-side leg (stride) plants two world steps per tile with a 4 px lift and a clearly bent knee; the foreshortened leg (trailing) follows the body with a 3 px shuffle between strides; the pelvis never rises above rest and dips 3 px after each stride landing; the torso pitches forward 4 degrees per step, the tube trails, the claw swings",
       "release_at": {}
     },
     "tether": {
@@ -41,7 +37,7 @@
       "intents": [
         "arc_jab:melee"
       ],
-      "note": "draws the tube back and up a little, then swings it forward in one heavy stroke until it points about 60 degrees down toward the target (contact), the weight shifting onto the front foot; holds a beat and recovers; the claw swings back as a counterweight",
+      "note": "draws the tube back and up a little, then swings it forward in one heavy stroke until it points about 60 degrees down toward the target (contact), the weight shifting onto the front foot; holds a beat and recovers; the claw swings back as a counterweight; the weight sinks 3 px into the stroke; the stride foot stays planted and the trailing foot follows the body",
       "release_at": {}
     },
     "hit": {

@@ -374,7 +374,7 @@
       "source_ownership_sha256": "3666f508f0ced232b4fd7274bf8a59bc4765947f990af43bcbdd6cda06b604ce"
     }
   },
-  "director_sha256": "32dc0e082123d10c5fe684f262c2f5d83291f7d42d747542610645536aeeb4a4",
+  "director_sha256": "40d56d3ee924efde5d1ad032848d710a1f20a99e8339a387ba32da5a59ec13d1",
   "production_promoted": true,
   "native_proof": "pending director windowed captures"
 }

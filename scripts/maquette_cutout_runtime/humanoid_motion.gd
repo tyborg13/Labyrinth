@@ -80,19 +80,26 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		# Hem-parented feet retain their existing FK behaviour. A visible leg
 		# is identified by its actual hierarchy, never by the creature's name.
 		if joints.has(foot) and parent_name(joints[foot]) == "shin_" + side and joints.has("thigh_" + side) and parent_name(joints["shin_" + side]) == "thigh_" + side:
-			var policy: Dictionary = Anatomy.leg_policy(joints, data.get("legs", {}), side, facing)
+			var policy: Dictionary = Anatomy.leg_policy(joints, data.get("legs", {}), side, facing, data.get("knee_policy", {}))
 			if policy.has("error"):
 				push_error("Invalid humanoid leg IK: " + str(policy["error"]))
 				return {}
 			var keyed: bool = value.has("forward_px") or value.has("lift_px") or value.has("inward_px")
+			var mode: String = str(data.get("view_forward_modes", {}).get(facing, {}).get(clip, {}).get(foot, "pixels"))
+			if mode == "world_step" and data.get("leg_roles", {}).has(facing):
+				var target: Transform2D = result[foot]
+				target.origin = (result["root"] as Transform2D) * (Tracks.point(joints[foot]["position"]) - root + offset(value, forward, Tracks.point(joints[foot]["position"]), root))
+				result[foot] = target
 			# Case-owned unkeyed supports stay on their rest floor while the
 			# pelvis acts. Existing rigs opt in explicitly through their layout.
-			var planted: bool = not keyed and clip not in ["move", "death"] and foot in layout.get("planted_bones", [])
+			var planted: bool = not keyed and mode != "body" and clip not in ["move", "death"] and foot in layout.get("planted_bones", [])
+			var support_moved: bool = false
 			if planted:
 				var support: Transform2D = result[foot]
+				support_moved = support.origin.distance_to(Tracks.point(joints[foot]["position"])) > SOLVE_EPSILON
 				support.origin = Tracks.point(joints[foot]["position"])
 				result[foot] = support
-			if keyed or planted:
+			if keyed or (planted and support_moved):
 				_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
 				for name: String in ["thigh_" + side, "shin_" + side, foot]: solved[name] = true
 				_propagate_descendants(result, joints, authored, order, solved)

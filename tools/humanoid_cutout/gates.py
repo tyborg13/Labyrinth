@@ -162,7 +162,8 @@ def bone_errors(layout, data, report, current_bindings):
         clip, phase, bones = row['clip'], row['phase'], row['bones']
         tag = '%s/%s/%s' % (row['view'], clip, phase)
         if row['kind'] == 'authored':
-            values, modes = {}, {}
+            values = {}
+            modes = dict(data.get('view_forward_modes', {}).get(row['view'], {}).get(clip, {}))
             for track in data['view_tracks'][row['view']][clip]:
                 values.setdefault(track['bone'], {})[track['channel']] = evaluate(track['keys'], phase)
                 modes[track['bone']] = track['forward_mode']
@@ -208,8 +209,15 @@ def bone_errors(layout, data, report, current_bindings):
                 if row['kind'] == 'presented' and not np.allclose(offsets, np.round(offsets), atol=EPSILON, rtol=0):
                     errors.append(tag + ': fractional idle group')
         if clip not in ('move', 'death'):
-            for name in anatomy['planted_bones']:
-                if not np.allclose(bones[name]['global'][4:], joints[name]['position'], atol=EPSILON, rtol=0):
+            from .leg_roles import resolve_bone
+            for source_name in anatomy['planted_bones']:
+                name = resolve_bone(source_name, anatomy, layout['facing'])
+                tolerance = anatomy.get('planted_tolerance_px')
+                actual = np.asarray(bones[name]['global'][4:])
+                expected = np.asarray(joints[name]['position'])
+                failed = (np.linalg.norm(actual - expected) > tolerance + EPSILON if tolerance is not None else
+                          not np.allclose(actual, expected, atol=EPSILON, rtol=0))
+                if failed:
                     errors.append(tag + ': planted anchor moved: ' + name)
         if abs(angle(bones['torso']['local'])) > (25 if clip == 'death' else 4) + EPSILON:
             errors.append(tag + ': torso lean limit')

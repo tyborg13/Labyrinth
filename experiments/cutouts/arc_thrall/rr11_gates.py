@@ -1,4 +1,4 @@
-"""rr-10 gates plus rr-11's every-swing-frame knee requirement."""
+"""rr-10 gates plus the director's feedback-1 leg-role acceptance."""
 import argparse
 from pathlib import Path
 from rr11_build import CASE, DIRECTOR, read_json, write_json
@@ -21,6 +21,7 @@ def main():
         knees[view] = knee_report(layout, data, samples)
         supports[view] = support_report(layout, data, samples)
         errors += knees[view]['errors']
+        errors += supports[view]['errors']
     errors += cut_errors
     if args.native: errors += native_errors(CASE, args.native)
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
@@ -32,8 +33,12 @@ def main():
     print('RR11 SOURCE/CUT GATES: %s (%d errors; both views)' % ('FAIL' if cut_errors else 'PASS', len(cut_errors)))
     print('RR11 %s GATES: %s (%d errors)' % ('NATIVE' if args.native else 'BONE/CUT/KNEE', 'FAIL' if errors else 'PASS', len(errors)))
     for view, report in knees.items():
-        print('RR11 %s SWING KNEES: %s (%d samples; minimum %.3f degrees)' %
-              (view.upper(), 'PASS' if report['ok'] else 'FAIL', len(report['swing_frames']), report['minimum_bend_deg']))
+        print('RR11 %s SWING KNEES: %s (%d swings; minimum peak %.3f degrees)' %
+              (view.upper(), 'PASS' if report['ok'] else 'FAIL', len(report['swings']), report['minimum_peak_bend_deg']))
+        support = supports[view]
+        print('RR11 %s SUPPORTS: %s (move/jab frame change %.6f/%.6f px; target error %.6f/%.6f px)' %
+              (view.upper(), 'PASS' if support['ok'] else 'FAIL', support['maximum_stance_frame_change_px'],
+               support['maximum_jab_frame_change_px'], support['maximum_stance_target_error_px'], support['maximum_jab_target_error_px']))
     for error in errors[:20]: print(error)
     return int(bool(errors))
 

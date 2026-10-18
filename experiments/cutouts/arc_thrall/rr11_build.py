@@ -33,6 +33,7 @@ from tools.humanoid_cutout.tucks import required_tuck
 from tools.humanoid_cutout.seams import build_masks
 from tools.humanoid_cutout.compiler import compile_motion
 from tools.humanoid_cutout.promotion import promote
+from tools.humanoid_cutout.leg_roles import resolve_bone
 
 ASSETS = PROJECT / 'assets/units/arc_thrall_cutout/humanoid_v2'
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-11/motion_tracks.json'
@@ -202,7 +203,8 @@ def build_view(view, inputs, anatomy):
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
               'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
               'held_items': {}, 'ik_chains': [{'first': 'upper_near', 'second': 'fore_near', 'target': 'tube_tip'}],
-              'planted_bones': anatomy['planted_bones'], 'source_labels': PIECES, 'features': [],
+              'planted_bones': [resolve_bone(n, anatomy, view) for n in anatomy['planted_bones']],
+              'leg_roles': anatomy['leg_roles'][view], 'source_labels': PIECES, 'features': [],
               'rest_source': f'source/{view}/processed.png',
               'motion_data': 'res://' + str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
@@ -223,12 +225,12 @@ def build_view(view, inputs, anatomy):
     return layout, report, projection
 
 
-def build():
+def build(import_director=False):
     inputs, anatomy = read_json(CASE / 'inputs.json'), load_anatomy(CASE)
     copied = CASE / 'director_motion.json'
-    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes():
+    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes() and not import_director:
         raise ValueError('Protected director import differs')
-    if not copied.exists(): shutil.copyfile(DIRECTOR, copied)
+    if import_director or not copied.exists(): shutil.copyfile(DIRECTOR, copied)
     layouts, reports, projections = {}, {}, {}
     for view in ('front', 'rear'):
         layouts[view], reports[view], projections[view] = build_view(view, inputs, anatomy)
@@ -250,4 +252,8 @@ def build():
     return layouts
 
 
-if __name__ == '__main__': build()
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--import-director', action='store_true', help='Explicitly adopt the director-approved revised protected file')
+    build(parser.parse_args().import_director)

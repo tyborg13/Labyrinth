@@ -4,6 +4,7 @@ import json
 
 from .anatomy import for_layout
 from .bone_contracts import visible_leg, leg_bend_side
+from .leg_roles import roles_for, resolve_bone
 
 CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg'}
 
@@ -17,6 +18,12 @@ def compile_motion(source, creature, layouts, projection):
               'projection': projection, 'clips': {}, 'view_tracks': {}, 'TODO_DESIGN': {}}
     for view, layout in layouts.items():
         anatomy = for_layout(layout)
+        roles = roles_for(anatomy, view)
+        if roles:
+            result.setdefault('leg_roles', {})[view] = dict(roles)
+            result.setdefault('view_forward_modes', {})[view] = {}
+        if 'knee_policy' in anatomy:
+            result['knee_policy'] = dict(anatomy['knee_policy'])
         for side in ('near', 'far'):
             if not visible_leg(layout['joints'], side): continue
             leg_bend_side(layout, anatomy, side, view)
@@ -27,13 +34,16 @@ def compile_motion(source, creature, layouts, projection):
         for clip, definition in author['clips'].items():
             result['clips'][clip] = {k: v for k, v in definition.items() if k != 'keys'}
             tracks, release = [], {}
+            modes = {}
             for name, keys in definition['keys'].items():
-                bone, channel = name.rsplit('.', 1)
+                source_bone, channel = name.rsplit('.', 1)
+                bone = resolve_bone(source_bone, anatomy, view)
                 if bone not in layout['joints']:
                     raise ValueError('TODO_DESIGN_' + name)
                 if channel == 'forward_mode':
-                    if keys not in ('fraction_of_step', 'world_step'):
+                    if keys not in ('fraction_of_step', 'world_step', 'body'):
                         raise ValueError('TODO_DESIGN_' + name)
+                    modes[bone] = keys
                     continue
                 if channel == 'release_at':
                     if clip != 'death' or not 0 <= keys <= 1:
@@ -53,7 +63,8 @@ def compile_motion(source, creature, layouts, projection):
                         a['at'] >= b['at'] for a, b in zip(rows, rows[1:])):
                     raise ValueError('Invalid keys: ' + name)
                 tracks.append({'source': name, 'bone': bone, 'channel': channel, 'keys': rows,
-                               'forward_mode': definition['keys'].get(bone + '.forward_mode', 'pixels')})
+                               'forward_mode': definition['keys'].get(source_bone + '.forward_mode', 'pixels')})
+            if roles: result['view_forward_modes'][view][clip] = modes
             result['view_tracks'][view][clip] = tracks
             result['clips'][clip]['release_at'] = release
     return result

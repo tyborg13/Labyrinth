@@ -2,12 +2,8 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/arc_thrall/rr11",
-  "director_sha256": "32dc0e082123d10c5fe684f262c2f5d83291f7d42d747542610645536aeeb4a4",
-  "design_placeholders": {
-    "TODO_DESIGN_near_knee_direction": "mq-07 near knee bends opposite facing in both views; rr-14 preserves bent rest side. Approved correction required.",
-    "TODO_DESIGN_move_foot_targets": "Protected move targets produce swing frames below 15 degrees and stance drift from parent-relative pelvis motion and reach clamping; approved anatomy or channel correction required.",
-    "TODO_DESIGN_jab_planted_feet": "Protected jab pelvis translation overreaches native leg lengths. Length-preserving IK cannot keep both feet planted; approved anatomy or channel correction required."
-  },
+  "director_sha256": "40d56d3ee924efde5d1ad032848d710a1f20a99e8339a387ba32da5a59ec13d1",
+  "design_placeholders": {},
   "native_proof": "pending director rest/native/production/idle/review",
   "rest_identity": {
     "scope": "offline approved-source ownership, not native proof",
@@ -25,9 +21,9 @@
     ]
   },
   "files": {
-    "front.json": "c098ef2a1b5750702d5242a1a07768bff7a626859aea7cf49f5b703b787ad7d6",
-    "humanoid_v2/compiled_motion.json": "963071d196926eedcfa28e8ee21790b11569e3f3d3c71f64679a438d2ec3ac85",
-    "humanoid_v2/director_motion.json": "32dc0e082123d10c5fe684f262c2f5d83291f7d42d747542610645536aeeb4a4",
+    "front.json": "f9e2e5ff70d0e9cdc5d2e585b4caab8f7a20ba053166afaa1fbd9cb5c8fc0d3f",
+    "humanoid_v2/compiled_motion.json": "228bfedffff595af40de1641ebf9d698fcf364c9bc74799b787e1cd53077274a",
+    "humanoid_v2/director_motion.json": "40d56d3ee924efde5d1ad032848d710a1f20a99e8339a387ba32da5a59ec13d1",
     "humanoid_v2/front/claw.png": "bd1d29cfa95488e394e0425fb1da3376e9433d38ec587d68412c1453e8faaa8a",
     "humanoid_v2/front/claw.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/foot_far.png": "472365a6d2954060f052816c45a437455a054381feda97d1488a06c3a4da63b0",
@@ -72,7 +68,7 @@
     "humanoid_v2/front/tube.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/upper_near.png": "35951ed45d0a2ade13b6ab26fff07123a9d6897502163fdee89708fa24580850",
     "humanoid_v2/front/upper_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front.json": "871186c8e7a5a3821799435e20235c63f708fcc46b1bfdbdbdaf7ca4abac4056",
+    "humanoid_v2/front.json": "3f909f602a48cb59b2e9b594ab6b8e62eb717d7beffdf656438e007cf0a15e91",
     "humanoid_v2/rear/claw.png": "767ef35732c4acd70ac5ef1efc960317316cabd6289a95d5a1d59f601a6a8693",
     "humanoid_v2/rear/claw.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/foot_far.png": "9ea6f0b66346b729f9c78ae058235dbc4876e2c47152dff436bbbc67a05986d9",
@@ -117,8 +113,8 @@
     "humanoid_v2/rear/tube.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/upper_near.png": "f77349cb3ab316d28699b2b71d9039f57eae8317146e2fbfeb176e4ef1f35c06",
     "humanoid_v2/rear/upper_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "9965edd2a2275faca4bfc0f66d1f09ae26475b355aae1e2834b2c55989f78781",
-    "rear.json": "e004eae6bc503145a98af2c93b1009394b1b36315b7ab4106a3626bdac3bf6ab",
+    "humanoid_v2/rear.json": "eb8e6d5662f4a43d7e9e18687c453dc5bacd002e44aece07b819377eecda05be",
+    "rear.json": "c46731f2335dfc69e8f1a5ef1255e42b6be209882a376f58a855317923e9c16b",
     "renderer.gd": "8de0f2e06067528410564c933c7fcb91e5c9177c5f115759513c9455d97f22cb",
     "rig.gd": "bd807b2f7cc2f81d1274d6d6e316e2179ac79bd65bb3aecb39dc822e6d4de955"
   }

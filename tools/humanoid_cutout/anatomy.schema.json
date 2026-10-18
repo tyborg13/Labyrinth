@@ -635,6 +635,77 @@
         }
       },
       "description": "Optional leg/view IK policy. bend_side is the sign of cross(ankle-hip, knee-hip): +1 bends screen-left for a downward rest axis; -1 bends screen-right. Required for straight rest legs (normalized cross within 1e-6); a bent rest chain derives its sign and rejects a conflicting authored sign. Director feedback 1: front knees face screen-left; rear knees face screen-right."
+    },
+    "knee_policy": {
+      "type": "object",
+      "required": [
+        "near_straight_deg"
+      ],
+      "properties": {
+        "near_straight_deg": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 180
+        }
+      },
+      "additionalProperties": false,
+      "description": "Case-owned rest bend threshold for direction policy; omitted preserves exact collinear policy."
+    },
+    "leg_roles": {
+      "type": "object",
+      "properties": {
+        "front": {
+          "type": "object",
+          "required": [
+            "stride",
+            "trailing"
+          ],
+          "properties": {
+            "stride": {
+              "enum": [
+                "near",
+                "far"
+              ]
+            },
+            "trailing": {
+              "enum": [
+                "near",
+                "far"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "rear": {
+          "type": "object",
+          "required": [
+            "stride",
+            "trailing"
+          ],
+          "properties": {
+            "stride": {
+              "enum": [
+                "near",
+                "far"
+              ]
+            },
+            "trailing": {
+              "enum": [
+                "near",
+                "far"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Per-view foot role aliases. The compiler validates that stride and trailing are distinct."
+    },
+    "planted_tolerance_px": {
+      "type": "number",
+      "minimum": 0,
+      "description": "Case-owned planted anchor source-pixel tolerance; omitted keeps the existing serialized-transform tolerance."
     }
   },
   "additionalProperties": false

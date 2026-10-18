@@ -14,11 +14,13 @@ from PIL import Image
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(PROJECT / 'tools'), str(PROJECT / 'experiments/cutouts/arc_thrall')]
 from rr11_build import CASE, DIRECTOR, PIECES, recipe_for, registered_transform, label_palette, native_depths, bind_layout
-from rr11_knees import knee_report
+from rr11_knees import knee_report, support_report, lift_track, swing_intervals, PRESENTED_TARGET_TOLERANCE_PX
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, bindings
 from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.source_view import prepare
 from humanoid_cutout.mesh import weights_for
+from humanoid_cutout.bone_contracts import leg_bend_side
+from humanoid_cutout.leg_roles import roles_for, resolve_bone
 from cutout_pipeline.cases import read_json, digest
 
 PROOF_TASK_ID = 'rr-11'
@@ -29,6 +31,8 @@ FIXTURE_ANKLE_PX = [100, 140]
 FIXTURE_FORWARD_KNEE_PX = [90, 120]
 FIXTURE_STRAIGHT_KNEE_PX = [100, 120]
 FIXTURE_REVERSED_KNEE_PX = [110, 120]
+FIXTURE_STANCE_FRAME = 20
+FIXTURE_STANCE_SLIDE_PX = 1
 
 
 class ThrallTests(unittest.TestCase):
@@ -108,12 +112,9 @@ class ThrallTests(unittest.TestCase):
             self.assertNotIn('experiments/', layout['motion_data'])
 
     def test_idle_motion_and_signed_tube_targets(self):
-        # Jab's impossible planted targets are reported by the acceptance gate;
-        # the remaining clips must satisfy the complete rr-10 bone contract.
         for layout in self.layouts.values():
             errors = bone_errors(layout, self.data, self.samples, self.bound)
-            self.assertEqual([e for e in errors if '/jab/' not in e], [])
-            self.assertTrue(all('planted anchor moved' in e for e in errors))
+            self.assertEqual(errors, [])
         mutant = copy.deepcopy(self.samples)
         row = next(r for r in mutant['samples'] if r['view'] == 'front' and r['clip'] == 'tether' and r['kind'] == 'authored' and r['phase'] == .35)
         row['bones']['tube_tip']['global'][4] += 1
@@ -131,20 +132,98 @@ class ThrallTests(unittest.TestCase):
         row['bones']['torso']['global'][:4] = [math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle)]
         self.assertTrue(any('idle rotation' in e for e in bone_errors(self.layouts['front'], self.data, mutant, self.bound)))
 
-    def test_knee_gate_rejects_straight_reversed_and_missing_swing(self):
-        row = next(copy.deepcopy(r) for r in self.samples['samples'] if r['view'] == 'front' and r['clip'] == 'move' and r['kind'] == 'presented' and .15 < r['phase'] < .25)
-        for side in ('near', 'far'):
-            for joint, xy in [('thigh', FIXTURE_HIP_PX), ('shin', FIXTURE_FORWARD_KNEE_PX), ('foot', FIXTURE_ANKLE_PX)]:
-                row['bones'][joint + '_' + side]['global'][4:] = xy
-        report = {'samples': [row]}
-        good = knee_report(self.layouts['front'], self.data, report)
-        self.assertEqual(good['errors'], [])
-        row['bones']['shin_near']['global'][4:] = FIXTURE_STRAIGHT_KNEE_PX
-        straight = knee_report(self.layouts['front'], self.data, report)
-        self.assertTrue(any('below 15' in e for e in straight['errors']))
-        row['bones']['shin_near']['global'][4:] = FIXTURE_REVERSED_KNEE_PX
-        self.assertTrue(any('against facing' in e for e in knee_report(self.layouts['front'], self.data, report)['errors']))
-        self.assertTrue(knee_report(self.layouts['front'], self.data, {'samples': []})['errors'])
+    def test_leg_roles_resolve_tracks_and_mode_only_jab(self):
+        anatomy = read_json(CASE / 'anatomy.json')
+        self.assertEqual(anatomy['knee_policy'], {'near_straight_deg': 6})
+        for view, expected in [('front', {'stride': 'near', 'trailing': 'far'}), ('rear', {'stride': 'far', 'trailing': 'near'})]:
+            self.assertEqual(roles_for(anatomy, view), expected)
+            for role, side in expected.items():
+                self.assertEqual(resolve_bone('foot_' + role, anatomy, view), 'foot_' + side)
+            track = lift_track(self.layouts[view], self.data)
+            self.assertEqual(track['bone'], 'foot_' + expected['stride'])
+            self.assertEqual(track['source'], 'foot_stride.lift_px')
+            self.assertEqual(self.data['view_forward_modes'][view]['jab'], {'foot_' + expected['trailing']: 'body'})
+        wrong = copy.deepcopy(anatomy)
+        wrong['leg_roles']['rear']['trailing'] = 'far'
+        with self.assertRaisesRegex(ValueError, 'distinct'): roles_for(wrong, 'rear')
+        missing = copy.deepcopy(anatomy)
+        missing['leg_roles'] = {}
+        with self.assertRaisesRegex(ValueError, 'TODO_DESIGN'): resolve_bone('foot_stride', missing, 'front')
+
+    def test_case_threshold_applies_only_to_near_straight_rest(self):
+        anatomy = read_json(CASE / 'anatomy.json')
+        for view, layout in self.layouts.items():
+            for side in ('near', 'far'):
+                self.assertEqual(leg_bend_side(layout, anatomy, side, view), 1 if view == 'front' else -1)
+        old = copy.deepcopy(anatomy)
+        old.pop('knee_policy')
+        with self.assertRaisesRegex(ValueError, 'disagrees'): leg_bend_side(self.layouts['front'], old, 'near', 'front')
+        missing = copy.deepcopy(anatomy)
+        missing['legs']['near'].pop('front')
+        with self.assertRaisesRegex(ValueError, 'required'): leg_bend_side(self.layouts['front'], missing, 'near', 'front')
+        wrong_far = copy.deepcopy(anatomy)
+        wrong_far['legs']['far']['front']['bend_side'] = -1
+        with self.assertRaisesRegex(ValueError, 'disagrees'): leg_bend_side(self.layouts['front'], wrong_far, 'far', 'front')
+
+    def test_peak_direction_and_apex_mutations(self):
+        layout = self.layouts['front']
+        report = copy.deepcopy(self.samples)
+        # A reversed bent knee must fail even on the exempt trailing leg.
+        row = next(r for r in report['samples'] if r['view'] == 'front' and r['clip'] == 'move' and r['kind'] == 'presented' and .15 < r['phase'] < .25)
+        for joint, xy in [('thigh', FIXTURE_HIP_PX), ('shin', FIXTURE_REVERSED_KNEE_PX), ('foot', FIXTURE_ANKLE_PX)]:
+            row['bones'][joint + '_far']['global'][4:] = xy
+        self.assertTrue(any('trailing: bent knee against facing' in e for e in knee_report(layout, self.data, report)['errors']))
+        # Straighten the entire first stride swing: the peak gate must fail.
+        report = copy.deepcopy(self.samples)
+        start, end = swing_intervals(lift_track(layout, self.data)['keys'])[0]
+        for row in report['samples']:
+            if row['view'] == 'front' and row['clip'] == 'move' and row['kind'] == 'presented' and start < row['phase'] < end:
+                for joint, xy in [('thigh', FIXTURE_HIP_PX), ('shin', FIXTURE_STRAIGHT_KNEE_PX), ('foot', FIXTURE_ANKLE_PX)]:
+                    row['bones'][joint + '_near']['global'][4:] = xy
+        errors = knee_report(layout, self.data, report)['errors']
+        self.assertTrue(any('peak knee' in e and 'below 15' in e for e in errors))
+        self.assertTrue(any('apex stride knee' in e for e in errors))
+        self.assertTrue(knee_report(layout, self.data, {'samples': []})['errors'])
+
+    def test_presented_stride_support_is_stationary_and_on_target(self):
+        for view, layout in self.layouts.items():
+            with self.subTest(view=view):
+                report = support_report(layout, self.data, self.samples)
+                self.assertEqual(report['errors'], [])
+                self.assertEqual(report['maximum_stance_frame_change_px'], 0)
+                self.assertEqual(report['maximum_jab_frame_change_px'], 0)
+                for group in ('stance', 'jab'):
+                    for row in report[group]:
+                        if row['kind'] == 'presented':
+                            self.assertLessEqual(row['target_error_px'], PRESENTED_TARGET_TOLERANCE_PX)
+
+    def test_one_frame_stride_slide_fails_move_and_jab_in_both_views(self):
+        for view, layout in self.layouts.items():
+            foot = 'foot_' + self.data['leg_roles'][view]['stride']
+            for clip in ('move', 'jab'):
+                with self.subTest(view=view, clip=clip):
+                    report = copy.deepcopy(self.samples)
+                    row = next(r for r in report['samples'] if r['view'] == view and r['clip'] == clip and
+                               r['kind'] == 'presented' and r['frame'] == FIXTURE_STANCE_FRAME)
+                    # At the fractional half-step, the adjacent grid point is
+                    # still within the allowed snap radius. Stationarity must
+                    # reject that one-frame slide independently of target error.
+                    direction = -1 if view == 'front' else 1
+                    row['bones'][foot]['global'][4] += direction * FIXTURE_STANCE_SLIDE_PX
+                    result = support_report(layout, self.data, report)
+                    self.assertTrue(any('stride stance moved 1.000000 px' in e for e in result['errors']))
+                    if clip == 'move': self.assertFalse(any('stride target error' in e for e in result['errors']))
+
+    def test_constant_stance_shift_fails_target_without_sliding(self):
+        layout = self.layouts['front']
+        report = copy.deepcopy(self.samples)
+        first_swing = swing_intervals(lift_track(layout, self.data)['keys'])[0][0]
+        for row in report['samples']:
+            if row['view'] == 'front' and row['clip'] == 'move' and row['kind'] == 'presented' and row['phase'] <= first_swing:
+                row['bones']['foot_near']['global'][4] += FIXTURE_STANCE_SLIDE_PX
+        result = support_report(layout, self.data, report)
+        self.assertTrue(any('stride target error' in e for e in result['errors']))
+        self.assertFalse(any('stride stance moved' in e for e in result['errors']))
 
     def test_chain_field_is_finite_and_normalized(self):
         for layout in self.layouts.values():

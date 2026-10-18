@@ -1,99 +1,57 @@
-# rr-11 implementation handoff
+# rr-11 feedback 2: headless support gate passes
 
-Uncommitted implementation in the design-owner-prepared `codex/rr-11` worktree.
-The design owner owns Git preflight/contract, commit, peer review, inspection
-fixture and publication. This worker performed none of those Git lifecycle
-operations. Risk: runtime/production art integration; focused headless proof
-here, windowed proof and full suites reserved to the director by this brief.
+The director's stance correction is implemented. Changes remain uncommitted.
+The motion, anatomy, case layouts, production assets and generic runtime/gates
+are unchanged by feedback 2. No full suite, windowed run, peer review or
+publication was performed. Historical handoffs are `r0_handoff.md` and
+`feedback1_handoff.md`.
 
-## Acceptance contract and implementation
+## Support check
 
-1. **Cut:** both approved mq-07 paintings are losslessly partitioned (0 px rest
-   mismatch). Head, fused torso/collar/chain, upper near arm, tube, claw and feet
-   are rigid. Far arm, each thigh/shin union and the loincloth are single skin
-   fields, with hidden draw layers sharing those fields. The pelvis is at the
-   native waist. No near hand or club exists. `tube_tip` is the geometric centre
-   of the native sheath cap plane, parented to `fore_near`. Loincloth tips use
-   the matching native front/back panel's bottom-row centre. Source paint,
-   maquette inputs and protected motion remain untouched.
-2. **Motion:** byte-identical director import and exact v2 compilation; explicit
-   tube-tip IK chain, rr-14 foot IK and world-step channels, supplied weapon-arm
-   lag, and rigid three-group idle. The supplied near rest knee bends against
-   facing in both views. Preserving rr-14's bent-rest side and the supplied
-   joints therefore cannot satisfy the facing requirement. Some protected
-   swing targets also yield bends below 15 degrees. Jab pelvis shifts exceed
-   fixed native leg reach while both feet are required to remain planted.
-   These are explicit design blockers; channels and anatomy were not retuned.
-3. **Production:** Thrall adapters and the existing presentation registration
-   load `assets/units/arc_thrall_cutout/humanoid_v2`. Existing board, pre-battle,
-   live portrait and reduced-motion consumers resolve that registration.
-   `tether` selects only the acting Thrall; `arc_jab` selects move then jab.
-   Durations, contacts, effects, analytics and gameplay outcomes are unchanged.
-   Density paint was adopted/processed; native rest certification remains
-   pending. Only the Thrall's two shadow records were refreshed.
-4. **Case data:** anatomy, groups, ownership, hierarchy, tucks, skin recipes,
-   source roots and integration metadata are in `anatomy.json`/`inputs.json`.
-   No Thrall identity was added to the generic humanoid modules.
-5. **Gates:** reuse the rr-10 structure, source, signed transform, limits,
-   idle rigidity, native rigid-sprite, clean-piece, joint-hole and stray-pixel
-   gates. The added knee gate checks every presented move frame whose authored
-   foot lift is positive. It records angle and facing-side evidence for each
-   side. Acceptance is currently **FAIL**, without exceptions or weakened
-   thresholds. Native acceptance is unverified until the director captures it.
+For the stride foot in move and jab, each presented stance interval now checks:
 
-## Small shared extensions
+- The whole-source-pixel foot position changes by exactly 0 px between frames.
+- Its Euclidean distance from the fractional floor target is at most 0.7072 px.
 
-- `source_view.py`: explicit `fused_occlusion` opt-in allows a fully covered
-  constituent label only when another label in the same fused piece is visible.
-  The Thrall's rear near thigh is covered; its shin supplies that same leg's
-  existing painted surface. Disabling the flag reproduces the missing-paint
-  guard. Existing cases retain their previous behavior.
-- `mesh.py`: elementwise chain-field dot products avoid platform BLAS warnings
-  on tiny rows; the mathematical field is unchanged. The Seer has no chain field.
-- `humanoid_motion.gd`: layout-owned `planted_bones` supports can solve unkeyed
-  feet against their rest floor outside move/death. Unreachable targets still
-  clamp without stretching. Only this new layout opts in.
-- `humanoid_presentation.gd`: enforce the existing relative head limit after
-  independent world-angle snapping; this prevents a 20-degree authored death
-  nod from presenting at 21 degrees when its torso rounds down.
-- `bone_contracts.py`: scale the position serialization tolerance by chain
-  length when checking the squared-pixel bend-side cross product. Full
-  extension no longer reports a false reversed knee from float roundoff.
+The runtime snaps offsets from fractional bind joints. The gate reconstructs
+that integer offset grid from serialized Bone2D floats, then compares adjacent
+positions exactly. It starts a new interval after swing frames. The existing
+authored transform/support checks and every knee, direction and other gate
+remain unchanged.
 
-The Seer's 777 pinned files and 1,258 fresh sample poses pass byte identity
-checks. Every other creature's production files are unchanged. The shadow
-refresh preserves all records belonging to other units.
+Mutations cover one-frame 1 px slides in move and jab, in both views. The move
+mutation uses the adjacent allowed grid point at the half-step, so it remains
+on target and must fail specifically for sliding. A separate constant-offset
+mutation stays stationary but fails the target check.
 
-## Headless proof
+## Observed headless proof
 
-Run from this worktree; all engine calls use `godot_task_runner.py --task-id rr-11`.
-Exact observed results and unresolved acceptance failures are recorded in
-`proof/verification.json`, `proof/gates.json`, `proof/knees.json`, `proof/supports.json` and the ignored
-`proof/logs/` directory. Gameplay callback evidence is
-`proof/production_logic/logic_frames.json`; transforms are `proof/samples.json`.
-These reports contain no native renderer pixels. The full Python and Godot
-suites were deliberately not run, as required by this unit's Proof section.
-
-Rebuild commands (only after an owner-approved input/case correction):
-
-```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-11 && python3 -B experiments/cutouts/arc_thrall/rr11_build.py
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-11 && python3 -B experiments/cutouts/arc_thrall/rr11_density.py --refresh-sources
+```text
+RR11 SOURCE/CUT GATES: PASS (0 errors; both views)
+RR11 BONE/CUT/KNEE GATES: PASS (0 errors)
+RR11 FRONT SWING KNEES: PASS (2 swings; minimum peak 40.601 degrees)
+RR11 FRONT SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.537227/0.000061 px)
+RR11 REAR SWING KNEES: PASS (2 swings; minimum peak 36.919 degrees)
+RR11 REAR SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.537227/0.000043 px)
 ```
 
-`rr11_case.py` is the initial brief transcription; do not rerun it over subsequent
-owner-approved case data. `--refresh-sources` deliberately replaces only this
-unit's newly derived v2 density source closure after a rebuild. It cannot
-refresh any older rr-07 paint.
+Thrall focused tests and mutations: `Ran 14 tests in 2.522s`, `OK`.
+Seer rr-10 focused regression: `Ran 63 tests in 49.982s`, `OK`.
+The final aggregate test results are in `proof/verification.json` and ignored
+`proof/logs/feedback2-*.log`. Fresh headless transforms are `proof/samples.json`;
+per-frame support evidence is `proof/supports.json`. No native pixels were
+captured. The r0 production callback capture remains historical evidence.
+
+No TODO_DESIGN items remain. The only newly chosen debug fixture value is
+`FIXTURE_STANCE_FRAME = 20`; the move mutation shifts front by −1 px and rear
+by +1 px to exercise stationarity while staying inside the allowed target
+radius. The 1 px mutation and 0.7072 px limit come from director feedback 2.
+No player-visible defaults were chosen.
 
 ## Proof for the design owner
 
-No windowed command was attempted: this worker has no macOS window-server
-access. Each wrapper contains the exact visual runner, source case, output
-paths, timeout and 1920×1080 / 100% contracts. Run in this order after resolving
-the three design placeholders. `native` captures before checking acceptance,
-so a failed gate leaves renderer evidence available for diagnosis. `review`
-and `sheets` refuse failed or stale native evidence.
+Implementation stops after headless proof. The director runs these exact
+windowed stages:
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-11 && sh experiments/cutouts/arc_thrall/rr11_proof.sh density
@@ -105,38 +63,7 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-11 && sh experiments/cutou
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-11 && sh experiments/cutouts/arc_thrall/rr11_proof.sh review
 ```
 
-Captures go under this case's ignored `proof/native_rest/`, `proof/native/`,
-`proof/contact_sheets/`, `proof/idle_native/` and `proof/production_native/`.
-Movies are `proof/thrall_protagonist_idle.mp4` and `proof/arc_thrall_review.mp4`.
-No inspection-fixture command is specified by this brief; fixture preparation
-belongs to the design owner.
-
-## TODO_DESIGN placeholders
-
-- `TODO_DESIGN_near_knee_direction`: protected near knee joints bend against
-  facing; rr-14 rejects a contrary policy on a bent rest leg.
-- `TODO_DESIGN_move_foot_targets`: every swing frame must reach 15 degrees;
-  current presented minima are 0.547 degrees front and 0.302 degrees rear.
-  Authored stance targets also drift from their world-step floor by up to
-  7.547053 px front and 9.812078 px rear at the proof's 48-source-pixel step.
-  Parent-relative pelvis motion and fixed-length reach clamping both contribute;
-  see `proof/supports.json`.
-- `TODO_DESIGN_jab_planted_feet`: maximum sampled foot drift from length-clamped
-  jab IK is 0.424316 px front and 1.478555 px rear. Approved anatomy or motion
-  corrections are needed; fixed-length IK cannot reach those planted targets.
-
-## Chosen defaults
-
-No new player-visible tuning, paint, wording, sound, fonts or icons were chosen.
-The piece fields and tuck values reuse the brief and rr-10 recipes. Native
-pivots and endpoints are measurements from the supplied delivery.
-
-Worker-chosen diagnostic values are plain named constants: cap coplanarity
-`CAP_PLANE_EPSILON = 1e-8`; test timeout 180 s; idle test seed 0.37; diagnostic
-reachable pelvis dip 1 px; mutation rotation 1 degree; synthetic knee chain
-hip (100,100), ankle (100,140), forward knee (90,120), straight knee (100,120),
-reversed knee (110,120). Proof defaults copied from rr-10 include 60 fps, 96 px
-proof travel at source scale 2, source origin (128,128), eight settling frames,
-30 HP reaction fixture, seed 91210, six representative screenshots, five idle
-loops, and proof-only label/camera geometry. All player-visible values come
-from the supplied tracks, native geometry, existing presentation or brief.
+Captures stay under ignored `proof/native_rest/`, `proof/native/`,
+`proof/contact_sheets/`, `proof/idle_native/`, `proof/production_native/` and
+`*.mp4`. Native/rest certification and fresh production callbacks remain with
+the director. No inspection-fixture command is specified by this brief.
