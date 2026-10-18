@@ -1,0 +1,682 @@
+{
+  "transforms": {
+    "front": {
+      "object_to_world": [
+        [
+          1.0,
+          -0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "target": [
+        0.0,
+        0.0,
+        1.12
+      ],
+      "camera_basis": [
+        [
+          -0.7071067811865475,
+          0.7071067811865476,
+          0.0
+        ],
+        [
+          -0.35355339059327373,
+          -0.3535533905932737,
+          0.8660254037844387
+        ],
+        [
+          0.6123724356957946,
+          0.6123724356957945,
+          0.4999999999999999
+        ]
+      ],
+      "ortho_scale": 2.4,
+      "rotation_determinant": 1.0
+    },
+    "rear": {
+      "object_to_world": [
+        [
+          -1.0,
+          -1.2246467991473532e-16,
+          0.0,
+          0.0
+        ],
+        [
+          1.2246467991473532e-16,
+          -1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "target": [
+        0.0,
+        0.0,
+        1.12
+      ],
+      "camera_basis": [
+        [
+          -0.7071067811865475,
+          0.7071067811865476,
+          0.0
+        ],
+        [
+          -0.35355339059327373,
+          -0.3535533905932737,
+          0.8660254037844387
+        ],
+        [
+          0.6123724356957946,
+          0.6123724356957945,
+          0.4999999999999999
+        ]
+      ],
+      "ortho_scale": 2.4,
+      "rotation_determinant": 1.0
+    }
+  },
+  "landmarks": {
+    "ankle_near": {
+      "body": [
+        -0.24859222776089562,
+        0.24859222776089562,
+        0.026642927722146444
+      ],
+      "measured_pair": [
+        [
+          166,
+          229
+        ],
+        [
+          91,
+          229
+        ]
+      ],
+      "projected_pair": {
+        "front": [
+          165.5,
+          229.0
+        ],
+        "rear": [
+          90.5,
+          229.0
+        ]
+      }
+    },
+    "ankle_far": {
+      "body": [
+        0.09943689110435829,
+        -0.16572815184059708,
+        0.18361003215807584
+      ],
+      "measured_pair": [
+        [
+          113,
+          212
+        ],
+        [
+          153,
+          217
+        ]
+      ],
+      "projected_pair": {
+        "front": [
+          108.0,
+          212.0
+        ],
+        "rear": [
+          148.0,
+          217.0
+        ]
+      }
+    },
+    "foot_tip_near": {
+      "body": [
+        -0.21876116042958815,
+        0.24527766472408372,
+        -0.08161024775090849
+      ],
+      "measured_pair": [
+        [
+          163,
+          240
+        ],
+        [
+          93,
+          238
+        ]
+      ],
+      "projected_pair": {
+        "front": [
+          163.0,
+          240.0
+        ],
+        "rear": [
+          93.0,
+          238.0
+        ]
+      }
+    },
+    "foot_tip_far": {
+      "body": [
+        0.13258252147247768,
+        -0.23864853865045976,
+        0.10242015055328471
+      ],
+      "measured_pair": [
+        [
+          102,
+          218
+        ],
+        [
+          158,
+          226
+        ]
+      ],
+      "projected_pair": {
+        "front": [
+          100.0,
+          218.0
+        ],
+        "rear": [
+          156.0,
+          226.0
+        ]
+      }
+    }
+  },
+  "far_minus_near_ankle_height_m": 0.1569671044359294,
+  "rear_iou": 0.7550728331405493,
+  "rear_per_part_coverage": {
+    "head": {
+      "visible_pixels": 31336,
+      "solo_pixels": 44489,
+      "visible_fraction_of_solo": 0.7043538852300568,
+      "depth_tested_owner_pixels": 31336,
+      "pure_owner_pixels": 29018,
+      "clipped_at_canvas": false
+    },
+    "collar": {
+      "visible_pixels": 8734,
+      "solo_pixels": 32424,
+      "visible_fraction_of_solo": 0.26936836910930173,
+      "depth_tested_owner_pixels": 8806,
+      "pure_owner_pixels": 6833,
+      "clipped_at_canvas": false
+    },
+    "torso": {
+      "visible_pixels": 32027,
+      "solo_pixels": 68549,
+      "visible_fraction_of_solo": 0.46721323432872836,
+      "depth_tested_owner_pixels": 32033,
+      "pure_owner_pixels": 27980,
+      "clipped_at_canvas": false
+    },
+    "skirt_near": {
+      "visible_pixels": 29996,
+      "solo_pixels": 72124,
+      "visible_fraction_of_solo": 0.4158948477621873,
+      "depth_tested_owner_pixels": 29997,
+      "pure_owner_pixels": 28184,
+      "clipped_at_canvas": false
+    },
+    "skirt_far": {
+      "visible_pixels": 74267,
+      "solo_pixels": 79095,
+      "visible_fraction_of_solo": 0.9389594791074025,
+      "depth_tested_owner_pixels": 74267,
+      "pure_owner_pixels": 71812,
+      "clipped_at_canvas": false
+    },
+    "upper_near": {
+      "visible_pixels": 18927,
+      "solo_pixels": 21839,
+      "visible_fraction_of_solo": 0.8666605613810157,
+      "depth_tested_owner_pixels": 18927,
+      "pure_owner_pixels": 17838,
+      "clipped_at_canvas": false
+    },
+    "fore_near": {
+      "visible_pixels": 8443,
+      "solo_pixels": 14042,
+      "visible_fraction_of_solo": 0.6012676256943456,
+      "depth_tested_owner_pixels": 8491,
+      "pure_owner_pixels": 7790,
+      "clipped_at_canvas": false
+    },
+    "hand_near": {
+      "visible_pixels": 1218,
+      "solo_pixels": 1337,
+      "visible_fraction_of_solo": 0.9109947643979057,
+      "depth_tested_owner_pixels": 1219,
+      "pure_owner_pixels": 640,
+      "clipped_at_canvas": false
+    },
+    "upper_far": {
+      "visible_pixels": 18638,
+      "solo_pixels": 25181,
+      "visible_fraction_of_solo": 0.7401612326754299,
+      "depth_tested_owner_pixels": 18943,
+      "pure_owner_pixels": 17311,
+      "clipped_at_canvas": false
+    },
+    "fore_far": {
+      "visible_pixels": 2941,
+      "solo_pixels": 8266,
+      "visible_fraction_of_solo": 0.3557948221630777,
+      "depth_tested_owner_pixels": 3223,
+      "pure_owner_pixels": 2419,
+      "clipped_at_canvas": false
+    },
+    "hand_far": {
+      "visible_pixels": 3147,
+      "solo_pixels": 4705,
+      "visible_fraction_of_solo": 0.6688629117959617,
+      "depth_tested_owner_pixels": 3147,
+      "pure_owner_pixels": 2408,
+      "clipped_at_canvas": false
+    },
+    "staff_shaft": {
+      "visible_pixels": 11110,
+      "solo_pixels": 11874,
+      "visible_fraction_of_solo": 0.9356577395991241,
+      "depth_tested_owner_pixels": 11272,
+      "pure_owner_pixels": 8290,
+      "clipped_at_canvas": false
+    },
+    "staff_crystal": {
+      "visible_pixels": 14313,
+      "solo_pixels": 14587,
+      "visible_fraction_of_solo": 0.9812161513676562,
+      "depth_tested_owner_pixels": 14342,
+      "pure_owner_pixels": 12825,
+      "clipped_at_canvas": false
+    },
+    "foot_near": {
+      "visible_pixels": 2999,
+      "solo_pixels": 3084,
+      "visible_fraction_of_solo": 0.9724383916990921,
+      "depth_tested_owner_pixels": 2999,
+      "pure_owner_pixels": 2444,
+      "clipped_at_canvas": false
+    },
+    "foot_far": {
+      "visible_pixels": 3215,
+      "solo_pixels": 3806,
+      "visible_fraction_of_solo": 0.8447188649500789,
+      "depth_tested_owner_pixels": 3672,
+      "pure_owner_pixels": 2817,
+      "clipped_at_canvas": false
+    }
+  },
+  "delivered_pixels": {
+    "spec/art_identity/maquettes/arc_thrall/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            650.9663096831772,
+            932.2087609698051
+          ],
+          "far": [
+            381.8303324099723,
+            766.4987688519544
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 7334,
+          "far": 0
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            365.31380597014925,
+            799.718407960199
+          ],
+          "far": [
+            639.8638645264493,
+            926.7352308456065
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 0,
+          "far": 6161
+        }
+      }
+    },
+    "spec/art_identity/maquettes/frostglass_lancer/proof_r2": {
+      "front": {
+        "feet": {
+          "near": [
+            592.9711770552321,
+            936.5219366747125
+          ],
+          "far": [
+            393.8564532159591,
+            879.163850631833
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 16542,
+          "far": 187
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            430.0423175234308,
+            855.0790968474865
+          ],
+          "far": [
+            629.1768214742224,
+            912.3647209203239
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 419,
+          "far": 30227
+        }
+      }
+    },
+    "spec/art_identity/maquettes/gale_herald/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            593.3348993974058,
+            932.537534470432
+          ],
+          "far": [
+            358.0113908872902,
+            805.4586330935252
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 29652,
+          "far": 0
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            295.37894736842105,
+            851.7421052631579
+          ],
+          "far": [
+            543.2776779026217,
+            932.0721348314606
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 17277,
+          "far": 26684
+        }
+      }
+    },
+    "spec/art_identity/maquettes/gloam_stalker/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            693.2576363345594,
+            928.6296977450824
+          ],
+          "far": [
+            395.11584340725324,
+            787.3172684332719
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 38937,
+          "far": 5600
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            328.4305154142582,
+            774.1776252408478
+          ],
+          "far": [
+            627.3874012833169,
+            928.3783316880553
+          ]
+        },
+        "lower_foot": "far",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 5702,
+          "far": 47143
+        }
+      }
+    },
+    "spec/art_identity/maquettes/hoarfrost_seer/delivery": {
+      "front": {
+        "feet": {
+          "near": [
+            688.8261385199241,
+            950.7903225806451
+          ],
+          "far": [
+            423.7324824824825,
+            863.3228228228228
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": true,
+        "body_side_pixels_over_torso": {
+          "near": 1107,
+          "far": 341
+        }
+      },
+      "rear": {
+        "feet": {
+          "near": [
+            336.8793774319066,
+            959.2506485084306
+          ],
+          "far": [
+            599.2188649500788,
+            893.0578034682081
+          ]
+        },
+        "lower_foot": "near",
+        "lower_foot_right": false,
+        "body_side_pixels_over_torso": {
+          "near": 4188,
+          "far": 4570
+        }
+      }
+    }
+  },
+  "recipe_sha256": "aa99a62b0b8753a5c8eded9830219471ff9ff3611092e85ea69b5d483dc343eb",
+  "floor_contact_decision": "Resolved by feedback 1 and refined in feedback 3. The latest candidate passes native collision checks but fails the front alpha/robe union gates. This file retains original delivered baseline measurements; see feedback3/README.md for current state.",
+  "fresh_reproduction": {
+    "capture_checks": {
+      "passed": true,
+      "geometry_unchanged": true,
+      "diagnostic": false,
+      "spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+      "cloth_view_states": {},
+      "geometry_checks": {
+        "labels_cover_every_face": true,
+        "view_piece_ownership": true,
+        "polygon_material_ownership": true,
+        "body_weight_ownership": true,
+        "cloth_collision_margin": true,
+        "collar_front_no_wider_than_back": true,
+        "plate_corners_preserved": true,
+        "armour_conforms_to_body": true
+      },
+      "facing": null
+    },
+    "mesh_hash_matches_delivery": true,
+    "mesh_hash": "9d19087cf57e5a081466d9c4b4632f118d525b8b53bad3c9690a9384c1734620",
+    "images": {
+      "rear_clay.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "d13f9f72b83550cc6ce5ed18b51ba22082eeeba73474998b77d6d651376d3047"
+      },
+      "rear_parts.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "1e6e2687ae170ebcefac8272449dc2dc815bba1962da9d80e3d358b802cad01e"
+      },
+      "rear_silhouette.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "5d11203191e64a7c278036214819bc3b79d2ade34205b12043bf10650a43e077"
+      },
+      "rear_solo_collar.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "b55ba89cbc2a294fc525bb332891d0f645e322e423b9e56b61125d92f05465f1"
+      },
+      "rear_solo_foot_far.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "5f344cef74b73bfe3b5fff47622f8c61bd75862c1de93743bc638b9ca7b4e090"
+      },
+      "rear_solo_foot_near.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "4ac68c92dc2b9ae97dc56950b4c8df76d8243dfed62c40c1b74f2cb3a0ecf713"
+      },
+      "rear_solo_fore_far.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "e9b8d3fa15e4bfb9452940b8df14f8adaa5ce9490080c800393b1964c866a17a"
+      },
+      "rear_solo_fore_near.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "8ed80fbe2bfc2d638c716fd7a58669911fa9a0c92aba0ee13b46654d92ea6da8"
+      },
+      "rear_solo_hand_far.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "10e9329d323245f3670c8b2b8ab5efd401a1dc00cd6f59fff3f30b91de3fe3a0"
+      },
+      "rear_solo_hand_near.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "7611dc4084f7a84fcb262d8ab2e27f548ceed7be28f74e97889024986a4b6cb2"
+      },
+      "rear_solo_head.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "f6f5b45ea631d3930dd7ab9fce2099df3416953b3443ff699d94f02731a43eaf"
+      },
+      "rear_solo_skirt_far.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "4c691c76d6d5f36f2eca0b9a6200217d44ecb6551a1878959a1791c39c5979f8"
+      },
+      "rear_solo_skirt_near.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "b6c60039f0f8086c1aa0c2ef536fe6abba50c69ad35aa63fb2ad083f4e227214"
+      },
+      "rear_solo_staff_crystal.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "faff87ecd522ee61a4ea8de3cddd12363e873b6d7d1da689287861393cfb7356"
+      },
+      "rear_solo_staff_shaft.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "998c5a2fc11e440ca78a54ea5b14161da85aec14af3c8e7619dcc239ec6c5727"
+      },
+      "rear_solo_torso.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "fb035c39535accf51b1510243abef70ad13864af9a765d777687d795a92d3712"
+      },
+      "rear_solo_upper_far.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "9050e905388cf531412de5c21cff0d4e7882233b9efdad71fe0e4c23cdeb34e7"
+      },
+      "rear_solo_upper_near.png": {
+        "alpha_equal": true,
+        "visible_rgba_equal": true,
+        "native_file_sha256": "dc10682029b812503290ade558ad6348e6985c519a660229392e08ea2a2810fb"
+      }
+    },
+    "delivery_image_sha256": {
+      "rear_clay.png": "25432d85867d6da7d36faa44c0a64889389217e8acb0fee0292504d019c09ddc",
+      "rear_parts.png": "76ce9be7bfd785e51b5bd4abdfa192ae62591b21837fbc2c98b988040c1fba2e",
+      "rear_silhouette.png": "94808273a4de3ecd7d0b65c52eff4bc806689e45e07dbdfd3799ee42ef89ba49",
+      "rear_solo_collar.png": "b401e8dec20e773cfc7e0484af103ed22c4652521a4a1fb30399f69479a10834",
+      "rear_solo_foot_far.png": "32222214184d7f6687e531cb197e4a205a4febd4e545cc2c5cd46c15b41a3b3f",
+      "rear_solo_foot_near.png": "5d040f4c9639e925c4bf405d55ee8334c6c637bf3154faa98e28559e9f4e13be",
+      "rear_solo_fore_far.png": "8f95fe9340fc7c090bc8e24a0d39c31775f320a2799097f373e025c1c740c28b",
+      "rear_solo_fore_near.png": "9b420d396e5d64840299974796b1d0648786f190ff4840f6e1a8289c94ae4549",
+      "rear_solo_hand_far.png": "c2fc91a65713d00abc6281a9266b8f43ee08e1c53dd115e31274bd3c0b3ed2b2",
+      "rear_solo_hand_near.png": "652c1385ab590648f216fc8b2a1edfd61fe7aabcb248539b57161be25221f5b7",
+      "rear_solo_head.png": "0516808856f7f2071eb64019ec6ecaaa365d8ae3b3d1fdbb9e5a362c628055db",
+      "rear_solo_skirt_far.png": "fcf68862dba9e7f669a8f1ab650a07191ea0c5744dc7b65e27be47df8de0b2ce",
+      "rear_solo_skirt_near.png": "b86fca1e55a8fa7355e2dc3e947e0a6d59e485d07ade189646381564412ac08f",
+      "rear_solo_staff_crystal.png": "d677b2c9ea2cae8163e3ebb712beb67df126084a491e48906d6166239c8264fb",
+      "rear_solo_staff_shaft.png": "828f2455c852c7de90c1f84ab44cd2bbb9a6f4572df943b1c272aced2c2de1f8",
+      "rear_solo_torso.png": "3b13d5cca93d1e9b4bbfb8ee2fc1ab85a8d326b111f866417ee861086ba1a23a",
+      "rear_solo_upper_far.png": "57c89469b9a3edcab12ae132700b0afa378d3a116bb4a962216e73c46c68b7bc",
+      "rear_solo_upper_near.png": "2152f8a75578d7edc9b70858367cdca8ebe0cd054818e662594a509250d6ab5f"
+    },
+    "sheet_sha256": "7613ff88a0d78cc2aa0f4e7c72a11630963a27780171948f8c68abd00c1f771e"
+  },
+  "sheet": {
+    "sheet_cell_px": 1024,
+    "painting_enlargement": 4,
+    "sheet_columns": [
+      "front clay",
+      "old rear clay",
+      "fresh 180-degree rear (defect reproduced)",
+      "old approved rear painting",
+      "fresh rear part map"
+    ]
+  }
+}

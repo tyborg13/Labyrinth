@@ -140,6 +140,9 @@ def cloth(piece, spec, body, cache, context_key):
             stabilise_collision(obj, solver[1], piece)
             from .drape_collision import regional_contacts
             regional_contacts(obj, solver[1], body, piece)
+            if spec.get('rear_body', {}).get('hem_piece') == piece['id']:
+                from .rear_body import settle_floor
+                settle_floor(obj, solver[1], piece, spec)
             # Keep the same enclosing support after simulation. Reprojecting
             # onto the unclosed source skin can push a point through an
             # adjacent finger or arm even when the solver contact was clear.

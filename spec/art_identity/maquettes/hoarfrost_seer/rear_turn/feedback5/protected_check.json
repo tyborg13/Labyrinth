@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checked": 533,
+  "changed_authorized_shared_or_rear_files": [
+    "spec/art_identity/maquettes/blender/backend.py",
+    "spec/art_identity/maquettes/blender/build.py",
+    "spec/art_identity/maquettes/blender/capture_manifest.py",
+    "spec/art_identity/maquettes/blender/cloth.py",
+    "spec/art_identity/maquettes/blender/compile_recipe.py",
+    "spec/art_identity/maquettes/blender/curate_delivery.py",
+    "spec/art_identity/maquettes/blender/delivery_validation.py",
+    "spec/art_identity/maquettes/blender/drape_collision.py",
+    "spec/art_identity/maquettes/blender/render.py"
+  ],
+  "unexpected_changes": [],
+  "front_bytes_and_joints_unchanged": true,
+  "provided_recipe_fields_unchanged": true,
+  "reviewed_sheet_byte_unchanged": true,
+  "staged_pngs_byte_identical_to_archived_reviewed_source": true,
+  "other_figure_deliveries_and_approved_paintings_unchanged": true
+}

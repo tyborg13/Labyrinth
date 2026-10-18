@@ -1,0 +1,194 @@
+{
+  "contract": {
+    "authority": "mq-06 feedback 2; spec/peer_benchmark/humanoid_cutout_rig.md sections 1 and 5",
+    "whole_alpha_changed_pixels": 0,
+    "piece_displacement_px": 2,
+    "piece_changed_fraction": 0.005,
+    "joint_displacement_px": 1,
+    "pieces": {
+      "head": [
+        "head"
+      ],
+      "torso": [
+        "torso",
+        "collar"
+      ],
+      "arm_near": [
+        "upper_near",
+        "fore_near"
+      ],
+      "arm_far": [
+        "upper_far",
+        "fore_far"
+      ],
+      "hand_near": [
+        "hand_near"
+      ],
+      "hand_far": [
+        "hand_far"
+      ],
+      "staff": [
+        "staff_shaft",
+        "staff_crystal"
+      ],
+      "robe": [
+        "skirt_near",
+        "skirt_far"
+      ],
+      "foot_near": [
+        "foot_near"
+      ],
+      "foot_far": [
+        "foot_far"
+      ]
+    }
+  },
+  "whole_figure_alpha_changed_pixels": 0,
+  "whole_figure_binary_changed_pixels": 0,
+  "pieces": {
+    "head": {
+      "labels": [
+        "head"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 45698,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "torso": {
+      "labels": [
+        "torso",
+        "collar"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 71231,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "arm_near": {
+      "labels": [
+        "upper_near",
+        "fore_near"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 30951,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "arm_far": {
+      "labels": [
+        "upper_far",
+        "fore_far"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 28729,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "hand_near": {
+      "labels": [
+        "hand_near"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 1742,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "hand_far": {
+      "labels": [
+        "hand_far"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 4555,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "staff": {
+      "labels": [
+        "staff_shaft",
+        "staff_crystal"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 22075,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "robe": {
+      "labels": [
+        "skirt_near",
+        "skirt_far"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 107069,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "foot_near": {
+      "labels": [
+        "foot_near"
+      ],
+      "changed_pixels": 0,
+      "union_pixels": 4216,
+      "changed_fraction": 0.0,
+      "displacement_bound_px": 0,
+      "passed": true
+    },
+    "foot_far": {
+      "labels": [
+        "foot_far"
+      ],
+      "changed_pixels": 2,
+      "union_pixels": 3997,
+      "changed_fraction": 0.0005003752814610958,
+      "displacement_bound_px": 1,
+      "passed": true
+    }
+  },
+  "joint_displacements_px": {
+    "root": 0.0,
+    "pelvis": 0.0,
+    "torso": 0.0,
+    "head": 0.0,
+    "head_tip": 0.0,
+    "shoulder_near": 0.0,
+    "shoulder_far": 0.0,
+    "elbow_near": 0.0,
+    "elbow_far": 0.0,
+    "hand_near": 0.0,
+    "hand_far": 0.0,
+    "hand_tip_near": 0.0,
+    "hand_tip_far": 0.0,
+    "hip_near": 0.0,
+    "hip_far": 0.0,
+    "knee_near": 0.0,
+    "knee_far": 0.0,
+    "ankle_near": 0.0,
+    "ankle_far": 0.0,
+    "foot_tip_near": 0.0,
+    "foot_tip_far": 0.0
+  },
+  "max_joint_displacement_px": 0.0,
+  "clay": {
+    "changed_rgb_pixels": 56109,
+    "figure_pixels": 252849,
+    "max_abs_channel_delta": 191,
+    "mean_abs_channel_delta_per_changed_pixel": 8.97072365098885,
+    "mean_max_channel_delta_per_changed_pixel": 9.302375732948368,
+    "gates_delivery": false
+  },
+  "passed": true,
+  "proof_inputs": {
+    "before_manifest_sha256": "560043ac4329912e7a0942426a6e9ed00c5cd2992fca5a40c961d8e4a6580fbb",
+    "after_manifest_sha256": "f76de74adb28f04477e2fabefeb9eaf4f7265b42ce79b4a852b4ff6d4c0f34c4",
+    "gate_contract_sha256": "c5b136b4a9cb4fa0db6375d2e2ea1393441dbafea0f8711a85b9687a9100bc9f"
+  },
+  "native_build_passed": false
+}

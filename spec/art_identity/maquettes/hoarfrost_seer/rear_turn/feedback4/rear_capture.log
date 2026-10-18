@@ -1,0 +1,27 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-505e4cc056df49d387d3a0c835c4d0db
+BLENDER_BRIDGE_STARTED: mq03-505e4cc056df49d387d3a0c835c4d0db
+00:00.445  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/build2/maquette.blend"
+00:11.892  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_clay.png'
+00:15.164  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_parts.png'
+00:25.540  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_clay.png'
+00:28.696  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:31.681  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:34.298  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:36.888  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:39.700  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:42.655  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:45.544  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:48.247  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:50.792  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:53.623  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:56.409  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+00:59.386  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+01:02.250  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+01:05.188  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+01:07.988  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+01:11.002  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+01:14.785  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/rear/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+FITTED_VIEW_CAPTURE: PASS; view=rear
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=75.5; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-505e4cc056df49d387d3a0c835c4d0db.log

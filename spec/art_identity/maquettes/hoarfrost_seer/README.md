@@ -1,4 +1,20 @@
-# hoarfrost_seer — mq-04 curated maquette
+# hoarfrost_seer — frozen front and planted rear (mq-06)
+
+mq-06 feedback 5 accepts and stages the planted rear. The front's 21 delivery
+files and front joints remain unchanged. `measurements.json` remains the frozen
+front input; `delivery/view_sources.json` identifies the separate planted rear
+recipe and its independently sealed native proof in `delivery/rear_native/`.
+Rear acceptance uses the fixed original mq-04 registration: **0.7609076185 ≥
+0.60**. Dynamic registration **0.2054038784** is retained as a diagnostic of the
+different ground anchors. Other figures retain their existing method.
+
+The [mq-06 completion report](rear_turn/feedback5/README.md) contains the final
+file list, rear hashes, tests, floor/collision/coverage proof and exact native
+reconstruction commands. The director-reviewed [rear sheet](rear_turn/feedback4/rear_sheet.png)
+is retained unchanged. Use the per-view commands in that report for the current
+delivery; the single-body regeneration command below describes mq-04 history.
+
+## Historical mq-04 notes
 
 Director feedback 4 accepts and freezes the r3 clay, including the dense staff cuff folds. No modeling changes in round 4.
 

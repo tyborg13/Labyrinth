@@ -1,0 +1,9 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-5bb152764f92460da16ef2c015ed935b
+BLENDER_BRIDGE_STARTED: mq03-5bb152764f92460da16ef2c015ed935b
+00:00.318  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/determinism/cold/maquette.blend"
+00:00.514  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/determinism/replay/maquette.blend"
+00:00.700  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-06/spec/art_identity/maquettes/hoarfrost_seer/rear_turn/feedback4/determinism/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=14
+
+BLENDER_BRIDGE_RESULT: exit=0; seconds=1.1; log=/private/tmp/labyrinth_codex/blender_bridge/done/mq03-5bb152764f92460da16ef2c015ed935b.log

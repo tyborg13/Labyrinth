@@ -63,14 +63,17 @@ def proof_path(folder, name):
     return direct if direct.exists() else folder / 'determinism' / name
 
 
-def validate_delivery(spec, folder, require_binding=True):
+def validate_delivery(spec, folder, require_binding=True, views=('front', 'rear'), image_folder=None):
     folder = Path(folder)
+    if not views or len(set(views)) != len(views) or not set(views) <= {'front', 'rear'}:
+        raise ValueError('Delivery requires explicit supported view scope')
     current = digest(spec)
-    manifest = read_manifest(folder, current, ('full',))
-    for view in ('front', 'rear'):
+    manifest = read_manifest(folder, current, ('full',), image_folder)
+    for view in views:
         for kind in ('clay', 'parts'):
             require_image(manifest, view + '_' + kind + '.png')
-    report_names = REPORTS + (('capture_packing.json', 'fit_report.json') if spec.get('native_solid_revision') else ())
+    report_names = tuple(name for name in REPORTS if name != 'facing_report.json' or 'front' in views)
+    report_names += (('capture_packing.json', 'fit_report.json') if spec.get('native_solid_revision') else ())
     reports = {name: load(folder / name) for name in report_names}
     for name, report in reports.items():
         passing(report, name)
@@ -97,21 +100,25 @@ def validate_delivery(spec, folder, require_binding=True):
                 raise ValueError('Native clay PNG bytes changed')
     build = reports['build_report.json']
     capture = reports['capture_checks.json']
+    if (build.get('geometry_scope', list(views)) != list(views) and
+            not (folder / 'view_sources.json').is_file()):
+        raise ValueError('Scoped geometry requires its per-view source certificate')
     if build.get('spec_hash') != current or capture.get('spec_hash') != current:
         raise ValueError('Missing current build/capture spec hash')
     required_geometry = geometry_checks(spec)
-    checks(build, required_geometry + ('board_facing_axis', 'required_solo_coverage',
-           'rendered_torso_asymmetry', 'capture_geometry_unchanged'), 'build')
+    checks(build, required_geometry + ('board_facing_axis', 'required_solo_coverage', 'capture_geometry_unchanged')
+           + (('rendered_torso_asymmetry',) if 'front' in views else ()), 'build')
     if any(capture.get('geometry_checks', {}).get(key) is not True for key in required_geometry) or any(
             v is not True for v in capture.get('geometry_checks', {}).values()):
         raise ValueError('Missing or failed capture geometry checks')
     if capture.get('geometry_unchanged') is not True:
         raise ValueError('Capture changed geometry')
-    facing = reports['facing_report.json']
-    if any(facing.get(key) is not True for key in ('passed', 'torso_asymmetry_passed', 'frontal_axis_rejected')):
-        raise ValueError('Missing or failed facing check')
-    if capture.get('facing') != facing:
-        raise ValueError('Capture facing differs from facing report')
+    if 'front' in views:
+        facing = reports['facing_report.json']
+        if any(facing.get(key) is not True for key in ('passed', 'torso_asymmetry_passed', 'frontal_axis_rejected')):
+            raise ValueError('Missing or failed facing check')
+        if capture.get('facing') != facing:
+            raise ValueError('Capture facing differs from facing report')
     cloth = build.get('cloth', {})
     expected = {p['id'] for p in spec['pieces'] if p['type'] == 'cloth'}
     expected |= {a + '__' + b for a, b in spec.get('cloth_obstacles', [])}
@@ -121,9 +128,9 @@ def validate_delivery(spec, folder, require_binding=True):
         if report.get('passed') is not True or report.get('samples_below_margin') != 0 or report.get('intersecting_face_pairs') != 0:
             raise ValueError('Missing or failed collision check: ' + name)
     ownership = reports['ownership_validation.json']
-    if ownership.get('empty_required_solos') != {'front': [], 'rear': []}:
+    if ownership.get('empty_required_solos') != {view: [] for view in views}:
         raise ValueError('Missing or failed ownership coverage')
-    for view in ('front', 'rear'):
+    for view in views:
         require_solos(spec['labels'], reports['solo_coverage.json'].get(view, {}))
     proof = load(proof_path(folder, 'recipe_proof.json'))
     exact = load(proof_path(folder, 'exact_native_replay.json'))
@@ -146,19 +153,27 @@ def validate_delivery(spec, folder, require_binding=True):
         raise ValueError('Native proof mesh count differs')
     bound_names = report_names + ('capture_manifest.json',) + (('native_render_manifest.json',) if spec.get('native_solid_revision') else ())
     bound = {name: sha256(folder / name) for name in bound_names}
+    if tuple(views) != ('front', 'rear'):
+        bound.update({name: sha256(folder / name) for name in ('capture_frame.json', 'cloak_side.json', 'native_capture_manifest.json')
+                      if (folder / name).is_file()})
     binding = {'spec_hash': current, 'cold_mesh_hash': cold, 'report_sha256': bound,
                'exact_native_replay_sha256': sha256(proof_path(folder, 'exact_native_replay.json'))}
+    if tuple(views) != ('front', 'rear'):
+        binding['views'] = list(views)
+    if (folder / 'view_sources.json').exists():
+        from .view_delivery import validate_override
+        binding['view_sources'] = validate_override(spec, folder, manifest, reports, proof)
     if require_binding and proof.get('delivery_binding') != binding:
         raise ValueError('Missing or stale cold-proof report hash binding')
     return binding
 
 
-def seal_delivery(spec, folder):
+def seal_delivery(spec, folder, views=('front', 'rear'), image_folder=None):
     """Attach validated capture report hashes to an existing matching cold proof."""
     folder = Path(folder)
-    binding = validate_delivery(spec, folder, require_binding=False)
+    binding = validate_delivery(spec, folder, require_binding=False, views=views, image_folder=image_folder)
     path = proof_path(folder, 'recipe_proof.json')
     proof = load(path)
     proof['delivery_binding'] = binding
     path.write_text(json.dumps(proof, indent=2, allow_nan=False) + '\n')
-    validate_delivery(spec, folder)
+    validate_delivery(spec, folder, views=views, image_folder=image_folder)
