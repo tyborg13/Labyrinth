@@ -367,5 +367,17 @@
   {
     "path": "tests/zekarion_cutout_pack_test.gd",
     "mode": "cutout_pack"
+  },
+  {
+    "path": "tests/prepared_other_character_view_test.gd"
+  },
+  {
+    "path": "tests/retained_character_inventory_equivalence_test.gd"
+  },
+  {
+    "path": "tests/shop_retained_content_test.gd"
+  },
+  {
+    "path": "tests/static_floor_cache_equivalence_test.gd"
   }
 ]

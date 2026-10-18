@@ -133,13 +133,6 @@
     "follow_up": "qa-09"
   },
   {
-    "path": "tests/prepared_other_character_view_test.gd",
-    "category": "possible-bug",
-    "reason": "Completes at the normal budget: 45 cases/1,116 checks, zero visual differences, one input-capture/cancellation ownership assertion fails. This is a potential real invalidation bug; requires a focused character-view ownership fix.",
-    "evidence_log": "output/qa-08/quarantine-check/prepared_other_character_view_test.gd.log",
-    "follow_up": "bug-01"
-  },
-  {
     "path": "tests/prepared_reward_choices_test.gd",
     "category": "stale-reference",
     "reason": "Missing GameData preload fixed in its workload dependency. It now completes and exposes stale full-state comparisons with the independent reward reference across 20 cases (no pixel differences). Requires reference/committed-analytics reconciliation.",
@@ -168,13 +161,6 @@
     "follow_up": "qa-09"
   },
   {
-    "path": "tests/retained_character_inventory_equivalence_test.gd",
-    "category": "possible-bug",
-    "reason": "Normal-budget rerun completes: 117 cases and zero visual differences, but authoritative-state preservation assertions fail during equipment definition changes/boundary opens. Potential real ownership/mutation regression; dedicated fix required.",
-    "evidence_log": "output/qa-08/quarantine-check/retained_character_inventory_equivalence_test.gd.log",
-    "follow_up": "bug-01"
-  },
-  {
     "path": "tests/retained_section_map_equivalence_test.gd",
     "category": "stale-reference",
     "reason": "Both current panel and old reference fixture are accessed through the removed _event_panel property. Script errors invalidate the printed errors=[]/exit-zero marker; task runner correctly rejects it. Requires fixture/API migration.",
@@ -194,20 +180,6 @@
     "reason": "Controller trade assertion expects the inspected card purchase to appear in the old magic representation. Requires current deck/purchase fixture and native controller proof; no UI/input behavior changed.",
     "evidence_log": "output/qa-08/quarantine-check/scavenger_visual_pass_4_test.gd.log",
     "follow_up": "qa-09"
-  },
-  {
-    "path": "tests/shop_retained_content_test.gd",
-    "category": "possible-bug",
-    "reason": "Unchanged pack refresh loses the test's selected page. Concrete retained-shop pagination regression; needs a focused shop update (existing assertions preserved).",
-    "evidence_log": "output/qa-08/quarantine-check/shop_retained_content_test.gd.log",
-    "follow_up": "bug-01"
-  },
-  {
-    "path": "tests/static_floor_cache_equivalence_test.gd",
-    "category": "possible-bug",
-    "reason": "102 cases/156,715 checks finish; empty-board restored presentation differs between retained/current and reference state. Needs cache presentation/empty-board restoration investigation, including native pixel proof.",
-    "evidence_log": "output/qa-08/quarantine-check/static_floor_cache_equivalence_test.gd.log",
-    "follow_up": "bug-01"
   },
   {
     "path": "tests/suites/dragon_area_presentation_suite.gd",
