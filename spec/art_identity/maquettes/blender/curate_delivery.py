@@ -1,8 +1,8 @@
 """Stage compact native deliveries, hash discarded evidence, and remove it.
 
 The measured recipe is the build input. spec_native.json, blends and caches
-are generated intermediates. Clays retain every native RGBA pixel and colour
-chunk; PNG stamps are removed. Mask packing also zeros RGB behind zero alpha.
+are generated intermediates. Native PNG files are copied byte for byte.
+Canonical PNG encoding is used only for temporary comparison copies.
 """
 import argparse
 import hashlib
@@ -18,6 +18,7 @@ from PIL import Image
 from .capture_manifest import read_manifest, write_manifest
 from .compile_recipe import compile_recipe
 from .contract import digest
+from .delivery_validation import validate_delivery
 
 CURATION_DEFAULTS = {'budget_bytes': 6_000_000, 'png_compression': 9}
 
@@ -68,6 +69,7 @@ def canonical_png(source, destination, mask=False):
 def stage(folder, source):
     folder, source = Path(folder), Path(source)
     spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
+    validate_delivery(spec, source)
     manifest = read_manifest(source, digest(spec), ('full',))
     output = folder / 'delivery'
     output.mkdir(exist_ok=True)
@@ -75,7 +77,7 @@ def stage(folder, source):
     for name in manifest['images']:
         original[name] = sha(source / name)
         clay = name in ('front_clay.png', 'rear_clay.png')
-        canonical_png(source / name, output / name, mask=not clay)
+        shutil.copyfile(source / name, output / name)
         if clay:
             pixel_hashes[name] = hashlib.sha256(Image.open(source / name).convert('RGBA').tobytes()).hexdigest()
     for name in ('joints_px.json', 'build_report.json', 'capture_checks.json', 'facing_report.json',
@@ -85,12 +87,13 @@ def stage(folder, source):
     write(output / 'native_capture_manifest.json', manifest)
     write_manifest(output, digest(spec), 'full', list(manifest['images']))
     for name in ('recipe_proof.json', 'exact_native_replay.json'):
-        shutil.copyfile(source / 'determinism' / name, output / name)
+        from .delivery_validation import proof_path
+        shutil.copyfile(proof_path(source, name), output / name)
     write(output / 'provenance.json', {'schema': 1, 'spec_hash': digest(spec),
         'recipe_sha256': sha(folder / 'measurements.json'), 'native_image_sha256': original,
         'native_clay_rgba_sha256': pixel_hashes,
         'generated_spec': 'spec_native.json is compiled output, not a tracked input. Regenerate from measurements.json.',
-        'packing': 'Clays preserve every native RGBA sample and colour chunk; volatile Blender path/date/render-time stamps are removed for reproducible PNG hashes. Other capture PNGs also zero RGB behind alpha=0; every alpha and every visible RGBA sample remains exact.'})
+        'packing': 'Native PNG bytes are retained unchanged. Regeneration compares temporary canonical copies only.'})
     print('DELIVERY_STAGE: PASS; ' + folder.name)
 
 
@@ -121,6 +124,8 @@ def curate(folder):
     keep |= {folder / 'measurements.json', folder / 'README.md', folder / '.gdignore', archive, manifest}
     if not (folder / 'delivery/provenance.json').is_file() or not (folder / 'README.md').is_file():
         raise ValueError('Stage and document the delivery before curation')
+    spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
+    validate_delivery(spec, folder / 'delivery')
     dropped = [p for p in inventory(folder) if p not in keep]
     discard_evidence(folder, dropped, archive)
     manifest.write_text('# Paths relative to this figure. Shared builder: ../blender/*.py\n' +
@@ -142,6 +147,7 @@ def verify(folder):
     if any('.blend' in p.suffixes for p in files):
         raise ValueError('Native blend retained in curated tree')
     spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
+    validate_delivery(spec, folder / 'delivery')
     read_manifest(folder / 'delivery', digest(spec), ('full',))
     provenance = json.loads((folder / 'delivery/provenance.json').read_text())
     if provenance['spec_hash'] != digest(spec) or provenance['recipe_sha256'] != sha(folder / 'measurements.json'):

@@ -2,20 +2,49 @@
 
 No generated spec, saved model or cache is copied. The external approved CC0
 bundle is the sole binary build dependency. --verify compares canonical clay
-PNG SHA-256 values with the curated delivery.
+and part-map PNG SHA-256 values. Delivered PNG files are never rewritten.
 """
 import argparse
 import json
 from pathlib import Path
 import shutil
 import sys
+import tempfile
 
 from .bridge_client import run_job
 from .compile_recipe import PROJECT
 from .contract import DEFAULT_BUNDLE
 from .curate_delivery import canonical_png, sha, write
+from .delivery_validation import seal_delivery, validate_delivery
+from .compile_recipe import compile_recipe
 
 REGENERATE_DEFAULTS = {'job_timeout_s': 900}
+
+
+def compare_captures(capture, delivery, output, verify=True):
+    """Canonicalize both sides in temporary storage; retain raw file identity."""
+    views = {}
+    with tempfile.TemporaryDirectory(prefix='mq04_compare_') as temporary:
+        temporary = Path(temporary)
+        for view in ('front', 'rear'):
+            views[view] = {}
+            for kind in ('clay', 'parts'):
+                name = view + '_' + kind + '.png'
+                source, expected = Path(capture) / name, Path(delivery) / name
+                result = {'passed': False}
+                views[view][kind] = result
+                if not source.is_file() or (verify and not expected.is_file()):
+                    result['error'] = 'Missing required capture: ' + name
+                    continue
+                canonical_png(source, temporary / name, mask=kind == 'parts')
+                result['sha256'] = sha(temporary / name)
+                result['native_file_sha256'] = sha(source)
+                if verify:
+                    canonical_png(expected, temporary / ('expected_' + name), mask=kind == 'parts')
+                    result['expected_sha256'] = sha(temporary / ('expected_' + name))
+                    result['delivery_file_sha256'] = sha(expected)
+                result['passed'] = not verify or result['sha256'] == result['expected_sha256']
+    return views
 
 
 def main():
@@ -58,16 +87,19 @@ def main():
     (output / 'bridge.log').write_text(result['stdout'])
     if result['exit']:
         raise ValueError('Clean native build failed: ' + str(result['exit']))
-    views = {}
-    for view in ('front', 'rear'):
-        name = view + '_clay.png'
-        canonical_png(capture / name, output / name)
-        actual = sha(output / name)
-        expected = sha(figure / 'delivery' / name) if args.verify else None
-        views[view] = {'sha256': actual, 'expected_sha256': expected,
-                       'passed': not args.verify or actual == expected}
-    passed = all(r['passed'] for r in views.values())
+    views = compare_captures(capture, figure / 'delivery', output, args.verify)
+    passed = all(r['passed'] for view in views.values() for r in view.values())
+    binding = None
+    if args.verify and not args.preview:
+        # Fresh capture reports must pass independently and agree with the
+        # retained cold/replay proof before they can be sealed or discarded.
+        for name in ('recipe_proof.json', 'exact_native_replay.json'):
+            shutil.copyfile(figure / 'delivery' / name, capture / name)
+        spec = compile_recipe(json.loads((figure / 'measurements.json').read_text()))
+        seal_delivery(spec, capture)
+        binding = validate_delivery(spec, capture)
     write(output / 'regeneration.json', {'passed': passed, 'figure': figure.name, 'views': views,
+        'native_reports': binding, 'bridge_job': {k: result[k] for k in ('id', 'exit', 'seconds')},
         'cache_reused': False, 'bundle_sha256': sha(Path(DEFAULT_BUNDLE).expanduser()),
         'input_inventory_sha256': sha(output / 'clean_input_sha256.json')})
     if args.discard_build:

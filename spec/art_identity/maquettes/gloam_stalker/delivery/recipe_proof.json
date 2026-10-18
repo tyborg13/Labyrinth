@@ -30,5 +30,18 @@
     "cold": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
     "replay": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
     "independent_cold": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb"
+  },
+  "delivery_binding": {
+    "spec_hash": "a48fa580594c7cf006d28de22b81b2442a1a16045c06ad47deffe2d9c0a64b5e",
+    "cold_mesh_hash": "a040545a5d7ac20784fa5cc5f224180424f56848c4dac3aa76fa27c6bc9c7dbb",
+    "report_sha256": {
+      "build_report.json": "467fd9745b7235ce98727a067a2ce21fa864e280266798a554447f1eab690664",
+      "capture_checks.json": "6efaaf70aed5ecc39aaebcbfd9e658103d8c3bfadd21347b9ebd603cb170074d",
+      "facing_report.json": "f1a88e2848a7a0e93bdda61f8681a68652bda9edcf368ff5ed641505386fc074",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "93cb732b1dec20c05c4fdca43561d535924c09917632e29638a2a4352f11730c",
+      "capture_manifest.json": "c7090c8b8c67760675d4862c3e7067deba6d986395541f7e0b7d1f81d7dee390"
+    },
+    "exact_native_replay_sha256": "869a39418a94370a0105e3b311b0c1594758d46a976d16777ab25c60ec107bc7"
   }
 }

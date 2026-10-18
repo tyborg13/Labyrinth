@@ -30,5 +30,18 @@
     "cold": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
     "replay": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
     "independent_cold": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea"
+  },
+  "delivery_binding": {
+    "spec_hash": "c6bcc0f7ef16787d27d5bdc5d09bf996ae0fb6d53a271ec50a05ccc85b08bc08",
+    "cold_mesh_hash": "165e96c16042284b4b2f6cc2c382e7bdc227675e0c278fe69fda78e83e7f9fea",
+    "report_sha256": {
+      "build_report.json": "2f8c79299cfb06eb24b9965cab75a9be5741f8f153d354c48ae75336c96d6212",
+      "capture_checks.json": "77fd4eab7725cc60b651c75734f15032897ce79b19de62e4b33a9e9d21bfe207",
+      "facing_report.json": "82d3647e7dd9184a668e6404230d2d6bfaa8e14c608151fc70c93a0111c8a4a5",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "6e496563d1804fd682a300222fd7139abdd695393c91389627fcc06e08c4a0cf",
+      "capture_manifest.json": "0797136c04c6708415d3331111c289c40800292f0891f05306430943f78939e3"
+    },
+    "exact_native_replay_sha256": "f56161a32d848a53d570904784ef32577f25af94607f6374e7c6bc15193c7956"
   }
 }

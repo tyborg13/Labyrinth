@@ -20,6 +20,13 @@ DELIVERY_TEST_DEFAULTS = {'rim': [[-1,0,0],[0,-1,0],[1,0,0],[0,1,0]],
 
 
 class DeliveryTests(unittest.TestCase):
+    def test_required_parts_reject_missing_zero_and_negative_solos(self):
+        from .ownership import require_solos
+        require_solos(['head', 'torso'], {'head': 1, 'torso': 5})
+        for counts in ({'head': 1}, {'head': 1, 'torso': 0}, {'head': -1, 'torso': 5}):
+            with self.subTest(counts=counts), self.assertRaisesRegex(ValueError, 'Required rig labels'):
+                require_solos(['head', 'torso'], counts)
+
     def test_rigid_clearance_keeps_components_and_encloses_with_a_padding_cube(self):
         from .rigid_clearance import components,padded_points
         self.assertEqual(components(6,[[0,1],[1,2],[2,0],[3,4],[4,5],[5,3]]),[[0,1,2],[3,4,5]])

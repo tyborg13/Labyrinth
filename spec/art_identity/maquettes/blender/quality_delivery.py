@@ -20,6 +20,7 @@ sys.path.insert(0, str(PROJECT))
 from spec.art_identity.maquettes.blender.backend import load_render
 from spec.art_identity.maquettes.blender.capture_manifest import read_manifest
 from spec.art_identity.maquettes.blender.contract import digest
+from spec.art_identity.maquettes.blender.delivery_validation import validate_delivery
 from spec.art_identity.maquettes.blender.fit_delivery import registered_parts, determinism_matches, overlay_parts
 from spec.art_identity.maquettes.fitting import measure
 
@@ -41,6 +42,11 @@ def main():
     parser.add_argument('--out', required=True, type=Path)
     parser.add_argument('--capture-subdir', default='proof/quality_r2')
     args = parser.parse_args()
+    # Validate every input before creating or replacing any review artifact.
+    from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
+    for folder in args.folders:
+        spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
+        validate_delivery(spec, folder / args.capture_subdir)
     args.out.mkdir(parents=True, exist_ok=True)
     size, header = QUALITY_DEFAULTS['size'], QUALITY_DEFAULTS['caption_height']
     sheet = Image.new('RGBA', ((len(args.folders) + 1) * size, 2 * (size + header)), tuple(QUALITY_DEFAULTS['background']))

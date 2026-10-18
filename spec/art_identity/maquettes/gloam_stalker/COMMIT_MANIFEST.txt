@@ -62,6 +62,7 @@ delivery/recipe_proof.json
 delivery/reference/lancer_r3/front_clay.png
 delivery/reference/lancer_r3/provenance.json
 delivery/reference/lancer_r3/rear_clay.png
+delivery/regeneration.json
 delivery/solo_coverage.json
 discarded_proof_sha256.json
 measurements.json

@@ -1,0 +1,13 @@
+.......
+----------------------------------------------------------------------
+Ran 7 tests in 56.271s
+
+OK
+MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle
+MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views
+MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views
+MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd
+MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd

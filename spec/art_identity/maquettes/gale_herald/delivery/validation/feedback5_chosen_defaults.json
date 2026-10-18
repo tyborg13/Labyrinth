@@ -1,0 +1,1 @@
+{"test_rasters":{"size":[8,8],"correct_rgba":[0,255,0,255],"corrupt_rgba":[255,0,0,255]},"test_solos":{"valid":{"head":1,"torso":5},"invalid":[{"head":1},{"head":1,"torso":0},{"head":-1,"torso":5}]},"proof_contact_sheet":{"cell_size":[256,256],"grid":[4,2]},"paint_kit_composite_rgba":[0,255,0,255],"geometry_changes":false}

@@ -6,7 +6,7 @@ Director feedback 4 accepts and freezes the r3 clay. No modeling changes in roun
 
 `COMMIT_MANIFEST.txt` is the complete list to track in this figure tree. `delivery/` contains native 1024 front/rear clays, part maps, unoccluded part solos, joints, capture manifests and compact native proof. `discarded_proof_sha256.json` records the exact hashes and byte lengths of deleted historical builds, caches, replay copies, candidates and old proof. No saved Blender model is required as an input.
 
-Clays retain every native RGBA sample and PNG colour chunk. Curation removes volatile Blender file/date/render-time stamps, enabling identical PNG hashes after a clean rebuild. Other capture maps also zero RGB behind alpha=0; alpha and every visible sample stay exact. Native source-file hashes remain in provenance.
+Feedback 5: staging copies native PNG bytes unchanged. Regeneration canonicalises temporary copies of both front/rear clays and part maps; it never rewrites delivery PNGs. Existing round-4 PNG files are retained unchanged. Delivery verification requires passing build, capture, facing, collision and ownership reports, with their exact file hashes sealed into the matching cold-build proof. Native source-file hashes remain in provenance.
 
 From the worktree root, regenerate from an empty, input-only project:
 
@@ -19,3 +19,7 @@ Omit `--preview` to regenerate all solos and maps. Every Blender invocation goes
 The current design-owner gates are front IoU >= 0.70 and rear >= 0.65 (feedback 2). Per-part visible/solo pixel coverage is in the shared review CSV; every label must have genuine part-colour pixels or a recorded occlusion. Review sheets compare all four clays with the protected Lancer r3 at the same 2.4 m orthographic scale, copying native 1024 cells without rescaling.
 
 Shared review: `../gale_herald/delivery/review/fit_table.md`, `fit_overlay_contact_sheet.png` and `per_part_coverage.csv`. The same-scale five-figure clay comparison is `../arc_thrall/delivery/review/clay_comparison_lancer_r3.png`. Approved Lancer comparison inputs are retained byte-for-byte in `../gloam_stalker/delivery/reference/lancer_r3/`.
+
+Original r3 PNG byte restoration is pending an original-file backup. The eight Seer/Thrall clay/map pixel streams exactly match the paint-over kit refs after green compositing; see `../gale_herald/delivery/validation/feedback5_pixels.json`. The recorded original r3 file hashes remain in `delivery/provenance.json`; no replacement encoding is presented as the original file.
+
+Fresh feedback-5 regeneration: `delivery/regeneration.json` compares all four clay/map images and validates native build/capture/facing/collision/ownership against the retained cold proof. Clean input hashes, native discarded-build hashes and bridge log are shared at `../gale_herald/delivery/validation/feedback5_regeneration/arc_thrall/`.

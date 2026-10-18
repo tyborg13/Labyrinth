@@ -60,6 +60,7 @@ delivery/rear_solo_torso.png
 delivery/rear_solo_upper_far.png
 delivery/rear_solo_upper_near.png
 delivery/recipe_proof.json
+delivery/regeneration.json
 delivery/review/clay_comparison_lancer_r3.png
 delivery/solo_coverage.json
 discarded_proof_sha256.json
