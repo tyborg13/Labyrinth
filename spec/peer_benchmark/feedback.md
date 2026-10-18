@@ -132,3 +132,5 @@
   the map closes.
 - 2026-10-17 section-transition APPROVED (owner) on the updated clip (title card → section map, no board flash). No
   sound sting added. flow-01 is accepted and waits for owner publication approval with the rest of integration.
+- 2026-10-18 bloomer-motion APPROVED (owner) on the rr-05 final clip: whole gem, stepped idle, joint fixes. The Wisp
+  reference clip shipped alongside.
