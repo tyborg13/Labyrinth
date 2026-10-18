@@ -18,14 +18,20 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight (2026-10-17, playtest 9 follow-ups + maquette roster)
-- Running: boon-01 r1 (TODO_DESIGN decisions + reward-idiom offer layout), rr-05 r1 (director feature masks),
-  mq-03 r4 (Codex review CHANGES: legacy compat via bridge, cape split, stale mattes, Bezier, facing probe, pyc),
-  map-02 (map variety). Queued: cbt-01 (Stay + Immolation). Ready: flow-01 (after boon-01 + map-02),
-  rr-06 Lancer rig (after mq-03 + rr-05).
-- Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10, roster-plan;
-  bloomer-motion answered (changes → rr-05; post the new clip when it lands).
-- Lancer mq4 identity pair committed (340026ecb). Next for the roster: owner verdict on roster-plan, then wave 1.
+## In flight (2026-10-18 early; maquette roster wave 1)
+- Merged on integration since playtest 10: map-02, cbt-01, boon-01, fix-05, flow-01, qa-07, qa-08, bug-01, mq-04,
+  rr-05 (latest merge 19fe623f8). Owner approved: section transition, Bloomer rr-05 clip, roster plan, Lancer look.
+- Running: rr-07 (Seer + Thrall rigs; uses committed mq-04 delivery solos) and det-01 (bug-02 + qa-13 determinism).
+- Next (in order):
+  1. After about 01:07 the mq-04 Blender bridge idles out on its own; the owner said not to kill running things.
+     Then launch mq-05 (batch B maquettes, brief ready) and start the bridge for it. rr-06 (Lancer rig) needs the
+     bridge too, for the r3 solos: start one bridge with both worktrees as arguments, e.g. `bridge.py mq-05 rr-06`.
+  2. rr-08 (Herald + Gloam rigs) after rr-07 proves the pipeline.
+  3. rr-09 (narrow rig proof bindings) after rr-07 lands; it touches the rig tools.
+  4. Post rig clips for Seer, Thrall, Herald and Gloam to the inbox as they pass native proof.
+- Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,
+  gloam_stalker}/mq5_{front,rear}`. Motion data: `staged/rr-07`, `staged/rr-08`.
+- Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10 (owner's call).
 - Follow-up (2026-10-17): `tests/skill_progression_analytics_test.gd` fails on the integration branch (2 failures: terminal outbox fixture / resumable-run clear) and is not in `tests/run_tests.gd`, so nothing caught it. Next QA unit: find the cause, and wire every supplemental test into the suite (or a supplemental runner) so they can't rot.
 - Test-debt follow-ups (from qa-08's audit; ids in tests/quarantine.json once it lands): qa-09 stale references, qa-10 legacy cutout tests, qa-11 long diagnostics, qa-12 export-workflow tests, bug-01 prepared_other_character_view ownership (possible real bug, do first), design-01 tests needing director UI/rules decisions.
 - bug-02 (2026-10-17): `tests/owned_cpu_asset_preparation_test.gd` fails deterministically on the director's machine. Both "Cancelled audio must drain without publishing its private source" checks fail, on integration and on the qa-08 merge; it passed in Codex's sandbox runs. Find the root cause (a cancel-after-publish race in `asset_loader.prepare_audio_for`, or a test that assumes the worker is still running one frame later), fix it, and register the test. It's quarantined at the qa-08 merge.
