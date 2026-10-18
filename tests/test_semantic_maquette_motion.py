@@ -12,14 +12,29 @@ from unittest.mock import patch
 
 PROJECT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(PROJECT/'tools'))
-from cutout_pipeline.cases import read_json, write_json, digest
+from cutout_pipeline.cases import read_json, write_json, digest, CutoutError
 from maquette_cutout_build import SOURCE, CREATURES, case_for
 from maquette_motion import compiler, gates
+from maquette_motion.contract import approved_source
 from maquette_cutout_review import plan
 
 class SemanticMotionTests(unittest.TestCase):
+    def test_feedback7_restores_the_protected_bloomer_idle_key(self):
+        case = case_for('shale_bloomer')
+        self.assertFalse((case/'director_amendments.json').exists())
+        self.assertEqual((case/'director_motion.json').read_bytes(), SOURCE.read_bytes())
+        self.assertEqual(read_json(approved_source(case))['shale_bloomer']['clips']['idle']['keys']['tendril_high_r.raise_deg'][1], [0.5, 5])
+        with tempfile.TemporaryDirectory(dir=PROJECT/'tests') as temporary:
+            root = Path(temporary)
+            for name in ('director_motion.json', 'cutout.json'):
+                shutil.copyfile(case/name, root/name)
+            changed = read_json(root/'director_motion.json')
+            changed['shale_bloomer']['clips']['idle']['keys']['tendril_low_r.raise_deg'][0][1] += 1
+            write_json(root/'director_motion.json', changed)
+            with self.assertRaises(CutoutError): approved_source(root)
+
     def run_sampler(self,case,output):
-        p=subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id','rr-04','--stream','--',
+        p=subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id','rr-05','--stream','--',
             'godot','--headless','--path','.', '--script','tests/maquette_cutout/samples.gd','--','--case',str(case),'--output',str(output)],
             cwd=PROJECT,text=True,capture_output=True,timeout=60)
         self.assertEqual(p.returncode,0,p.stdout+p.stderr)
@@ -38,13 +53,14 @@ class SemanticMotionTests(unittest.TestCase):
     def test_protected_keys_and_byte_copies(self):
         for creature in CREATURES:
             case=case_for(creature)
-            self.assertEqual((case/'director_motion.json').read_bytes(),SOURCE.read_bytes())
+            source = approved_source(case)
+            self.assertEqual((case/'director_motion.json').read_bytes(),source.read_bytes())
             self.assertEqual((case/'source/spec.json').read_bytes(),(PROJECT/'spec/art_identity/maquettes'/creature/'spec.json').read_bytes())
             for view,job in read_json(SOURCE)[creature]['art'].items():
                 for name in ['processed.png','processed.json','kit.json']:
                     self.assertEqual((case/'source'/view/name).read_bytes(),(PROJECT/job/name).read_bytes())
             compiled=read_json(case/'compiled_motion.json')
-            expected=compiler.compile_creature(SOURCE,creature,read_json(PROJECT/'spec/art_identity/maquettes'/creature/'spec.json'))
+            expected=compiler.compile_creature(source,creature,read_json(PROJECT/'spec/art_identity/maquettes'/creature/'spec.json'))
             self.assertEqual(compiled,expected)
             self.assertFalse(read_json(case/'hidden_fills/index.json')['pending_design'])
             self.assertEqual(read_json(case/'build_report.json')['rest_identity']['front']['different_pixels'],0)
@@ -117,7 +133,7 @@ class SemanticMotionTests(unittest.TestCase):
             for script,args,marker in [
                 ('tests/maquette_cutout_test.gd',[], 'production idle applies changing bone poses'),
                 ('tests/maquette_cutout/production_capture.gd',['--','--type','lightning_wisp','--output',str(Path(temporary)/'production'),'--logic-only'],'idle: fewer than six changing bone poses')]:
-                p=subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id','rr-04','--timeout','180','--stream','--',
+                p=subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id','rr-05','--timeout','180','--stream','--',
                     'godot','--headless','--path',str(root),'--script','res://'+script,*args],cwd=PROJECT,capture_output=True,text=True,timeout=200)
                 output=p.stdout+p.stderr
                 self.assertNotEqual(p.returncode,0,output)

@@ -1,0 +1,123 @@
+{
+  "capture_basis": "Director windowed run 1: Godot 4.6.1, Metal 4.0, Forward Mobile, Apple M5 Pro (Apple9)",
+  "quad_subpixel_bits": 8,
+  "fixtures": [
+    {
+      "view": "front",
+      "part": "tendril_high_r",
+      "frame": 35,
+      "kind": "before",
+      "capture": "front_tendril_high_r_before_0035.png",
+      "capture_sha256": "9594b4c5685b34e1a20830964d8dfcf674e7aa569df4a7b43beab541ed6e019d",
+      "source": "tests/maquette_cutout/native_fixtures/source_shale_bloomer_front_tendril_high_r.png",
+      "source_sha256": "35efdb4e8aadb4ad6f8da4df938fea41de5eb2bf4869d1693d818261e10a3728",
+      "transform": [
+        0.999967694282532,
+        -0.00803973991423845,
+        0.00803973991423845,
+        0.999967694282532,
+        144.357696533203,
+        85.8700485229492
+      ],
+      "old_model_bounds": [
+        272,
+        214,
+        332,
+        285
+      ],
+      "native_bounds": [
+        272,
+        214,
+        332,
+        285
+      ],
+      "old_model_diff": 14,
+      "quad_model_diff": 0,
+      "unchanged_allowance": 9.53
+    },
+    {
+      "view": "front",
+      "part": "root_stem_r",
+      "frame": 61,
+      "kind": "after",
+      "capture": "front_root_stem_r_after_0061.png",
+      "capture_sha256": "f0aec96464e107d413425b9ced5356812a4697a71862d950520c745bf23ddf50",
+      "source": "tests/maquette_cutout/native_fixtures/source_shale_bloomer_front_root_stem_r.png",
+      "source_sha256": "540c4501d458b871657ee885db47a3f8c37503982e7f51562abb847751431ac5",
+      "transform": [
+        0.999657332897186,
+        -0.0261769518256187,
+        0.0261769518256187,
+        0.999657332897186,
+        76.0,
+        115.0
+      ],
+      "old_model_bounds": [
+        204,
+        243,
+        308,
+        364
+      ],
+      "native_bounds": [
+        204,
+        243,
+        308,
+        364
+      ],
+      "old_model_diff": 9,
+      "quad_model_diff": 0,
+      "unchanged_allowance": 6.87
+    },
+    {
+      "view": "front",
+      "part": "feature_amber_right",
+      "frame": 53,
+      "kind": "before",
+      "capture": "front_feature_amber_right_before_0053.png",
+      "capture_sha256": "5c9d8813f180ab02c4c2af4fbd69b0e3e8ca57667a46e1de3615de8c9124d5d0",
+      "source": "tests/maquette_cutout/native_fixtures/source_shale_bloomer_front_feature_amber_right.png",
+      "source_sha256": "71ae89b5feaf624bd908b4ef2bfcf37b89e8204bd75f3484c6ffdcf75327af8d",
+      "transform": [
+        0.999894976615906,
+        -0.0144913932308555,
+        0.0144913932308555,
+        0.999894976615906,
+        149.60498046875,
+        139.684066772461
+      ],
+      "old_model_bounds": [
+        278,
+        268,
+        296,
+        290
+      ],
+      "native_bounds": [
+        278,
+        268,
+        296,
+        290
+      ],
+      "old_model_diff": 4,
+      "quad_model_diff": 0,
+      "unchanged_allowance": 3.96
+    },
+    {
+      "view": "front",
+      "part": "hidden_root_tip_r",
+      "frame": 41,
+      "kind": "before",
+      "capture": "front_hidden_root_tip_r_before_0041.png",
+      "capture_sha256": "e3bf1e2be83db2e717d2897d1d188a13767dc070e8f2ca279a9783f0ec8e19d1",
+      "source": "tests/maquette_cutout/native_fixtures/source_shale_bloomer_front_root_tip_r.png",
+      "source_sha256": "db89fb13ca5eeb92fd9f664f03d2fcef45b1a5b7d0ada6998e02b0fe696c1509",
+      "transform": [
+        0.999949038028717,
+        -0.0100978752598166,
+        0.0100978752598166,
+        0.999949038028717,
+        154.361175537109,
+        202.735656738281
+      ]
+    }
+  ]
+}

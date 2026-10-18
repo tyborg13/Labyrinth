@@ -1,0 +1,2398 @@
+{
+  "scope": "Full uncommitted rr-05 diff against HEAD, including retained director edits and production promotion; untracked output excluded",
+  "file_count": 598,
+  "files": [
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/empty.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/front_amber_left.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/front_amber_right.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/front_amber_upper.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/front_crown_gem.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/rear_amber_rear_left.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/rear_amber_rear_low.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/features/rear_crown_gem.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/front.json"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/front/rest.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/core.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/root_stem_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/tendril_mid_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/front/trunk.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/core.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/root_stem_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/tendril_mid_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/hidden/rear/trunk.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/integration.json"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/rear.json"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/rear/rest.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_far_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_far_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_near_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_near_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_near_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_far_l_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_far_l_petal_far_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_petal_far_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_petal_near_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_tendril_high_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_tendril_high_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_r_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_r_petal_far_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_r_tendril_high_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_r_tendril_high_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_c_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_c_root_tip_c.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_r_root_tip_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_r_root_tip_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_r_root_tip_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_r_root_tip_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_tip_l_root_tip_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_root_tip_l_root_tip_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_high_l_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_high_l_root_tip_c.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_high_r_tendril_low_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_high_r_tendril_low_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_low_l_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_low_l_root_tip_c.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_petal_near_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_petal_near_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_petal_near_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_stem_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_stem_c.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_stem_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_stem_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_c_component_01.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_c_component_01.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_c_component_02.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_c_component_02.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_high_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_high_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_high_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_high_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_low_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_low_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_low_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_low_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_far_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_far_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_near_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_near_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_near_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_far_l_tendril_high_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_far_l_tendril_high_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_l_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_l_petal_far_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_l_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_l_petal_near_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_r_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_r_petal_far_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_root_stem_l_root_stem_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_root_stem_l_root_stem_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_root_stem_l_root_tip_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_root_stem_l_root_tip_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_tendril_high_l_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_tendril_high_l_root_tip_c.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_tendril_low_l_root_stem_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_tendril_low_l_root_stem_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_core.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_core.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_petal_far_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_petal_far_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_root_stem_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_root_stem_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_root_tip_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_root_tip_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_high_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_high_l.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_high_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_high_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_low_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_low_r.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_mid_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_mid_l.png.import"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/core.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_left.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_left.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_right.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_right.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_upper.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_upper.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_crown_gem.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/feature_crown_gem.png.import"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/root_stem_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/front/trunk.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/core.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/feature_amber_rear_left.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/feature_amber_rear_left.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/feature_amber_rear_low.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/feature_amber_rear_low.png.import"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/feature_crown_gem.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/feature_crown_gem.png.import"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/tendril_mid_l.png"
+    },
+    {
+      "status": "M",
+      "path": "assets/units/shale_bloomer_cutout/segmented/rear/trunk.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/baseline.sha256.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/cutout.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/front/arc_left.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/front/arc_right.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/front/core.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/front/crown.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/front/tail.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/arc_left.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/arc_right.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/core.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/crown.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden/rear/tail.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/hidden_fills/index.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/layouts/front.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/layouts/rear.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/proof/continuity.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/proof/continuity_samples.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/proof/feature_derivation.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/front/seam_core_arc_left.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/front/seam_core_arc_right.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/front/seam_core_crown.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/front/seam_core_tail.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/rear/seam_core_arc_left.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/rear/seam_core_arc_right.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/rear/seam_core_crown.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/lightning_wisp/mq4/seams/rear/seam_core_tail.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/lightning_wisp/mq4/support_derivation.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/baseline.sha256.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/cutout.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/core.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/root_stem_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/tendril_mid_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/front/trunk.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/core.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/root_stem_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/tendril_mid_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden/rear/trunk.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/hidden_fills/index.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/layouts/front.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/layouts/rear.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/proof/continuity.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/proof/continuity_samples.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/proof/feature_derivation.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_core_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_core_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_core_petal_near_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_core_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_petal_far_l_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_petal_near_l_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_petal_near_l_petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_petal_near_l_tendril_high_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_petal_near_r_petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_petal_near_r_tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_root_stem_c_root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_root_stem_r_root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_root_stem_r_root_tip_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_root_tip_l_root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_tendril_high_l_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_tendril_high_r_tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_tendril_low_l_root_tip_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_petal_near_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_root_stem_c.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_root_stem_r.png"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_root_tip_c_component_01.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_root_tip_c_component_02.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_root_tip_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_tendril_low_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/front/seam_trunk_tendril_low_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_core_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_core_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_core_petal_near_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_core_petal_near_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_petal_far_l_tendril_high_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_petal_near_l_petal_far_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_petal_near_l_petal_near_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_petal_near_r_petal_far_r.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_root_stem_l_root_stem_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_root_stem_l_root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_tendril_high_l_root_tip_c.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_tendril_low_l_root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_core.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_petal_far_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_petal_far_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_root_stem_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_root_tip_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_tendril_high_l.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_tendril_high_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_tendril_low_r.png"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/mq3/seams/rear/seam_trunk_tendril_mid_l.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/support/rear_socket_derived_edit.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/mq3/support_derivation.json"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/rr05/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/case_validation.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/director_inputs.sha256.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/features.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/focused_results.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/godot_full.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/integration.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/living_foes.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/output_gdignore.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/pixel_tests.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/protected_inputs.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/python_full.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/runtime.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/semantic_tests.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-authored-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-derive.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-logic-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale-pixel-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_authored.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_authored_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_logic.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_logic_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_native_parse.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_pixel_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/shale_pixels.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/suite_results.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-authored-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-derive.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-logic-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp-pixel-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_authored.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_authored_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_logic.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_logic_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_native_parse.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_pixel_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback1/wisp_pixels.log"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/README.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/TODO_DESIGN.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/chosen_defaults.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/diagnosis.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/features.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/files.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/native_results.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/owner_commands.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/pending_adoption.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/per_clip.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/preservation.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/repo_size.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/tied_pixels.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/verification.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/README.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/TODO_DESIGN.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/archive_summary.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/chosen_defaults.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/cpu_crops.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/feature_fixture.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/features.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/files.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/gaps.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/idempotence.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/material_results.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/motion_preservation.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/native_preservation.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/owner_commands.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/part_comparison.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/per_clip.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/preservation.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/python_failures.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/repo_size.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/seed_growth_diagnosis.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/ties.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback11/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/capture_cleanup.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/direct_inverse_comparison.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_evidence_sha256.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_frames.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_pixel_frames.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_pixel_gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_run1_pixel_samples.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/director_windowed_run1.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/features.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/final_checks.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/focused_results.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/godot_full.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/initial_mismatches.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/integration.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/living_foes.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/native_matrix_comparison.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/native_regression.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/native_regression_before.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/output_gdignore.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/owner_script_control_flow.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/pixel_tests.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/protected_inputs.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/python_full.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/runtime.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/saved_capture_replay.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/saved_native_transform_oracle.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/semantic_tests.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale-authored-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale-logic-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale-pixel-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_authored.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_authored_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_logic.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_logic_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_native_parse.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_pixel_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/shale_pixels.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/suite_results.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp-authored-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp-logic-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp-pixel-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_authored.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_authored_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_logic.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_logic_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_native_parse.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_pixel_gate.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback2/wisp_pixels.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/bloomer_native_replay.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/bloomer_outputs.sha256.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/capture_cleanup.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/diagnosis.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_frames.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_pixel_frames.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_pixel_gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_run2_wisp_pixel_samples.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/director_windowed_run2.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/pre_fix_runtime_corrected_raster_replay.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/preservation_and_attachment.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback3/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/TODO_DESIGN.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/before_after.csv"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/before_after.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/before_after.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/preservation.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/scratch_cleanup.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/wisp_native_before.sha256.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback4/wisp_native_raster_diagnosis.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/TODO_DESIGN.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/TODO_summary.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/amendment_evidence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/before_after.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/before_continuity.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/chosen_defaults.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/features.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/features.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/preservation.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/python_failures.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/scope.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/scratch_cleanup.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/shimmer.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback6/wisp_runtime_equivalence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/chosen_defaults.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/features.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/features.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/historical_native_before.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/owner_commands.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/per_clip.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/preservation.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/results.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/scope.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/scratch_cleanup.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/shale-TODO_DESIGN.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/shale-evidence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/shimmer.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/wisp-TODO_DESIGN.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/wisp-evidence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback7/wisp_runtime_equivalence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/README.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/chosen_defaults.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/constraint_certificates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/constraint_certificates.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/design_questions.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/detached.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/features.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/features.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/files.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/full_godot_result.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/motion_preservation.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/native_alpha.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/original_pose_equivalence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/owner_commands.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/per_clip.md"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/preservation.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/results.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/scope.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/scratch_cleanup.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/shale-TODO_DESIGN.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/shale-evidence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/shale-seam_parents.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/wisp-TODO_DESIGN.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/wisp-evidence.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback8/wisp-seam_parents.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/README.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/archive_manifest.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/chosen_defaults.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/features.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/features.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/files.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/native_boundary_evidence.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/owner_commands.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/per_clip.md"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/preservation.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/protected_inputs.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/repo_size.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/results.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/feedback9/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/gaoler_rebuild.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/godot_full.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/godot_full_initial.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/godot_full_seed_failure.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/pixel_tests.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/pre_mask_verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/python_full.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/python_full_initial.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/runtime.log"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/seam_diag.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/seam_diag2.py"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/seeded_foes.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale-pixel-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale-production-logic-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale_logic.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/shale_native_parse.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/verification.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp-pixel-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp-production-logic-gates.json"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp_logic.log"
+    },
+    {
+      "status": "D",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof/wisp_native_parse.log"
+    },
+    {
+      "status": "M",
+      "path": "experiments/cutouts/shale_bloomer/rr05/proof_for_design_owner.sh"
+    },
+    {
+      "status": "M",
+      "path": "tests/maquette_cutout/alpha_fixtures/manifest.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/hidden/front/arc_left.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/hidden/front/arc_right.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/hidden/front/core.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/hidden/front/crown.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/hidden/front/tail.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/segmented/front/arc_left.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/segmented/front/arc_right.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/segmented/front/core.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/segmented/front/crown.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/segmented/front/feature_eye.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/segmented/front/tail.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/alpha_fixtures/source_case/source/front/processed.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/native_fixtures/seam_manifest.json"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/native_fixtures/source_lightning_wisp_rear_seam_core_arc_right.png"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/maquette_cutout/native_fixtures/wisp_rear_seam_core_arc_right_after_0012.png"
+    },
+    {
+      "status": "M",
+      "path": "tests/maquette_cutout/proof_inputs.gd"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/test_maquette_hidden_material.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_maquette_joint_seams.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_maquette_native_raster.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tests/test_maquette_native_ties.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_maquette_owner_proof.py"
+    },
+    {
+      "status": "M",
+      "path": "tests/test_maquette_pixel_polish.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_cutout_build.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_cutout_polish.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/bleed.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/continuity.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/gates.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/hidden_material.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/hidden_support.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/joint_seams.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/material_palette.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/material_proof.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/native_ties.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/pixels.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/raster.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/seam_builder.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/seam_pose.py"
+    },
+    {
+      "status": "M",
+      "path": "tools/maquette_motion/silhouette.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/socket_edit.py"
+    },
+    {
+      "status": "A (untracked)",
+      "path": "tools/maquette_motion/support_seeds.py"
+    }
+  ]
+}

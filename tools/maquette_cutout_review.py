@@ -7,6 +7,8 @@ import sys
 from PIL import Image
 from cutout_pipeline.cases import read_json, write_json, digest
 from maquette_motion.gates import native_errors
+from maquette_cutout_polish import gate as pixel_gate
+from maquette_motion import certificates
 FPS = 60
 SIZE = (1920,1080)
 DEATH_HOLD_FRAMES = FPS
@@ -24,6 +26,11 @@ def plan(compiled, authored_order=None):
 def compose(case, capture, output):
     errors=native_errors(case,capture)
     if errors:raise ValueError('Native verification failed: '+str(errors[:10]))
+    pixel_report=pixel_gate(case,capture/'pixel_samples.json',capture)
+    if pixel_report['ok']:
+        certificates.save(case, pixel_report)
+    write_json(capture/'pixel_gates.json',pixel_report)
+    if not pixel_report['ok']:raise ValueError('Pixel/feature verification failed: '+str(pixel_report['errors'][:10]))
     compiled=read_json(case/'compiled_motion.json')
     authored_order=list(read_json(case/'director_motion.json')[compiled['creature']]['clips'])
     review_plan=plan(compiled,authored_order)
@@ -48,8 +55,10 @@ def compose(case, capture, output):
     print(f'MAQUETTE REVIEW: PASS ({total} frames, {total/FPS:g}s at 60fps): {output}')
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--case',type=Path,required=True);p.add_argument('--capture',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--render',action='store_true');a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--case',type=Path,required=True);p.add_argument('--capture',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--render',action='store_true');p.add_argument('--task-id',default='rr-05');a=p.parse_args()
     if a.render:
-        subprocess.run([sys.executable,'tools/visual_probe_runner.py','--task-id','rr-04','--no-headless','--display-driver','macos','--audio-driver','Dummy','--timeout','900','--expect-size','1920x1080','--proof-contract','tests/maquette_cutout/'+read_json(a.case/'compiled_motion.json')['creature']+'_render_contract.json','tests/maquette_cutout/native_capture.gd','--','--case',str(a.case.resolve()),'--output',str(a.capture.resolve())],check=True)
+        a.capture.mkdir(parents=True,exist_ok=True)
+        subprocess.run([sys.executable,'tools/godot_task_runner.py','--task-id',a.task_id,'--stream','--','godot','--headless','--path','.','--script','tests/maquette_cutout/pixel_samples.gd','--','--case',str(a.case.resolve()),'--output',str((a.capture/'pixel_samples.json').resolve())],check=True)
+        subprocess.run([sys.executable,'tools/visual_probe_runner.py','--task-id',a.task_id,'--no-headless','--display-driver','macos','--audio-driver','Dummy','--timeout','900','--expect-size','1920x1080','--proof-contract','tests/maquette_cutout/'+read_json(a.case/'compiled_motion.json')['creature']+'_render_contract.json','tests/maquette_cutout/native_capture.gd','--','--case',str(a.case.resolve()),'--output',str(a.capture.resolve())],check=True)
     compose(a.case,a.capture,a.output)
 if __name__=='__main__':main()

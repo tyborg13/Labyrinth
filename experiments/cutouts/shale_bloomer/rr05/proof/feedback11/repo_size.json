@@ -1,0 +1,11 @@
+{
+  "head_tracked_bytes": 5262876306,
+  "proposed_tracked_bytes": 5233707302,
+  "delta_bytes": -29169004,
+  "delta_mib": -27.81773,
+  "archive": "output/rr-05/archive/",
+  "archived_old_evidence_files": 189,
+  "archived_bytes": 30543297,
+  "archive_byte_identity": "All 189 files verified against HEAD; full SHA listing in output/rr-05/feedback11/archive_preservation.json",
+  "scope": "Full rr-05 diff including retained director edits/promotion and tracked output; untracked output excluded."
+}

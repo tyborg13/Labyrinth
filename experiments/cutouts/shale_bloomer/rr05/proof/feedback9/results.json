@@ -1,0 +1,1877 @@
+{
+  "acceptance": {
+    "blocking": [
+      "0 detached components",
+      "single-node exact feature pixels and owner bone",
+      "0 held/boundary shimmer",
+      "0px rest RGBA difference",
+      "CPU/native model agreement"
+    ],
+    "report_only": [
+      "interior tears",
+      "natural negative space",
+      "underlay protrusion"
+    ],
+    "final_visual_gate": "Director watches both fresh native MP4s"
+  },
+  "creatures": {
+    "shale_bloomer": {
+      "ok": false,
+      "errors": [
+        "TODO_DESIGN_seam_parent_front_root_tip_l_root_tip_r",
+        "TODO_DESIGN_seam_parent_front_root_tip_l_root_tip_r"
+      ],
+      "sampled_poses": 1008,
+      "detached_components": 0,
+      "part_connectivity": {
+        "ok": true,
+        "errors": [],
+        "parts": [
+          {
+            "view": "front",
+            "part": "seam_petal_near_l_tendril_high_l",
+            "components": 1,
+            "pixels": 203
+          },
+          {
+            "view": "front",
+            "part": "seam_tendril_high_l_root_tip_c",
+            "components": 1,
+            "pixels": 36
+          },
+          {
+            "view": "front",
+            "part": "seam_root_stem_c_root_tip_c",
+            "components": 1,
+            "pixels": 125
+          },
+          {
+            "view": "front",
+            "part": "seam_tendril_high_r_tendril_low_r",
+            "components": 1,
+            "pixels": 328
+          },
+          {
+            "view": "front",
+            "part": "seam_root_stem_r_root_tip_l",
+            "components": 1,
+            "pixels": 60
+          },
+          {
+            "view": "front",
+            "part": "seam_root_stem_r_root_tip_r",
+            "components": 1,
+            "pixels": 276
+          },
+          {
+            "view": "front",
+            "part": "seam_petal_near_r_tendril_high_r",
+            "components": 1,
+            "pixels": 43
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_petal_near_l",
+            "components": 1,
+            "pixels": 288
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_petal_near_r",
+            "components": 1,
+            "pixels": 500
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_tendril_high_l",
+            "components": 1,
+            "pixels": 763
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_tendril_high_r",
+            "components": 1,
+            "pixels": 468
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_tendril_low_l",
+            "components": 1,
+            "pixels": 1044
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_tendril_low_r",
+            "components": 1,
+            "pixels": 783
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_root_stem_r",
+            "components": 1,
+            "pixels": 745
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_root_stem_c",
+            "components": 1,
+            "pixels": 174
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_root_tip_r",
+            "components": 1,
+            "pixels": 178
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_root_tip_c_component_01",
+            "components": 1,
+            "pixels": 68
+          },
+          {
+            "view": "front",
+            "part": "seam_trunk_root_tip_c_component_02",
+            "components": 1,
+            "pixels": 62
+          },
+          {
+            "view": "front",
+            "part": "seam_tendril_low_l_root_tip_c",
+            "components": 1,
+            "pixels": 180
+          },
+          {
+            "view": "front",
+            "part": "seam_core_petal_far_l",
+            "components": 1,
+            "pixels": 262
+          },
+          {
+            "view": "front",
+            "part": "seam_petal_near_l_petal_far_l",
+            "components": 1,
+            "pixels": 224
+          },
+          {
+            "view": "front",
+            "part": "seam_petal_far_l_petal_far_r",
+            "components": 1,
+            "pixels": 210
+          },
+          {
+            "view": "front",
+            "part": "seam_core_petal_far_r",
+            "components": 1,
+            "pixels": 255
+          },
+          {
+            "view": "front",
+            "part": "seam_petal_near_r_petal_far_r",
+            "components": 1,
+            "pixels": 448
+          },
+          {
+            "view": "front",
+            "part": "seam_core_petal_near_l",
+            "components": 1,
+            "pixels": 275
+          },
+          {
+            "view": "front",
+            "part": "seam_core_petal_near_r",
+            "components": 1,
+            "pixels": 290
+          },
+          {
+            "view": "front",
+            "part": "seam_petal_near_l_petal_near_r",
+            "components": 1,
+            "pixels": 149
+          },
+          {
+            "view": "front",
+            "part": "trunk",
+            "components": 1,
+            "pixels": 8873
+          },
+          {
+            "view": "front",
+            "part": "core",
+            "components": 1,
+            "pixels": 443
+          },
+          {
+            "view": "front",
+            "part": "petal_near_l",
+            "components": 1,
+            "pixels": 1192
+          },
+          {
+            "view": "front",
+            "part": "petal_near_r",
+            "components": 1,
+            "pixels": 1706
+          },
+          {
+            "view": "front",
+            "part": "petal_far_l",
+            "components": 1,
+            "pixels": 1639
+          },
+          {
+            "view": "front",
+            "part": "petal_far_r",
+            "components": 1,
+            "pixels": 2304
+          },
+          {
+            "view": "front",
+            "part": "tendril_high_l",
+            "components": 1,
+            "pixels": 1019
+          },
+          {
+            "view": "front",
+            "part": "tendril_high_r",
+            "components": 1,
+            "pixels": 1014
+          },
+          {
+            "view": "front",
+            "part": "tendril_low_l",
+            "components": 1,
+            "pixels": 915
+          },
+          {
+            "view": "front",
+            "part": "tendril_low_r",
+            "components": 1,
+            "pixels": 1414
+          },
+          {
+            "view": "front",
+            "part": "root_stem_r",
+            "components": 1,
+            "pixels": 589
+          },
+          {
+            "view": "front",
+            "part": "root_stem_c",
+            "components": 1,
+            "pixels": 51
+          },
+          {
+            "view": "front",
+            "part": "root_tip_l",
+            "components": 1,
+            "pixels": 13
+          },
+          {
+            "view": "front",
+            "part": "root_tip_r",
+            "components": 1,
+            "pixels": 1138
+          },
+          {
+            "view": "front",
+            "part": "root_tip_c",
+            "components": 1,
+            "pixels": 729
+          },
+          {
+            "view": "front",
+            "part": "hidden_trunk",
+            "components": 1,
+            "pixels": 15378
+          },
+          {
+            "view": "front",
+            "part": "hidden_core",
+            "components": 1,
+            "pixels": 2893
+          },
+          {
+            "view": "front",
+            "part": "hidden_petal_near_l",
+            "components": 1,
+            "pixels": 2498
+          },
+          {
+            "view": "front",
+            "part": "hidden_petal_near_r",
+            "components": 1,
+            "pixels": 2792
+          },
+          {
+            "view": "front",
+            "part": "hidden_petal_far_l",
+            "components": 1,
+            "pixels": 2692
+          },
+          {
+            "view": "front",
+            "part": "hidden_petal_far_r",
+            "components": 1,
+            "pixels": 3099
+          },
+          {
+            "view": "front",
+            "part": "hidden_tendril_high_l",
+            "components": 1,
+            "pixels": 2489
+          },
+          {
+            "view": "front",
+            "part": "hidden_tendril_high_r",
+            "components": 1,
+            "pixels": 1816
+          },
+          {
+            "view": "front",
+            "part": "tendril_mid_l",
+            "components": 1,
+            "pixels": 5694
+          },
+          {
+            "view": "front",
+            "part": "hidden_tendril_low_l",
+            "components": 1,
+            "pixels": 2496
+          },
+          {
+            "view": "front",
+            "part": "hidden_tendril_low_r",
+            "components": 1,
+            "pixels": 2484
+          },
+          {
+            "view": "front",
+            "part": "root_stem_l",
+            "components": 1,
+            "pixels": 5712
+          },
+          {
+            "view": "front",
+            "part": "hidden_root_stem_r",
+            "components": 1,
+            "pixels": 1945
+          },
+          {
+            "view": "front",
+            "part": "hidden_root_stem_c",
+            "components": 1,
+            "pixels": 1373
+          },
+          {
+            "view": "front",
+            "part": "hidden_root_tip_l",
+            "components": 1,
+            "pixels": 170
+          },
+          {
+            "view": "front",
+            "part": "hidden_root_tip_r",
+            "components": 1,
+            "pixels": 1569
+          },
+          {
+            "view": "front",
+            "part": "hidden_root_tip_c",
+            "components": 1,
+            "pixels": 1226
+          },
+          {
+            "view": "front",
+            "part": "feature_crown_gem",
+            "components": 1,
+            "pixels": 1167
+          },
+          {
+            "view": "front",
+            "part": "feature_amber_upper",
+            "components": 1,
+            "pixels": 242
+          },
+          {
+            "view": "front",
+            "part": "feature_amber_right",
+            "components": 1,
+            "pixels": 295
+          },
+          {
+            "view": "front",
+            "part": "feature_amber_left",
+            "components": 1,
+            "pixels": 595
+          },
+          {
+            "view": "rear",
+            "part": "seam_tendril_low_l_root_stem_l",
+            "components": 1,
+            "pixels": 57
+          },
+          {
+            "view": "rear",
+            "part": "seam_root_stem_l_root_stem_r",
+            "components": 1,
+            "pixels": 107
+          },
+          {
+            "view": "rear",
+            "part": "seam_petal_far_l_tendril_high_l",
+            "components": 1,
+            "pixels": 220
+          },
+          {
+            "view": "rear",
+            "part": "seam_tendril_high_l_root_tip_c",
+            "components": 1,
+            "pixels": 181
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_core",
+            "components": 1,
+            "pixels": 182
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_petal_far_l",
+            "components": 1,
+            "pixels": 102
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_petal_far_r",
+            "components": 1,
+            "pixels": 131
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_tendril_high_l",
+            "components": 1,
+            "pixels": 1156
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_tendril_high_r",
+            "components": 1,
+            "pixels": 701
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_tendril_mid_l",
+            "components": 1,
+            "pixels": 1118
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_tendril_low_r",
+            "components": 1,
+            "pixels": 215
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_root_stem_l",
+            "components": 1,
+            "pixels": 262
+          },
+          {
+            "view": "rear",
+            "part": "seam_trunk_root_tip_l",
+            "components": 1,
+            "pixels": 230
+          },
+          {
+            "view": "rear",
+            "part": "seam_root_stem_l_root_tip_l",
+            "components": 1,
+            "pixels": 188
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_petal_near_l",
+            "components": 1,
+            "pixels": 291
+          },
+          {
+            "view": "rear",
+            "part": "seam_petal_near_l_petal_near_r",
+            "components": 1,
+            "pixels": 54
+          },
+          {
+            "view": "rear",
+            "part": "seam_petal_near_l_petal_far_l",
+            "components": 1,
+            "pixels": 361
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_petal_near_r",
+            "components": 1,
+            "pixels": 220
+          },
+          {
+            "view": "rear",
+            "part": "seam_petal_near_r_petal_far_r",
+            "components": 1,
+            "pixels": 323
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_petal_far_l",
+            "components": 1,
+            "pixels": 187
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_petal_far_r",
+            "components": 1,
+            "pixels": 254
+          },
+          {
+            "view": "rear",
+            "part": "trunk",
+            "components": 1,
+            "pixels": 12525
+          },
+          {
+            "view": "rear",
+            "part": "core",
+            "components": 1,
+            "pixels": 632
+          },
+          {
+            "view": "rear",
+            "part": "petal_near_l",
+            "components": 1,
+            "pixels": 888
+          },
+          {
+            "view": "rear",
+            "part": "petal_near_r",
+            "components": 1,
+            "pixels": 760
+          },
+          {
+            "view": "rear",
+            "part": "petal_far_l",
+            "components": 1,
+            "pixels": 454
+          },
+          {
+            "view": "rear",
+            "part": "petal_far_r",
+            "components": 1,
+            "pixels": 431
+          },
+          {
+            "view": "rear",
+            "part": "tendril_high_l",
+            "components": 1,
+            "pixels": 2542
+          },
+          {
+            "view": "rear",
+            "part": "tendril_high_r",
+            "components": 1,
+            "pixels": 1024
+          },
+          {
+            "view": "rear",
+            "part": "tendril_mid_l",
+            "components": 1,
+            "pixels": 802
+          },
+          {
+            "view": "rear",
+            "part": "tendril_low_l",
+            "components": 1,
+            "pixels": 2
+          },
+          {
+            "view": "rear",
+            "part": "tendril_low_r",
+            "components": 1,
+            "pixels": 134
+          },
+          {
+            "view": "rear",
+            "part": "root_stem_l",
+            "components": 1,
+            "pixels": 288
+          },
+          {
+            "view": "rear",
+            "part": "root_stem_r",
+            "components": 1,
+            "pixels": 7
+          },
+          {
+            "view": "rear",
+            "part": "root_tip_l",
+            "components": 1,
+            "pixels": 279
+          },
+          {
+            "view": "rear",
+            "part": "root_tip_c",
+            "components": 1,
+            "pixels": 50
+          },
+          {
+            "view": "rear",
+            "part": "hidden_trunk",
+            "components": 1,
+            "pixels": 16942
+          },
+          {
+            "view": "rear",
+            "part": "hidden_core",
+            "components": 1,
+            "pixels": 1791
+          },
+          {
+            "view": "rear",
+            "part": "hidden_petal_near_l",
+            "components": 1,
+            "pixels": 1694
+          },
+          {
+            "view": "rear",
+            "part": "hidden_petal_near_r",
+            "components": 1,
+            "pixels": 1371
+          },
+          {
+            "view": "rear",
+            "part": "hidden_petal_far_l",
+            "components": 1,
+            "pixels": 1284
+          },
+          {
+            "view": "rear",
+            "part": "hidden_petal_far_r",
+            "components": 1,
+            "pixels": 1147
+          },
+          {
+            "view": "rear",
+            "part": "hidden_tendril_high_l",
+            "components": 1,
+            "pixels": 3799
+          },
+          {
+            "view": "rear",
+            "part": "hidden_tendril_high_r",
+            "components": 1,
+            "pixels": 1744
+          },
+          {
+            "view": "rear",
+            "part": "hidden_tendril_mid_l",
+            "components": 1,
+            "pixels": 1900
+          },
+          {
+            "view": "rear",
+            "part": "hidden_tendril_low_l",
+            "components": 1,
+            "pixels": 164
+          },
+          {
+            "view": "rear",
+            "part": "hidden_tendril_low_r",
+            "components": 1,
+            "pixels": 1201
+          },
+          {
+            "view": "rear",
+            "part": "hidden_root_stem_l",
+            "components": 1,
+            "pixels": 1475
+          },
+          {
+            "view": "rear",
+            "part": "hidden_root_stem_r",
+            "components": 1,
+            "pixels": 236
+          },
+          {
+            "view": "rear",
+            "part": "root_stem_c",
+            "components": 1,
+            "pixels": 6217
+          },
+          {
+            "view": "rear",
+            "part": "hidden_root_tip_l",
+            "components": 1,
+            "pixels": 848
+          },
+          {
+            "view": "rear",
+            "part": "root_tip_r",
+            "components": 1,
+            "pixels": 4115
+          },
+          {
+            "view": "rear",
+            "part": "hidden_root_tip_c",
+            "components": 1,
+            "pixels": 788
+          },
+          {
+            "view": "rear",
+            "part": "feature_crown_gem",
+            "components": 1,
+            "pixels": 161
+          },
+          {
+            "view": "rear",
+            "part": "feature_amber_rear_left",
+            "components": 1,
+            "pixels": 328
+          },
+          {
+            "view": "rear",
+            "part": "feature_amber_rear_low",
+            "components": 1,
+            "pixels": 178
+          }
+        ]
+      },
+      "rest_identity": {
+        "ok": true,
+        "views": {
+          "front": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          },
+          "rear": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          }
+        }
+      },
+      "shimmer": {
+        "native_pixels": false,
+        "metric": "changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored",
+        "defaults": {
+          "fps": 60,
+          "step_frames": 6,
+          "canvas_size": 512,
+          "source_offset": 128,
+          "boundary_residual_fraction": 0,
+          "transform_tolerance": 0.0001,
+          "bounds_margin_px": 2,
+          "native_raster_fraction": 0.01,
+          "native_raster_edge_pixels": 1
+        },
+        "totals": {
+          "before": {
+            "held_unexplained_pixels": 706781,
+            "boundary_unexplained_pixels": 66096
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0
+          }
+        }
+      },
+      "features": [
+        {
+          "feature": "crown_gem",
+          "view": "front",
+          "mask_pixels": 1167,
+          "preserved_pixels": 1167,
+          "painted_nodes": [
+            "feature_crown_gem"
+          ],
+          "owner": "core",
+          "owner_bone": "core",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_upper",
+          "view": "front",
+          "mask_pixels": 242,
+          "preserved_pixels": 242,
+          "painted_nodes": [
+            "feature_amber_upper"
+          ],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_right",
+          "view": "front",
+          "mask_pixels": 295,
+          "preserved_pixels": 295,
+          "painted_nodes": [
+            "feature_amber_right"
+          ],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_left",
+          "view": "front",
+          "mask_pixels": 595,
+          "preserved_pixels": 595,
+          "painted_nodes": [
+            "feature_amber_left"
+          ],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_rear_left",
+          "view": "front",
+          "mask_pixels": 0,
+          "preserved_pixels": 0,
+          "painted_nodes": [],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": "On the back of the trunk; hidden from the front view.",
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_rear_low",
+          "view": "front",
+          "mask_pixels": 0,
+          "preserved_pixels": 0,
+          "painted_nodes": [],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": "On the back of the trunk; hidden from the front view.",
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "crown_gem",
+          "view": "rear",
+          "mask_pixels": 161,
+          "preserved_pixels": 161,
+          "painted_nodes": [
+            "feature_crown_gem"
+          ],
+          "owner": "core",
+          "owner_bone": "core",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_upper",
+          "view": "rear",
+          "mask_pixels": 0,
+          "preserved_pixels": 0,
+          "painted_nodes": [],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_right",
+          "view": "rear",
+          "mask_pixels": 0,
+          "preserved_pixels": 0,
+          "painted_nodes": [],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_left",
+          "view": "rear",
+          "mask_pixels": 0,
+          "preserved_pixels": 0,
+          "painted_nodes": [],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": "On the front face of the trunk; hidden behind the roots in the rear view.",
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_rear_left",
+          "view": "rear",
+          "mask_pixels": 328,
+          "preserved_pixels": 328,
+          "painted_nodes": [
+            "feature_amber_rear_left"
+          ],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "amber_rear_low",
+          "view": "rear",
+          "mask_pixels": 178,
+          "preserved_pixels": 178,
+          "painted_nodes": [
+            "feature_amber_rear_low"
+          ],
+          "owner": "trunk",
+          "owner_bone": "trunk",
+          "sampled_poses": 504,
+          "poses_by_clip": {
+            "burst": 60,
+            "death": 78,
+            "hit": 36,
+            "idle": 168,
+            "move": 54,
+            "shell": 60,
+            "shot": 48
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        }
+      ],
+      "seams": {
+        "policy": "reach per side = min(ceil(max sampled separation) + 1 px, 4 px)",
+        "joints": 48,
+        "nodes": 48,
+        "dropped_component_pixels": 0
+      },
+      "seam_maxima": {
+        "front_idle": {
+          "interior_tear_pixels": {
+            "pixels": 404,
+            "frame": 66
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 69,
+            "frame": 18
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "front_move": {
+          "interior_tear_pixels": {
+            "pixels": 888,
+            "frame": 19
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 172,
+            "frame": 22
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "front_burst": {
+          "interior_tear_pixels": {
+            "pixels": 551,
+            "frame": 16
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 1,
+            "frame": 6
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "front_shot": {
+          "interior_tear_pixels": {
+            "pixels": 807,
+            "frame": 25
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 146,
+            "frame": 12
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "front_shell": {
+          "interior_tear_pixels": {
+            "pixels": 1987,
+            "frame": 42
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 116,
+            "frame": 8
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "front_hit": {
+          "interior_tear_pixels": {
+            "pixels": 746,
+            "frame": 14
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 50,
+            "frame": 27
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "front_death": {
+          "interior_tear_pixels": {
+            "pixels": 3524,
+            "frame": 75
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 119,
+            "frame": 11
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 3,
+            "frame": 38
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 1.0,
+            "frame": 16
+          }
+        },
+        "rear_idle": {
+          "interior_tear_pixels": {
+            "pixels": 321,
+            "frame": 120
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 49,
+            "frame": 54
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "rear_move": {
+          "interior_tear_pixels": {
+            "pixels": 335,
+            "frame": 35
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 71,
+            "frame": 34
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "rear_burst": {
+          "interior_tear_pixels": {
+            "pixels": 385,
+            "frame": 24
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 6,
+            "frame": 39
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "rear_shot": {
+          "interior_tear_pixels": {
+            "pixels": 700,
+            "frame": 23
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 4,
+            "frame": 39
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "rear_shell": {
+          "interior_tear_pixels": {
+            "pixels": 1093,
+            "frame": 18
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 30,
+            "frame": 6
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "rear_hit": {
+          "interior_tear_pixels": {
+            "pixels": 529,
+            "frame": 16
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 54,
+            "frame": 16
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 0.0,
+            "frame": 0
+          }
+        },
+        "rear_death": {
+          "interior_tear_pixels": {
+            "pixels": 1580,
+            "frame": 75
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 55,
+            "frame": 8
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 1,
+            "frame": 38
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 1.0,
+            "frame": 38
+          }
+        }
+      },
+      "native_after": null
+    },
+    "lightning_wisp": {
+      "ok": true,
+      "errors": [],
+      "sampled_poses": 750,
+      "detached_components": 0,
+      "part_connectivity": {
+        "ok": true,
+        "errors": [],
+        "parts": [
+          {
+            "view": "front",
+            "part": "seam_core_crown",
+            "components": 1,
+            "pixels": 332
+          },
+          {
+            "view": "front",
+            "part": "seam_core_tail",
+            "components": 1,
+            "pixels": 509
+          },
+          {
+            "view": "front",
+            "part": "seam_core_arc_left",
+            "components": 1,
+            "pixels": 270
+          },
+          {
+            "view": "front",
+            "part": "seam_core_arc_right",
+            "components": 1,
+            "pixels": 105
+          },
+          {
+            "view": "front",
+            "part": "core",
+            "components": 1,
+            "pixels": 7124
+          },
+          {
+            "view": "front",
+            "part": "crown",
+            "components": 1,
+            "pixels": 322
+          },
+          {
+            "view": "front",
+            "part": "tail",
+            "components": 1,
+            "pixels": 2986
+          },
+          {
+            "view": "front",
+            "part": "arc_left",
+            "components": 1,
+            "pixels": 267
+          },
+          {
+            "view": "front",
+            "part": "arc_right",
+            "components": 1,
+            "pixels": 204
+          },
+          {
+            "view": "front",
+            "part": "hidden_core",
+            "components": 1,
+            "pixels": 8192
+          },
+          {
+            "view": "front",
+            "part": "hidden_crown",
+            "components": 1,
+            "pixels": 8192
+          },
+          {
+            "view": "front",
+            "part": "hidden_tail",
+            "components": 1,
+            "pixels": 4808
+          },
+          {
+            "view": "front",
+            "part": "hidden_arc_left",
+            "components": 1,
+            "pixels": 8192
+          },
+          {
+            "view": "front",
+            "part": "hidden_arc_right",
+            "components": 1,
+            "pixels": 8192
+          },
+          {
+            "view": "front",
+            "part": "feature_eye",
+            "components": 1,
+            "pixels": 166
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_crown",
+            "components": 1,
+            "pixels": 189
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_tail",
+            "components": 1,
+            "pixels": 507
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_arc_left",
+            "components": 1,
+            "pixels": 338
+          },
+          {
+            "view": "rear",
+            "part": "seam_core_arc_right",
+            "components": 1,
+            "pixels": 55
+          },
+          {
+            "view": "rear",
+            "part": "core",
+            "components": 1,
+            "pixels": 7077
+          },
+          {
+            "view": "rear",
+            "part": "crown",
+            "components": 1,
+            "pixels": 363
+          },
+          {
+            "view": "rear",
+            "part": "tail",
+            "components": 1,
+            "pixels": 2087
+          },
+          {
+            "view": "rear",
+            "part": "arc_left",
+            "components": 1,
+            "pixels": 435
+          },
+          {
+            "view": "rear",
+            "part": "arc_right",
+            "components": 1,
+            "pixels": 70
+          },
+          {
+            "view": "rear",
+            "part": "hidden_core",
+            "components": 1,
+            "pixels": 8055
+          },
+          {
+            "view": "rear",
+            "part": "hidden_crown",
+            "components": 1,
+            "pixels": 8055
+          },
+          {
+            "view": "rear",
+            "part": "hidden_tail",
+            "components": 1,
+            "pixels": 3965
+          },
+          {
+            "view": "rear",
+            "part": "hidden_arc_left",
+            "components": 1,
+            "pixels": 8055
+          },
+          {
+            "view": "rear",
+            "part": "hidden_arc_right",
+            "components": 1,
+            "pixels": 8055
+          }
+        ]
+      },
+      "rest_identity": {
+        "ok": true,
+        "views": {
+          "front": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          },
+          "rear": {
+            "different_pixels": 0,
+            "pixel_identical": true
+          }
+        }
+      },
+      "shimmer": {
+        "native_pixels": false,
+        "metric": "changed RGBA pixels outside the canonical snapped rigid change mask; transparent RGB ignored",
+        "defaults": {
+          "fps": 60,
+          "step_frames": 6,
+          "canvas_size": 512,
+          "source_offset": 128,
+          "boundary_residual_fraction": 0,
+          "transform_tolerance": 0.0001,
+          "bounds_margin_px": 2,
+          "native_raster_fraction": 0.01,
+          "native_raster_edge_pixels": 1
+        },
+        "totals": {
+          "before": {
+            "held_unexplained_pixels": 986724,
+            "boundary_unexplained_pixels": 40836
+          },
+          "after": {
+            "held_unexplained_pixels": 0,
+            "boundary_unexplained_pixels": 0
+          }
+        }
+      },
+      "features": [
+        {
+          "feature": "eye",
+          "view": "front",
+          "mask_pixels": 166,
+          "preserved_pixels": 166,
+          "painted_nodes": [
+            "feature_eye"
+          ],
+          "owner": "core",
+          "owner_bone": "core",
+          "sampled_poses": 375,
+          "poses_by_clip": {
+            "cast": 48,
+            "death": 72,
+            "hit": 33,
+            "idle": 132,
+            "move": 48,
+            "strike": 42
+          },
+          "occluded_reason": null,
+          "errors": [],
+          "ok": true
+        },
+        {
+          "feature": "eye",
+          "view": "rear",
+          "mask_pixels": 0,
+          "preserved_pixels": 0,
+          "painted_nodes": [],
+          "owner": "core",
+          "owner_bone": "core",
+          "sampled_poses": 375,
+          "poses_by_clip": {
+            "cast": 48,
+            "death": 72,
+            "hit": 33,
+            "idle": 132,
+            "move": 48,
+            "strike": 42
+          },
+          "occluded_reason": "The single eye is on the front of the cloud; the rear view shows its back.",
+          "errors": [],
+          "ok": true
+        }
+      ],
+      "seams": {
+        "policy": "reach per side = min(ceil(max sampled separation) + 1 px, 4 px)",
+        "joints": 8,
+        "nodes": 8,
+        "dropped_component_pixels": 0
+      },
+      "seam_maxima": {
+        "front_idle": {
+          "interior_tear_pixels": {
+            "pixels": 265,
+            "frame": 78
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 7,
+            "frame": 12
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 2.23606797749979,
+            "frame": 18
+          }
+        },
+        "front_move": {
+          "interior_tear_pixels": {
+            "pixels": 715,
+            "frame": 13
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 13,
+            "frame": 7
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 2.8284271247461903,
+            "frame": 31
+          }
+        },
+        "front_strike": {
+          "interior_tear_pixels": {
+            "pixels": 761,
+            "frame": 16
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 1,
+            "frame": 2
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 13,
+            "frame": 25
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 2.23606797749979,
+            "frame": 3
+          }
+        },
+        "front_cast": {
+          "interior_tear_pixels": {
+            "pixels": 706,
+            "frame": 22
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 1,
+            "frame": 3
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 14,
+            "frame": 11
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.0,
+            "frame": 11
+          }
+        },
+        "front_hit": {
+          "interior_tear_pixels": {
+            "pixels": 552,
+            "frame": 8
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 11,
+            "frame": 20
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.0,
+            "frame": 20
+          }
+        },
+        "front_death": {
+          "interior_tear_pixels": {
+            "pixels": 2470,
+            "frame": 66
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 75,
+            "frame": 65
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 4.0,
+            "frame": 22
+          }
+        },
+        "rear_idle": {
+          "interior_tear_pixels": {
+            "pixels": 166,
+            "frame": 66
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 16,
+            "frame": 84
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.0,
+            "frame": 84
+          }
+        },
+        "rear_move": {
+          "interior_tear_pixels": {
+            "pixels": 537,
+            "frame": 13
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 21,
+            "frame": 17
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.1622776601683795,
+            "frame": 9
+          }
+        },
+        "rear_strike": {
+          "interior_tear_pixels": {
+            "pixels": 511,
+            "frame": 18
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 23,
+            "frame": 13
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.1622776601683795,
+            "frame": 18
+          }
+        },
+        "rear_cast": {
+          "interior_tear_pixels": {
+            "pixels": 487,
+            "frame": 20
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 0,
+            "frame": 0
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 19,
+            "frame": 14
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.605551275463989,
+            "frame": 14
+          }
+        },
+        "rear_hit": {
+          "interior_tear_pixels": {
+            "pixels": 395,
+            "frame": 5
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 1,
+            "frame": 5
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 21,
+            "frame": 4
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 3.0,
+            "frame": 4
+          }
+        },
+        "rear_death": {
+          "interior_tear_pixels": {
+            "pixels": 1539,
+            "frame": 64
+          },
+          "natural_negative_space_pixels": {
+            "pixels": 1,
+            "frame": 32
+          },
+          "underlay_protrusion_pixels": {
+            "pixels": 49,
+            "frame": 50
+          },
+          "underlay_protrusion_width_px": {
+            "width_px": 4.0,
+            "frame": 50
+          }
+        }
+      },
+      "native_after": null
+    }
+  },
+  "native_status": "Fresh windowed capture required; worker has no window server",
+  "TODO_DESIGN": [
+    {
+      "name": "TODO_DESIGN_seam_parent_front_root_tip_l_root_tip_r",
+      "view": "front",
+      "parts": [
+        "root_tip_l",
+        "root_tip_r"
+      ],
+      "bones": [
+        "root_tip_l",
+        "root_tip_r"
+      ],
+      "depths": [
+        3,
+        3
+      ],
+      "shared_boundary_px": 7,
+      "reason": "Equal-depth parts with different immediate parents need a director-supplied seam owner"
+    },
+    {
+      "name": "TODO_DESIGN_boundary_shimmer_acceptance",
+      "reason": "Feedback 9 says both unchanged and zero; unchanged accepted threshold is 1%, while exact zero rejects 15 boundary residual pixels in the saved accepted Wisp proof. Current implementation enforces literal zero; director clarification pending."
+    }
+  ],
+  "saved_wisp_native_boundary": {
+    "basis": "Saved director run 4 original material surfaces; current paint and raster model, added seam nodes excluded because they were not captured then",
+    "errors": [
+      "front/hidden_core/36: unexplained shimmer (1px, 0.000120)",
+      "front/hidden_crown/36: unexplained shimmer (1px, 0.000120)",
+      "front/hidden_arc_left/36: unexplained shimmer (1px, 0.000120)",
+      "front/hidden_arc_right/36: unexplained shimmer (1px, 0.000120)",
+      "rear/hidden_core/54: unexplained shimmer (1px, 0.000122)",
+      "rear/hidden_core/60: unexplained shimmer (1px, 0.000123)",
+      "rear/hidden_crown/54: unexplained shimmer (1px, 0.000122)",
+      "rear/hidden_crown/60: unexplained shimmer (1px, 0.000123)",
+      "rear/hidden_tail/48: unexplained shimmer (1px, 0.000242)",
+      "rear/hidden_tail/72: unexplained shimmer (2px, 0.000498)",
+      "rear/hidden_arc_left/54: unexplained shimmer (1px, 0.000122)",
+      "rear/hidden_arc_left/60: unexplained shimmer (1px, 0.000123)",
+      "rear/hidden_arc_right/54: unexplained shimmer (1px, 0.000122)",
+      "rear/hidden_arc_right/60: unexplained shimmer (1px, 0.000123)"
+    ],
+    "totals": {
+      "before": {
+        "held_unexplained_pixels": 966863,
+        "boundary_unexplained_pixels": 39465
+      },
+      "after": {
+        "held_unexplained_pixels": 0,
+        "boundary_unexplained_pixels": 15
+      }
+    },
+    "current_boundary_threshold_fraction": 0
+  }
+}

@@ -1,0 +1,739 @@
+{
+  "case": "tests/maquette_cutout/alpha_fixtures/source_case",
+  "layout": {
+    "version": 1,
+    "facing": "front",
+    "canvas_size": [
+      255,
+      255
+    ],
+    "joints": {
+      "root": {
+        "position": [
+          131.0,
+          270.7193518191608
+        ],
+        "parent": null
+      },
+      "core": {
+        "position": [
+          131.0,
+          132.15528721365064
+        ],
+        "parent": "root"
+      },
+      "tail": {
+        "position": [
+          131.0,
+          176.49578788741388
+        ],
+        "parent": "core"
+      }
+    },
+    "parts": [
+      {
+        "name": "core",
+        "file": "segmented/front/core.png",
+        "offset": [
+          70,
+          78
+        ],
+        "bbox": [
+          70,
+          78,
+          190,
+          173
+        ],
+        "logical_part": "core",
+        "bone": "core",
+        "z_index": 1,
+        "rest_depth_source": "core"
+      },
+      {
+        "name": "crown",
+        "file": "segmented/front/crown.png",
+        "offset": [
+          66,
+          92
+        ],
+        "bbox": [
+          66,
+          92,
+          156,
+          150
+        ],
+        "logical_part": "crown",
+        "bone": "core",
+        "z_index": 4,
+        "rest_depth_source": "crown"
+      },
+      {
+        "name": "tail",
+        "file": "segmented/front/tail.png",
+        "offset": [
+          69,
+          133
+        ],
+        "bbox": [
+          69,
+          133,
+          178,
+          246
+        ],
+        "logical_part": "tail",
+        "bone": "tail",
+        "z_index": 0,
+        "rest_depth_source": "tail"
+      },
+      {
+        "name": "arc_left",
+        "file": "segmented/front/arc_left.png",
+        "offset": [
+          66,
+          114
+        ],
+        "bbox": [
+          66,
+          114,
+          161,
+          152
+        ],
+        "logical_part": "arc_left",
+        "bone": "core",
+        "z_index": 2,
+        "rest_depth_source": "arc_left"
+      },
+      {
+        "name": "arc_right",
+        "file": "segmented/front/arc_right.png",
+        "offset": [
+          66,
+          96
+        ],
+        "bbox": [
+          66,
+          96,
+          176,
+          171
+        ],
+        "logical_part": "arc_right",
+        "bone": "core",
+        "z_index": 3,
+        "rest_depth_source": "arc_right"
+      },
+      {
+        "name": "hidden_core",
+        "logical_part": "core",
+        "hidden_material": true,
+        "file": "hidden/front/core.png",
+        "offset": [
+          66,
+          78
+        ],
+        "bone": "core",
+        "z_index": -4,
+        "bbox": [
+          66,
+          78,
+          190,
+          173
+        ]
+      },
+      {
+        "name": "hidden_crown",
+        "logical_part": "crown",
+        "hidden_material": true,
+        "file": "hidden/front/crown.png",
+        "offset": [
+          66,
+          78
+        ],
+        "bone": "core",
+        "z_index": -1,
+        "bbox": [
+          66,
+          78,
+          190,
+          173
+        ]
+      },
+      {
+        "name": "hidden_tail",
+        "logical_part": "tail",
+        "hidden_material": true,
+        "file": "hidden/front/tail.png",
+        "offset": [
+          101,
+          131
+        ],
+        "bone": "tail",
+        "z_index": -5,
+        "bbox": [
+          101,
+          131,
+          178,
+          246
+        ]
+      },
+      {
+        "name": "hidden_arc_left",
+        "logical_part": "arc_left",
+        "hidden_material": true,
+        "file": "hidden/front/arc_left.png",
+        "offset": [
+          66,
+          78
+        ],
+        "bone": "core",
+        "z_index": -3,
+        "bbox": [
+          66,
+          78,
+          190,
+          173
+        ]
+      },
+      {
+        "name": "hidden_arc_right",
+        "logical_part": "arc_right",
+        "hidden_material": true,
+        "file": "hidden/front/arc_right.png",
+        "offset": [
+          66,
+          78
+        ],
+        "bone": "core",
+        "z_index": -2,
+        "bbox": [
+          66,
+          78,
+          190,
+          173
+        ]
+      },
+      {
+        "name": "feature_eye",
+        "feature": "eye",
+        "logical_part": "core",
+        "bone": "core",
+        "file": "segmented/front/feature_eye.png",
+        "offset": [
+          110,
+          146
+        ],
+        "bbox": [
+          110,
+          146,
+          124,
+          160
+        ],
+        "z_index": 5
+      }
+    ],
+    "rest_source": "source/front/processed.png",
+    "unmaterialized_parts": [],
+    "landmarks": {},
+    "logical_parts": [
+      "core",
+      "crown",
+      "tail",
+      "arc_left",
+      "arc_right"
+    ],
+    "maquette_depths": {
+      "core": 29.860257653858252,
+      "crown": 29.64811527035848,
+      "tail": 30.08996875325453,
+      "arc_left": 29.84671807561678,
+      "arc_right": 29.713429910209086
+    },
+    "motion_data": "res://experiments/cutouts/lightning_wisp/mq4/compiled_motion.json"
+  },
+  "source_files": {
+    "segmented/front/core.png": "e79aa2c7ddc2d22c0582718617603e665dc84a6487bc1bd071f8f591751a727b",
+    "segmented/front/crown.png": "764adaa96c29d7e09facf8347795e3adfcf9ae539f1ee1b7031669a950bfb43c",
+    "segmented/front/tail.png": "7ae966c9f094538d63b196b76e06d28628f2de6bb584be6f3ea4b7a0f7c415d8",
+    "segmented/front/arc_left.png": "937b339b7f6c27700c5e8e245810e62777f2a86ac4d23c05edf4d2196c3f9c29",
+    "segmented/front/arc_right.png": "da97265a740954d3245082b88337cc8aa0aa7111148dcefd7cf6da60da709149",
+    "hidden/front/core.png": "ab943f01549566285d9614b57570fe0c36bbe7a048b1975da5de4b6538f6632d",
+    "hidden/front/crown.png": "723796130cdd79603c7235f81e8f909b4a712c80e52c193c44fd48bce4cd1482",
+    "hidden/front/tail.png": "cfe71eca04c36319b51315c12ac52c8f08f2301a42bc76a7ce766527bf6bbcbf",
+    "hidden/front/arc_left.png": "5042905e9daf0c935832024bfb40133ee3510e147c42f2724362b9709c2e7791",
+    "hidden/front/arc_right.png": "d8905533d337222d2499571908fc4aa6daa69145c8181ab2cb59a9145aa1d9e3",
+    "segmented/front/feature_eye.png": "8fb9fbf9507b7b4b0312c60e1f0dc595dc366cf68edbc7b43fe6b569b2d2ff32",
+    "source/front/processed.png": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f"
+  },
+  "frames": [
+    {
+      "file": "pose_0069.png",
+      "sha256": "de5ff0e305c743e44c9ed76072ffe3e199e00df4866bc41a027647fe1ced9e15",
+      "original_capture": "output/rr-05/wisp-native/front_death/pose_0069.png",
+      "sample": {
+        "clip": "death",
+        "frame": 69,
+        "parts": {
+          "arc_left": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              120.722015380859
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              120.45361328125
+            ]
+          },
+          "arc_right": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              99.4952087402344
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              99.226806640625
+            ]
+          },
+          "core": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              59.0647277832031,
+              78.2684097290039
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              59.0,
+              78.0
+            ]
+          },
+          "crown": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              94.7781448364258
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              94.5097351074219
+            ]
+          },
+          "feature_eye": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              106.235397338867,
+              158.458557128906
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              106.170669555664,
+              158.190139770508
+            ]
+          },
+          "hidden_arc_left": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              78.2684097290039
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              78.0
+            ]
+          },
+          "hidden_arc_right": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              78.2684097290039
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              78.0
+            ]
+          },
+          "hidden_core": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              78.2684097290039
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              78.0
+            ]
+          },
+          "hidden_crown": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.34765625,
+              78.2684097290039
+            ],
+            "bone": "core",
+            "transform": [
+              1.17926681041718,
+              0.0,
+              0.0,
+              1.17926681041718,
+              54.2829284667969,
+              78.0
+            ]
+          },
+          "hidden_tail": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              0.581506013870239,
+              -0.405033886432648,
+              0.405033886432648,
+              0.581506013870239,
+              95.1274871826172,
+              180.116165161133
+            ],
+            "bone": "tail",
+            "transform": [
+              0.58402681350708,
+              -0.40139052271843,
+              0.40139052271843,
+              0.58402681350708,
+              94.8860778808594,
+              179.987457275391
+            ]
+          },
+          "tail": {
+            "alpha": 0.0112648801878095,
+            "before": [
+              0.581506013870239,
+              -0.405033886432648,
+              0.405033886432648,
+              0.581506013870239,
+              77.3293609619141,
+              194.240264892578
+            ],
+            "bone": "tail",
+            "transform": [
+              0.58402681350708,
+              -0.40139052271843,
+              0.40139052271843,
+              0.58402681350708,
+              77.0,
+              194.0
+            ]
+          }
+        },
+        "phase": 0.971830985915493,
+        "presented_phase": 0.971830985915493,
+        "view": "front"
+      }
+    },
+    {
+      "file": "pose_0070.png",
+      "sha256": "0474df781afff94bd6f7d1410179280b9bb9b8f01f5ccb6539168032885a5151",
+      "original_capture": "output/rr-05/wisp-native/front_death/pose_0070.png",
+      "sample": {
+        "clip": "death",
+        "frame": 70,
+        "parts": {
+          "arc_left": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              120.729553222656
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              120.473274230957
+            ]
+          },
+          "arc_right": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              99.4929122924805
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              99.2366333007812
+            ]
+          },
+          "core": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              59.0313949584961,
+              78.2562789916992
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              59.0,
+              78.0
+            ]
+          },
+          "crown": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              94.7736663818359
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              94.5173873901367
+            ]
+          },
+          "feature_eye": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              106.223922729492,
+              158.48356628418
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              106.192527770996,
+              158.227310180664
+            ]
+          },
+          "hidden_arc_left": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              78.2562789916992
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              78.0
+            ]
+          },
+          "hidden_arc_right": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              78.2562789916992
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              78.0
+            ]
+          },
+          "hidden_core": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              78.2562789916992
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              78.0
+            ]
+          },
+          "hidden_crown": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              1.17981314659119,
+              0.0,
+              0.0,
+              1.17981314659119,
+              54.3121490478516,
+              78.2562789916992
+            ],
+            "bone": "core",
+            "transform": [
+              1.1798130273819,
+              0.0,
+              0.0,
+              1.1798130273819,
+              54.2807464599609,
+              78.0
+            ]
+          },
+          "hidden_tail": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              0.580353081226349,
+              -0.405819565057755,
+              0.405819565057755,
+              0.580353081226349,
+              95.1263275146484,
+              180.233871459961
+            ],
+            "bone": "tail",
+            "transform": [
+              0.5836181640625,
+              -0.401109725236893,
+              0.401109725236893,
+              0.5836181640625,
+              94.8735656738281,
+              179.997253417969
+            ]
+          },
+          "tail": {
+            "alpha": 0.00287754205055535,
+            "before": [
+              0.580353081226349,
+              -0.405819565057755,
+              0.405819565057755,
+              0.580353081226349,
+              77.3666687011719,
+              194.380798339844
+            ],
+            "bone": "tail",
+            "transform": [
+              0.5836181640625,
+              -0.401109725236893,
+              0.401109725236893,
+              0.5836181640625,
+              77.0,
+              194.0
+            ]
+          }
+        },
+        "phase": 0.985915492957746,
+        "presented_phase": 0.985915492957746,
+        "view": "front"
+      }
+    }
+  ],
+  "expected_before_fix_false_pixels_frame70": 13007,
+  "original_case": "experiments/cutouts/lightning_wisp/mq4",
+  "source_authority": "Frozen source texels for the existing retained native capture; original 11 SHA-256 values unchanged. Live hidden support is rebuilt in feedback 11."
+}

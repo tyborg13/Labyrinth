@@ -409,6 +409,46 @@
     "assets/units/shale_bloomer_cutout/rear/rest.png": {
       "category": "other",
       "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/lightning_wisp_cutout/features/front_eye.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/lightning_wisp_cutout/features/empty.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/front_crown_gem.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/rear_crown_gem.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/front_amber_upper.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/empty.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/front_amber_right.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/front_amber_left.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/rear_amber_rear_left.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
+    },
+    "assets/units/shale_bloomer_cutout/features/rear_amber_rear_low.png": {
+      "category": "never_drawn",
+      "reason": "Protected feature constraint mask; reference data, never rendered or density treated."
     }
   },
   "entries": [
@@ -1253,10 +1293,19 @@
         "assets/units/lightning_wisp_cutout/rear/core.png",
         "assets/units/lightning_wisp_cutout/rear/crown.png",
         "assets/units/lightning_wisp_cutout/rear/tail.png",
+        "assets/units/lightning_wisp_cutout/seams/front/seam_core_arc_left.png",
+        "assets/units/lightning_wisp_cutout/seams/front/seam_core_arc_right.png",
+        "assets/units/lightning_wisp_cutout/seams/front/seam_core_crown.png",
+        "assets/units/lightning_wisp_cutout/seams/front/seam_core_tail.png",
+        "assets/units/lightning_wisp_cutout/seams/rear/seam_core_arc_left.png",
+        "assets/units/lightning_wisp_cutout/seams/rear/seam_core_arc_right.png",
+        "assets/units/lightning_wisp_cutout/seams/rear/seam_core_crown.png",
+        "assets/units/lightning_wisp_cutout/seams/rear/seam_core_tail.png",
         "assets/units/lightning_wisp_cutout/segmented/front/arc_left.png",
         "assets/units/lightning_wisp_cutout/segmented/front/arc_right.png",
         "assets/units/lightning_wisp_cutout/segmented/front/core.png",
         "assets/units/lightning_wisp_cutout/segmented/front/crown.png",
+        "assets/units/lightning_wisp_cutout/segmented/front/feature_eye.png",
         "assets/units/lightning_wisp_cutout/segmented/front/tail.png",
         "assets/units/lightning_wisp_cutout/segmented/rear/arc_left.png",
         "assets/units/lightning_wisp_cutout/segmented/rear/arc_right.png",
@@ -4410,7 +4459,60 @@
         "assets/units/shale_bloomer_cutout/hidden/rear/tendril_low_r.png",
         "assets/units/shale_bloomer_cutout/hidden/rear/tendril_mid_l.png",
         "assets/units/shale_bloomer_cutout/hidden/rear/trunk.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_far_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_far_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_near_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_core_petal_near_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_petal_far_l_petal_far_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_petal_far_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_petal_near_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_l_tendril_high_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_r_petal_far_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_petal_near_r_tendril_high_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_c_root_tip_c.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_r_root_tip_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_root_stem_r_root_tip_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_root_tip_l_root_tip_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_high_l_root_tip_c.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_high_r_tendril_low_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_tendril_low_l_root_tip_c.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_petal_near_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_petal_near_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_stem_c.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_stem_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_c_component_01.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_c_component_02.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_root_tip_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_high_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_high_r.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_low_l.png",
+        "assets/units/shale_bloomer_cutout/seams/front/seam_trunk_tendril_low_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_far_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_far_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_near_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_core_petal_near_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_far_l_tendril_high_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_l_petal_far_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_l_petal_near_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_petal_near_r_petal_far_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_root_stem_l_root_stem_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_root_stem_l_root_tip_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_tendril_high_l_root_tip_c.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_tendril_low_l_root_stem_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_core.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_petal_far_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_petal_far_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_root_stem_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_root_tip_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_high_l.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_high_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_low_r.png",
+        "assets/units/shale_bloomer_cutout/seams/rear/seam_trunk_tendril_mid_l.png",
         "assets/units/shale_bloomer_cutout/segmented/front/core.png",
+        "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_left.png",
+        "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_right.png",
+        "assets/units/shale_bloomer_cutout/segmented/front/feature_amber_upper.png",
+        "assets/units/shale_bloomer_cutout/segmented/front/feature_crown_gem.png",
         "assets/units/shale_bloomer_cutout/segmented/front/petal_far_l.png",
         "assets/units/shale_bloomer_cutout/segmented/front/petal_far_r.png",
         "assets/units/shale_bloomer_cutout/segmented/front/petal_near_l.png",
@@ -4426,6 +4528,9 @@
         "assets/units/shale_bloomer_cutout/segmented/front/tendril_low_r.png",
         "assets/units/shale_bloomer_cutout/segmented/front/trunk.png",
         "assets/units/shale_bloomer_cutout/segmented/rear/core.png",
+        "assets/units/shale_bloomer_cutout/segmented/rear/feature_amber_rear_left.png",
+        "assets/units/shale_bloomer_cutout/segmented/rear/feature_amber_rear_low.png",
+        "assets/units/shale_bloomer_cutout/segmented/rear/feature_crown_gem.png",
         "assets/units/shale_bloomer_cutout/segmented/rear/petal_far_l.png",
         "assets/units/shale_bloomer_cutout/segmented/rear/petal_far_r.png",
         "assets/units/shale_bloomer_cutout/segmented/rear/petal_near_l.png",

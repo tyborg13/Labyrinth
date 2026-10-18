@@ -1,0 +1,48 @@
+{
+  "basis": "Director run 2 native captures; supplied feedback 4 counts at distance >3 px",
+  "distance_px": 3,
+  "fixtures": [
+    {
+      "capture": "front_hit_0020.png",
+      "sha256": "2ab7bdb2f7c2ae0754720941a6cebb49320b748bc85e3daed515340cdd9cbfa0",
+      "detached_pixels": 182,
+      "islands": 2
+    },
+    {
+      "capture": "front_death_0030.png",
+      "sha256": "40085edb6d263efdee526db4dd2ecadd1b559365bfcdae6f50ec3f4f0958bd8b",
+      "detached_pixels": 207,
+      "islands": 10
+    },
+    {
+      "capture": "front_shell_0019.png",
+      "sha256": "8dd355e4aeb99893c947caf7ea46a2dc03568f598e7dab645b6fba151be6a186",
+      "detached_pixels": 37,
+      "islands": 8
+    },
+    {
+      "capture": "rear_shell_0047.png",
+      "sha256": "ee46d6ac242b744bc25b8a1eda24b6ffe063d6ee6816ad24bf897e203b8131f6",
+      "detached_pixels": 25,
+      "islands": 15
+    },
+    {
+      "capture": "front_move_0006.png",
+      "sha256": "82637c3229c9e8a49ca13ff3a8f79bb5996c06ef77db203bddfb7909a80d6190",
+      "detached_pixels": 20,
+      "islands": 3
+    },
+    {
+      "capture": "front_idle_0030.png",
+      "sha256": "df43e97e91183388ac2695c813907773c6970734f53d6f56d2ee3b3513a9aad4",
+      "detached_pixels": 19,
+      "islands": 1
+    },
+    {
+      "capture": "rear_death_0036.png",
+      "sha256": "01b508ad198f4249250bf91e0fcb0849280c34a8ad36dc26bc3727d3d073a04e",
+      "detached_pixels": 29,
+      "islands": 17
+    }
+  ]
+}

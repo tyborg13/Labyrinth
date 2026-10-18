@@ -1,0 +1,410 @@
+{
+  "focused": {
+    "log": "output/rr-05/feedback9/focused.log",
+    "result_lines": [
+      "Ran 146 tests in 290.986s",
+      "OK (skipped=2)"
+    ]
+  },
+  "semantic": {
+    "log": "output/rr-05/feedback9/semantic.log",
+    "result_lines": [
+      "Ran 8 tests in 64.272s",
+      "OK"
+    ]
+  },
+  "seams-tests": {
+    "log": "output/rr-05/feedback9/seams-tests.log",
+    "result_lines": [
+      "Ran 14 tests in 1.953s",
+      "OK"
+    ]
+  },
+  "owner-tests": {
+    "log": "output/rr-05/feedback9/owner-tests.log",
+    "result_lines": [
+      "Ran 5 tests in 3.471s",
+      "OK"
+    ]
+  },
+  "native-raster-tests": {
+    "log": "output/rr-05/feedback9/native-raster-tests.log",
+    "result_lines": [
+      "Ran 3 tests in 0.140s",
+      "OK"
+    ]
+  },
+  "native-alpha-tests": {
+    "log": "output/rr-05/feedback9/native-alpha-tests.log",
+    "result_lines": [
+      "Ran 3 tests in 0.996s",
+      "OK"
+    ]
+  },
+  "python-full": {
+    "log": "output/rr-05/feedback9/python-full.log",
+    "result_lines": [
+      "Ran 747 tests in 718.532s",
+      "OK (skipped=63)"
+    ]
+  },
+  "godot-full": {
+    "log": "output/rr-05/feedback9/godot-full.log",
+    "result_lines": [
+      "TEST RESULT: PASS",
+      "TEST RESULT: PASS",
+      "TEST RESULT: PASS \u2014 main menu resume safety",
+      "TEST RESULT: PASS",
+      "TEST RESULT: PASS",
+      "TEST RESULT: PASS",
+      "TEST RESULT: PASS",
+      "FULL SUITE RUNTIME: 288.231 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ]
+  },
+  "gdignore": {
+    "log": "output/rr-05/feedback9/gdignore.log",
+    "result_lines": [
+      "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+    ]
+  },
+  "final_checks": {
+    "log": "output/rr-05/feedback9/final_checks.log",
+    "result_lines": []
+  },
+  "headless": [
+    {
+      "name": "shale-authored",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/samples.gd",
+        "--",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-authored.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.346,
+      "result_lines": [
+        "MAQUETTE MOTION SAMPLES: PASS (276 bone poses)"
+      ],
+      "log": "output/rr-05/feedback9/shale-authored.log"
+    },
+    {
+      "name": "shale-authored-gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/shale_bloomer/mq3",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-authored.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-authored-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.256,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback9/shale-authored-gate.log"
+    },
+    {
+      "name": "shale-native-parse",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/native_capture.gd",
+        "--",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/shale_bloomer/mq3",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-native-parse",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.367,
+      "result_lines": [
+        "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+      ],
+      "log": "output/rr-05/feedback9/shale-native-parse.log"
+    },
+    {
+      "name": "shale-logic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/production_capture.gd",
+        "--",
+        "--type",
+        "bile_bloomer",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "seconds": 34.218,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1171 frames)",
+        "Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-logic"
+      ],
+      "log": "output/rr-05/feedback9/shale-logic.log"
+    },
+    {
+      "name": "shale-logic-gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/shale_bloomer/mq3",
+        "--production",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-logic/logic_frames.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/shale-logic-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.125,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback9/shale-logic-gate.log"
+    },
+    {
+      "name": "wisp-authored",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/samples.gd",
+        "--",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-authored.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.357,
+      "result_lines": [
+        "MAQUETTE MOTION SAMPLES: PASS (180 bone poses)"
+      ],
+      "log": "output/rr-05/feedback9/wisp-authored.log"
+    },
+    {
+      "name": "wisp-authored-gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/lightning_wisp/mq4",
+        "--samples",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-authored.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-authored-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.144,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback9/wisp-authored-gate.log"
+    },
+    {
+      "name": "wisp-native-parse",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/native_capture.gd",
+        "--",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/lightning_wisp/mq4",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-native-parse",
+        "--validate-only"
+      ],
+      "exit_code": 0,
+      "seconds": 0.369,
+      "result_lines": [
+        "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+      ],
+      "log": "output/rr-05/feedback9/wisp-native-parse.log"
+    },
+    {
+      "name": "wisp-logic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/production_capture.gd",
+        "--",
+        "--type",
+        "lightning_wisp",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "seconds": 34.222,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1149 frames)",
+        "Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-logic"
+      ],
+      "log": "output/rr-05/feedback9/wisp-logic.log"
+    },
+    {
+      "name": "wisp-logic-gate",
+      "command": [
+        "python3",
+        "tools/maquette_cutout_gates.py",
+        "--case",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/experiments/cutouts/lightning_wisp/mq4",
+        "--production",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-logic/logic_frames.json",
+        "--output",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-05/output/rr-05/feedback9/wisp-logic-gates.json"
+      ],
+      "exit_code": 0,
+      "seconds": 0.155,
+      "result_lines": [
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ],
+      "log": "output/rr-05/feedback9/wisp-logic-gate.log"
+    },
+    {
+      "name": "maquette-cutout",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout_test.gd",
+        "--"
+      ],
+      "exit_code": 0,
+      "seconds": 17.771,
+      "result_lines": [
+        "MAQUETTE CUTOUT: PASS (22130 checks, 0 failures; headless logic only)"
+      ],
+      "log": "output/rr-05/feedback9/maquette-cutout.log"
+    },
+    {
+      "name": "maquette-integration",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/maquette_cutout/integration_test.gd",
+        "--"
+      ],
+      "exit_code": 0,
+      "seconds": 31.666,
+      "result_lines": [
+        "REDUCED DRAGON AREA: static fully revealed claw marks; PASS",
+        "ENEMY SOURCE CACHE: palettes/seeds, facing, variants, target distance, resolved reuse, zero envelopes and empty retries; PASS",
+        "SHARED ATTACK FEEDBACK: 438 kind/element/dragon fixtures; PASS",
+        "MAQUETTE INTEGRATION: PASS (0 failures)"
+      ],
+      "log": "output/rr-05/feedback9/maquette-integration.log"
+    },
+    {
+      "name": "living-foes",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-05",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/pre_battle_living_foes_test.gd",
+        "--"
+      ],
+      "exit_code": 0,
+      "seconds": 7.439,
+      "result_lines": [
+        "PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)",
+        "TEST RESULT: PASS"
+      ],
+      "log": "output/rr-05/feedback9/living-foes.log"
+    }
+  ],
+  "saved_wisp_native_replay": {
+    "log": "output/rr-05/feedback9/saved_wisp_boundary_replay.log",
+    "result_lines": [
+      "SAVED WISP ZERO-BOUNDARY REPLAY: 14 errors; {'before': {'held_unexplained_pixels': 966863, 'boundary_unexplained_pixels': 39465}, 'after': {'held_unexplained_pixels': 0, 'boundary_unexplained_pixels': 15}}"
+    ],
+    "fresh_native": false
+  }
+}

@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-  "ownership_sha256": "c04d7fa6c3a3e8a50e8bd5567911db6075e0eb5533b9546568a0c16cd7fa4f75",
+  "ownership_sha256": "1288235856f32cd4e361a2240a400a9eb5f79335b0d1b32513605182501c4426",
   "parts": [
     {
       "name": "trunk",
@@ -15,7 +15,11 @@
         77,
         187,
         243
-      ]
+      ],
+      "logical_part": "trunk",
+      "bone": "trunk",
+      "z_index": 7,
+      "rest_depth_source": "trunk"
     },
     {
       "name": "core",
@@ -28,22 +32,30 @@
         112,
         61,
         153,
-        88
-      ]
+        93
+      ],
+      "logical_part": "core",
+      "bone": "core",
+      "z_index": 13,
+      "rest_depth_source": "core"
     },
     {
       "name": "petal_near_l",
       "file": "petal_near_l.png",
       "offset": [
-        118,
+        133,
         55
       ],
       "bbox": [
-        118,
+        133,
         55,
         204,
         97
-      ]
+      ],
+      "logical_part": "petal_near_l",
+      "bone": "petal_near_l",
+      "z_index": 10,
+      "rest_depth_source": "petal_near_l"
     },
     {
       "name": "petal_near_r",
@@ -57,21 +69,29 @@
         44,
         151,
         227
-      ]
+      ],
+      "logical_part": "petal_near_r",
+      "bone": "petal_near_r",
+      "z_index": 12,
+      "rest_depth_source": "petal_near_r"
     },
     {
       "name": "petal_far_l",
       "file": "petal_far_l.png",
       "offset": [
-        129,
+        135,
         83
       ],
       "bbox": [
-        129,
+        135,
         83,
         188,
         99
-      ]
+      ],
+      "logical_part": "petal_far_l",
+      "bone": "petal_far_l",
+      "z_index": 15,
+      "rest_depth_source": "petal_far_l"
     },
     {
       "name": "petal_far_r",
@@ -85,7 +105,11 @@
         55,
         178,
         189
-      ]
+      ],
+      "logical_part": "petal_far_r",
+      "bone": "petal_far_r",
+      "z_index": 16,
+      "rest_depth_source": "petal_far_r"
     },
     {
       "name": "tendril_high_l",
@@ -99,7 +123,11 @@
         93,
         219,
         220
-      ]
+      ],
+      "logical_part": "tendril_high_l",
+      "bone": "tendril_high_l",
+      "z_index": 6,
+      "rest_depth_source": "tendril_high_l"
     },
     {
       "name": "tendril_high_r",
@@ -112,8 +140,12 @@
         44,
         99,
         95,
-        166
-      ]
+        173
+      ],
+      "logical_part": "tendril_high_r",
+      "bone": "tendril_high_r",
+      "z_index": 9,
+      "rest_depth_source": "tendril_high_r"
     },
     {
       "name": "tendril_mid_l",
@@ -127,7 +159,11 @@
         131,
         176,
         194
-      ]
+      ],
+      "logical_part": "tendril_mid_l",
+      "bone": "tendril_mid_l",
+      "z_index": 14,
+      "rest_depth_source": "tendril_mid_l"
     },
     {
       "name": "tendril_low_l",
@@ -141,7 +177,11 @@
         223,
         144,
         228
-      ]
+      ],
+      "logical_part": "tendril_low_l",
+      "bone": "tendril_low_l",
+      "z_index": 2,
+      "rest_depth_source": "tendril_low_l"
     },
     {
       "name": "tendril_low_r",
@@ -155,7 +195,11 @@
         128,
         164,
         190
-      ]
+      ],
+      "logical_part": "tendril_low_r",
+      "bone": "tendril_low_r",
+      "z_index": 5,
+      "rest_depth_source": "tendril_low_r"
     },
     {
       "name": "root_stem_l",
@@ -169,7 +213,11 @@
         220,
         148,
         244
-      ]
+      ],
+      "logical_part": "root_stem_l",
+      "bone": "root_stem_l",
+      "z_index": 8,
+      "rest_depth_source": "root_stem_l"
     },
     {
       "name": "root_stem_r",
@@ -183,7 +231,11 @@
         94,
         159,
         233
-      ]
+      ],
+      "logical_part": "root_stem_r",
+      "bone": "root_stem_r",
+      "z_index": 3,
+      "rest_depth_source": "root_stem_r"
     },
     {
       "name": "root_tip_l",
@@ -197,7 +249,11 @@
         225,
         167,
         246
-      ]
+      ],
+      "logical_part": "root_tip_l",
+      "bone": "root_tip_l",
+      "z_index": 11,
+      "rest_depth_source": "root_tip_l"
     },
     {
       "name": "root_tip_c",
@@ -211,7 +267,65 @@
         170,
         181,
         180
-      ]
+      ],
+      "logical_part": "root_tip_c",
+      "bone": "root_tip_c",
+      "z_index": 1,
+      "rest_depth_source": "root_tip_c"
+    },
+    {
+      "name": "feature_crown_gem",
+      "feature": "crown_gem",
+      "logical_part": "core",
+      "bone": "core",
+      "file": "feature_crown_gem.png",
+      "offset": [
+        116,
+        80
+      ],
+      "bbox": [
+        116,
+        80,
+        146,
+        93
+      ],
+      "z_index": 17
+    },
+    {
+      "name": "feature_amber_rear_left",
+      "feature": "amber_rear_left",
+      "logical_part": "trunk",
+      "bone": "trunk",
+      "file": "feature_amber_rear_left.png",
+      "offset": [
+        88,
+        149
+      ],
+      "bbox": [
+        88,
+        149,
+        107,
+        175
+      ],
+      "z_index": 17
+    },
+    {
+      "name": "feature_amber_rear_low",
+      "feature": "amber_rear_low",
+      "logical_part": "trunk",
+      "bone": "trunk",
+      "file": "feature_amber_rear_low.png",
+      "offset": [
+        142,
+        179
+      ],
+      "bbox": [
+        142,
+        179,
+        157,
+        197
+      ],
+      "z_index": 17
     }
   ],
   "unassigned_pixels": 0,

@@ -40,7 +40,7 @@ func _run() -> void:
 						if not phases.any(func(value: float) -> bool: return absf(value - middle) < 0.00000001): phases.append(middle)
 			phases.sort()
 			for at: float in phases:
-				rig.apply_pose(clip, at)
+				rig.apply_authored_pose(clip, at)
 				var bones: Dictionary = {}
 				for name: String in rig.bones:
 					var bone: Bone2D = rig.bones[name]

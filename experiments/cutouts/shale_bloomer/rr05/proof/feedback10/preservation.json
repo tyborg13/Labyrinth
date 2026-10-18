@@ -1,0 +1,24 @@
+{
+  "shale_bloomer": {
+    "ok": true,
+    "case_render_inputs_changed": [],
+    "verification_files_changed": [
+      "runtime:tools/maquette_motion/pixels.py",
+      "runtime:tools/maquette_motion/raster.py",
+      "runtime:tools/maquette_cutout_polish.py"
+    ],
+    "capture_files_checked": 45872,
+    "capture_files_changed": []
+  },
+  "lightning_wisp": {
+    "ok": true,
+    "case_render_inputs_changed": [],
+    "verification_files_changed": [
+      "runtime:tools/maquette_motion/pixels.py",
+      "runtime:tools/maquette_motion/raster.py",
+      "runtime:tools/maquette_cutout_polish.py"
+    ],
+    "capture_files_checked": 11789,
+    "capture_files_changed": []
+  }
+}

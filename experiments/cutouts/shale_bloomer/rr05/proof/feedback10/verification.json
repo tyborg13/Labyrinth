@@ -1,0 +1,82 @@
+{
+  "full_godot": {
+    "command": "python3 tools/godot_task_runner.py --task-id rr-05 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "exit_code": 0,
+    "result_lines": [
+      "FULL SUITE RUNTIME: 373.763 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "log": "output/rr-05/feedback10/full-godot.log"
+  },
+  "focused": {
+    "command": "python3 -m unittest discover -s tests -p 'test_maquette_*.py' -v",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 153 tests in 278.399s",
+      "FAILED (failures=1, skipped=2)"
+    ],
+    "log": "output/rr-05/feedback10/focused.log",
+    "failure": "Existing Wisp idle acceptance assertion; 18 new occupied-tie guard rejections. Assertion unchanged."
+  },
+  "final_native_tie_suites": {
+    "command": "python3 -m unittest discover -s tests -p 'test_maquette_native*.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 15 tests in 0.958s",
+      "OK"
+    ],
+    "log": "output/rr-05/feedback10/native-focused-final.log"
+  },
+  "owner_script": {
+    "command": "python3 -m unittest discover -s tests -p 'test_maquette_owner_proof.py' -v",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 5 tests in 2.291s",
+      "OK"
+    ],
+    "log": "output/rr-05/feedback10/owner-proof-final.log"
+  },
+  "full_python": {
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 755 tests in 788.745s",
+      "FAILED (failures=69, skipped=63)"
+    ],
+    "failure_counts": {
+      "test_committed_registry_has_no_pending_warnings_even_in_strict_mode": 1,
+      "test_every_output_preserves_size_alpha_hidden_rgb_and_frame_edges": 63,
+      "test_painted_derivations_and_manifest_are_current": 1,
+      "test_rig_coverage_names_adoption_command_for_new_art": 1,
+      "test_rig_rest_rule_uses_declared_assemblies_only": 1,
+      "test_shipped_derivations_and_manifest_are_current": 1,
+      "test_idle_before_after_and_unstepped_mutation": 1
+    },
+    "log": "output/rr-05/feedback10/full-python.log",
+    "pending_bloomer_adoption_failures": 68,
+    "tie_guard_conflict_failures": 1
+  },
+  "coverage_note": "Final native/tie suites include the additional held-flip integration regression, added after bulk discovery loaded its test list. Every final maquette test was exercised across focused discovery and the final native/tie runs.",
+  "output_gdignore": {
+    "result_lines": [
+      "OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)"
+    ],
+    "exit_code": 0
+  },
+  "git_diff_check": {
+    "exit_code": 0,
+    "output": ""
+  },
+  "windowed_worker_runs": [],
+  "owner_commands": "experiments/cutouts/shale_bloomer/rr05/proof/feedback10/owner_commands.md",
+  "native_rechecks": {
+    "shale": [
+      "shale_bloomer MAQUETTE PIXEL GATES: PASS (0 errors)",
+      "shale_bloomer NATIVE CAPTURE: PASS (0 errors)"
+    ],
+    "wisp": [
+      "lightning_wisp MAQUETTE PIXEL GATES: FAIL (18 errors)",
+      "lightning_wisp NATIVE CAPTURE: PASS (0 errors)"
+    ]
+  }
+}

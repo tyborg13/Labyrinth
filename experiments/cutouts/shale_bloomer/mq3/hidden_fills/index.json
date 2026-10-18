@@ -21,22 +21,22 @@
   "recipe_sha256": "a8e3e3d6b40cbf9d19da6c57165c9eda4a2b351a2d706f1d12db3f6d9fad889b",
   "protected_inputs": {
     "hidden_requests/contact_sheet.png": "662b6ccbf456da16659df0322279d97fac973bb503bf1621a97a0d7008089dad",
-    "hidden_requests/front_core.png": "d922c9d38cfe943aa8e7eb34dc50b08a8ecb24d5c1891fa5efb6d025ffc2eb80",
-    "hidden_requests/front_core_4x.png": "1e43cdcb7d1136cc29f0001db4b8c0b3dbcf8a7d69c70d48b4bc68418840f593",
-    "hidden_requests/front_petal_far_l.png": "f5eea25c6c0adfbc681c35ff56bc2e08d88b1b7da07a047777cdb09bf8a47855",
-    "hidden_requests/front_petal_far_l_4x.png": "5d03696209d658e2a744b78178e1060f7492a8e40387e0946d969e0f725095b6",
-    "hidden_requests/front_petal_far_r.png": "55f03b51c601b29689ab195057280c8415a127cd377c4f68d7f7c84e82005510",
-    "hidden_requests/front_petal_far_r_4x.png": "69ff81031c363077f9f182e1050a30f5338ff9b89f8a69aa6a3cc8587299061f",
-    "hidden_requests/front_petal_near_l.png": "781ba2257eb5d02dc0f30b3f099f2b065e49314696c072ad203be3e9d87c7ff8",
-    "hidden_requests/front_petal_near_l_4x.png": "8c3a4e0aa5e2d2db6197e9a5a8333a30f875b28b9597e82bdd566d98788957f4",
-    "hidden_requests/front_petal_near_r.png": "0b8ad56e2b7528cf0ffbd157ccad768a2aea4988d8fe50ca35681225fd5122c5",
-    "hidden_requests/front_petal_near_r_4x.png": "8625e46246f03aef52cc0a646db005fb86494d287d0f2e8908786ded83db8536",
+    "hidden_requests/front_core.png": "5b14609560ae4ef0b8a824041153d8dc284c545c4d5b0157c42b1525b5a10018",
+    "hidden_requests/front_core_4x.png": "1871fd5e25a76fdc7fc95662e6777932ca560936e7515be4c751d20dafc36c6b",
+    "hidden_requests/front_petal_far_l.png": "0cfb82cfe5914162c900e86e426b22730e60845391151f73d48cc77a8a6a5285",
+    "hidden_requests/front_petal_far_l_4x.png": "787a9ed9c9375174c956b67374d395a57fc983a74d6a7f1f0497c1b0a73b4ee8",
+    "hidden_requests/front_petal_far_r.png": "7551f1bc6012e7adc1810b2e796cc59c668cf9210e4bd0b7fefd5d728e77f672",
+    "hidden_requests/front_petal_far_r_4x.png": "5ca448ab58f2b6c512abcad7bfc34c7d7e93982d861141bd8ffa41b8080d52e4",
+    "hidden_requests/front_petal_near_l.png": "f61ab020e7ee8393725bf60fe4ef8eaca196b916de79d22de0873406e38517ae",
+    "hidden_requests/front_petal_near_l_4x.png": "7a352b2781226b8a40872d61eecb96158be54a2e40543c4edf1c922e0e026ca0",
+    "hidden_requests/front_petal_near_r.png": "7afda6ed486b9be050621dc4b09e3a04f05cd319d5a35f871345ce72720b94e3",
+    "hidden_requests/front_petal_near_r_4x.png": "e22bd2376377a98e8b6adccbd697b7148aba017a5c34a61c7767ca2ec14e4379",
     "hidden_requests/front_root_stem_c.png": "dba45372383fb09d1f0a8062446ec3f432b2d68fab8cf3fe99641843a3790302",
     "hidden_requests/front_root_stem_c_4x.png": "63466f7a5b73fef6ba7d4d85bda6330f28269178ee1811fac04f0e2eb6fd4a55",
     "hidden_requests/front_root_stem_l.png": "fe15452205a6baa9196332587d558a54d2ab21e1af9fefb9da4e64e329a22b2c",
     "hidden_requests/front_root_stem_l_4x.png": "bee4a6b458686978bca39197bede88aa396265d0539693f67a1d23ba451cc621",
-    "hidden_requests/front_root_stem_r.png": "751a15f34131c7d489e23539d4f8f71460b5f6f5df7244e37a1a451e345f0819",
-    "hidden_requests/front_root_stem_r_4x.png": "96d94b67026f801ab04ac662be8d5fbdf4320bb12327277dfc541e906bb885c7",
+    "hidden_requests/front_root_stem_r.png": "d0c206df1ac9f8958d2e72824926c5cfceb29e2a5ea7abd32da8c8c41448d5a8",
+    "hidden_requests/front_root_stem_r_4x.png": "8804fc0fc39deaaf359f7f114b45969bd257fbd3458c7849e11d290aab354da2",
     "hidden_requests/front_root_tip_c.png": "13708eb86498bba4d02160f1cc8991c7d9e08ad0184577f4abb32aee477b621c",
     "hidden_requests/front_root_tip_c_4x.png": "e7a012a2e371b4001fe355ef2c81a5608e2bf64871b2a704ef2b3a543eaa7ffa",
     "hidden_requests/front_root_tip_l.png": "bf7180553a59204ec45517ad60ebed303e9b2ebfef20aebe41eb22b9039b8983",
@@ -47,22 +47,22 @@
     "hidden_requests/front_tendril_high_l_4x.png": "b610dd0022160af6d66d23502f8be382cdbf7a3d4cd01368843ba24453de400b",
     "hidden_requests/front_tendril_high_r.png": "bcdb1726d0b7a73037addb381561bbff7bb5e2950e0ecda5d7c3182e65cfac4c",
     "hidden_requests/front_tendril_high_r_4x.png": "5508c35787a71f97b81d3cc244d095a55ac46c06fd4b2cd959697e24e6af2c32",
-    "hidden_requests/front_tendril_low_l.png": "8d734890f3123f9e58eb23d3f39621b48e8d5596859dd4413a72c37c4bc2d084",
-    "hidden_requests/front_tendril_low_l_4x.png": "9452a1db45d82a64a6b8b17c7ee9c7c8e0a1a6c2addb71c452099c052b7983c1",
-    "hidden_requests/front_tendril_low_r.png": "700402e0a5f1bf81baa1c1461098d8b089e4cff94dac912f380fa29f5b8bf0f1",
-    "hidden_requests/front_tendril_low_r_4x.png": "a2da482728a8ba25d817088e59ca3e1603da53da21c7a143747ede1bbdb780f1",
+    "hidden_requests/front_tendril_low_l.png": "4fe691ed5dff5d5be21ae1dc8fb56c1e03cdceb7def0e3e1ade0b13dafeb9410",
+    "hidden_requests/front_tendril_low_l_4x.png": "80043b2af1282214819453af4a29c8c90b4b595fb19e088591adf95eb35d26d5",
+    "hidden_requests/front_tendril_low_r.png": "83144d7a745c4c7e8dbdd80878ae6bb1d5b58ea80afae3563ecd5cd5aea9884d",
+    "hidden_requests/front_tendril_low_r_4x.png": "32f0e675061d5ed5a357bbec661127d49075dddecf10811c5aaa716b442d4fb7",
     "hidden_requests/front_tendril_mid_l.png": "bbd7adf7eaf19e47455d01929fe3d7f7c225e2aea5d0dd3eac0e4a813c543dd3",
     "hidden_requests/front_tendril_mid_l_4x.png": "0f416aeef03c11ad0e8c7bf90081c00c7570381cf164bb89d821566fbf2e1300",
-    "hidden_requests/front_trunk.png": "b84c3f9c0c6c192afb33348af8a66e70043ce99b817d3825ce22b101baede3af",
-    "hidden_requests/front_trunk_4x.png": "3abc8a53f4dd1cc3d3caad3dfa285f6febb63fc127b9c6fa02ab7d0c39d09ac6",
-    "hidden_requests/rear_core.png": "ce9155f05ec53989cb2fbf1ad8db20d6f4adc748bf6b7b86808c2f063d33a5d9",
-    "hidden_requests/rear_core_4x.png": "124087cea9885bdb20290d6139d4448be5c975087f0e5a827e1b3ffb2695ed5a",
-    "hidden_requests/rear_petal_far_l.png": "80753b6d06a5a97161b819c270d8400ad548c517e979a331f5f39d95879e345c",
-    "hidden_requests/rear_petal_far_l_4x.png": "3b8b10ced821090ce9de6eda628bf107698753919387ee0e1f5b360c2b096ddb",
-    "hidden_requests/rear_petal_far_r.png": "667a32d76da726b11fe622776328db3ad73aefe471c0f72bd9bd8a1a7ebf59dc",
-    "hidden_requests/rear_petal_far_r_4x.png": "f1117afc455c77494600ae4dab5f1836c6f3912e3465d3a26b32c145d1248973",
-    "hidden_requests/rear_petal_near_l.png": "c6834212a1f83add9c32ab9f24f09b183ba7a37c9980c729eb3a2c8528a90f35",
-    "hidden_requests/rear_petal_near_l_4x.png": "e2cb30fa5ee48e581726d264fce30c778282f080b315576eecdfb9bc417bc964",
+    "hidden_requests/front_trunk.png": "2e6ce75dc8d6adc21ecd9052d2ee1b3a97c9813f2e29c36edd51e6c89085e030",
+    "hidden_requests/front_trunk_4x.png": "b70c5b6453f8ff56ce7bba00ca4ca29d869e4ce04678a3a970cd805bf9c7540c",
+    "hidden_requests/rear_core.png": "f584f07ba535a2b7f0c80802ae1ec171b4b637e585be1f86d0ac1a29a9ef3f01",
+    "hidden_requests/rear_core_4x.png": "b11cb8773eb15516a846e1d2cba78da0b5a797693cbc252ddb843a019260c212",
+    "hidden_requests/rear_petal_far_l.png": "0bf28e6dafbdbf7c7fdd55260846622a2dc472f4ad02b24e493575160c2e71a9",
+    "hidden_requests/rear_petal_far_l_4x.png": "6f1d28fcb79d97e59f2ab3b95978748ba49271fb63d2cee54999a89e18a479d6",
+    "hidden_requests/rear_petal_far_r.png": "e2479f30a99dbe0d8fcbc50343858fb93768d6c3c791e0799fca339c7bf3502e",
+    "hidden_requests/rear_petal_far_r_4x.png": "cc29452e6cbb354804eb67e8f4b9e723a35cb0f3bf420b44ba888127ba3bafe1",
+    "hidden_requests/rear_petal_near_l.png": "0521cdeab19e820bb773d0e79bcf29dc7914790324d573e407e318c10f56f123",
+    "hidden_requests/rear_petal_near_l_4x.png": "b3c83953ce7268c0712e398a0f788f4e36ddfeebfa26c2322856c64c9c22726f",
     "hidden_requests/rear_petal_near_r.png": "f4f43f7b6ec5b3a146363c00c550e2433ee5e920f8f2f4677fee0e949b0c215d",
     "hidden_requests/rear_petal_near_r_4x.png": "724b79e713eaa6869c9c693b7441d80b47beeef6e5591bff7ce404f975196087",
     "hidden_requests/rear_root_stem_c.png": "96929fe686d6fe62ff02794b54bc11b97feb0313d9422efc481b078bdaf4e517",
@@ -85,33 +85,33 @@
     "hidden_requests/rear_tendril_low_l_4x.png": "41bfa2640b1acab8ab2354e6a08bef7932c484ffa71f14470d3067ed7d29afa2",
     "hidden_requests/rear_tendril_low_r.png": "3fa7ddd9329e29e608d58adc2d545f77218711f5beb3757bc1f8388b38dce0cb",
     "hidden_requests/rear_tendril_low_r_4x.png": "f2f6b26bcf0413a2508f6418382e24133cff6f000a257d9bdf0b9952c76fa887",
-    "hidden_requests/rear_tendril_mid_l.png": "3890d18c1239770e891ae41f74961ad10d30067646f6525bb7af6d37f5394455",
-    "hidden_requests/rear_tendril_mid_l_4x.png": "2df7c8c3cd214717f5eff1fc18ef94fdb13e47ef2d767ec4d8309cd18fe62124",
-    "hidden_requests/rear_trunk.png": "db3362ccbb762aa56a1bf922a37ac9e0b648fac9cf1e31540c7f609c04439c3b",
-    "hidden_requests/rear_trunk_4x.png": "2c3a9452bdaa33cbe6ac635ec22cc7a5c2980af0a323272ca5d85b02d0cd7ab5",
-    "layouts/front.json": "7be6bb805b4159e55e5ac0414575ffb82a9617610b15b74a2b7a674461e268d0",
-    "layouts/rear.json": "b449bf760e841bda45bda30fb6050d8449176881e51fa3a2a3f79394d9598640",
-    "recipes/rig.json": "d5f5fcab7800e675c13d6eec7b1aa328594dd7eeb317f58a5e2621ec83a2181e",
+    "hidden_requests/rear_tendril_mid_l.png": "307b7d3de2e938fe79be4364e27468c2d8667e43fc72a69599dfe0742ffe4341",
+    "hidden_requests/rear_tendril_mid_l_4x.png": "a8f48b2bf2380212c035485c8e573e7dd5a717de68f4a27ce9bfc84aa5abe5c7",
+    "hidden_requests/rear_trunk.png": "703485a3b21febaa0e4d9054ede58ee4854f6cdd67e87b5f27ec49d0fa3dd0e8",
+    "hidden_requests/rear_trunk_4x.png": "4fd0fdd51c94f3323f221e44c905068c98b19a68c384a5a0f71a55eef7ac7348",
+    "layouts/front.json": "bab3b3efccfb3d5bcdf64210005dbd55d08a641a2a0566aa851001bd331a094f",
+    "layouts/rear.json": "6ad49f7a3a125bbbfdd41070b944941377c9c402d5d946ca2b7785dd71088b81",
+    "recipes/rig.json": "7ca82d57ae158284645ce4e6c8158a8c8555bcc0599407949aabd2f5ccc6630e",
     "registered/front_clay.png": "a9096aab89a0d10ebd280fff1eb4586aec3ac1a2fc3863c0f92be791b33a1882",
-    "registered/front_hidden_core.npy": "29562c09c26958f023d96253d274dcd45469ef3742b4fd71d3009e24ec4e3531",
-    "registered/front_hidden_petal_far_l.npy": "ce8031f7496d7e4b3c6548000492fc18e260a5d1155eb8edb85fe1556e58475e",
-    "registered/front_hidden_petal_far_r.npy": "8fc8d4e5fe191a474cf2dc05272af043f653bd3dea6657f3efdf2b5dc407fe44",
-    "registered/front_hidden_petal_near_l.npy": "89640aecd0ed3ce89b6e5f803f999a20470161c56b37b1cd0df79d28b297b52a",
-    "registered/front_hidden_petal_near_r.npy": "15c832f9554f4a7b6c26b0572cf66d0927cf9cae028a0e38e927bfa18e6f1b2e",
+    "registered/front_hidden_core.npy": "3c67fa92503fadc4fc2e32d3d6dde25439f1e798956cd8539bce520d4da44313",
+    "registered/front_hidden_petal_far_l.npy": "a2d9dd491671bdbdb7c938fbea8a071a693d1bc0b5a4378015975f07dfbfbcb7",
+    "registered/front_hidden_petal_far_r.npy": "17220227bdf97c6d33a2f86ffd2ebb11efcfc006ca6a0c974f864a2928218c8a",
+    "registered/front_hidden_petal_near_l.npy": "64c80533d4d849bc94585cb9349f3bc11e75b9b980af53de5d20f9c8e630bd41",
+    "registered/front_hidden_petal_near_r.npy": "fda92f20c79f6351e2ba32a7f16c69cfe3ad6a35136c50e70d9433d23adc0fd8",
     "registered/front_hidden_root_stem_c.npy": "dd5c63fdf2fc31f9ac31c6df3153249a58702ad0a9274227db4adfe090d6e87d",
     "registered/front_hidden_root_stem_l.npy": "50a77d96486af45ae63a7c82d67a9f1296b59a80be496c120a0371e413c62f0b",
-    "registered/front_hidden_root_stem_r.npy": "1c47dfd0de1b49f102742a3e530b455347a06059beed22c3dcad49f954f2478e",
+    "registered/front_hidden_root_stem_r.npy": "286ab60f6669e2a2d1b28cf04d2552cb62c6dfc2d2d54873234c231b5953b1bb",
     "registered/front_hidden_root_tip_c.npy": "2a2f6a165843fbb4a822a1ed6cec35f0c20a1345349c257f99952a07a5bb6251",
     "registered/front_hidden_root_tip_l.npy": "e8b273115bd2f0a6872c37a2623459d9e62c402c7e3f6df4e9c45dca6f129e9c",
     "registered/front_hidden_root_tip_r.npy": "e7adb6ee1a233058de4b732c7311bf6a394eaec124d01ea02e5996d8478b4613",
     "registered/front_hidden_tendril_high_l.npy": "ad932cd534a7a73c397bcdcb2398a8519a237caa4b338b2f11058529924d6ed5",
     "registered/front_hidden_tendril_high_r.npy": "78a57a4e25e27aa7599b772b9dee668e4d443f3dd80902b4ce29d26d564e1bb3",
-    "registered/front_hidden_tendril_low_l.npy": "6e2b076b1f17cf184a9f45f84c6d652be3f782113efcf7cae19a7a6413b1144f",
-    "registered/front_hidden_tendril_low_r.npy": "39f311e8fbb005c95636f6a82c6a73a23f55d5943cc7763653b86e01b1f952b7",
+    "registered/front_hidden_tendril_low_l.npy": "5a9e6015d2e23e738c272f3284de645ea9529711a09a9f6aa3ea1a682f669429",
+    "registered/front_hidden_tendril_low_r.npy": "c0d30ff25f7f6e8fc885b4fc436e087ba04c39f76e7f4f0574281c8b8b0bb9b1",
     "registered/front_hidden_tendril_mid_l.npy": "3b6b23d1850c410bb0996ca3b11f72392848c0d1afd37ce4757944d07fe9aaad",
-    "registered/front_hidden_trunk.npy": "4ab3bf1320eaa1f341326f920591b4534b14f3ad5934fc6a5da7edea967ddc2b",
+    "registered/front_hidden_trunk.npy": "e3c6d320579b7a422cd81bdb30d1b43f56ce5a815f8ab352a9e3684da80580e9",
     "registered/front_joints_px.json": "75dd9b81b64e03b464d8ef68ac4fc028df45ab88c3eefecfda56fb603a2278e1",
-    "registered/front_owners.npy": "fe2e23b78422e2c885e35bfb83b8c11f5c83051253510e1e936dbe5f0f9edd53",
+    "registered/front_owners.npy": "849a9edb11f1efa44b9f14f4c542aedca3041c7c3af357f17c389b647763f0f7",
     "registered/front_parts.png": "9e329d25c75b5de2e5c873dc844554f2d9e8706e76fca2211f89d5c2799ae2cd",
     "registered/front_registration.json": "91b1beb8b5b24b369b3244c3f9b9c9402152eb343454f2f09374a04b8ff02fb0",
     "registered/front_solo_core.png": "f9c864afc9c0725d6e5af4efc260cbc92f0408faf2ebbcc492efaa809439ccc0",
@@ -132,10 +132,10 @@
     "registered/front_solo_tendril_mid_l.png": "725fa73b29b8c61c21127a9678ad93be6ff035d30b38b774a2a447c70f593b62",
     "registered/front_solo_trunk.png": "24edb56cbaa76635da5999699eafd6b3ee71d8829fdc5c768743e1b9c3798cd6",
     "registered/rear_clay.png": "9bc762731f64d4fbb8c3c7062b7fd21df9442b4c9ae342b2e73ac7676e677f0e",
-    "registered/rear_hidden_core.npy": "469ad16e286e923fcf7d9d818197bab2e304f4ba984966430c8fb9b4b40cad78",
-    "registered/rear_hidden_petal_far_l.npy": "604972394252a2686fd6476f2c97c1a03cb261c01fe49fb17ce8f4ec64592013",
-    "registered/rear_hidden_petal_far_r.npy": "a7130849ea6fd86efe154ae8b85131e469f4882a34736c4b2b011357c34801bc",
-    "registered/rear_hidden_petal_near_l.npy": "460c0b5a01b1945dbd67b80fdfffb45a323fd9920c7ad83158a719f596629a41",
+    "registered/rear_hidden_core.npy": "35a4f2f3b381ae60f40e1b09add59a4ec550e79b108343233260078945c6c082",
+    "registered/rear_hidden_petal_far_l.npy": "1a8ca15d4fb6aaf9f5bd4f071ce04f371d829c3b35401b1a528b1fad517c14cf",
+    "registered/rear_hidden_petal_far_r.npy": "7676d48be97b19da57b619a555ed65da5c60fadf58f89a1fe05628be95ac1431",
+    "registered/rear_hidden_petal_near_l.npy": "6f036646eea6e4552fd7b76d68573f831e166c2c475a9c40662d3a822b99b236",
     "registered/rear_hidden_petal_near_r.npy": "a20ef06afb36dff65aa4b4ddab2ce7b36794f29f7e7cf1b218b0d580f0105a80",
     "registered/rear_hidden_root_stem_c.npy": "135401094d47a25dea5c1dd668b0490527c9a0abfe95c3e182d6e03c815407f3",
     "registered/rear_hidden_root_stem_l.npy": "23626c98d260664fecf32ac88869dff261317c08695c2ec10f990b6300b4d393",
@@ -147,10 +147,10 @@
     "registered/rear_hidden_tendril_high_r.npy": "63ff00a93a7adf0b2f24d53b4578f812b66487c9c62f8035cf26395e8122543d",
     "registered/rear_hidden_tendril_low_l.npy": "cde9691039e39985628d7628da9b6df355d3f6f1b70f207f8ea1958cf38623c3",
     "registered/rear_hidden_tendril_low_r.npy": "ea12f9c546b9cb817cc6e4c07509da631c4c27ae1c94a1ffacf051fb521534b6",
-    "registered/rear_hidden_tendril_mid_l.npy": "94ea7110bf110641619c61816159efb7a30844921d980b8b59421123128e9b10",
-    "registered/rear_hidden_trunk.npy": "13182003c513941c2e24a1e8704e603206308e0d7133fe8fa47e8b864b9a759c",
+    "registered/rear_hidden_tendril_mid_l.npy": "d78f76e5b1e87f784ebb825693375227e901cb19fb02ba1e8b050935f930cb75",
+    "registered/rear_hidden_trunk.npy": "34bef6abd2ee408942ac06b3d2c6c1e14bee329e59adf5c177a77cfc836c3863",
     "registered/rear_joints_px.json": "23cd13ca38e89a4878f847735902c000de209e62c3d5b784cc5e49c242ba01f2",
-    "registered/rear_owners.npy": "719f4c08f01bc2d199b5e76f1cb654450c9ee42a912e66ab5e03f197c2b646e4",
+    "registered/rear_owners.npy": "42e44b47eb6258158b3d00d3cf7269314407756a302917fdfc8aeb3877c665ad",
     "registered/rear_parts.png": "91665b515fefd3cdfdd7467658d3b388fa65ea5f868f78c870d23ed9eac536bb",
     "registered/rear_registration.json": "c498b16ecf13dcd3bd9ff8c610752775d0dfa279f801dfd1d313ba970ad2fbbb",
     "registered/rear_solo_core.png": "54cba21c8137c1a9d345211221b41b97fe4820358ec53a7b47fb28a7ebba7326",
@@ -170,42 +170,49 @@
     "registered/rear_solo_tendril_low_r.png": "de15307a0c3fb70e481e32a9f645f89b4dcda6bf8aaacb14b1c88ec56bff080b",
     "registered/rear_solo_tendril_mid_l.png": "cda6244f7513449aa8852624c38f2ff5465c258a75c6a5632f5baf6c7e5198b5",
     "registered/rear_solo_trunk.png": "f4574ec68cdc7c4576ba63391906c8a6be171cd9b2b71a12e1a1827382234d8c",
-    "segmented/front/core.png": "6337c1326ff047d09e4981a9bcd86f56b55691f0c37b2b823ddedc204d21b80c",
-    "segmented/front/ownership.png": "304cc09e11260ff7058e903fd6a5b3b0e7ca958814d245847a1437177ff7bb82",
-    "segmented/front/petal_far_l.png": "f19b393e07fe53dc54ed878649675ed63b4d1d6e32eca1491248a368cb0b4832",
-    "segmented/front/petal_far_r.png": "6e0c3b5ddb164a3cbd6e618b7e508dcf1e1413a11d3f90c40ac5185ef2315c9a",
-    "segmented/front/petal_near_l.png": "f86d0b9df15f1ffb3c4cb3fa44ad501c638d32c67b0d1ea676eb1b64728d01cb",
-    "segmented/front/petal_near_r.png": "78ebe8692be26dee03b474808fadfeec7ed8f234da4dfffee1bdcacbfc5e0186",
+    "segmented/front/core.png": "7ae0a9388e7976fd5f43982d0e08ec83087fbe0170960d119d9c4b45261266be",
+    "segmented/front/feature_amber_left.png": "55d4a47848e3098ecf1dd54b54de9ef9481d1d7533ae931200757f74a902503f",
+    "segmented/front/feature_amber_right.png": "71ae89b5feaf624bd908b4ef2bfcf37b89e8204bd75f3484c6ffdcf75327af8d",
+    "segmented/front/feature_amber_upper.png": "f65ca1943064b0fdc8dc10d3f5ffa4d18fa1b357cca6a3fe36f9b83af165ca57",
+    "segmented/front/feature_crown_gem.png": "6c06d3efc85b584a9a14395ffe62e29d98ee68dfd96b38225c0cb660c7852fe7",
+    "segmented/front/ownership.png": "4631ed428edacaa74c2ec439b0eb976b79056e21255be5908737af0d8f91764d",
+    "segmented/front/petal_far_l.png": "b1697fd25c9160056fd98f5243cca77b569346fd911664d777cf63259a2276bb",
+    "segmented/front/petal_far_r.png": "d43618f7f2e01778e84598e2e1b819c24c02568f388ca3f6a98e00a58d3f1afa",
+    "segmented/front/petal_near_l.png": "579e737482141c8c6dd2e295126d4ee3d14070f04573f1de6c3daee176efe095",
+    "segmented/front/petal_near_r.png": "51a401f3ed6727df2c9c0387e2f93c371215a5719a5260cbbe6976e4f2658230",
     "segmented/front/reconstructed.png": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-    "segmented/front/root_stem_c.png": "95e42b240d232f055353c24b522248674c1a23e7cf271a0d3ed8d5b643977be0",
-    "segmented/front/root_stem_r.png": "6e997f20e7db67822287e2f9597d682a06308ba1dc77b4f2eab02f44c7a29471",
-    "segmented/front/root_tip_c.png": "99affa54c603991058a2894e028889aaf6b3a19a2adf002593cdb05bb8a37182",
-    "segmented/front/root_tip_l.png": "a3604f31d237f7fd3e05c141fc97e44687624c0253f12c09a34ea4f69c615c02",
-    "segmented/front/root_tip_r.png": "779f5fbd8e8c364ef82adf9322cfad36055f3c0cffe3172eb081e4278cda3b9b",
-    "segmented/front/segmentation.json": "1500fd2e5908ba0f3f59687f71ad3632d3a5b9f0120c483a499ad3c361345c74",
-    "segmented/front/tendril_high_l.png": "c6c8114e53664288ab80101c2099147b092ead7b9073c70a4f72a2a117c03fec",
-    "segmented/front/tendril_high_r.png": "35efdb4e8aadb4ad6f8da4df938fea41de5eb2bf4869d1693d818261e10a3728",
-    "segmented/front/tendril_low_l.png": "085dc13bea3507f033986d5bc5a8046a066448245d6ab592c9bb34f08f0a5af3",
-    "segmented/front/tendril_low_r.png": "c08548c436774f5d46028ca90dcc31aad1a500fc1bdb6c863680afaef7d13b2b",
-    "segmented/front/trunk.png": "e1d67b1555c43e7a759b6dc373c9e0b73e5d7dd751a743371c3f37fccab2e346",
-    "segmented/rear/core.png": "76a98ac6fd935dee8da3a543e4589614c8d4b99bb3b9855860349a61cd0d4456",
-    "segmented/rear/ownership.png": "197aa48d77fda2f704ad1ba3826cf9b75097321b3adae73ee7d6565b53b72583",
-    "segmented/rear/petal_far_l.png": "102dc5aaa55a7275c9cd0ebc117e69387a3e83b0e9a0a968415913021dcef6ea",
-    "segmented/rear/petal_far_r.png": "6db9906ab02f1ce36f370ddeabaa49f1b98cf2f4240cdf820a74ac8a1db06c21",
-    "segmented/rear/petal_near_l.png": "4d622c61aa0491217f86fd35dc269539c770b71b213a60ed84d082ac78b2f468",
-    "segmented/rear/petal_near_r.png": "16c610c16a9ed180a6b3b2d6dea923c314d2a19a642ff237fef81ab99dcdad03",
+    "segmented/front/root_stem_c.png": "c78bf30c09f5bcc4b44b73c9c2aa67339f1dd5777468aa5ac8f6f68c387f05ff",
+    "segmented/front/root_stem_r.png": "2514ef72d18d62a76cc9e1a288f1cb2be5cedb17e7e0d0ad63c42e0c3d13379d",
+    "segmented/front/root_tip_c.png": "4ee91f09cffa3989a57d6223a031db89fc21388e913c6fb1491df723639793bd",
+    "segmented/front/root_tip_l.png": "ad6a1af5c28863530a3f6bd752a039111e59d1d5a1f2c758abd1ce5ffc458a82",
+    "segmented/front/root_tip_r.png": "1fb9521f63462e087d381c363664e8ac090eda8811f3c2e93abb2c274b5fe53b",
+    "segmented/front/segmentation.json": "32286ef2fb847a75c7ab6f2453adec5bb4b28cd73f8a0ecd41b74fc0eeba1e51",
+    "segmented/front/tendril_high_l.png": "b23fba6a88c78a76e986ad4ea2e2956d6de52510991fc4d65a9b6c554344bb11",
+    "segmented/front/tendril_high_r.png": "2d831eb9d0fc44b2125dec7be316a568e89398fbee2bcfeb4e4ed20a4983ffa5",
+    "segmented/front/tendril_low_l.png": "1c0d770144ab738cfc39313d1f1027b34d0ac601b7f9568144dc476697c1b6c9",
+    "segmented/front/tendril_low_r.png": "27ae97759ae1ee3f30aa0e63823c0a851ba10b9659426572d2ab8d426b43d542",
+    "segmented/front/trunk.png": "7f593834d7b418079941d6ef73703726c01f3b400a82259023678d0b47724dc1",
+    "segmented/rear/core.png": "1746b8ec874dfb3991351cdc37d438f8afbf313ec978d86f901453128fd5c4d6",
+    "segmented/rear/feature_amber_rear_left.png": "9d07e2837be2e0a181480a337eb5d946ceb7a8c5f54786cf1f1730816aa8495d",
+    "segmented/rear/feature_amber_rear_low.png": "b098794edc89c046eefb7e52d378ea8aba51e67c9b787f0d506d7f7f7772f9bf",
+    "segmented/rear/feature_crown_gem.png": "5ae224387f325aeaf2cf299120cdcb22eeb270cde5692f82fc7687dc5341965c",
+    "segmented/rear/ownership.png": "7f093a28c3d54e1989647735c2194a5f6a4ddc31b7ae821258fd7e1d2833d5a2",
+    "segmented/rear/petal_far_l.png": "53ddadbd67ef8a235cc9f4ee2c4701d51768b2fe910084e595cf6192809fdf69",
+    "segmented/rear/petal_far_r.png": "6e0013a6db88137a3ca72986153a755392223858b2e6f6370789e2120f88c7a7",
+    "segmented/rear/petal_near_l.png": "84a179dfca23f5bfadf872c2f0c3962ef5821af7861f3fa8ba49f6fb6e625cfa",
+    "segmented/rear/petal_near_r.png": "7583c17fb8252df70fbad46f9cb874b4959c52df696616fcac114b663a05c5f5",
     "segmented/rear/reconstructed.png": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-    "segmented/rear/root_stem_l.png": "8855a93ac50de770fb72fb968aa725fded7048d49f00cd29303261fd6c561363",
-    "segmented/rear/root_stem_r.png": "0ba12d3d3a494c8e812cbd78c6408aac0f30fccc3811f48e7983f7d43b9b5a81",
+    "segmented/rear/root_stem_l.png": "aab2a295568811c8941ca6730e5f367cf8e42bf0c9c715cb9752e22a5cb0199f",
+    "segmented/rear/root_stem_r.png": "e0cd3600124b35934e1e80de7a0a750e7c2e0f68a7bd608bfd2ff7ca36173561",
     "segmented/rear/root_tip_c.png": "06ea153777fb28c7ad0e00b2c34d12aa1d8e8d052cc8d966ea52afd6addce856",
-    "segmented/rear/root_tip_l.png": "a039e7277a83f993936e7e73b456da7556e61103de62e962cd2f46a398b80d02",
-    "segmented/rear/segmentation.json": "7bfa5aeefce7d87d27e8239c49dca2e8b25173cfcfa708b07e528fbb8313d13c",
-    "segmented/rear/tendril_high_l.png": "933be7537ae1001b5823070e95824067f953da716179cbb1e61b4a4bf8cfe83b",
-    "segmented/rear/tendril_high_r.png": "08ef2c60adce59eb303c1faf4dcb1e98621e16a606623a472088e56ae12acddc",
-    "segmented/rear/tendril_low_l.png": "ad342433dc0c3923c3c4c3646d1e93457d8569f5f96dc14344109154385af426",
-    "segmented/rear/tendril_low_r.png": "7c66766b44dc1ff02eb8f4c8e41e514cffd5150e7c0766022f7f1225294a9af3",
-    "segmented/rear/tendril_mid_l.png": "c763cce7fe157095390a0710ac328cd5645686ed0e962b8a621e0b65bf8f10a6",
-    "segmented/rear/trunk.png": "f743025b995193688a0718dba747c646bfe1419e9d52ee53da4d0954d5f9b0a2",
+    "segmented/rear/root_tip_l.png": "669ea8f2df3f0b038601c2420320aac95d8620437126eea08b6e63b49a3dad1d",
+    "segmented/rear/segmentation.json": "587b7983659b1a749000b5a22fd000f28be247637b3fd787c16929882a4b9e2e",
+    "segmented/rear/tendril_high_l.png": "c7230a7ec861e652dad43b53b7420814de7b980430dd0a9ae22e0bc5e37962c4",
+    "segmented/rear/tendril_high_r.png": "9e11f6ca5a216f5180d098fb8576f47378060917549a4775494301a2a16f9c18",
+    "segmented/rear/tendril_low_l.png": "5a3a040d1ba0fff3b9ddf9a8015159e9513321619646694cd667ddd946b3f5b4",
+    "segmented/rear/tendril_low_r.png": "eb4be202cf6491f652e6aaa911e81787e2f3144723c8cde971da41b949d0e6c9",
+    "segmented/rear/tendril_mid_l.png": "8e1dcf5bc23225a0c30789c4e64147329b0a23c47afe317f21d5f36d75ec0518",
+    "segmented/rear/trunk.png": "1eed648774ec2eed4d723994eeb8cfd1c10ac2dcb9afa48faf173d170b9b5132",
     "source/front/kit.json": "188c7e991e6ff8d785856aaf3ed9631d0012c23f27a651d565818f8bdc10f817",
     "source/front/processed.json": "1f37d068bf5d0c7564afc621b54ccf651c404c158a8b657a4a507e515a90b3f6",
     "source/front/processed.png": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
@@ -265,10 +272,10 @@
       "part": "trunk",
       "material": "dark brown braided roots",
       "request": "hidden_requests/front_trunk.png",
-      "request_sha256": "b84c3f9c0c6c192afb33348af8a66e70043ce99b817d3825ce22b101baede3af",
-      "visible_mask_sha256": "e4f4f75472a31f02d8f135adb78809fb3b4dfcd7fb61cec52e7b4db78ce1dd7a",
-      "hidden_mask_sha256": "187be6509264bd19b64d2dcaa54719d24af0bd1913374f8bdeb7cbc360f9b342",
-      "donor_mask_sha256": "16ab69b046c28d50dbe976fa48938f9a512e9a9fa83fae1edbe5ddaa5cc7a278",
+      "request_sha256": "2e6ce75dc8d6adc21ecd9052d2ee1b3a97c9813f2e29c36edd51e6c89085e030",
+      "visible_mask_sha256": "dd3f16d0304e535d0bd7d292e1f6f512d310d40e6c34832b89e2383fb7401dfa",
+      "hidden_mask_sha256": "37dd284643e7df81a1ae409ab83cee1e35d54a700caa9be73a6220ae98299030",
+      "donor_mask_sha256": "066dfc2793f161fe20223da01d2c8caea898d27e22f64e765a183b3a8b968f21",
       "donor_parts": [
         "root_stem_c",
         "root_stem_r",
@@ -277,18 +284,18 @@
         "tendril_low_l",
         "tendril_low_r"
       ],
-      "own_conditioning_mask_sha256": "e4f4f75472a31f02d8f135adb78809fb3b4dfcd7fb61cec52e7b4db78ce1dd7a",
+      "own_conditioning_mask_sha256": "dd3f16d0304e535d0bd7d292e1f6f512d310d40e6c34832b89e2383fb7401dfa",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "29cf06074a57d0c1802edf54a9eb6cad34ddb436c6a02a946c261c8e1949834f",
-      "donor_rgb_sha256": "96f8bd08072adca898f9f15e3ce47f4afab31bfeeeb9abdeeccd1091c3a419d0",
-      "own_visible_pixels": 9931,
-      "donor_visible_pixels": 5012,
-      "hidden_pixels": 4078,
+      "visible_rgba_sha256": "8b3bf0755aa4db82cc65b0ff05e71295e942b049de057447d2ebffb12a8ebc13",
+      "donor_rgb_sha256": "794a88cdb1599fc90326146ee88b1e59549c6416034fc37b90e3c27904efcb32",
+      "own_visible_pixels": 10239,
+      "donor_visible_pixels": 4712,
+      "hidden_pixels": 3770,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 554,
-        "max_residual": 9.698823620684521e-07,
+        "iterations": 551,
+        "max_residual": 9.981336785234943e-07,
         "domain": [
           35,
           50,
@@ -306,7 +313,7 @@
           11
         ],
         [
-          54,
+          55,
           32,
           24
         ],
@@ -316,19 +323,19 @@
           48
         ],
         [
-          161,
-          55,
+          163,
+          56,
           2
         ],
         [
-          162,
+          163,
           102,
           69
         ],
         [
           242,
           157,
-          62
+          61
         ]
       ],
       "quantization_palette": [
@@ -338,7 +345,7 @@
           11
         ],
         [
-          54,
+          55,
           32,
           24
         ],
@@ -348,26 +355,26 @@
           48
         ],
         [
-          161,
-          55,
+          163,
+          56,
           2
         ],
         [
-          162,
+          163,
           102,
           69
         ],
         [
           242,
           157,
-          62
+          61
         ]
       ],
-      "palette_iterations": 27,
+      "palette_iterations": 37,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 9931,
-      "own_conditioning_pixels": 9931,
-      "conditioning_pixels_in_hidden_region": 2024,
+      "palette_sample_pixels": 10239,
+      "own_conditioning_pixels": 10239,
+      "conditioning_pixels_in_hidden_region": 1724,
       "outline_pixels": 244,
       "outline_tone": [
         20,
@@ -379,46 +386,46 @@
       "outputs": [
         {
           "output": "hidden/front/trunk.png",
-          "original_sha256": "df60806aaaa3e923883624cc0807941d43244faebd5c1eb03af8e364dede5924",
-          "output_rgba_sha256": "c340e20acb1bd24bd014409eb73a9b8786a23c37e4d03a22a26012b950100112",
-          "alpha_sha256": "355cab3c2266ef27a80f078ca9e85cf7756cc037f80385d54cbaf18682c16412",
+          "original_sha256": "8d66a7ebe35670027d0a3698f154be885e84fae32be5f5bc6b868d8f8df83969",
+          "output_rgba_sha256": "e88aa8a733520ba87ce734e4c8f865d75498adffd8234e66c038557832f8631a",
+          "alpha_sha256": "ecab731b6cb3c5463f4f24c294c6586c61dbf93c868b27fa2be0f5f8e2077dc3",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "3791a84660741b2a589eabd22e22f15fc56e5e201275d3cbd69f138a35c6609c"
+          "output_sha256": "7a277e390d067f0f607e51f9c2e137e64d48934b3b053569aab03e417d777237"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/trunk.png",
-      "original_sha256": "df60806aaaa3e923883624cc0807941d43244faebd5c1eb03af8e364dede5924",
-      "output_rgba_sha256": "c340e20acb1bd24bd014409eb73a9b8786a23c37e4d03a22a26012b950100112",
-      "alpha_sha256": "355cab3c2266ef27a80f078ca9e85cf7756cc037f80385d54cbaf18682c16412",
+      "original_sha256": "8d66a7ebe35670027d0a3698f154be885e84fae32be5f5bc6b868d8f8df83969",
+      "output_rgba_sha256": "e88aa8a733520ba87ce734e4c8f865d75498adffd8234e66c038557832f8631a",
+      "alpha_sha256": "ecab731b6cb3c5463f4f24c294c6586c61dbf93c868b27fa2be0f5f8e2077dc3",
       "preview": "hidden_fills/front_trunk.png",
-      "output_sha256": "3791a84660741b2a589eabd22e22f15fc56e5e201275d3cbd69f138a35c6609c",
-      "preview_sha256": "1e0f818e4556e3c26a3802b5c6384a6b3ba0817f87d596744eb58752505d9ffa"
+      "output_sha256": "5215f830e8d83c3e20e6a3c3c6063f5fdfa957adfb76494343bdeaf559c85988",
+      "preview_sha256": "713e60b175d51362275ec22e32f89b2551807e1ce20b9e22bf2d7a51532704f8"
     },
     {
       "view": "front",
       "part": "core",
       "material": "amber crystal heart",
       "request": "hidden_requests/front_core.png",
-      "request_sha256": "d922c9d38cfe943aa8e7eb34dc50b08a8ecb24d5c1891fa5efb6d025ffc2eb80",
-      "visible_mask_sha256": "0c7dda16db18c901106c291ba5d19dbc2ffc7321ca99e927559ee8c68db310b6",
-      "hidden_mask_sha256": "10445ab92fbed28d3ffe08df95f4e40dfaacccaf24facd622649d45152f19958",
+      "request_sha256": "5b14609560ae4ef0b8a824041153d8dc284c545c4d5b0157c42b1525b5a10018",
+      "visible_mask_sha256": "5d0012e6fafbba6508350463f50c624dfa5480cc402df1a2af1c83d54a10e84f",
+      "hidden_mask_sha256": "b4f29c8ec53c5bce4c825486e3561b2ed3b0e1f8dada4166fd6a36c00bc76b71",
       "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "donor_parts": [],
-      "own_conditioning_mask_sha256": "0c7dda16db18c901106c291ba5d19dbc2ffc7321ca99e927559ee8c68db310b6",
+      "own_conditioning_mask_sha256": "5d0012e6fafbba6508350463f50c624dfa5480cc402df1a2af1c83d54a10e84f",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "684cdab7d8904b1a5c1033929dc39d8afdee1002e7326a218ddbbbc5e9e529f7",
+      "visible_rgba_sha256": "849df6ad48030ea89c1d011d0f407d6b32994354cc056dbaf78056611c3ddfd1",
       "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "own_visible_pixels": 1048,
+      "own_visible_pixels": 1608,
       "donor_visible_pixels": 0,
-      "hidden_pixels": 232,
+      "hidden_pixels": 202,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 168,
-        "max_residual": 9.964227478602339e-07,
+        "iterations": 176,
+        "max_residual": 9.88859635311217e-07,
         "domain": [
-          87,
+          68,
           56,
           135,
           105
@@ -430,73 +437,73 @@
       "palette": [
         [
           32,
-          26,
-          25
+          25,
+          24
         ],
         [
-          114,
-          32,
+          119,
+          35,
           2
         ],
         [
-          173,
-          59,
-          1
+          182,
+          66,
+          2
         ],
         [
-          206,
-          87,
-          4
+          216,
+          102,
+          7
         ],
         [
-          242,
-          145,
-          30
+          245,
+          153,
+          39
         ],
         [
           252,
-          205,
-          139
+          208,
+          147
         ]
       ],
       "quantization_palette": [
         [
           32,
-          26,
-          25
+          25,
+          24
         ],
         [
-          114,
-          32,
+          119,
+          35,
           2
         ],
         [
-          173,
-          59,
-          1
+          182,
+          66,
+          2
         ],
         [
-          206,
-          87,
-          4
+          216,
+          102,
+          7
         ],
         [
-          242,
-          145,
-          30
+          245,
+          153,
+          39
         ],
         [
           252,
-          205,
-          139
+          208,
+          147
         ]
       ],
-      "palette_iterations": 11,
+      "palette_iterations": 6,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 1048,
-      "own_conditioning_pixels": 1048,
+      "palette_sample_pixels": 1608,
+      "own_conditioning_pixels": 1608,
       "conditioning_pixels_in_hidden_region": 0,
-      "outline_pixels": 61,
+      "outline_pixels": 49,
       "outline_tone": [
         20,
         16,
@@ -507,47 +514,47 @@
       "outputs": [
         {
           "output": "hidden/front/core.png",
-          "original_sha256": "552b14d1fdd4f4eca43b880c3143554cd07428f4716e02272e49d1de9bbf65c8",
-          "output_rgba_sha256": "db8c634aae12222aed9e6339fa2140e91d599bd06a3869f8fcfba5f220d61922",
-          "alpha_sha256": "331b917ba8ff05b193ef99ff16e38577d90d87a36cdd35da86e58d6a05a45280",
+          "original_sha256": "62cc94d26af5835a32b016e5629f6818327490627e1c451e0db1068e52b9d4ee",
+          "output_rgba_sha256": "e9b4a5128d8612e68a3e989a208c5fa0b8a01267845a51f71d63ae243bdf003f",
+          "alpha_sha256": "c302eb29455534eff37e4fa456e3e80ac99e1cc1daf8cbfbe41e951d3efd635a",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "0fd6cb856fedf02e67c4d0a21883d834bb3712f4d5810c2e36ef15883c91834f"
+          "output_sha256": "bc11ba022db8ce721cdcda8afd2c40103c6048690f9220ab9f3167c27ea0bd1d"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/core.png",
-      "original_sha256": "552b14d1fdd4f4eca43b880c3143554cd07428f4716e02272e49d1de9bbf65c8",
-      "output_rgba_sha256": "db8c634aae12222aed9e6339fa2140e91d599bd06a3869f8fcfba5f220d61922",
-      "alpha_sha256": "331b917ba8ff05b193ef99ff16e38577d90d87a36cdd35da86e58d6a05a45280",
+      "original_sha256": "62cc94d26af5835a32b016e5629f6818327490627e1c451e0db1068e52b9d4ee",
+      "output_rgba_sha256": "e9b4a5128d8612e68a3e989a208c5fa0b8a01267845a51f71d63ae243bdf003f",
+      "alpha_sha256": "c302eb29455534eff37e4fa456e3e80ac99e1cc1daf8cbfbe41e951d3efd635a",
       "preview": "hidden_fills/front_core.png",
-      "output_sha256": "0fd6cb856fedf02e67c4d0a21883d834bb3712f4d5810c2e36ef15883c91834f",
-      "preview_sha256": "1cfa6f5df76be54a119fc848275646e62d3f4e816ba0b04d61733da4ff042871"
+      "output_sha256": "9b97c99d66d29f2518c78a702f7349c6888f700f2f027a9e5dec37417e97af87",
+      "preview_sha256": "85d58a0b97147726f1e052ec47241009dd5ab8374c6ed7d1fccd67272179b579"
     },
     {
       "view": "front",
       "part": "petal_near_l",
       "material": "shale daisy petals",
       "request": "hidden_requests/front_petal_near_l.png",
-      "request_sha256": "781ba2257eb5d02dc0f30b3f099f2b065e49314696c072ad203be3e9d87c7ff8",
-      "visible_mask_sha256": "22a0dbf07af62e10f934a561fa1a15d24ff6e29912427661bb7358a2059d85fd",
-      "hidden_mask_sha256": "f4482e81d255c9b6504bc2d3428ff6421cd6f3e304addab160c5c96448c9ec8f",
-      "donor_mask_sha256": "531d514efdae783551b5dbc0cf1c0def5b0e0e23ff30f9de3b163f38b84304b9",
+      "request_sha256": "f61ab020e7ee8393725bf60fe4ef8eaca196b916de79d22de0873406e38517ae",
+      "visible_mask_sha256": "05a1590db7a4a35fa15bdb85aa1c2dbceb49dbb50376cb37a7c8364b9a00bfba",
+      "hidden_mask_sha256": "52ddc521c7440435082970a9f77e4b0a4f7ddb9f007f940c3ae9de3a0b52a367",
+      "donor_mask_sha256": "0fb042247ab5c6d53c80c01dbd79d80197a158e02505d55320bf263aee5dcf53",
       "donor_parts": [
         "petal_far_l",
         "petal_near_r"
       ],
-      "own_conditioning_mask_sha256": "22a0dbf07af62e10f934a561fa1a15d24ff6e29912427661bb7358a2059d85fd",
+      "own_conditioning_mask_sha256": "05a1590db7a4a35fa15bdb85aa1c2dbceb49dbb50376cb37a7c8364b9a00bfba",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "9ee5d557fbf47748417917bf40415041ae6914312bdd499e6a6f75b72d95fb71",
-      "donor_rgb_sha256": "5b6154f30a35e392890ed31afb29815287841beea1971bc7fe7def8cc3101f62",
-      "own_visible_pixels": 1589,
-      "donor_visible_pixels": 3530,
-      "hidden_pixels": 291,
+      "visible_rgba_sha256": "6cf5f675218ab9c579b4f0215e453b74fe85d01925879f46332a181ff29b5a43",
+      "donor_rgb_sha256": "33f426c97cc3aa461c6a1bcb120bdb67747a7421addeac37cdd9d28c2b795e49",
+      "own_visible_pixels": 1197,
+      "donor_visible_pixels": 3358,
+      "hidden_pixels": 683,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 547,
-        "max_residual": 9.998996837413204e-07,
+        "iterations": 569,
+        "max_residual": 9.360448382997849e-07,
         "domain": [
           42,
           29,
@@ -560,74 +567,74 @@
       },
       "palette": [
         [
-          26,
-          20,
-          19
+          19,
+          15,
+          15
         ],
         [
-          70,
-          55,
-          50
+          43,
+          34,
+          33
         ],
         [
-          106,
-          82,
-          72
+          75,
+          60,
+          55
         ],
         [
-          165,
-          110,
-          80
-        ],
-        [
-          166,
-          58,
+          88,
+          18,
           2
         ],
         [
-          243,
-          150,
-          39
+          110,
+          84,
+          74
+        ],
+        [
+          170,
+          112,
+          80
         ]
       ],
       "quantization_palette": [
         [
-          26,
-          20,
-          19
+          19,
+          15,
+          15
         ],
         [
-          70,
-          55,
-          50
+          43,
+          34,
+          33
         ],
         [
-          106,
-          82,
-          72
+          75,
+          60,
+          55
         ],
         [
-          165,
-          110,
-          80
-        ],
-        [
-          166,
-          58,
+          88,
+          18,
           2
         ],
         [
-          243,
-          150,
-          39
+          110,
+          84,
+          74
+        ],
+        [
+          170,
+          112,
+          80
         ]
       ],
-      "palette_iterations": 20,
+      "palette_iterations": 28,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 1589,
-      "own_conditioning_pixels": 1589,
-      "conditioning_pixels_in_hidden_region": 135,
-      "outline_pixels": 64,
+      "palette_sample_pixels": 1197,
+      "own_conditioning_pixels": 1197,
+      "conditioning_pixels_in_hidden_region": 83,
+      "outline_pixels": 68,
       "outline_tone": [
         20,
         16,
@@ -638,47 +645,47 @@
       "outputs": [
         {
           "output": "hidden/front/petal_near_l.png",
-          "original_sha256": "829dc9d73eca31b21fbf26c34a0904fdc6c04bba2e72fd9fd13afffd305b7083",
-          "output_rgba_sha256": "275c5a622548d9fb42170d6dbd75a954d91610aa7639e2b44eff2fc351917ca0",
-          "alpha_sha256": "81658f7fa299ae539e6ac3ae6107b97b66cded912eb8018d201e0921f00d1da8",
+          "original_sha256": "4680f4766e75991ab7c1daad683e777c41d44f9e436dbb8b99a0f5b5d0f75499",
+          "output_rgba_sha256": "3b5f7fa64237b87faff15599f5fa3e70a8b1847731218125710fddc8d44cff20",
+          "alpha_sha256": "8aa599d64aacb2a8ec2390e7cae6672a8105b7f5f8d2904c1e66c63419ebdbf1",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "384f082cc5227703270c3f325f51591a086cbf6a93dd125fc3625acdb4d560c8"
+          "output_sha256": "46a260fc005eaca0c2dfcdc0e8b89dd518420618dea5a1b7cda56464be4bbafc"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/petal_near_l.png",
-      "original_sha256": "829dc9d73eca31b21fbf26c34a0904fdc6c04bba2e72fd9fd13afffd305b7083",
-      "output_rgba_sha256": "275c5a622548d9fb42170d6dbd75a954d91610aa7639e2b44eff2fc351917ca0",
-      "alpha_sha256": "81658f7fa299ae539e6ac3ae6107b97b66cded912eb8018d201e0921f00d1da8",
+      "original_sha256": "4680f4766e75991ab7c1daad683e777c41d44f9e436dbb8b99a0f5b5d0f75499",
+      "output_rgba_sha256": "3b5f7fa64237b87faff15599f5fa3e70a8b1847731218125710fddc8d44cff20",
+      "alpha_sha256": "8aa599d64aacb2a8ec2390e7cae6672a8105b7f5f8d2904c1e66c63419ebdbf1",
       "preview": "hidden_fills/front_petal_near_l.png",
-      "output_sha256": "384f082cc5227703270c3f325f51591a086cbf6a93dd125fc3625acdb4d560c8",
-      "preview_sha256": "dbc16933b8106dc5877e9d2718c91092f4da23066c37ca233be8b2542b6077c7"
+      "output_sha256": "339cf5767f0f6f2d5cc136a4613fac81a1e45da5a6ccb45328c8bfc2286e9ea2",
+      "preview_sha256": "aa8300353eb5a22bd489e436b996d2398786b3b4cd158e00bc9b4de6b344ec4c"
     },
     {
       "view": "front",
       "part": "petal_near_r",
       "material": "shale daisy petals",
       "request": "hidden_requests/front_petal_near_r.png",
-      "request_sha256": "0b8ad56e2b7528cf0ffbd157ccad768a2aea4988d8fe50ca35681225fd5122c5",
-      "visible_mask_sha256": "1a456dc2f99732756d317751578d0c606bd68076560d7119de226a46017ff888",
-      "hidden_mask_sha256": "5e98dd9374986604f29f9051113e55a158297944d7862376fbfde2715ada272b",
-      "donor_mask_sha256": "7a72eff4956a96d483507094a3eaba8e51af61adc137dd43cc0aee0c3d155967",
+      "request_sha256": "7afda6ed486b9be050621dc4b09e3a04f05cd319d5a35f871345ce72720b94e3",
+      "visible_mask_sha256": "a64a261ab2d0bd77a08c08daa82c928e2ac50780e00f878f83e111a1a74d84f0",
+      "hidden_mask_sha256": "dcbd401b1e9b4299286d4221a1b98aea2feda8b898627c0e519a4988e54e24b7",
+      "donor_mask_sha256": "96fd8b916e81ea50da3fde54a04715d96c0d8a62a804b6003a277aff9d5c960c",
       "donor_parts": [
         "petal_far_r",
         "petal_near_l"
       ],
-      "own_conditioning_mask_sha256": "1a456dc2f99732756d317751578d0c606bd68076560d7119de226a46017ff888",
+      "own_conditioning_mask_sha256": "a64a261ab2d0bd77a08c08daa82c928e2ac50780e00f878f83e111a1a74d84f0",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "6ee104b85061b938edfb0ed72bd4ce6ced21c3d87299a9e5b14205e032df57e9",
-      "donor_rgb_sha256": "519045b3e9d89aa9340bddc727c64eaf43121f62d25282fb97c2dda71bfd466f",
-      "own_visible_pixels": 1726,
-      "donor_visible_pixels": 3912,
-      "hidden_pixels": 236,
+      "visible_rgba_sha256": "ce1eecc1a6be602077670abb89099e5408052c158348a13b9006dcaba87dcc42",
+      "donor_rgb_sha256": "eed79e523490c331b46b4efc6529a43e73e2b62a7ed0ca404fdca2c906f9a650",
+      "own_visible_pixels": 1722,
+      "donor_visible_pixels": 3516,
+      "hidden_pixels": 240,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 528,
-        "max_residual": 9.926771083606548e-07,
+        "iterations": 545,
+        "max_residual": 9.981060963728928e-07,
         "domain": [
           42,
           17,
@@ -693,7 +700,7 @@
         [
           21,
           17,
-          17
+          18
         ],
         [
           47,
@@ -701,31 +708,31 @@
           36
         ],
         [
-          73,
-          59,
+          72,
+          58,
           55
         ],
         [
-          97,
-          77,
-          70
+          96,
+          76,
+          69
         ],
         [
-          123,
-          93,
+          119,
+          91,
           79
         ],
         [
-          180,
-          117,
-          81
+          175,
+          115,
+          82
         ]
       ],
       "quantization_palette": [
         [
           21,
           17,
-          17
+          18
         ],
         [
           47,
@@ -733,32 +740,32 @@
           36
         ],
         [
-          73,
-          59,
+          72,
+          58,
           55
         ],
         [
-          97,
-          77,
-          70
+          96,
+          76,
+          69
         ],
         [
-          123,
-          93,
+          119,
+          91,
           79
         ],
         [
-          180,
-          117,
-          81
+          175,
+          115,
+          82
         ]
       ],
-      "palette_iterations": 13,
+      "palette_iterations": 24,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 1726,
-      "own_conditioning_pixels": 1726,
+      "palette_sample_pixels": 1722,
+      "own_conditioning_pixels": 1722,
       "conditioning_pixels_in_hidden_region": 98,
-      "outline_pixels": 61,
+      "outline_pixels": 65,
       "outline_tone": [
         20,
         16,
@@ -769,47 +776,47 @@
       "outputs": [
         {
           "output": "hidden/front/petal_near_r.png",
-          "original_sha256": "82683dc7640e0688f3160b68d90007eca0d9a7c7c8f636f8616fd81e519a206f",
-          "output_rgba_sha256": "1b7e8b086481e3ae207028da0130edaa4243874868472865d714d45f5d1d7302",
-          "alpha_sha256": "1e2c8324103847f238d9e8e0e2d1860688305ae215994c273a9787d3509f0a9e",
+          "original_sha256": "fa1293b1331c2d8e34acd3aefd95fb47394b9e8eb31c8bc9e064b924d33d7864",
+          "output_rgba_sha256": "b52e844cee3f53707270d4f3265806ed0f91c9f9f2c74c91f9c31a9631ed2a86",
+          "alpha_sha256": "f8ce0f22a95bb58abc75d57303cf4c99378fd568fe3f8fa69558a7dff99c4a08",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "e8fcedc1acdef119453a57c59f40292bb1a5351f4bb32c191f580b652fc2b8f7"
+          "output_sha256": "580b40d218d6b0782c0cafed94ce93fd55b424dd1bb7eb0745ab96150ff6b19a"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/petal_near_r.png",
-      "original_sha256": "82683dc7640e0688f3160b68d90007eca0d9a7c7c8f636f8616fd81e519a206f",
-      "output_rgba_sha256": "1b7e8b086481e3ae207028da0130edaa4243874868472865d714d45f5d1d7302",
-      "alpha_sha256": "1e2c8324103847f238d9e8e0e2d1860688305ae215994c273a9787d3509f0a9e",
+      "original_sha256": "fa1293b1331c2d8e34acd3aefd95fb47394b9e8eb31c8bc9e064b924d33d7864",
+      "output_rgba_sha256": "b52e844cee3f53707270d4f3265806ed0f91c9f9f2c74c91f9c31a9631ed2a86",
+      "alpha_sha256": "f8ce0f22a95bb58abc75d57303cf4c99378fd568fe3f8fa69558a7dff99c4a08",
       "preview": "hidden_fills/front_petal_near_r.png",
-      "output_sha256": "e8fcedc1acdef119453a57c59f40292bb1a5351f4bb32c191f580b652fc2b8f7",
-      "preview_sha256": "fd29b88fd3f52ea7fed7d233e53e81df143ce500cc644c3439bc8dc63b6fb395"
+      "output_sha256": "046f6737d2c5c4355824200b5d26acae813496c35bfe06945a3ed2fadbdfde39",
+      "preview_sha256": "a791e8e7493f0e7896093814ece4190d9e9413f2cea8aea6b8525f740a4244e7"
     },
     {
       "view": "front",
       "part": "petal_far_l",
       "material": "shale daisy petals",
       "request": "hidden_requests/front_petal_far_l.png",
-      "request_sha256": "f5eea25c6c0adfbc681c35ff56bc2e08d88b1b7da07a047777cdb09bf8a47855",
-      "visible_mask_sha256": "78a9536d3aa16590db9c53bfa1dfb0d7f369bc6147dd1b01c581dfcd42fcecea",
-      "hidden_mask_sha256": "a1e9402d5b8b4c56586e0e05a840fb2355ebd923ca419cbd9d11ca41f7373c08",
-      "donor_mask_sha256": "7a72eff4956a96d483507094a3eaba8e51af61adc137dd43cc0aee0c3d155967",
+      "request_sha256": "0cfb82cfe5914162c900e86e426b22730e60845391151f73d48cc77a8a6a5285",
+      "visible_mask_sha256": "89ab658f0e9bb75d4f7401b32fd3a9ed96067df7626ad1dea4bb83a413b5168e",
+      "hidden_mask_sha256": "e287984d502b1f991b38d4375e0685adf16c096e851fd03841807ed1746ffce2",
+      "donor_mask_sha256": "96fd8b916e81ea50da3fde54a04715d96c0d8a62a804b6003a277aff9d5c960c",
       "donor_parts": [
         "petal_far_r",
         "petal_near_l"
       ],
-      "own_conditioning_mask_sha256": "78a9536d3aa16590db9c53bfa1dfb0d7f369bc6147dd1b01c581dfcd42fcecea",
+      "own_conditioning_mask_sha256": "89ab658f0e9bb75d4f7401b32fd3a9ed96067df7626ad1dea4bb83a413b5168e",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "f3120a6df162a7276515fc86eea9db163a7443de34ecc3fdfbf1c2867bf519c3",
-      "donor_rgb_sha256": "519045b3e9d89aa9340bddc727c64eaf43121f62d25282fb97c2dda71bfd466f",
-      "own_visible_pixels": 1804,
-      "donor_visible_pixels": 3912,
-      "hidden_pixels": 597,
+      "visible_rgba_sha256": "c68489756659fc7fa4a0748ef53b103787613b6975a0ab203a05a66c6d33c23b",
+      "donor_rgb_sha256": "eed79e523490c331b46b4efc6529a43e73e2b62a7ed0ca404fdca2c906f9a650",
+      "own_visible_pixels": 1636,
+      "donor_visible_pixels": 3516,
+      "hidden_pixels": 765,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 522,
-        "max_residual": 9.783991509153596e-07,
+        "iterations": 529,
+        "max_residual": 9.965605409476913e-07,
         "domain": [
           42,
           17,
@@ -822,73 +829,73 @@
       },
       "palette": [
         [
-          27,
-          23,
-          23
+          18,
+          15,
+          17
         ],
         [
-          66,
-          53,
+          40,
+          33,
+          33
+        ],
+        [
+          64,
+          52,
           49
         ],
         [
-          100,
-          78,
-          69
+          87,
+          68,
+          62
         ],
         [
-          172,
+          110,
+          85,
+          75
+        ],
+        [
+          173,
           112,
           79
-        ],
-        [
-          218,
-          109,
-          12
-        ],
-        [
-          252,
-          204,
-          143
         ]
       ],
       "quantization_palette": [
         [
-          27,
-          23,
-          23
+          18,
+          15,
+          17
         ],
         [
-          66,
-          53,
+          40,
+          33,
+          33
+        ],
+        [
+          64,
+          52,
           49
         ],
         [
-          100,
-          78,
-          69
+          87,
+          68,
+          62
         ],
         [
-          172,
+          110,
+          85,
+          75
+        ],
+        [
+          173,
           112,
           79
-        ],
-        [
-          218,
-          109,
-          12
-        ],
-        [
-          252,
-          204,
-          143
         ]
       ],
-      "palette_iterations": 13,
+      "palette_iterations": 6,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 1804,
-      "own_conditioning_pixels": 1804,
-      "conditioning_pixels_in_hidden_region": 201,
+      "palette_sample_pixels": 1636,
+      "own_conditioning_pixels": 1636,
+      "conditioning_pixels_in_hidden_region": 89,
       "outline_pixels": 79,
       "outline_tone": [
         20,
@@ -900,48 +907,48 @@
       "outputs": [
         {
           "output": "hidden/front/petal_far_l.png",
-          "original_sha256": "47f898af21d00298002c6b23760a7b7f4bfcb6d07f3fe32149f3c66397296827",
-          "output_rgba_sha256": "94fd77281d2a2b20d48f912be15b9d197a7adb22346467e151296a13b96f36db",
-          "alpha_sha256": "1edffac14bacc7f734c417da29fb6e80d976a79fcd7f5a872dc327d99f9516c4",
+          "original_sha256": "e5089eb6ca0580a047c6a842a023a391fd661cf5675b0a559219793b11feaebc",
+          "output_rgba_sha256": "68b9c1ebc4de247c8ab1736791936000cb00ea208fa78e89a758bd74c49cb5e4",
+          "alpha_sha256": "8633a7da13b006820876af4e4f09a79c73a402f2e6c860c704e0c9044c83ead0",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "bbfd6acc764454baa83fcfeccf930d5ce93086c799f86863bbdd19e1f7d636e9"
+          "output_sha256": "f162ce7347a28935d0a4c2758f0eab04726883f41054786e2cb58ca1e42ff9cb"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/petal_far_l.png",
-      "original_sha256": "47f898af21d00298002c6b23760a7b7f4bfcb6d07f3fe32149f3c66397296827",
-      "output_rgba_sha256": "94fd77281d2a2b20d48f912be15b9d197a7adb22346467e151296a13b96f36db",
-      "alpha_sha256": "1edffac14bacc7f734c417da29fb6e80d976a79fcd7f5a872dc327d99f9516c4",
+      "original_sha256": "e5089eb6ca0580a047c6a842a023a391fd661cf5675b0a559219793b11feaebc",
+      "output_rgba_sha256": "68b9c1ebc4de247c8ab1736791936000cb00ea208fa78e89a758bd74c49cb5e4",
+      "alpha_sha256": "8633a7da13b006820876af4e4f09a79c73a402f2e6c860c704e0c9044c83ead0",
       "preview": "hidden_fills/front_petal_far_l.png",
-      "output_sha256": "bbfd6acc764454baa83fcfeccf930d5ce93086c799f86863bbdd19e1f7d636e9",
-      "preview_sha256": "aace36405cedc289d4ebd04dada974d52bff85e025fdac645e3dd115fd8a892b"
+      "output_sha256": "04fb5518b0d9f50be541d5402a920d5a5e3813f97d46e8d5f74905115bbe2eb1",
+      "preview_sha256": "39b5e0ecf4020829cbb78011b1742ba1f3764860b914f18940c56e66231a6497"
     },
     {
       "view": "front",
       "part": "petal_far_r",
       "material": "shale daisy petals",
       "request": "hidden_requests/front_petal_far_r.png",
-      "request_sha256": "55f03b51c601b29689ab195057280c8415a127cd377c4f68d7f7c84e82005510",
-      "visible_mask_sha256": "60e45ee52f755c0cec49957160965f7d2647212deacfd265b8ac0da7c0e3f1bd",
-      "hidden_mask_sha256": "9e218e2ccc4ccaed03f5386428d7a4aaac586ee9153b9da41d685806db76ae77",
-      "donor_mask_sha256": "57f353d159ce83c067c0d9943da6a6df3a7f119c8101fc34f3c6af7af812e594",
+      "request_sha256": "7551f1bc6012e7adc1810b2e796cc59c668cf9210e4bd0b7fefd5d728e77f672",
+      "visible_mask_sha256": "ec9c9f80f894207058e2314b008d38ea42153faea2cca76a6dfb0a1ddc7cd1ec",
+      "hidden_mask_sha256": "01021a4a86b621f95ae0a74e2b157e28e89323c59e2edb4c6d38293ae9dc7059",
+      "donor_mask_sha256": "a37565ec0058a61c8cd5f06d2fcff0e215ed4d8e52ce249ca25e6353c522cc11",
       "donor_parts": [
         "petal_far_l",
         "petal_near_l",
         "petal_near_r"
       ],
-      "own_conditioning_mask_sha256": "60e45ee52f755c0cec49957160965f7d2647212deacfd265b8ac0da7c0e3f1bd",
+      "own_conditioning_mask_sha256": "ec9c9f80f894207058e2314b008d38ea42153faea2cca76a6dfb0a1ddc7cd1ec",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "8b91cedfe22b6cc5e00845602b1c85355ace0fc39dc71eabef3af19c6e82a845",
-      "donor_rgb_sha256": "d2acb52c06c589287f889368e22594aa54fdabc7d6ec9ba666c1667755a9eb07",
-      "own_visible_pixels": 2323,
-      "donor_visible_pixels": 5119,
-      "hidden_pixels": 485,
+      "visible_rgba_sha256": "7b0473479cc7448ed72c43bf874daf7e18ba14676e61fb1b57ec9c89438495e2",
+      "donor_rgb_sha256": "6464d714aa97c2f15288319711655123ba793421c5bc1efaad8c0d23b21f3e2c",
+      "own_visible_pixels": 2319,
+      "donor_visible_pixels": 4555,
+      "hidden_pixels": 489,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 483,
-        "max_residual": 9.437138575382213e-07,
+        "iterations": 485,
+        "max_residual": 9.97410583634151e-07,
         "domain": [
           42,
           17,
@@ -981,7 +988,7 @@
         [
           177,
           114,
-          79
+          80
         ]
       ],
       "quantization_palette": [
@@ -1013,15 +1020,15 @@
         [
           177,
           114,
-          79
+          80
         ]
       ],
-      "palette_iterations": 17,
+      "palette_iterations": 16,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 2323,
-      "own_conditioning_pixels": 2323,
+      "palette_sample_pixels": 2319,
+      "own_conditioning_pixels": 2319,
       "conditioning_pixels_in_hidden_region": 204,
-      "outline_pixels": 74,
+      "outline_pixels": 78,
       "outline_tone": [
         20,
         16,
@@ -1032,21 +1039,21 @@
       "outputs": [
         {
           "output": "hidden/front/petal_far_r.png",
-          "original_sha256": "0fe501268a89a2e53ac920101853e940254547934cf16e716f339af3a73c269d",
-          "output_rgba_sha256": "261343f6fba5ce4f0da8eeaa48a00e1aebf2543d2f9b4dec7eb9c2cb10a74256",
-          "alpha_sha256": "7863e882b66742f532f40edb3e22a62f4272253ccef2893de9049a45d78b0501",
+          "original_sha256": "ed90a3183df11c5394a2c04762fb2e8fe76cb16729a6026f962b60e12267393e",
+          "output_rgba_sha256": "11e00030bccd2890d93c54d5beb3afc8614abbaba16e010254d09ce43a93166e",
+          "alpha_sha256": "1f0fc464babc5c4538419987418f72811cc150605b94de1f5545307969f79d62",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "914a02ef63cb37b3a3f729df5ae3571f33c92d7e6b752d1f3d6810e45a4563e6"
+          "output_sha256": "ce6de39667ff702e212094cf6bab8e8367a6d3e551464ba891035f5c3f055c58"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/petal_far_r.png",
-      "original_sha256": "0fe501268a89a2e53ac920101853e940254547934cf16e716f339af3a73c269d",
-      "output_rgba_sha256": "261343f6fba5ce4f0da8eeaa48a00e1aebf2543d2f9b4dec7eb9c2cb10a74256",
-      "alpha_sha256": "7863e882b66742f532f40edb3e22a62f4272253ccef2893de9049a45d78b0501",
+      "original_sha256": "ed90a3183df11c5394a2c04762fb2e8fe76cb16729a6026f962b60e12267393e",
+      "output_rgba_sha256": "11e00030bccd2890d93c54d5beb3afc8614abbaba16e010254d09ce43a93166e",
+      "alpha_sha256": "1f0fc464babc5c4538419987418f72811cc150605b94de1f5545307969f79d62",
       "preview": "hidden_fills/front_petal_far_r.png",
-      "output_sha256": "914a02ef63cb37b3a3f729df5ae3571f33c92d7e6b752d1f3d6810e45a4563e6",
-      "preview_sha256": "e77d3ebb1d06b316f886baf1fd2659e04b18c0adfa7abb261c815b9d8faa4457"
+      "output_sha256": "3fcd52cd1e7788e6b0ed0e33152e75c2dc4047454b3370731548c6731e723101",
+      "preview_sha256": "90d10bd1a8c2d9a690db73bacdffac3fc197309509c5a2daf1c733365aa1f076"
     },
     {
       "view": "front",
@@ -1056,7 +1063,7 @@
       "request_sha256": "4b46e082014d3e540f3f08567704743bc1e22f9c1493c08db3bff2d01a933734",
       "visible_mask_sha256": "3d4f20cbf942740d388ee11c5f93c74ca8966e05683091bb2d63d59171ac8f5b",
       "hidden_mask_sha256": "8594e94f7c5aa82484cdeb12a9e4356bbeec51f1f99fbd0d33c42264289ab56b",
-      "donor_mask_sha256": "75e97b280ddbbd1310b306dfa8e7f4a41489d7b9cc8ccebde8f562c68bbd0fcb",
+      "donor_mask_sha256": "95b9d72e3d639ed1a0568ef4ee45903631b4ef554afbfabcf864140dcb6f7e0e",
       "donor_parts": [
         "root_stem_r",
         "tendril_low_r",
@@ -1065,15 +1072,15 @@
       "own_conditioning_mask_sha256": "3d4f20cbf942740d388ee11c5f93c74ca8966e05683091bb2d63d59171ac8f5b",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "23354a78f96054f20443c62b53c9fd3483bb69cc5c0fb9d693e34604b06e8059",
-      "donor_rgb_sha256": "11215f7b3b07340d5241efba7c03aa0fb84a91daa771d41030956deb83a003ce",
+      "donor_rgb_sha256": "871402b70bd51feb9097077d8f3e22e83dd1cd60f39764abfd76856ad62d519d",
       "own_visible_pixels": 998,
-      "donor_visible_pixels": 11982,
+      "donor_visible_pixels": 12137,
       "hidden_pixels": 955,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 559,
-        "max_residual": 9.75177707122841e-07,
+        "iterations": 556,
+        "max_residual": 9.800931482124277e-07,
         "domain": [
           35,
           50,
@@ -1168,7 +1175,7 @@
           "output_rgba_sha256": "a663dba9e0c06bcc01953df87e5c33b19a9d60912d79264ac3852285f7280118",
           "alpha_sha256": "0b7a4271121a96c2dc691ae1e3dba7237ea4f324939d3a3948421fafee4d765c",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "f36274c764cf0c2aa35eb9a9f5a8478558d2cc4dabea6234fe6e600b679f8fa7"
+          "output_sha256": "42fc3a656486c2db616ade895d51351bd7d26808082e5a5731410bf2510396e0"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1188,7 +1195,7 @@
       "request_sha256": "bcdb1726d0b7a73037addb381561bbff7bb5e2950e0ecda5d7c3182e65cfac4c",
       "visible_mask_sha256": "2467d7d34c79ca56ae0239c6c0ff7cb85c4a441f38b28e3563a9d4a119404754",
       "hidden_mask_sha256": "c76aaf4b78ec05f5bcb2b92051a923ef9390682c609fde77f6cbccf7379d1b5c",
-      "donor_mask_sha256": "114a519442642ba3a5d8e8c9726cb675c716eae1dca19053f370a8b785b075dd",
+      "donor_mask_sha256": "4ff0fb84778fa7f229800592741c526a5a96b265abecc85a5a0031aeb37ea1d2",
       "donor_parts": [
         "tendril_low_r",
         "trunk"
@@ -1196,15 +1203,15 @@
       "own_conditioning_mask_sha256": "2467d7d34c79ca56ae0239c6c0ff7cb85c4a441f38b28e3563a9d4a119404754",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "65192855f850dc56af27cb756d751883599ec628335ee80d85d32f1a806897aa",
-      "donor_rgb_sha256": "7c9c877d4a994aefc522789dd71433bd6f7176a4008add722b56dd74ccf9163d",
+      "donor_rgb_sha256": "58fbdbdcbe6d316ca7c62c0d1a2c114b7fddc3d861b134d3a4c832bfb089da59",
       "own_visible_pixels": 851,
-      "donor_visible_pixels": 11395,
+      "donor_visible_pixels": 11552,
       "hidden_pixels": 429,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 542,
-        "max_residual": 9.715471796416254e-07,
+        "iterations": 541,
+        "max_residual": 9.90929596591128e-07,
         "domain": [
           58,
           50,
@@ -1299,7 +1306,7 @@
           "output_rgba_sha256": "1b122dd4b776fce57285532a4033dec4b9e05d083a259e29a9a34aa461772e2d",
           "alpha_sha256": "8127ac4233d61a61e658bd1c0fd82c8be0ada68a625dc2ed3af2b4be37386439",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "4c467a853ba6a61207a15583dd8113aef363819fdff8f570682e924470bf3e6a"
+          "output_sha256": "b514ba01069f28b65637eed3cdcd22623db5ad642a3bdb948f5cd541dbbed4df"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -1319,22 +1326,22 @@
       "request_sha256": "bbd7adf7eaf19e47455d01929fe3d7f7c225e2aea5d0dd3eac0e4a813c543dd3",
       "visible_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "hidden_mask_sha256": "d80f31536dc946451af2de7d5f64a857038912a42cc89e41141bbf298f91766c",
-      "donor_mask_sha256": "e4f4f75472a31f02d8f135adb78809fb3b4dfcd7fb61cec52e7b4db78ce1dd7a",
+      "donor_mask_sha256": "dd3f16d0304e535d0bd7d292e1f6f512d310d40e6c34832b89e2383fb7401dfa",
       "donor_parts": [
         "trunk"
       ],
       "own_conditioning_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "donor_rgb_sha256": "93a2e285359cc7eaee4a76bf04ecee4db4ebb1930451e726ec7cacce4732e0b0",
+      "donor_rgb_sha256": "0cb3a4a9e36ee328de76552247ea89439204341e8152e711ce75f935e4d5387d",
       "own_visible_pixels": 0,
-      "donor_visible_pixels": 9931,
+      "donor_visible_pixels": 10239,
       "hidden_pixels": 631,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 522,
-        "max_residual": 9.803387149473985e-07,
+        "iterations": 520,
+        "max_residual": 9.774432878018827e-07,
         "domain": [
           58,
           50,
@@ -1352,7 +1359,7 @@
           11
         ],
         [
-          54,
+          55,
           32,
           24
         ],
@@ -1362,19 +1369,19 @@
           48
         ],
         [
-          161,
-          55,
+          163,
+          56,
           2
         ],
         [
-          162,
+          163,
           102,
           69
         ],
         [
           242,
           157,
-          62
+          61
         ]
       ],
       "quantization_palette": [
@@ -1384,7 +1391,7 @@
           11
         ],
         [
-          54,
+          55,
           32,
           24
         ],
@@ -1394,24 +1401,24 @@
           48
         ],
         [
-          161,
-          55,
+          163,
+          56,
           2
         ],
         [
-          162,
+          163,
           102,
           69
         ],
         [
           242,
           157,
-          62
+          61
         ]
       ],
-      "palette_iterations": 27,
+      "palette_iterations": 37,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 9931,
+      "palette_sample_pixels": 10239,
       "own_conditioning_pixels": 0,
       "conditioning_pixels_in_hidden_region": 341,
       "outline_pixels": 99,
@@ -1426,46 +1433,46 @@
         {
           "output": "hidden/front/tendril_mid_l.png",
           "original_sha256": "7b30195c8ed9dbf3e6731195d69cd6533730b969bda8bfaca78f561427b24d19",
-          "output_rgba_sha256": "9dc55715c8f7e1ffa39e8ff80de677fdaef0dac48c8977b9f4c5fcc3cacb63d1",
+          "output_rgba_sha256": "1efef1ac53a3b1417e6f503890fa32c221aa17649d880260f510b2c7a00421d9",
           "alpha_sha256": "ccfdc2e6100afc6559a89a37dd76b8000b15e68dff8b08a21ded17116ac2fece",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "7512f60684c2b6286415339e16c49946c55e90cacba91b8ed89a8d443fe7b461"
+          "output_sha256": "f09e6cc655513bcfa05c87295862106ce4750654b21d542511662791a13f90d3"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/tendril_mid_l.png",
       "original_sha256": "7b30195c8ed9dbf3e6731195d69cd6533730b969bda8bfaca78f561427b24d19",
-      "output_rgba_sha256": "9dc55715c8f7e1ffa39e8ff80de677fdaef0dac48c8977b9f4c5fcc3cacb63d1",
+      "output_rgba_sha256": "1efef1ac53a3b1417e6f503890fa32c221aa17649d880260f510b2c7a00421d9",
       "alpha_sha256": "ccfdc2e6100afc6559a89a37dd76b8000b15e68dff8b08a21ded17116ac2fece",
       "preview": "hidden_fills/front_tendril_mid_l.png",
-      "output_sha256": "7512f60684c2b6286415339e16c49946c55e90cacba91b8ed89a8d443fe7b461",
-      "preview_sha256": "b1819c37064e8654af37de07ce8ee566ae2a16c6dea1643c258e32af815dda9f"
+      "output_sha256": "5807143f5fa1f947e2319c8dc1ae208e4b83ca0c53672229c3ee079ce73fa2cb",
+      "preview_sha256": "5bd376e50614e0b9e81b7e1b57c44007d725091bdd51e85561ef6f7d85085119"
     },
     {
       "view": "front",
       "part": "tendril_low_l",
       "material": "dark brown braided roots",
       "request": "hidden_requests/front_tendril_low_l.png",
-      "request_sha256": "8d734890f3123f9e58eb23d3f39621b48e8d5596859dd4413a72c37c4bc2d084",
-      "visible_mask_sha256": "cc9271a54c51629ac60ff6c2923f8d0de8cc412467cda0d10f968c3760d2132c",
-      "hidden_mask_sha256": "ab63d8c2cf27d802645acbca419ca01f54236efae4e29e40dee642aa34943ef4",
-      "donor_mask_sha256": "2ad7562dd8f02624a34f14587fdf76669c29705c74f09254898d4ec15bef984c",
+      "request_sha256": "4fe691ed5dff5d5be21ae1dc8fb56c1e03cdceb7def0e3e1ade0b13dafeb9410",
+      "visible_mask_sha256": "e7f23d23f79e1034a05424dd55d8705106780054c48b83c397b69dfdcb68b8fd",
+      "hidden_mask_sha256": "1e57f4d8afeba0c8d4ea991a9821c52c43cbfad23941d1badc5ee596d72831eb",
+      "donor_mask_sha256": "a477b75e792f0fa0304012afff32a182118a07d4b818e1162795ee29aa700c61",
       "donor_parts": [
         "root_stem_r",
         "trunk"
       ],
-      "own_conditioning_mask_sha256": "cc9271a54c51629ac60ff6c2923f8d0de8cc412467cda0d10f968c3760d2132c",
+      "own_conditioning_mask_sha256": "e7f23d23f79e1034a05424dd55d8705106780054c48b83c397b69dfdcb68b8fd",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "0b474f1def9ceac9bf9af72183c2263dbf044e8ef7b3241ac6ae01453f5bb036",
-      "donor_rgb_sha256": "95c2fe3c8833ab32622abbd34d62f785295f409b8465406307a5597c73be4292",
-      "own_visible_pixels": 1034,
-      "donor_visible_pixels": 10518,
-      "hidden_pixels": 359,
+      "visible_rgba_sha256": "495e085a37568aeab9596ca9ad64ce8dcc17a897e9177623b82a14a18a3ddc52",
+      "donor_rgb_sha256": "62eac7d13f778ee3d084f330f47d80a1e119784e2721acab7a057277a883389e",
+      "own_visible_pixels": 887,
+      "donor_visible_pixels": 10824,
+      "hidden_pixels": 506,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 515,
-        "max_residual": 9.571975990288624e-07,
+        "iterations": 516,
+        "max_residual": 8.871500362703543e-07,
         "domain": [
           58,
           50,
@@ -1478,74 +1485,74 @@
       },
       "palette": [
         [
-          22,
-          14,
-          12
+          16,
+          11,
+          11
         ],
         [
-          67,
-          36,
-          25
+          44,
+          25,
+          20
         ],
         [
-          108,
-          69,
-          52
+          77,
+          49,
+          38
         ],
         [
-          161,
-          53,
-          1
+          99,
+          25,
+          0
+        ],
+        [
+          112,
+          71,
+          53
         ],
         [
           168,
           107,
           73
-        ],
-        [
-          226,
-          120,
-          11
         ]
       ],
       "quantization_palette": [
         [
-          22,
-          14,
-          12
+          16,
+          11,
+          11
         ],
         [
-          67,
-          36,
-          25
+          44,
+          25,
+          20
         ],
         [
-          108,
-          69,
-          52
+          77,
+          49,
+          38
         ],
         [
-          161,
-          53,
-          1
+          99,
+          25,
+          0
+        ],
+        [
+          112,
+          71,
+          53
         ],
         [
           168,
           107,
           73
-        ],
-        [
-          226,
-          120,
-          11
         ]
       ],
-      "palette_iterations": 14,
+      "palette_iterations": 11,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 1034,
-      "own_conditioning_pixels": 1034,
-      "conditioning_pixels_in_hidden_region": 354,
-      "outline_pixels": 57,
+      "palette_sample_pixels": 887,
+      "own_conditioning_pixels": 887,
+      "conditioning_pixels_in_hidden_region": 503,
+      "outline_pixels": 61,
       "outline_tone": [
         20,
         16,
@@ -1556,46 +1563,46 @@
       "outputs": [
         {
           "output": "hidden/front/tendril_low_l.png",
-          "original_sha256": "2cf2bc66039c02a0e1faab5f1724fb16a1a41a077df2e6bf8ad86a11ab7ad302",
-          "output_rgba_sha256": "f9493f88f68af6f8d437a33300b4027064d6951fc167488054ee678c1409811a",
-          "alpha_sha256": "13c3361bd74e011324f664f404da884d70fa3395e5bc5e5c09e3c89bea02aeeb",
+          "original_sha256": "4e6f98efb7da61996533926763371d3b92c25217d32dbc9240ba0210370a153b",
+          "output_rgba_sha256": "d24ec8129f469528597b71234ab662f2f18f0e1996ffe92782e240e266a2670e",
+          "alpha_sha256": "f288668516e05b24fd42d9b5157b1fbb7c30a744f967f2d85bceb123f6b70092",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "1e13f889667071d109d850014742fba22dd300a3facc290fc4a348b949af85a0"
+          "output_sha256": "7d2283c9323afdf4948ddabf71251b4c27b1891ec43807f9d022f193eb14831d"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/tendril_low_l.png",
-      "original_sha256": "2cf2bc66039c02a0e1faab5f1724fb16a1a41a077df2e6bf8ad86a11ab7ad302",
-      "output_rgba_sha256": "f9493f88f68af6f8d437a33300b4027064d6951fc167488054ee678c1409811a",
-      "alpha_sha256": "13c3361bd74e011324f664f404da884d70fa3395e5bc5e5c09e3c89bea02aeeb",
+      "original_sha256": "4e6f98efb7da61996533926763371d3b92c25217d32dbc9240ba0210370a153b",
+      "output_rgba_sha256": "d24ec8129f469528597b71234ab662f2f18f0e1996ffe92782e240e266a2670e",
+      "alpha_sha256": "f288668516e05b24fd42d9b5157b1fbb7c30a744f967f2d85bceb123f6b70092",
       "preview": "hidden_fills/front_tendril_low_l.png",
-      "output_sha256": "1e13f889667071d109d850014742fba22dd300a3facc290fc4a348b949af85a0",
-      "preview_sha256": "5bacfa75fcb06d970c5add0486819820c90e4bcf0f4a7d805801a32476155a3a"
+      "output_sha256": "18fb0d210b80acbeedc50bbb4fa66330adeaee6a5f56bc29f907a42ff9936b10",
+      "preview_sha256": "afec9e82a1c90f4ce34ad8ddaa2fd2791d3ed7de49890fd244ce09066ed07e10"
     },
     {
       "view": "front",
       "part": "tendril_low_r",
       "material": "dark brown braided roots",
       "request": "hidden_requests/front_tendril_low_r.png",
-      "request_sha256": "700402e0a5f1bf81baa1c1461098d8b089e4cff94dac912f380fa29f5b8bf0f1",
-      "visible_mask_sha256": "79ab4b4701822c6c575eda153050c0280f2cb13f13110f8096c883e5f0a4c8da",
-      "hidden_mask_sha256": "4801c3deddd74795ea77997ad4a85c2ea101d037afc72d8bb3fe7eda933c586d",
-      "donor_mask_sha256": "e4f4f75472a31f02d8f135adb78809fb3b4dfcd7fb61cec52e7b4db78ce1dd7a",
+      "request_sha256": "83144d7a745c4c7e8dbdd80878ae6bb1d5b58ea80afae3563ecd5cd5aea9884d",
+      "visible_mask_sha256": "911441d0f9dc94714dfa0218f9d38b75889e70470b776e1ef4c24f673ebdd821",
+      "hidden_mask_sha256": "bb0bbb23bee8c8d7c278cf25b0921b6fd3a9705b18571bba6b80556f8c5dbd88",
+      "donor_mask_sha256": "dd3f16d0304e535d0bd7d292e1f6f512d310d40e6c34832b89e2383fb7401dfa",
       "donor_parts": [
         "trunk"
       ],
-      "own_conditioning_mask_sha256": "79ab4b4701822c6c575eda153050c0280f2cb13f13110f8096c883e5f0a4c8da",
+      "own_conditioning_mask_sha256": "911441d0f9dc94714dfa0218f9d38b75889e70470b776e1ef4c24f673ebdd821",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "f63443b2dcedf81bb51182750f3146a79b2410444d4d9a2fa1b2771f4324b754",
-      "donor_rgb_sha256": "93a2e285359cc7eaee4a76bf04ecee4db4ebb1930451e726ec7cacce4732e0b0",
-      "own_visible_pixels": 1464,
-      "donor_visible_pixels": 9931,
-      "hidden_pixels": 148,
+      "visible_rgba_sha256": "fa86ebbd5fee9e1b9e627e40d9553dc52d6d6eb2cef32e644504a8b1fbb37b99",
+      "donor_rgb_sha256": "0cb3a4a9e36ee328de76552247ea89439204341e8152e711ce75f935e4d5387d",
+      "own_visible_pixels": 1313,
+      "donor_visible_pixels": 10239,
+      "hidden_pixels": 299,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 550,
-        "max_residual": 9.921835375424548e-07,
+        "iterations": 552,
+        "max_residual": 9.228506176052965e-07,
         "domain": [
           58,
           50,
@@ -1608,74 +1615,74 @@
       },
       "palette": [
         [
-          32,
-          19,
-          16
+          17,
+          11,
+          11
         ],
         [
-          94,
-          59,
-          45
+          45,
+          26,
+          21
+        ],
+        [
+          75,
+          47,
+          36
         ],
         [
           99,
-          29,
-          2
+          62,
+          47
         ],
         [
-          170,
-          106,
-          70
+          128,
+          82,
+          59
         ],
         [
-          187,
-          73,
-          4
-        ],
-        [
-          249,
-          188,
-          103
+          180,
+          111,
+          72
         ]
       ],
       "quantization_palette": [
         [
-          32,
-          19,
-          16
+          17,
+          11,
+          11
         ],
         [
-          94,
-          59,
-          45
+          45,
+          26,
+          21
+        ],
+        [
+          75,
+          47,
+          36
         ],
         [
           99,
-          29,
-          2
+          62,
+          47
         ],
         [
-          170,
-          106,
-          70
+          128,
+          82,
+          59
         ],
         [
-          187,
-          73,
-          4
-        ],
-        [
-          249,
-          188,
-          103
+          180,
+          111,
+          72
         ]
       ],
-      "palette_iterations": 7,
+      "palette_iterations": 10,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 1464,
-      "own_conditioning_pixels": 1464,
-      "conditioning_pixels_in_hidden_region": 141,
-      "outline_pixels": 37,
+      "palette_sample_pixels": 1313,
+      "own_conditioning_pixels": 1313,
+      "conditioning_pixels_in_hidden_region": 297,
+      "outline_pixels": 41,
       "outline_tone": [
         20,
         16,
@@ -1686,21 +1693,21 @@
       "outputs": [
         {
           "output": "hidden/front/tendril_low_r.png",
-          "original_sha256": "b4a72b8241d3b5d189d9d864b2f4828f8e94ce49db974cc2ac473497722b8145",
-          "output_rgba_sha256": "fe6e5115c65b85090df04fc3a2284ba2fb30acbc51f6ca5d9aa2972501edbb3b",
-          "alpha_sha256": "83eb474b5989ab0d2ff98956580fae7bb8a2489170d28036a7efd240281ba108",
+          "original_sha256": "05c70c40dd9507282e7c095f0d2e5c59f71dae26781c2f9f3919490875f3205f",
+          "output_rgba_sha256": "e46f4a9cc0a00e1f1ebd30c97f2cc9fc08279f719c029adf6c6c886f5ab5fdd0",
+          "alpha_sha256": "f2778aa9f98d98259124a5bf88f431f0dd0f28db3bae0771e608e281294b2dec",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "22a681fb890092d5004f49635b4910accefa6f02120db34330fcdf7906299c06"
+          "output_sha256": "eb8b49d3d03e71bbeb895d9c70d20f195f7c7b35d8189227ed31f29c1db7c88e"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/tendril_low_r.png",
-      "original_sha256": "b4a72b8241d3b5d189d9d864b2f4828f8e94ce49db974cc2ac473497722b8145",
-      "output_rgba_sha256": "fe6e5115c65b85090df04fc3a2284ba2fb30acbc51f6ca5d9aa2972501edbb3b",
-      "alpha_sha256": "83eb474b5989ab0d2ff98956580fae7bb8a2489170d28036a7efd240281ba108",
+      "original_sha256": "05c70c40dd9507282e7c095f0d2e5c59f71dae26781c2f9f3919490875f3205f",
+      "output_rgba_sha256": "e46f4a9cc0a00e1f1ebd30c97f2cc9fc08279f719c029adf6c6c886f5ab5fdd0",
+      "alpha_sha256": "f2778aa9f98d98259124a5bf88f431f0dd0f28db3bae0771e608e281294b2dec",
       "preview": "hidden_fills/front_tendril_low_r.png",
-      "output_sha256": "22a681fb890092d5004f49635b4910accefa6f02120db34330fcdf7906299c06",
-      "preview_sha256": "ae33a743875cfa66e776f5a316fef03b25d1cb66fa5384d0d0982f835dd44d40"
+      "output_sha256": "31066097235c87c7d7f9dd926f0dddc6a42b4153b928c424853bcc14fda73f49",
+      "preview_sha256": "1e1f754bfc3bcf34a967f5b7f25ed8df068acb720258f6c0b45331d7ee47cfb8"
     },
     {
       "view": "front",
@@ -1710,7 +1717,7 @@
       "request_sha256": "fe15452205a6baa9196332587d558a54d2ab21e1af9fefb9da4e64e329a22b2c",
       "visible_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "hidden_mask_sha256": "02ebc3f08cc243571c3f45119fbce811609a66545da2a0fd10023f268d6c5e35",
-      "donor_mask_sha256": "e44573ce439815b1ff5a57f047b97e0f3c96365876a95d808a16cc01c741c1e2",
+      "donor_mask_sha256": "4d595cdf456954fdb919d13e938b3b79e977005d911fef178aa2d0c7e5b0cd80",
       "donor_parts": [
         "root_stem_r",
         "tendril_low_l",
@@ -1719,15 +1726,15 @@
       "own_conditioning_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "donor_rgb_sha256": "b55c13e59a86c62c94feb9afcb18810d984f34688146a47142bb7d618e86c489",
+      "donor_rgb_sha256": "57ebc818d8ed528d0e64ed47623cd2da8c7c86bed481e174701ce39acbd4dd3a",
       "own_visible_pixels": 0,
-      "donor_visible_pixels": 11552,
+      "donor_visible_pixels": 11711,
       "hidden_pixels": 866,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 515,
-        "max_residual": 9.571975990288624e-07,
+        "iterations": 516,
+        "max_residual": 8.871500362703543e-07,
         "domain": [
           58,
           50,
@@ -1745,29 +1752,29 @@
           11
         ],
         [
-          46,
+          47,
           27,
           20
         ],
         [
-          86,
-          49,
-          35
+          85,
+          52,
+          39
         ],
         [
-          117,
-          74,
-          54
+          124,
+          79,
+          57
         ],
         [
-          180,
-          116,
-          75
+          161,
+          55,
+          2
         ],
         [
-          192,
-          81,
-          5
+          197,
+          124,
+          67
         ]
       ],
       "quantization_palette": [
@@ -1777,36 +1784,36 @@
           11
         ],
         [
-          46,
+          47,
           27,
           20
         ],
         [
-          86,
-          49,
-          35
+          85,
+          52,
+          39
         ],
         [
-          117,
-          74,
-          54
+          124,
+          79,
+          57
         ],
         [
-          180,
-          116,
-          75
+          161,
+          55,
+          2
         ],
         [
-          192,
-          81,
-          5
+          197,
+          124,
+          67
         ]
       ],
-      "palette_iterations": 17,
+      "palette_iterations": 39,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 11552,
+      "palette_sample_pixels": 11711,
       "own_conditioning_pixels": 0,
-      "conditioning_pixels_in_hidden_region": 863,
+      "conditioning_pixels_in_hidden_region": 865,
       "outline_pixels": 93,
       "outline_tone": [
         20,
@@ -1819,47 +1826,47 @@
         {
           "output": "hidden/front/root_stem_l.png",
           "original_sha256": "3cfa9ded75030fd29830a5df1f9d7251e5ec75e922936428b831e83ebff8ee41",
-          "output_rgba_sha256": "13cc7424450a00308cbf798160e6e98ff881c62da965eb70ed9dc33951c62c47",
+          "output_rgba_sha256": "34bec34173935c2ff4420d6e75f9a3b8473c07397dc9d55b77ff0de4860fd6b1",
           "alpha_sha256": "96f6df2edb392020643c293b04dd6c97362f44f443fe0edf248ba57bda03e282",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "fe16d5e41574b64ee0c06f6120a351a449c6d63d51b82a7db8105f7742ad3c9a"
+          "output_sha256": "d3b7b27d67a69be96dc6c571518cbaef9bbeb7015cdd26b334eb6644a03f8355"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/root_stem_l.png",
       "original_sha256": "3cfa9ded75030fd29830a5df1f9d7251e5ec75e922936428b831e83ebff8ee41",
-      "output_rgba_sha256": "13cc7424450a00308cbf798160e6e98ff881c62da965eb70ed9dc33951c62c47",
+      "output_rgba_sha256": "34bec34173935c2ff4420d6e75f9a3b8473c07397dc9d55b77ff0de4860fd6b1",
       "alpha_sha256": "96f6df2edb392020643c293b04dd6c97362f44f443fe0edf248ba57bda03e282",
       "preview": "hidden_fills/front_root_stem_l.png",
-      "output_sha256": "fe16d5e41574b64ee0c06f6120a351a449c6d63d51b82a7db8105f7742ad3c9a",
-      "preview_sha256": "c5976a01e54a11a54f1ad06c2de3429cbcd407ce7562c67d316a3e229cf03da1"
+      "output_sha256": "cd9481d5bc35f4d70059a3f332730041d52d7daf86bc1054645916f6d13c6e79",
+      "preview_sha256": "6e1c866cf149d5557529b725a9297eeeb7274db711e6b60792e67a6f6a4da26d"
     },
     {
       "view": "front",
       "part": "root_stem_r",
       "material": "dark brown braided roots",
       "request": "hidden_requests/front_root_stem_r.png",
-      "request_sha256": "751a15f34131c7d489e23539d4f8f71460b5f6f5df7244e37a1a451e345f0819",
-      "visible_mask_sha256": "56493e066c1385160dd28572deb6a84fc97cb8066e298a732380dfcfe9924bbd",
-      "hidden_mask_sha256": "4f29aae6e1b1cbe1bfcea6dfcea9cd19399750c2d29dec2e6a1cbd5901531777",
-      "donor_mask_sha256": "2780c4f39889866c8c6e6474b6ec8d96d825b8b1e03956880e990eb89bef37bf",
+      "request_sha256": "d0c206df1ac9f8958d2e72824926c5cfceb29e2a5ea7abd32da8c8c41448d5a8",
+      "visible_mask_sha256": "40cff9f73bbba8d006ad801c13935298d9b71e1dbfdf893668bb4cb6da88698d",
+      "hidden_mask_sha256": "98d45b3b66c7439dbf2147ebf3aff828679da010da501dccb31a88974b42f069",
+      "donor_mask_sha256": "ad52f63418fba3ef3d67280f177fbb0a19fb7aeb363159b4d0304b5ef10200c5",
       "donor_parts": [
         "root_tip_l",
         "root_tip_r",
         "trunk"
       ],
-      "own_conditioning_mask_sha256": "56493e066c1385160dd28572deb6a84fc97cb8066e298a732380dfcfe9924bbd",
+      "own_conditioning_mask_sha256": "40cff9f73bbba8d006ad801c13935298d9b71e1dbfdf893668bb4cb6da88698d",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
-      "visible_rgba_sha256": "f77c32806853c622634f1744d0e17b9b9d5d494fa9799550b0fa90b29a233ea4",
-      "donor_rgb_sha256": "2f2cbff1a6022a6d7213285eb4b43bb544f6361a01862c11eab79f2d2db03af7",
-      "own_visible_pixels": 587,
-      "donor_visible_pixels": 11097,
-      "hidden_pixels": 874,
+      "visible_rgba_sha256": "44db550d3b3956c7d1e09130deb06c2d9f3b46f02666e93ee417ecdc3e5a4981",
+      "donor_rgb_sha256": "b133f08d327ee6b73cebbd7b7b69a54742e7c1f9c54fad45ca8d55dd048008a2",
+      "own_visible_pixels": 585,
+      "donor_visible_pixels": 11405,
+      "hidden_pixels": 876,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
         "iterations": 560,
-        "max_residual": 9.665803238661315e-07,
+        "max_residual": 9.840575447528265e-07,
         "domain": [
           58,
           50,
@@ -1883,7 +1890,7 @@
         ],
         [
           70,
-          42,
+          43,
           32
         ],
         [
@@ -1897,9 +1904,9 @@
           53
         ],
         [
-          174,
-          106,
-          67
+          172,
+          107,
+          70
         ]
       ],
       "quantization_palette": [
@@ -1915,7 +1922,7 @@
         ],
         [
           70,
-          42,
+          43,
           32
         ],
         [
@@ -1929,17 +1936,17 @@
           53
         ],
         [
-          174,
-          106,
-          67
+          172,
+          107,
+          70
         ]
       ],
       "palette_iterations": 11,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 587,
-      "own_conditioning_pixels": 587,
-      "conditioning_pixels_in_hidden_region": 868,
-      "outline_pixels": 96,
+      "palette_sample_pixels": 585,
+      "own_conditioning_pixels": 585,
+      "conditioning_pixels_in_hidden_region": 870,
+      "outline_pixels": 98,
       "outline_tone": [
         20,
         16,
@@ -1950,21 +1957,21 @@
       "outputs": [
         {
           "output": "hidden/front/root_stem_r.png",
-          "original_sha256": "5360358f2540494799650c798ddcddde8637ba6d0550c8dafe98fe6ddba93ff2",
-          "output_rgba_sha256": "8a88b0111adef68230f7a21e9938b4d8ee3bb84c96049b8d0879cfc31aa15e3d",
-          "alpha_sha256": "ecdab3ddc5dcb87ef797c29b0b8d8435756697c7ab8bb18f0b65217e9aa57f2d",
+          "original_sha256": "5721d2cad2e2b0509242b9c78b35214b8cc635084e3c11b5ab6b45b766b4f2c6",
+          "output_rgba_sha256": "6e8391c1e72c0a530d46c51819183b51a6fb2c6e53c0c91902c8173ecc2c850f",
+          "alpha_sha256": "dea9d64d719638a47a8778c46a9ae07546adc5f7a219e2b9a179b59802018eef",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "26acfef1abc8b66d132804856e2dce56f81e67e12d4786b17601ff8888057d1d"
+          "output_sha256": "208f9a41a6f6c8de403afdcacc2d320fd449b32d33ee30b8862d71b668df6e16"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/root_stem_r.png",
-      "original_sha256": "5360358f2540494799650c798ddcddde8637ba6d0550c8dafe98fe6ddba93ff2",
-      "output_rgba_sha256": "8a88b0111adef68230f7a21e9938b4d8ee3bb84c96049b8d0879cfc31aa15e3d",
-      "alpha_sha256": "ecdab3ddc5dcb87ef797c29b0b8d8435756697c7ab8bb18f0b65217e9aa57f2d",
+      "original_sha256": "5721d2cad2e2b0509242b9c78b35214b8cc635084e3c11b5ab6b45b766b4f2c6",
+      "output_rgba_sha256": "6e8391c1e72c0a530d46c51819183b51a6fb2c6e53c0c91902c8173ecc2c850f",
+      "alpha_sha256": "dea9d64d719638a47a8778c46a9ae07546adc5f7a219e2b9a179b59802018eef",
       "preview": "hidden_fills/front_root_stem_r.png",
-      "output_sha256": "26acfef1abc8b66d132804856e2dce56f81e67e12d4786b17601ff8888057d1d",
-      "preview_sha256": "54f9d27d30349f3abba372a9fb556f1da6d0aa0eeaa96e559834908ed8fe27f9"
+      "output_sha256": "b79633f233c2ad4a9a3eea76c586f55cbbc65dc4e86ee22a3b5c4c14c21a27a3",
+      "preview_sha256": "8317cf27daeba24a40b917e344bb303b30c74ce255f0dd236e78c2f9e73ef7dd"
     },
     {
       "view": "front",
@@ -1974,7 +1981,7 @@
       "request_sha256": "dba45372383fb09d1f0a8062446ec3f432b2d68fab8cf3fe99641843a3790302",
       "visible_mask_sha256": "39797d3374f109dde24504eefdc27091ec8b171aab2725bba421c662c17f20ac",
       "hidden_mask_sha256": "d1c9663b6f83ad4cd2e81226cd716999590fe02e764b7cc6019400221d6d90cb",
-      "donor_mask_sha256": "b97e2906224872643de7db5d05e2859954a4bcd84299a00e24aa264c96a21cba",
+      "donor_mask_sha256": "93782d9b7bab05a77af1c0cb368af281593aaa5409a996dfc2daf40fbe78e769",
       "donor_parts": [
         "root_stem_r",
         "root_tip_c",
@@ -1984,15 +1991,15 @@
       "own_conditioning_mask_sha256": "39797d3374f109dde24504eefdc27091ec8b171aab2725bba421c662c17f20ac",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "07ba4fda9e7b647b2bd793f41c3d40a30597a98587594739749ed28ae72a73ef",
-      "donor_rgb_sha256": "817009fe0ad158c5cf0e93042056141bc508ee7677111101d7be5eedeb733fe6",
+      "donor_rgb_sha256": "25d0e59a83eae7706fe7ea6b3053dea05e6a155c535983cf53edff07af049b4b",
       "own_visible_pixels": 78,
-      "donor_visible_pixels": 12291,
+      "donor_visible_pixels": 12450,
       "hidden_pixels": 1162,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 534,
-        "max_residual": 9.435200588615819e-07,
+        "iterations": 533,
+        "max_residual": 9.923959532600434e-07,
         "domain": [
           44,
           50,
@@ -2071,7 +2078,7 @@
       "palette_source": "own_visible",
       "palette_sample_pixels": 78,
       "own_conditioning_pixels": 78,
-      "conditioning_pixels_in_hidden_region": 1149,
+      "conditioning_pixels_in_hidden_region": 1152,
       "outline_pixels": 106,
       "outline_tone": [
         20,
@@ -2084,20 +2091,20 @@
         {
           "output": "hidden/front/root_stem_c.png",
           "original_sha256": "df0bc7a7e23c571d30a3d507cc0900385004e61746a6395d8f3f684410ec0ff4",
-          "output_rgba_sha256": "a572fec8b8cd6d735072dbf97d32bf7d7acf3b9afe71e91a64fc0a1295fc140e",
+          "output_rgba_sha256": "919cfddf3de02bebbf0825a5f7491f9ffc1369d300c6f627bfce4c0addb5e51b",
           "alpha_sha256": "59d1eb23cb4a555cc2a51b5dfaf82a88a9e14b8e0c5fe99d19e0919dc90bef67",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "9bf7a2774b946276ba8cd98284f5a9598b772e48631978fe90182fc74996d9d7"
+          "output_sha256": "2437d9fe69d0086e741bf45d1aace895f384bc4de29b4aa228602834ffe58d5b"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/root_stem_c.png",
       "original_sha256": "df0bc7a7e23c571d30a3d507cc0900385004e61746a6395d8f3f684410ec0ff4",
-      "output_rgba_sha256": "a572fec8b8cd6d735072dbf97d32bf7d7acf3b9afe71e91a64fc0a1295fc140e",
+      "output_rgba_sha256": "919cfddf3de02bebbf0825a5f7491f9ffc1369d300c6f627bfce4c0addb5e51b",
       "alpha_sha256": "59d1eb23cb4a555cc2a51b5dfaf82a88a9e14b8e0c5fe99d19e0919dc90bef67",
       "preview": "hidden_fills/front_root_stem_c.png",
-      "output_sha256": "9bf7a2774b946276ba8cd98284f5a9598b772e48631978fe90182fc74996d9d7",
-      "preview_sha256": "eb7a7df3ed6d72c136c656b2947bf885fee414448412efa7b5c0462211f2ccd5"
+      "output_sha256": "34f15d8b5471f1ff96dc3a818fc7aa9b954e02965cb77e0c4f32ada553e4914c",
+      "preview_sha256": "9e9c143a3c7f79a6caf4dd8a042eabf2ff2e0b4e981042d91bfc1c516ce02fe7"
     },
     {
       "view": "front",
@@ -2107,7 +2114,7 @@
       "request_sha256": "bf7180553a59204ec45517ad60ebed303e9b2ebfef20aebe41eb22b9039b8983",
       "visible_mask_sha256": "33b79dd61cc2591407a97f073973e013b07392bd3c85e7ecf81b871eb4c46fd9",
       "hidden_mask_sha256": "1a86c39a2ce3d4449b60ac3c682281bbc5cba6239811efd9a1163e551aaaa070",
-      "donor_mask_sha256": "e44573ce439815b1ff5a57f047b97e0f3c96365876a95d808a16cc01c741c1e2",
+      "donor_mask_sha256": "4d595cdf456954fdb919d13e938b3b79e977005d911fef178aa2d0c7e5b0cd80",
       "donor_parts": [
         "root_stem_r",
         "tendril_low_l",
@@ -2116,15 +2123,15 @@
       "own_conditioning_mask_sha256": "33b79dd61cc2591407a97f073973e013b07392bd3c85e7ecf81b871eb4c46fd9",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "72604aa24222d7b1ac87ddeb06a438043c20c74825063026837f32cfbf8983ef",
-      "donor_rgb_sha256": "b55c13e59a86c62c94feb9afcb18810d984f34688146a47142bb7d618e86c489",
+      "donor_rgb_sha256": "57ebc818d8ed528d0e64ed47623cd2da8c7c86bed481e174701ce39acbd4dd3a",
       "own_visible_pixels": 24,
-      "donor_visible_pixels": 11552,
+      "donor_visible_pixels": 11711,
       "hidden_pixels": 379,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 516,
-        "max_residual": 9.321486578950078e-07,
+        "iterations": 514,
+        "max_residual": 9.942942395905513e-07,
         "domain": [
           58,
           50,
@@ -2142,29 +2149,29 @@
           11
         ],
         [
-          46,
+          47,
           27,
           20
         ],
         [
-          86,
-          49,
-          35
+          85,
+          52,
+          39
         ],
         [
-          117,
-          74,
-          54
+          124,
+          79,
+          57
         ],
         [
-          180,
-          116,
-          75
+          161,
+          55,
+          2
         ],
         [
-          192,
-          81,
-          5
+          197,
+          124,
+          67
         ]
       ],
       "quantization_palette": [
@@ -2174,36 +2181,36 @@
           11
         ],
         [
-          46,
+          47,
           27,
           20
         ],
         [
-          86,
-          49,
-          35
+          85,
+          52,
+          39
         ],
         [
-          117,
-          74,
-          54
+          124,
+          79,
+          57
         ],
         [
-          180,
-          116,
-          75
+          161,
+          55,
+          2
         ],
         [
-          192,
-          81,
-          5
+          197,
+          124,
+          67
         ]
       ],
-      "palette_iterations": 17,
+      "palette_iterations": 39,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 11552,
+      "palette_sample_pixels": 11711,
       "own_conditioning_pixels": 24,
-      "conditioning_pixels_in_hidden_region": 377,
+      "conditioning_pixels_in_hidden_region": 378,
       "outline_pixels": 62,
       "outline_tone": [
         20,
@@ -2216,20 +2223,20 @@
         {
           "output": "hidden/front/root_tip_l.png",
           "original_sha256": "3857d70232d5a0f677f1ddf2607ec5ca27ee1f8e10512ed28f60efa4e2293cba",
-          "output_rgba_sha256": "bb2cebcd974f96d28af9fb201766922ffb525fb84db979c08c19f496b495389a",
+          "output_rgba_sha256": "a992ced42e9b495c1c2027e8f221bf4495ffec898574ea641fc5991d1cf491b4",
           "alpha_sha256": "d964ea008045aad30f0f1ab36d39bb84b35e6b1c89680bc72cc7936544a58d8e",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "a95c3d8deba5a41b9b23605f2c8b8f14802228e86f9f9f5b2c02aab5f997f884"
+          "output_sha256": "7fa03d1bec54d4a801f548bfa530363ab53e6798b2017c2d11a0168a2be24b7f"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/front/root_tip_l.png",
       "original_sha256": "3857d70232d5a0f677f1ddf2607ec5ca27ee1f8e10512ed28f60efa4e2293cba",
-      "output_rgba_sha256": "bb2cebcd974f96d28af9fb201766922ffb525fb84db979c08c19f496b495389a",
+      "output_rgba_sha256": "a992ced42e9b495c1c2027e8f221bf4495ffec898574ea641fc5991d1cf491b4",
       "alpha_sha256": "d964ea008045aad30f0f1ab36d39bb84b35e6b1c89680bc72cc7936544a58d8e",
       "preview": "hidden_fills/front_root_tip_l.png",
-      "output_sha256": "a95c3d8deba5a41b9b23605f2c8b8f14802228e86f9f9f5b2c02aab5f997f884",
-      "preview_sha256": "727b8af432e18bfe688fbb025e06c19f278de6d176037246ddb2a9f5fca747ec"
+      "output_sha256": "645f8a1e5d4374c2aea3f6227ad3cbdf7a9f1e8432962effde9ec802469d0bb2",
+      "preview_sha256": "c1c915b0e146f2def78141fe89e3197c8bcc2cfca3de7100ce42a9cdfa35fc6d"
     },
     {
       "view": "front",
@@ -2239,7 +2246,7 @@
       "request_sha256": "aa845e2e8f8e2cb69105cb4a22db663080429ddd5a428f9cc8192416cee36d2a",
       "visible_mask_sha256": "281abdc59fb5ca81ef18fed16cbf4e03bb4b58a4b9c93b00b079fafc9462e987",
       "hidden_mask_sha256": "5459d966c8f2d1cbf11f4df5f76e73d0d7c862142156f99fb2a99d7873338a3f",
-      "donor_mask_sha256": "022d28cc57bfcbbc223f5fd75bc14a9f4c339b5f2a2b8d967f7aea4490fa64c2",
+      "donor_mask_sha256": "53cc8e3d9cf36c1888d6c5c7346b59eced6effdf851b6dc4db3d77792575a8a6",
       "donor_parts": [
         "root_stem_r",
         "root_tip_l"
@@ -2247,15 +2254,15 @@
       "own_conditioning_mask_sha256": "281abdc59fb5ca81ef18fed16cbf4e03bb4b58a4b9c93b00b079fafc9462e987",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "483e3967fdd70c40e3d65271e2003193c3eba559abb47c4dab80661546f6ceeb",
-      "donor_rgb_sha256": "124395344f9a9fa432e514ce69e1d4e1812549419372f112ba82131c8ae2f947",
+      "donor_rgb_sha256": "739af430c66d475a3d64511aa1b4105049e663fe23b7562a32fc1072f861f71f",
       "own_visible_pixels": 1142,
-      "donor_visible_pixels": 611,
+      "donor_visible_pixels": 609,
       "hidden_pixels": 178,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
         "iterations": 573,
-        "max_residual": 9.96622741477091e-07,
+        "max_residual": 9.654206136186252e-07,
         "domain": [
           74,
           111,
@@ -2350,7 +2357,7 @@
           "output_rgba_sha256": "db0aaeeff440b691dc7e233da193670ef391d60dbabda0bd4b6b3e251f408f54",
           "alpha_sha256": "d1e4925e7d53aff1e05e9d9360e33c4e1cf40766e0a698a749108bd4f3e0b892",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "db89fb13ca5eeb92fd9f664f03d2fcef45b1a5b7d0ada6998e02b0fe696c1509"
+          "output_sha256": "235ac08ddfaaac86599b5b2e801cd34ea1b39642e3d332b80933a4eaf62a1e3c"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -2370,7 +2377,7 @@
       "request_sha256": "13708eb86498bba4d02160f1cc8991c7d9e08ad0184577f4abb32aee477b621c",
       "visible_mask_sha256": "7cba13219d3fdcc9a1bea477cf3cb0e566ec99940518dabb19e095bdb0cb6005",
       "hidden_mask_sha256": "aeb3d84bef6a442d5c70cac562bdd2276e84cc6fc0bdaa6b6dd3d464bdd0bea6",
-      "donor_mask_sha256": "0cf797b97409b7115c4933112013f392913ae58e7f44affae4dbd07931762f77",
+      "donor_mask_sha256": "e5b0fd6b7014fee8b55e3907e363e7975e3e2cfbf10cadb257e4f55fbdc7eaf7",
       "donor_parts": [
         "root_stem_c",
         "root_stem_r",
@@ -2380,15 +2387,15 @@
       "own_conditioning_mask_sha256": "7cba13219d3fdcc9a1bea477cf3cb0e566ec99940518dabb19e095bdb0cb6005",
       "source_paint_sha256": "f22fbc813a1c2d195c3749d5f22b7eded7f4bff8af600c142f8404de3beeba32",
       "visible_rgba_sha256": "7a48621a2b39b2bc96dd858da47f094b2946a1a02940b28920b610b25cb2c291",
-      "donor_rgb_sha256": "a994dd8688c3ea2ecae654bddd37420174ab4279c99b8efa7f3da19f70aaf58b",
+      "donor_rgb_sha256": "e105ffd81737faccfd3b54cef88c1ff5826ea64f6a8c65e037e18cc0ce740933",
       "own_visible_pixels": 739,
-      "donor_visible_pixels": 11630,
+      "donor_visible_pixels": 11789,
       "hidden_pixels": 246,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 534,
-        "max_residual": 9.435200588615819e-07,
+        "iterations": 533,
+        "max_residual": 9.923959532600434e-07,
         "domain": [
           44,
           50,
@@ -2483,7 +2490,7 @@
           "output_rgba_sha256": "f064a6f04abcedb80dcafec685c6b5563a9b11e59d33c398c5a111677c5aaf04",
           "alpha_sha256": "aa84c9dd1b822837c8b86f2226792fd19d9ab32c5b0c4e7f8e070ea12843b79c",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "c33b717d41a59111cd148a90c0c3b6a7e9d45a6274f57bccbf40fed79491d8a2"
+          "output_sha256": "c27313f6e1062d87181f30a9fe734bc8b52880d05c9209c84ca90322a4428c48"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -2500,10 +2507,10 @@
       "part": "trunk",
       "material": "dark brown braided roots",
       "request": "hidden_requests/rear_trunk.png",
-      "request_sha256": "db3362ccbb762aa56a1bf922a37ac9e0b648fac9cf1e31540c7f609c04439c3b",
-      "visible_mask_sha256": "25a1e1b76c0eee5a49f99845647bf7a149eae526ab958194fc9a8eefc3a888c8",
-      "hidden_mask_sha256": "6296c1c2823cfeb04629bcd4e46b182222e64f7e6579c9455c3c0fe604c95e4e",
-      "donor_mask_sha256": "b9c2d9cb4e3ff44b3c9a0aa855d3afa5e88e3a65728a4b707b31d317505eeaad",
+      "request_sha256": "703485a3b21febaa0e4d9054ede58ee4854f6cdd67e87b5f27ec49d0fa3dd0e8",
+      "visible_mask_sha256": "309ee0247402e9c77c488cf8238ffd39698787aefa843c2648e2abe711c4262f",
+      "hidden_mask_sha256": "6ce53ab262697c4834d94b8e9252562d568282e70f0d53ed1642ccc881ebc9a1",
+      "donor_mask_sha256": "8ad3cc1d7d6fa049a4a7d742129ac4e05a188a8168c29a963a2b2b9368935ba1",
       "donor_parts": [
         "root_stem_l",
         "root_stem_r",
@@ -2513,18 +2520,18 @@
         "tendril_low_r",
         "tendril_mid_l"
       ],
-      "own_conditioning_mask_sha256": "25a1e1b76c0eee5a49f99845647bf7a149eae526ab958194fc9a8eefc3a888c8",
+      "own_conditioning_mask_sha256": "309ee0247402e9c77c488cf8238ffd39698787aefa843c2648e2abe711c4262f",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-      "visible_rgba_sha256": "264b44b8611b759d3d62ddd049989ea523a8270f3a1deaeb5aa9bb28afbe61ec",
-      "donor_rgb_sha256": "03e4f7eb7fc09b28f006ec12dadd588e5f1bd51fa94fdeeb7089b41a9963aa95",
-      "own_visible_pixels": 12981,
-      "donor_visible_pixels": 5142,
-      "hidden_pixels": 2438,
+      "visible_rgba_sha256": "c05163e8d8cf1125a41e79416cb07ef67ca265a524c8462e9c686bcce96ebe27",
+      "donor_rgb_sha256": "1b799239162dcadd0ca3ed50ebe9c26741d45554aed2c0b4f842c9fc0a80eb1d",
+      "own_visible_pixels": 12927,
+      "donor_visible_pixels": 5132,
+      "hidden_pixels": 2492,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 524,
-        "max_residual": 9.936272679041569e-07,
+        "iterations": 526,
+        "max_residual": 9.89402390832526e-07,
         "domain": [
           34,
           66,
@@ -2538,7 +2545,7 @@
       "palette": [
         [
           14,
-          12,
+          13,
           13
         ],
         [
@@ -2559,10 +2566,10 @@
         [
           173,
           113,
-          77
+          78
         ],
         [
-          185,
+          186,
           63,
           2
         ]
@@ -2570,7 +2577,7 @@
       "quantization_palette": [
         [
           14,
-          12,
+          13,
           13
         ],
         [
@@ -2591,19 +2598,19 @@
         [
           173,
           113,
-          77
+          78
         ],
         [
-          185,
+          186,
           63,
           2
         ]
       ],
       "palette_iterations": 26,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 12981,
-      "own_conditioning_pixels": 12981,
-      "conditioning_pixels_in_hidden_region": 1817,
+      "palette_sample_pixels": 12927,
+      "own_conditioning_pixels": 12927,
+      "conditioning_pixels_in_hidden_region": 1807,
       "outline_pixels": 206,
       "outline_tone": [
         20,
@@ -2615,44 +2622,44 @@
       "outputs": [
         {
           "output": "hidden/rear/trunk.png",
-          "original_sha256": "1469c141ec5cb1c32534d29b2f6548c433d8a18e85e3ac80341fcd7ece106664",
-          "output_rgba_sha256": "0e5c78adc6f9b0f82a5c1bfeeea7474743400fa9ee0ddff28e8c631bd270f93b",
-          "alpha_sha256": "9be045433b790d96fa5a571cb4c487abfaeb8bbd74848d895f3583400cadf120",
+          "original_sha256": "bbe1dfd5eb941a11a2744167aadb05476f214d5dae1adc5761f1b2cfedcf5dcc",
+          "output_rgba_sha256": "138f28e0c548d27e252bf08589d05d2951853c905f5fa69871af6d1c8fb4f431",
+          "alpha_sha256": "6acf4c789005a325a12836bddf8837c0e1803727131c3ce7faf613616047e94a",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "c4bd8302d6eac17464ad2f6a14eff1422b17bb8d12537cb53781c8946e8d0a46"
+          "output_sha256": "4531b32c5de1c5365dd9a0451e79910aceb3cf01acacdccdaa6de1ecaf534f02"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/trunk.png",
-      "original_sha256": "1469c141ec5cb1c32534d29b2f6548c433d8a18e85e3ac80341fcd7ece106664",
-      "output_rgba_sha256": "0e5c78adc6f9b0f82a5c1bfeeea7474743400fa9ee0ddff28e8c631bd270f93b",
-      "alpha_sha256": "9be045433b790d96fa5a571cb4c487abfaeb8bbd74848d895f3583400cadf120",
+      "original_sha256": "bbe1dfd5eb941a11a2744167aadb05476f214d5dae1adc5761f1b2cfedcf5dcc",
+      "output_rgba_sha256": "138f28e0c548d27e252bf08589d05d2951853c905f5fa69871af6d1c8fb4f431",
+      "alpha_sha256": "6acf4c789005a325a12836bddf8837c0e1803727131c3ce7faf613616047e94a",
       "preview": "hidden_fills/rear_trunk.png",
-      "output_sha256": "c4bd8302d6eac17464ad2f6a14eff1422b17bb8d12537cb53781c8946e8d0a46",
-      "preview_sha256": "4e3e4d761f648f0fc7da726eb7f1a649c1866650bb164205bbab7ad158b178b8"
+      "output_sha256": "03a9e6b8024f54b6f16303aa546e88fcb87ae868b1611d49c2ce6753efbbe457",
+      "preview_sha256": "d28b6b2bd669ff754d741efd05ebc08299f08b2f7270cb4b426ce6ae591fc1cc"
     },
     {
       "view": "rear",
       "part": "core",
       "material": "amber crystal heart",
       "request": "hidden_requests/rear_core.png",
-      "request_sha256": "ce9155f05ec53989cb2fbf1ad8db20d6f4adc748bf6b7b86808c2f063d33a5d9",
-      "visible_mask_sha256": "ec15e0c9eb8d04248f3578f129e9f96ee437b481b4e7c869401011505331d477",
-      "hidden_mask_sha256": "63a3d8f3124797149cb4dbbd083ab0cfaadbd67138a0c0a5a48358b66430813c",
+      "request_sha256": "f584f07ba535a2b7f0c80802ae1ec171b4b637e585be1f86d0ac1a29a9ef3f01",
+      "visible_mask_sha256": "1ed85cc058a2f0e26595b05a8bfb6d0b856e46bd89cda1e4bbcb7756e7c16a52",
+      "hidden_mask_sha256": "6e9f3af52dfcacbb0a61345e537a9ecd1941aca9193d7bc002fe0d2e195743ed",
       "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "donor_parts": [],
-      "own_conditioning_mask_sha256": "ec15e0c9eb8d04248f3578f129e9f96ee437b481b4e7c869401011505331d477",
+      "own_conditioning_mask_sha256": "1ed85cc058a2f0e26595b05a8bfb6d0b856e46bd89cda1e4bbcb7756e7c16a52",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-      "visible_rgba_sha256": "b242fe1d61af1cfb9dd54203d49dd38969c38794d394e3f0e4f71c0ba24cc5e2",
+      "visible_rgba_sha256": "e555bc4ff59cc5549ba4664bd2120a656346186e2e892e79fd0f68776626bc01",
       "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "own_visible_pixels": 639,
+      "own_visible_pixels": 792,
       "donor_visible_pixels": 0,
-      "hidden_pixels": 484,
+      "hidden_pixels": 331,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 160,
-        "max_residual": 9.603083498538599e-07,
+        "iterations": 146,
+        "max_residual": 9.578741478331891e-07,
         "domain": [
           108,
           58,
@@ -2665,19 +2672,14 @@
       },
       "palette": [
         [
-          17,
-          16,
-          17
+          22,
+          15,
+          13
         ],
         [
+          67,
           50,
-          39,
-          40
-        ],
-        [
-          72,
-          53,
-          51
+          49
         ],
         [
           102,
@@ -2685,31 +2687,31 @@
           63
         ],
         [
-          181,
-          104,
-          63
+          109,
+          32,
+          3
         ],
         [
-          201,
-          73,
-          2
+          183,
+          106,
+          64
+        ],
+        [
+          184,
+          62,
+          4
         ]
       ],
       "quantization_palette": [
         [
-          17,
-          16,
-          17
+          22,
+          15,
+          13
         ],
         [
+          67,
           50,
-          39,
-          40
-        ],
-        [
-          72,
-          53,
-          51
+          49
         ],
         [
           102,
@@ -2717,22 +2719,27 @@
           63
         ],
         [
-          181,
-          104,
-          63
+          109,
+          32,
+          3
         ],
         [
-          201,
-          73,
-          2
+          183,
+          106,
+          64
+        ],
+        [
+          184,
+          62,
+          4
         ]
       ],
-      "palette_iterations": 12,
+      "palette_iterations": 9,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 639,
-      "own_conditioning_pixels": 639,
+      "palette_sample_pixels": 792,
+      "own_conditioning_pixels": 792,
       "conditioning_pixels_in_hidden_region": 0,
-      "outline_pixels": 56,
+      "outline_pixels": 54,
       "outline_tone": [
         20,
         16,
@@ -2743,47 +2750,47 @@
       "outputs": [
         {
           "output": "hidden/rear/core.png",
-          "original_sha256": "4159194af25b3e795d4f1f491e8c3c0cc9d782a2214ed05ad8d9ccd0708033f2",
-          "output_rgba_sha256": "41f9dac98113c1a61d0e43ed0f627adc74a7286ecfbfc0cb01f2a55abfa90c8d",
-          "alpha_sha256": "52eac45b0c2f39a8285661f0a7fee07ce0aa8a40623397fdc179bab3de46a576",
+          "original_sha256": "88b1196d5cb1e8bfe9001a4185424ad056dbf83fa1d1537b07277970724d1b77",
+          "output_rgba_sha256": "3a083a4c44382ae6e9e73582bb06c103463527062266a2da354b33129ea7fe7a",
+          "alpha_sha256": "e1cbff872734ee2d7eb6579601e471080fbb01901994d133d50d4defed90f5a6",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "70b3f0ec866cc6b5a533f315e78fa6b5984710a9329f1c589e61873520ce1067"
+          "output_sha256": "3cb76365791dacc1d08e9c013f0843f741ca749fcb3798e8f034a3d67727ffba"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/core.png",
-      "original_sha256": "4159194af25b3e795d4f1f491e8c3c0cc9d782a2214ed05ad8d9ccd0708033f2",
-      "output_rgba_sha256": "41f9dac98113c1a61d0e43ed0f627adc74a7286ecfbfc0cb01f2a55abfa90c8d",
-      "alpha_sha256": "52eac45b0c2f39a8285661f0a7fee07ce0aa8a40623397fdc179bab3de46a576",
+      "original_sha256": "88b1196d5cb1e8bfe9001a4185424ad056dbf83fa1d1537b07277970724d1b77",
+      "output_rgba_sha256": "3a083a4c44382ae6e9e73582bb06c103463527062266a2da354b33129ea7fe7a",
+      "alpha_sha256": "e1cbff872734ee2d7eb6579601e471080fbb01901994d133d50d4defed90f5a6",
       "preview": "hidden_fills/rear_core.png",
-      "output_sha256": "70b3f0ec866cc6b5a533f315e78fa6b5984710a9329f1c589e61873520ce1067",
-      "preview_sha256": "d613463a143fc2e6f329764d75a73f40b8359b00877c7fb0e330eedb1a6b0088"
+      "output_sha256": "bf9507e11a3e8edac5938169ff0b03e4ce45ac4e73c10df82a3733e8908ccf71",
+      "preview_sha256": "81344be41d67b4abba4d4eb5376bb41a7b7d7789282e20fc2cc2e1d0d62369b1"
     },
     {
       "view": "rear",
       "part": "petal_near_l",
       "material": "shale daisy petals",
       "request": "hidden_requests/rear_petal_near_l.png",
-      "request_sha256": "c6834212a1f83add9c32ab9f24f09b183ba7a37c9980c729eb3a2c8528a90f35",
-      "visible_mask_sha256": "41ec1625cf40a03dc6f49eb87538310e08f73b87d69a696bb4f01450bcbee333",
-      "hidden_mask_sha256": "35c4f3a19df2f73590224fe371d5325b6b0caf61ce8c3d05804f6cd36f6115e8",
-      "donor_mask_sha256": "c2aec9c2ec0b63b25a4ebed9417026b21dbc2b11e2060bf9906d3d507d1f4bdb",
+      "request_sha256": "0521cdeab19e820bb773d0e79bcf29dc7914790324d573e407e318c10f56f123",
+      "visible_mask_sha256": "2d9b463c9fa0d386b3ca13e632d92fd0858113a05427dde66224f0cce74c6760",
+      "hidden_mask_sha256": "a4e70bfecd4931576d0a662faba84340d32bd625327f4a3f61fd4a9b099ede9c",
+      "donor_mask_sha256": "e8df8f2df68afe1e1f48eef82a702419b1da678bec7dd2bf250683a7a0d552df",
       "donor_parts": [
         "petal_far_l",
         "petal_near_r"
       ],
-      "own_conditioning_mask_sha256": "41ec1625cf40a03dc6f49eb87538310e08f73b87d69a696bb4f01450bcbee333",
+      "own_conditioning_mask_sha256": "2d9b463c9fa0d386b3ca13e632d92fd0858113a05427dde66224f0cce74c6760",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-      "visible_rgba_sha256": "53118049165ce001c0f9de9b7ff6eb05fa21d790ad67caa904c11d22715fb98b",
-      "donor_rgb_sha256": "5187ca5e93be4c73c0cdc67377b48481e6259d5a82aa981c4e379c510c304158",
-      "own_visible_pixels": 897,
-      "donor_visible_pixels": 1256,
-      "hidden_pixels": 670,
+      "visible_rgba_sha256": "29c7566fe15342d19982c90f854184322784ca4a587977443237d97549942b42",
+      "donor_rgb_sha256": "84a7dfcf93d6e935c7100e4ef0145a40e75cb774d72a118d98e84b13293e110b",
+      "own_visible_pixels": 890,
+      "donor_visible_pixels": 1232,
+      "hidden_pixels": 677,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 659,
-        "max_residual": 9.935290069609702e-07,
+        "iterations": 664,
+        "max_residual": 9.560552371731757e-07,
         "domain": [
           60,
           41,
@@ -2806,24 +2813,24 @@
           35
         ],
         [
-          82,
-          60,
-          55
+          80,
+          57,
+          52
         ],
         [
-          116,
-          64,
-          37
+          109,
+          76,
+          65
         ],
         [
-          123,
-          86,
-          73
+          150,
+          98,
+          74
         ],
         [
-          173,
-          106,
-          70
+          183,
+          108,
+          68
         ]
       ],
       "quantization_palette": [
@@ -2838,32 +2845,32 @@
           35
         ],
         [
-          82,
-          60,
-          55
+          80,
+          57,
+          52
         ],
         [
-          116,
-          64,
-          37
+          109,
+          76,
+          65
         ],
         [
-          123,
-          86,
-          73
+          150,
+          98,
+          74
         ],
         [
-          173,
-          106,
-          70
+          183,
+          108,
+          68
         ]
       ],
-      "palette_iterations": 10,
+      "palette_iterations": 22,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 897,
-      "own_conditioning_pixels": 897,
+      "palette_sample_pixels": 890,
+      "own_conditioning_pixels": 890,
       "conditioning_pixels_in_hidden_region": 228,
-      "outline_pixels": 73,
+      "outline_pixels": 80,
       "outline_tone": [
         20,
         16,
@@ -2874,21 +2881,21 @@
       "outputs": [
         {
           "output": "hidden/rear/petal_near_l.png",
-          "original_sha256": "1811515b070cc7802bd303fc579fc25698b6636447eea5848172912faeb78829",
-          "output_rgba_sha256": "fbb941fc11992cd4c10ce13d24078adcefd80c44dee64a9244b1f10d4bb8bb84",
-          "alpha_sha256": "9a02f1e40bb785f29768bcf14480bc3ce1157cbe0cbd5f12d0cb768c9d05efb5",
+          "original_sha256": "466a77ce6ea81d36a40aa248b077eac8c7092cf1216a9f046b4268a643bf799f",
+          "output_rgba_sha256": "87b47cf69eae61faf0440454e3fb52c64c059a7f359706274465b2da2ba97ff7",
+          "alpha_sha256": "22f2801f696413d1643b5954e906e275c449a3b8e3a0827fffa920ef77910e4e",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "452f2a7e088aa842674258a490e721c79a30d8e26f6001c0fb9542499b04a314"
+          "output_sha256": "10ad6eef0a677a7a474cc621cbfeaa5389a30995dbac6256c4fffbf80a00a55d"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/petal_near_l.png",
-      "original_sha256": "1811515b070cc7802bd303fc579fc25698b6636447eea5848172912faeb78829",
-      "output_rgba_sha256": "fbb941fc11992cd4c10ce13d24078adcefd80c44dee64a9244b1f10d4bb8bb84",
-      "alpha_sha256": "9a02f1e40bb785f29768bcf14480bc3ce1157cbe0cbd5f12d0cb768c9d05efb5",
+      "original_sha256": "466a77ce6ea81d36a40aa248b077eac8c7092cf1216a9f046b4268a643bf799f",
+      "output_rgba_sha256": "87b47cf69eae61faf0440454e3fb52c64c059a7f359706274465b2da2ba97ff7",
+      "alpha_sha256": "22f2801f696413d1643b5954e906e275c449a3b8e3a0827fffa920ef77910e4e",
       "preview": "hidden_fills/rear_petal_near_l.png",
-      "output_sha256": "452f2a7e088aa842674258a490e721c79a30d8e26f6001c0fb9542499b04a314",
-      "preview_sha256": "5abb2cc4e1f15577da36b2001b9300236785fe700f74dcae9f510377055bbf81"
+      "output_sha256": "c7b8027e32fd786ed3c734c1c78dbc3c17f75b98ceab708697d6b3ecd4dc45cc",
+      "preview_sha256": "af404316d210897eacfdd2a8cff97f8d1386a3253f23ede8301ea26733496457"
     },
     {
       "view": "rear",
@@ -2898,7 +2905,7 @@
       "request_sha256": "f4f43f7b6ec5b3a146363c00c550e2433ee5e920f8f2f4677fee0e949b0c215d",
       "visible_mask_sha256": "e5f171f775368cb442ad18b2d96f8679a93736a2589cbd4fa9fd9dc0bd19d1db",
       "hidden_mask_sha256": "e4b8a851a10d02ca89100dff80901fd96321f12f3195175e4f436d6cdfc06a7e",
-      "donor_mask_sha256": "1239c541488d80fbe4d090f34c697c7a26360d39e18a5d80a6d9e896b30ac2ad",
+      "donor_mask_sha256": "4f6791cf723b7a5c827ef8535b01b222cadc3b3d4e887020cbd584b6ecd40e86",
       "donor_parts": [
         "petal_far_r",
         "petal_near_l"
@@ -2906,15 +2913,15 @@
       "own_conditioning_mask_sha256": "e5f171f775368cb442ad18b2d96f8679a93736a2589cbd4fa9fd9dc0bd19d1db",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "806a65cfec9c96634660ffc9177a4882017cf1e9cdf24270ee2207f4af19a4df",
-      "donor_rgb_sha256": "20ad46a7d3cc5a9dac04015396bf2701c274cf3166b4c6d4a1fda70a8d033ef7",
+      "donor_rgb_sha256": "b04aa087d2a90d0ffe652c66b7f07a23efcce6bf62ba966f2bf2cacd869e9375",
       "own_visible_pixels": 779,
-      "donor_visible_pixels": 1414,
+      "donor_visible_pixels": 1349,
       "hidden_pixels": 545,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 606,
-        "max_residual": 9.97856226507997e-07,
+        "iterations": 613,
+        "max_residual": 9.970403801517655e-07,
         "domain": [
           45,
           41,
@@ -3006,46 +3013,46 @@
         {
           "output": "hidden/rear/petal_near_r.png",
           "original_sha256": "3edb4eab7114ec2b21a3338c0d5fafbb537f20cb2be15be07595927fd7ee7343",
-          "output_rgba_sha256": "e0abb38dc8331b45fb30cc5f56d92008b5c169462f434416d23b712f165ddf53",
+          "output_rgba_sha256": "26cf923cf3bedbcf00ddcfa31832b16028a0002ed6d49984deb6737e1d338bc5",
           "alpha_sha256": "8627270343858a238a5f512c1b9a48a2533cce03a10c51cd87754b0b82dd5e9f",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "c23451768e40b033be7760798716690abcc91ce2b3e15f2aea14f3b4f3cb9e8a"
+          "output_sha256": "38bb7bded51dc7d33296bb09bde312f8157e23f4249f4afa85fa243edc323e71"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/petal_near_r.png",
       "original_sha256": "3edb4eab7114ec2b21a3338c0d5fafbb537f20cb2be15be07595927fd7ee7343",
-      "output_rgba_sha256": "e0abb38dc8331b45fb30cc5f56d92008b5c169462f434416d23b712f165ddf53",
+      "output_rgba_sha256": "26cf923cf3bedbcf00ddcfa31832b16028a0002ed6d49984deb6737e1d338bc5",
       "alpha_sha256": "8627270343858a238a5f512c1b9a48a2533cce03a10c51cd87754b0b82dd5e9f",
       "preview": "hidden_fills/rear_petal_near_r.png",
-      "output_sha256": "c23451768e40b033be7760798716690abcc91ce2b3e15f2aea14f3b4f3cb9e8a",
-      "preview_sha256": "f3c86d3cbd35f7093fe3d4c8270c9c17f09735d96e43b27d1283560cec81c29c"
+      "output_sha256": "392def5a18da086b93c0d078d3b26c683e14af244dbf6f729fc8ea51f727f393",
+      "preview_sha256": "d8761f3e6affecabcb4df521a4a375d1507fe7ec574000c04e92b0e56921b0ef"
     },
     {
       "view": "rear",
       "part": "petal_far_l",
       "material": "shale daisy petals",
       "request": "hidden_requests/rear_petal_far_l.png",
-      "request_sha256": "80753b6d06a5a97161b819c270d8400ad548c517e979a331f5f39d95879e345c",
-      "visible_mask_sha256": "d9e63b234c758a7d6e49b6fdff09fa2d993f20292f6a2bddf2eb9c7fd7a3b205",
-      "hidden_mask_sha256": "3d1363e8b5afedd527f0a931e8e4710ab607aed2cb6a6b342330bfd96a468800",
-      "donor_mask_sha256": "1239c541488d80fbe4d090f34c697c7a26360d39e18a5d80a6d9e896b30ac2ad",
+      "request_sha256": "0bf28e6dafbdbf7c7fdd55260846622a2dc472f4ad02b24e493575160c2e71a9",
+      "visible_mask_sha256": "3e1a96dfed4872ccd9cb2095d4808377f5b57476e103fafa83e826b03e33209a",
+      "hidden_mask_sha256": "d1c043fd400dfd9ab13dbcee21f5a5239947f332beed3b299bcdd01e579d5227",
+      "donor_mask_sha256": "4f6791cf723b7a5c827ef8535b01b222cadc3b3d4e887020cbd584b6ecd40e86",
       "donor_parts": [
         "petal_far_r",
         "petal_near_l"
       ],
-      "own_conditioning_mask_sha256": "d9e63b234c758a7d6e49b6fdff09fa2d993f20292f6a2bddf2eb9c7fd7a3b205",
+      "own_conditioning_mask_sha256": "3e1a96dfed4872ccd9cb2095d4808377f5b57476e103fafa83e826b03e33209a",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-      "visible_rgba_sha256": "78b35b8955e1cda46c6978400eba5be1c4766cfb208ba3c672e3f4e93f1a1889",
-      "donor_rgb_sha256": "20ad46a7d3cc5a9dac04015396bf2701c274cf3166b4c6d4a1fda70a8d033ef7",
-      "own_visible_pixels": 477,
-      "donor_visible_pixels": 1414,
-      "hidden_pixels": 77,
+      "visible_rgba_sha256": "38127ed755950c412c99ef6edb503712b4e7bd7791f1e9f48677d06ba52b4680",
+      "donor_rgb_sha256": "b04aa087d2a90d0ffe652c66b7f07a23efcce6bf62ba966f2bf2cacd869e9375",
+      "own_visible_pixels": 453,
+      "donor_visible_pixels": 1349,
+      "hidden_pixels": 101,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 523,
-        "max_residual": 9.870242059804206e-07,
+        "iterations": 535,
+        "max_residual": 9.60470515596172e-07,
         "domain": [
           45,
           52,
@@ -3058,24 +3065,24 @@
       },
       "palette": [
         [
-          10,
+          9,
           12,
-          13
+          14
         ],
         [
-          35,
+          34,
           27,
-          28
+          29
         ],
         [
+          53,
+          41,
+          42
+        ],
+        [
+          75,
           55,
-          40,
-          41
-        ],
-        [
-          76,
-          54,
-          51
+          53
         ],
         [
           105,
@@ -3083,31 +3090,31 @@
           64
         ],
         [
-          162,
-          101,
-          74
+          161,
+          102,
+          77
         ]
       ],
       "quantization_palette": [
         [
-          10,
+          9,
           12,
-          13
+          14
         ],
         [
-          35,
+          34,
           27,
-          28
+          29
         ],
         [
+          53,
+          41,
+          42
+        ],
+        [
+          75,
           55,
-          40,
-          41
-        ],
-        [
-          76,
-          54,
-          51
+          53
         ],
         [
           105,
@@ -3115,17 +3122,17 @@
           64
         ],
         [
-          162,
-          101,
-          74
+          161,
+          102,
+          77
         ]
       ],
-      "palette_iterations": 10,
+      "palette_iterations": 6,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 477,
-      "own_conditioning_pixels": 477,
-      "conditioning_pixels_in_hidden_region": 47,
-      "outline_pixels": 39,
+      "palette_sample_pixels": 453,
+      "own_conditioning_pixels": 453,
+      "conditioning_pixels_in_hidden_region": 27,
+      "outline_pixels": 51,
       "outline_tone": [
         20,
         16,
@@ -3136,48 +3143,48 @@
       "outputs": [
         {
           "output": "hidden/rear/petal_far_l.png",
-          "original_sha256": "67cc448d25579f54273b95c6caaf491dab9050fc40d93e06b5596c74786b880d",
-          "output_rgba_sha256": "70bf53c82bb23c3fa5c9b78b6891757f178826f933859be1dfd0b5da05b27ed1",
-          "alpha_sha256": "16efc6dc975db6fff5c2e73f330e1daa5ef6ae1b2525f5f29617a9826ee5a995",
+          "original_sha256": "b35e80043877f3fa3a9e0b48916da47c9ac2624329786485fde22865c63c3de3",
+          "output_rgba_sha256": "340880e4dd6314e9301eed6f3216fb648d3693573a0673e2acdb4418fa812faf",
+          "alpha_sha256": "c2fcf1fe7295e3076f94081640cf546596d34697673f75505b85e268162ea8ba",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "be40e715b795b1c90bf6cebf3b1062478f47c9ecb983832d6391dc31dad75e2b"
+          "output_sha256": "eca859a9258e95cba13f271bd8576b4c8acbae6713a4e4500c732b82de51c3a4"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/petal_far_l.png",
-      "original_sha256": "67cc448d25579f54273b95c6caaf491dab9050fc40d93e06b5596c74786b880d",
-      "output_rgba_sha256": "70bf53c82bb23c3fa5c9b78b6891757f178826f933859be1dfd0b5da05b27ed1",
-      "alpha_sha256": "16efc6dc975db6fff5c2e73f330e1daa5ef6ae1b2525f5f29617a9826ee5a995",
+      "original_sha256": "b35e80043877f3fa3a9e0b48916da47c9ac2624329786485fde22865c63c3de3",
+      "output_rgba_sha256": "340880e4dd6314e9301eed6f3216fb648d3693573a0673e2acdb4418fa812faf",
+      "alpha_sha256": "c2fcf1fe7295e3076f94081640cf546596d34697673f75505b85e268162ea8ba",
       "preview": "hidden_fills/rear_petal_far_l.png",
-      "output_sha256": "be40e715b795b1c90bf6cebf3b1062478f47c9ecb983832d6391dc31dad75e2b",
-      "preview_sha256": "0fb57e7d45828a90ca23e4121e9ea6b41c11753f7a37f7236bfe389e429edb2a"
+      "output_sha256": "3bb08c256213b0b2342c97b9865ec9337dce221da99ffaea46f0bedb9366355d",
+      "preview_sha256": "ed20ce95e4d2640ff4c2e5bfe4ebef41bc75f985bd6716ee691ec0a34abb9edf"
     },
     {
       "view": "rear",
       "part": "petal_far_r",
       "material": "shale daisy petals",
       "request": "hidden_requests/rear_petal_far_r.png",
-      "request_sha256": "667a32d76da726b11fe622776328db3ad73aefe471c0f72bd9bd8a1a7ebf59dc",
-      "visible_mask_sha256": "3f2b0cdf2678b790e557c669b32619bc0af247cb60d5bb29e2cad1fd63745ca2",
-      "hidden_mask_sha256": "38a5f3fad1831048b5fc428a1d219b9a4bd846c2a0168d1388f3badc13c31c38",
-      "donor_mask_sha256": "858d7e6f6605755a2a0fc2a94ab3166aa00d8bbc82aca9cbcd2caec81c0a9fd9",
+      "request_sha256": "e2479f30a99dbe0d8fcbc50343858fb93768d6c3c791e0799fca339c7bf3502e",
+      "visible_mask_sha256": "b305aca0e13483565ba2e895e96f08cea57e423472105fe38ff528ae3a97fe7a",
+      "hidden_mask_sha256": "f4eb9531e8c8ed142e7c118448ff215faee482b933435b6ca3110643388d2b30",
+      "donor_mask_sha256": "4e4d2c1aa16d24422aff543165558c71dc900e1b95f09304925812b5e1f61398",
       "donor_parts": [
         "petal_far_l",
         "petal_near_l",
         "petal_near_r"
       ],
-      "own_conditioning_mask_sha256": "3f2b0cdf2678b790e557c669b32619bc0af247cb60d5bb29e2cad1fd63745ca2",
+      "own_conditioning_mask_sha256": "b305aca0e13483565ba2e895e96f08cea57e423472105fe38ff528ae3a97fe7a",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-      "visible_rgba_sha256": "655431ab4d9e017fa7a1bf978c7872b003c2f9892d098012041e7ef62262f9e9",
-      "donor_rgb_sha256": "1a14ec7608e759baf087b3f86ef6f791ac4721f9e0e8377492a4193b6c275ada",
-      "own_visible_pixels": 517,
-      "donor_visible_pixels": 2153,
-      "hidden_pixels": 44,
+      "visible_rgba_sha256": "32777b2c8fbdd2b67f2dbf7ee0f8f8076d423bd3d6bae7f9d13b4e4751cd2bd7",
+      "donor_rgb_sha256": "6754b507d20bdef8bfd78e079745f13bdacc11b2c18747be80553de42784e030",
+      "own_visible_pixels": 459,
+      "donor_visible_pixels": 2122,
+      "hidden_pixels": 102,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 611,
-        "max_residual": 9.874530266652283e-07,
+        "iterations": 617,
+        "max_residual": 9.841662024731071e-07,
         "domain": [
           45,
           41,
@@ -3190,74 +3197,74 @@
       },
       "palette": [
         [
-          15,
-          13,
-          14
+          7,
+          10,
+          11
         ],
         [
-          43,
-          33,
-          34
+          29,
+          24,
+          25
         ],
         [
-          67,
-          49,
-          47
+          45,
+          35,
+          36
         ],
         [
-          98,
-          67,
-          57
-        ],
-        [
-          156,
+          62,
           47,
-          3
+          46
         ],
         [
-          183,
-          113,
-          72
+          87,
+          61,
+          55
+        ],
+        [
+          161,
+          103,
+          74
         ]
       ],
       "quantization_palette": [
         [
-          15,
-          13,
-          14
+          7,
+          10,
+          11
         ],
         [
-          43,
-          33,
-          34
+          29,
+          24,
+          25
         ],
         [
-          67,
-          49,
-          47
+          45,
+          35,
+          36
         ],
         [
-          98,
-          67,
-          57
-        ],
-        [
-          156,
+          62,
           47,
-          3
+          46
         ],
         [
-          183,
-          113,
-          72
+          87,
+          61,
+          55
+        ],
+        [
+          161,
+          103,
+          74
         ]
       ],
-      "palette_iterations": 12,
+      "palette_iterations": 24,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 517,
-      "own_conditioning_pixels": 517,
-      "conditioning_pixels_in_hidden_region": 28,
-      "outline_pixels": 31,
+      "palette_sample_pixels": 459,
+      "own_conditioning_pixels": 459,
+      "conditioning_pixels_in_hidden_region": 21,
+      "outline_pixels": 48,
       "outline_tone": [
         20,
         16,
@@ -3268,21 +3275,21 @@
       "outputs": [
         {
           "output": "hidden/rear/petal_far_r.png",
-          "original_sha256": "99127ee6bd568ca7816934e390d7715ef0f39c55c597ae7d0ad9ddb184bd3dcd",
-          "output_rgba_sha256": "78cceb38ebe314b6a3639922d8709eb03e4318cd102ed6c2f04810d388db1fa8",
-          "alpha_sha256": "a0b96cd28e7bea47d568a7d11e6e99ca90f9e13892494d332b40df39176cf1a2",
+          "original_sha256": "b6b80a0ed3bfdddc8cfd120151fc86758a1b9ce419c6f46dadb5eb4404fa4f0d",
+          "output_rgba_sha256": "462a02cb27e7a0ef81e1ff8a9b9a358d471472a2c4285f2452de02fab87c1dd6",
+          "alpha_sha256": "0320471006a825065fdd2bbeee6d70e2cd42e7e2a67f29684ba75f14284ceed7",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "9cf024831b9e518d5c1bccce9a3433674887ea38d98b1d7a26d5846a749f515c"
+          "output_sha256": "e3ac2ea8545591a1504cf0736d552358570550ab8cef2405903d8c2b14ef460f"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/petal_far_r.png",
-      "original_sha256": "99127ee6bd568ca7816934e390d7715ef0f39c55c597ae7d0ad9ddb184bd3dcd",
-      "output_rgba_sha256": "78cceb38ebe314b6a3639922d8709eb03e4318cd102ed6c2f04810d388db1fa8",
-      "alpha_sha256": "a0b96cd28e7bea47d568a7d11e6e99ca90f9e13892494d332b40df39176cf1a2",
+      "original_sha256": "b6b80a0ed3bfdddc8cfd120151fc86758a1b9ce419c6f46dadb5eb4404fa4f0d",
+      "output_rgba_sha256": "462a02cb27e7a0ef81e1ff8a9b9a358d471472a2c4285f2452de02fab87c1dd6",
+      "alpha_sha256": "0320471006a825065fdd2bbeee6d70e2cd42e7e2a67f29684ba75f14284ceed7",
       "preview": "hidden_fills/rear_petal_far_r.png",
-      "output_sha256": "9cf024831b9e518d5c1bccce9a3433674887ea38d98b1d7a26d5846a749f515c",
-      "preview_sha256": "aca70b6c22cfdd11a97bd6e0469a740001b9e0e28e47967b329be0845d15a4d5"
+      "output_sha256": "c69ebca92e03178231ca87c8a2ce18698b4faa090b1f17986cb547345e6aff1b",
+      "preview_sha256": "62452be22888ef4a0bb6aaffed9372e2c01a5e68ae85c84c9c43c69cf9ccf3d1"
     },
     {
       "view": "rear",
@@ -3292,7 +3299,7 @@
       "request_sha256": "59592bb79f4691f49f4c42ecef2e7a50ec196aa3ad5b15d17b3c2a272f02deb6",
       "visible_mask_sha256": "7de54d2dfa6bd85f3986a71f50ac87b748b3fe947221db99b75b12e8b37a8ab5",
       "hidden_mask_sha256": "dafd1b500b03cec4e56c3f55437aeca654d4bac3a5c87c80d78f750add44d066",
-      "donor_mask_sha256": "47d75f08cd81d745c90b00e02d250247fbc4b0d69734630df1ece451e9ea88b7",
+      "donor_mask_sha256": "54865c5756436611813332c3890b3e0d3b1f4b52d9d8eceee08e61ff885bd2b9",
       "donor_parts": [
         "root_stem_r",
         "tendril_low_r",
@@ -3301,15 +3308,15 @@
       "own_conditioning_mask_sha256": "7de54d2dfa6bd85f3986a71f50ac87b748b3fe947221db99b75b12e8b37a8ab5",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "8f3b59540e6e75cb60bd0e3436eafa846c3de8b2a9a535545fac98a4cfefecf3",
-      "donor_rgb_sha256": "4d8eace0f6cc782634e13e1fe9aff6fad366ca3b46129caaa8d6a9453ca0a61d",
+      "donor_rgb_sha256": "21208d79d153ad71ce02290f271956cbed6bb2947b0f6f20060b34b676d86c4a",
       "own_visible_pixels": 2540,
-      "donor_visible_pixels": 13272,
+      "donor_visible_pixels": 13218,
       "hidden_pixels": 479,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 507,
-        "max_residual": 9.91574760014876e-07,
+        "iterations": 508,
+        "max_residual": 9.805536716002678e-07,
         "domain": [
           34,
           74,
@@ -3404,7 +3411,7 @@
           "output_rgba_sha256": "02aed14c0bc7e04191b3f9588ae10eecc45181990f24b3fa93ebd1d40aa789ae",
           "alpha_sha256": "24c5e2b31246579ac051ff78e1da787f79d9b28de6f11f638227af6c99414409",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "4e597096754caa88f96f894a9278ec87679a0d5abb5879bfc5a3e67861885358"
+          "output_sha256": "dc62ed53ffc4caa4928cad5b7b363b2bbf788fb5bd6f152ab6fb047a6cce5931"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -3424,22 +3431,22 @@
       "request_sha256": "b4edb380bcf2a937a52ffc943db595f217a465b178c493147c1712265698f9c1",
       "visible_mask_sha256": "06598f485b42bc720d454141eaf1a01f4d3dfbcd4e0d7cc65fba550a0c3c0f83",
       "hidden_mask_sha256": "d470d3f9368eaf5eea6c5c151b6e33d1936b805a1012a00d1aff2aeecfdc04d6",
-      "donor_mask_sha256": "25a1e1b76c0eee5a49f99845647bf7a149eae526ab958194fc9a8eefc3a888c8",
+      "donor_mask_sha256": "309ee0247402e9c77c488cf8238ffd39698787aefa843c2648e2abe711c4262f",
       "donor_parts": [
         "trunk"
       ],
       "own_conditioning_mask_sha256": "06598f485b42bc720d454141eaf1a01f4d3dfbcd4e0d7cc65fba550a0c3c0f83",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "17809427a9c687c64b2c91e1307589e435bc555b2eff190ad8183ed4a3731598",
-      "donor_rgb_sha256": "47f3060c38ecac86fadcbf091706a9f9c13db7b8b321f63a5ecf8b16439b6eed",
+      "donor_rgb_sha256": "aec16ce90c18152484904e89128f1607f69986f9cb1c5e4e3cc5eace9aa59449",
       "own_visible_pixels": 940,
-      "donor_visible_pixels": 12981,
+      "donor_visible_pixels": 12927,
       "hidden_pixels": 207,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 438,
-        "max_residual": 9.998337299584563e-07,
+        "iterations": 443,
+        "max_residual": 9.707952553819542e-07,
         "domain": [
           34,
           74,
@@ -3534,7 +3541,7 @@
           "output_rgba_sha256": "a0e97646646db729ec0a60ef34d2353a37e1875e4076aae3ddca96b487f9b51c",
           "alpha_sha256": "c1c31d730d266273ae398900192f00b4b3420d1e5dda6e11edb93b098bef6688",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "d39e08e172e15cd45897380be87da89678d88b755e069c9aecbe9817ba066823"
+          "output_sha256": "4154c4f963570c6da9756f6de77f009dd5dab37b923708258c2894fa4708b081"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -3551,26 +3558,26 @@
       "part": "tendril_mid_l",
       "material": "dark brown braided roots",
       "request": "hidden_requests/rear_tendril_mid_l.png",
-      "request_sha256": "3890d18c1239770e891ae41f74961ad10d30067646f6525bb7af6d37f5394455",
-      "visible_mask_sha256": "19513aba5035a8986e7d8fb7f57682304b84fc10ac3d994895e44356d8f1bf1c",
-      "hidden_mask_sha256": "3ef4894fe35358d625220274b11b3110a3302aa7f104ed29b6a9cb500b29b7de",
-      "donor_mask_sha256": "086ed1dc831359b1ae9c6ad60198f547e36fc621887db94355532e4d82d6f1d3",
+      "request_sha256": "307b7d3de2e938fe79be4364e27468c2d8667e43fc72a69599dfe0742ffe4341",
+      "visible_mask_sha256": "32b8b8149a4932ac9b3d870dd2e718570503b1f7d57510aa6bef52a97ce9e5c5",
+      "hidden_mask_sha256": "8341edde3165e25d61d54bfbae694ea477ee2151a0cbab53cfad195c2625f978",
+      "donor_mask_sha256": "aa26237eae1b36d07bc052a8760d8c0a82e16adc9a658f9db74c3a9175df5aaa",
       "donor_parts": [
         "tendril_low_r",
         "trunk"
       ],
-      "own_conditioning_mask_sha256": "19513aba5035a8986e7d8fb7f57682304b84fc10ac3d994895e44356d8f1bf1c",
+      "own_conditioning_mask_sha256": "32b8b8149a4932ac9b3d870dd2e718570503b1f7d57510aa6bef52a97ce9e5c5",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
-      "visible_rgba_sha256": "46ea157de3d10b6af928d5a84040b199896aed9ec9ad132b0d2ae8a7618c8cdb",
-      "donor_rgb_sha256": "83590a0003c0a1a27b07d41b4a1c953e9b9ee6acdf9f1aedb6dbfa5edc4d767a",
-      "own_visible_pixels": 809,
-      "donor_visible_pixels": 13257,
-      "hidden_pixels": 53,
+      "visible_rgba_sha256": "15df6a0173157d2bff693fa6d6f39ae3201a5d2055b3fd5c73a73ecbf3170ba2",
+      "donor_rgb_sha256": "a49731bc24b57d49de715e15ceebc5d7195f466ef465d9ae6e667561dcb0dacc",
+      "own_visible_pixels": 799,
+      "donor_visible_pixels": 13203,
+      "hidden_pixels": 63,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 448,
-        "max_residual": 9.725035303093658e-07,
+        "iterations": 450,
+        "max_residual": 9.825757552812767e-07,
         "domain": [
           34,
           74,
@@ -3583,74 +3590,74 @@
       },
       "palette": [
         [
-          14,
+          13,
           12,
-          13
+          12
         ],
         [
+          45,
+          28,
+          24
+        ],
+        [
+          76,
           47,
-          30,
-          25
+          36
         ],
         [
-          82,
-          53,
-          42
+          110,
+          71,
+          53
         ],
         [
-          97,
-          27,
-          3
+          154,
+          100,
+          70
         ],
         [
+          202,
           132,
-          85,
-          61
-        ],
-        [
-          189,
-          123,
-          85
+          91
         ]
       ],
       "quantization_palette": [
         [
-          14,
+          13,
           12,
-          13
+          12
         ],
         [
+          45,
+          28,
+          24
+        ],
+        [
+          76,
           47,
-          30,
-          25
+          36
         ],
         [
-          82,
-          53,
-          42
+          110,
+          71,
+          53
         ],
         [
-          97,
-          27,
-          3
+          154,
+          100,
+          70
         ],
         [
+          202,
           132,
-          85,
-          61
-        ],
-        [
-          189,
-          123,
-          85
+          91
         ]
       ],
-      "palette_iterations": 9,
+      "palette_iterations": 17,
       "palette_source": "own_visible",
-      "palette_sample_pixels": 809,
-      "own_conditioning_pixels": 809,
-      "conditioning_pixels_in_hidden_region": 48,
-      "outline_pixels": 39,
+      "palette_sample_pixels": 799,
+      "own_conditioning_pixels": 799,
+      "conditioning_pixels_in_hidden_region": 58,
+      "outline_pixels": 46,
       "outline_tone": [
         20,
         16,
@@ -3661,21 +3668,21 @@
       "outputs": [
         {
           "output": "hidden/rear/tendril_mid_l.png",
-          "original_sha256": "f58deced3267c89984b6751a9ffb9934d7692a8e46df6272e662b53ea1f0807b",
-          "output_rgba_sha256": "734b80c35545e67709c6510dfb8eea8a413e71f26056789a4f9fe2b6a54da0fb",
-          "alpha_sha256": "353ec6570aeccf344e3ee6702d54589ddfb4908dc7ca445c9b6af6eda4d60503",
+          "original_sha256": "2da530a1e3ddbf77cdf0a6eadd6743e23aa3e842e8edac15cadc34907d32c053",
+          "output_rgba_sha256": "114162848312e1e4a089f65e46d217e83c003cc35c892bda63b4db27b8cf22e4",
+          "alpha_sha256": "f612c23a5bf2b61cb043cd161b120f848a4d53ec1f79455a5a86c1ce598c3f68",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "17d452626d8d43d214ea45f3f801dcbc0212baa3c96ba93944271b6e71542fca"
+          "output_sha256": "69d6429ecaf6e61fa228df61d68afd783625410ec1bc906a281e3e44903d3029"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/tendril_mid_l.png",
-      "original_sha256": "f58deced3267c89984b6751a9ffb9934d7692a8e46df6272e662b53ea1f0807b",
-      "output_rgba_sha256": "734b80c35545e67709c6510dfb8eea8a413e71f26056789a4f9fe2b6a54da0fb",
-      "alpha_sha256": "353ec6570aeccf344e3ee6702d54589ddfb4908dc7ca445c9b6af6eda4d60503",
+      "original_sha256": "2da530a1e3ddbf77cdf0a6eadd6743e23aa3e842e8edac15cadc34907d32c053",
+      "output_rgba_sha256": "114162848312e1e4a089f65e46d217e83c003cc35c892bda63b4db27b8cf22e4",
+      "alpha_sha256": "f612c23a5bf2b61cb043cd161b120f848a4d53ec1f79455a5a86c1ce598c3f68",
       "preview": "hidden_fills/rear_tendril_mid_l.png",
-      "output_sha256": "17d452626d8d43d214ea45f3f801dcbc0212baa3c96ba93944271b6e71542fca",
-      "preview_sha256": "044734b27b6535442682837d9d4ba46331aeac74faec71cc6b74968e095baa5e"
+      "output_sha256": "062d9f3c98e8d94bee812bd65276a23c26f2c696e4552a8a3e2ff0f60a44a5e8",
+      "preview_sha256": "ab6bad2a2610ab6c46a5b013ce341df5d7cccb067ed4aec57545ff432ea48e19"
     },
     {
       "view": "rear",
@@ -3685,22 +3692,22 @@
       "request_sha256": "b45b2eb254c0e054ab5b0fe268f3187be6c2515bfc565773385b0acc5438b368",
       "visible_mask_sha256": "5624837ed42792d2362f4031c71f6b10ddb6d187c27f25fb68b85fffef11a698",
       "hidden_mask_sha256": "661b42a7f52960c15b44a240063835cf3d4b881fe0e50687293e409ea2b092a9",
-      "donor_mask_sha256": "25a1e1b76c0eee5a49f99845647bf7a149eae526ab958194fc9a8eefc3a888c8",
+      "donor_mask_sha256": "309ee0247402e9c77c488cf8238ffd39698787aefa843c2648e2abe711c4262f",
       "donor_parts": [
         "trunk"
       ],
       "own_conditioning_mask_sha256": "5624837ed42792d2362f4031c71f6b10ddb6d187c27f25fb68b85fffef11a698",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "f0f3d3a790408ec1f14e6e510734e26d08f86f5c2c7e0a5b2cc1f0727f3f1031",
-      "donor_rgb_sha256": "47f3060c38ecac86fadcbf091706a9f9c13db7b8b321f63a5ecf8b16439b6eed",
+      "donor_rgb_sha256": "aec16ce90c18152484904e89128f1607f69986f9cb1c5e4e3cc5eace9aa59449",
       "own_visible_pixels": 3,
-      "donor_visible_pixels": 12981,
+      "donor_visible_pixels": 12927,
       "hidden_pixels": 892,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 450,
-        "max_residual": 8.874322180276496e-07,
+        "iterations": 452,
+        "max_residual": 9.603570401218704e-07,
         "domain": [
           34,
           74,
@@ -3714,7 +3721,7 @@
       "palette": [
         [
           14,
-          12,
+          13,
           13
         ],
         [
@@ -3735,10 +3742,10 @@
         [
           173,
           113,
-          77
+          78
         ],
         [
-          185,
+          186,
           63,
           2
         ]
@@ -3746,7 +3753,7 @@
       "quantization_palette": [
         [
           14,
-          12,
+          13,
           13
         ],
         [
@@ -3767,17 +3774,17 @@
         [
           173,
           113,
-          77
+          78
         ],
         [
-          185,
+          186,
           63,
           2
         ]
       ],
       "palette_iterations": 26,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 12981,
+      "palette_sample_pixels": 12927,
       "own_conditioning_pixels": 3,
       "conditioning_pixels_in_hidden_region": 892,
       "outline_pixels": 131,
@@ -3792,20 +3799,20 @@
         {
           "output": "hidden/rear/tendril_low_l.png",
           "original_sha256": "b0b4d7f2c7f0c07e636469b58d7eede09d93e29dc19e2f897fee6942a2bbbeac",
-          "output_rgba_sha256": "d8203b390eaab715ebb1b7c93af2f3a70e573a446ec93ff961c840c331d53303",
+          "output_rgba_sha256": "a74cbc56cfeed6041198f2b26d703452f7950f73d34c591a6b512f1d197f42e0",
           "alpha_sha256": "c446533b27cf8fba0c9b5997737e8a3e6aad75f912491d3efe4bd439d310c404",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "abe9abb1736bd4b4a5f77fe2037bbc108c76fe3ca0dfbd3e52b73b35b82218b4"
+          "output_sha256": "988a2bc85f903ce229b6573e1401871587d13b6555bff8a632c38dce9f668b09"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/tendril_low_l.png",
       "original_sha256": "b0b4d7f2c7f0c07e636469b58d7eede09d93e29dc19e2f897fee6942a2bbbeac",
-      "output_rgba_sha256": "d8203b390eaab715ebb1b7c93af2f3a70e573a446ec93ff961c840c331d53303",
+      "output_rgba_sha256": "a74cbc56cfeed6041198f2b26d703452f7950f73d34c591a6b512f1d197f42e0",
       "alpha_sha256": "c446533b27cf8fba0c9b5997737e8a3e6aad75f912491d3efe4bd439d310c404",
       "preview": "hidden_fills/rear_tendril_low_l.png",
-      "output_sha256": "abe9abb1736bd4b4a5f77fe2037bbc108c76fe3ca0dfbd3e52b73b35b82218b4",
-      "preview_sha256": "f60d98643a5d8e4cb8b1d56f377428f9a29d6d07b5fd9704102845eeded3f2cb"
+      "output_sha256": "1124df2189f42a9419583e984222191f8db50cbb96d2f49b678c59f97b444944",
+      "preview_sha256": "0462da47494b82237dc817825f55a9d6cbd75e2736a582878d1f2a2adc0c54c2"
     },
     {
       "view": "rear",
@@ -3815,7 +3822,7 @@
       "request_sha256": "3fa7ddd9329e29e608d58adc2d545f77218711f5beb3757bc1f8388b38dce0cb",
       "visible_mask_sha256": "e7256baf3e332f5acb9b9e256d6d7af909d549b1c872bee29b5f5b3f87f73bb5",
       "hidden_mask_sha256": "3d0d87a5a37bc6c31993d020f714898b7fe46d502a29844eaf7e8c997c835e82",
-      "donor_mask_sha256": "a77d84005cc1280615604ee5b7143b10cd4cf38ebd045946352475f26c94711f",
+      "donor_mask_sha256": "8af74a221150a8aea74f6cddd5c5a8f15b41a06a08871bfb08c9a29465c6337f",
       "donor_parts": [
         "tendril_high_r",
         "trunk"
@@ -3823,15 +3830,15 @@
       "own_conditioning_mask_sha256": "e7256baf3e332f5acb9b9e256d6d7af909d549b1c872bee29b5f5b3f87f73bb5",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "08a6ae3f608d3a76b1c3ffac9355193c0bccfa61cc48be82160005d5f72197f1",
-      "donor_rgb_sha256": "90537f3b998d9243b6190bf27deb035433026ed550fd26d5191b94237b505f62",
+      "donor_rgb_sha256": "c05e712b5700c85ec4fa6c1affb947bcfd69f780a20ae45306a1d96dde9dbf82",
       "own_visible_pixels": 276,
-      "donor_visible_pixels": 13921,
+      "donor_visible_pixels": 13867,
       "hidden_pixels": 849,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 442,
-        "max_residual": 9.82847601850558e-07,
+        "iterations": 448,
+        "max_residual": 9.513048320308287e-07,
         "domain": [
           34,
           74,
@@ -3926,7 +3933,7 @@
           "output_rgba_sha256": "406d2baa226cdf6cf3b75d1d01fa04316148c7861b3bbe4127592a546e0425df",
           "alpha_sha256": "694309ef33932e3df1cf1c3ae305b044000efb670806698cdfd2c374f5669706",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "b80e621e62186891247f104a5dbf3aee71ec63e35f166e277862a4115bccf8ef"
+          "output_sha256": "c6e559808c30b63e3e13443cc3f534d0ed7ba29bb96f387e55637708dec3e5ef"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -3946,7 +3953,7 @@
       "request_sha256": "9489c8428ac7eac3de03fa4e251a1c3ec0002656d6a5a80ca6cf9332ea51a85e",
       "visible_mask_sha256": "71bab1057c85d6e20e4bef3cf2fe8bc60c78e06ae0376e52757ebb5f518db71f",
       "hidden_mask_sha256": "5b642bf006978b957cf78ab434cf0029e704eb3f71fa14ec4550433dba925e01",
-      "donor_mask_sha256": "ce6501bfe6799fd69aa983fbb49cab8288673d587fe0169a26b668e636ef2aa6",
+      "donor_mask_sha256": "55c1a2408868e6e42a84d35fc790c96621fd60f13bb0ea0cecaac458663c3d6e",
       "donor_parts": [
         "root_stem_r",
         "root_tip_l",
@@ -3956,15 +3963,15 @@
       "own_conditioning_mask_sha256": "71bab1057c85d6e20e4bef3cf2fe8bc60c78e06ae0376e52757ebb5f518db71f",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "fe3f5f2d73491d227d8e7b0d0c0e6e2a00e00a4548ce684ded795f04efbd95a9",
-      "donor_rgb_sha256": "4eac97f96f090695b54e51edba99d4e63f82066a2f745d294ec277dc55b49c2a",
+      "donor_rgb_sha256": "de75dae6e8de6ac6cd70640c0a0e321384d26458088905d17d24f2ada6d5e96a",
       "own_visible_pixels": 287,
-      "donor_visible_pixels": 13274,
+      "donor_visible_pixels": 13220,
       "hidden_pixels": 952,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 428,
-        "max_residual": 9.74154971339676e-07,
+        "iterations": 433,
+        "max_residual": 9.52786573169942e-07,
         "domain": [
           34,
           74,
@@ -4059,7 +4066,7 @@
           "output_rgba_sha256": "8175a2dc84aaaaf88211c62cc69aad34c47764348823c4a54275cf7f721f18eb",
           "alpha_sha256": "7eb9f22c77e4af5933d3b53b5f51f52ceb200494e0dfe11494d03de4007a8385",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "d6d64a5e2eaf1ea56d6db2910011331a9170ce92b4f4d0f336ca12224e070fd4"
+          "output_sha256": "cacb59fa6c225331caf41b72dc03ae7d6ab483278214e827045f82cdbea9ca2a"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -4079,7 +4086,7 @@
       "request_sha256": "612b313692d264f047869cece6df6d23cf475b64578be1b29484d341b425a3fd",
       "visible_mask_sha256": "81f3cfa994c3eed1034a9c9d62d1b55e448c145e45b7a08c701c0532d9f79027",
       "hidden_mask_sha256": "daf53c85678454b261e8fbd64bf003d4fba71c09425dec78a2acfc52d13743d0",
-      "donor_mask_sha256": "f13e0330dd94de2fc182bdf9d74653e2affd4ee8c8f3c34fd9b20b61ef644818",
+      "donor_mask_sha256": "02300f3f3d9f19a883f7866335b68c9669f8d915d2ba8308f5afee7d0eb2aa92",
       "donor_parts": [
         "tendril_mid_l",
         "trunk"
@@ -4087,15 +4094,15 @@
       "own_conditioning_mask_sha256": "81f3cfa994c3eed1034a9c9d62d1b55e448c145e45b7a08c701c0532d9f79027",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "64dd5c557fb7033ff3168b87aab57371d6d6f1d5642441a8cd797e18b3042251",
-      "donor_rgb_sha256": "6e212a8ef50d09c7679e03dddb52c6f3973c748df652b797c0355853eb29ac1f",
+      "donor_rgb_sha256": "f454d30b9b2e261151fa0f693e7c308eea89273faa62c0e66b7cfeee53430c3b",
       "own_visible_pixels": 15,
-      "donor_visible_pixels": 13790,
+      "donor_visible_pixels": 13726,
       "hidden_pixels": 1058,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
         "iterations": 456,
-        "max_residual": 9.352957816731157e-07,
+        "max_residual": 9.735938818303066e-07,
         "domain": [
           34,
           74,
@@ -4108,71 +4115,71 @@
       },
       "palette": [
         [
-          14,
           13,
-          13
+          12,
+          12
         ],
         [
-          50,
-          32,
-          27
+          48,
+          31,
+          26
         ],
         [
-          88,
-          55,
-          42
+          84,
+          52,
+          40
         ],
         [
-          127,
-          82,
-          60
+          124,
+          76,
+          54
         ],
         [
-          174,
-          114,
-          78
+          164,
+          106,
+          75
         ],
         [
-          184,
-          62,
-          2
+          228,
+          119,
+          37
         ]
       ],
       "quantization_palette": [
         [
-          14,
           13,
-          13
+          12,
+          12
         ],
         [
-          50,
-          32,
-          27
+          48,
+          31,
+          26
         ],
         [
-          88,
-          55,
-          42
+          84,
+          52,
+          40
         ],
         [
-          127,
-          82,
-          60
+          124,
+          76,
+          54
         ],
         [
-          174,
-          114,
-          78
+          164,
+          106,
+          75
         ],
         [
-          184,
-          62,
-          2
+          228,
+          119,
+          37
         ]
       ],
       "palette_iterations": 25,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 13790,
+      "palette_sample_pixels": 13726,
       "own_conditioning_pixels": 15,
       "conditioning_pixels_in_hidden_region": 1051,
       "outline_pixels": 107,
@@ -4187,20 +4194,20 @@
         {
           "output": "hidden/rear/root_stem_r.png",
           "original_sha256": "ba04ac88a3c52fe8465930cb075dbc8ac3a8d3308edf64251f5c70b7f46c1ea0",
-          "output_rgba_sha256": "38a523c742dbf0e9d3e69a51cd8bfa3d073d3d208c24859c589d4a9c73609dbc",
+          "output_rgba_sha256": "f2aad8af08669beaf75edc03bc4cc91e5370c10f30a317fb7351915886058f8a",
           "alpha_sha256": "3de4592f8b2a18783a7357107ba300483d68cd1898cae767a1e51fa8f305e3d8",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "9e9cc4216369b8f57d4a08719b596be3c8334ced65f10e9818da39a5fa19389f"
+          "output_sha256": "673f4ede0e6028c4a05b40e0a679cc6ee2213284feaed090d2ee963f1e8b493c"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/root_stem_r.png",
       "original_sha256": "ba04ac88a3c52fe8465930cb075dbc8ac3a8d3308edf64251f5c70b7f46c1ea0",
-      "output_rgba_sha256": "38a523c742dbf0e9d3e69a51cd8bfa3d073d3d208c24859c589d4a9c73609dbc",
+      "output_rgba_sha256": "f2aad8af08669beaf75edc03bc4cc91e5370c10f30a317fb7351915886058f8a",
       "alpha_sha256": "3de4592f8b2a18783a7357107ba300483d68cd1898cae767a1e51fa8f305e3d8",
       "preview": "hidden_fills/rear_root_stem_r.png",
-      "output_sha256": "9e9cc4216369b8f57d4a08719b596be3c8334ced65f10e9818da39a5fa19389f",
-      "preview_sha256": "51218840b25ad3c7587451e3c199a8732c48ea31335a5de86a83bb986dbb81cc"
+      "output_sha256": "b3c2e1196e39b574264e4c7a0958ee54d79dc6ba50ce61cf14eceba9cb1f3455",
+      "preview_sha256": "7d317c2bf22a63dd970f3f32be8c71f869744d5b1d3ae4dfbbb9afe6ecfb5b8f"
     },
     {
       "view": "rear",
@@ -4210,7 +4217,7 @@
       "request_sha256": "96929fe686d6fe62ff02794b54bc11b97feb0313d9422efc481b078bdaf4e517",
       "visible_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "hidden_mask_sha256": "c3b9fbd6459c5a137f3e354404b0a24b0f373f66c8e8a405989839f1e29d3432",
-      "donor_mask_sha256": "caf9aee2374160d20235a3e3be38b322bf46b2b6de2d3a9b34ecb354d30b01db",
+      "donor_mask_sha256": "2c5435e9a0109cfe34d8a25a1de49fcd61c3d4be6064a63239b53701858aced7",
       "donor_parts": [
         "tendril_high_l",
         "tendril_low_r",
@@ -4219,15 +4226,15 @@
       "own_conditioning_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "donor_rgb_sha256": "2a650ddc837d6daafceecde7e030907adf1325ec7f11ca5185430c9dfb51e21e",
+      "donor_rgb_sha256": "1e22ffb224f3a71ab642d712ef00912935523e88f2b525e202218892726311a2",
       "own_visible_pixels": 0,
-      "donor_visible_pixels": 15797,
+      "donor_visible_pixels": 15743,
       "hidden_pixels": 1088,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
         "iterations": 507,
-        "max_residual": 9.794875022113462e-07,
+        "max_residual": 9.705223592590961e-07,
         "domain": [
           34,
           74,
@@ -4265,8 +4272,8 @@
           78
         ],
         [
-          185,
-          62,
+          186,
+          63,
           2
         ]
       ],
@@ -4297,14 +4304,14 @@
           78
         ],
         [
-          185,
-          62,
+          186,
+          63,
           2
         ]
       ],
       "palette_iterations": 26,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 15797,
+      "palette_sample_pixels": 15743,
       "own_conditioning_pixels": 0,
       "conditioning_pixels_in_hidden_region": 1086,
       "outline_pixels": 109,
@@ -4319,20 +4326,20 @@
         {
           "output": "hidden/rear/root_stem_c.png",
           "original_sha256": "921fad08d97806b4d6901159dcdea969c343c3ccff9e47397f5f511496f2c817",
-          "output_rgba_sha256": "986e08b21360a7ae1a2e5d94dd76b6ba08d89685635b696442d11eaacc2ebc7c",
+          "output_rgba_sha256": "36b68c49e6116b8973f35f7fd6f3291c319eaa38419a4a9d47994d3f490b5d4b",
           "alpha_sha256": "8d3483880b8cd84d8fd0bd738a48ec7f46babe1ecfa9bfe1a715264941ab894e",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "ffd8464300ebcc7d8a7854099d0f7de4813fc481cd15d7e78ce1253498e31c21"
+          "output_sha256": "7d64390b6a94f61ee3e0621450f98f62a0c7fadbb862a3fd0c7dc0ac7453226a"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/root_stem_c.png",
       "original_sha256": "921fad08d97806b4d6901159dcdea969c343c3ccff9e47397f5f511496f2c817",
-      "output_rgba_sha256": "986e08b21360a7ae1a2e5d94dd76b6ba08d89685635b696442d11eaacc2ebc7c",
+      "output_rgba_sha256": "36b68c49e6116b8973f35f7fd6f3291c319eaa38419a4a9d47994d3f490b5d4b",
       "alpha_sha256": "8d3483880b8cd84d8fd0bd738a48ec7f46babe1ecfa9bfe1a715264941ab894e",
       "preview": "hidden_fills/rear_root_stem_c.png",
-      "output_sha256": "ffd8464300ebcc7d8a7854099d0f7de4813fc481cd15d7e78ce1253498e31c21",
-      "preview_sha256": "31bb42dbae07f6e6088a0944d4b19b4d851ad03304408e68711036699274a3b9"
+      "output_sha256": "a83d1636befd08d9039708d1b14cb07711734cb0c292b1e9519beb9ab546f58f",
+      "preview_sha256": "6b5d6f3d529b5045e3a657eb4c342df12d6bcd252ce157f3457e04b9113e5598"
     },
     {
       "view": "rear",
@@ -4342,7 +4349,7 @@
       "request_sha256": "cd9010f97db1ac80cff67b40ea2f3d9bca6397dbbdc32acdf61e82e488927119",
       "visible_mask_sha256": "8c1a7071f4d9683dbe337fd7745322e995787054c1ee5eb99847fc1e49c525bc",
       "hidden_mask_sha256": "4c817ba8bb632902fd66abdc71eae4b701e7ec0583bf50d7accfc9331980f2a5",
-      "donor_mask_sha256": "6c9f7d65dc6deb7364d4ccc9ed3cceb81348c9d621c18370ef31c0ad4eb60b25",
+      "donor_mask_sha256": "3293fb069728c86cd3491146a90733d8bd7fcce198ee3389ff1e6cb7eeb9bf20",
       "donor_parts": [
         "root_stem_l",
         "root_stem_r",
@@ -4352,15 +4359,15 @@
       "own_conditioning_mask_sha256": "8c1a7071f4d9683dbe337fd7745322e995787054c1ee5eb99847fc1e49c525bc",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "02618e6a23a45327d6399546f9335dd4db5013d7b7bf52760d0e1413f7eb04c1",
-      "donor_rgb_sha256": "7c7cb06c7b0cea58d3e03f4c3438b080585d05a6d26267fb3e44fd796e99f2d9",
+      "donor_rgb_sha256": "fe039ebb53de79547da5bcc5161180b64d675bf19b73ee72fd4850653ad73814",
       "own_visible_pixels": 275,
-      "donor_visible_pixels": 13286,
+      "donor_visible_pixels": 13232,
       "hidden_pixels": 352,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 428,
-        "max_residual": 9.74154971339676e-07,
+        "iterations": 433,
+        "max_residual": 9.52786573169942e-07,
         "domain": [
           34,
           74,
@@ -4455,7 +4462,7 @@
           "output_rgba_sha256": "e54743a9619e63c9ab9c1ac8eed5b1ead30764451f7f35c2cd931223313ee6a1",
           "alpha_sha256": "d77b674f336e97fdf1e0af7423fa6af05f913f091cb92b39c43c2a2279e60d8f",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "64da73cc0064bcf8a4c7ba1c55c04ee54cd2e650e3062c1857cc3eb472d65215"
+          "output_sha256": "93ed54874ce2a839696f22e28dd6f36b676d83376756f409c61e3e939cede795"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -4475,7 +4482,7 @@
       "request_sha256": "eec44f21ccee8750392f7d082ac3d8a951425d9c673c1e0d4133d27ef0bde18c",
       "visible_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "hidden_mask_sha256": "3126c3e22c5185ce4052092e348b873fae8359abcc61be0103f9a159096ecd9c",
-      "donor_mask_sha256": "086ed1dc831359b1ae9c6ad60198f547e36fc621887db94355532e4d82d6f1d3",
+      "donor_mask_sha256": "aa26237eae1b36d07bc052a8760d8c0a82e16adc9a658f9db74c3a9175df5aaa",
       "donor_parts": [
         "tendril_low_r",
         "trunk"
@@ -4483,15 +4490,15 @@
       "own_conditioning_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "donor_rgb_sha256": "83590a0003c0a1a27b07d41b4a1c953e9b9ee6acdf9f1aedb6dbfa5edc4d767a",
+      "donor_rgb_sha256": "a49731bc24b57d49de715e15ceebc5d7195f466ef465d9ae6e667561dcb0dacc",
       "own_visible_pixels": 0,
-      "donor_visible_pixels": 13257,
+      "donor_visible_pixels": 13203,
       "hidden_pixels": 452,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 448,
-        "max_residual": 9.632223180531645e-07,
+        "iterations": 457,
+        "max_residual": 9.435709680620557e-07,
         "domain": [
           34,
           74,
@@ -4504,71 +4511,71 @@
       },
       "palette": [
         [
+          17,
           14,
-          12,
-          13
+          14
         ],
         [
-          50,
-          32,
-          27
+          60,
+          38,
+          31
         ],
         [
-          88,
-          55,
-          42
+          107,
+          69,
+          52
         ],
         [
-          127,
-          82,
-          60
+          147,
+          38,
+          1
         ],
         [
-          174,
-          114,
-          78
+          160,
+          105,
+          74
         ],
         [
-          185,
-          63,
-          2
+          227,
+          102,
+          14
         ]
       ],
       "quantization_palette": [
         [
+          17,
           14,
-          12,
-          13
+          14
         ],
         [
-          50,
-          32,
-          27
+          60,
+          38,
+          31
         ],
         [
-          88,
-          55,
-          42
+          107,
+          69,
+          52
         ],
         [
-          127,
-          82,
-          60
+          147,
+          38,
+          1
         ],
         [
-          174,
-          114,
-          78
+          160,
+          105,
+          74
         ],
         [
-          185,
-          63,
-          2
+          227,
+          102,
+          14
         ]
       ],
-      "palette_iterations": 32,
+      "palette_iterations": 31,
       "palette_source": "same_material_neighbours",
-      "palette_sample_pixels": 13257,
+      "palette_sample_pixels": 13203,
       "own_conditioning_pixels": 0,
       "conditioning_pixels_in_hidden_region": 451,
       "outline_pixels": 70,
@@ -4583,20 +4590,20 @@
         {
           "output": "hidden/rear/root_tip_r.png",
           "original_sha256": "85d3882ce3e070e31aa0235ba8b96202952e9a7e138b23cad0cc5f4a9478c3de",
-          "output_rgba_sha256": "dc92a689995ddbb41c5d4ecd410b48d3d182c3c56d7f78a47522419a8f928845",
+          "output_rgba_sha256": "638c7ea3d23c840653ad5f9498c36536895692820818d3df975e34c879149bb6",
           "alpha_sha256": "0a288fd5cb12fca3da28ed74ccc68b47b05baee4413618675c9a175b87272b19",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "013bc56cb980f5c6f321558f87309e6dd6effa42dd59d0b8c3ab01fcd135a2f6"
+          "output_sha256": "87a37c4bcba1152d94d3e4f59e1eb29a7a2254cd94cdb3ec7c5587b7227cd0f0"
         }
       ],
       "remaining_magenta_pixels": 0,
       "output": "hidden/rear/root_tip_r.png",
       "original_sha256": "85d3882ce3e070e31aa0235ba8b96202952e9a7e138b23cad0cc5f4a9478c3de",
-      "output_rgba_sha256": "dc92a689995ddbb41c5d4ecd410b48d3d182c3c56d7f78a47522419a8f928845",
+      "output_rgba_sha256": "638c7ea3d23c840653ad5f9498c36536895692820818d3df975e34c879149bb6",
       "alpha_sha256": "0a288fd5cb12fca3da28ed74ccc68b47b05baee4413618675c9a175b87272b19",
       "preview": "hidden_fills/rear_root_tip_r.png",
-      "output_sha256": "013bc56cb980f5c6f321558f87309e6dd6effa42dd59d0b8c3ab01fcd135a2f6",
-      "preview_sha256": "6d571f9b1c7746596243d18a790e896939902b9a8adaf8372dfcc323b9108306"
+      "output_sha256": "6f66c4afad73a2a3473609879fe9637574666e5a746da724b1c6453abaefe329",
+      "preview_sha256": "5c99cf7ca07b94eb7cc63da8a9531b06783c98e232af8a8e30ef16f1d00d6294"
     },
     {
       "view": "rear",
@@ -4606,7 +4613,7 @@
       "request_sha256": "6313f5fd98ffef3a54b28faa74d929d6099df7a2e261213cbf56c265d89e8154",
       "visible_mask_sha256": "bfa20c1293d51dcadc95abcf8ebdc9448dda9de03dfe93fced01a6084f028c0f",
       "hidden_mask_sha256": "6efc2fa56757413be83b1c9a815bb3dfad2b7053505ab197fe830cd877d3625e",
-      "donor_mask_sha256": "67acabb985a5fa92668487de1dd8d220e7f57cb8d2a64ff29e8db7e2abea6150",
+      "donor_mask_sha256": "9ef211ef65735559e79131494cc2460ed6d64b7c9c47a4b8c2d7a784d49d9ea1",
       "donor_parts": [
         "tendril_high_l",
         "tendril_low_r",
@@ -4616,15 +4623,15 @@
       "own_conditioning_mask_sha256": "bfa20c1293d51dcadc95abcf8ebdc9448dda9de03dfe93fced01a6084f028c0f",
       "source_paint_sha256": "2481a919fadb43c27c099475614921490706650a48850668e8a70fae34f9f1a2",
       "visible_rgba_sha256": "cc07612f885b98ce8c80a762c7292ffc3d6a54a5bbdfc0b3722a03617c287511",
-      "donor_rgb_sha256": "6006323d5644589b3ad42dfb4867eafac1a70343c1a0b0fe0374bb9f3a554a20",
+      "donor_rgb_sha256": "55c681d834fe670cb7828d3cdf73ca96250846e693abe2fde8144c4ebe8f3fe0",
       "own_visible_pixels": 50,
-      "donor_visible_pixels": 16606,
+      "donor_visible_pixels": 16542,
       "hidden_pixels": 465,
       "seed": 0,
       "method": "diffusion",
       "diffusion": {
-        "iterations": 508,
-        "max_residual": 9.63216091491356e-07,
+        "iterations": 507,
+        "max_residual": 9.817894459102004e-07,
         "domain": [
           34,
           74,
@@ -4719,7 +4726,7 @@
           "output_rgba_sha256": "92dcb910d5719c56522c8f84faf64f68206b4db5fac69bd6b9004bd51ae089db",
           "alpha_sha256": "2fbd1da755ac0fdc0844000dee2bd2c3f3abccccd1c3e439a180e818e24ff933",
           "remaining_magenta_pixels": 0,
-          "output_sha256": "e6c618f26e30c221fb260351ede2c3b3323924612d3bf221eed35934e5adaaa8"
+          "output_sha256": "ae061289fb92c9a28ceb8dd13ad2d2963dda511a980debbdf53b010694a4239b"
         }
       ],
       "remaining_magenta_pixels": 0,
@@ -4731,5 +4738,34 @@
       "output_sha256": "e6c618f26e30c221fb260351ede2c3b3323924612d3bf221eed35934e5adaaa8",
       "preview_sha256": "cee374c0e19b8fc0d91c11c3fc463c128bc9321bcb6ffbeac5c056f4b69878e5"
     }
-  ]
+  ],
+  "continuity": {
+    "tool_sha256": "95652e634093a9c0c36e58046613e5a26bae6275042d887b5674e9fc898b670c",
+    "joint_overlap_margin_px": 7,
+    "policy": "Approved painted seed plus one joint margin; no cumulative trials or foreign hidden-only seeds; non-outline same-part/bone donors",
+    "bleed_policy": "Nearest-edge RGBA replication; per-joint ceil(maximum sampled separation)+1 source pixel; covered by a higher neighbour at rest; feature donors and new feature targets excluded; reject new enclosed gaps",
+    "bleed_tool_sha256": "965d2ad826101f03ba3f2a909db0606faf2d0b12b67c51504ecd599629626972",
+    "seam_tool_sha256": "bca99c86048fdb141cffada4848500d49c75e897e89c64d01c3c26fdb5e0a381",
+    "joint_seams_tool_sha256": "c51a9a76553479c785acbf021d7712d2083df6fff9466c2dfcf9753a3b345936",
+    "feedback11": {
+      "authority": "Director feedback 11",
+      "derivation": "support_derivation.json",
+      "policy": "Immutable approved painted fills; interior-only support donors; one joint margin",
+      "director_authorized_derived_edits": [
+        {
+          "authority": "Director rr-05 feedback 11 decision 4",
+          "view": "rear",
+          "part": "hidden_trunk",
+          "region": "Approved hidden trunk cap above the first rest-visible trunk scanline, and exposed in a sampled pose",
+          "cap_bottom_source_y_exclusive": 77,
+          "exposed_cap_pixels": 1,
+          "changed_pixels": 1,
+          "mask": "support/rear_socket_derived_edit.png",
+          "mask_sha256": "d31323fed560c665d7b4c17612c65762721febf23f528068306037e3a3ad150c",
+          "donors": "Nearest non-outline original trunk/body paint outside the socket cap",
+          "preview_unchanged": true
+        }
+      ]
+    }
+  }
 }

@@ -1,0 +1,15 @@
+{
+  "authority": "Source-space crops and integer zoom recovered by exact RGB-block matching to the director's rr-05_fb11 evidence",
+  "source_offset": 128,
+  "background_rgb": [30, 30, 36],
+  "crops": {
+    "shell": {"source_bounds": [18, 28, 238, 258], "zoom": 2, "columns": 5},
+    "left": {"source_bounds": [28, 118, 98, 218], "zoom": 6, "columns": 5},
+    "top": {"source_bounds": [73, 33, 163, 103], "zoom": 8, "columns": 5}
+  },
+  "shell_frames": [0, 6, 12, 18, 24, 30, 36, 42, 48, 54],
+  "detail_poses": [["rest", 0], ["idle", 0], ["shell", 14], ["burst", 22], ["death", 30]],
+  "action_poses": [["burst", 22], ["death", 30]],
+  "sheet_order": "before rows, then after rows; each row follows the listed pose order",
+  "individual_shell_frames": [0, 54]
+}

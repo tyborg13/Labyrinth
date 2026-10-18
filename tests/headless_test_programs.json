@@ -379,5 +379,8 @@
   },
   {
     "path": "tests/static_floor_cache_equivalence_test.gd"
+  },
+  {
+    "path": "tests/maquette_cutout_test.gd"
   }
 ]

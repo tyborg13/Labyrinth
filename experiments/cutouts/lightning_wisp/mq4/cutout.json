@@ -56,8 +56,13 @@
   "sources": [
     "compiled_motion.json",
     "director_motion.json",
+    "features.json",
+    "features/empty.png",
+    "features/front_eye.png",
     "hidden_fills/index.json",
     "motion.gd",
+    "proof/continuity.json",
+    "proof/feature_derivation.json",
     "recipes/front_ownership.json",
     "recipes/hidden_fill.json",
     "recipes/rear_ownership.json",
@@ -92,6 +97,7 @@
     "registered/rear_solo_core.png",
     "registered/rear_solo_crown.png",
     "registered/rear_solo_tail.png",
+    "seams.json",
     "source/front/kit.json",
     "source/front/processed.json",
     "source/front/processed.png",
@@ -118,7 +124,8 @@
     "source/rear/processed.json",
     "source/rear/processed.png",
     "source/rear/raw.png",
-    "source/spec.json"
+    "source/spec.json",
+    "support_derivation.json"
   ],
   "source_baseline": {
     "kind": "maquette_registered_paint",

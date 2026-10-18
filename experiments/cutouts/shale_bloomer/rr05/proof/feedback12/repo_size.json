@@ -1,0 +1,10 @@
+{
+  "head_tracked_bytes": 5262876306,
+  "proposed_tracked_bytes": 5233986601,
+  "delta_bytes": -28889705,
+  "delta_mib": -27.55137,
+  "scope": "Includes retained director edits/promotion and earlier rr-05 changes; excludes untracked output.",
+  "archived_old_evidence_files": 189,
+  "archive": "output/rr-05/archive/",
+  "archive_preservation": "../feedback11/archive_summary.json"
+}

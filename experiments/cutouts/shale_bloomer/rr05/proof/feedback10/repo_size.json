@@ -1,0 +1,9 @@
+{
+  "head_tracked_bytes": 5262876306,
+  "proposed_tracked_bytes": 5233140238,
+  "delta_bytes": -29736068,
+  "delta_mib": -28.358524,
+  "archive": "output/rr-05/archive/",
+  "archived_old_evidence_files": 189,
+  "scope": "Full rr-05 diff including retained director edits/promotion and tracked output; untracked output excluded."
+}

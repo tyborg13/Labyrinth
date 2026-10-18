@@ -1,0 +1,218 @@
+[
+  {
+    "view": "rear",
+    "part": "root_stem_c",
+    "reason": "Hidden-only node; no visible owner and no clean_visible transfer into hidden parts. Repeated in-place radius search grows its previous generated support.",
+    "trace": [
+      {
+        "trial_margin_px": 0,
+        "seed_pixels": 1088,
+        "result_pixels": 1088
+      },
+      {
+        "trial_margin_px": 1,
+        "seed_pixels": 1088,
+        "result_pixels": 1201
+      },
+      {
+        "trial_margin_px": 2,
+        "seed_pixels": 1201,
+        "result_pixels": 1439
+      },
+      {
+        "trial_margin_px": 3,
+        "seed_pixels": 1439,
+        "result_pixels": 1860
+      },
+      {
+        "trial_margin_px": 4,
+        "seed_pixels": 1860,
+        "result_pixels": 2486
+      },
+      {
+        "trial_margin_px": 5,
+        "seed_pixels": 2486,
+        "result_pixels": 3401
+      },
+      {
+        "trial_margin_px": 6,
+        "seed_pixels": 3401,
+        "result_pixels": 4578
+      },
+      {
+        "trial_margin_px": 7,
+        "seed_pixels": 4578,
+        "result_pixels": 6082
+      }
+    ],
+    "recorded_legacy_support": {
+      "view": "rear",
+      "part": "root_stem_c",
+      "overlap_margin_px": 7,
+      "pixels": 6082,
+      "original_seed_pixels": 4578
+    }
+  },
+  {
+    "view": "rear",
+    "part": "root_tip_r",
+    "reason": "Hidden-only node; no visible owner and no clean_visible transfer into hidden parts. Repeated in-place radius search grows its previous generated support.",
+    "trace": [
+      {
+        "trial_margin_px": 0,
+        "seed_pixels": 452,
+        "result_pixels": 452
+      },
+      {
+        "trial_margin_px": 1,
+        "seed_pixels": 452,
+        "result_pixels": 518
+      },
+      {
+        "trial_margin_px": 2,
+        "seed_pixels": 518,
+        "result_pixels": 659
+      },
+      {
+        "trial_margin_px": 3,
+        "seed_pixels": 659,
+        "result_pixels": 912
+      },
+      {
+        "trial_margin_px": 4,
+        "seed_pixels": 912,
+        "result_pixels": 1297
+      },
+      {
+        "trial_margin_px": 5,
+        "seed_pixels": 1297,
+        "result_pixels": 1938
+      },
+      {
+        "trial_margin_px": 6,
+        "seed_pixels": 1938,
+        "result_pixels": 2870
+      },
+      {
+        "trial_margin_px": 7,
+        "seed_pixels": 2870,
+        "result_pixels": 4115
+      }
+    ],
+    "recorded_legacy_support": {
+      "view": "rear",
+      "part": "root_tip_r",
+      "overlap_margin_px": 7,
+      "pixels": 4115,
+      "original_seed_pixels": 2870
+    }
+  },
+  {
+    "view": "front",
+    "part": "tendril_mid_l",
+    "reason": "Hidden-only node; no visible owner and no clean_visible transfer into hidden parts. Repeated in-place radius search grows its previous generated support.",
+    "trace": [
+      {
+        "trial_margin_px": 0,
+        "seed_pixels": 631,
+        "result_pixels": 631
+      },
+      {
+        "trial_margin_px": 1,
+        "seed_pixels": 631,
+        "result_pixels": 734
+      },
+      {
+        "trial_margin_px": 2,
+        "seed_pixels": 734,
+        "result_pixels": 951
+      },
+      {
+        "trial_margin_px": 3,
+        "seed_pixels": 951,
+        "result_pixels": 1334
+      },
+      {
+        "trial_margin_px": 4,
+        "seed_pixels": 1334,
+        "result_pixels": 1910
+      },
+      {
+        "trial_margin_px": 5,
+        "seed_pixels": 1910,
+        "result_pixels": 2805
+      },
+      {
+        "trial_margin_px": 6,
+        "seed_pixels": 2805,
+        "result_pixels": 4048
+      },
+      {
+        "trial_margin_px": 7,
+        "seed_pixels": 4048,
+        "result_pixels": 5622
+      }
+    ],
+    "recorded_legacy_support": {
+      "view": "front",
+      "part": "tendril_mid_l",
+      "overlap_margin_px": 7,
+      "pixels": 5622,
+      "original_seed_pixels": 4048
+    }
+  },
+  {
+    "view": "front",
+    "part": "root_stem_l",
+    "reason": "Hidden-only node; no visible owner and no clean_visible transfer into hidden parts. Repeated in-place radius search grows its previous generated support.",
+    "trace": [
+      {
+        "trial_margin_px": 0,
+        "seed_pixels": 866,
+        "result_pixels": 866
+      },
+      {
+        "trial_margin_px": 1,
+        "seed_pixels": 866,
+        "result_pixels": 963
+      },
+      {
+        "trial_margin_px": 2,
+        "seed_pixels": 963,
+        "result_pixels": 1169
+      },
+      {
+        "trial_margin_px": 3,
+        "seed_pixels": 1169,
+        "result_pixels": 1542
+      },
+      {
+        "trial_margin_px": 4,
+        "seed_pixels": 1542,
+        "result_pixels": 2103
+      },
+      {
+        "trial_margin_px": 5,
+        "seed_pixels": 2103,
+        "result_pixels": 2986
+      },
+      {
+        "trial_margin_px": 6,
+        "seed_pixels": 2986,
+        "result_pixels": 4167
+      },
+      {
+        "trial_margin_px": 7,
+        "seed_pixels": 4167,
+        "result_pixels": 5594
+      }
+    ],
+    "recorded_legacy_support": {
+      "view": "front",
+      "part": "root_stem_l",
+      "overlap_margin_px": 7,
+      "pixels": 5594,
+      "original_seed_pixels": 4167
+    }
+  }
+]

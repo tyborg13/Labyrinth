@@ -38,6 +38,7 @@ static func sync(board: Control, type: String, renderers: Dictionary) -> void:
 		motion["screen_pixel_scale"] = board.source_pixel_scale_for_type(type)
 		var shown: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
 		renderer.present(motion, bool(presentation.get("reduced_motion", false)), shown and not bool(unit.get("death_animation", false)))
+		preload("pixel_presentation.gd").align_on_board(board, unit, key, presentation)
 	for key: String in renderers.keys():
 		if not actors.has(key):
 			var renderer: Node = renderers[key]

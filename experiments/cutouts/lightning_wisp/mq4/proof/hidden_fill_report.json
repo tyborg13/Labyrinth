@@ -26,7 +26,7 @@
     "layouts": {
       "front": {
         "joints": 3,
-        "parts": 10,
+        "parts": 11,
         "meshes": 0,
         "vertices": 0
       },

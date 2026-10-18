@@ -1,0 +1,13 @@
+{
+  "player_facing_defaults": [],
+  "test_only_fields": {
+    "MUTATION_OUTLINE_RGB": {"value": [20, 16, 21], "reason": "Existing outline palette colour used by the reviewer's support mutation"},
+    "MUTATION_POSE": {"value": ["rear", "shell", 14], "reason": "Reviewer's retained derived-slab pose"},
+    "MUTATION_GATE_HASH": {"value": "64 zero characters", "reason": "Deliberately stale gate hash fixture"},
+    "SYNTHETIC_OPAQUE_COLOUR": {"value": [80, 100, 120, 255], "reason": "Uniform opaque test paint for the boundary-erasure regression"},
+    "SYNTHETIC_SIZE": {"value": 12, "reason": "Reviewer-specified texture fixture"},
+    "SYNTHETIC_BOUNDS": {"value": [0, 0, 14, 14], "reason": "Debug canvas around the reviewer-specified texture"},
+    "synthetic_translation": {"value": [0.5, 0.5], "reason": "Reviewer-specified exact-tie fixture"}
+  },
+  "TODO_DESIGN": []
+}

@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source_sha256": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f",
-  "ownership_sha256": "fc226b49f4ec7bcb1d548db224dd6e37ce7d465984b6e171cb77d1350ac63926",
+  "ownership_sha256": "25713a9da1c081639edcdd2cd5c743097cdb70a497f4f52040f01ed605637084",
   "parts": [
     {
       "name": "core",
@@ -15,7 +15,11 @@
         78,
         190,
         173
-      ]
+      ],
+      "logical_part": "core",
+      "bone": "core",
+      "z_index": 1,
+      "rest_depth_source": "core"
     },
     {
       "name": "crown",
@@ -29,7 +33,11 @@
         92,
         156,
         150
-      ]
+      ],
+      "logical_part": "crown",
+      "bone": "core",
+      "z_index": 4,
+      "rest_depth_source": "crown"
     },
     {
       "name": "tail",
@@ -43,7 +51,11 @@
         133,
         178,
         246
-      ]
+      ],
+      "logical_part": "tail",
+      "bone": "tail",
+      "z_index": 0,
+      "rest_depth_source": "tail"
     },
     {
       "name": "arc_left",
@@ -57,7 +69,11 @@
         114,
         161,
         152
-      ]
+      ],
+      "logical_part": "arc_left",
+      "bone": "core",
+      "z_index": 2,
+      "rest_depth_source": "arc_left"
     },
     {
       "name": "arc_right",
@@ -71,7 +87,29 @@
         96,
         176,
         171
-      ]
+      ],
+      "logical_part": "arc_right",
+      "bone": "core",
+      "z_index": 3,
+      "rest_depth_source": "arc_right"
+    },
+    {
+      "name": "feature_eye",
+      "feature": "eye",
+      "logical_part": "core",
+      "bone": "core",
+      "file": "feature_eye.png",
+      "offset": [
+        110,
+        146
+      ],
+      "bbox": [
+        110,
+        146,
+        124,
+        160
+      ],
+      "z_index": 5
     }
   ],
   "unassigned_pixels": 0,

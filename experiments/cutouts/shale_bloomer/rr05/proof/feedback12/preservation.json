@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "files_checked": 835,
+  "changed": [],
+  "scope": "All case PNGs, registration masks, source layouts, features, rig/motion/support provenance; production assets; unchanged round-11 palette, donor, seed-growth, socket, seam, raster, tie and shimmer implementations.",
+  "checked_after_full_suites": true
+}

@@ -1,0 +1,14 @@
+{
+  "shale": {
+    "sampled_pose_rows": 1008,
+    "rows_identical_to_round10": true,
+    "before_sha256": "9c5ad8b5ca8d9d5fec452e9150e3d076f06a6dbdad381685407e40ec142ed57c",
+    "after_sha256": "615ef4af7dfead3359abe7ea218492fb44ec4a35bc3389978fe2a28788ed32e0"
+  },
+  "wisp": {
+    "sampled_pose_rows": 750,
+    "rows_identical_to_round10": true,
+    "before_sha256": "fc09e3ced8d11162f99b9af763adb0ee5ef3b9a302a67080d1e2334df1f48022",
+    "after_sha256": "4634596455b70dcf5bd93b56b570e0b3bb22a6d1d9a1decd53398d42046945cd"
+  }
+}

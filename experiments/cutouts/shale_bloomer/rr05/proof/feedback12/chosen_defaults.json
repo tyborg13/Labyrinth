@@ -1,0 +1,36 @@
+{
+  "player_visible_defaults": [],
+  "new_test_only": {
+    "FIXTURE_DERIVED_BLOCK": [
+      7,
+      7,
+      10,
+      10
+    ],
+    "FIXTURE_VISIBLE_CROP": [
+      2,
+      2,
+      8,
+      8
+    ],
+    "FIXTURE_ROTATED_TRANSFORM": [
+      0,
+      1,
+      -1,
+      0,
+      16,
+      0
+    ]
+  },
+  "inherited_test_defaults": "../feedback11/chosen_defaults.json",
+  "approval_mask_encoding": "Proof-only RGBA; RGB 255 for approved, 0 for derived; source alpha retained; never drawn in product",
+  "director_values_unchanged": [
+    "3x3 full dark block",
+    "outline palette and p5 cutoff",
+    "same-part/bone non-outline donors",
+    "round 11 seed support and socket edit",
+    "all motion and timing",
+    "held shimmer 0 and boundary residual 1%",
+    "strict native tie candidates and non-tie allowance"
+  ]
+}

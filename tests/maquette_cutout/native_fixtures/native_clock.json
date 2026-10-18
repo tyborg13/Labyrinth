@@ -1,0 +1,198 @@
+{
+  "case": "experiments/cutouts/shale_bloomer/mq3",
+  "report": {
+    "step_distance_px": 96.0,
+    "samples": [
+      {
+        "clip": "idle",
+        "frame": 63,
+        "parts": {
+          "root_stem_r": {
+            "alpha": 1.0,
+            "before": [
+              0.999843835830688,
+              -0.0176705382764339,
+              0.0176705382764339,
+              0.999843835830688,
+              76.0696640014648,
+              114.909492492676
+            ],
+            "bone": "root_stem_r",
+            "transform": [
+              0.999657332897186,
+              -0.0261769518256187,
+              0.0261769518256187,
+              0.999657332897186,
+              75.9999923706055,
+              115.0
+            ]
+          }
+        },
+        "phase": 0.375,
+        "presented_phase": 0.357142857142857,
+        "view": "front"
+      },
+      {
+        "clip": "idle",
+        "frame": 64,
+        "parts": {
+          "root_stem_r": {
+            "alpha": 1.0,
+            "before": [
+              0.999838948249817,
+              -0.0179464723914862,
+              0.0179464723914862,
+              0.999838948249817,
+              76.0552597045898,
+              114.923820495605
+            ],
+            "bone": "root_stem_r",
+            "transform": [
+              0.999657332897186,
+              -0.0261769518256187,
+              0.0261769518256187,
+              0.999657332897186,
+              75.9999923706055,
+              115.0
+            ]
+          }
+        },
+        "phase": 0.380952380952381,
+        "presented_phase": 0.357142857142857,
+        "view": "front"
+      },
+      {
+        "clip": "idle",
+        "frame": 63,
+        "parts": {},
+        "phase": 0.375,
+        "presented_phase": 0.357142857142857,
+        "view": "rear"
+      },
+      {
+        "clip": "idle",
+        "frame": 64,
+        "parts": {},
+        "phase": 0.380952380952381,
+        "presented_phase": 0.357142857142857,
+        "view": "rear"
+      }
+    ]
+  },
+  "native": {
+    "samples": [
+      {
+        "clip": "idle",
+        "frame": 63,
+        "parts": {
+          "root_stem_r": {
+            "alpha": 1.0,
+            "before": [
+              0.999843835830688,
+              -0.0176705382764339,
+              0.0176705382764339,
+              0.999843835830688,
+              76.0696487426758,
+              114.909507751465
+            ],
+            "bone": "root_stem_r",
+            "transform": [
+              0.999657332897186,
+              -0.0261769518256187,
+              0.0261769518256187,
+              0.999657332897186,
+              76.0,
+              115.0
+            ]
+          }
+        },
+        "phase": 0.375,
+        "presented_phase": 0.357142857142857,
+        "view": "front"
+      },
+      {
+        "clip": "idle",
+        "frame": 64,
+        "parts": {
+          "root_stem_r": {
+            "alpha": 1.0,
+            "before": [
+              0.999838948249817,
+              -0.0179464723914862,
+              0.0179464723914862,
+              0.999838948249817,
+              76.0552597045898,
+              114.923866271973
+            ],
+            "bone": "root_stem_r",
+            "transform": [
+              0.999657332897186,
+              -0.0261769518256187,
+              0.0261769518256187,
+              0.999657332897186,
+              76.0,
+              115.0
+            ]
+          }
+        },
+        "phase": 0.380952380952381,
+        "presented_phase": 0.357142857142857,
+        "view": "front"
+      },
+      {
+        "clip": "idle",
+        "frame": 63,
+        "parts": {},
+        "phase": 0.375,
+        "presented_phase": 0.357142857142857,
+        "view": "rear"
+      },
+      {
+        "clip": "idle",
+        "frame": 64,
+        "parts": {},
+        "phase": 0.380952380952381,
+        "presented_phase": 0.357142857142857,
+        "view": "rear"
+      }
+    ],
+    "frames": [
+      {
+        "view": "front",
+        "frame": 63,
+        "part": "root_stem_r",
+        "before": "front_root_stem_r_before_0063.png",
+        "before_sha256": "a28b0f16b77cd618e19401fef7ff535786e1528dd2752fb38c764ea5decbc7e5",
+        "after": "front_root_stem_r_after_0063.png",
+        "after_sha256": "f0aec96464e107d413425b9ced5356812a4697a71862d950520c745bf23ddf50"
+      },
+      {
+        "view": "front",
+        "frame": 64,
+        "part": "root_stem_r",
+        "before": "front_root_stem_r_before_0064.png",
+        "before_sha256": "03741ebd58f427f5bb9af388075e5d5534b316d24e5b7fb6402fc16899584de0",
+        "after": "front_root_stem_r_after_0064.png",
+        "after_sha256": "f0aec96464e107d413425b9ced5356812a4697a71862d950520c745bf23ddf50"
+      }
+    ]
+  },
+  "historical_part": {
+    "name": "root_stem_r",
+    "file": "tests/maquette_cutout/native_fixtures/source_shale_bloomer_front_root_stem_r.png",
+    "offset": [
+      77,
+      114
+    ],
+    "bbox": [
+      77,
+      114,
+      179,
+      237
+    ],
+    "logical_part": "root_stem_r",
+    "bone": "root_stem_r",
+    "z_index": 7,
+    "rest_depth_source": "root_stem_r"
+  }
+}

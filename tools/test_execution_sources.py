@@ -27,7 +27,8 @@ def program_paths(path: str) -> tuple[str, ...]:
     return PARTITIONED_PROGRAMS.get(path, (path,))
 
 
-PYTHON_PROGRAMS = {"tests/program_suite_runner_test.gd": "tests/test_program_suite_runner.py"}
+PYTHON_PROGRAMS = {"tests/program_suite_runner_test.gd": "tests/test_program_suite_runner.py",
+                   "tests/maquette_cutout/reference_mask_test.gd": "tests/test_maquette_native_alpha.py"}
 
 
 def python_program_coverage(root: Path) -> dict[str, str]:
