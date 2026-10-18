@@ -108,6 +108,23 @@ HOME/APPDATA/XDG isolation, plus an explicit stage log. The child retains one
 outer 180-second deadline across all its stages. The manifest guard includes
 every supplemental entry, its invocation mode, and the merged headless additions.
 
+`suites/section_map_performance_program` owns the complete fix-05 regression,
+including the hang seed and 20 slowest seed cases; the v5 aggregate no longer
+runs that regression inside its own child or the main body. Its assertion
+bodies and timing limits remain unchanged. EN06 boots with the deterministic
+timestamp-window regression seed before installing its existing enemy fixture.
+Set `LABYRINTH_EN06_PROFILE=1` to log phase durations and ten-second wait samples
+without changing the scene, time scale or presentation clock. The profile
+asserts the boot seed and retains all existing enemy checks.
+
+The explicit partitions in `tools/test_execution_sources.py` retain the original
+standalone entrypoints while the full manifest expands them into bounded children.
+Map v5 separates current-map checks from two equal 100-seed revision-3/4 hash
+ranges; the original 200-seed standalone and 50-seed in-process calls keep their
+ranges. Forced-movement query equivalence runs one child per existing fixture,
+each retaining all four variants and its entire action matrix. The completeness
+guard requires every partition before a shared-wrapper call can count as coverage.
+
 Use the unchanged 900-second hard cap for the complete command (each child also
 retains a 180-second cap):
 

@@ -67,6 +67,20 @@ func _initialize():
         self.write("tests/nested/inner_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
         self.assertEqual(self.rows()["tests/nested/inner_suite.gd"], "full suite")
 
+    def test_map_performance_child_requires_its_executed_regression_call(self):
+        self.write("tests/run_tests.gd", 'extends SceneTree\nfunc _initialize():\n\tpreload("res://tests/suites/section_map_performance_suite.gd").run()\n')
+        suite = '''extends RefCounted
+const Regression = preload("res://tests/suites/section_map_regression_suite.gd")
+static func run():
+    Regression._run_child("section_map_type_rejection_test.gd", 10)
+'''
+        self.write("tests/suites/section_map_performance_suite.gd", suite)
+        self.write("tests/suites/section_map_regression_suite.gd", 'extends RefCounted\nstatic func _run_child(path, timeout):\n\tpass\n')
+        self.write("tests/section_map_type_rejection_test.gd", 'extends SceneTree\nfunc _initialize():\n\tassert(true)\n')
+        self.assertEqual(self.rows()["tests/section_map_type_rejection_test.gd"], "full suite")
+        self.write("tests/suites/section_map_performance_suite.gd", suite.replace('    Regression._run_child', '    # Regression._run_child'))
+        self.assertEqual(self.rows()["tests/section_map_type_rejection_test.gd"], "orphaned")
+
     def test_overridden_initializer_follows_inherited_and_nested_aliases(self):
         self.write("tests/run_tests.gd", 'extends SceneTree\nfunc _initialize():\n\tpreload("res://tests/child_suite.gd").run()\n')
         self.write("tests/parent.gd", 'extends RefCounted\nconst Nested = preload("res://tests/outer.gd")\n')
@@ -138,6 +152,22 @@ func _run():
         self.write("tests/child_test.gd", 'extends "res://tests/base_test.gd"\nfunc _run():\n\tassert(true)\n')
         self.assertEqual(self.rows()["tests/base_test.gd"], "orphaned")
         self.assertEqual(self.rows()["tests/child_test.gd"], "full suite")
+
+    def test_partition_requires_every_program_before_shared_wrapper_coverage(self):
+        original = "tests/section_map_v5_test.gd"
+        parts = audit.PARTITIONED_PROGRAMS[original]
+        self.write("tests/run_tests.gd", 'extends SceneTree\nfunc _initialize():\n\tpreload("res://tools/program_suite_runner.gd").start()\n')
+        self.write(audit.PROGRAM_DISPATCHER, 'extends RefCounted\nstatic func start():\n\tpass\n')
+        self.write(original, 'extends SceneTree\nconst Suite = preload("res://tests/shared_suite.gd")\nfunc _initialize():\n\tSuite.run()\n')
+        self.write("tests/shared_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
+        for part in parts:
+            self.write(part, 'extends SceneTree\nconst Suite = preload("res://tests/shared_suite.gd")\nfunc _initialize():\n\tSuite.run()\n')
+        self.write(audit.PROGRAM_MANIFEST, json.dumps([{"path": part} for part in parts]))
+        self.assertEqual(self.rows()[original], "full suite")
+        for missing in parts:
+            with self.subTest(missing=missing):
+                self.write(audit.PROGRAM_MANIFEST, json.dumps([{"path": part} for part in parts if part != missing]))
+                self.assertEqual(self.rows()[original], "orphaned")
 
     def test_windowed_allowlist_is_exact_and_requires_a_reason(self):
         self.write("tests/pixels_test.gd", 'extends SceneTree\nfunc _initialize():\n\tawait RenderingServer.frame_post_draw\n')

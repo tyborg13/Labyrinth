@@ -33,10 +33,17 @@ EXTRACTED_PROGRAMS = [
     "suites/full_scene_clock_program",
     "suites/full_scene_choices_program", "suites/full_scene_interaction_program",
 ]
-MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test"]
+MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
+                   "suites/section_map_performance_program"]
 SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
 SPLIT_PROGRAMS = {
+    "forced_movement_query_equivalence_test": [
+        "suites/forced_movement_query_%s_program" % fixture
+        for fixture in ("open", "dense", "heart", "surface_ready", "blocked")
+    ],
+    "section_map_v5_test": ["suites/section_map_v5_program", "suites/section_map_legacy_hashes_0_program",
+                            "suites/section_map_legacy_hashes_1_program"],
     "encounter_tables_test": [
         "suites/encounter_rules_program", "suites/encounter_placement_0_program",
         "suites/encounter_placement_1_program", "suites/encounter_placement_summary_program",
@@ -116,12 +123,12 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         for path in ("tests/static_facing_program_suites.gd", "tests/helpers/program_sub_suites.gd"):
             source = (ROOT / path).read_text().split("const SUITES:", 1)[1].split("=", 1)[1].split("]", 1)[0]
             expected.extend(re.findall(r'"([a-z0-9_]+)"', source))
-        expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         expected.extend(EXTRACTED_PROGRAMS)
         expected.extend(MERGED_PROGRAMS)
         supplemental = json.loads(SUPPLEMENTAL_MANIFEST.read_text())
         self.assertEqual(len(supplemental), 116, "Preserve the accepted supplemental set")
         expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
+        expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)
         self.assertEqual(len(set(actual)), len(actual), "No child may be silently overwritten")
         for suite in EXTRACTED_PROGRAMS + [part for parts in SPLIT_PROGRAMS.values() for part in parts]:
@@ -137,7 +144,9 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                 self.assert_complete_manifest([name for name in runner.SUITES if name not in removed])
 
     def test_removing_any_supplemental_or_merged_program_fails_manifest_guard(self):
-        for name in [*MERGED_PROGRAMS, *runner.SUPPLEMENTAL_BY_NAME]:
+        names = [part for name in [*MERGED_PROGRAMS, *runner.SUPPLEMENTAL_BY_NAME]
+                 for part in SPLIT_PROGRAMS.get(name, [name])]
+        for name in names:
             with self.subTest(removed=name), self.assertRaises(AssertionError):
                 self.assert_complete_manifest([suite for suite in runner.SUITES if suite != name])
 
@@ -147,6 +156,16 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                 self.assertEqual(program["path"], "tests/" + name + ".gd")
                 self.assertTrue((ROOT / program["path"]).is_file())
                 self.assertIn(program.get("mode", "script"), ("script", "cutout_pack", "roster_pack", "capture_settings"))
+
+    def test_map_performance_regression_has_an_exclusive_program_slot(self):
+        self.assertIn("suites/section_map_performance_program", runner.SUITES)
+        map_source = (ROOT / "tests/suites/section_map_v5_suite.gd").read_text()
+        self.assertNotIn("section_map_performance_suite.gd", map_source,
+                         "Keep the slow-seed performance regression out of the map aggregate")
+        child = (ROOT / "tests/suites/section_map_performance_program.gd").read_text()
+        self.assertIn('preload("res://tests/suites/section_map_performance_suite.gd")', child)
+        self.assertIn('Suite.run(Callable(self, "_expect"))', child,
+                      "The separate child must retain the entire regression")
 
     def test_full_harness_waits_for_coroutine_tests_before_reporting(self):
         source = (ROOT / "tests/run_tests.gd").read_text()

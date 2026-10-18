@@ -5,6 +5,15 @@ import ast
 from pathlib import Path
 
 PARTITIONED_PROGRAMS = {
+    "tests/forced_movement_query_equivalence_test.gd": tuple(
+        "tests/suites/forced_movement_query_%s_program.gd" % fixture
+        for fixture in ("open", "dense", "heart", "surface_ready", "blocked")
+    ),
+    "tests/section_map_v5_test.gd": (
+        "tests/suites/section_map_v5_program.gd",
+        "tests/suites/section_map_legacy_hashes_0_program.gd",
+        "tests/suites/section_map_legacy_hashes_1_program.gd",
+    ),
     "tests/encounter_tables_test.gd": (
         "tests/suites/encounter_rules_program.gd",
         "tests/suites/encounter_placement_0_program.gd",
@@ -12,6 +21,12 @@ PARTITIONED_PROGRAMS = {
         "tests/suites/encounter_placement_summary_program.gd",
     ),
 }
+
+
+def program_paths(path: str) -> tuple[str, ...]:
+    return PARTITIONED_PROGRAMS.get(path, (path,))
+
+
 PYTHON_PROGRAMS = {"tests/program_suite_runner_test.gd": "tests/test_program_suite_runner.py"}
 
 

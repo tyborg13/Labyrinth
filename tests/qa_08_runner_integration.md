@@ -1,5 +1,7 @@
 # qa-08 shared-runner integration
 
+Historical feedback-2 report: committed by the design owner as `770837365`. Current follow-up evidence is in [qa_08_load_proof.md](qa_08_load_proof.md). References below to uncommitted work describe the original handoff.
+
 Base: design-owner merge `46a4f5209`. All changes in this feedback phase remain uncommitted. The earlier root-cause/audit work is in [qa_08_test_audit.md](qa_08_test_audit.md); this report supersedes its pending qa-07 integration status.
 
 ## 1. Registration and isolation

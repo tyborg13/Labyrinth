@@ -23,7 +23,7 @@ import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from program_suite_fixture import CAPTURE_VIDEO_QUALITY, PACK_TIMEOUT_SECONDS, fixture_stages
-from test_execution_sources import python_program_coverage, PARTITIONED_PROGRAMS
+from test_execution_sources import python_program_coverage, PARTITIONED_PROGRAMS, program_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 PROGRAM_MANIFEST = "tests/headless_test_programs.json"
@@ -65,7 +65,8 @@ def program_manifest(root: Path) -> list[dict]:
             if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "BASE_SUITES" for t in node.targets):
                 base = ast.literal_eval(node.value)
                 break
-    return [{"path": "tests/" + name + ".gd"} for name in base] + read_json(root, PROGRAM_MANIFEST, [])
+    programs = [{"path": "tests/" + name + ".gd"} for name in base] + read_json(root, PROGRAM_MANIFEST, [])
+    return [dict(program, path=part) for program in programs for part in program_paths(program["path"])]
 
 
 def source(root: Path, path: str) -> str:
@@ -153,7 +154,8 @@ def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[t
             path = alias_path(root, aliases, alias)
             if path.startswith("tests/") or path == PROGRAM_DISPATCHER:
                 pending.append((path, called_method))
-        if owner == "tests/suites/section_map_regression_suite.gd":
+        if owner in ("tests/suites/section_map_regression_suite.gd",
+                     "tests/suites/section_map_performance_suite.gd"):
             children = re.findall(r'_run_child\("([^"\n]+\.gd)"', body)
             pending += [("tests/" + child, "_initialize") for child in children]
             reached.update(("tests/" + child, "__program__") for child in children)
@@ -214,10 +216,14 @@ def audit(root: Path = ROOT) -> tuple[list[dict], list[str]]:
         elif (path, "__program__") in reached or any(
                 p == path and m.startswith("run") for p, m in reached):
             category, evidence = "full suite", "program" if path in direct else "called by full-suite execution graph"
+        elif path in PARTITIONED_PROGRAMS:
+            if all((part, "__program__") in reached for part in PARTITIONED_PROGRAMS[path]):
+                category, evidence = "full suite", "partitioned headless entrypoint: " + ", ".join(PARTITIONED_PROGRAMS[path])
+            else:
+                category, evidence = "orphaned", "partitioned entrypoint is missing a program"
+                errors.append(f"Unregistered headless test: {path}")
         elif wrapper:
             category, evidence = "full suite", "shared wrapper: " + ", ".join(wrapper)
-        elif path in PARTITIONED_PROGRAMS and all((part, "__program__") in reached for part in PARTITIONED_PROGRAMS[path]):
-            category, evidence = "full suite", "partitioned headless entrypoint: " + ", ".join(PARTITIONED_PROGRAMS[path])
         elif path in python_coverage:
             category, evidence = "full suite", python_coverage[path]
         elif path in quarantined:

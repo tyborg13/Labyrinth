@@ -16,7 +16,7 @@ var comparisons: int = 0
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var engine := CombatEngine.new()
-	for fixture_name: String in ["open", "dense", "heart", "surface_ready", "blocked"]:
+	for fixture_name: String in _fixture_names():
 		for variant: int in range(4):
 			var state: Dictionary = Fixture._fixture(engine, fixture_name)
 			if variant == 1:
@@ -45,6 +45,11 @@ func _initialize() -> void:
 			check(state == before, "Force queries must not change source actors, collisions, surfaces or history")
 	print("TEST RESULT: %s — %d forced-movement query comparisons (%d failures)" % ["PASS" if failures.is_empty() else "FAIL", comparisons, failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+func _fixture_names() -> Array[String]:
+	var names: Array[String]
+	names.assign(["open", "dense", "heart", "surface_ready", "blocked"])
+	return names
 
 func _compare(engine: CombatEngine, state: Dictionary, action: Dictionary) -> void:
 	var actual: Array[Vector2i] = engine.valid_targets_for_player_action(state, action)

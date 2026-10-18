@@ -16,6 +16,7 @@ import time
 
 from godot_task_runner import TIMEOUT_RETURN_CODE, slugify, terminate_windows_process_tree
 from windows_process_job import spawn_owned_process
+from test_execution_sources import program_paths
 
 
 # Keep the historical order, including the static-facing additions that ran first.
@@ -37,12 +38,15 @@ BASE_SUITES = (
     "suites/full_scene_clock_program",
     "suites/full_scene_choices_program", "suites/full_scene_interaction_program",
     "opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
+    "suites/section_map_performance_program",
 )
 SUPPLEMENTAL_MANIFEST = Path(__file__).resolve().parents[1] / "tests/headless_test_programs.json"
 SUPPLEMENTAL_PROGRAMS = json.loads(SUPPLEMENTAL_MANIFEST.read_text(encoding="utf-8"))
 SUPPLEMENTAL_BY_NAME = {program["path"].removeprefix("tests/").removesuffix(".gd"): program
                         for program in SUPPLEMENTAL_PROGRAMS}
-SUITES = BASE_SUITES + tuple(SUPPLEMENTAL_BY_NAME)
+SUITES = tuple(path.removeprefix("tests/").removesuffix(".gd")
+               for name in BASE_SUITES + tuple(SUPPLEMENTAL_BY_NAME)
+               for path in program_paths("tests/" + name + ".gd"))
 MAX_CHILDREN = min(6, max(1, (os.cpu_count() or 1) // 3))
 SUITE_TIMEOUT_SECONDS = 180.0
 PROGRAM_BUDGET_SECONDS = 900.0
