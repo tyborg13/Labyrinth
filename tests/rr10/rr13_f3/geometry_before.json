@@ -1,0 +1,11 @@
+{
+  "front/sleeve_near": "02865e900755484e7dc04fc74994d7e72d16d4ca74338c3566a12544c5481220",
+  "front/sleeve_far": "cf61f4e3b43ce093a0b055afe3500820a3019dde17fa3063da963b05010856ae",
+  "front/hidden_sleeve_far": "0fddb45c6fcfeb9bc4030f911bab964b54581fae392f23611377a1c565df0aa2",
+  "front/robe": "c6f96494767e9eaef88a78ffad8c796075bef8c59a9f1c1f06e8e4bbe952438d",
+  "front/hidden_robe": "e22a44c1006bbb75c77f8c13cd0359f7363c8e08a3d56c688785549fd53c736f",
+  "rear/sleeve_near": "d5c588dd6fd77d10f35592da27e6b9924f35cc7a1ad1d0cdd52a8d8a4c8f022f",
+  "rear/sleeve_far": "51631d15ad51b3d83f58859add674b23a16e05851d9789d8c42520cad681710d",
+  "rear/robe": "094e6c6a57454fc8ad3bc2c9200afefd57bfc6622cd19d81879b313248a81d77",
+  "rear/hidden_robe": "08f373dd2f8d9bf13368f5d80ac64dedf06074e1eb7ad92473b9142957c1a350"
+}

@@ -1,0 +1,409 @@
+ M assets/units/hoarfrost_seer_cutout/front.json
+ M assets/units/hoarfrost_seer_cutout/humanoid_v2/compiled_motion.json
+ M assets/units/hoarfrost_seer_cutout/humanoid_v2/front.json
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/head.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/head.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_head.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_head.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_robe.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_robe.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_sleeve_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_sleeve_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_staff.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_staff.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_torso.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_torso.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/staff.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/staff.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/torso.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/front/torso.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/head.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/head.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_head.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_head.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_robe.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_robe.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_far.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_far.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png.import
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png
+?? assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png.import
+ M assets/units/hoarfrost_seer_cutout/integration.json
+ M assets/units/hoarfrost_seer_cutout/rear.json
+ M assets/units/hoarfrost_seer_cutout/renderer.gd
+ M assets/units/hoarfrost_seer_cutout/rig.gd
+ M experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_foot_far.png
+ M experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_sleeve_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_sleeve_far.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_torso.png
+ M experiments/cutouts/hoarfrost_seer/rr10/checks/front/robe.png
+ M experiments/cutouts/hoarfrost_seer/rr10/checks/front/sleeve_far.png
+ M experiments/cutouts/hoarfrost_seer/rr10/checks/front/sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/foot_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_torso.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/sleeve_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/sleeve_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/sleeve_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/staff.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/staff.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/checks/rear/torso.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/compiled_motion.json
+ M experiments/cutouts/hoarfrost_seer/rr10/cutout.json
+?? experiments/cutouts/hoarfrost_seer/rr10/features/rear_ice_crystal.png
+?? experiments/cutouts/hoarfrost_seer/rr10/features/rear_ice_crystal.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/feedback5.md
+?? experiments/cutouts/hoarfrost_seer/rr10/feedback5_files.txt
+?? experiments/cutouts/hoarfrost_seer/rr10/holes/front_robe_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/holes/rear_00.png
+?? experiments/cutouts/hoarfrost_seer/rr10/holes/rear_00.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/holes/rear_01.png
+?? experiments/cutouts/hoarfrost_seer/rr10/holes/rear_01.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/holes/rear_robe_mesh.json
+ D experiments/cutouts/hoarfrost_seer/rr10/holes/robe_mesh.json
+ M experiments/cutouts/hoarfrost_seer/rr10/inputs.json
+?? experiments/cutouts/hoarfrost_seer/rr10/inputs/rope_mask_rear.png
+?? experiments/cutouts/hoarfrost_seer/rr10/inputs/rope_mask_rear.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json
+?? experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json
+?? experiments/cutouts/hoarfrost_seer/rr10/ownership/rear_rope_underlay.png
+?? experiments/cutouts/hoarfrost_seer/rr10/ownership/rear_rope_underlay.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_foot_far.png
+ M experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_sleeve_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_sleeve_far.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_torso.png
+ M experiments/cutouts/hoarfrost_seer/rr10/pieces/front/robe.png
+ M experiments/cutouts/hoarfrost_seer/rr10/pieces/front/sleeve_far.png
+ M experiments/cutouts/hoarfrost_seer/rr10/pieces/front/sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/foot_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_torso.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/sleeve_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/sleeve_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/sleeve_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/staff.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/staff.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/torso.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/proof/.gitignore
+ M experiments/cutouts/hoarfrost_seer/rr10/proof/build.json
+ M experiments/cutouts/hoarfrost_seer/rr10/proof/gates.json
+ M experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/derivation.json
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/layouts/rear.json
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/collar.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/collar.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/foot_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/fore_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/fore_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/fore_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/fore_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/skirt_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/skirt_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/skirt_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/skirt_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/staff_crystal.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/staff_crystal.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/staff_shaft.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/staff_shaft.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/torso.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/upper_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/upper_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/upper_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/upper_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_parts.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_parts.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_registration.json
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_collar.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_collar.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_foot_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_fore_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_fore_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_fore_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_fore_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_skirt_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_skirt_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_skirt_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_skirt_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_staff_crystal.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_staff_crystal.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_staff_shaft.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_staff_shaft.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_torso.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_upper_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_upper_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_upper_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_upper_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/processed.json
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/processed.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/processed.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/raw.png
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/raw.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/spec_native.json
+ M experiments/cutouts/hoarfrost_seer/rr10/seams/front_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/front_robe_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/front_sleeve_far_mesh.json
+ M experiments/cutouts/hoarfrost_seer/rr10/seams/front_sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/front_sleeve_near_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_robe_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_far_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_near_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_staff.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_staff.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/seams/rear_torso.png.import
+ D experiments/cutouts/hoarfrost_seer/rr10/seams/robe_mesh.json
+ D experiments/cutouts/hoarfrost_seer/rr10/seams/sleeve_far_mesh.json
+ D experiments/cutouts/hoarfrost_seer/rr10/seams/sleeve_near_mesh.json
+?? experiments/cutouts/hoarfrost_seer/rr10/source/rear/processed.json
+?? experiments/cutouts/hoarfrost_seer/rr10/source/rear/processed.png
+?? experiments/cutouts/hoarfrost_seer/rr10/source/rear/processed.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10/tucks/front_foot_far.png
+ M experiments/cutouts/hoarfrost_seer/rr10/tucks/front_foot_near.png
+ M experiments/cutouts/hoarfrost_seer/rr10/tucks/front_robe.png
+ M experiments/cutouts/hoarfrost_seer/rr10/tucks/front_sleeve_far.png
+ M experiments/cutouts/hoarfrost_seer/rr10/tucks/front_sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/front_torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/front_torso.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_foot_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_foot_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_foot_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_foot_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_hand_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_hand_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_hand_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_hand_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_head.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_head.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_robe.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_robe.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_sleeve_far.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_sleeve_far.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_sleeve_near.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_sleeve_near.png.import
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_torso.png
+?? experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_torso.png.import
+ M experiments/cutouts/hoarfrost_seer/rr10_build.py
+?? experiments/cutouts/hoarfrost_seer/rr10_density.py
+ M experiments/cutouts/hoarfrost_seer/rr10_gates.py
+?? experiments/cutouts/hoarfrost_seer/rr10_pack.sh
+ M experiments/cutouts/hoarfrost_seer/rr10_proof.sh
+ M scripts/actor_presentation.gd
+ M scripts/combat_board_view.gd
+ M scripts/maquette_cutout_runtime/action.gd
+ M scripts/maquette_cutout_runtime/portrait.gd
+ M scripts/maquette_cutout_runtime/presentation.gd
+ M spec/art_identity/registry.json
+ M spec/assets/board_pixel_density/outputs.json
+ M spec/assets/board_pixel_density/registry.json
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/head.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_head.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_robe.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_sleeve_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_staff.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_torso.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/staff.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/front/torso.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/head.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_head.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_robe.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_far.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png
+?? spec/assets/board_pixel_density/sources/assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png
+ M tests/rr07/runtime_test.gd
+ M tests/rr10/bindings.gd
+ M tests/rr10/candidate_scene.gd
+?? tests/rr10/density_rebake.gd
+?? tests/rr10/export_smoke.gd
+?? tests/rr10/feedback5/captures.json
+?? tests/rr10/feedback5/death_0083_owners.png
+?? tests/rr10/feedback5/death_0083_regression_tuck.png
+?? tests/rr10/feedback5/death_0083_rest_holes.png
+?? tests/rr10/feedback5/death_0083_seam.png
+?? tests/rr10/feedback5/mark_0019_owners.png
+?? tests/rr10/feedback5/mark_0019_regression_tuck.png
+?? tests/rr10/feedback5/mark_0019_rest_holes.png
+?? tests/rr10/feedback5/mark_0019_seam.png
+?? tests/rr10/feedback5/move_0017_owners.png
+?? tests/rr10/feedback5/move_0017_regression_tuck.png
+?? tests/rr10/feedback5/move_0017_rest_holes.png
+?? tests/rr10/feedback5/move_0017_seam.png
+?? tests/rr10/feedback5/ward_0019_owners.png
+?? tests/rr10/feedback5/ward_0019_regression_tuck.png
+?? tests/rr10/feedback5/ward_0019_rest_holes.png
+?? tests/rr10/feedback5/ward_0019_seam.png
+?? tests/rr10/humanoid_runtime_suite.gd
+?? tests/rr10/pack.gd
+ M tests/rr10/production_capture.gd
+ M tests/rr10/runtime_checks.gd
+ M tests/test_rr07_production.py
+ M tests/test_rr10_humanoid.py
+?? tests/test_rr10_rear.py
+ M tests/test_rr10_rope.py
+ M tests/test_rr10_tucks.py
+ M tools/humanoid_cutout/gates.py
+?? tools/humanoid_cutout/integration.py
+ M tools/humanoid_cutout/materials.py
+ M tools/humanoid_cutout/mesh.py
+?? tools/humanoid_cutout/production_gates.py
+?? tools/humanoid_cutout/promotion.py
+ M tools/humanoid_cutout/seams.py
+?? tools/humanoid_cutout/skin_layers.py
+?? tools/humanoid_cutout/source_view.py
+ M tools/humanoid_cutout/tucks.py

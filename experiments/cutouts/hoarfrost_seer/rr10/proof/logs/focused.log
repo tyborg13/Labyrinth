@@ -1,0 +1,22 @@
+test_actual_tuck_removal_and_feature_repaint_fail (test_rr10_humanoid.HumanoidTests) ... ok
+test_clean_piece_dark_slab_tuck_hole_and_silhouette_mutations (test_rr10_humanoid.HumanoidTests) ... ok
+test_exact_protected_copy_and_compilation (test_rr10_humanoid.HumanoidTests) ... ok
+test_forty_degree_staff_fails (test_rr10_humanoid.HumanoidTests) ... ok
+test_idle_pixel_gate_detects_single_bad_texel (test_rr10_humanoid.HumanoidTests) ... ok
+test_one_degree_idle_torso_rotation_fails (test_rr10_humanoid.HumanoidTests) ... ok
+test_real_production_callbacks_use_v2_and_exact_contacts (test_rr10_humanoid.HumanoidTests) ... ok
+test_rigid_native_agreement_rejects_changed_paint (test_rr10_humanoid.HumanoidTests) ... ok
+test_runtime_seed_portrait_units_and_native_input_bindings (test_rr10_humanoid.HumanoidTests) ... ok
+test_signed_key_and_midpoint_mutations_fail (test_rr10_humanoid.HumanoidTests) ... ok
+test_split_robe_fails (test_rr10_humanoid.HumanoidTests) ... ok
+test_structure_and_all_real_bones (test_rr10_humanoid.HumanoidTests) ... ok
+test_two_pixel_tuck_fails (test_rr10_humanoid.HumanoidTests) ... ok
+test_unpromoted_paint_stays_outside_registered_density_family (test_rr10_humanoid.HumanoidTests) ... ok
+test_ward_hem_translation_fails (test_rr10_humanoid.HumanoidTests) ... ok
+test_weights_top_hem_elbow_and_normalization (test_rr10_humanoid.HumanoidTests) ... ok
+test_world_step_and_release_floor_end (test_rr10_humanoid.HumanoidTests) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 39.704s
+
+OK

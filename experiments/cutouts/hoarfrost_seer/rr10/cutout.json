@@ -1,0 +1,81 @@
+{
+  "character_id": "hoarfrost_seer",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: the upper body drops 2 px and returns as one rigid piece; the staff arm and staff stay planted; robe and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.9,
+      "intents": [
+        "withdraw:move_away"
+      ],
+      "note": "a hunched hobble: four short shuffles per tile under the robe, the staff swung ahead and leaned on twice, a 1 px dip per shuffle",
+      "release_at": {}
+    },
+    "mark": {
+      "seconds": 1.3,
+      "contact": 0.72,
+      "intents": [
+        "icefall:icefall_mark"
+      ],
+      "note": "raises the staff straight up 26 px, upright, hood tipped back to listen, free hand lifted open; holds; then thrusts it forward and tips the crystal 30 degrees down the marked line (contact)",
+      "release_at": {}
+    },
+    "land": {
+      "seconds": 0.8,
+      "contact": 0.45,
+      "intents": [
+        "icefall_land:icefall_land"
+      ],
+      "note": "lifts the upright staff 12 px, then drives its butt straight down to the floor (contact) with a hunched lurch; the robe top jolts 1 px and settles",
+      "release_at": {}
+    },
+    "bolt": {
+      "seconds": 0.85,
+      "contact": 0.5,
+      "intents": [
+        "rime_bolt:ranged"
+      ],
+      "note": "a small wind-back, then the crystal tips 28 degrees at the target from the grip as the free hand flicks open toward it (contact); a 1 px recoil",
+      "release_at": {}
+    },
+    "ward": {
+      "seconds": 0.9,
+      "contact": 0.3,
+      "intents": [
+        "withdraw:block"
+      ],
+      "note": "pushes the staff out ahead as a barrier, braced slightly back, and hunches 2 px down and back behind it while the free hand pulls the mantle to the chest; holds, then eases back",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, robe top shifts 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.7,
+      "terminal": true,
+      "intents": [],
+      "note": "the staff slips from the grip at 0.2 and topples forward about its foot; the seer sinks 14 px into its robe and folds forward 20 degrees, hood bowed; the hem spreads 4 px each side; terminal pose held",
+      "release_at": {
+        "staff": 0.2
+      }
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

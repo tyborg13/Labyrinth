@@ -48,6 +48,8 @@ static func root_offset(data: Dictionary, clip: String, phase: float, direction:
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	var data: Dictionary = data_for(layout)
 	if clip == "rest" or not data.get("clips", {}).has(clip): return {}
+	if str(data.get("rig", "")) == "humanoid_v2":
+		return preload("humanoid_motion.gd").sample_pose(clip, phase, layout, facing)
 	var values: Dictionary = channels_at(data, clip, phase, facing, float(layout.get("step_distance_px", 0.0)))
 	var result: Dictionary = {}
 	var joints: Dictionary = layout["joints"]

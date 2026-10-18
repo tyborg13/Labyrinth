@@ -12,7 +12,8 @@ static func handles(type: String) -> bool:
 
 static func data_for(type: String) -> Dictionary:
 	if not handles(type): return {}
-	return Motion.data_for({"motion_data": "res://assets/units/" + str(Presentation.CREATURES[type]) + "_cutout/compiled_motion.json"})
+	var directory: String = Presentation.asset_directory(type)
+	return Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
 
 static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	var data: Dictionary = data_for(str(actor.get("type", "")))

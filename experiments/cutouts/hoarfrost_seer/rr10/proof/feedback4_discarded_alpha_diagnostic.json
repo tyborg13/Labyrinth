@@ -1,0 +1,1084 @@
+{
+  "ok": false,
+  "native_pixels": false,
+  "scope": "headless alpha topology only; no native mesh agreement or RGB oracle",
+  "poses": 629,
+  "distinct_poses": 444,
+  "failures": [
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.39,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.45,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.485,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.505,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.73,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 5,
+      "kind": "presented",
+      "phase": 0.0943396226415094,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 14,
+      "kind": "presented",
+      "phase": 0.264150943396226,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 21,
+      "kind": "presented",
+      "phase": 0.39622641509434,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 22,
+      "kind": "presented",
+      "phase": 0.415094339622642,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.452830188679245,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.471698113207547,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.509433962264151,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.528301886792453,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.660377358490566,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 39,
+      "kind": "presented",
+      "phase": 0.735849056603774,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 48,
+      "kind": "presented",
+      "phase": 0.905660377358491,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.220779220779221,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.233766233766234,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 19,
+      "kind": "presented",
+      "phase": 0.246753246753247,
+      "hole_sizes": [
+        3,
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 50,
+      "kind": "presented",
+      "phase": 0.649350649350649,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 53,
+      "kind": "presented",
+      "phase": 0.688311688311688,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "land",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.3,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "land",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.361702127659574,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.5,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.65,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.7,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 13,
+      "kind": "presented",
+      "phase": 0.26,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 14,
+      "kind": "presented",
+      "phase": 0.28,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 15,
+      "kind": "presented",
+      "phase": 0.3,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 23,
+      "kind": "presented",
+      "phase": 0.46,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.48,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.5,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.52,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.56,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.62,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.66,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.68,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "bolt",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.7,
+      "hole_sizes": [
+        4
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.15,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.3,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.525,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.75,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.875,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 8,
+      "kind": "presented",
+      "phase": 0.150943396226415,
+      "hole_sizes": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.169811320754717,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 11,
+      "kind": "presented",
+      "phase": 0.207547169811321,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 15,
+      "kind": "presented",
+      "phase": 0.283018867924528,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 16,
+      "kind": "presented",
+      "phase": 0.30188679245283,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 17,
+      "kind": "presented",
+      "phase": 0.320754716981132,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 18,
+      "kind": "presented",
+      "phase": 0.339622641509434,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 19,
+      "kind": "presented",
+      "phase": 0.358490566037736,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 20,
+      "kind": "presented",
+      "phase": 0.377358490566038,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 21,
+      "kind": "presented",
+      "phase": 0.39622641509434,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 22,
+      "kind": "presented",
+      "phase": 0.415094339622642,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 23,
+      "kind": "presented",
+      "phase": 0.433962264150943,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 24,
+      "kind": "presented",
+      "phase": 0.452830188679245,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 25,
+      "kind": "presented",
+      "phase": 0.471698113207547,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 26,
+      "kind": "presented",
+      "phase": 0.490566037735849,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.509433962264151,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.528301886792453,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 29,
+      "kind": "presented",
+      "phase": 0.547169811320755,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.566037735849057,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 31,
+      "kind": "presented",
+      "phase": 0.584905660377358,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 32,
+      "kind": "presented",
+      "phase": 0.60377358490566,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 33,
+      "kind": "presented",
+      "phase": 0.622641509433962,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 34,
+      "kind": "presented",
+      "phase": 0.641509433962264,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 35,
+      "kind": "presented",
+      "phase": 0.660377358490566,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 36,
+      "kind": "presented",
+      "phase": 0.679245283018868,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 37,
+      "kind": "presented",
+      "phase": 0.69811320754717,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 38,
+      "kind": "presented",
+      "phase": 0.716981132075472,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 39,
+      "kind": "presented",
+      "phase": 0.735849056603774,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 40,
+      "kind": "presented",
+      "phase": 0.754716981132076,
+      "hole_sizes": [
+        5,
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 44,
+      "kind": "presented",
+      "phase": 0.830188679245283,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 45,
+      "kind": "presented",
+      "phase": 0.849056603773585,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "ward",
+      "frame": 46,
+      "kind": "presented",
+      "phase": 0.867924528301887,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.09,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.1,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.125,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.25,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.39,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": -1,
+      "kind": "authored",
+      "phase": 0.4,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 3,
+      "kind": "presented",
+      "phase": 0.103448275862069,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 4,
+      "kind": "presented",
+      "phase": 0.137931034482759,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 8,
+      "kind": "presented",
+      "phase": 0.275862068965517,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 9,
+      "kind": "presented",
+      "phase": 0.310344827586207,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 10,
+      "kind": "presented",
+      "phase": 0.344827586206897,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 27,
+      "kind": "presented",
+      "phase": 0.267326732673267,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 28,
+      "kind": "presented",
+      "phase": 0.277227722772277,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 29,
+      "kind": "presented",
+      "phase": 0.287128712871287,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 30,
+      "kind": "presented",
+      "phase": 0.297029702970297,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 83,
+      "kind": "presented",
+      "phase": 0.821782178217822,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 84,
+      "kind": "presented",
+      "phase": 0.831683168316832,
+      "hole_sizes": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 87,
+      "kind": "presented",
+      "phase": 0.861386138613861,
+      "hole_sizes": [
+        2
+      ]
+    }
+  ],
+  "errors": [],
+  "inputs": {
+    "compiled_motion.json": "6ffa2aa81e03e7c9b1f7cecf17a3a7cf35f565aef1e806c4babf8293cfe69dd4",
+    "inputs.json": "017592fac4fd10866803597cbcb427af664048d99ad3449b6cb98a658be9d754",
+    "director_motion.json": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
+    "cutout.json": "cef46359adb49d4daf174f9c5e2232d25cc446388afd9f81e73eb4d9c927c00c",
+    "tucks/front_head.png": "365717dbe85611d39c70283c27824bba06c3c1e420e0341df54035cc71f7f22c",
+    "tucks/front_robe.png": "3d9df850abfdcf31b0f86e41a48762c673b99862744467499699399f918cdb90",
+    "tucks/front_hand_far.png": "561165c5498e6e01c4cb6b591079de7d7fd2bf669b17cb92c8fe241f78147626",
+    "tucks/front_sleeve_near.png": "a38f47e5f041befb480f8ec6e7b6fab5bf0c4310f4ad51acc734102a96556210",
+    "tucks/front_sleeve_far.png": "bb9e62c3342836a3efc65966e93a4a0c3fd58e0048346700d2052b89d1727779",
+    "tucks/front_hand_near.png": "a8bb0cfd68cd7ad4c3c8398c3e343806f0b396e2c2847b764bebf682efc4ca5e",
+    "tucks/front_foot_far.png": "d6ece5a5de25a42ccc6fa11264dc56c57e8c3bef3e6d0348f9dba3d14ee6e90b",
+    "tucks/front_foot_near.png": "9690a642561d0d913b8a04e0f138ce87d25570edb415a2a05bf15b6410122032",
+    "checks/front/foot_near.png": "8bbde4e86ad73fd75be3ee7922f7107fd439f802e6d36a1ca1b38a031b8c215e",
+    "checks/front/hidden_foot_near.png": "55a8360bfef5d39a5a44f22eac4c40e23c9138085640bdeaabc1a68899ffeee3",
+    "checks/front/sleeve_near.png": "b4ebc5b8e7da87d0dd44669c055c0278b3eab01b7bd960c5d528033b55a4889e",
+    "checks/front/hidden_torso.png": "89cff5e31ce6668a5d1902261d582ff4a07f48333c332a2e31477e2f0ef82d52",
+    "checks/front/hidden_staff.png": "3609a80043bf68da4bd6324ea38d45f062edcfcef510a0902cb925af01976289",
+    "checks/front/hidden_foot_far.png": "ff4b8346e44125a4fe6ea8c6ff982f82632fedd0454787adec57efcf8f243af2",
+    "checks/front/hand_far.png": "a3dff787cf55c864e6d690994a086b4414a1fab3205bd892a46ea5915436ce4f",
+    "checks/front/hand_near.png": "0fe0e4f21826690dabf85056ce0fdb4b613be03cd6404ce08b0c229bde7ece1c",
+    "checks/front/foot_far.png": "209541cdd9093bf77658c4f6cbf7f960cf872ab2d55a1f92bf75b47de5268ea0",
+    "checks/front/head.png": "0296e953f76acba8f1b374fb1ecfcfaa65448df7e70797b3c84c9a5013a4e01b",
+    "checks/front/hidden_hand_far.png": "d0417ea128f149b5e356883d7278a923c5b7cc2336acf0fb17b559bac9d408d6",
+    "checks/front/robe.png": "e87f95128e06e6086dee4d9c6437e0151d54bcd66fddb0d93844b037070657e9",
+    "checks/front/hidden_head.png": "6022807388b974f027bb2f3c9f1b16175db49f62e40e11bb51a11c9e39819f53",
+    "checks/front/torso.png": "70b321d1b8b61806eca1ca6baeefccd850cbfc7ccf700836cd6133329ad80172",
+    "checks/front/sleeve_far.png": "e222064d0df6ed728b25c525b96e198e18866a814995a6cb76377c1c273618e2",
+    "checks/front/hidden_hand_near.png": "c334ed63061669d562cec6325fb7ce3cd7378e80099d3d60caf9ddf33e229a81",
+    "checks/front/staff.png": "f2914c95d2c4c5a8eb3775c0d8a9c449e77b332f03b40babc06fc39b8c1a8879",
+    "source/front/processed.json": "6324e76da446693ea28b15396b48fcd134df1c71d8b72b3888a05de65a34f4f1",
+    "source/front/processed.png": "50cb831186da2ae47833f9a8133c65b7b637890a2db3440a779f5e8925b7d528",
+    "features/front_ice_crystal.png": "8f7a8b8a66ca3a7c886213f4838abd410e6d44eede5f381bccc15fc1b24f5810",
+    "pieces/front/foot_near.png": "d9227a34299fa9920498d5fa15007dd66ca8a561fdb5aa90cef802540c1bc4cb",
+    "pieces/front/hidden_foot_near.png": "7612b4dc92989dc88177a6660a7bbe4771f93cc985b949be6705754c88d8de83",
+    "pieces/front/sleeve_near.png": "3d71e47f324291642f759db1b8694ff4f798dde39cbd2b10a9a979b0ba5d90d6",
+    "pieces/front/hidden_torso.png": "cffdb90f47bc3869b337c471fb0a871936319f7ea7e3d15757b5601eab255af3",
+    "pieces/front/hidden_staff.png": "f45ad1570cba630d17a61371d17ef76f0161bd39461a330bd3a05ac05d0470b6",
+    "pieces/front/hidden_foot_far.png": "995b73db6373ef03c7da21fc53b3ad892e24def14e75fb2c15e06c63f39e20be",
+    "pieces/front/hand_far.png": "b28e099d9c416aa6bbd08155d04211073fef3d0ffcf81de0dbc0f673c11dcbc0",
+    "pieces/front/hand_near.png": "1bb6969bf5a7afa7ad58cb4ff6a31a07d1bfef8fc781142459d7b05b8256a198",
+    "pieces/front/foot_far.png": "79c88b96e284ed29f60ec3d2f3a0e5c9a5ecf18024b29fea3c948dca7ddc7214",
+    "pieces/front/head.png": "6874065a39761cb849f588198cd4b7a0f1a02302ca7c0145e243f2b00076bd55",
+    "pieces/front/hidden_hand_far.png": "8363958c565200ea8556d30698e14d9c5b16c0065acf21b5c01cee7b6a4df5af",
+    "pieces/front/robe.png": "7a76f1b8f53950c852b566890e0f6cd02d23737dda882fba6df44e5215de2e45",
+    "pieces/front/hidden_head.png": "038fc5489f4081a7cd3bbc00e94fc202cd5d26f18ddc81e5df53afaa15017b4c",
+    "pieces/front/torso.png": "eb76de6b573f68d6e29efce11daf11ac875bedabc9662ffa48a11377b49f3f1e",
+    "pieces/front/sleeve_far.png": "34581db83c91b0414bf9466f0ec1a0a798e038669daf046d734fe139cab7b9dd",
+    "pieces/front/hidden_hand_near.png": "4408db4845058aa9541f3c0919c887c4660828d52897a09c7405ac5c2ceae110",
+    "pieces/front/staff.png": "6aa3d98abd0a97c54269e76603db821e2c7db326eec3441964b3f6561a344836",
+    "ownership/front_rope_underlay.png": "6f8f5fbbfee0df21b2b9a40a1ebe47efa51a6c49d1e17e9b61804b1b95f8a40f",
+    "holes/robe_mesh.json": "7b0eade1e2b61b0a122183c80a4a5ca21fc02fa0d96cf0fa86da38c867060c42",
+    "holes/front_01.png": "f3f1fb062704cc70abed25fd0a119f943209497812a710f47b7ef083de4e21d6",
+    "holes/front_00.png": "0f63cda0ba8ad5e1e19be1da0d39c12442fab53aa4ef05855d5ceba04c0195b5",
+    "holes/front_02.png": "ab7dcd4827f0343cea0e3fdf1cd746b55244016371005ce073d403d5929c038d",
+    "holes/front_03.png": "6572f5b20a213f476a836a7ec9d0e6d30d77fe622d33c632f9024a0c6dac94e2",
+    "holes/front_06.png": "072cfbdb9910abaf94f0fed5f6e6f877d7207111cf494ce26025c509a9f747f5",
+    "holes/front_04.png": "f6d5466f1d581b40d82f79a184335c5d520b7c68529829199e318a2c2f8545e8",
+    "holes/front_05.png": "1c8054379fb54e12f1cf1904898a867adfc0108c1c95cf11634ae4722c7f1552",
+    "seams/robe_mesh.json": "66275abe04942e745d00f52ecc36eea669c9b2974ae7b388835bdfa25d688b12",
+    "seams/front_head.png": "ed217f825346c9f2ec4a927e9ab15954cc2150596974441259e9192d87dc1a0d",
+    "seams/sleeve_far_mesh.json": "12a25224617901379aef64be01608952bfcfd4d1a080669d5d68e1f944140ce0",
+    "seams/front_robe.png": "8f83ab7722233be018c16e9aa549c043d12c5ba94d73a8497b480c393e9581e7",
+    "seams/front_hand_far.png": "23a427cb546a3f45dd842c9ce5a2a1333043d469c264ad4ec46dd6d8a9a5e8fa",
+    "seams/front_sleeve_near.png": "ad6f1735e7b3f9dd630d9b5e7bccfafd3d4ebb86b1fd3109d52ae688f12d641f",
+    "seams/front_sleeve_far.png": "0a1ab40439effbf79d761936a35b7c584bab7f6cbf187ce8200f0ea533c2bd51",
+    "seams/front_hand_near.png": "88a0a959f940d958f9077590e97f8b3063019b86db9c78f4be35b8cb1f209249",
+    "seams/front_staff.png": "9a5011346505d4505875b5a06436d8197b636b9dbb183327b50575c0d5a2352e",
+    "seams/front_torso.png": "753020b154f86bbc7f1452c6f7eeb18b96511f305c78ecc85dfa5bf50a076359",
+    "seams/front_foot_far.png": "75c4b4d62d9a7044f695886b9df417e463ea5748dcc2bbafba80d94fae5dc590",
+    "seams/front_foot_near.png": "d08a25b8762e97100b38eb0933c3e5d7be108483f0a2b7bb78892f89f95c6101",
+    "seams/sleeve_near_mesh.json": "a2f9fd81da524fa77b9945537441a7d75bf6b253b8702fccda90aeff5549e826",
+    "layouts/front.json": "d7a41e25e07b732cf37889b7b1e293ea94fb96b1d80b7af4f3965a695c243e8d",
+    "inputs/rope_mask_front.png": "26bc001a33b23ba21dada83c27e8c0e1d7fd21eb067e7b5ded4329509595444c",
+    "runtime:tools/humanoid_cutout/ownership.py": "48fc432ade2a6a8e2935ca6a35d5428488e77292b6af77b00add6d1193714cc2",
+    "runtime:tools/humanoid_cutout/compiler.py": "bc0022ed28b2edc46060014355afd853661a1f6d3d79e1824d1a3ea97d209d44",
+    "runtime:tools/humanoid_cutout/tucks.py": "ca613b631bf5253bc58befa8fc90f8b95da76d89c07e0a7a727e3f3c4831b380",
+    "runtime:tools/humanoid_cutout/materials.py": "319dd04937f3ef9ad2ce2a7db2016a9b3a36443404b92235e492a51ea1c6f90e",
+    "runtime:tools/humanoid_cutout/__init__.py": "409f3db8566bc3cb983f82ae989c9d2ca91ac718d3f6ad593dd191c5d9b3fe09",
+    "runtime:tools/humanoid_cutout/gates.py": "dbadff881a6eb45ca02af64231eeb362c7df75613f7e8abd63bbf9d6eda9e58f",
+    "runtime:tools/humanoid_cutout/coverage.py": "f89b938c778a95cbefac0fbbcc24e2ff734a59d460cdf92028302b16df85e937",
+    "runtime:tools/humanoid_cutout/mesh.py": "348611c53fb6d0621cbfa5795f68053e9e151e8910f3146bb08dab1fc67d79c8",
+    "runtime:tools/humanoid_cutout/silhouette_gates.py": "0526a92a6dd6f53aeb8d00512a91e9693b2ab75aab5e8aec60c081c6e96c4d9c",
+    "runtime:tools/humanoid_cutout/seams.py": "99536c69beb8d4fced968d6966cd407503a224f17b6e1458d534aa1b646a085b",
+    "runtime:tools/humanoid_cutout/proof.py": "6e9756b60fe9875ba4f10abe4d30c88c54f1ab8b608189b21d86c3feaa511e72",
+    "runtime:scripts/maquette_cutout_runtime/humanoid_presentation.gd": "8ed520c0600da24cff3b27f0394d3463e95f62e628f51d1869e58b18e1a75793",
+    "runtime:scripts/maquette_cutout_runtime/presentation.gd": "3d01d7b7921efeac21de9656887b42446d71f4bd99ec70cd3ef9198e49d1d055",
+    "runtime:scripts/maquette_cutout_runtime/motion.gd": "497906af9b46463e17cc4357345b46cc53035d1ab1b7976baac6ef1d79617c81",
+    "runtime:scripts/maquette_cutout_runtime/humanoid_renderer.gd": "01a2090ebcdf052cf8dd6cd1df8b72984ed7b0fba8a3169c9e8bd6ed3611a38c",
+    "runtime:scripts/maquette_cutout_runtime/humanoid_motion.gd": "fd8d9d1f3b937e62d3eb0932452fef908c15bae32c616685ffceeccda1dd05d7",
+    "runtime:scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd": "1e6826864a42d736b6a78b0ba17511513328975ae3a8190c7114044d26777c42",
+    "runtime:scripts/maquette_cutout_runtime/portrait.gd": "dd8f0c440048bbf8ca779246256a1a01af493407671fedd97ff465d18f24bca3",
+    "runtime:scripts/maquette_cutout_runtime/lightning_wisp_rig.gd": "d5406aea2f31b170f9ccfde99b57408e20eff60c6df153f3ef6304e7e6d79618",
+    "runtime:scripts/maquette_cutout_runtime/pixel_presentation.gd": "076f4bbcdff8b40137b8c449fdade3abbb2e2354b7a25daebdcb36ca2dac58bf",
+    "runtime:scripts/maquette_cutout_runtime/rig.gd": "e1dba9a212958d8aa8aecfb077c3352a481c3262c5c05636da706be076c61ceb",
+    "runtime:scripts/maquette_cutout_runtime/action.gd": "c71d091c46c7866d534f346da382e264f42e3142a3327a488c2d102a762c71fb",
+    "runtime:scripts/maquette_cutout_runtime/renderer.gd": "05267989075809a1fc005fc00aec95ba1f52f202f568adcf5ed677eacf594321",
+    "runtime:scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd": "43532624f65f63a5f93ef3eac7b0bb1d23ff999cb23c579a46d29b9c33d8f43c",
+    "runtime:scripts/maquette_cutout_runtime/shale_bloomer_rig.gd": "a20fafcf49c7422a67458f65f9bf3103240187dec1ae190ed2441a3ca594a26f",
+    "runtime:tests/rr10/bindings.gd": "acbc3beaa67e0c943cfa53306938dee901904b6b89a1fe89f3e8547e1e048929",
+    "runtime:tests/rr10/board_scales.gd": "250991dff4a6aa4f83e8af51050de77715e1c52715ca4711bee792800084c68d",
+    "runtime:tests/rr10/samples.gd": "ca56da84bf3d9a73d897aea13729125295245a7024b4947da9f4fc5846faa8a2",
+    "runtime:tests/rr10/native_capture.gd": "c0a450d5cc515c5199d1b869d0086e4471925cd451635edcb0c02cf2cb42583e",
+    "runtime:tests/rr10/production_contract.json": "8d367f649845af08cac87554032a87116bd07d360e27fe1a483359db9925724a",
+    "runtime:tests/rr10/idle_contract.json": "14452ef725bdd099dc28ff9dcb462da58fc4842b22e7040f3430dd0b12ab3958",
+    "runtime:tests/rr10/render_contract.json": "90158dc7a0d72cbbfe7a83801ec563724904d14045c22119c02776b9cb9b603c",
+    "runtime:tests/rr10/production_capture.gd": "04654bb348024fb7b56353c66aab83991f80cb06c9726238eb1cbac762d30e0c",
+    "runtime:tests/rr10/rest_contract.json": "cc9a54626e01ae83f61955bcdcacaf77a9fb0d3688dbfc1b3feca2d08756a83e",
+    "runtime:tests/rr10/capture_contract.gd": "da931b69db3d0211b210f514b530e36b9e4f7ab15ad5b6387c45d3cb979517e9",
+    "runtime:tests/rr10/candidate_scene.gd": "159186cdae6ce9b4babafff06377077b2ccafab569184903d50baffb69ef0042",
+    "runtime:tests/rr10/runtime_checks.gd": "87f9be4101ff42cf329a490a38d6ce5f86eb1318013af2e977285a5583675c32",
+    "runtime:tests/rr10/candidate_renderer.gd": "edb31bccbe136cfbfd43673275dbcb58a9092cc135764bf04445cebc3c4d943f",
+    "runtime:tests/rr10/feedback3/capture.json": "9b079bdfc7d53782c935c36b11f8e5bb32398201c2a4168a28030fe4d0471f1a",
+    "runtime:tests/rr10/feedback1/captures.json": "a2212d59c4fcb13cd5c13675125e014a965b6b908d7d464bf92d08dbf21dd7e2",
+    "runtime:tests/rr10/feedback1/approved_idle.json": "1b297e48a0a5cb07aa21170534de4e818e552422516a2883c48cde3e8911f672"
+  },
+  "accepted": false,
+  "discarded_reason": "Exploratory CPU mesh alpha raster removed: prohibited as a substitute for native mesh pixels; sampling flags are not renderer evidence."
+}

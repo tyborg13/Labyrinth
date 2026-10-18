@@ -1,0 +1,16 @@
+{
+  "kind": "source-pixel diagnostic; not a renderer capture",
+  "source_crop_px": [
+    115,
+    125,
+    170,
+    180
+  ],
+  "zoom_nearest": 6,
+  "columns": [
+    "approved painting",
+    "inherited torso ownership",
+    "inherited robe ownership"
+  ],
+  "resolved_by": "inputs/rope_mask_front.png"
+}

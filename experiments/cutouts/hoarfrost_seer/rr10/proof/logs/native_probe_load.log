@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-10
+  run: rr-10-1792326189104369000-35888
+  HOME: /private/tmp/labyrinth-godot-home/rr-10-1792326189104369000-35888
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-10-1792326189104369000-35888/godot.log --headless --path . --script tests/rr10/native_capture.gd -- --output /private/tmp/rr10-validate --validate-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR10 NATIVE PROBE LOAD: PASS

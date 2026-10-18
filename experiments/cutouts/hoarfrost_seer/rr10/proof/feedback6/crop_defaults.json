@@ -1,0 +1,16 @@
+{
+  "DEBUG_FEET_CROP_XYXY": [
+    50,
+    210,
+    165,
+    252
+  ],
+  "DEBUG_FEET_ZOOM": 6,
+  "DEBUG_DONOR_CROP_XYXY": [
+    60,
+    210,
+    95,
+    240
+  ],
+  "DEBUG_DONOR_ZOOM": 8
+}

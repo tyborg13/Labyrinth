@@ -1,0 +1,9 @@
+{
+  "compiled_motion_byte_identical": true,
+  "bone_pose_mismatches": 0,
+  "poses": 629,
+  "idle_poses": 59,
+  "reference_commit": "a65f89a25d00ccb29c35189e0f1d8dd3b7ff76b2",
+  "protected_mask_sha256": "26bc001a33b23ba21dada83c27e8c0e1d7fd21eb067e7b5ded4329509595444c",
+  "protected_mask_byte_identical": true
+}

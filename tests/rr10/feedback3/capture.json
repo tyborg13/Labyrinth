@@ -1,0 +1,76 @@
+{
+  "source_commit": "5abe9b561",
+  "native_manifest_sha256": "fad9a3440064ae77fe841717357f3eb61a3ba499aa816f8d023b2dcbe96a5a4e",
+  "files": {
+    "sleeve_far.png": {
+      "source": "pieces/idle/0000/front/sleeve_far.png",
+      "sha256": "91b2900feba52d517221f8f0d178d2c2759ad02d6945f1f1ce1948e58ab4af8b"
+    },
+    "elbow_seam.png": {
+      "source": "seams/idle/0000/front/JointSeam_sleeve_far.png",
+      "sha256": "a3728ba0ca52221d34eb9f93cb146e85c925ea8e1636c1011ad8646d8f54727d"
+    }
+  },
+  "bones": {
+    "upper_far": {
+      "global": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        112.0,
+        120.0
+      ],
+      "local": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        -33.5,
+        -28.0
+      ]
+    },
+    "fore_far": {
+      "global": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        99.0,
+        145.0
+      ],
+      "local": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        -13.0,
+        25.0
+      ]
+    },
+    "hand_far": {
+      "global": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        83.5,
+        139.0
+      ],
+      "local": [
+        1.0,
+        0.0,
+        0.0,
+        1.0,
+        -15.5,
+        -6.0
+      ]
+    }
+  },
+  "source_offset": 128,
+  "elbow_gap_centre": [
+    227,
+    273
+  ],
+  "elbow_gap_width_px": 3
+}

@@ -19,6 +19,9 @@ func apply_pose(clip_name: String, phase_value: float) -> void:
 	layout["motion_data"] = base_path().path_join("compiled_motion.json")
 	var data: Dictionary = SemanticMotion.data_for(layout)
 	apply_authored_pose(clip_name, Pixels.phase_for(data, clip_name, phase_value))
+	if str(data.get("rig", "")) == "humanoid_v2":
+		preload("humanoid_presentation.gd").apply(self, clip_name)
+		return
 	Pixels.apply(self)
 
 ## Diagnostic oracle entry point; never used by production playback. Retain the

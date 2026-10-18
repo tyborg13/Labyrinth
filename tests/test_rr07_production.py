@@ -1,5 +1,6 @@
 """Real RunScene callbacks, plus frozen/contact/coverage mutations for rr-07."""
 import copy
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,6 +14,7 @@ from rr07_prepare import case_for
 from maquette_motion.gates import production_errors
 
 PROOF_TIMEOUT_SECONDS = 180
+PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-13')
 
 
 class ProductionTests(unittest.TestCase):
@@ -22,8 +24,9 @@ class ProductionTests(unittest.TestCase):
         cls.reports = {}
         for creature in CREATURES:
             output = Path(cls.temporary.name) / creature
-            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-07', '--stream',
-                       '--', 'godot', '--headless', '--path', '.', '--script', 'tests/rr07/production_capture.gd',
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream',
+                       '--', 'godot', '--headless', '--path', '.', '--script',
+                       'tests/rr10/production_capture.gd' if creature=='hoarfrost_seer' else 'tests/rr07/production_capture.gd',
                        '--', '--type', creature, '--output', str(output), '--logic-only']
             process = subprocess.run(command, cwd=PROJECT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)
             if process.returncode:
@@ -35,6 +38,10 @@ class ProductionTests(unittest.TestCase):
         cls.temporary.cleanup()
 
     def errors(self, creature, report):
+        if creature=='hoarfrost_seer':
+            from humanoid_cutout.production_gates import production_errors as humanoid_errors
+            case=PROJECT/'experiments/cutouts/hoarfrost_seer/rr10'
+            return humanoid_errors(case,report,read_json(case/'compiled_motion.json'))
         return production_errors(report, read_json(case_for(creature) / 'compiled_motion.json'))
 
     def test_real_callbacks_have_six_changing_frames_and_contact(self):
@@ -48,7 +55,8 @@ class ProductionTests(unittest.TestCase):
             mutant = copy.deepcopy(report)
             for row in mutant['frames']:
                 if row['stage'] == 'idle': row['pose_sha256'] = 'frozen'
-            self.assertIn('idle: fewer than six changing bone poses', self.errors(creature, mutant))
+            word='three' if creature=='hoarfrost_seer' else 'six'
+            self.assertIn('idle: fewer than '+word+' changing bone poses', self.errors(creature, mutant))
 
     def test_removed_contact_and_missing_action_are_rejected(self):
         for creature, report in self.reports.items():

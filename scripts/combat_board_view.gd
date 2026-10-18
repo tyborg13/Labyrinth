@@ -14717,9 +14717,9 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	_unit_assets_loaded[unit_type] = true
 	if MaquettePresentation.handles(unit_type):
-		var creature: String = str(MaquettePresentation.CREATURES[unit_type])
-		_unit_textures[unit_type] = AssetLoader.load_texture_source_first("res://assets/units/" + creature + "_cutout/front/rest.png")
-		_unit_rear_textures[unit_type] = AssetLoader.load_texture_source_first("res://assets/units/" + creature + "_cutout/rear/rest.png")
+		var directory: String = MaquettePresentation.asset_directory(unit_type)
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(directory.path_join("front/rest.png"))
+		_unit_rear_textures[unit_type] = AssetLoader.load_texture_source_first(directory.path_join("rear/rest.png"))
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	var art_path: String = ""

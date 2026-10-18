@@ -491,12 +491,12 @@
       "reason": "Feature ownership mask; metadata, never drawn"
     },
     "assets/units/hoarfrost_seer_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+      "category": "never_drawn",
+      "reason": "Retained rr-07 Seer rest; humanoid_v2 replaces its production board and UI registration."
     },
     "assets/units/hoarfrost_seer_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+      "category": "never_drawn",
+      "reason": "Retained rr-07 Seer rest; humanoid_v2 replaces its production board and UI registration."
     },
     "assets/units/burrow_grub_cutout/features/front_maw_tooth_ring.png": {
       "category": "never_drawn",
@@ -577,6 +577,14 @@
     "assets/units/ember_tick_cutout/front/rest.png": {
       "category": "other",
       "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png": {
+      "category": "other",
+      "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
     }
   },
   "entries": [
@@ -4911,6 +4919,42 @@
         "assets/units/hoarfrost_seer_cutout/hidden/rear/torso.png",
         "assets/units/hoarfrost_seer_cutout/hidden/rear/upper_far.png",
         "assets/units/hoarfrost_seer_cutout/hidden/rear/upper_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/head.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_head.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_robe.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_sleeve_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_staff.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_torso.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/staff.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/torso.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/head.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_head.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_robe.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_far.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png",
+        "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png",
         "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png",
         "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_upper_far.png",
         "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_torso.png",
@@ -5023,28 +5067,32 @@
       },
       "facings": {
         "front": {
-          "measurement_path": "assets/units/hoarfrost_seer_cutout/front/rest.png",
+          "measurement_path": "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png",
           "orphan_share": 0.028741999015263416,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"
         },
         "rear": {
-          "measurement_path": "assets/units/hoarfrost_seer_cutout/rear/rest.png",
-          "orphan_share": 0.0603989242492156,
-          "t": 1.051994621246078,
-          "grid": 1.05,
+          "measurement_path": "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png",
+          "orphan_share": 0.045354667868612315,
+          "t": 1.0,
+          "grid": 1.0,
           "mode": "clean"
         }
       },
       "rest_paths": {
         "front": [
-          "assets/units/hoarfrost_seer_cutout/front/rest.png"
+          "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png"
         ],
         "rear": [
-          "assets/units/hoarfrost_seer_cutout/rear/rest.png"
+          "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png"
         ]
-      }
+      },
+      "preserved_rest_paths": [
+        "assets/units/hoarfrost_seer_cutout/front/rest.png",
+        "assets/units/hoarfrost_seer_cutout/rear/rest.png"
+      ]
     },
     {
       "id": "burrow_grub_cutout",
