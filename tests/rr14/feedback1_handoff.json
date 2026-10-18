@@ -1,0 +1,427 @@
+{
+  "task_id": "rr-14",
+  "feedback_round": 1,
+  "parent_commit": "fcae304f3243b3f064bf938a875b9a18c621b02a",
+  "branch": "codex/rr-14",
+  "committed": false,
+  "files_changed": [
+    "experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json",
+    "experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json",
+    "scripts/maquette_cutout_runtime/humanoid_anatomy.gd",
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "tests/rr14/attachment_checks.gd",
+    "tests/rr14/feedback1_handoff.json",
+    "tests/rr14/fixture.py",
+    "tests/rr14/knee_policy_checks.gd",
+    "tests/rr14/mutations.py",
+    "tests/rr14/runtime_checks.gd",
+    "tests/test_rr14_anatomy.py",
+    "tests/test_rr14_bone_guards.py",
+    "tests/test_rr14_foundations.py",
+    "tools/humanoid_cutout/anatomy.py",
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/bone_contracts.py",
+    "tools/humanoid_cutout/compiler.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/schema.py"
+  ],
+  "requirements": [
+    {
+      "number": 1,
+      "status": "met",
+      "implementation": "Anatomy legs.<side>.<view>.bend_side is copied to compiled motion only when declared. Straight rest legs require it; bent legs retain the normalized rest-derived side and reject conflicting authored data. Front/rear fixture knees bend screen-left/screen-right. Compiler and runtime reject missing/conflicting policies."
+    },
+    {
+      "number": 2,
+      "status": "met",
+      "implementation": "Authored local transforms are saved during FK, then propagated in parent-before-child order after IK and after each final held-item transform. Keyed child translation/rotation, grandchild transforms and children preceding parents in JSON have headless regressions."
+    },
+    {
+      "number": 3,
+      "status": "met",
+      "implementation": "Loaded and embedded anatomy share dependency-free validation of the checked-in JSON schema. Structured objects are closed, grip is required and null represents no grip. Both cases validate; misspelled keys, versions, types, sizes, enums and recipe omissions fail."
+    },
+    {
+      "number": 4,
+      "status": "met",
+      "implementation": "Full bone evidence negative fixtures reflect a knee without changing lengths or target, or move its target while preserving lengths and bend side. Each asserts one exact error. Removing either bone check is caught by mutation."
+    }
+  ],
+  "proofs": [
+    {
+      "name": "focused tests",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && LABYRINTH_TASK_ID=rr-14 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s tests -p 'test_rr1[0-4]*.py' -v",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/focused-final.log",
+      "result_lines": [
+        "Ran 109 tests in 123.186s",
+        "OK",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-5o0skayq/sheets)",
+        "RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)"
+      ]
+    },
+    {
+      "name": "compatibility tests",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && LABYRINTH_TASK_ID=rr-14 PYTHONDONTWRITEBYTECODE=1 python3 -m unittest tests.test_rr07_production tests.test_maquette_rear_turn -v",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/compatibility-final.log",
+      "result_lines": [
+        "Ran 23 tests in 87.808s",
+        "OK"
+      ]
+    },
+    {
+      "name": "rr10 runtime",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr10/runtime_checks.gd",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/rr10-runtime.log",
+      "result_lines": [
+        "RR10 RUNTIME: PASS (10 checks; headless logic only)"
+      ]
+    },
+    {
+      "name": "rr14 runtime",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr14/runtime_checks.gd -- --case /private/tmp/labyrinth_codex/rr-14/feedback1/synthetic-case --report /private/tmp/labyrinth_codex/rr-14/feedback1/synthetic-case/proof/samples.json",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/rr14-runtime.log",
+      "result_lines": [
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)"
+      ]
+    },
+    {
+      "name": "rr07 runtime",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr07/runtime_test.gd",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/rr07-runtime.log",
+      "result_lines": [
+        "RR07 RUNTIME: PASS (73057 checks, 0 failures; headless logic only)"
+      ]
+    },
+    {
+      "name": "native probe setup only",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr10/native_capture.gd -- --output /private/tmp/labyrinth_codex/rr-14/feedback1/native-load --validate-only",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/native-load.log",
+      "result_lines": [
+        "RR10 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "name": "fresh Seer samples",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/godot_task_runner.py --task-id rr-14 --stream -- godot --headless --path . --script tests/rr10/samples.gd -- --output /private/tmp/labyrinth_codex/rr-14/feedback1/seer-samples.json",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/seer-samples.log",
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (1258 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "fresh sample identity",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && PYTHONDONTWRITEBYTECODE=1 python3 tests/rr14/verify_samples.py --samples /private/tmp/labyrinth_codex/rr-14/feedback1/seer-samples.json",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/seer-samples-identity.log",
+      "result_lines": [
+        "RR14 SEER SAMPLES: PASS (1258 poses; byte-identical outside input bindings)"
+      ]
+    },
+    {
+      "name": "Seer gates",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && LABYRINTH_TASK_ID=rr-14 PYTHONDONTWRITEBYTECODE=1 python3 experiments/cutouts/hoarfrost_seer/rr10_gates.py",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/seer-gates.log",
+      "result_lines": [
+        "RR10 BONE/CUT GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "name": "mutations",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && PYTHONDONTWRITEBYTECODE=1 python3 tests/rr14/mutations.py",
+      "exit_code": 0,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations.log",
+      "result_lines": [
+        "RR14 MUTATION idle_group_anchor: CAUGHT",
+        "RR14 MUTATION named_cover: CAUGHT",
+        "RR14 MUTATION garment_bounds: CAUGHT",
+        "RR14 MUTATION connectivity: CAUGHT",
+        "RR14 MUTATION foot_dispatch: CAUGHT",
+        "RR14 MUTATION reach_clamp: CAUGHT",
+        "RR14 MUTATION bend_side: CAUGHT",
+        "RR14 MUTATION shin_rotation: CAUGHT",
+        "RR14 MUTATION required_hierarchy: CAUGHT",
+        "RR14 MUTATION required_meshes: CAUGHT",
+        "RR14 MUTATION missing_knee_policy: CAUGHT",
+        "RR14 MUTATION conflicting_knee_policy: CAUGHT",
+        "RR14 MUTATION bent_knee_rest_side: CAUGHT",
+        "RR14 MUTATION python_missing_knee_policy: CAUGHT",
+        "RR14 MUTATION python_conflicting_knee_policy: CAUGHT",
+        "RR14 MUTATION compiled_leg_policy: CAUGHT",
+        "RR14 MUTATION authored_attachment_local: CAUGHT",
+        "RR14 MUTATION attachment_grandchild: CAUGHT",
+        "RR14 MUTATION held_item_descendants: CAUGHT",
+        "RR14 MUTATION loaded_schema_validation: CAUGHT",
+        "RR14 MUTATION embedded_schema_validation: CAUGHT",
+        "RR14 MUTATION unknown_schema_keys: CAUGHT",
+        "RR14 MUTATION explicit_grip_role: CAUGHT",
+        "RR14 MUTATION bone_gate_bend_side: CAUGHT",
+        "RR14 MUTATION bone_gate_foot_target: CAUGHT",
+        "RR14 MUTATIONS: 25 caught; 0 survived"
+      ]
+    }
+  ],
+  "compiler_replay": {
+    "result": "RR14 SEER COMPILER REPLAY: PASS (byte-identical)",
+    "artifact": "/private/tmp/labyrinth_codex/rr-14/feedback1/seer-compiled-replay.json"
+  },
+  "identity": {
+    "files": 777,
+    "fresh_poses": 1258,
+    "scope": "Approved assets, layouts, compiled motion, and evidence payload bytes unchanged. Only the two input-binding objects were refreshed."
+  },
+  "mutations": [
+    {
+      "mutation": "idle_group_anchor",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/idle_group_anchor.log"
+    },
+    {
+      "mutation": "named_cover",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/named_cover.log"
+    },
+    {
+      "mutation": "garment_bounds",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/garment_bounds.log"
+    },
+    {
+      "mutation": "connectivity",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/connectivity.log"
+    },
+    {
+      "mutation": "foot_dispatch",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/foot_dispatch.log"
+    },
+    {
+      "mutation": "reach_clamp",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/reach_clamp.log"
+    },
+    {
+      "mutation": "bend_side",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/bend_side.log"
+    },
+    {
+      "mutation": "shin_rotation",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/shin_rotation.log"
+    },
+    {
+      "mutation": "required_hierarchy",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/required_hierarchy.log"
+    },
+    {
+      "mutation": "required_meshes",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/required_meshes.log"
+    },
+    {
+      "mutation": "missing_knee_policy",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/missing_knee_policy.log"
+    },
+    {
+      "mutation": "conflicting_knee_policy",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/conflicting_knee_policy.log"
+    },
+    {
+      "mutation": "bent_knee_rest_side",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/bent_knee_rest_side.log"
+    },
+    {
+      "mutation": "python_missing_knee_policy",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/python_missing_knee_policy.log"
+    },
+    {
+      "mutation": "python_conflicting_knee_policy",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/python_conflicting_knee_policy.log"
+    },
+    {
+      "mutation": "compiled_leg_policy",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/compiled_leg_policy.log"
+    },
+    {
+      "mutation": "authored_attachment_local",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/authored_attachment_local.log"
+    },
+    {
+      "mutation": "attachment_grandchild",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/attachment_grandchild.log"
+    },
+    {
+      "mutation": "held_item_descendants",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/held_item_descendants.log"
+    },
+    {
+      "mutation": "loaded_schema_validation",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/loaded_schema_validation.log"
+    },
+    {
+      "mutation": "embedded_schema_validation",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/embedded_schema_validation.log"
+    },
+    {
+      "mutation": "unknown_schema_keys",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/unknown_schema_keys.log"
+    },
+    {
+      "mutation": "explicit_grip_role",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/explicit_grip_role.log"
+    },
+    {
+      "mutation": "bone_gate_bend_side",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/bone_gate_bend_side.log"
+    },
+    {
+      "mutation": "bone_gate_foot_target",
+      "result": "caught",
+      "exit_code": 1,
+      "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations/bone_gate_foot_target.log"
+    }
+  ],
+  "binding_changes_requiring_director_native_rerun": {
+    "before_count": 301,
+    "after_count": 303,
+    "changes": [
+      {
+        "input": "runtime:scripts/maquette_cutout_runtime/humanoid_anatomy.gd",
+        "before_sha256": null,
+        "after_sha256": "a073679eb718c7c0094d8701bc4b0b04848957c0bc1785385d66bd4ed7056f68"
+      },
+      {
+        "input": "runtime:scripts/maquette_cutout_runtime/humanoid_motion.gd",
+        "before_sha256": "ae610d9c5b8393bdd9843138646084c3165826475b404d92fbdfff5fa2e8ea9b",
+        "after_sha256": "78c172483238d878f3c41dde5c70ed37edcecdcb8be5009aae9b6d425286d7ab"
+      },
+      {
+        "input": "runtime:tools/humanoid_cutout/anatomy.py",
+        "before_sha256": "ffe4bc6c5a3fda548cbe5feb2c3c75520a52466ad2ac9fb58fa8e0fdad2b5683",
+        "after_sha256": "3d2e60a3a6acec397f3d79b5c98e73f9e4bc386398fe866df1f2f0c3dc3e8ced"
+      },
+      {
+        "input": "runtime:tools/humanoid_cutout/anatomy.schema.json",
+        "before_sha256": "b90760b939f08b30b2910377fe7ccda651fef9ff1ef06cfac6fb0ab17b063bf5",
+        "after_sha256": "ab31ab8f8806c0040aed621f76b11f72fbe71bf689e16a214b592dec7ef6d59d"
+      },
+      {
+        "input": "runtime:tools/humanoid_cutout/bone_contracts.py",
+        "before_sha256": "dcddcd19368732683763f62bcde9b944296635a8e02de96221677c415111bcd8",
+        "after_sha256": "91f908e79b393dc73e44281732de1416cbd65bfdb56bb6b85476a9e93e16067c"
+      },
+      {
+        "input": "runtime:tools/humanoid_cutout/compiler.py",
+        "before_sha256": "bc0022ed28b2edc46060014355afd853661a1f6d3d79e1824d1a3ea97d209d44",
+        "after_sha256": "588ca8915aa5347e675fd90a69e05a79225e5c171122234642f5747a25c47c6b"
+      },
+      {
+        "input": "runtime:tools/humanoid_cutout/gates.py",
+        "before_sha256": "ea0319d274ecdbf06349cd6f4bb09ac0bf0ddf092f2372a92a72fb74e69fff25",
+        "after_sha256": "8c1c8ee970e4a722af7eb93223165dd71c534d546243a7a4ed6e4b56986a140c"
+      },
+      {
+        "input": "runtime:tools/humanoid_cutout/schema.py",
+        "before_sha256": null,
+        "after_sha256": "bd3a1b456f9e11cc24a9c13592ca94c54ef4256304b8296f6ae3089f9561ccea"
+      }
+    ]
+  },
+  "proof_for_design_owner": {
+    "reason": "Last native capture was for the parent bindings. Six existing input hashes changed and two inputs were added. New native proof is required for current bindings; worker did no windowed run.",
+    "capture": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 tools/visual_probe_runner.py --task-id rr-14 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/rr10/render_contract.json --result-manifest /private/tmp/labyrinth_codex/rr-14/feedback1/director/seer-native-result.json tests/rr10/native_capture.gd -- --output /private/tmp/labyrinth_codex/rr-14/feedback1/director/seer-native",
+    "gates": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && python3 experiments/cutouts/hoarfrost_seer/rr10_gates.py --native /private/tmp/labyrinth_codex/rr-14/feedback1/director/seer-native",
+    "sheets": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-14 && PYTHONPATH=tools python3 -m humanoid_cutout.proof sheets --case experiments/cutouts/hoarfrost_seer/rr10 --capture /private/tmp/labyrinth_codex/rr-14/feedback1/director/seer-native --output /private/tmp/labyrinth_codex/rr-14/feedback1/director/seer-sheets"
+  },
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "scope": "Numerical tolerance and diagnostic fixtures only; facing directions are director-authored. No production art, motion, timing or tuning values chosen.",
+    "normalized_collinearity_epsilon": 1e-06,
+    "diagnostic_child_lift_px": 1,
+    "diagnostic_child_angle_deg": 17,
+    "diagnostic_grandchild_lift_px": 0.5,
+    "diagnostic_grandchild_angle_deg": -7,
+    "diagnostic_held_item_angle_deg": 13,
+    "diagnostic_child_offset_px": [
+      2,
+      1
+    ],
+    "diagnostic_grandchild_offset_px": [
+      1,
+      3
+    ],
+    "diagnostic_straight_leg_y_px": [
+      20,
+      25,
+      30
+    ],
+    "diagnostic_collinearity_scales": [
+      1,
+      100
+    ],
+    "proof_timeout_seconds": 180
+  },
+  "open_issues": [
+    "Director native rerun for the listed binding changes. No implementation blocker."
+  ],
+  "workflow": {
+    "commit_peer_review_publication": "Not performed; assigned to director.",
+    "full_suites": "Not run, per feedback proof instructions.",
+    "windowed_runs": "Not run, per feedback proof instructions."
+  },
+  "prior_failed_proof": {
+    "log": "/private/tmp/labyrinth_codex/rr-14/feedback1/mutations-driver-timeout.log",
+    "cause": "Removing compiled knee metadata exposed a test driver that indexed a rejected empty pose and failed to quit; mutation harness hit its existing 180 second cap.",
+    "fix": "Driver now detects rejected poses, frees the rig and exits nonzero. Final mutation run catches this mutation without a timeout."
+  }
+}

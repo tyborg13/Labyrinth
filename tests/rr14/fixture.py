@@ -1,5 +1,6 @@
 """Tiny diagnostic textures and anatomy, never production art or tuning."""
 import json
+from copy import deepcopy
 from pathlib import Path
 
 from PIL import Image
@@ -14,7 +15,8 @@ FIXTURE_CANVAS_SIZE = (255, 255)
 FIXTURE_SECONDS = 1.0
 FIXTURE_WEIGHT_BLEND_PX = 1
 FIXTURE_FLOOR_END = (28, 19)
-FIXTURE_PROJECTION = {'front': {'forward': [1., 0.], 'lean_sign': 1}}
+FIXTURE_PROJECTION = {'front': {'forward': [-1., 0.], 'lean_sign': 1},
+                      'rear': {'forward': [1., 0.], 'lean_sign': -1}}
 
 
 def write(path, data):
@@ -31,10 +33,10 @@ def build(case, item='tube'):
     joint('pelvis', [16, 18], 'root')
     joint('torso', [16, 10], 'pelvis')
     joint('head', [16, 5], 'torso')
-    for side, x, bend in [('near', 20, 3), ('far', 10, -3)]:
+    for side, x in [('near', 20), ('far', 10)]:
         joint('thigh_' + side, [x, 20], 'pelvis')
-        joint('shin_' + side, [x + bend, 24], 'thigh_' + side)
-        joint('foot_' + side, [x, 28], 'shin_' + side)
+        joint('shin_' + side, [x, 25], 'thigh_' + side)
+        joint('foot_' + side, [x, 30], 'shin_' + side)
     for side, points, target in [('near', [[20, 9], [24, 12], [28, 15]], 'tube_tip'),
                                  ('far', [[12, 8], [9, 12], [6, 16]], 'claw')]:
         joint('upper_' + side, points[0], 'torso')
@@ -59,7 +61,7 @@ def build(case, item='tube'):
                                   'thigh_far', 'shin_far', 'foot_far', 'loincloth', 'loincloth_mid',
                                   'loincloth_tip'], 'stationary': True}}
     body = ['torso', 'arm_near', 'arm_far', 'leg_near', 'leg_far', 'loincloth']
-    roles = {item: {'body': body, 'grip': None, 'policy': {'front': 'in_front_of_body'}}}
+    roles = {item: {'body': body, 'grip': None, 'policy': {v: 'in_front_of_body' for v in FIXTURE_PROJECTION}}}
     names = ['head', 'torso', 'upper_near', 'fore_near', 'upper_far', 'fore_far',
              'thigh_near', 'shin_near', 'thigh_far', 'shin_far', 'foot_near', 'foot_far',
              item, 'claw', 'loincloth']
@@ -71,6 +73,9 @@ def build(case, item='tube'):
                  'free_space_owners': [item]}
     anatomy = {'schema_version': 1, 'required_parents': {n: j['parent'] for n, j in joints.items()},
                'forbidden_joints': [], 'meshes': meshes, 'idle_groups': groups,
+               # Director feedback 1: straight front knees bend screen-left;
+               # the same downward rear rest chains bend screen-right.
+               'legs': {s: {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}} for s in ('near', 'far')},
                'planted_bones': ['foot_near', 'foot_far'], 'held_depth_roles': roles,
                'ownership': ownership, 'seam_joins': [['head', 'torso']],
                'covered_surfaces': {}, 'joint_continuations': {'depth_px': 0, 'bounded_pieces': []},
@@ -121,7 +126,8 @@ def build(case, item='tube'):
               'ik_chains': [{'first': 'upper_near', 'second': 'fore_near', 'target': 'tube_tip'},
                             {'first': 'upper_far', 'second': 'fore_far', 'target': 'claw'}],
               'motion_data': str(case / 'compiled_motion.json')}
-    write(case / 'layouts/front.json', layout)
+    layouts = {view: dict(deepcopy(layout), facing=view) for view in FIXTURE_PROJECTION}
+    for view, view_layout in layouts.items(): write(case / ('layouts/' + view + '.json'), view_layout)
     # Diagnostic channels explicitly counter the pelvis dip to plant the
     # stance ankle, then lift the swing ankle four pixels above that floor.
     keys = {'pelvis.lift_px': [[0, -2], [1, -2]],
@@ -135,7 +141,7 @@ def build(case, item='tube'):
                'clips': {'idle': {'seconds': FIXTURE_SECONDS, 'loop': True, 'keys': {}},
                          'move': {'seconds': FIXTURE_SECONDS, 'loop': True, 'keys': keys}}}}
     write(case / 'director_motion.json', source)
-    compiled = compile_motion(case / 'director_motion.json', 'synthetic_humanoid', {'front': layout}, FIXTURE_PROJECTION)
+    compiled = compile_motion(case / 'director_motion.json', 'synthetic_humanoid', layouts, FIXTURE_PROJECTION)
     write(case / 'compiled_motion.json', compiled)
     return layout, anatomy, {'front_rest_mismatch_pixels': 0, 'tucks': []}, compiled
 

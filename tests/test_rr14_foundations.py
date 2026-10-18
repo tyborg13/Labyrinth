@@ -6,7 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, call
 import shutil
 
 import numpy as np
@@ -53,7 +53,7 @@ class FoundationTests(unittest.TestCase):
             layout, anatomy, report, compiled = build(case)
             self.assertEqual(structure_errors(layout, report), [])
             self.assertEqual(source_errors(case, layout, report), [])
-            self.assertEqual(set(compiled['view_tracks']), {'front'})
+            self.assertEqual(set(compiled['view_tracks']), {'front', 'rear'})
             self.assertNotIn('robe', anatomy['meshes'])
             self.assertEqual(set(anatomy['meshes']), {'arm_near', 'arm_far', 'leg_near', 'leg_far', 'loincloth'})
             for mesh in layout['joint_meshes']:
@@ -69,7 +69,11 @@ class FoundationTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertIn('RR14 RUNTIME: PASS', result.stdout)
             samples = json.loads((case / 'proof/samples.json').read_text())
-            self.assertEqual(bone_errors(layout, compiled, samples, bindings(case)), [])
+            for view in compiled['view_tracks']:
+                view_layout = json.loads((case / ('layouts/' + view + '.json')).read_text())
+                self.assertEqual(structure_errors(view_layout, report), [])
+                self.assertEqual(source_errors(case, view_layout, report), [])
+                self.assertEqual(bone_errors(view_layout, compiled, samples, bindings(case)), [])
             bad_bones = copy.deepcopy(samples)
             swing = next(r for r in bad_bones['samples'] if r['kind'] == 'authored' and r['clip'] == 'move' and r['phase'] == .5)
             swing['bones']['foot_near']['global'][4] += 1
@@ -132,22 +136,24 @@ class FoundationTests(unittest.TestCase):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text(json.dumps(value))
             write(case / 'anatomy.json', config)
-            write(case / 'inputs.json', {'front_job': 'job'})
-            write(case / 'proof/build.json', {'views': {'front': {'rest_mismatch_pixels': 0}}})
+            write(case / 'inputs.json', {'front_job': 'job', 'rear_job': 'job'})
+            write(case / 'proof/build.json', {'views': {v: {'rest_mismatch_pixels': 0} for v in ('front', 'rear')}})
             write(project / 'job/kit.json', {'anatomy': 'fixture', 'size_class': 'fixture'})
             write(project / 'job/processed.json', {'pixel_sha256': 'fixture_source'})
             write(project / 'scale.json', {'fixture': {'scale': 1.25}})
             write(project / 'identity.json', {'entries': []})
             write(project / 'density.json', {})
-            rest = assets / 'diagnostic_rig/front/rest.png'
-            rest.parent.mkdir(parents=True)
-            shutil.copyfile(case / 'rest.png', rest)
+            rests = [assets / ('diagnostic_rig/' + view + '/rest.png') for view in ('front', 'rear')]
+            for rest in rests:
+                rest.parent.mkdir(parents=True)
+                shutil.copyfile(case / 'rest.png', rest)
             with patch('humanoid_cutout.integration.density.load_registry', return_value={'entries': [{'id': 'fixture_density'}]}), \
                     patch('humanoid_cutout.integration.density.MANIFEST', project / 'density.json'), \
                     patch('humanoid_cutout.integration.density.rest_errors', return_value=[]) as density_check, \
                     patch('humanoid_cutout.integration.measure', return_value={}) as measure:
                 self.assertEqual(record(project, case, assets), [])
-                measure.assert_called_once_with(rest, 1.25, 'creature', 'fixture')
+                self.assertEqual(measure.call_count, 2)
+                measure.assert_has_calls([call(rest, 1.25, 'creature', 'fixture') for rest in rests])
                 self.assertEqual(density_check.call_args.args[0], [{'id': 'fixture_density'}])
             identity = json.loads((project / 'identity.json').read_text())['entries'][0]
             self.assertEqual(identity['id'], 'fixture_identity')

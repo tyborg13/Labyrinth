@@ -3,6 +3,30 @@ import math
 
 import numpy as np
 
+COLLINEAR_EPSILON = 1e-6  # Normalized cross product, independent of source scale.
+
+
+def visible_leg(joints, side):
+    first, second, target = ['%s_%s' % (name, side) for name in ('thigh', 'shin', 'foot')]
+    return (all(name in joints for name in (first, second, target)) and
+            joints[second]['parent'] == first and joints[target]['parent'] == second)
+
+
+def leg_bend_side(layout, anatomy, side, view):
+    a, b, c = [np.asarray(layout['joints']['%s_%s' % (name, side)]['position'], dtype=float)
+               for name in ('thigh', 'shin', 'foot')]
+    first, second = np.linalg.norm(b-a), np.linalg.norm(c-b)
+    if min(first, second) <= 0: raise ValueError('leg ' + side + ': zero-length rest segment')
+    cross = (c-a)[0] * (b-a)[1] - (c-a)[1] * (b-a)[0]
+    rest_side = float(np.sign(cross)) if abs(cross) > COLLINEAR_EPSILON * first * second else 0.
+    authored = anatomy.get('legs', {}).get(side, {}).get(view, {}).get('bend_side')
+    tag = 'legs.%s.%s.bend_side' % (side, view)
+    if rest_side == 0 and authored is None:
+        raise ValueError(tag + ': required for straight rest leg')
+    if rest_side != 0 and authored is not None and authored != rest_side:
+        raise ValueError(tag + ': disagrees with rest bend side')
+    return rest_side if rest_side else float(authored)
+
 
 def target_chains(layout, values):
     joints = layout['joints']
@@ -43,7 +67,7 @@ def fk_world(layout, values, modes, forward, step):
     return result
 
 
-def ik_errors(layout, bones, chain, fk, epsilon):
+def ik_errors(layout, bones, chain, fk, epsilon, anatomy):
     names = [chain[key] for key in ('first', 'second', 'target')]
     a, b, c = [np.asarray(bones[n]['global'][4:]) for n in names]
     ra, rb, rc = [np.asarray(layout['joints'][n]['position']) for n in names]
@@ -52,7 +76,10 @@ def ik_errors(layout, bones, chain, fk, epsilon):
     if not np.allclose([np.linalg.norm(b-a), np.linalg.norm(c-b)], [first, second], atol=epsilon, rtol=0):
         errors.append('IK length: ' + names[-1])
     def cross(u, v): return u[0] * v[1] - u[1] * v[0]
-    if cross(c-a, b-a) * cross(rc-ra, rb-ra) < -epsilon:
+    expected_side = np.sign(cross(rc-ra, rb-ra))
+    if names[-1].startswith('foot_'):
+        expected_side = leg_bend_side(layout, anatomy, names[-1].split('_')[-1], layout['facing'])
+    if cross(c-a, b-a) * expected_side < -epsilon:
         errors.append('IK changed rest bend side: ' + names[-1])
     ray = fk[names[-1]][:2, 2] - a
     distance = np.clip(np.linalg.norm(ray), abs(first-second) + 1e-6, first+second)

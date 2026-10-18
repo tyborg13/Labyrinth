@@ -39,6 +39,13 @@ def structure_errors(layout, build):
     for name, parent in required.items():
         if layout['joints'].get(name, {}).get('parent', 'missing') != parent:
             errors.append('hierarchy: ' + name)
+    from .bone_contracts import visible_leg, leg_bend_side
+    for side in ('near', 'far'):
+        if visible_leg(layout['joints'], side):
+            try:
+                leg_bend_side(layout, anatomy, side, layout['facing'])
+            except ValueError as error:
+                errors.append(str(error))
     meshes = {m['name']: m for m in layout.get('joint_meshes', []) if not m.get('hidden_material')}
     if set(meshes) != set(anatomy['meshes']):
         errors.append('cut: required meshes differ: ' + ', '.join(anatomy['meshes']))
@@ -180,7 +187,7 @@ def bone_errors(layout, data, report, current_bindings):
                 if abs(angle(bones[name]['local']) - channels.get('lean_deg', 0.)) > EPSILON:
                     errors.append(tag + ': signed rotation: ' + name)
             for chain in chains:
-                errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON)]
+                errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON, anatomy)]
             for item in layout.get('held_items', {}):
                 expected_angle = values.get(item, {}).get('angle_deg', 0.)
                 if abs(angle(bones[item]['global']) - expected_angle) > EPSILON:

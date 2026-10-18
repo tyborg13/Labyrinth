@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Humanoid cutout anatomy v1",
-  "description": "Offline case contract in anatomy.json beside compiled_motion.json. Existing immutable layouts resolve it through their motion_data path; diagnostic layouts may embed anatomy. No runtime/production dependency on this authoring file. Values belong to the design owner. Geometry/paint/motion values are never inferred from a creature ID. Runtime optional ik_chains names first, second, target for nonstandard arm terminals; ordinary hand and visible foot chains are recognized by hierarchy. Held_items.hand names the grip/target bone (it need not be a hand).",
+  "description": "Offline case contract in anatomy.json beside compiled_motion.json. Existing immutable layouts resolve it through their motion_data path; diagnostic layouts may embed anatomy. No runtime/production dependency on this authoring file. Values belong to the design owner. Geometry/paint/motion values are never inferred from a creature ID. Runtime optional ik_chains names first, second, target for nonstandard arm terminals; ordinary hand and visible foot chains are recognized by hierarchy. Held_items.hand names the grip/target bone (it need not be a hand). Nonempty legs policies are copied into compiled motion for runtime use; rigs without legs keep their existing compiled bytes.",
   "type": "object",
   "required": [
     "schema_version",
@@ -20,7 +20,8 @@
   ],
   "properties": {
     "schema_version": {
-      "const": 1
+      "const": 1,
+      "type": "integer"
     },
     "required_parents": {
       "type": "object",
@@ -58,25 +59,71 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "minItems": 2
           },
           "joints": {
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "minItems": 3,
+            "maxItems": 3
           },
           "top_rows_px": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "cuff_rows_px": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "blend_half_width_px": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           }
         },
-        "description": "hem: pelvis/near/far anchors and top rows; two_segment: three source joints and two weighted bones with case-authored cuff/blend depths; chain: attachment/mid/tip cloth. No piece-name dispatch."
+        "description": "hem: pelvis/near/far anchors and top rows; two_segment: three source joints and two weighted bones with case-authored cuff/blend depths; chain: attachment/mid/tip cloth. No piece-name dispatch.",
+        "additionalProperties": false,
+        "oneOf": [
+          {
+            "properties": {
+              "kind": {
+                "const": "hem"
+              },
+              "bones": {
+                "minItems": 3,
+                "maxItems": 3
+              }
+            },
+            "required": [
+              "top_rows_px"
+            ]
+          },
+          {
+            "properties": {
+              "kind": {
+                "const": "two_segment"
+              },
+              "bones": {
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "required": [
+              "joints",
+              "cuff_rows_px",
+              "blend_half_width_px"
+            ]
+          },
+          {
+            "properties": {
+              "kind": {
+                "const": "chain"
+              }
+            }
+          }
+        ]
       }
     },
     "idle_groups": {
@@ -94,12 +141,14 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "minItems": 1
           },
           "stationary": {
             "type": "boolean"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "description": "Exactly three authored rigid groups. Bone membership and stationary policy are case-owned; layout.idle_groups supplies painted piece membership."
     },
@@ -134,14 +183,25 @@
           },
           "policy": {
             "type": "object",
-            "additionalProperties": {
-              "enum": [
-                "behind_body",
-                "in_front_of_body"
-              ]
+            "minProperties": 1,
+            "additionalProperties": false,
+            "properties": {
+              "front": {
+                "enum": [
+                  "behind_body",
+                  "in_front_of_body"
+                ]
+              },
+              "rear": {
+                "enum": [
+                  "behind_body",
+                  "in_front_of_body"
+                ]
+              }
             }
           }
-        }
+        },
+        "additionalProperties": false
       },
       "description": "Item piece name -> body comparison pieces, optional gripping piece, and per-view ordering. A sheath without a hand uses null grip."
     },
@@ -188,7 +248,8 @@
                 "minItems": 2,
                 "maxItems": 2
               }
-            }
+            },
+            "additionalProperties": false
           }
         },
         "joint_pairs": {
@@ -208,7 +269,8 @@
             "type": "string"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "seam_joins": {
       "type": "array",
@@ -244,7 +306,8 @@
           }
         }
       },
-      "description": "Optional sleeve-footprint/hem reconstruction roles. Empty when unused."
+      "description": "Optional sleeve-footprint/hem reconstruction roles. Empty when unused.",
+      "additionalProperties": false
     },
     "joint_continuations": {
       "type": "object",
@@ -264,7 +327,8 @@
           }
         }
       },
-      "description": "Source-point dilation depth and pieces clipped to their existing garment bounds. Named-cover and connectivity guards always apply."
+      "description": "Source-point dilation depth and pieces clipped to their existing garment bounds. Named-cover and connectivity guards always apply.",
+      "additionalProperties": false
     },
     "tucks": {
       "type": "object",
@@ -344,11 +408,64 @@
                   "type": "string"
                 }
               }
-            }
+            },
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "properties": {
+                  "mode": {
+                    "const": "radial"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "mode": {
+                    "const": "wrist"
+                  }
+                },
+                "required": [
+                  "axis_joints"
+                ]
+              },
+              {
+                "properties": {
+                  "mode": {
+                    "const": "foot"
+                  }
+                },
+                "required": [
+                  "axis"
+                ]
+              },
+              {
+                "properties": {
+                  "mode": {
+                    "const": "inner_edge"
+                  }
+                },
+                "required": [
+                  "extension_px"
+                ]
+              },
+              {
+                "properties": {
+                  "mode": {
+                    "const": "hem"
+                  }
+                },
+                "required": [
+                  "side_extension_px",
+                  "hem_join_px",
+                  "feet"
+                ]
+              }
+            ]
           }
         }
       },
-      "description": "Covered-edge design values. wrist extends the existing base along axis_joints; foot uses axis; inner_edge adds extension_px; hem adds side/foot coverage. No generic creature-specific depths."
+      "description": "Covered-edge design values. wrist extends the existing base along axis_joints; foot uses axis; inner_edge adds extension_px; hem adds side/foot coverage. No generic creature-specific depths.",
+      "additionalProperties": false
     },
     "integration": {
       "type": "object",
@@ -408,7 +525,8 @@
             "default": {
               "type": "number"
             }
-          }
+          },
+          "additionalProperties": false
         },
         "identity_registry": {
           "type": "string"
@@ -432,7 +550,92 @@
           "type": "boolean"
         }
       },
-      "description": "Project-relative production and registry targets. record() requires scale, identity, density, owner approval and production_files; unpromoted diagnostic cases only need binding fields."
+      "description": "Project-relative production and registry targets. record() requires scale, identity, density, owner approval and production_files; unpromoted diagnostic cases only need binding fields.",
+      "additionalProperties": false
+    },
+    "legs": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "near": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "front": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "bend_side"
+              ],
+              "properties": {
+                "bend_side": {
+                  "type": "integer",
+                  "enum": [
+                    -1,
+                    1
+                  ]
+                }
+              }
+            },
+            "rear": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "bend_side"
+              ],
+              "properties": {
+                "bend_side": {
+                  "type": "integer",
+                  "enum": [
+                    -1,
+                    1
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "far": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "front": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "bend_side"
+              ],
+              "properties": {
+                "bend_side": {
+                  "type": "integer",
+                  "enum": [
+                    -1,
+                    1
+                  ]
+                }
+              }
+            },
+            "rear": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "bend_side"
+              ],
+              "properties": {
+                "bend_side": {
+                  "type": "integer",
+                  "enum": [
+                    -1,
+                    1
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "Optional leg/view IK policy. bend_side is the sign of cross(ankle-hip, knee-hip): +1 bends screen-left for a downward rest axis; -1 bends screen-right. Required for straight rest legs (normalized cross within 1e-6); a bent rest chain derives its sign and rejects a conflicting authored sign. Director feedback 1: front knees face screen-left; rear knees face screen-right."
     }
-  }
+  },
+  "additionalProperties": false
 }
