@@ -100,7 +100,9 @@ def joint_holes(occupied, seam, owners, references=()):
     defects = []
     for hole in holes(occupied):
         size = int(hole.sum())
-        if size <= 1 or (hole & ~near).any() or not joined_boundary(hole, occupied, owners):
+        # Locality means touching the seam band. Growing a real joint tear
+        # beyond that band must never turn it into an exempt large opening.
+        if size <= 1 or not (hole & near).any() or not joined_boundary(hole, occupied, owners):
             continue
         overlaps = [int((hole & old).sum()) for old in remaining]
         if overlaps and max(overlaps):

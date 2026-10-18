@@ -12,7 +12,7 @@
       "minimum_px": 4,
       "required_mask": "tucks/front_torso.png",
       "missing_pixels": 0,
-      "required_pixels": 1700
+      "required_pixels": 1737
     },
     {
       "piece": "head",
@@ -28,7 +28,7 @@
       "minimum_px": 3,
       "required_mask": "tucks/front_sleeve_near.png",
       "missing_pixels": 0,
-      "required_pixels": 569
+      "required_pixels": 596
     },
     {
       "piece": "sleeve_far",
@@ -131,7 +131,7 @@
           "minimum_px": 4,
           "required_mask": "tucks/front_torso.png",
           "missing_pixels": 0,
-          "required_pixels": 1700
+          "required_pixels": 1737
         },
         {
           "piece": "head",
@@ -147,7 +147,7 @@
           "minimum_px": 3,
           "required_mask": "tucks/front_sleeve_near.png",
           "missing_pixels": 0,
-          "required_pixels": 569
+          "required_pixels": 596
         },
         {
           "piece": "sleeve_far",
@@ -250,7 +250,7 @@
           "minimum_px": 4,
           "required_mask": "tucks/rear_torso.png",
           "missing_pixels": 0,
-          "required_pixels": 1266
+          "required_pixels": 1297
         },
         {
           "piece": "head",

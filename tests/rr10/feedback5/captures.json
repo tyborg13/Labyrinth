@@ -1,7 +1,7 @@
 {
   "capture_commit": "cdea088f5 (director feedback 5)",
   "native_manifest_sha256": "d0b35b72c66ccfd45633b66c74114af09a124cbd20779f619b97de0832e7c2a3",
-  "scope": "Historical native mesh body plus current rigid fills; not certification of current meshes.",
+  "scope": "rr-13 feedback 3: historical GPU body plus only newly added fixed-fill CPU texels; historical seams, rest-hole masks and regression_tuck unchanged; not GPU acceptance",
   "rigid_tucks": [
     "hidden_torso",
     "hidden_foot_near",
@@ -28,6 +28,10 @@
         "regression_tuck": {
           "file": "ward_0019_regression_tuck.png",
           "sha256": "aae44d7c426a8807700539758449e18362734c7c30c7ba4c5ab43c0bd6ee6de0"
+        },
+        "historical_owners": {
+          "file": "ward_0019_owners_historical.png",
+          "sha256": "d69acb7f7e2eb64e9073e5744bd248b5e437abbc06b906142d27bde7a27e4d12"
         }
       }
     },
@@ -51,6 +55,10 @@
         "regression_tuck": {
           "file": "mark_0019_regression_tuck.png",
           "sha256": "eaf8618c4d345a2cb892739f3af890f189bcd5316b1d4a617ce57331f8a49c7c"
+        },
+        "historical_owners": {
+          "file": "mark_0019_owners_historical.png",
+          "sha256": "ed148bab94a964f116568025feb42075300fa4666939af4716b359123e8b1053"
         }
       }
     },
@@ -74,6 +82,10 @@
         "regression_tuck": {
           "file": "death_0083_regression_tuck.png",
           "sha256": "f1bd9480a5ba9178844c391d1ce737494d4305e16e819903b4d462a08b689f27"
+        },
+        "historical_owners": {
+          "file": "death_0083_owners_historical.png",
+          "sha256": "7e34f61d4121c43c29b4466665d76729de56e0036cf5788e80dc12fcc84c0ee9"
         }
       }
     },
@@ -97,6 +109,10 @@
         "regression_tuck": {
           "file": "move_0017_regression_tuck.png",
           "sha256": "3ac3d3c5cf814f7cdba635591dd1f4f129df109130416ccabffaf5f73c777b30"
+        },
+        "historical_owners": {
+          "file": "move_0017_owners_historical.png",
+          "sha256": "6b7138ff3342f8a3e45ac98d26fcac6f977e9f0f906f43ec73e512d26051488e"
         }
       }
     }
@@ -2262,5 +2278,29 @@
       }
     },
     "director_sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42"
-  }
+  },
+  "fixed_fill_source_sha256": {
+    "layouts/front.json": "878b6d203e34ec00a1d46297a1ecd177b75b0bd7aa869791ae42a09b0ef6b0df",
+    "compiled_motion.json": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
+    "pieces/front/hidden_head.png": "038fc5489f4081a7cd3bbc00e94fc202cd5d26f18ddc81e5df53afaa15017b4c",
+    "pieces/front/head.png": "6874065a39761cb849f588198cd4b7a0f1a02302ca7c0145e243f2b00076bd55",
+    "pieces/front/hidden_torso.png": "872d89ebf57f93520cc1a5a4715eefb04539c6fe5634027a5f5d138b9edf00b6",
+    "pieces/front/torso.png": "eb76de6b573f68d6e29efce11daf11ac875bedabc9662ffa48a11377b49f3f1e",
+    "pieces/front/sleeve_near.png": "443938148bf6fa6be98f621362640f301d70ae8727955b03d9f1ae08c0518a65",
+    "pieces/front/hidden_sleeve_far.png": "06292e0f79d78d75e7ea3e1a17b60e8d83d77f4e40ae3d9f7a0542744fa6adb9",
+    "pieces/front/sleeve_far.png": "d94bb941e4d03228e66c1acd9608af60bf574798ce251a04cec0828a2252a2da",
+    "pieces/front/hidden_hand_near.png": "4408db4845058aa9541f3c0919c887c4660828d52897a09c7405ac5c2ceae110",
+    "pieces/front/hand_near.png": "1bb6969bf5a7afa7ad58cb4ff6a31a07d1bfef8fc781142459d7b05b8256a198",
+    "pieces/front/hidden_hand_far.png": "8363958c565200ea8556d30698e14d9c5b16c0065acf21b5c01cee7b6a4df5af",
+    "pieces/front/hand_far.png": "b28e099d9c416aa6bbd08155d04211073fef3d0ffcf81de0dbc0f673c11dcbc0",
+    "pieces/front/hidden_staff.png": "f45ad1570cba630d17a61371d17ef76f0161bd39461a330bd3a05ac05d0470b6",
+    "pieces/front/staff.png": "6aa3d98abd0a97c54269e76603db821e2c7db326eec3441964b3f6561a344836",
+    "pieces/front/hidden_robe.png": "e2cf1cc23ecc05de0f47eb192d0fc5c3925f35299cd5d56ca882682f65416370",
+    "pieces/front/robe.png": "0b08b3821c721dba858746d80bf0b7f180b2b5725a50a89c823f67f56caee23d",
+    "pieces/front/hidden_foot_near.png": "e5c461a1beb156e36d3bb6b13cfd7d5195ad0a237a2ba4de9cec15dda19d8369",
+    "pieces/front/foot_near.png": "d9227a34299fa9920498d5fa15007dd66ca8a561fdb5aa90cef802540c1bc4cb",
+    "pieces/front/hidden_foot_far.png": "b72c99ca7c8bc33e641809467756b8f31aa9d06906a0177a35b19b5c321c7f17",
+    "pieces/front/foot_far.png": "79c88b96e284ed29f60ec3d2f3a0e5c9a5ecf18024b29fea3c948dca7ddc7214"
+  },
+  "cpu_pose_sha256": "886fce848441820a0a58a9626f8df394e33bdbb1a59e7fa87bc93978ee6ad99a"
 }

@@ -118271,7 +118271,7 @@
       "z_index": -1,
       "source": "pieces/rear/hidden_torso.png",
       "rigid": true,
-      "source_sha256": "63b43c6774ffe272e77b518508382f7a36cdddaf9e921b470574ec2331836f1d"
+      "source_sha256": "fd95f2fe1f38c30e2138f389d0fe29c639d40a3db55f0b5e5bad7e7243b13631"
     },
     "torso": {
       "mask": "checks/rear/torso.png",

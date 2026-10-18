@@ -1,0 +1,10 @@
+{
+  "front": {
+    "torso": {"covers": ["sleeve_far"], "source_points": [[98, 143], [99, 142], [101, 143], [103, 143]]},
+    "robe": {"covers": ["torso"], "source_points": [[117, 144], [118, 144]]},
+    "sleeve_near": {"covers": ["head", "torso"], "source_points": [[162, 94], [163, 93], [164, 94]]}
+  },
+  "rear": {
+    "torso": {"covers": ["sleeve_near"], "source_points": [[79, 125], [80, 125]]}
+  }
+}

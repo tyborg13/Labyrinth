@@ -24,6 +24,7 @@ from tools.humanoid_cutout.ownership import read_mask, apply_override
 from tools.humanoid_cutout.occluded_surface import bind as bind_occluded, derive as derive_occluded
 from tools.humanoid_cutout.tucks import TUCK_DEPTHS_PX, TUCK_COVERS, required_tuck
 from tools.humanoid_cutout.covered_surfaces import sleeve_domains, hem_domain
+from tools.humanoid_cutout.joint_continuations import domains as joint_domains
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 ASSETS = PROJECT / 'assets/units/hoarfrost_seer_cutout/humanoid_v2'
@@ -219,6 +220,16 @@ def build_view(view, inputs):
         tuck_masks[name] |= required
         path = CASE / f'continuations/{view}_{domain}.png'
         path.parent.mkdir(exist_ok=True)
+        Image.fromarray(required.astype('uint8') * 255).save(path)
+    # Feedback 3: the staff shoulder, rear armpit, waist and head/near-shoulder
+    # joins need another existing minimum tuck beneath their rest covers.
+    for name, required in joint_domains(visible, hidden,
+            read_json(CASE / 'joint_continuations.json').get(view, {})).items():
+        missing = required & (hidden[name][..., 3] == 0)
+        continuation = edge_texels(visible[name], missing, material_rules)
+        hidden[name][missing] = continuation[missing]
+        tuck_masks[name] |= required
+        path = CASE / f'continuations/{view}_joint_{name}.png'
         Image.fromarray(required.astype('uint8') * 255).save(path)
     # One deterministic cloth field across both old fills and new tucks. This
     # prevents a flat seed band ending in a horizontal seam below the belt.

@@ -146,10 +146,11 @@ def source_errors(case, layout, build):
     return errors
 
 
-def bone_errors(layout, data, report):
-    errors = []
-    if report['compiled_sha256'] != data.get('_sha256', report['compiled_sha256']):
-        errors.append('stale compiled motion')
+def bone_errors(layout, data, report, current_bindings):
+    from .bone_evidence import evidence_errors
+    errors = evidence_errors(data, report, current_bindings, EPSILON)
+    if errors:
+        return errors
     joints = layout['joints']
     forward = np.asarray(data['projection'][layout['facing']]['forward'])
     step = report['step_distance_px'] / report['screen_pixel_scale']
@@ -299,7 +300,7 @@ def unexplained_holes(occupied, references):
     return unexplained
 
 
-def native_errors(case, capture, failure_output=None):
+def native_errors(case, capture, failure_output=None, hole_details=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     errors = list(manifest.get('errors', []))
@@ -316,6 +317,8 @@ def native_errors(case, capture, failure_output=None):
     if manifest['inputs'] != bound_inputs: errors.append('stale native proof inputs')
     data = read_json(case / 'compiled_motion.json')
     sampled=read_json(case/'proof/samples.json')
+    from .bone_evidence import evidence_errors
+    errors += evidence_errors(data, sampled, bound_inputs, EPSILON)
     if sampled.get('inputs')!=bound_inputs: errors.append('stale headless pose reference; rerun samples.gd')
     expected_poses={(r['view'],r['clip'],r['frame']):r for r in sampled['samples'] if r['kind']=='presented'}
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
@@ -414,6 +417,8 @@ def native_errors(case, capture, failure_output=None):
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
         rejected = frame_errors(key, metric, new_holes, approved)
         errors += rejected
+        if hole_details is not None and new_holes and str(key) + ': new joint-seam hole larger than 1px' in rejected:
+            hole_details.append({'view': view, 'clip': clip, 'frame': frame, 'pixel_counts': new_holes})
         if rejected:
             # Save renderer crops for the director's weight/coverage diagnosis.
             folder = failure_output if failure_output is not None else case / 'proof/native_failures'

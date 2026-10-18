@@ -1,0 +1,122 @@
+{
+  "errors": [
+    "stale native proof inputs",
+    "('front', 'mark', 18): new joint-seam hole larger than 1px",
+    "('rear', 'mark', 20): new joint-seam hole larger than 1px",
+    "('rear', 'mark', 21): new joint-seam hole larger than 1px",
+    "('front', 'mark', 22): new joint-seam hole larger than 1px",
+    "('rear', 'mark', 22): new joint-seam hole larger than 1px",
+    "('front', 'mark', 48): new joint-seam hole larger than 1px",
+    "('front', 'mark', 49): new joint-seam hole larger than 1px",
+    "('front', 'death', 27): new joint-seam hole larger than 1px",
+    "('front', 'death', 28): new joint-seam hole larger than 1px",
+    "('front', 'death', 29): new joint-seam hole larger than 1px",
+    "('front', 'death', 30): new joint-seam hole larger than 1px",
+    "('front', 'death', 68): new joint-seam hole larger than 1px"
+  ],
+  "new_joint_holes": [
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 18,
+      "pixel_counts": [
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mark",
+      "frame": 20,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mark",
+      "frame": 21,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 22,
+      "pixel_counts": [
+        3
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mark",
+      "frame": 22,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 48,
+      "pixel_counts": [
+        3
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "mark",
+      "frame": 49,
+      "pixel_counts": [
+        6
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 27,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 28,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 29,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 30,
+      "pixel_counts": [
+        2
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 68,
+      "pixel_counts": [
+        4
+      ]
+    }
+  ],
+  "capture_manifest_sha256": "4da68a52dbfd131c2582b1251682a2899035049d899c2e7b1efbe4b23af80dba",
+  "changed_bindings": [
+    "runtime:tools/humanoid_cutout/bone_evidence.py",
+    "runtime:tools/humanoid_cutout/gates.py",
+    "runtime:tools/humanoid_cutout/silhouette_gates.py"
+  ],
+  "scope": "headless re-evaluation of unchanged director captures; freshness failures retained"
+}

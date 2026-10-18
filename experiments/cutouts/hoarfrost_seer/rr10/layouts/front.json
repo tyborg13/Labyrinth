@@ -130594,7 +130594,7 @@
       "z_index": -3,
       "source": "pieces/front/hidden_torso.png",
       "rigid": true,
-      "source_sha256": "d9cbcdb6d8d9363609b9e65fcfd6f6101f69d8da01229a0c930cc1883e0e0140"
+      "source_sha256": "872d89ebf57f93520cc1a5a4715eefb04539c6fe5634027a5f5d138b9edf00b6"
     },
     "torso": {
       "mask": "checks/front/torso.png",
@@ -130616,7 +130616,7 @@
       "z_index": 9,
       "source": "pieces/front/sleeve_near.png",
       "rigid": false,
-      "source_sha256": "22bd4fa4be5160aef92ac858d18e4fbfa5528863f550b3c369c5650f5a861a2e"
+      "source_sha256": "443938148bf6fa6be98f621362640f301d70ae8727955b03d9f1ae08c0518a65"
     },
     "hidden_sleeve_far": {
       "mask": "checks/front/hidden_sleeve_far.png",

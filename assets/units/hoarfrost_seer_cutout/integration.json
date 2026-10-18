@@ -13,7 +13,12 @@
   "density": {
     "entry": "hoarfrost_seer_cutout",
     "paint": "adopted/processed from untouched source parts",
-    "native_rest_pending": []
+    "native_rest_pending": [
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hoarfrost_seer_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+    ]
   },
   "files": {
     "actions.gd": "5fb5be41dade5aed30c593f6ae8fda84d8cc74f9b8099af802da9eb6f1499267",
@@ -46,7 +51,7 @@
     "humanoid_v2/front/hidden_sleeve_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/hidden_staff.png": "f45ad1570cba630d17a61371d17ef76f0161bd39461a330bd3a05ac05d0470b6",
     "humanoid_v2/front/hidden_staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front/hidden_torso.png": "e63ad286e59183c12083cda8ca7cc8e34c99985a293dda4d6204019a02df0e83",
+    "humanoid_v2/front/hidden_torso.png": "8bc0643d380914b16990991a07d5e84a5d5fce634bdbfdf8f497593974c615de",
     "humanoid_v2/front/hidden_torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/rest.png": "c50fca1b7d11c686fad8e2ab77ea385cc260cead1f9589f58c26503afdfd29cd",
     "humanoid_v2/front/rest.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
@@ -54,7 +59,7 @@
     "humanoid_v2/front/robe.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/sleeve_far.png": "c0ec0f469d3d77612464a697188f3688d396030711aa7ea4aded04a48b8dd649",
     "humanoid_v2/front/sleeve_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front/sleeve_near.png": "ad2b2c6eed8ae5e90ec161e994723e8d54ae33de54f9b5dcb8e3f6489f15c0a4",
+    "humanoid_v2/front/sleeve_near.png": "4489b7d1aa8a37951427094b60470a596e4782a12cc001e68f808b38441b0087",
     "humanoid_v2/front/sleeve_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/staff.png": "fad7d2f43fa680d244e0a15d6d7b54222f5517a73a5370f31e41f29b15d74b53",
     "humanoid_v2/front/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
@@ -83,7 +88,7 @@
     "humanoid_v2/rear/hidden_head.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/hidden_robe.png": "e13c34a6cb81922d05fdb4c8fb13faf1cda4af8beade1ed8e9c86dafa3c897bd",
     "humanoid_v2/rear/hidden_robe.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear/hidden_torso.png": "b982a5fb1270cfdf12e032a9011dbaa2f2b0ef8976db2d10f626fdb700956951",
+    "humanoid_v2/rear/hidden_torso.png": "531affb26320270fad1bc64f49d9f8c81893d45dfabc7b08c6ccd8c5084fe85f",
     "humanoid_v2/rear/hidden_torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/rest.png": "ed088952f4716dc80ffaa28eb6cdcda9e782a6edf8e4a80bcfe90931d30bcd6a",
     "humanoid_v2/rear/rest.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",

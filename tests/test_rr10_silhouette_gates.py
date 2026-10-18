@@ -84,7 +84,9 @@ class SilhouetteGateTests(unittest.TestCase):
             y, x = boundary[7]; owners[y, x] = b
             with self.subTest(pair=pair):
                 self.assertTrue(joined_boundary(hole, occupied, owners))
-                owners[y, x] = outsider
+                # Keep both members of the pair at 70%; only the boundary
+                # fraction, not the both-owners predicate, must reject it.
+                y, x = boundary[6]; owners[y, x] = outsider
                 self.assertFalse(joined_boundary(hole, occupied, owners))
         owners[:] = OWNER_IDS['upper_far']
         self.assertFalse(joined_boundary(hole, occupied, owners))
@@ -113,12 +115,15 @@ class SilhouetteGateTests(unittest.TestCase):
             owners = posed_owners([(row, paint, None)], parts, record['bones'], record['source_offset'])
             return joint_holes(paint[..., 3] > 0, seam, owners)
         self.assertEqual(check(image), [])
-        x, y = record['elbow_gap_centre']; radius = record['elbow_gap_width_px'] // 2
-        mutant = image.copy()
-        region = (slice(y-radius, y+radius+1), slice(x-radius, x+radius+1))
-        self.assertTrue((mutant[region][..., 3] == 255).all())
-        mutant[region] = 0
-        self.assertEqual(check(mutant), [9])
+        x, y = record['elbow_gap_centre']
+        for width in (record['elbow_gap_width_px'], 7):
+            with self.subTest(width=width):
+                radius = width // 2
+                mutant = image.copy()
+                region = (slice(y-radius, y+radius+1), slice(x-radius, x+radius+1))
+                self.assertTrue((mutant[region][..., 3] == 255).all())
+                mutant[region] = 0
+                self.assertEqual(check(mutant), [width * width])
 
 
 if __name__ == '__main__':

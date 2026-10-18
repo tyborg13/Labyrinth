@@ -23,10 +23,11 @@ def metrics(**changed):
 
 
 class NativeExceptionTests(unittest.TestCase):
-    def test_case_list_contains_exactly_the_39_director_reviewed_flags(self):
+    def test_case_list_contains_exactly_the_43_director_reviewed_flags(self):
         groups = [
             ('front', 'bolt', [20], JOINT_HOLE_RULE),
             ('front', 'death', [62], JOINT_HOLE_RULE),
+            ('front', 'death', [27, 28, 29, 30], JOINT_HOLE_RULE),
             ('front', 'hit', [4, 8, 9], JOINT_HOLE_RULE),
             ('front', 'move', [7], JOINT_HOLE_RULE),
             ('front', 'move', [11, 12, 15], DETACHED_RULE),
@@ -34,7 +35,7 @@ class NativeExceptionTests(unittest.TestCase):
             ('rear', 'move', [10], DETACHED_RULE),
         ]
         expected = {(view, clip, frame, rule) for view, clip, frames, rule in groups for frame in frames}
-        self.assertEqual(len(expected), 39)
+        self.assertEqual(len(expected), 43)
         self.assertEqual(load(CASE), expected)
         for view, clip, frame, rule in expected:
             metric = metrics(stray_components=1 if rule == DETACHED_RULE else 0)

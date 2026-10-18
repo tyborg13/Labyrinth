@@ -1,6 +1,13 @@
 # rr-10 front handoff
 
-**rr-13 current handoff:** [director-reviewed exceptions](rr13_feedback1.md).
+**rr-13 current handoff:** [final continuation round](rr13_feedback3.md).
+Eight director pinholes close; four death-waist holes remain. CPU scans and
+the two historical fixture failures are reported; work stopped for the director.
+
+**Previous handoff:** [peer-review gate fixes](rr13_feedback2.md).
+The stricter audit found 12 new hole frames; work stopped for director inspection.
+
+**Previous handoff:** [director-reviewed exceptions](rr13_feedback1.md).
 The director approved the negative space, tiny move slivers and painted robe
 tips. Exact case-owned exceptions replace the resolved design TODO; fresh
 native/sheets/review proof remains the director's next step. The historical

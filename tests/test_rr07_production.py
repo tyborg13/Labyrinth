@@ -1,5 +1,6 @@
 """Real RunScene callbacks, plus frozen/contact/coverage mutations for rr-07."""
 import copy
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -13,6 +14,7 @@ from rr07_prepare import case_for
 from maquette_motion.gates import production_errors
 
 PROOF_TIMEOUT_SECONDS = 180
+PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-13')
 
 
 class ProductionTests(unittest.TestCase):
@@ -22,7 +24,7 @@ class ProductionTests(unittest.TestCase):
         cls.reports = {}
         for creature in CREATURES:
             output = Path(cls.temporary.name) / creature
-            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-07', '--stream',
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream',
                        '--', 'godot', '--headless', '--path', '.', '--script',
                        'tests/rr10/production_capture.gd' if creature=='hoarfrost_seer' else 'tests/rr07/production_capture.gd',
                        '--', '--type', creature, '--output', str(output), '--logic-only']

@@ -9179,8 +9179,8 @@
     "facing": "front"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_torso.png": {
-    "pixel_sha256": "c66ef568f896e4637fed85bfce709f62a4abdfdd4bffb5d82609e9becbcf5a88",
-    "source_pixel_sha256": "cff53a9c6139a40b3666fbbf3cecdb5b6d6bb7fe0b9442d3977a3222e6f7451b",
+    "pixel_sha256": "8dd0ba41f8567fd51242b848afe87449f61e461ca18b49edcfcb7628a7b710b9",
+    "source_pixel_sha256": "1bb1ea4a3d785539c78c3ef087f1b7026a3ea81d9ce0a86b0b1faaf54c0445df",
     "id": "hoarfrost_seer_cutout",
     "mode": "clean",
     "grid": 1.0,
@@ -9209,8 +9209,8 @@
     "facing": "front"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png": {
-    "pixel_sha256": "301f57f261b86c19f4fdff87b71bff871509a297c411bd004efd0cff8af9c40c",
-    "source_pixel_sha256": "f202db75c56baa4e08c3589b88c40102b3270bb9abb3fbdfc1f8bc0eafc53b5d",
+    "pixel_sha256": "a6a93cfa0c532301a37f813d81c46a8ae54b43a7fbe03cdf7a8e0d7967d54460",
+    "source_pixel_sha256": "705c5addbcf690fc1e4cec6801afafebc533f7d8432cf3465349081e1a88f0ce",
     "id": "hoarfrost_seer_cutout",
     "mode": "clean",
     "grid": 1.0,
@@ -9321,8 +9321,8 @@
     "facing": "rear"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png": {
-    "pixel_sha256": "4fa4630e1e8730cbe34f6f209afbfe16002e96ff96b5a2d8b47f2bc64fd96613",
-    "source_pixel_sha256": "4b1f8c89cc61e2be88f859890b43fcc7cb3f437e178e9110317ad2ef5c1d3767",
+    "pixel_sha256": "25d0da1cf54229da589e5cb7b8c3b40db1f00f2dc9b51ae97e9c05d38765b76a",
+    "source_pixel_sha256": "d487a56eae8e5d16140457d6ba2cb5d721f2baf6d2778daa966e0e053dcd6efb",
     "id": "hoarfrost_seer_cutout",
     "mode": "clean",
     "grid": 1.0,

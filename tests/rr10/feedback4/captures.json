@@ -2,7 +2,7 @@
   "capture_commit": "5abe9b561 (retained at 477e6d24a)",
   "native_manifest_sha256": "fad9a3440064ae77fe841717357f3eb61a3ba499aa816f8d023b2dcbe96a5a4e",
   "compiled_motion_sha256": "6ffa2aa81e03e7c9b1f7cecf17a3a7cf35f565aef1e806c4babf8293cfe69dd4",
-  "scope": "captured pre-feedback4 GPU body; only updated rigid tucks rendered headlessly; not current mesh/native acceptance",
+  "scope": "rr-13 feedback 3: historical GPU body plus only newly added fixed-fill CPU texels; historical seams, rest-hole masks and regression_tuck unchanged; not GPU acceptance",
   "rigid_tucks": [
     "hidden_hand_near",
     "hidden_hand_far",
@@ -19,7 +19,7 @@
       "files": {
         "owners": {
           "file": "mark_0030_owners.png",
-          "sha256": "f414b549fb4b05c2d05b495f0dada7b2b3c093ea9d0c7b892d42ff6186968084"
+          "sha256": "7207d3d8dd84a3a2d0e027c2459e7efcc8338bc95e5490422bc9b994ee5f56e2"
         },
         "seam": {
           "file": "mark_0030_seam.png",
@@ -32,6 +32,10 @@
         "regression_tuck": {
           "file": "mark_0030_regression_tuck.png",
           "sha256": "5b19558a0cdb088edee910333cc134ffd83ffa19abc71e5127f4a55be4fa3afa"
+        },
+        "historical_owners": {
+          "file": "mark_0030_owners_historical.png",
+          "sha256": "f414b549fb4b05c2d05b495f0dada7b2b3c093ea9d0c7b892d42ff6186968084"
         }
       }
     },
@@ -57,6 +61,10 @@
         "regression_tuck": {
           "file": "death_0030_regression_tuck.png",
           "sha256": "3fc14b968d924df9e0dcde7259b4a84e000b99479655be951932c70dcd73160b"
+        },
+        "historical_owners": {
+          "file": "death_0030_owners_historical.png",
+          "sha256": "8ef1f6d2e69e7062eb7ef9d2f62b572d2fff233c8510bc2641178fedfc5f3bf4"
         }
       }
     },
@@ -82,6 +90,10 @@
         "regression_tuck": {
           "file": "move_0009_regression_tuck.png",
           "sha256": "ecdb39be566ee20191855fa3596315d52eb3d644908a9db90dee9c482fa8a78f"
+        },
+        "historical_owners": {
+          "file": "move_0009_owners_historical.png",
+          "sha256": "070e954735c55e56bd25dcb5e37f21c41f978fad75494e492fe88de8afd02f43"
         }
       }
     },
@@ -103,8 +115,36 @@
         "rest_holes": {
           "file": "bolt_0027_rest_holes.png",
           "sha256": "cefda57228fdeedb657dcd06c5e5a0c5d63d38b78ae1b47abe1e443947d3161e"
+        },
+        "historical_owners": {
+          "file": "bolt_0027_owners_historical.png",
+          "sha256": "e3cc67fb1f125b6e991b668ac2e1f76d65a2f19e66611521566a9bcc45ee0c56"
         }
       }
     }
-  ]
+  ],
+  "fixed_fill_source_sha256": {
+    "layouts/front.json": "878b6d203e34ec00a1d46297a1ecd177b75b0bd7aa869791ae42a09b0ef6b0df",
+    "compiled_motion.json": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
+    "pieces/front/hidden_head.png": "038fc5489f4081a7cd3bbc00e94fc202cd5d26f18ddc81e5df53afaa15017b4c",
+    "pieces/front/head.png": "6874065a39761cb849f588198cd4b7a0f1a02302ca7c0145e243f2b00076bd55",
+    "pieces/front/hidden_torso.png": "872d89ebf57f93520cc1a5a4715eefb04539c6fe5634027a5f5d138b9edf00b6",
+    "pieces/front/torso.png": "eb76de6b573f68d6e29efce11daf11ac875bedabc9662ffa48a11377b49f3f1e",
+    "pieces/front/sleeve_near.png": "443938148bf6fa6be98f621362640f301d70ae8727955b03d9f1ae08c0518a65",
+    "pieces/front/hidden_sleeve_far.png": "06292e0f79d78d75e7ea3e1a17b60e8d83d77f4e40ae3d9f7a0542744fa6adb9",
+    "pieces/front/sleeve_far.png": "d94bb941e4d03228e66c1acd9608af60bf574798ce251a04cec0828a2252a2da",
+    "pieces/front/hidden_hand_near.png": "4408db4845058aa9541f3c0919c887c4660828d52897a09c7405ac5c2ceae110",
+    "pieces/front/hand_near.png": "1bb6969bf5a7afa7ad58cb4ff6a31a07d1bfef8fc781142459d7b05b8256a198",
+    "pieces/front/hidden_hand_far.png": "8363958c565200ea8556d30698e14d9c5b16c0065acf21b5c01cee7b6a4df5af",
+    "pieces/front/hand_far.png": "b28e099d9c416aa6bbd08155d04211073fef3d0ffcf81de0dbc0f673c11dcbc0",
+    "pieces/front/hidden_staff.png": "f45ad1570cba630d17a61371d17ef76f0161bd39461a330bd3a05ac05d0470b6",
+    "pieces/front/staff.png": "6aa3d98abd0a97c54269e76603db821e2c7db326eec3441964b3f6561a344836",
+    "pieces/front/hidden_robe.png": "e2cf1cc23ecc05de0f47eb192d0fc5c3925f35299cd5d56ca882682f65416370",
+    "pieces/front/robe.png": "0b08b3821c721dba858746d80bf0b7f180b2b5725a50a89c823f67f56caee23d",
+    "pieces/front/hidden_foot_near.png": "e5c461a1beb156e36d3bb6b13cfd7d5195ad0a237a2ba4de9cec15dda19d8369",
+    "pieces/front/foot_near.png": "d9227a34299fa9920498d5fa15007dd66ca8a561fdb5aa90cef802540c1bc4cb",
+    "pieces/front/hidden_foot_far.png": "b72c99ca7c8bc33e641809467756b8f31aa9d06906a0177a35b19b5c321c7f17",
+    "pieces/front/foot_far.png": "79c88b96e284ed29f60ec3d2f3a0e5c9a5ecf18024b29fea3c948dca7ddc7214"
+  },
+  "cpu_pose_sha256": "886fce848441820a0a58a9626f8df394e33bdbb1a59e7fa87bc93978ee6ad99a"
 }

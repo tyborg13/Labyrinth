@@ -42,6 +42,7 @@ class HumanoidTests(unittest.TestCase):
             if process.returncode:
                 raise AssertionError(process.stdout + process.stderr)
             cls.samples = read(target)
+        cls.current_bindings = bindings(CASE)
 
     def test_exact_protected_copy_and_compilation(self):
         self.assertEqual((CASE / 'director_motion.json').read_bytes(), DIRECTOR.read_bytes())
@@ -64,7 +65,7 @@ class HumanoidTests(unittest.TestCase):
     def test_structure_and_all_real_bones(self):
         self.assertEqual(structure_errors(self.layout, self.build), [])
         self.assertEqual(source_errors(CASE,self.layout,self.build), [])
-        self.assertEqual(bone_errors(self.layout, self.data, self.samples), [])
+        self.assertEqual(bone_errors(self.layout, self.data, self.samples, self.current_bindings), [])
 
     def test_weights_top_hem_elbow_and_normalization(self):
         weights = robe_weights([[0,0],[0,4],[0,10],[12,10],[6,10]], [0,0,12,10])
@@ -84,7 +85,7 @@ class HumanoidTests(unittest.TestCase):
         report = copy.deepcopy(self.samples)
         row = next(r for r in report['samples'] if r['clip'] == clip and r['kind'] == 'presented')
         operation(row['bones'][bone]['global'])
-        return bone_errors(self.layout, self.data, report)
+        return bone_errors(self.layout, self.data, report, self.current_bindings)
 
     def test_one_degree_idle_torso_rotation_fails(self):
         def rotate(t):
@@ -114,10 +115,10 @@ class HumanoidTests(unittest.TestCase):
         report = copy.deepcopy(self.samples)
         row = next(r for r in report['samples'] if r['clip']=='ward' and r['kind']=='authored' and r['phase']==.3)
         row['bones']['torso']['local'][4] += 1
-        self.assertTrue(any('signed translation' in e for e in bone_errors(self.layout,self.data,report)))
+        self.assertTrue(any('signed translation' in e for e in bone_errors(self.layout,self.data,report,self.current_bindings)))
         row = next(r for r in report['samples'] if r['clip']=='ward' and r['kind']=='authored' and r['phase']==.15)
         row['bones']['hand_near']['global'][4] += 1
-        self.assertTrue(any('signed hand target' in e for e in bone_errors(self.layout,self.data,report)))
+        self.assertTrue(any('signed hand target' in e for e in bone_errors(self.layout,self.data,report,self.current_bindings)))
 
     def test_world_step_and_release_floor_end(self):
         rows = [r for r in self.samples['samples'] if r['kind']=='authored' and r['view']=='front']
