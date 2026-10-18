@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    154,
+    223
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.07814771359014247,
+    "edge_light_share": 0.0,
+    "feature_px": 6.8175631032405315,
+    "height": 223,
+    "height_drawn": 223.0,
+    "orphan_share": 0.0603989242492156,
+    "regions": 384,
+    "run_length": 2.37435147000133,
+    "symmetry": 0.7559911736029148,
+    "thin_abs": 0.008348274316450022,
+    "thin_rel": 0.0797288211564321,
+    "value": 0.23710236770638327,
+    "width": 154
+  },
+  "pixel_sha256": "58f6904609ce271ee7fe8c5d6b82867fc7270fa4e7994a5ee06d4ef725919dab",
+  "placement": [
+    51,
+    23
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/hoarfrost_seer/mq5_front/kit.json",
+        "pixel_sha256": "41c8a688345d67e2f3286e4b99c13176a454b4f3c3b66470e929d99d8097a351"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "84fea9fc863e849382c14fbd6747b85f044dbc6fef531ee0eeae01c39cb1d952",
+      "protected_body_share": {
+        "front": 0.026926417669686065,
+        "rear": 0.04921394395078606
+      },
+      "reference_pixel_sha256": "41c8a688345d67e2f3286e4b99c13176a454b4f3c3b66470e929d99d8097a351",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "6393ca934300a04f5eee24e08bc523f289955b36250776e63b22fbbbef604144",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "ff41c22a2cb0ad4bca4011adb006692c0be5bd9ea91304e501de195de69e7c6c",
+  "shift": [
+    0,
+    0
+  ]
+}
