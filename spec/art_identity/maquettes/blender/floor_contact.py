@@ -140,7 +140,15 @@ def projection_error(spec, before, after):
     return float(np.max(abs(a - b), initial=0))
 
 
-def contact_guard(contacts, floor, exceptions=()):
+def contact_guard(contacts, floor, exceptions=(), *, required_contacts=None):
+    if not contacts:
+        raise ValueError('Floor contact inventory must not be empty')
+    if required_contacts is not None:
+        missing = set(required_contacts) - set(contacts)
+        unexpected = set(contacts) - set(required_contacts)
+        if missing or unexpected:
+            raise ValueError('Floor contact inventory differs from specification: missing=' +
+                             str(sorted(missing)) + '; unexpected=' + str(sorted(unexpected)))
     documented = {}
     for entry in exceptions:
         name = entry.get('point')
@@ -158,16 +166,42 @@ def contact_guard(contacts, floor, exceptions=()):
             'passed': all(row['passed'] for row in rows.values())}
 
 
-def spec_contacts(spec, exceptions=()):
+def point_contacts(spec, view):
+    """Ankles and planted prop endpoints from the view's specification."""
+    if view not in ('front', 'rear'):
+        raise ValueError('Floor contacts require a front or rear view')
+    points = {name: point[2] for name, point in spec['joints'].items() if name.startswith('ankle_')}
+    for piece in spec['pieces']:
+        if piece.get('capture_view', view) != view:
+            continue
+        if piece['part'] in spec.get('fit', {}).get('weapon_parts', []) and 'path' in piece:
+            if any(word in piece['id'] for word in ('shaft', 'staff')) and not piece.get('closed'):
+                points[piece['id'] + '.prop_foot'] = min(piece['path'][0][2], piece['path'][-1][2])
+    return points
+
+
+def expected_contact_names(spec, view):
+    """Inventory independent of a native report's supplied rows.
+
+    Floor-length robe pieces own the skirt labels. Torso cloth also uses the
+    'skirt' construction, so its kind alone must not require a floor hem.
+    Native hem extrema cover both shells of the complete robe boundary.
+    """
+    names = set(point_contacts(spec, view))
+    for piece in spec['pieces']:
+        parts = [piece['part'], *piece.get('side_parts', [])]
+        if (piece.get('capture_view', view) == view and piece['type'] == 'cloth' and
+                piece.get('kind') == 'skirt' and any(part.startswith('skirt_') for part in parts)):
+            names.update(('hem_min', 'hem_max'))
+    return names
+
+
+def spec_contacts(spec, exceptions=(), view='front'):
     """Audit explicit fitted ankle and prop endpoints, independent of Blender.
 
     Cloth boundaries must be supplied to contact_guard from the native mesh;
     a shirt, knee-length tabard or banner hem is not a floor-contact point.
     """
     floor = spec['joints']['ankle_near'][2]
-    points = {name: point[2] for name, point in spec['joints'].items() if name.startswith('ankle_')}
-    for piece in spec['pieces']:
-        if piece['part'] in spec.get('fit', {}).get('weapon_parts', []) and 'path' in piece:
-            if any(word in piece['id'] for word in ('shaft', 'staff')) and not piece.get('closed'):
-                points[piece['id'] + '.prop_foot'] = min(piece['path'][0][2], piece['path'][-1][2])
-    return contact_guard(points, floor, exceptions)
+    points = point_contacts(spec, view)
+    return contact_guard(points, floor, exceptions, required_contacts=set(points))

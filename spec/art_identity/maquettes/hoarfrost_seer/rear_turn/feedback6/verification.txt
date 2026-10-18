@@ -1,0 +1,37 @@
+mq-06 feedback 6: floor-contact inventory review fix
+Director HEAD preserved: 51a48efa4
+All changes uncommitted.
+
+omissions_before.log
+Ran 2 tests in 8.252s
+FAILED (failures=5, errors=1)
+
+rear_turn.log
+Ran 16 tests in 14.190s
+OK
+
+focused.log
+Ran 98 tests in 18.793s
+OK (skipped=2)
+
+art_identity.log
+Ran 111 tests in 37.320s
+OK
+
+full_python.log
+Ran 855 tests in 769.128s
+OK (skipped=63)
+
+MQ06_FLOOR_INVENTORY: PASS; rear=ankle_far, ankle_near, hem_max, hem_min, staff_shaft.prop_foot; exceptions=[]
+MQ06_DELIVERY_VALIDATION: PASS; strict frozen-front and planted-rear certificates
+MQ06_FRONT_FREEZE: PASS; files=21; joint displacement=0 px
+MQ06_STAGED_REAR_HASHES: PASS; unchanged files=34
+
+OUTPUT GDIGNORE: PASS (13 folders; 3 referenced roots)
+git diff --check: exit=0
+No geometry, capture, or native certificate was regenerated.
+No .gd files changed; no windowed command applies to this validation fix.
+TODO_DESIGN: none. Production tolerances unchanged.
+Chosen defaults: named test fixture coordinates, floor Z=0.02 m and hand/prop-top Z=1 m.
+Open implementation issues: none. Supplied review file was absent; quoted finding implemented.
+Final curation: see curation.log for observed result.

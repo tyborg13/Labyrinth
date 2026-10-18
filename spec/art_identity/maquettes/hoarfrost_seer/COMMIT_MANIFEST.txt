@@ -1,6 +1,6 @@
 # Paths relative to this figure. Shared builder: ../blender/*.py
 # Frozen front: measurements.json. Planted rear: rear_turn/feedback4/rear_recipe.json.
-# Seer-only fit policy: rear_turn/feedback5/fit_policy.json. rr07 reader patch awaits scope authorization.
+# Seer-only fit policy: rear_turn/feedback5/fit_policy.json. Floor inventory proof: rear_turn/feedback6/README.md.
 .gdignore
 COMMIT_MANIFEST.txt
 README.md
@@ -179,6 +179,16 @@ rear_turn/feedback5/status.json
 rear_turn/feedback5/turn_audit.json
 rear_turn/feedback5/turn_regression.log
 rear_turn/feedback5/verification.txt
+rear_turn/feedback6/README.md
+rear_turn/feedback6/art_identity.log
+rear_turn/feedback6/curation.log
+rear_turn/feedback6/final_file_list.txt
+rear_turn/feedback6/focused.log
+rear_turn/feedback6/full_python.log
+rear_turn/feedback6/omissions_before.log
+rear_turn/feedback6/rear_turn.log
+rear_turn/feedback6/validation.log
+rear_turn/feedback6/verification.txt
 rear_turn/historical_test_result_lines.json
 rear_turn/native_reproduction.json
 rear_turn/protected_sha256.json

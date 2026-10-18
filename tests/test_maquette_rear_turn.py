@@ -198,6 +198,83 @@ class RearTurnTests(unittest.TestCase):
             [spec['joints']['ankle_near'][2] - config['fitted_joints']['ankle_far'][2]])[0]
         np.testing.assert_allclose(spec['joints']['ankle_far'], expected)
 
+    def test_resealed_floor_reports_cannot_omit_required_contacts(self):
+        from shutil import copyfile
+        from spec.art_identity.maquettes.blender.curate_delivery import stage
+        from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
+        from spec.art_identity.maquettes.blender.delivery_validation import seal_delivery, validate_delivery
+        from spec.art_identity.maquettes.blender.view_delivery import source_spec
+        figure = MAQUETTES / 'hoarfrost_seer'
+        with tempfile.TemporaryDirectory() as directory:
+            destination = Path(directory)
+            copyfile(figure / 'measurements.json', destination / 'measurements.json')
+            stage(destination, figure / 'delivery')
+            delivery = destination / 'delivery'
+            spec = compile_recipe(json.loads((destination / 'measurements.json').read_text()))
+            sources = json.loads((delivery / 'view_sources.json').read_text())
+            rear = source_spec(delivery, sources['overrides']['rear'])
+            certificate = delivery / sources['overrides']['rear']['certificate']
+            path = certificate / 'build_report.json'
+            before = path.read_bytes()
+            points = json.loads(before)['geometry_details']['floor_contact']['points']
+            cases = {
+                'missing_far_ankle': set(points) - {'ankle_far'},
+                'all_foot_and_prop_rows_omitted': {'hem_min', 'hem_max'},
+                'missing_staff_butt': set(points) - {'staff_shaft.prop_foot'},
+                'missing_hem_boundary': set(points) - {'hem_max'},
+                'empty_contact_report': set(),
+            }
+            for name, retained in cases.items():
+                with self.subTest(omission=name):
+                    data = json.loads(before)
+                    data['geometry_details']['floor_contact']['points'] = {
+                        point: row for point, row in points.items() if point in retained}
+                    path.write_text(json.dumps(data))
+                    # Rebind the changed native report: stale hashes must not be
+                    # the reason the complete delivery rejects the omission.
+                    seal_delivery(rear, certificate, views=('rear',), image_folder=delivery)
+                    validate_delivery(rear, certificate, views=('rear',), image_folder=delivery)
+                    with self.assertRaisesRegex(ValueError, 'Floor contact inventory'):
+                        seal_delivery(spec, delivery)
+                    with self.assertRaisesRegex(ValueError, 'Floor contact inventory'):
+                        validate_delivery(spec, delivery)
+            path.write_bytes(before)
+            seal_delivery(rear, certificate, views=('rear',), image_folder=delivery)
+            seal_delivery(spec, delivery)
+            validate_delivery(spec, delivery)
+
+    def test_empty_floor_helper_input_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, 'Floor contact inventory'):
+            contact_guard({}, .02)
+
+    def test_floor_inventory_comes_from_joints_and_view_pieces(self):
+        from spec.art_identity.maquettes.blender.floor_contact import expected_contact_names
+        fixture = {
+            'joints': {'ankle_near': [0, 0, .02], 'ankle_far': [0, 0, .02],
+                       'ankle_extra': [0, 0, .02], 'hand': [0, 0, 1]},
+            'fit': {'weapon_parts': ['staff']},
+            'pieces': [
+                {'id': 'robe', 'type': 'cloth', 'kind': 'skirt', 'part': 'skirt_near',
+                 'side_parts': ['skirt_near', 'skirt_far'], 'capture_view': 'rear'},
+                {'id': 'shirt', 'type': 'cloth', 'kind': 'skirt', 'part': 'torso'},
+                {'id': 'staff_shaft', 'type': 'curve', 'part': 'staff',
+                 'path': [[0, 0, .02], [0, 0, 1]], 'capture_view': 'rear'},
+                {'id': 'staff_band', 'type': 'curve', 'part': 'staff',
+                 'path': [[0, 0, 1], [0, 0, 1]], 'closed': True},
+            ],
+        }
+        ankles = {'ankle_near', 'ankle_far', 'ankle_extra'}
+        self.assertEqual(expected_contact_names(fixture, 'front'), ankles)
+        expected = ankles | {'hem_min', 'hem_max', 'staff_shaft.prop_foot'}
+        self.assertEqual(expected_contact_names(fixture, 'rear'), expected)
+        contacts = dict.fromkeys(expected, .02)
+        self.assertTrue(contact_guard(contacts, .02, required_contacts=expected)['passed'])
+        for omitted in expected:
+            with self.subTest(omitted=omitted):
+                with self.assertRaisesRegex(ValueError, 'Floor contact inventory'):
+                    contact_guard({name: height for name, height in contacts.items() if name != omitted},
+                                  .02, required_contacts=expected)
+
     def test_packed_delivery_reseals_without_changing_visible_pixels(self):
         from shutil import copyfile
         from spec.art_identity.maquettes.blender.curate_delivery import stage
