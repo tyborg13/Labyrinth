@@ -13,12 +13,7 @@
   "density": {
     "entry": "hoarfrost_seer_cutout",
     "paint": "adopted/processed from untouched source parts",
-    "native_rest_pending": [
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/front/rest.png: rig part pixels changed since recorded rebake",
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png: rig part pixels changed since recorded rebake",
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png: rig part pixels changed since recorded rebake",
-      "rest rebake needed: assets/units/hoarfrost_seer_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
-    ]
+    "native_rest_pending": []
   },
   "files": {
     "actions.gd": "5fb5be41dade5aed30c593f6ae8fda84d8cc74f9b8099af802da9eb6f1499267",

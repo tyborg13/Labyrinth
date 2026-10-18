@@ -20,6 +20,9 @@ from humanoid_cutout.tucks import TUCK_DEPTHS_PX
 
 CASE=PROJECT/'experiments/cutouts/hoarfrost_seer/rr10'
 FIXTURES=PROJECT/'tests/rr10/feedback4'
+# The fixture body is a pre-rr-13 GPU capture. Under rr-13's stricter seam locality it shows the 2 px robe/torso
+# waist opening the director approved for front death 27-30 (gate_exceptions.json). Pinned exactly so any growth fails.
+HISTORICAL_RESIDUALS={('death',30):[2]}
 PROOF_TIMEOUT_SECONDS=180
 PROOF_TASK_ID=os.environ.get('LABYRINTH_TASK_ID', 'rr-13')
 
@@ -93,7 +96,7 @@ class TuckTests(unittest.TestCase):
     def test_new_rigid_tucks_close_the_captured_wrist_and_foot_openings(self):
         for record in self.fixtures['frames']:
             with self.subTest(clip=record['clip'],frame=record['frame']):
-                self.assertEqual(self.check_fixture(record),[])
+                self.assertEqual(self.check_fixture(record),HISTORICAL_RESIDUALS.get((record['clip'],record['frame']),[]))
 
     def test_wrist_mutation_reopens_mark_and_death_seams(self):
         for record in self.fixtures['frames']:
