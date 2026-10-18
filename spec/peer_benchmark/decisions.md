@@ -165,3 +165,9 @@
   - \U escapes aren't decoded.
 - The last two fail loudly as orphans, so the fix is to use a plain string.
 - Every other item in that review was verified. qa-08 is accepted at eec098b526aaf8f61af80fab786c91d6e06c59a3 (fecdbf24e plus the limits docstring).
+
+## 2026-10-17 mq-04 frozen clay bytes
+- The r3 Seer and Thrall clay and part-map PNGs were re-encoded during curation. The original files were never
+  committed and curation deleted them, so their bytes can't be restored.
+- Pixels are verified identical to the paint-over kits' references, and pixels are what downstream consumes. Accepted;
+  staging now preserves bytes from here on.
