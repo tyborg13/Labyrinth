@@ -272,3 +272,16 @@
   (`view_keys.<view>`) in motion data. The rear jab contact aims about 90% extended toward the rear facing at shoulder
   height (forward 209 / lift 50). The rear tether hold is forward 206 / lift 63. A new gate keeps every two-bone target
   inside its reachable annulus.
+
+## 2026-10-19 Glacial Mirror before its rig
+- The mq-05 Mirror maquette breaks the shoulder rule: front `shoulder_far` (280, 332) sits 24 px below `shoulder_near`
+  (722, 308); the rule needs about 66 px above. The 180° turn shows the body's right shoulder ~66 px lower in 3D, so
+  the golem is lopsided, the same defect the owner rejected on the Thrall. The mq5 paint-over also dropped the far
+  pauldron boulder, so the far arm hangs from a small, low shoulder.
+- Fix before rigging: mq-08 levels the shoulders in 3D and reshapes the far pauldron into a shoulder mass like the near
+  one; the director repaints both views from the new clays (rounded, chipped boulders with painted value steps and
+  worn texture, not flat polygon facets; follow the clay's shoulder masses). Then the rig (humanoid v2, every piece
+  rigid: boulders overlap at the joints; both arms are free arms in the idle upper-body group).
+- Other maquettes measured against the rule (front, far higher by / rule): Gloam −56 / 48 and Herald 8 / 34 also fail;
+  Seer −12 / 35 (owner-approved, robe and collar hide it); Lancer far 103 above. Fix the Gloam and Herald in their own
+  v2 conversion units, checking the Herald's torso yaw (its shoulder line is nearly square to the camera).
