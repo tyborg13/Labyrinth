@@ -296,3 +296,7 @@
   windowed rest step). The authoring cut stays exact against the painting. Same precedent as the Thrall and Capacitor.
 - rr-17 review: in a multi-kill each dying creature keeps its own death clock; a long Capacitor death never stretches
   the others. Every chain hop plays its cue once, including under reduced motion and skipped callbacks.
+- Seam rule for rigid-piece golems (Glacial Mirror): air opening between separate boulders is in character. A pocket
+  passes only when every pixel maps to air in the approved painting or outside every boulder's painted area and tuck. A
+  hole through stone or a joint tearing open still fails. It is a case-level policy, not frame exceptions; every other
+  figure keeps the strict rule.
