@@ -60,12 +60,13 @@ def fk_world(layout, values, modes, forward, step):
         mode = modes.get(name, 'pixels')
         if mode == 'fraction_of_step': amount *= step
         if mode == 'world_step': amount = (amount - values.get('root', {}).get('forward_px', 0.)) * step
+        origin += [channels.get('lane_px', 0.), 0.]
         origin += forward * amount + [np.sign(joints['root']['position'][0] - position[0]) *
                                       channels.get('inward_px', 0.), -channels.get('lift_px', 0.)]
         angle = math.radians(channels.get('lean_deg', 0.))
         c, s = math.cos(angle), math.sin(angle)
         local = np.array([[c, -s, origin[0]], [s, c, origin[1]], [0., 0., 1.]])
-        if layout.get('leg_roles') and mode == 'world_step' and name.startswith('foot_'):
+        if (layout.get('leg_roles') or 'lane_px' in channels) and mode == 'world_step' and name.startswith('foot_'):
             # A world-step foot has its floor anchor in the root frame. The
             # pelvis can dip beneath that target without carrying the floor.
             local[:2, 2] = position - joints['root']['position'] + origin - (
@@ -75,6 +76,8 @@ def fk_world(layout, values, modes, forward, step):
             result[name] = visit(parent) @ local if parent else local
         return result[name]
     for name in joints: visit(name)
+    from .gait import adjust_fk
+    adjust_fk(layout, values, forward, step, result)
     return result
 
 

@@ -15,11 +15,37 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.85,
+      "seconds": 0.9,
       "intents": [
         "advance:move_toward"
       ],
-      "note": "a heavy plod on the Thrall's proven pattern: the long camera-side leg (stride) plants two half-tile world steps with a 5 px stomp lift and a bent knee; the foreshortened leg (trailing) follows the body with a 2 px shuffle between strides; the pelvis never rises above rest and drops 3 px after each landing, the torso jolts 1 px on each plant; the fists sway",
+      "note": "a heavy golem walk on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 6 px lift; the pelvis settles 3.5 px after each landing; the rigid boulder legs space their joints at most 14% on long reaches; both fists swing 3 px opposite the stepping leg; the torso leans 2 degrees",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 6,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.14,
+        "settle_px": {
+          "contact": 2.0,
+          "down": 3.5,
+          "passing": 1.0,
+          "up": 0.5
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
       "release_at": {}
     },
     "refraction": {

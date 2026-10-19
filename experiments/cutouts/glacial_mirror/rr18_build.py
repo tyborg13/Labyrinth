@@ -125,7 +125,7 @@ def build_view(view,inputs,anatomy):
         parts.append(dict(main,bone=bone,z_index=depths[name],logical_part=name,presentation_anchor=anchor))
     layout = {'version':2,'rig':'humanoid_v2','facing':view,'canvas_size':[255,255], 'joints':joints,'parts':parts,
         'joint_meshes':[],'idle_groups':GROUPS,'held_items':{}, 'ik_chains':[],
-        'planted_bones':anatomy['planted_bones'], 'leg_roles':anatomy['leg_roles'][view], 'source_labels':PIECES,'features':[],
+        'planted_bones':anatomy['planted_bones'], 'source_labels':PIECES,'features':[],
         'rest_source':f'source/{view}/continued.png','raw_rest_source':f'source/{view}/processed.png','motion_data':'res://'+str(CASE.relative_to(PROJECT)/'compiled_motion.json')}
     # The single front feature remains wholly inside the torso owner. Its
     # exact source paint is protected along with the entire chest boulder.
@@ -167,6 +167,9 @@ def build(import_director=False):
     layouts,reports,projections = {},{},{}
     for view in ('front','rear'): layouts[view],reports[view],projections[view] = build_view(view,inputs,anatomy)
     compiled = compile_motion(copied,'glacial_mirror',layouts,projections)
+    for view, layout in layouts.items():
+        layout['gait_leg_scale_max'] = compiled['clips']['move']['gait'].get('leg_scale_max', 1.22)
+        write_json(CASE / f'layouts/{view}.json', layout)
     write_json(CASE/'compiled_motion.json',compiled)
     write_json(CASE/'cutout.json',{'character_id':'glacial_mirror','rig':'humanoid_v2','layouts':{v:f'layouts/{v}.json' for v in layouts},
         'design_placeholders':inputs['design_placeholders'],'clips':compiled['clips'],'direction_clips':['refraction','guard'],

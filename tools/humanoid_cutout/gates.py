@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 
 from cutout_pipeline.cases import read_json, digest
-from maquette_motion.compiler import evaluate
+from .gait import evaluate
 from .silhouette_gates import detached_metrics, joint_holes, posed_owners
 from .anatomy import for_layout, load
 
@@ -91,7 +91,8 @@ def structure_errors(layout, build):
 def source_errors(case, layout, build):
     build = view_build(layout, build)
     from maquette_motion.features import source_pixels
-    errors = []
+    from .gait_continuations import errors as continuation_errors
+    errors = continuation_errors(case, layout)
     images = {p['name']: source_pixels(case,p) for p in layout['parts']}
     continuations = {}
     rest = Image.new('RGBA',(255,255))
@@ -169,11 +170,12 @@ def bone_errors(layout, data, report, current_bindings):
                 modes[track['bone']] = track['forward_mode']
             root_progress = values.get('root', {}).get('forward_px', 0.)
             from .bone_contracts import target_chains, fk_world, ik_errors
+            gait = 'gait' in data['clips'][clip]
             chains = target_chains(layout, values)
             solved = {chain[key] for chain in chains for key in ('first', 'second', 'target')}
             fk = fk_world(layout, values, modes, forward, step)
             for name, channels in values.items():
-                if name in solved or name in layout.get('held_items', {}): continue
+                if name in solved or name in layout.get('held_items', {}) or (gait and name == 'pelvis'): continue
                 position = np.asarray(joints[name]['position'])
                 parent = joints[name]['parent']
                 origin = position - (np.asarray(joints[parent]['position']) if parent else 0.)
@@ -188,6 +190,7 @@ def bone_errors(layout, data, report, current_bindings):
                 if abs(angle(bones[name]['local']) - channels.get('lean_deg', 0.)) > EPSILON:
                     errors.append(tag + ': signed rotation: ' + name)
             for chain in chains:
+                if gait and chain['target'].startswith('foot_'): continue
                 errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON, anatomy)]
             for item in layout.get('held_items', {}):
                 expected_angle = values.get(item, {}).get('angle_deg', 0.)
@@ -226,6 +229,9 @@ def bone_errors(layout, data, report, current_bindings):
         for item in layout.get('held_items', {}):
             if clip != 'death' and abs(angle(bones[item]['global'])) > 35 + EPSILON:
                 errors.append(tag + ': ' + item + ' angle limit')
+    if any('gait' in definition for definition in data['clips'].values()):
+        from .walk_gates import report as walk_report
+        errors += walk_report(layout, data, report)['errors']
     from .action_direction import report as action_direction_report
     errors += action_direction_report(layout, data, report, current_bindings)['errors']
     return sorted(set(errors))
@@ -384,12 +390,15 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         # Retain one frame of GPU surfaces, not the entire reel in RAM.
         layers=[]
         for row in rows:
+            part = next(p for p in layout['parts'] if p['name'] == row['name'])
+            if row['source'] != part['file']: errors.append(row['file'] + ': native source differs from layout')
             image=np.asarray(Image.open(capture / row['file']).convert('RGBA'))
             checks=np.asarray(Image.open(capture / row['checks']).convert('RGBA'))
             if row.get('rigid'):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
-                source=Image.open(case / row['source']).convert('RGBA')
+                from .gait_continuations import texture
+                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip]))
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.

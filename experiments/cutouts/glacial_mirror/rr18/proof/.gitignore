@@ -16,3 +16,8 @@
 !repair.json
 !green_sources.json
 !raw_identity.json
+
+# gait-01 director native captures and composed move proof
+gait_move_native/
+gait_move_sheet.png
+gait_move_sheet.json

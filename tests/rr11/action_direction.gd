@@ -17,3 +17,8 @@ func record(rig: Node2D, view: String, clip: String, phase: float, frame: int, k
 		row["direction_bones"] = row["bones"].duplicate(true)
 	row["direction_phase"] = sample_phase
 	return row
+
+func proof_geometry(data: Dictionary) -> Dictionary:
+	if data["clips"].get("move", {}).has("gait"):
+		return await preload("res://tests/gait01/board_geometry.gd").measure(self, str(data["creature"]))
+	return await super.proof_geometry(data)

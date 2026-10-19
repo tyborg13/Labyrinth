@@ -1,9 +1,9 @@
 #!/bin/sh
 # Director-only windowed proof. Every stage is explicit; no worker GUI retries.
 set -eu
-stage="${1:?Use density, rest, native, production, idle, review or sheets}"
+stage="${1:?Use density, rest, native, production, idle, review, move or sheets}"
 project="$(pwd)"
-task_id="${LABYRINTH_TASK_ID:-rr-18}"
+task_id="${LABYRINTH_TASK_ID:-gait-01}"
 rig_case="$project/experiments/cutouts/glacial_mirror/rr18"
 proof="$rig_case/proof"
 case "$stage" in
@@ -26,6 +26,7 @@ python3 -B experiments/cutouts/glacial_mirror/rr18_gates.py --native "$proof/nat
 production)
 for view in front rear; do
 python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract tests/rr18/production_contract.json tests/rr18/production_capture.gd -- --type glacial_mirror --view "$view" --output "$proof/production_native/$view"
+PYTHONPATH=tools python3 -m humanoid_cutout.production_gates --case "$rig_case" --capture "$proof/production_native/$view"
 done
 ;;
 idle)
@@ -35,6 +36,10 @@ PYTHONPATH=tools python3 -m humanoid_cutout.proof idle --case "$rig_case" --capt
 review)
 # Requires both approved views; intentionally refuses the obsolete mirrored rear.
 PYTHONPATH=tools python3 -m humanoid_cutout.proof review --case "$rig_case" --capture "$proof/native" --output "$proof/glacial_mirror_review.mp4"
+;;
+move)
+python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/gait01/move_contract.json tests/gait01/move_capture.gd -- --case "$rig_case" --output "$proof/gait_move_native"
+PYTHONPATH=tools python3 -m humanoid_cutout.move_sheet --case "$rig_case" --capture "$proof/gait_move_native" --output "$proof/gait_move_sheet.png"
 ;;
 sheets)
 PYTHONPATH=tools python3 -m humanoid_cutout.proof sheets --case "$rig_case" --capture "$proof/native" --output "$proof/contact_sheets"

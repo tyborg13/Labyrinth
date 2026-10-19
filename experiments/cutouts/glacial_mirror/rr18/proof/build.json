@@ -1142,7 +1142,7 @@
       "source_ownership_sha256": "b6f07157b529a96c853d6c62337abc1435bbe52c1b23065b996ee767abce97c1"
     }
   },
-  "director_sha256": "91322088b5a9ca199e15c725967a79bf1999137eb61af44e462026eca42360e7",
+  "director_sha256": "31f78bfc141976e1998fbacdffa4ae2b3d6945c4545f8bdffaa774c895643aa2",
   "production_promoted": true,
   "native_proof": "pending director windowed captures"
 }

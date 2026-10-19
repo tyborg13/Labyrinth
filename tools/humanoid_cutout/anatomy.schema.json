@@ -732,6 +732,15 @@
       },
       "additionalProperties": false,
       "description": "Optional case-owned chroma residue threshold; omitted keeps existing material rules."
+    },
+    "channel_aliases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
     }
   },
   "additionalProperties": false

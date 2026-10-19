@@ -2,1393 +2,181 @@
   "front": {
     "ok": true,
     "errors": [],
-    "frames": [
-      {
-        "frame": 0,
-        "phase": 0.0,
-        "lift_px": 0,
-        "stride": {
-          "bend_deg": 3.1746194125806704,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 1,
-        "phase": 0.02,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 16.587360368111202,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 2,
-        "phase": 0.04,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 26.149058782354953,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 3,
-        "phase": 0.06,
-        "lift_px": 0.05096296296296289,
-        "stride": {
-          "bend_deg": 25.746595715389375,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 4,
-        "phase": 0.08,
-        "lift_px": 0.4159999999999998,
-        "stride": {
-          "bend_deg": 28.598911386843984,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 5,
-        "phase": 0.1,
-        "lift_px": 1.037037037037037,
-        "stride": {
-          "bend_deg": 32.771249060900026,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 6,
-        "phase": 0.12,
-        "lift_px": 1.8002962962962956,
-        "stride": {
-          "bend_deg": 33.71971273676622,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 7,
-        "phase": 0.14,
-        "lift_px": 2.592,
-        "stride": {
-          "bend_deg": 35.11705886203968,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 8,
-        "phase": 0.16,
-        "lift_px": 3.29837037037037,
-        "stride": {
-          "bend_deg": 37.47873537807845,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 9,
-        "phase": 0.18,
-        "lift_px": 3.8056296296296295,
-        "stride": {
-          "bend_deg": 40.60129464500447,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 10,
-        "phase": 0.2,
-        "lift_px": 4.0,
-        "stride": {
-          "bend_deg": 38.332583237079405,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 11,
-        "phase": 0.22,
-        "lift_px": 3.862825788751715,
-        "stride": {
-          "bend_deg": 36.769024898809676,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 12,
-        "phase": 0.24,
-        "lift_px": 3.4951989026063104,
-        "stride": {
-          "bend_deg": 33.12770859394773,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 13,
-        "phase": 0.26,
-        "lift_px": 2.962962962962963,
-        "stride": {
-          "bend_deg": 30.81321620714293,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 14,
-        "phase": 0.28,
-        "lift_px": 2.3319615912208502,
-        "stride": {
-          "bend_deg": 26.322997882578015,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 15,
-        "phase": 0.3,
-        "lift_px": 1.6680384087791498,
-        "stride": {
-          "bend_deg": 26.322997882578015,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 16,
-        "phase": 0.32,
-        "lift_px": 1.0370370370370372,
-        "stride": {
-          "bend_deg": 21.051923531052303,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 17,
-        "phase": 0.34,
-        "lift_px": 0.5048010973936892,
-        "stride": {
-          "bend_deg": 19.671168754896183,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 18,
-        "phase": 0.36,
-        "lift_px": 0.13717421124828544,
-        "stride": {
-          "bend_deg": 21.937804554867775,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 19,
-        "phase": 0.38,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 26.4780868876726,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 20,
-        "phase": 0.4,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 27.441721887042892,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 22.072469697162674,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 21,
-        "phase": 0.42,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 28.93968930516787,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 28.58163902276669,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 22,
-        "phase": 0.44,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 29.959959543158096,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 34.42236413607267,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 23,
-        "phase": 0.46,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 31.40790096518545,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 26.952178931228943,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 24,
-        "phase": 0.48,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 28.574006949422227,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 22.072469697162674,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 25,
-        "phase": 0.5,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 30.958379171271563,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 26,
-        "phase": 0.52,
-        "lift_px": 0.19437037037037064,
-        "stride": {
-          "bend_deg": 32.106255955117845,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 27,
-        "phase": 0.54,
-        "lift_px": 0.7016296296296306,
-        "stride": {
-          "bend_deg": 35.816257256485294,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 28,
-        "phase": 0.56,
-        "lift_px": 1.4080000000000017,
-        "stride": {
-          "bend_deg": 39.74594597901069,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 29,
-        "phase": 0.58,
-        "lift_px": 2.1997037037037015,
-        "stride": {
-          "bend_deg": 39.6630674190034,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 30,
-        "phase": 0.6,
-        "lift_px": 2.9629629629629615,
-        "stride": {
-          "bend_deg": 43.570651419512004,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 31,
-        "phase": 0.62,
-        "lift_px": 3.583999999999999,
-        "stride": {
-          "bend_deg": 44.91736552541576,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 32,
-        "phase": 0.64,
-        "lift_px": 3.949037037037037,
-        "stride": {
-          "bend_deg": 46.29815830429518,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 33,
-        "phase": 0.66,
-        "lift_px": 3.9643347050754456,
-        "stride": {
-          "bend_deg": 43.85108411698888,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 34,
-        "phase": 0.68,
-        "lift_px": 3.703703703703703,
-        "stride": {
-          "bend_deg": 42.53710292847463,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 35,
-        "phase": 0.7,
-        "lift_px": 3.245541838134432,
-        "stride": {
-          "bend_deg": 41.37755051714453,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 36,
-        "phase": 0.72,
-        "lift_px": 2.655692729766805,
-        "stride": {
-          "bend_deg": 38.953114735500655,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 37,
-        "phase": 0.74,
-        "lift_px": 2.0,
-        "stride": {
-          "bend_deg": 36.53638993786726,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 38,
-        "phase": 0.76,
-        "lift_px": 1.344307270233195,
-        "stride": {
-          "bend_deg": 36.51972327276902,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 39,
-        "phase": 0.78,
-        "lift_px": 0.7544581618655681,
-        "stride": {
-          "bend_deg": 31.306711278107958,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 40,
-        "phase": 0.8,
-        "lift_px": 0.29629629629629495,
-        "stride": {
-          "bend_deg": 31.323322814910846,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 41,
-        "phase": 0.82,
-        "lift_px": 0.03566529492455395,
-        "stride": {
-          "bend_deg": 31.306711798116023,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 42,
-        "phase": 0.84,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 32.267154723417796,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 17.204441108098123,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 43,
-        "phase": 0.86,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 30.90380662770322,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 24.576413320603923,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 44,
-        "phase": 0.88,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 30.90380662770322,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 28.581675051701087,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 45,
-        "phase": 0.9,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 27.020935676074963,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 36.43907603153757,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 46,
-        "phase": 0.92,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 24.204018955337855,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 24.576413320603923,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 47,
-        "phase": 0.94,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 20.301557514834446,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 15.945395900922854,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 48,
-        "phase": 0.96,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 13.611361206015268,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 49,
-        "phase": 0.98,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 6.7148385671761925,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 50,
-        "phase": 1.0,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 3.9921307326770323,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 14.658066959397816,
-          "facing_direction_ok": true
-        }
-      }
-    ],
     "swings": [
       {
-        "swing": 0,
-        "start": 0.05,
-        "end": 0.38,
-        "peak_frame": 9,
-        "peak_phase": 0.18,
-        "peak_bend_deg": 40.60129464500447,
-        "apex_frame": 10,
-        "apex_phase": 0.2,
-        "apex_stride_bend_deg": 38.332583237079405,
-        "apex_stance_bend_deg": 14.658066959397816
+        "side": "near",
+        "start": 0.0,
+        "end": 0.08000000000000002,
+        "from": 0.0,
+        "to": 0.2,
+        "peak_frame": 2,
+        "peak_bend_deg": 54.331031065035646,
+        "apex_frame": 2,
+        "apex_swing_bend_deg": 54.331031065035646,
+        "apex_stance_bend_deg": 42.00965502483463
       },
       {
-        "swing": 1,
-        "start": 0.5,
-        "end": 0.83,
-        "peak_frame": 32,
-        "peak_phase": 0.64,
-        "peak_bend_deg": 46.29815830429518,
-        "apex_frame": 33,
-        "apex_phase": 0.66,
-        "apex_stride_bend_deg": 43.85108411698888,
-        "apex_stance_bend_deg": 14.658066959397816
+        "side": "far",
+        "start": 0.12,
+        "end": 0.28,
+        "from": 0.0,
+        "to": 0.4,
+        "peak_frame": 9,
+        "peak_bend_deg": 86.15042123568671,
+        "apex_frame": 10,
+        "apex_swing_bend_deg": 74.68715167098951,
+        "apex_stance_bend_deg": 31.62836869006559
+      },
+      {
+        "side": "near",
+        "start": 0.32,
+        "end": 0.48,
+        "from": 0.2,
+        "to": 0.6,
+        "peak_frame": 20,
+        "peak_bend_deg": 55.519414879539575,
+        "apex_frame": 20,
+        "apex_swing_bend_deg": 55.519414879539575,
+        "apex_stance_bend_deg": 45.83376745513642
+      },
+      {
+        "side": "far",
+        "start": 0.52,
+        "end": 0.68,
+        "from": 0.4,
+        "to": 0.8,
+        "peak_frame": 29,
+        "peak_bend_deg": 84.28944048801752,
+        "apex_frame": 30,
+        "apex_swing_bend_deg": 81.52692310210654,
+        "apex_stance_bend_deg": 32.98622887723995
+      },
+      {
+        "side": "near",
+        "start": 0.72,
+        "end": 0.88,
+        "from": 0.6,
+        "to": 1.0,
+        "peak_frame": 40,
+        "peak_bend_deg": 53.74113352590838,
+        "apex_frame": 40,
+        "apex_swing_bend_deg": 53.74113352590838,
+        "apex_stance_bend_deg": 42.63174687181428
+      },
+      {
+        "side": "far",
+        "start": 0.92,
+        "end": 1.0,
+        "from": 0.8,
+        "to": 1.0,
+        "peak_frame": 48,
+        "peak_bend_deg": 84.59622841947612,
+        "apex_frame": 48,
+        "apex_swing_bend_deg": 84.59622841947612,
+        "apex_stance_bend_deg": 22.866148590717874
       }
     ],
-    "minimum_peak_bend_deg": 40.60129464500447
+    "minimum_peak_bend_deg": 53.74113352590838,
+    "maximum_fit_px": 0.45254351094601475,
+    "maximum_total_pelvis_drop_px": 3.000000000000007,
+    "maximum_rigid_air_px": 0.0,
+    "maximum_stance_frame_change_px": 0.0,
+    "maximum_stance_target_error_px": 0.5241573303134957,
+    "sample_counts": {
+      "frames": 129,
+      "stance": 169,
+      "rigid_air": 0
+    },
+    "rigid_air_failures": []
   },
   "rear": {
     "ok": true,
     "errors": [],
-    "frames": [
-      {
-        "frame": 0,
-        "phase": 0.0,
-        "lift_px": 0,
-        "stride": {
-          "bend_deg": 7.815293546766876,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 1,
-        "phase": 0.02,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 16.232350661156204,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 2,
-        "phase": 0.04,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 24.67525760566494,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 3.5342989239812814,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 3,
-        "phase": 0.06,
-        "lift_px": 0.05096296296296289,
-        "stride": {
-          "bend_deg": 26.01424857456668,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 4,
-        "phase": 0.08,
-        "lift_px": 0.4159999999999998,
-        "stride": {
-          "bend_deg": 28.63942455793228,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 5,
-        "phase": 0.1,
-        "lift_px": 1.037037037037037,
-        "stride": {
-          "bend_deg": 30.459331300623695,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 6,
-        "phase": 0.12,
-        "lift_px": 1.8002962962962956,
-        "stride": {
-          "bend_deg": 36.231119002191896,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 3.5342989239812814,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 7,
-        "phase": 0.14,
-        "lift_px": 2.592,
-        "stride": {
-          "bend_deg": 37.68743676114778,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 8,
-        "phase": 0.16,
-        "lift_px": 3.29837037037037,
-        "stride": {
-          "bend_deg": 39.35794017613858,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 9,
-        "phase": 0.18,
-        "lift_px": 3.8056296296296295,
-        "stride": {
-          "bend_deg": 43.771690254907355,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 10,
-        "phase": 0.2,
-        "lift_px": 4.0,
-        "stride": {
-          "bend_deg": 45.17223128337795,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 11,
-        "phase": 0.22,
-        "lift_px": 3.862825788751715,
-        "stride": {
-          "bend_deg": 46.83996874251427,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 12,
-        "phase": 0.24,
-        "lift_px": 3.4951989026063104,
-        "stride": {
-          "bend_deg": 44.402352562141644,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 13,
-        "phase": 0.26,
-        "lift_px": 2.962962962962963,
-        "stride": {
-          "bend_deg": 45.53263975329351,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 14,
-        "phase": 0.28,
-        "lift_px": 2.3319615912208502,
-        "stride": {
-          "bend_deg": 44.40634291208712,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 15,
-        "phase": 0.3,
-        "lift_px": 1.6680384087791498,
-        "stride": {
-          "bend_deg": 44.21535602874407,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 16,
-        "phase": 0.32,
-        "lift_px": 1.0370370370370372,
-        "stride": {
-          "bend_deg": 42.88945725573588,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336170566057769,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 17,
-        "phase": 0.34,
-        "lift_px": 0.5048010973936892,
-        "stride": {
-          "bend_deg": 41.75921011980533,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336192244409744,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 18,
-        "phase": 0.36,
-        "lift_px": 0.13717421124828544,
-        "stride": {
-          "bend_deg": 39.82117876812896,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336156578342675,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 19,
-        "phase": 0.38,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 41.14705267090682,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 9.595675505464685,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 20,
-        "phase": 0.4,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 37.547198341688926,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 25.356113088832164,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 21,
-        "phase": 0.42,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 36.14891389183534,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 42.87273196359886,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 22,
-        "phase": 0.44,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 30.459331300623695,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 48.66286909344584,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 23,
-        "phase": 0.46,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 28.639393343254746,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 42.87270377669614,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 24,
-        "phase": 0.48,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 22.93696727506214,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 25.356060128191697,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 25,
-        "phase": 0.5,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 15.895366666077697,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 26,
-        "phase": 0.52,
-        "lift_px": 0.19437037037037064,
-        "stride": {
-          "bend_deg": 13.200887108530566,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 27,
-        "phase": 0.54,
-        "lift_px": 0.7016296296296306,
-        "stride": {
-          "bend_deg": 13.185757437183756,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336232748643708,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 28,
-        "phase": 0.56,
-        "lift_px": 1.4080000000000017,
-        "stride": {
-          "bend_deg": 18.577797403243732,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336232748643708,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 29,
-        "phase": 0.58,
-        "lift_px": 2.1997037037037015,
-        "stride": {
-          "bend_deg": 21.404452632843185,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 30,
-        "phase": 0.6,
-        "lift_px": 2.9629629629629615,
-        "stride": {
-          "bend_deg": 26.913244935276527,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 31,
-        "phase": 0.62,
-        "lift_px": 3.583999999999999,
-        "stride": {
-          "bend_deg": 31.54866787897022,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 3.534345095153375,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 32,
-        "phase": 0.64,
-        "lift_px": 3.949037037037037,
-        "stride": {
-          "bend_deg": 32.84072400157042,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 33,
-        "phase": 0.66,
-        "lift_px": 3.9643347050754456,
-        "stride": {
-          "bend_deg": 34.1097271198548,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 34,
-        "phase": 0.68,
-        "lift_px": 3.703703703703703,
-        "stride": {
-          "bend_deg": 35.928030796473216,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 35,
-        "phase": 0.7,
-        "lift_px": 3.245541838134432,
-        "stride": {
-          "bend_deg": 33.323691907604655,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 3.534310536012837,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 36,
-        "phase": 0.72,
-        "lift_px": 2.655692729766805,
-        "stride": {
-          "bend_deg": 36.918968577923685,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 37,
-        "phase": 0.74,
-        "lift_px": 2.0,
-        "stride": {
-          "bend_deg": 35.832896690052486,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 38,
-        "phase": 0.76,
-        "lift_px": 1.344307270233195,
-        "stride": {
-          "bend_deg": 35.832878189751774,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 39,
-        "phase": 0.78,
-        "lift_px": 0.7544581618655681,
-        "stride": {
-          "bend_deg": 31.886876852230444,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 40,
-        "phase": 0.8,
-        "lift_px": 0.29629629629629495,
-        "stride": {
-          "bend_deg": 34.485391269068835,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 41,
-        "phase": 0.82,
-        "lift_px": 0.03566529492455395,
-        "stride": {
-          "bend_deg": 31.72673921994676,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336203083568894,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 42,
-        "phase": 0.84,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 31.72673921994676,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 11.608716040733935,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 43,
-        "phase": 0.86,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 30.459339894823508,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 33.076180212763425,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 44,
-        "phase": 0.88,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 29.90843554332835,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 46.703280247849406,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 45,
-        "phase": 0.9,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 27.30630104533778,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 46.665398704214745,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 46,
-        "phase": 0.92,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 24.19531435549554,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 33.07618846888414,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 47,
-        "phase": 0.94,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 19.30429481290914,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 15.094149355314514,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 48,
-        "phase": 0.96,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 16.232356601505984,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336181405239368,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 49,
-        "phase": 0.98,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 10.890730813548911,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 5.336181405239368,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 50,
-        "phase": 1.0,
-        "lift_px": 0.0,
-        "stride": {
-          "bend_deg": 7.815297886182042,
-          "facing_direction_ok": true
-        },
-        "trailing": {
-          "bend_deg": 3.53428731193734,
-          "facing_direction_ok": true
-        }
-      }
-    ],
     "swings": [
       {
-        "swing": 0,
-        "start": 0.05,
-        "end": 0.38,
-        "peak_frame": 11,
-        "peak_phase": 0.22,
-        "peak_bend_deg": 46.83996874251427,
-        "apex_frame": 10,
-        "apex_phase": 0.2,
-        "apex_stride_bend_deg": 45.17223128337795,
-        "apex_stance_bend_deg": 5.336192244409744
+        "side": "near",
+        "start": 0.0,
+        "end": 0.08000000000000002,
+        "from": 0.0,
+        "to": 0.2,
+        "peak_frame": 2,
+        "peak_bend_deg": 78.33122599963106,
+        "apex_frame": 2,
+        "apex_swing_bend_deg": 78.33122599963106,
+        "apex_stance_bend_deg": 19.452396373442905
       },
       {
-        "swing": 1,
-        "start": 0.5,
-        "end": 0.83,
-        "peak_frame": 36,
-        "peak_phase": 0.72,
-        "peak_bend_deg": 36.918968577923685,
-        "apex_frame": 33,
-        "apex_phase": 0.66,
-        "apex_stride_bend_deg": 34.1097271198548,
-        "apex_stance_bend_deg": 5.336203083568894
+        "side": "far",
+        "start": 0.12,
+        "end": 0.28,
+        "from": 0.0,
+        "to": 0.4,
+        "peak_frame": 10,
+        "peak_bend_deg": 47.1164545747433,
+        "apex_frame": 10,
+        "apex_swing_bend_deg": 47.1164545747433,
+        "apex_stance_bend_deg": 46.87655634742411
+      },
+      {
+        "side": "near",
+        "start": 0.32,
+        "end": 0.48,
+        "from": 0.2,
+        "to": 0.6,
+        "peak_frame": 21,
+        "peak_bend_deg": 76.61134811039162,
+        "apex_frame": 20,
+        "apex_swing_bend_deg": 72.4682408062134,
+        "apex_stance_bend_deg": 22.775310261313418
+      },
+      {
+        "side": "far",
+        "start": 0.52,
+        "end": 0.68,
+        "from": 0.4,
+        "to": 0.8,
+        "peak_frame": 30,
+        "peak_bend_deg": 50.16426164001061,
+        "apex_frame": 30,
+        "apex_swing_bend_deg": 50.16426164001061,
+        "apex_stance_bend_deg": 45.22123850992762
+      },
+      {
+        "side": "near",
+        "start": 0.72,
+        "end": 0.88,
+        "from": 0.6,
+        "to": 1.0,
+        "peak_frame": 40,
+        "peak_bend_deg": 70.56641183500318,
+        "apex_frame": 40,
+        "apex_swing_bend_deg": 70.56641183500318,
+        "apex_stance_bend_deg": 21.427804840329802
+      },
+      {
+        "side": "far",
+        "start": 0.92,
+        "end": 1.0,
+        "from": 0.8,
+        "to": 1.0,
+        "peak_frame": 48,
+        "peak_bend_deg": 47.857694453367515,
+        "apex_frame": 48,
+        "apex_swing_bend_deg": 47.857694453367515,
+        "apex_stance_bend_deg": 33.024935733504975
       }
     ],
-    "minimum_peak_bend_deg": 36.918968577923685
+    "minimum_peak_bend_deg": 47.1164545747433,
+    "maximum_fit_px": 0.056471353811730296,
+    "maximum_total_pelvis_drop_px": 3.000000000000014,
+    "maximum_rigid_air_px": 0.0,
+    "maximum_stance_frame_change_px": 0.0,
+    "maximum_stance_target_error_px": 0.5241561150294948,
+    "sample_counts": {
+      "frames": 129,
+      "stance": 169,
+      "rigid_air": 0
+    },
+    "rigid_air_failures": []
   }
 }

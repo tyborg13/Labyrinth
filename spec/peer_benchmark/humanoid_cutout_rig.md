@@ -66,22 +66,38 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
   - Cloak, cape and banner chains trail the body by at most 4 px of follow-through, and they settle by the end of the
     clip.
 - Feet and hem anchors stay planted, except in move and death.
-- **Walking legs bend at the knee** (owner, Thrall 2026-10-18: "Walk is unnatural with no knee bend"):
-  - Feet are two-bone targets for thigh and shin, and the knee keeps its rest bend side.
-  - Knees bend toward the figure's facing: screen-left in the front view, screen-right in the rear view. A leg that is
-    straight at rest declares this per view in its case anatomy (required; missing data fails).
-    A rest knee within the case's `knee_policy.near_straight_deg` of straight (Thrall: 6°) counts as straight.
-  - **Leg roles per view:** `stride` is the long camera-side leg, which plants world steps; `trailing` is the
-    foreshortened leg, which follows the body with a small shuffle and is never world-planted. In flat 2D a
-    foreshortened leg can't reach a planted foot one step away.
-  - The pelvis never rises above its rest height in walks or actions; it dips after each stride landing. A planted foot
-    stays within about ±0.08 of a step of the hip (Thrall geometry), or the near-straight legs overreach.
-  - Knee gate: for each stride swing, the peak bend is at least 15°, and at the apex the swing knee bends more than the
-    stance knee. Lift-off and touch-down frames are naturally near-straight.
-  - Each foot steps on the floor: planted while in stance, lifted and carried forward in swing.
-  - The pelvis dips 1–2 px at each passing, so the stance knee visibly flexes.
-  - The swing knee bends more than the stance knee.
-  - Use the protagonist's walk as the reference.
+- **Walking: both legs step, on the protagonist's walk model** (owner, Mirror 2026-10-19: "One leg is kind of
+  shimmying and the other is mostly still like he's limping along"; replaces the stride + trailing shuffle):
+  - Reference: `scripts/protagonist_cutout/motion.gd` (`walk_foot_state`, `_solve_leg`, `_fit_walk_pelvis`).
+  - A `move` clip declares a `gait` block (§4). The compiler expands it into foot, pelvis and hand tracks; the
+    director keys only the rest (torso, head, cloth).
+  - Every humanoid walks **6 steps per tile, rest to rest**: an opening half step, four full steps, and a closing half
+    step that brings the feet together at rest on the next tile. The `near` foot leads, in both views. The root moves
+    linearly over the whole clip.
+  - Each foot's cycle is 60% stance (the hero's `WALK_STANCE_FRACTION`). A stance foot is world-planted. A swing foot
+    follows the hero's Hermite path and lifts `lift_px × sin(πu)^1.35`.
+  - Walking lanes narrow 70% of the way from the painted ankle toward the thigh (hero). A foot changes lane only in
+    swing: its first swing narrows it, its last swing restores the painted lane.
+  - Leg length follows screen depth, the hero's 2D foreshortening approximation:
+    `scale = clamp(1 + (ground.y − lane_anchor.y) / leg_length, 0.78, max)`. `max` is 1.22 for skinned legs and 1.14
+    for rigid-piece legs.
+    - Skinned legs scale along each segment and keep the painted width (hero `_segment_transform`).
+    - Rigid-piece legs keep every piece rigid. The scale spaces their joints along the leg: the overlap shrinks first,
+      then air opens between pieces. A shorter leg slides the pieces together.
+  - Pelvis: an authored settle per step in the hero's shape: contact, down at 0.16 of the step, passing at 0.5, up at
+    0.8. The two half steps use half the amplitude, and the curve is 0 at both ends of the clip. Then the hero's pelvis
+    fit lowers the pelvis only as far as both feet need. The pelvis never rises above rest.
+  - The arm opposite the swinging leg swings forward and the other back, by `arm_swing_px` at each landing.
+  - Knees keep the existing policy: they bend toward the facing; a rest knee within `knee_policy.near_straight_deg` of
+    straight counts as straight.
+- **Walk gates** (both views, both legs, every frame of `move`):
+  - Every stance is planted: target error ≤ 0.7072 px and zero frame-to-frame shift.
+  - Every swing peaks at a knee bend of at least 15°, and at its apex the swing knee bends more than the stance knee.
+    Lift-off and touch-down frames are naturally near-straight.
+  - No leg overreaches after scale and fit.
+  - The pelvis fit adds at most 6 px. Report the maximum fit and the maximum total pelvis drop per view.
+  - Rigid-piece legs: report the largest opened air per joint; it fails above 3 px.
+  - The `stride` and `trailing` leg roles are retired.
 - **Shoulders attach at the real shoulder** (owner, Thrall: "Right arm doesn't seem to connect high enough to match
   the left"):
   - Each `upper_<side>` pivots at the top of the deltoid, under the collar or trapezius edge, on the maquette's
@@ -119,6 +135,44 @@ relative to its parent's animated frame.
   The runtime subtracts the root's progress, so a planted foot stays put on the floor.
 - Hands with `forward_px`, `lift_px` or `inward_px` keys are two-bone targets, and so are feet (thigh, shin). Arms without hand keys follow forward
   kinematics: their `upper_<side>` translation moves the whole arm rigidly. The idle weapon-arm group uses this.
+
+### Gait block (`move` only)
+
+```json
+"gait": {
+  "model": "protagonist_walk",
+  "steps_per_tile": 6,
+  "lead": "near",
+  "stance_fraction": 0.6,
+  "lift_px": 6,
+  "lane_narrowing": 0.7,
+  "leg_scale_max": 1.22,
+  "settle_px": {"contact": 1.5, "down": 3.0, "passing": 0.8, "up": 0.4},
+  "arm_swing": {"near": {"bone": "hand_near", "px": 3}, "far": {"bone": "hand_far", "px": 3}},
+  "max_fit_px": 6
+}
+```
+
+- **Schedule.** With `n = steps_per_tile − 1` and stance half-travel `a = stance_fraction / n` (tile fractions; the
+  root moves linearly, so clip phase equals hip travel):
+  - Step `i` (1…n) moves the lead foot on odd `i` and the other foot on even `i`, to `i / n` of the tile. It lifts at
+    `previous + a` (step 1 lifts at 0) and lands at `i / n − a`.
+  - The closing step moves the foot still behind from its last position to 1.0. It lifts at `last + a` and lands at 1.0.
+  - For 6 steps: lead swings 0–0.08 (to 0.2), 0.32–0.48 (to 0.6) and 0.72–0.88 (to 1.0); the other foot swings
+    0.12–0.28 (to 0.4), 0.52–0.68 (to 0.8) and 0.92–1.0 (to 1.0).
+- **Swing path:** the hero's Hermite (`walk_foot_state`), parameterised by the swing's `u`, with the endpoint tangents
+  matching the planted speed; lift `lift_px × sin(πu)^1.35`.
+- **Lane:** the foot's lateral anchor moves from its painted ankle toward the thigh's x by `lane_narrowing`, eased over
+  the foot's first swing, and back over its last swing.
+- **Leg scale and pelvis fit:** §3. `leg_scale_max` defaults to 1.22 for skinned legs; rigid-piece legs declare 1.14.
+- **Settle:** a pelvis drop per step between consecutive landings (`contact` at 0, `down` at 0.16, `passing` at 0.5,
+  `up` at 0.8, smoothstep), half amplitude on the two half steps, 0 at the clip's ends.
+- **Arm swing:** per side, a two-bone target bone (`hand_<side>`, or a case target such as the Thrall's `tube_tip`).
+  At each landing, the arm opposite the landed foot is at `+px` forward and the same-side arm at `−px`; half amplitude
+  on the half steps; 0 at both ends. Omit a side to leave that arm alone.
+- **Generated channels:** `root.forward_px` (linear 0 → 1, `fraction_of_step`), each foot's `forward_px` (`world_step`),
+  `lift_px` and lane, `pelvis.lift_px`, and the `forward_px` of each arm-swing bone. Director keys in the same clip may
+  add any other channel (torso, head, cloth, hand lift). A key on a generated channel is a compile error.
 
 ### Per-view channel overrides
 

@@ -9,6 +9,8 @@ def roles_for(anatomy, view):
 
 
 def resolve_bone(name, anatomy, view):
+    aliases = anatomy.get('channel_aliases', {}).get(view, {})
+    if name in aliases: return aliases[name]
     if name in ('foot_stride', 'foot_trailing'):
         role = name.removeprefix('foot_')
         roles = roles_for(anatomy, view)

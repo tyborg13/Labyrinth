@@ -247,10 +247,12 @@ def build_view(view, inputs, anatomy):
               'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
               'held_items': {}, 'ik_chains': [{'first': 'upper_near', 'second': 'fore_near', 'target': 'tube_tip'}],
               'planted_bones': [resolve_bone(n, anatomy, view) for n in anatomy['planted_bones']],
-              'leg_roles': anatomy['leg_roles'][view], 'source_labels': PIECES, 'features': [],
+              'source_labels': PIECES, 'features': [],
               'rest_source': f'source/{view}/processed.png',
               'motion_data': 'res://' + str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     distinct_depths(layout)
+    gait_coverage = CASE / 'gait_continuations.json'
+    if gait_coverage.exists(): layout['gait_continuations'] = read_json(gait_coverage)[view]
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
     write_json(CASE / f'layouts/{view}.json', layout)
     reconstructed = Image.new('RGBA', (255, 255))
@@ -279,6 +281,9 @@ def build(import_director=False):
     for view in ('front', 'rear'):
         layouts[view], reports[view], projections[view] = build_view(view, inputs, anatomy)
     compiled = compile_motion(copied, 'arc_thrall', layouts, projections)
+    for view, layout in layouts.items():
+        layout['gait_leg_scale_max'] = compiled['clips']['move']['gait'].get('leg_scale_max', 1.22)
+        write_json(CASE / f'layouts/{view}.json', layout)
     write_json(CASE / 'compiled_motion.json', compiled)
     write_json(CASE / 'cutout.json', {'character_id': 'arc_thrall', 'rig': 'humanoid_v2',
         'layouts': {v: f'layouts/{v}.json' for v in layouts}, 'design_placeholders': inputs['design_placeholders'],

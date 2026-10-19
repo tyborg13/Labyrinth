@@ -51,11 +51,12 @@ def initialize():
             'lower_body': {'bones': ['root', 'pelvis', 'thigh_near', 'shin_near', 'foot_near',
                                     'thigh_far', 'shin_far', 'foot_far', 'loincloth_tip'], 'stationary': True}},
         # Director feedback 1: almost-straight rest knees use the facing
-        # policy. The longer leg owns the world-step support in each view.
+        # policy. Legacy jab aliases retain their authored non-move support.
         'knee_policy': {'near_straight_deg': 6},
         'legs': {side: {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}} for side in ('near', 'far')},
-        'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
-        'planted_bones': ['foot_stride'], 'planted_tolerance_px': 0.5, 'held_depth_roles': {},
+        'channel_aliases': {'front': {'foot_support': 'foot_near', 'foot_trailing': 'foot_far'},
+                            'rear': {'foot_support': 'foot_far', 'foot_trailing': 'foot_near'}},
+        'planted_bones': ['foot_support'], 'planted_tolerance_px': 0.5, 'held_depth_roles': {},
         'ownership': {'names': list(PIECES) + ['upper_far', 'fore_far', 'thigh_near', 'shin_near', 'thigh_far', 'shin_far'],
             'segments': {n: {'joints': r['joints'], 'owners': r['bones']} for n, r in MESHES.items() if r['kind'] == 'two_segment'},
             'joint_pairs': [['torso', 'head'], ['torso', 'loincloth'], ['torso', 'upper_near'],
@@ -71,7 +72,7 @@ def initialize():
         'integration': {'production_root': 'assets/units/arc_thrall_cutout', 'rig_directory': 'humanoid_v2',
             'production_files': ['rig.gd', 'renderer.gd', 'front.json', 'rear.json'],
             'binding_files': ['rig.gd', 'renderer.gd'],
-            'binding_folders': ['tools/humanoid_cutout', 'scripts/maquette_cutout_runtime', 'tests/rr10', 'tests/rr11'],
+            'binding_folders': ['tools/humanoid_cutout', 'scripts/maquette_cutout_runtime', 'tests/rr10', 'tests/rr11', 'tests/gait01'],
             'scale': {'file': 'data/enemies.json', 'key': 'arc_thrall', 'field': 'art_scale', 'default': 1.0},
             'identity_registry': 'spec/art_identity/registry.json', 'identity_id': 'arc_thrall',
             'density_id': 'arc_thrall_cutout', 'owner_approval': 'rr-11 supplied approved mq7 front/rear painting; derived rest snapshot, native proof pending director.',
