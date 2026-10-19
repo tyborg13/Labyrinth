@@ -5,8 +5,17 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const PileView = preload("res://scripts/pile_dialog_view.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Socket = preload("res://scripts/ui_socket.gd")
+const Sources = preload("res://tests/sfx_sync_sources.gd")
 const TEST_COPY_COUNTS: Array = [1, 2, 3, 9, 10, 12, 99, 100, 1234]
 const TEST_LAYOUT_FRAMES: int = 2
+# Override only the painter. The inherited production _draw must delegate to
+# it with the real renderer callable; no CanvasItem draw is needed headless.
+const DISC_DRAW_SPY: String = """
+class DiscDrawSpy extends CopyCountFace:
+	var painters: Array[Callable]
+	func paint_disc(paint_circle: Callable) -> void:
+		painters.append(paint_circle)
+"""
 
 class DiscRecorder extends RefCounted:
 	var circles: Array[Dictionary]
@@ -14,6 +23,7 @@ class DiscRecorder extends RefCounted:
 		circles.append({"center": center, "radius": radius, "color": color})
 
 static func assert_count_cases(host: Node, scope: Node, expect: Callable) -> void:
+	assert_disc_draw(FileAccess.get_file_as_string("res://scripts/pile_dialog_view.gd"), expect)
 	var cells := Control.new()
 	scope.add_child(cells)
 	for count: int in TEST_COPY_COUNTS:
@@ -76,6 +86,20 @@ static func assert_disc_paint(face: Control, expect: Callable) -> void:
 	var scale: float = ring.size.x / float(geometry["size"][0])
 	var center := Vector2(float(geometry["center"][0]), float(geometry["center"][1]))
 	expect.call((circle["center"] as Vector2).is_equal_approx(ring.position + center * scale) and is_equal_approx(float(circle["radius"]), float(geometry["inner_radius"]) * scale), "Painted disc stays centred inside the ring's inner radius")
+
+static func assert_disc_draw(source: String, expect: Callable) -> void:
+	var instrumented: GDScript = Sources.compile_script("scripts/pile_disc_draw_spy_%s.gd" % source.sha256_text(), source + DISC_DRAW_SPY)
+	expect.call(instrumented != null, "Disc draw spy compiles against the production badge")
+	if instrumented == null: return
+	var spy_script: GDScript = instrumented.get_script_constant_map()["DiscDrawSpy"]
+	var spy: Control = spy_script.new()
+	spy.call("_draw")
+	var painters: Array = spy.get("painters")
+	expect.call(painters.size() == 1, "Medallion _draw delegates once to the checked disc painter")
+	if painters.size() == 1:
+		var painter: Callable = painters[0]
+		expect.call(painter.is_valid() and painter.get_object() == spy and painter.get_method() == &"draw_circle", "Medallion _draw supplies its real draw_circle callable")
+	spy.free()
 
 static func viewport_failures(modal: Node) -> Array[String]:
 	var failures: Array[String]

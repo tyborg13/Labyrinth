@@ -68,7 +68,12 @@ static func finish_panel(panel: PanelContainer, style: StyleBox) -> void:
 class CardCell extends Button:
 	var card_id: String
 	var widget: CardWidget
+	var on_page: bool = true
 	var _pointer: bool = false
+
+	func _activate(activated: Callable) -> void:
+		# A held accept/click may finish after its card's page has changed.
+		if on_page: activated.call(card_id)
 
 	func _highlight() -> void:
 		widget.set_external_highlighted(_pointer or has_focus())
@@ -106,7 +111,7 @@ static func card_cell(host: Node, card_id: String, count: int, activated: Callab
 	cell.mouse_exited.connect(func() -> void: cell._pointer = false; cell._highlight())
 	cell.focus_entered.connect(cell._highlight)
 	cell.focus_exited.connect(cell._highlight)
-	cell.pressed.connect(activated.bind(card_id))
+	cell.pressed.connect(cell._activate.bind(activated))
 	if count > 1:
 		var copies := Control.new()
 		copies.name = "PileCopyCount"

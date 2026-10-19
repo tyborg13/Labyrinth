@@ -16,6 +16,7 @@ func _initialize() -> void:
 	var instance: Node = await _instance(state)
 	await preload("res://tests/helpers/pile_copy_badge_checks.gd").assert_count_cases(instance, _viewport, _expect)
 	await preload("res://tests/helpers/magic_purge_scroll_checks.gd").run(self, instance, engine, _expect)
+	await preload("res://tests/helpers/magic_purge_focus_checks.gd").run(self, instance, engine, _expect)
 	for source: String in ["scavenger", "campfire"]:
 		state["mode"] = "campfire" if source == "campfire" else "room"
 		instance.call("_load_run_state", state)

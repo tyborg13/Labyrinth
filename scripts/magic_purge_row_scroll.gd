@@ -9,6 +9,7 @@ var _columns: int = 1
 var _row_pitch: int = 1
 var _row_count: int = 0
 var _updating: bool = false
+var _following_focus: bool = false
 
 func configure(grid: Control, columns: int, row_pitch: int) -> void:
 	_grid = grid
@@ -39,6 +40,7 @@ func _sync_range() -> void:
 	bar.value = clampi(roundi(bar.value / _row_pitch), 0, maxi(0, _row_count - VISIBLE_ROWS)) * _row_pitch
 	_updating = false
 	_refresh_page()
+	if not _following_focus: _reconcile_focus()
 
 func _scrolled(_value: float) -> void:
 	_sync_range()
@@ -49,17 +51,30 @@ func _refresh_page() -> void:
 		var row: int = index / _columns
 		var on_page: bool = row >= first_row and row < first_row + VISIBLE_ROWS
 		var cell: Control = _grid.get_child(index)
+		cell.set("on_page", on_page)
 		# Keep keyboard/controller focus targets, without pointer hits on the
 		# empty sliver of an off-page button inside the badge overflow room.
 		cell.mouse_filter = Control.MOUSE_FILTER_STOP if on_page else Control.MOUSE_FILTER_IGNORE
 		for artwork: CanvasItem in cell.get_children():
 			artwork.visible = on_page
 
+func _reconcile_focus() -> void:
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused == null or focused.get_parent() != _grid: return
+	var first_row: int = scroll_vertical / _row_pitch
+	var focused_row: int = focused.get_index() / _columns
+	if focused_row < first_row or focused_row >= first_row + VISIBLE_ROWS:
+		(_grid.get_child(first_row * _columns) as Control).grab_focus()
+
 func _reveal_row(row: int) -> void:
+	# Navigation keeps its requested card; manual scrolling instead moves an
+	# off-page focus owner to the new page's first card.
+	_following_focus = true
 	var first_row: int = scroll_vertical / _row_pitch
 	if row < first_row: scroll_vertical = row * _row_pitch
 	elif row >= first_row + VISIBLE_ROWS: scroll_vertical = (row - VISIBLE_ROWS + 1) * _row_pitch
 	_refresh_page()
+	_following_focus = false
 
 func _gui_input(event: InputEvent) -> void:
 	var direction: int = 0
