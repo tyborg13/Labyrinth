@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "glacial_mirror",
+  "job_id": "mq-mirror-front-r2",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "0d60374faedf9758f29522fc87b6d896bb0073292d9882440b492f96aa1ade1d",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/glacial_mirror/front/kit.json",
+    "pixel_sha256": "b786300193bd8b76d344b1021773d0943bdf8e4e817320279770f5ed87157e38"
+  },
+  "method": "maquette paint-over r2 from the mq-08 maquette (level 3D shoulders, far pauldron at the shoulder) as weathered rounded boulders, + one revision (cold blue-grey stone, frost only on shoulders, head and knuckles); peer ref = owner-approved Frostglass Lancer mq4",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "d3cd1555a7d8ba623f6e13ee299c75fe9f0ff52aef30716b77003e8805ad6ea5",
+  "prompt_source": "spec/art_identity/maquettes/glacial_mirror/prompt_front_r2.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq08",
+      "file": "refs/01_maquette_front_parts_mq08.png",
+      "pixel_sha256": "5a5bde3b1fa5bc38fe246e3eaf9b8cb60a7562798465f7838c84ed2291f107ac",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-mirror-front-r2/refs/01_maquette_front_parts.png"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq08",
+      "file": "refs/02_maquette_front_clay_mq08.png",
+      "pixel_sha256": "22b09af4e501d5223e7df41eb7285d2baebd806a6e5b7945fdd8caa0f210bf24",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-mirror-front-r2/refs/02_maquette_front_clay.png"
+    },
+    {
+      "canon_id": "identity_glacial_mirror_current",
+      "file": "refs/03_identity_glacial_mirror_current.png",
+      "pixel_sha256": "277e67ea1e4961f7d111f413837b568bd48d62620c8f1167c62eb42d164befb7",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-mirror-front-r2/refs/03_identity_glacial_mirror_front.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_front",
+      "file": "refs/04_approved_frostglass_lancer_mq4_front.png",
+      "pixel_sha256": "5ae6ac1f259665257abf87af1e79a90f68421e52af16ab7941cc45d01ac90a26",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-mirror-front-r2/refs/04_peer.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-mirror-front-r2/refs/05_hero_front.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 229,
+  "view": "creature_front"
+}
