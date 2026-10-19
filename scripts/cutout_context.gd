@@ -24,10 +24,10 @@ const FAMILY_KEYS: Dictionary = {
 	"zekarion": "zekarion_motion",
 	"hoarfrost_seer": "hoarfrost_seer_motion", "arc_thrall": "arc_thrall_motion",
 	"burrow_grub": "burrow_grub_motion", "ember_tick": "ember_tick_motion",
-	"storm_capacitor": "storm_capacitor_motion",
 }
 
 static func family_key(actor_type: String) -> String:
+	if MaquetteAction.handles(actor_type): return actor_type + "_motion"
 	# Static fallback remains explicit until rr-03's complete case is promoted.
 	if actor_type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): return "gust_shrike_motion"
 	return str(FAMILY_KEYS.get(actor_type, "guardian_motion" if Guardian.handles(actor_type) else ""))
@@ -69,7 +69,7 @@ static func apply_to_presentation(state: Dictionary, presentation: Dictionary) -
 			continue
 		var key: String = str(unit.get("key", "enemy_%d" % int(unit.get("id", -1))))
 		var progress: float = float(unit.get("death_progress", 0.0))
-		if str(unit.get("type", "")) == "storm_capacitor": progress = preload("res://assets/units/storm_capacitor_cutout/death.gd").clip_phase(progress)
+		progress = preload("res://scripts/maquette_cutout_runtime/death.gd").clip_phase(str(unit.get("type", "")), progress)
 		_install_motion(presentation, key, str(unit.get("type", "")), {
 			"clip": "death", "phase": clampf(progress if MaquetteAction.handles(str(unit.get("type", ""))) else progress / DEATH_SETTLE_PROGRESS, 0.0, 1.0)
 		}, true)

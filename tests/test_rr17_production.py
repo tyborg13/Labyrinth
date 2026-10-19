@@ -1,4 +1,4 @@
-"""Actual RunScene callbacks, sound/VFX contact and director-conflict regressions."""
+"""Actual RunScene callbacks, sound/VFX contact and strict action regressions."""
 import copy
 import os
 import subprocess
@@ -15,7 +15,6 @@ from rr17_production import production_errors
 from PIL import Image
 
 PROOF_TIMEOUT_SECONDS = 180
-DESIGN_CONFLICT = 'TODO_DESIGN_hit_changing_frames: fewer than six changing presented states (4)'
 
 
 class ProductionTests(unittest.TestCase):
@@ -30,17 +29,26 @@ class ProductionTests(unittest.TestCase):
         path = output / 'logic_frames.json'
         if not path.exists(): raise AssertionError(process.stdout + process.stderr)
         cls.report = read(path)
-        if cls.report['errors'] != [DESIGN_CONFLICT]: raise AssertionError(process.stdout + process.stderr)
+        if process.returncode or cls.report['errors']: raise AssertionError(process.stdout + process.stderr)
 
     @classmethod
     def tearDownClass(cls):
         cls.temp.cleanup()
 
-    def test_actual_callbacks_meet_all_gates_except_protected_hit_conflict(self):
+    def test_actual_callbacks_meet_all_gates_including_revised_hit(self):
         self.assertFalse(self.report['native_pixels'])
-        self.assertEqual(production_errors(self.report), [DESIGN_CONFLICT])
+        self.assertTrue(self.report['ok'])
+        self.assertEqual(production_errors(self.report), [])
         self.assertEqual(self.report['completions']['charge']['charge'], 1)
         self.assertEqual(self.report['completions']['discharge']['charge'], 0)
+
+    def test_hit_six_changing_frames_rule_stays_strict(self):
+        rows = [r for r in self.report['frames'] if r['stage'] == 'hit']
+        self.assertGreaterEqual(len({r['pose_sha256'] for r in rows}), 6)
+        mutant = copy.deepcopy(self.report)
+        for row in mutant['frames']:
+            if row['stage'] == 'hit': row['pose_sha256'] = 'frozen'
+        self.assertIn('hit: fewer than six changing presented states (1)', production_errors(mutant))
 
     def test_charge_and_chain_sounds_vfx_begin_at_exact_contacts(self):
         for clip, contact in [('charge', .5), ('discharge', .45)]:

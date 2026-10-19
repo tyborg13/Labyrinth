@@ -41,6 +41,9 @@ class CutoutTests(unittest.TestCase):
         self.assertEqual(result['held_shimmer_residual'], 0)
         self.assertEqual(len(result['frames']), 696)
         self.assertFalse(result['native_pixels'])
+        for view in ('front', 'rear'):
+            self.assertEqual(result['changing_states'][view + '/hit'], 6)
+            self.assertEqual(result['transitions'][view + '/hit'], 7)
 
     def test_protected_bytes_and_rest_partition(self):
         self.assertEqual(gate.asset_errors(), [])

@@ -1218,53 +1218,7 @@ const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
-const TURN_ORDER_PORTRAITS := {
-	"briar_weaver": "res://assets/art/portraits/briar_weaver.png",
-	"slag_mortar": "res://assets/art/portraits/slag_mortar.png",
-	"storm_capacitor": "res://assets/art/portraits/storm_capacitor.png",
-	"hollow_mimic": "res://assets/art/portraits/hollow_mimic.png",
-	"hoarfrost_seer": "res://assets/art/portraits/hoarfrost_seer.png",
-	"gale_herald": "res://assets/art/portraits/gale_herald.png",
-	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
-	"gloam_stalker": "res://assets/art/portraits/gloam_stalker.png",
-	"glacial_mirror": "res://assets/art/portraits/glacial_mirror.png",
-	"gust_shrike": "res://assets/art/portraits/gust_shrike.png",
-	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
-	"ember_tick": "res://assets/art/portraits/ember_tick.png",
-	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
-	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
-	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",
-	"craghide": "res://assets/art/portraits/guardians/craghide_portrait.png",
-	"gallows_roc": "res://assets/art/portraits/guardians/gallows_roc_portrait.png",
-	"last_lamplighter": "res://assets/art/portraits/guardians/last_lamplighter_portrait.png",
-	"rime_spitter": "res://assets/art/portraits/guardians/rime_spitter_portrait.png",
-	"rime_whelp": "res://assets/art/portraits/guardians/rime_whelp_portrait.png",
-	"rimejaw": "res://assets/art/portraits/guardians/rimejaw_portrait.png",
-	"roc_fledgling": "res://assets/art/portraits/guardians/roc_fledgling_portrait.png",
-	"stoneback_mite": "res://assets/art/portraits/guardians/stoneback_mite_portrait.png",
-	"storm_cantor": "res://assets/art/portraits/guardians/storm_cantor_portrait.png",
-	"wick_shade": "res://assets/art/portraits/guardians/wick_shade_portrait.png",
-
-	"player": "res://assets/art/portraits/player_reaver.png",
-	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
-	"acolyte": "res://assets/art/portraits/dust_acolyte.png",
-	"harrier": "res://assets/art/portraits/bone_harrier.png",
-	"grave_surgeon": "res://assets/art/portraits/grave_surgeon.png",
-	"warden": "res://assets/art/portraits/stone_warden.png",
-	"bile_bloomer": "res://assets/art/portraits/bile_bloomer.png",
-	"chainbound_gaoler": "res://assets/art/portraits/chainbound_gaoler.png",
-	"zekarion": "res://assets/art/portraits/zekarion.png",
-	"tharokh": "res://assets/art/portraits/tharokh.png",
-	"vyraketh": "res://assets/art/portraits/vyraketh.png",
-	"vaeloryx": "res://assets/art/portraits/vaeloryx.png",
-	"iskaldra": "res://assets/art/portraits/iskaldra.png",
-	"noctyrax": "res://assets/art/portraits/noctyrax.png",
-	"veilbound_acolyte": "res://assets/art/portraits/veilbound_acolyte.png",
-	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
-	"frostglass_lancer": "res://assets/art/portraits/frostglass_lancer.png",
-	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
-	"cinder_droplet": "res://assets/art/portraits/cinder_droplet.png"
-}
+const TURN_ORDER_PORTRAITS = preload("res://scripts/turn_order_portraits.gd").PATHS
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 const DEATH_MUSIC_FADE_OUT_SECONDS: float = 0.6
@@ -23538,8 +23492,7 @@ func _death_hold_presentation(
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
-	if str(unit.get("type", "")) == "storm_capacitor": return preload("res://assets/units/storm_capacitor_cutout/death.gd").frames()
-	if MaquetteAction.handles(str(unit.get("type", ""))): return MaquetteAction.frames_for(str(unit["type"]), "death")
+	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frames(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_count"):
 		var board_count: int = int(board_view.call("_unit_death_frame_count", unit))
 		if board_count > 0:
@@ -23552,10 +23505,7 @@ func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
 	return maxi(1, columns * rows)
 
 func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
-	if str(unit.get("type", "")) == "storm_capacitor":
-		var clock: Script = preload("res://assets/units/storm_capacitor_cutout/death.gd")
-		return clock.total_seconds() / clock.frames()
-	if MaquetteAction.handles(str(unit.get("type", ""))): return 1.0 / MaquetteAction.FPS
+	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frame_seconds(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_seconds"):
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
 	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))

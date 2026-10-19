@@ -7,7 +7,6 @@ from rr17_build import ROOT, CASE, DIRECTOR, PAINTING, VIEWS, read, digest
 
 TOLERANCE = 0.0001  # Same Bone2D float32 proof tolerance as rr-05.
 MIN_ACTION_CHANGING_FRAMES = 6  # Brief gate; do not lower to fit protected holds.
-TODO_DESIGN_hit_changing_frames = 'Protected hit has four transitions/four unique presented states; the brief requires at least six changing frames per action.'
 
 
 def value(keys, phase):

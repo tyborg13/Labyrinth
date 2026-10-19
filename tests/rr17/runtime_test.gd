@@ -35,11 +35,13 @@ func _run() -> void:
 	_expect(not is_equal_approx(renderer._idle_seconds, partner._idle_seconds), "Board retains per-actor idle phase distribution")
 	var texture: Texture2D = renderer.texture()
 	_expect(not Action.data_for(TYPE)["clips"].has("move"), "Immobile actor has no move clip")
-	var death: Script = preload("res://assets/units/storm_capacitor_cutout/death.gd")
-	_expect(death.EXISTING_FADE_FRAMES == Board.ENEMY_SHADOW_DISSOLVE_FRAME_COUNT and is_equal_approx(death.EXISTING_FADE_FRAME_SECONDS, Board.ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS), "Death retains existing fade clock")
-	var boundary: float = death.clip_seconds() / death.total_seconds()
-	_expect(is_equal_approx(death.clip_phase(boundary), 1.0) and is_zero_approx(death.fade_phase(boundary)), "Clip completes before fade begins")
-	_expect(is_equal_approx(death.fade_phase(1.0), 1.0), "Existing fade reaches completion")
+	var death: Script = preload("res://scripts/maquette_cutout_runtime/death.gd")
+	var timing: Dictionary = Presentation.integration_for(TYPE)["death_timing"]
+	_expect(int(timing["dissolve_frames"]) == Board.ENEMY_SHADOW_DISSOLVE_FRAME_COUNT and is_equal_approx(float(timing["dissolve_frame_seconds"]), Board.ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS), "Death declaration retains existing dissolve clock")
+	var boundary: float = death.clip_seconds(TYPE) / death.total_seconds(TYPE)
+	_expect(is_equal_approx(death.clip_phase(TYPE, boundary), 1.0) and is_zero_approx(death.dissolve_phase(TYPE, boundary)), "Clip completes before dissolve begins")
+	_expect(is_equal_approx(death.dissolve_phase(TYPE, 1.0), 1.0), "Existing dissolve reaches completion")
+	_check_declarations(timing, death)
 	_expect(Action.clip_for({"action_type": "gain_charge"}, {"type": TYPE, "intent": {"id": "charge"}}) == "charge", "Exact charge selector")
 	_expect(Action.clip_for({"action_type": "chain_discharge"}, {"type": TYPE, "intent": {"id": "discharge"}}) == "discharge", "Exact discharge selector")
 	_expect(Action.clip_for({"action_type": "reset_charge"}, {"type": TYPE, "intent": {"id": "discharge"}}).is_empty(), "Reset does not replay discharge")
@@ -88,6 +90,36 @@ func _run() -> void:
 	await process_frame
 	print("RR17 RUNTIME: %s (%d checks, %d failures; headless logic only)" % ["PASS" if failures == 0 else "FAIL", checks, failures])
 	quit(0 if failures == 0 else 1)
+
+func _check_declarations(timing: Dictionary, death: Script) -> void:
+	for type: String in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "bile_bloomer", "lightning_wisp"]:
+		var entry: Dictionary = Presentation.integration_for(type)
+		_expect(not entry.has("death_timing") and not entry.has("idle_phase_seed"), type + " retains undeclared death and idle behavior")
+	# Exercise the same opt-in on a different identity, without editing any
+	# production data or selecting a new visible timing/seed policy.
+	var type: String = "arc_thrall"
+	var original: Dictionary = Presentation.integration_for(type)
+	var synthetic: Dictionary = original.duplicate(true)
+	synthetic["death_timing"] = timing.duplicate(true)
+	synthetic["idle_phase_seed"] = "slot"
+	Presentation._integration_cache[type] = synthetic
+	_expect(death.frames(type) == death.frames(TYPE), "Any declared maquette family uses the integration death clock")
+	_expect(is_equal_approx(death.clip_phase(type, 0.5), death.clip_phase(TYPE, 0.5)), "Declared clip timing is independent of identity")
+	_expect(is_equal_approx(death.dissolve_phase(type, 0.9), death.dissolve_phase(TYPE, 0.9)), "Declared dissolve timing is independent of identity")
+	var board := Board.new()
+	board.size = Vector2(1920, 1080)
+	root.add_child(board)
+	var state: Dictionary = Fixture.fixture(type)
+	var second: Dictionary = state["enemies"][0].duplicate(true)
+	second["id"] = 2
+	second["pos"] = Vector2i(2, 3)
+	state["enemies"].append(second)
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
+	var a: Node = board.unit_cutout_renderer(state["enemies"][0])
+	var b: Node = board.unit_cutout_renderer(second)
+	_expect(is_zero_approx(a._idle_seconds) and is_equal_approx(b._idle_seconds, Action.seconds_for(type, "idle") / 2.0), "Any declared maquette family receives the slot idle seeds")
+	board.queue_free()
+	Presentation._integration_cache[type] = original
 
 func _expect(ok: bool, message: String) -> void:
 	checks += 1

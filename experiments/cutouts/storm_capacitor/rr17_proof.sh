@@ -19,5 +19,3 @@ python3 tools/process_board_density.py --only storm_capacitor_cutout --check
 python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow.gd
 python3 tools/visual_probe_runner.py --task-id rr-17 --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract tests/rr17/production_contract.json tests/rr17/production_capture.gd -- --type storm_capacitor --output "$production"
 python3 -B experiments/cutouts/storm_capacitor/rr17_gates.py production --input "$production/frames.json" --output "$production/verification.json"
-# The production commands correctly fail TODO_DESIGN_hit_changing_frames until
-# the owner resolves the protected four-state hit / six-changing-frame conflict.

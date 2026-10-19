@@ -1,9 +1,7 @@
 extends RefCounted
 
-## Do not silently weaken the rr-12 six-changing-frame requirement to fit the
-## director's discrete holds. Keep the design conflict explicit in the report.
+## Strict rr-12 six-changing-frame requirement, including the revised hit.
 const MIN_CHANGING_FRAMES: int = 6
-const TODO_DESIGN_HIT_CHANGING_FRAMES: String = "TODO_DESIGN_hit_changing_frames"
 
 static func errors(frames: Array, data: Dictionary, completions: Dictionary, native: bool) -> Array[String]:
 	var result: Array[String]
@@ -23,7 +21,7 @@ static func errors(frames: Array, data: Dictionary, completions: Dictionary, nat
 			previous = phase
 		if selected.size() < MIN_CHANGING_FRAMES: result.append(clip + ": fewer than six sampled frames")
 		if clip != "idle" and states.size() < MIN_CHANGING_FRAMES:
-			result.append((TODO_DESIGN_HIT_CHANGING_FRAMES if clip == "hit" else clip) + ": fewer than six changing presented states (%d)" % states.size())
+			result.append(clip + ": fewer than six changing presented states (%d)" % states.size())
 		if native and clip != "idle" and pixels.size() < MIN_CHANGING_FRAMES:
 			result.append(clip + ": fewer than six changing native states (%d)" % pixels.size())
 		if not seen_contact: result.append(clip + ": missing real contact frame")

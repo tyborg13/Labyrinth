@@ -1,9 +1,9 @@
 Running task-local command:
   task: rr-17
-  run: rr-17-1792386728347091000-95426
-  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792386728347091000-95426
+  run: rr-17-1792387737226407000-725
+  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792387737226407000-725
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792386728347091000-95426/godot.log --headless --path . --script tests/suites/sfx_sync_1_program.gd
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792387737226407000-725/godot.log --headless --path . --script tests/suites/sfx_sync_1_program.gd
   timeout: 300s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
@@ -22,5 +22,5 @@ SFX SYNC FATIGUE: fixed_144 / 2.0x / fatigue: 41 requests, 1 plays, 277.760/275.
 SFX SYNC FATIGUE: fixed_144 / 0.8x / fatigue: 101 requests, 1 plays, 694.400/687.500 ms feedback
 SFX SYNC FATIGUE: fixed_144 / 1.2x / fatigue: 68 requests, 1 plays, 465.248/458.333 ms feedback
 SFX SYNC FATIGUE: fixed_144 / 1.6x / fatigue: 51 requests, 1 plays, 347.200/343.750 ms feedback
-SFX_SYNC_TRACE=/private/tmp/labyrinth-godot-home/rr-17-1792386728347091000-95426/Library/Application Support/Escape the Umbra Parallel rr-17-1792386728347091000-95426/sfx_sync_trace.json
+SFX_SYNC_TRACE=/private/tmp/labyrinth-godot-home/rr-17-1792387737226407000-725/Library/Application Support/Escape the Umbra Parallel rr-17-1792387737226407000-725/sfx_sync_trace.json
 SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)

@@ -11,24 +11,24 @@
     "front/idle": 2,
     "front/charge": 7,
     "front/discharge": 12,
-    "front/hit": 4,
+    "front/hit": 6,
     "front/death": 29,
     "rear/idle": 2,
     "rear/charge": 7,
     "rear/discharge": 12,
-    "rear/hit": 4,
+    "rear/hit": 6,
     "rear/death": 29
   },
   "transitions": {
     "front/idle": 4,
     "front/charge": 12,
     "front/discharge": 15,
-    "front/hit": 4,
+    "front/hit": 7,
     "front/death": 30,
     "rear/idle": 4,
     "rear/charge": 12,
     "rear/discharge": 15,
-    "rear/hit": 4,
+    "rear/hit": 7,
     "rear/death": 30
   },
   "frames": [
@@ -1688,7 +1688,7 @@
       "view": "front",
       "clip": "hit",
       "frame": 2,
-      "level": 0,
+      "level": 1,
       "stray_sizes": []
     },
     {
@@ -1716,7 +1716,7 @@
       "view": "front",
       "clip": "hit",
       "frame": 6,
-      "level": 0,
+      "level": 1,
       "stray_sizes": []
     },
     {
@@ -4124,7 +4124,7 @@
       "view": "rear",
       "clip": "hit",
       "frame": 2,
-      "level": 0,
+      "level": 1,
       "stray_sizes": []
     },
     {
@@ -4152,7 +4152,7 @@
       "view": "rear",
       "clip": "hit",
       "frame": 6,
-      "level": 0,
+      "level": 1,
       "stray_sizes": []
     },
     {

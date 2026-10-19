@@ -1,9 +1,9 @@
 Running task-local command:
   task: rr-17
-  run: rr-17-1792386881789683000-95620
-  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792386881789683000-95620
+  run: rr-17-1792387705718551000-669
+  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792387705718551000-669
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792386881789683000-95620/godot.log --headless --path . --script tests/rr12/runtime_test.gd
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792387705718551000-669/godot.log --headless --path . --script tests/rr12/runtime_test.gd
   timeout: 300s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org

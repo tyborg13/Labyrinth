@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import math
+import re
 import shutil
 import sys
 import numpy as np
@@ -105,6 +106,12 @@ def build():
         glow_paths[str(level)] = path
     data = compile_motion()
     write(CASE / 'compiled_motion.json', data)
+    board = (ROOT / 'scripts/combat_board_view.gd').read_text()
+    integration = {'death_timing': {'clip_seconds': data['clips']['death']['seconds'],
+        'dissolve_frames': int(re.search(r'const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = (\d+)', board)[1]),
+        'dissolve_frame_seconds': float(re.search(r'const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = ([\d.]+)', board)[1])},
+        'idle_phase_seed': 'slot'}
+    write(CASE / 'integration.json', integration)
     for view in VIEWS:
         target = CASE / f'source/{view}/processed.png'
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -121,15 +128,16 @@ def build():
         shutil.copyfile(PAINTING, CASE / view / 'rest.png')
     config = {'version': 1, 'character_id': 'storm_capacitor', 'source_size': [255, 255],
               'runtime_paths': ['assets/units/storm_capacitor_cutout/renderer.gd', 'assets/units/storm_capacitor_cutout/actions.gd',
-                  'assets/units/storm_capacitor_cutout/death.gd', 'assets/units/storm_capacitor_cutout/rig.gd', 'scripts/static_enemy_facing.gd',
+                  'scripts/maquette_cutout_runtime/death.gd', 'assets/units/storm_capacitor_cutout/rig.gd', 'scripts/static_enemy_facing.gd',
+                  'scripts/turn_order_portraits.gd', str((CASE / 'integration.json').relative_to(ROOT)),
                   *['tests/rr17/' + p for p in ('native_capture.gd', 'production_capture.gd', 'capture_scene.gd', 'capture_contract.gd', 'samples.gd')],
                   *[str((PRODUCTION / p).relative_to(ROOT)) for p in glow_paths.values()],
                   *[str((CASE / p).relative_to(ROOT)) for p in glow_paths.values()],
                   str((CASE / 'source/cap_mask.png').relative_to(ROOT)), str((CASE / 'source/vent_fill.png').relative_to(ROOT))],
               'clips': [{'name': name, 'seconds': item['seconds'], 'loop': item.get('loop', False),
                          'frames': round(item['seconds'] * 60)} for name, item in data['clips'].items()],
-              'sources': ['director_motion.json', 'source/cap_mask.png', 'source/vent_fill.png'],
-              'TODO_DESIGN': {'TODO_DESIGN_hit_changing_frames': 'Protected hit has four transitions/four unique states; the brief requires six changing frames per action.'}}
+              'sources': ['director_motion.json', 'source/cap_mask.png', 'source/vent_fill.png', 'integration.json'],
+              'TODO_DESIGN': {}}
     write(CASE / 'cutout.json', config)
     # Compatibility closure for the existing proof binding collector; no maquette.
     write(CASE / 'source/spec.json', {'basis': 'approved painting; no maquette; one rotationally symmetric view'})
@@ -145,6 +153,7 @@ def build():
     inputs = {str(p.relative_to(ROOT)): digest(p) for p in (PAINTING, DIRECTOR / 'motion_tracks.json', DIRECTOR / 'cap_mask.png', DIRECTOR / 'vent_fill.png')}
     write(CASE / 'protected_inputs.json', inputs)
     write(PRODUCTION / 'integration.json', {'character_id': 'storm_capacitor', 'case': str(CASE.relative_to(ROOT)),
+        **integration,
         'TODO_DESIGN': config['TODO_DESIGN'],
         'protected_inputs': inputs, 'native_proof': 'pending director windowed proof',
         'density': 'exact partition of existing treated painting; prescribed glow; protected vent fill',

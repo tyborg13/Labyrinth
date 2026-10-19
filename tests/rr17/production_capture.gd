@@ -156,7 +156,7 @@ func _capture() -> void:
 	for unit: Dictionary in shown.get("death_animation_units", []):
 		if str(unit.get("type", "")) == _type:
 			row["death_progress"] = float(unit.get("death_progress", 0.0))
-			row["fade_progress"] = preload("res://assets/units/storm_capacitor_cutout/death.gd").fade_phase(row["death_progress"])
+			row["fade_progress"] = preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(_type, row["death_progress"])
 	row["death_burst"] = shown.get("en01_burst", {})
 	row["burrowed"] = bool(_scene.board_view.combat_state["enemies"][0].get("burrowed", false))
 	row["actor_tile"] = str(_scene.board_view.combat_state["enemies"][0]["pos"])

@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "baseline_head": "2d31a138c3cf8d84bb1f24e3b8206e48d9b89e56",
+  "native_pixels": false,
+  "unchanged": {
+    "hoarfrost_seer": {
+      "frames": 102,
+      "frame_seconds": 0.0166666666666667,
+      "sampled_material_frames": 102,
+      "death_and_idle_exact": true
+    },
+    "arc_thrall": {
+      "frames": 90,
+      "frame_seconds": 0.0166666666666667,
+      "sampled_material_frames": 90,
+      "death_and_idle_exact": true
+    },
+    "burrow_grub": {
+      "frames": 78,
+      "frame_seconds": 0.0166666666666667,
+      "sampled_material_frames": 78,
+      "death_and_idle_exact": true
+    },
+    "ember_tick": {
+      "frames": 54,
+      "frame_seconds": 0.0166666666666667,
+      "sampled_material_frames": 54,
+      "death_and_idle_exact": true
+    },
+    "bile_bloomer": {
+      "frames": 78,
+      "frame_seconds": 0.0166666666666667,
+      "sampled_material_frames": 78,
+      "death_and_idle_exact": true
+    },
+    "lightning_wisp": {
+      "frames": 72,
+      "frame_seconds": 0.0166666666666667,
+      "sampled_material_frames": 72,
+      "death_and_idle_exact": true
+    }
+  },
+  "declared_clock_unchanged": true
+}

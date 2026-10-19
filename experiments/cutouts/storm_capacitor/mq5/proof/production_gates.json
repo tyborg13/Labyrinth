@@ -1,6 +1,4 @@
 {
-  "ok": false,
-  "errors": [
-    "TODO_DESIGN_hit_changing_frames: fewer than six changing presented states (4)"
-  ]
+  "ok": true,
+  "errors": []
 }

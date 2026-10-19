@@ -2,7 +2,7 @@
   "version": 1,
   "creature": "storm_capacitor",
   "source_units": "source_pixels",
-  "director_sha256": "24c020065a7a3acc933ba522d3ceb78877aafd71da99cbdf9b3e48624f7b72fe",
+  "director_sha256": "ab26b58b369ed8b50f989235dca27058b0dc21c5a7935bc13ecb20bdd1be4a79",
   "clips": {
     "idle": {
       "seconds": 2.0,
@@ -29,7 +29,7 @@
     "hit": {
       "seconds": 0.5,
       "intents": [],
-      "note": "the whole capacitor jolts 1 px back, the cap rattles twice and the arcs flash one step"
+      "note": "a rattling jolt, one change every 40 ms: the whole capacitor knocks 1 px back as the arcs flash one step, the cap rattles up, the arcs settle, the cap drops, rattles again, the body returns, the cap settles"
     },
     "death": {
       "seconds": 1.4,
@@ -361,12 +361,12 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.06,
               "value": -1,
               "interpolation": "hold"
             },
             {
-              "at": 0.3,
+              "at": 0.46,
               "value": 0,
               "interpolation": "hold"
             },
@@ -389,22 +389,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.14,
               "value": 1,
-              "interpolation": "hold"
-            },
-            {
-              "at": 0.2,
-              "value": 0,
               "interpolation": "hold"
             },
             {
               "at": 0.3,
+              "value": 0,
+              "interpolation": "hold"
+            },
+            {
+              "at": 0.38,
               "value": 1,
               "interpolation": "hold"
             },
             {
-              "at": 0.4,
+              "at": 0.54,
               "value": 0,
               "interpolation": "hold"
             },
@@ -427,12 +427,12 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.06,
               "value": 1,
               "interpolation": "hold"
             },
             {
-              "at": 0.2,
+              "at": 0.22,
               "value": 0,
               "interpolation": "hold"
             },
@@ -879,12 +879,12 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.06,
               "value": -1,
               "interpolation": "hold"
             },
             {
-              "at": 0.3,
+              "at": 0.46,
               "value": 0,
               "interpolation": "hold"
             },
@@ -907,22 +907,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.14,
               "value": 1,
-              "interpolation": "hold"
-            },
-            {
-              "at": 0.2,
-              "value": 0,
               "interpolation": "hold"
             },
             {
               "at": 0.3,
+              "value": 0,
+              "interpolation": "hold"
+            },
+            {
+              "at": 0.38,
               "value": 1,
               "interpolation": "hold"
             },
             {
-              "at": 0.4,
+              "at": 0.54,
               "value": 0,
               "interpolation": "hold"
             },
@@ -945,12 +945,12 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.06,
               "value": 1,
               "interpolation": "hold"
             },
             {
-              "at": 0.2,
+              "at": 0.22,
               "value": 0,
               "interpolation": "hold"
             },

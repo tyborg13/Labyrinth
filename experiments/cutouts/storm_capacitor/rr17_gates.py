@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from rr17_contract import *
-from rr17_build import write
+from rr17_build import write, PRODUCTION
 from maquette_motion import pixels, silhouette, native_ties
 from maquette_motion import material_palette
 from maquette_motion.gates import unpack, bindings_match
@@ -34,6 +34,9 @@ def coverage(report, field='samples'):
 
 def asset_errors():
     errors = []
+    integration = read(CASE / 'integration.json')
+    production = read(PRODUCTION / 'integration.json')
+    if any(production.get(key) != value for key, value in integration.items()): errors.append('Production integration declarations differ from case')
     for path, expected in read(CASE / 'protected_inputs.json').items():
         if digest(ROOT / path) != expected: errors.append('Protected input changed: ' + path)
     for source, target in [('motion_tracks.json', 'director_motion.json'), ('cap_mask.png', 'source/cap_mask.png'), ('vent_fill.png', 'source/vent_fill.png')]:
@@ -199,6 +202,9 @@ def pixel_gate(report, native=None):
         previous[key] = signature, actual
         unique.setdefault(key, set()).add(image_digest(actual))
         records.append({'view': view, 'clip': clip, 'frame': row['frame'], 'level': level, 'stray_sizes': stray})
+    for (view, clip), states in unique.items():
+        if clip != 'idle' and len(states) < MIN_ACTION_CHANGING_FRAMES:
+            errors.append(f'{view}/{clip}: fewer than six changing presented states ({len(states)})')
     return {'ok': not errors, 'native_pixels': native is not None, 'errors': errors,
             'held_shimmer_residual': held_residual, 'dark_slab': {'vent_fill_exempt': True, 'other_pixels': 'approved painting/table provenance checked'},
             'changing_states': {'/'.join(k): len(v) for k, v in unique.items()},

@@ -72,7 +72,7 @@ var _grave_surgeon_renderers: Dictionary = {}
 var _harrier_renderers: Dictionary = {}
 var _iskaldra_renderers: Dictionary = {}
 var _lightning_wisp_renderers: Dictionary = {}
-var _rr07_renderers: Dictionary = {"hoarfrost_seer": {}, "arc_thrall": {}, "burrow_grub": {}, "ember_tick": {}, "storm_capacitor": {}}
+var _rr07_renderers: Dictionary = MaquettePresentation.renderer_roster()
 const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
 var _noctyrax_renderers: Dictionary = {}
 var _tharokh_renderers: Dictionary = {}
@@ -1090,7 +1090,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
 
 func _unit_uses_cutout(unit: Dictionary) -> bool:
-	if str(unit.get("type", "")) in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor"]: return true
+	if MaquettePresentation.handles(str(unit.get("type", ""))): return true
 	if str(unit.get("type", "")) == "gust_shrike": return GustShrikeCutout.available()
 	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 
@@ -2103,7 +2103,7 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			"configure",
 			source_texture,
 			source_rect,
-			preload("res://assets/units/storm_capacitor_cutout/death.gd").fade_phase(float(unit.get("death_progress", 0.0))) if str(unit.get("type", "")) == "storm_capacitor" else float(unit.get("death_progress", 0.0)),
+			preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
 			_enemy_shadow_dissolve_seed_for_unit(unit),
 			bool(presentation.get("reduced_motion", false))
 		)

@@ -15,7 +15,7 @@ def production_errors(report):
             if any(b + 1e-6 < a for a, b in zip(phases, phases[1:])): errors.append(clip + ': clip restarted')
             states = {r['pose_sha256'] for r in rows}
             if len(states) < MIN_ACTION_CHANGING_FRAMES:
-                errors.append(('TODO_DESIGN_hit_changing_frames' if clip == 'hit' else clip) + ': fewer than six changing presented states (%d)' % len(states))
+                errors.append(clip + ': fewer than six changing presented states (%d)' % len(states))
             if report['native_pixels'] and len({r.get('pixels_sha256') for r in rows}) < MIN_ACTION_CHANGING_FRAMES:
                 errors.append(clip + ': fewer than six changing native states')
         elif len({r['pose_sha256'] for r in rows}) < 2: errors.append('idle: frozen buzz')

@@ -8,9 +8,11 @@
   "runtime_paths": [
     "assets/units/storm_capacitor_cutout/renderer.gd",
     "assets/units/storm_capacitor_cutout/actions.gd",
-    "assets/units/storm_capacitor_cutout/death.gd",
+    "scripts/maquette_cutout_runtime/death.gd",
     "assets/units/storm_capacitor_cutout/rig.gd",
     "scripts/static_enemy_facing.gd",
+    "scripts/turn_order_portraits.gd",
+    "experiments/cutouts/storm_capacitor/mq5/integration.json",
     "tests/rr17/native_capture.gd",
     "tests/rr17/production_capture.gd",
     "tests/rr17/capture_scene.gd",
@@ -64,9 +66,8 @@
   "sources": [
     "director_motion.json",
     "source/cap_mask.png",
-    "source/vent_fill.png"
+    "source/vent_fill.png",
+    "integration.json"
   ],
-  "TODO_DESIGN": {
-    "TODO_DESIGN_hit_changing_frames": "Protected hit has four transitions/four unique states; the brief requires six changing frames per action."
-  }
+  "TODO_DESIGN": {}
 }
