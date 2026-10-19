@@ -846,5 +846,5 @@
   "rest_source": "humanoid_v2/rear/rest.png",
   "motion_data": "res://assets/units/glacial_mirror_cutout/humanoid_v2/compiled_motion.json",
   "gait_leg_scale_max": 1.14,
-  "rest_source_sha256": "b0cc558f67ca333de83983643896195fdc6a9a25d6ae2002c1dfb295722eae43"
+  "rest_source_sha256": "eba377ca27e3d5ec9c3c213ed54dc259f0208c42c9699bd002f1b58ca349ddf6"
 }
