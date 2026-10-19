@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT/'tools'))
+sys.path[:0]=[str(ROOT/'tools'),str(ROOT)]
 from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.gait import evaluate, expand, schedule
 from humanoid_cutout.walk_gates import report, rigid_air_errors
@@ -21,15 +21,18 @@ from humanoid_cutout.rigid_joint_gap import gap
 from humanoid_cutout import walk_gates
 from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.silhouette_gates import joint_holes, posed_owners
-from humanoid_cutout.gait_continuations import texture as continuation_texture, errors as continuation_errors
+from humanoid_cutout.gait_continuations import texture as continuation_texture, errors as continuation_errors, nearest_donors
 from humanoid_cutout.anatomy import load as load_anatomy
 from maquette_motion.silhouette import holes
 from cutout_pipeline.cases import read_json
+from tests.gait01.mutations import without_bind_anchor, without_transparent_target_guard
 
 CASES={'arc_thrall':'rr11','glacial_mirror':'rr18'}
 DIRECTOR_DATA_REVISION='80d5ec39b'
 FIXTURE_SLIDE_PX=1.
 FIXTURE_AIR_PX=4.
+FIXTURE_OPAQUE_PART='leg_far'
+FIXTURE_OPAQUE_TARGET=(1,37)  # Director's opaque-paint mutation from re-review.
 PROOF_TIMEOUT_SECONDS=180
 PROOF_TASK_ID=os.environ.get('LABYRINTH_TASK_ID','gait-01')
 
@@ -239,8 +242,25 @@ class GaitTests(unittest.TestCase):
 
     def test_production_presented_stances_include_director_failure_frames(self):
         with tempfile.TemporaryDirectory(prefix='gait01-stance-') as folder:
+            output=Path(folder)/'samples.json'
+            result=run_godot('tests/gait01/presented_stance.gd','--output',output)
             self.assertIn('GAIT PRESENTED STANCE: PASS (464 consecutive planted checks;',
-                          run_godot('tests/gait01/presented_stance.gd','--output',Path(folder)/'samples.json'))
+                          result)
+            self.assertIn('GAIT BIND REGISTRATION: PASS (16 zero-travel checks; 864 integer translations; reflected views included)',result)
+
+    def test_removing_bind_anchor_is_caught_even_when_stances_are_stable(self):
+        with without_bind_anchor(ROOT) as script, tempfile.TemporaryDirectory(prefix='gait01-unanchored-') as folder:
+            output=Path(folder)/'samples.json'
+            with self.assertRaisesRegex(AssertionError,'zero-travel bind registration differs'):
+                run_godot('tests/gait01/presented_stance.gd','--output',output,'--rig-script',script)
+            evidence=read_json(output)
+            self.assertEqual(evidence['bind_checks'],16)
+            self.assertEqual(evidence['translation_checks'],864)
+            self.assertTrue(any('non-integer bind-relative translation' in error for error in evidence['errors']))
+            self.assertFalse(any('planted bone or painted foot moved' in error for error in evidence['errors']))
+            for mirrored in (False,True):
+                self.assertTrue(any(f'mirrored {str(mirrored).lower()}' in error and
+                                    'zero-travel bind registration differs' in error for error in evidence['errors']))
 
     def test_thrall_projected_seams_close_and_removing_coverage_reopens_them(self):
         case,_,layouts,samples=self.cases['arc_thrall']
@@ -281,6 +301,46 @@ class GaitTests(unittest.TestCase):
             mutant=copy.deepcopy(layout)
             next(iter(mutant['gait_continuations'].values()))['texels'][0][2:]=[0,0]
             self.assertTrue(continuation_errors(case,mutant))
+
+    def continuation_target_fixtures(self):
+        case,_,layouts,_=self.cases['arc_thrall']
+        layout=layouts['front']
+        part=next(p for p in layout['parts'] if p['name']==FIXTURE_OPAQUE_PART)
+        source=continuation_texture(case,layout,part)
+        x,y=FIXTURE_OPAQUE_TARGET
+        self.assertGreater(source[y,x,3],0)
+        valid=layout['gait_continuations'][FIXTURE_OPAQUE_PART]['texels'][0][:2]
+        self.assertEqual(source[valid[1],valid[0],3],0)
+        targets={'opaque':[FIXTURE_OPAQUE_TARGET], 'duplicate':[valid,valid],
+                 'left':[[-1,valid[1]]], 'right':[[source.shape[1],valid[1]]],
+                 'top':[[valid[0],-1]], 'bottom':[[valid[0],source.shape[0]]]}
+        for label,points in targets.items():
+            mutant=copy.deepcopy(layout)
+            # The donor coordinates remain fully valid, including for the
+            # duplicate/out-of-bounds destinations. Only target validation
+            # can reject these recipes; the donor check cannot mask its loss.
+            mutant['gait_continuations']={FIXTURE_OPAQUE_PART:nearest_donors(case,layout,part,points)}
+            if label=='opaque':
+                filled=continuation_texture(case,mutant,part,gait=True)
+                self.assertFalse(np.array_equal(source[y,x],filled[y,x]),'fixture must repaint the opaque texel')
+            yield label,case,mutant
+
+    def assert_continuation_target_rejected(self,validator,case,layout):
+        self.assertEqual(validator(case,layout),
+                         ['gait continuation: must add only transparent source texels: '+FIXTURE_OPAQUE_PART])
+
+    def test_opaque_duplicate_and_out_of_bounds_targets_are_rejected(self):
+        for label,case,layout in self.continuation_target_fixtures():
+            with self.subTest(target=label):
+                self.assert_continuation_target_rejected(continuation_errors,case,layout)
+
+    def test_disabling_transparent_target_guard_is_caught(self):
+        mutant=without_transparent_target_guard(continuation_errors)
+        for label,case,layout in self.continuation_target_fixtures():
+            with self.subTest(target=label):
+                self.assertEqual(mutant(case,layout),[],'otherwise-valid donor recipes must reach the disabled guard')
+                with self.assertRaises(AssertionError):
+                    self.assert_continuation_target_rejected(mutant,case,layout)
 
     def test_continuations_do_not_trap_new_air_anywhere_in_the_move_cycle(self):
         case,_,layouts,samples=self.cases['arc_thrall']

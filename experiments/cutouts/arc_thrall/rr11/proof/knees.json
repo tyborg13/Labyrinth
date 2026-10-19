@@ -81,7 +81,7 @@
     "maximum_total_pelvis_drop_px": 3.000000000000007,
     "maximum_rigid_air_px": 0.0,
     "maximum_stance_frame_change_px": 0.0,
-    "maximum_stance_target_error_px": 0.5241431974260624,
+    "maximum_stance_target_error_px": 0.5241573303134957,
     "sample_counts": {
       "frames": 129,
       "stance": 169,
@@ -171,7 +171,7 @@
     "maximum_total_pelvis_drop_px": 3.000000000000014,
     "maximum_rigid_air_px": 0.0,
     "maximum_stance_frame_change_px": 0.0,
-    "maximum_stance_target_error_px": 0.5241431974260876,
+    "maximum_stance_target_error_px": 0.5241561150294948,
     "sample_counts": {
       "frames": 129,
       "stance": 169,
