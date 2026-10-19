@@ -650,7 +650,7 @@
     "intents": [
      "crystal_guard:guard_ally"
     ],
-    "note": "raises both fists to a boxer's guard either side of the ice mirror (elbows folding), sinks 2 px into its knees and leans back 2 degrees; at the contact the fists clash 4 px inward toward each other as the ward lands; holds; lowers",
+    "note": "raises the near fist to a boxer's guard in front of the ice mirror (elbow folding) while the far fist comes up to the hip, sinks 2 px into its knees and leans back 2 degrees; at the contact the near fist punches 4 px inward as the ward lands; holds; lowers",
     "keys": {
      "hand_near.lift_px": [
       [
@@ -721,11 +721,11 @@
       ],
       [
        0.35,
-       45
+       14
       ],
       [
        0.75,
-       45
+       14
       ],
       [
        1,
@@ -739,19 +739,19 @@
       ],
       [
        0.35,
-       40
+       12
       ],
       [
        0.45,
-       44
+       14
       ],
       [
        0.55,
-       40
+       12
       ],
       [
        0.75,
-       40
+       12
       ],
       [
        1,
@@ -765,11 +765,11 @@
       ],
       [
        0.35,
-       10
+       6
       ],
       [
        0.75,
-       10
+       6
       ],
       [
        1,
