@@ -27,7 +27,7 @@ from maquette_motion.features import source_pixels
 from rr18_seams import frame_state, frame_report
 from rr18_source_stage import raw_identity, visible_errors
 from maquette_motion.pixels import render
-from rr23_preservation import protected_changes
+from rr23_preservation import UNIT_HEAD, protected_changes
 
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID','rr-23')
 PROOF_TIMEOUT_SECONDS = 180
@@ -252,7 +252,7 @@ class MirrorTests(unittest.TestCase):
                 self.assertEqual(report['snapshot_mismatch_pixels'],1)
 
     def test_other_creatures_and_director_inputs_unchanged(self):
-        self.assertEqual(protected_changes(PROJECT),[])
+        self.assertEqual(protected_changes(PROJECT,end=UNIT_HEAD),[])
 
     def test_committed_protected_mutation_is_caught(self):
         # Commit only in a disposable fixture repository, never this worktree.

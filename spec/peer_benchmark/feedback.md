@@ -212,4 +212,7 @@
 - purge-polish: APPROVED (already on master, 209cbc67c).
 - enemy-pacing-2: APPROVED for now. Owner: "I may slow this down a bit more later, but I'd like to feel it over a more
   extended play session first." The lever is the 0.80× enemy action speed.
+- mirror-rig-v2: APPROVED for now. Owner, verbatim: "This is better and good enough for now. Not totally sold on the
+  feet or hands but we can revisit those later when we don't have bigger fish to fry." Revisit item: the Mirror's feet
+  and fists (backlog).
 

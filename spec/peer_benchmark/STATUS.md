@@ -51,7 +51,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
      review running.
   3. On each finish: windowed proof (locked chain scripts in scratchpad), Codex review, merge with suites, then fresh inbox
      items (Mirror, Thrall first; then Mimic, Weaver, Mortar).
-  4. Then: Lancer/Herald/Gloam v2 conversions; rr-09 (narrow rig proof bindings), qa-09..12, design-01.
+  4. Backlog from today: the Mirror's feet and fists revisit (owner: "not totally sold"); unify the two detached
+     provenance classifiers (rest_space.py from rr-26, source_space.py from rr-25) with differential tests (rr-26 review Low);
+     rr-26 Low: a sum-preserving canonical-weight regression; rr-21 Low: path-containment test fixture.
+  5. Then: Lancer/Herald/Gloam v2 conversions; rr-09 (narrow rig proof bindings), qa-09..12, design-01.
   5. Hygiene: workers can't write Git metadata, so the director merges integration into unit branches; never commit to
      integration while its suites run; proof captures are deleted after review (20 GB each round).
 - Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,

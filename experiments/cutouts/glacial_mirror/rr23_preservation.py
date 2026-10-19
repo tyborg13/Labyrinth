@@ -3,6 +3,8 @@ import hashlib
 import subprocess
 
 BASELINE_COMMIT = '521fa8f204f6f3b5d0aca1d09ec2494107c155d9'
+# rr-23's last commit: on integration the unit's range is pinned at both ends, so later units' director data never counts.
+UNIT_HEAD = 'a36a7f647c80db39c8ab9439250fdf8e225424a4'
 PROTECTED_PREFIXES = ('assets/units/', 'assets/art/', 'scripts/', 'experiments/cutouts/',
                       'spec/art_identity/maquettes/', 'spec/art_identity/jobs/',
                       'spec/peer_benchmark/staged/', 'spec/assets/board_pixel_density/sources/')
@@ -16,12 +18,16 @@ APPROVED_MOTION_SHA256 = {
 }
 
 
-def protected_changes(project, baseline=BASELINE_COMMIT, approved_motion=None):
+def protected_changes(project, baseline=BASELINE_COMMIT, approved_motion=None, end=None):
     approved = APPROVED_MOTION_SHA256 if approved_motion is None else approved_motion
-    changed = subprocess.check_output(['git', 'diff', '--no-renames', '--name-only', '-z', baseline, '--'],
-                                      cwd=project).decode().split('\0')
-    changed += subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', '-z'],
-                                       cwd=project).decode().split('\0')
+    if end is None:
+        changed = subprocess.check_output(['git', 'diff', '--no-renames', '--name-only', '-z', baseline, '--'],
+                                          cwd=project).decode().split('\0')
+        changed += subprocess.check_output(['git', 'ls-files', '--others', '--exclude-standard', '-z'],
+                                           cwd=project).decode().split('\0')
+    else:
+        changed = subprocess.check_output(['git', 'diff', '--no-renames', '--name-only', '-z', baseline, end, '--'],
+                                          cwd=project).decode().split('\0')
     errors = []
     for name in sorted(set(changed)):
         if not name or not name.startswith(PROTECTED_PREFIXES) or name.startswith(OWNED_PREFIXES):
