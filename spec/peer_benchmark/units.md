@@ -111,3 +111,4 @@
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
 | qa-05 | Integration: sfx sync suites fail after sfx-04 merge (interaction) | dropped: root cause = stale .godot audio imports in the integration worktree; fixed by re-import, runtime freshness workaround rejected | codex/peer-benchmark | briefs/qa-05.md |
+| ui-03 | Empower redesigned: the Empower seal on the card corner (unlit/hover/charged/blocked/locked), charge persists per card, works with drag, visible cursor over HUD while targeting, floating button removed | ready (2026-10-19, owner request) | codex/peer-benchmark | briefs/ui-03.md |

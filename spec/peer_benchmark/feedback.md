@@ -215,4 +215,8 @@
 - mirror-rig-v2: APPROVED for now. Owner, verbatim: "This is better and good enough for now. Not totally sold on the
   feet or hands but we can revisit those later when we don't have bigger fish to fry." Revisit item: the Mirror's feet
   and fists (backlog).
+- Owner request (2026-10-19): redesign Empower. Verbatim: "Right now, it's a tiny button off to the side, it's not very
+  aesthetic, it's hard to find, you have to select it with the board targeting arrow. I don't have a prescriptive
+  answer, but it needs to be redesigned to look and feel much better." Director design: brief ui-03 (the card is the
+  control).
 
