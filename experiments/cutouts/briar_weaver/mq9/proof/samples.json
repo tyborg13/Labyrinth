@@ -301,7 +301,7 @@
     "runtime:tests/rr21/idle_contract.json": "14452ef725bdd099dc28ff9dcb462da58fc4842b22e7040f3430dd0b12ab3958",
     "runtime:tests/rr21/native_capture.gd": "87231d114455aefab68f6434f12364fac1b457c7e6547e668c227abdfa94e986",
     "runtime:tests/rr21/production_capture.gd": "9f2c2e8f62ff4a34e0f0f8a59de9a2eca0290afa2ba440cf0fa9dd6e973ddd32",
-    "runtime:tests/rr21/production_contract.json": "665405bf47eb87cfefaca42e9898896e461fba2328416caf66f158c2cd7e9fd3",
+    "runtime:tests/rr21/production_contract.json": "59076c0321c43d887c833fdfdc1e226d06674762a4cf4a5dc33a733021917af4",
     "runtime:tests/rr21/render_contract.json": "d585b41ac1e5b5769ba3fc70a5cf85f5e17259176376a0bf4331984a9a81c7f4",
     "runtime:tests/rr21/rest_contract.json": "cc9a54626e01ae83f61955bcdcacaf77a9fb0d3688dbfc1b3feca2d08756a83e",
     "runtime:tests/rr21/runtime_checks.gd": "b7cdd1cf167ce91aff37d82a70f241092a29688539a5305eed410494c0363b64",
@@ -585,6 +585,6 @@
   ],
   "full_samples": {
     "file": "logs/samples.json",
-    "sha256": "a2b0f862ac27b3949eb598ea81605623d74f4f5a279125557ebf72f1f19c8968"
+    "sha256": "d73f68da90a69afdcacdf9bbaeffcf7809e66e6bcf9edce5056527a76e6428cd"
   }
 }

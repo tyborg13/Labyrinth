@@ -26,7 +26,7 @@ REPAIR_FRAMES = {'front': 5, 'rear': 2}
 class WalkTests(unittest.TestCase):
     def test_compact_evidence_loads_legacy_and_hash_bound_full_rows(self):
         with tempfile.TemporaryDirectory(prefix='rr21-evidence-') as folder:
-            case = Path(folder)
+            case = Path(folder) / 'case'
             legacy = {'samples': [{'fixture': True}], 'ok': True}
             write_json(case / 'proof/samples.json', legacy)
             self.assertEqual(load_samples(case), legacy)
@@ -38,10 +38,16 @@ class WalkTests(unittest.TestCase):
             write_json(full, dict(legacy, ok=False))
             with self.assertRaisesRegex(ValueError, 'changed full sample'):
                 load_samples(case)
-            reference['file'] = '../outside.json'
-            write_json(case / 'proof/samples.json', {'full_samples': reference})
-            with self.assertRaisesRegex(ValueError, 'changed full sample'):
-                load_samples(case)
+            outside = Path(folder) / 'outside.json'
+            write_json(outside, legacy)
+            link = case / 'proof/logs/outside_link.json'
+            link.symlink_to(outside)
+            for target in ('../../outside.json', 'logs/outside_link.json'):
+                with self.subTest(target=target):
+                    reference = {'file': target, 'sha256': digest(outside)}
+                    write_json(case / 'proof/samples.json', {'full_samples': reference})
+                    with self.assertRaisesRegex(ValueError, 'changed full sample'):
+                        load_samples(case)
 
     def test_committed_reports_contain_no_full_frame_arrays(self):
         for name in ('samples', 'gates', 'native_gates'):

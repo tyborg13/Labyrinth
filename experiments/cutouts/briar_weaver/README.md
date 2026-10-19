@@ -1,3 +1,58 @@
+# rr-21 — director feedback 3: review provenance
+
+At `e05340c42`, review's zero positive direction checks came from the evidence
+freshness guard. Both views reported `bone evidence: stale input bindings`;
+native validation additionally reported stale headless and native inputs.
+The only changed binding was `runtime:tests/rr21/production_contract.json`:
+`665405bf…` at capture versus `59076c03…` after the director corrected image
+counts. Compaction correctly resolved the full 1,106-pose file. Review reused
+that old file and the earlier native capture instead of refreshing them.
+
+`rr21_proof.sh review` now always runs the task-local headless sampler and
+rebuilds the compact index before gates. `rr21_evidence.native_current` checks
+capture provenance; missing, incomplete or stale native inputs trigger one
+normal visual-runner capture before validation and encoding. Current captures
+are reused. The full native pixel gate, all binding comparisons and the
+required lash/thornwall coverage remain strict. Old capture manifests are
+never rebound to current hashes. The existing director capture therefore
+requires a fresh native pass; the command below handles it automatically.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh review
+```
+
+The final reel is `mq9/proof/briar_weaver_review.mp4`; regenerated native frames
+remain in `mq9/proof/native/`. All full samples, frames and logs stay ignored;
+committed `samples.json`, `gates.json` and `native_gates.json` stay compact.
+The two dirty director outputs present at worker entry (`native_gates.json`
+and `briar_weaver_protagonist_idle.json`) are preserved.
+
+`tests/test_rr21_review.py` exercises a checkout-like case with its committed
+compact index and no ignored samples, plus a synthetic current capture
+provenance fixture. The real `review --validate-only` flow regenerates actual
+Godot Bone2D samples and passes both views' source/direction/walk gates,
+including positive lash and thornwall evidence. It repeats after stale sample
+bindings are injected. This is explicitly a headless evidence regression;
+native pixels and encoding are not claimed by the fixture. Inert command stubs
+separately verify normal review refresh → conditional native capture → native
+gate → encoder ordering. `RR21_CASE` is the named test case override.
+
+The outside-file regression now creates readable, valid JSON outside `proof/`
+with its actual matching SHA-256, then tests both a relative escape and a
+symlink escape. A mutation removes only the containment check while retaining
+existence and digest checks; both subtests then fail. The production loader's
+containment policy is unchanged.
+
+All final commands and exact result lines are in `rr21_feedback3_results.json`.
+No player-facing defaults, art, motion, runtime, shared modules, source inputs
+or dependencies changed. New test-only defaults reuse the 180s headless timeout
+and 10s inert-command timeout; the invalid capture-size fixture is a named 1×1
+field. No active TODO_DESIGN placeholders. No full suite, windowed run,
+peer review, commit or publication was performed. Fresh windowed review remains
+the director's final proof step.
+
+---
+
 # rr-21 — director feedback 2: shared walk
 
 Work stays uncommitted on `codex/rr-21`. No full suite, windowed run, peer review,

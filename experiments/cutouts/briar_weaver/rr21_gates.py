@@ -13,16 +13,16 @@ from humanoid_cutout.bone_evidence import load_samples
 from rr21_residue import source_report, outside_count, presented_feature_mask
 
 
-def evaluate(native=None):
-    data, build = [read_json(CASE / p) for p in ('compiled_motion.json', 'proof/build.json')]
-    samples = load_samples(CASE)
-    current = bindings(CASE)
-    residues = source_report(CASE, ASSETS)
+def evaluate(native=None, case=CASE):
+    data, build = [read_json(case / p) for p in ('compiled_motion.json', 'proof/build.json')]
+    samples = load_samples(case)
+    current = bindings(case)
+    residues = source_report(case, ASSETS)
     errors, views = list(residues['errors']), {}
-    if (CASE / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('Protected director tracks differ')
+    if (case / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('Protected director tracks differ')
     for view in data['view_tracks']:
-        layout = read_json(CASE / f'layouts/{view}.json')
-        cut = structure_errors(layout, build) + source_errors(CASE, layout, build)
+        layout = read_json(case / f'layouts/{view}.json')
+        cut = structure_errors(layout, build) + source_errors(case, layout, build)
         bone = bone_errors(layout, data, samples, current)
         directions = direction_report(layout, data, samples, current, require_presented=True)
         reach = reach_report(layout, data, step_distance_px=samples['step_distance_px'], screen_pixel_scale=samples['screen_pixel_scale'])
@@ -33,7 +33,7 @@ def evaluate(native=None):
             'reach': reach, 'walk': walk, 'supports': supports}
     native_residue = []
     if native:
-        errors += native_errors(CASE, native, failure_output=CASE / 'proof/logs/native_failures')
+        errors += native_errors(case, native, failure_output=case / 'proof/logs/native_failures')
         manifest = read_json(native / 'frames.json')
         native_pieces = {}
         for piece in manifest['pieces']:
@@ -41,24 +41,24 @@ def evaluate(native=None):
             native_pieces.setdefault(key, []).append(dict(piece, absolute_file=str(native / piece['file'])))
         for row in manifest['frames']:
             image = Image.open(native / row['file']).convert('RGBA')
-            layout = read_json(CASE / f'layouts/{row["view"]}.json')
+            layout = read_json(case / f'layouts/{row["view"]}.json')
             key = (row['view'], row['clip'], row['frame'])
             try:
-                exempt = presented_feature_mask(CASE, layout, native_pieces.get(key, []), (image.height, image.width))
+                exempt = presented_feature_mask(case, layout, native_pieces.get(key, []), (image.height, image.width))
                 count = outside_count(image, exempt)
             except ValueError as error:
                 errors.append(str(error))
                 continue
             native_residue.append({'view': row['view'], 'clip': row['clip'], 'frame': row['frame'], 'residue_outside_features': count})
             if count: errors.append(f'{row["view"]}/{row["clip"]}/{row["frame"]}: {count} native residue texels outside declared features')
-    findings = read_json(CASE / 'inputs.json')['design_placeholders']
+    findings = read_json(case / 'inputs.json')['design_placeholders']
     result = {'ok': not errors, 'errors': sorted(set(errors)), 'views': views, 'residue': residues, 'native_residue': native_residue,
         'design_placeholders': findings,
         'production_ready': not errors and bool(native) and not findings, 'native_pixels': bool(native),
         'reach_policy': 'overreach diagnostic per rr-21 brief; inside-minimum targets fail; all pre-clamp violations retained',
         'residue_gate': 'G >= max(R,B)+12 AND 2*G >= 3*max(R,B); declared feature masks exempt; zero outside features'}
     name = 'native_gates' if native else 'gates'
-    write_json(CASE / f'proof/logs/{name}.json', result)
+    write_json(case / f'proof/logs/{name}.json', result)
     compact = dict(result, views={})
     for view, report in views.items():
         compact['views'][view] = dict(report,
@@ -67,7 +67,7 @@ def evaluate(native=None):
     compact['native_residue'] = {'frames': len(native_residue),
         'maximum_outside_features': max((r['residue_outside_features'] for r in native_residue), default=0),
         'failures': [r for r in native_residue if r['residue_outside_features']]}
-    write_json(CASE / f'proof/{name}.json', compact)
+    write_json(case / f'proof/{name}.json', compact)
     return result
 
 
@@ -75,7 +75,9 @@ def main():
     from pathlib import Path
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native', type=Path)
-    result = evaluate(parser.parse_args().native)
+    parser.add_argument('--case', type=Path, default=CASE)
+    args = parser.parse_args()
+    result = evaluate(args.native, args.case)
     for view, report in result['views'].items():
         print('RR21 %s CUT: %s (%d errors)' % (view.upper(), 'FAIL' if report['cut_errors'] else 'PASS', len(report['cut_errors'])))
         print('RR21 %s DIRECTION: %s (%d positive checks; lash/thornwall required)' % (view.upper(), 'PASS' if report['direction']['ok'] else 'FAIL', report['direction']['positive_checks']))
