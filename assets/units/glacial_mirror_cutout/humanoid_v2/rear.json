@@ -115,7 +115,7 @@
     "foot_far": {
       "position": [
         164.5,
-        217.0
+        207.5
       ],
       "parent": "shin_far"
     }
@@ -845,6 +845,6 @@
   },
   "rest_source": "rear/rest.png",
   "motion_data": "res://assets/units/glacial_mirror_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "b228f7afb6870ebf300c1a426e0bc73041afaabe80e25a29faa6bc17d7dccdd8",
-  "gait_leg_scale_max": 1.14
+  "gait_leg_scale_max": 1.14,
+  "rest_source_sha256": "b0cc558f67ca333de83983643896195fdc6a9a25d6ae2002c1dfb295722eae43"
 }

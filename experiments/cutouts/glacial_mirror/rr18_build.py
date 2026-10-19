@@ -1,4 +1,4 @@
-"""Lossless rigid cuts of the approved mq8 paint; no generated/repainted texels."""
+"""Lossless rigid cuts of the approved mq8b paint; no generated/repainted texels."""
 from pathlib import Path
 import shutil
 import sys
@@ -25,6 +25,7 @@ from humanoid_cutout.underlays import distinct_depths
 from rr18_ownership import clean as clean_ownership
 from rr18_materials import continue_surfaces
 from rr18_source_stage import raw_cut, clean_visible, raw_identity
+from rr23_geometry import register_terminals, front_arm_order
 
 
 def recipe_for(_creature, _spec):
@@ -85,7 +86,7 @@ def build_view(view,inputs,anatomy):
         visible[name] = source_pixels(base,part)
         depths[name] = part['z_index']
     transfers = clean_ownership(visible)
-    visible=raw_cut(visible,depths,view)
+    visible=raw_cut(visible,depths,view,refresh=True)
     visible,source_corrections=clean_visible(visible,anatomy['material_policy']['green_dominance_margin'])
     for name,labels in PIECES.items():
         hidden[name] = clean_continuation(visible[name],seeds[labels[0]],rules(base,view))
@@ -104,6 +105,8 @@ def build_view(view,inputs,anatomy):
             'required_mask':str(path.relative_to(CASE)),'required_pixels':int(mask.sum()),
             'missing_pixels':int((mask & (hidden[name][...,3] == 0)).sum())})
     surfaces = continue_surfaces(visible,hidden,anatomy,view,rules(base,view))
+    terminal_registration = register_terminals(joints,visible,hidden,view)
+    order = front_arm_order(visible,hidden,depths) if view == 'front' else {'policy':'unchanged as cut'}
     parts = []
     for name,image in visible.items():
         bone = BONES.get(name,name)
@@ -154,7 +157,7 @@ def build_view(view,inputs,anatomy):
     forward = np.asarray(projected(spec,[1,0,0],view))-origin
     projection = {'forward':(forward/np.linalg.norm(forward)).tolist(),
         'lean_sign':float(np.sign(up[0]*forward[1]-up[1]*forward[0]))}
-    return layout,{'front_rest_mismatch_pixels':mismatch,'rest_mismatch_pixels':mismatch,'tucks':reports,'continuations':surfaces,'raw_authoring':raw_identity(view),'presentation_delta_pixels':raw_delta,'visible_green_corrections':source_corrections,'delivery':delivery,
+    return layout,{'front_rest_mismatch_pixels':mismatch,'rest_mismatch_pixels':mismatch,'tucks':reports,'continuations':surfaces,'terminal_registration':terminal_registration,'guard_order':order,'raw_authoring':raw_identity(view),'presentation_delta_pixels':raw_delta,'visible_green_corrections':source_corrections,'delivery':delivery,
         'source_ownership':str(base.relative_to(PROJECT)/f'layouts/{view}.json'),
         'source_ownership_sha256':digest(base/f'layouts/{view}.json')},projection
 

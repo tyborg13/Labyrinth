@@ -1,9 +1,9 @@
 #!/bin/sh
 # Director-only windowed proof. Every stage is explicit; no worker GUI retries.
 set -eu
-stage="${1:?Use density, rest, native, production, idle, review, move or sheets}"
+stage="${1:?Use density, rest, native, production, idle, review, move, sheets or contacts}"
 project="$(pwd)"
-task_id="${LABYRINTH_TASK_ID:-gait-01}"
+task_id="${LABYRINTH_TASK_ID:-rr-23}"
 rig_case="$project/experiments/cutouts/glacial_mirror/rr18"
 proof="$rig_case/proof"
 case "$stage" in
@@ -43,6 +43,9 @@ PYTHONPATH=tools python3 -m humanoid_cutout.move_sheet --case "$rig_case" --capt
 ;;
 sheets)
 PYTHONPATH=tools python3 -m humanoid_cutout.proof sheets --case "$rig_case" --capture "$proof/native" --output "$proof/contact_sheets"
+;;
+contacts)
+PYTHONPATH=tools python3 -B experiments/cutouts/glacial_mirror/rr23_proof_crops.py --capture "$proof/native" --output "$proof/rr23_native_crops"
 ;;
 *) exit 2 ;;
 esac

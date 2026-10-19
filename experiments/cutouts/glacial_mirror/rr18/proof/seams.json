@@ -151,15 +151,21 @@
       },
       {
         "clip": "move",
+        "frame": 1,
+        "count": 1,
+        "pixels": 3
+      },
+      {
+        "clip": "move",
         "frame": 2,
         "count": 3,
-        "pixels": 52
+        "pixels": 81
       },
       {
         "clip": "move",
         "frame": 3,
         "count": 2,
-        "pixels": 6
+        "pixels": 7
       },
       {
         "clip": "move",
@@ -175,19 +181,31 @@
       },
       {
         "clip": "move",
-        "frame": 7,
-        "count": 2,
+        "frame": 6,
+        "count": 1,
+        "pixels": 4
+      },
+      {
+        "clip": "move",
+        "frame": 8,
+        "count": 1,
         "pixels": 2
       },
       {
         "clip": "move",
         "frame": 9,
-        "count": 2,
-        "pixels": 4
+        "count": 1,
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 10,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 11,
         "count": 1,
         "pixels": 1
       },
@@ -199,39 +217,39 @@
       },
       {
         "clip": "move",
-        "frame": 14,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "move",
         "frame": 16,
         "count": 1,
         "pixels": 2
       },
       {
         "clip": "move",
-        "frame": 20,
+        "frame": 17,
+        "count": 1,
+        "pixels": 1373
+      },
+      {
+        "clip": "move",
+        "frame": 19,
         "count": 1,
         "pixels": 2
       },
       {
         "clip": "move",
         "frame": 21,
-        "count": 2,
-        "pixels": 56
+        "count": 1,
+        "pixels": 83
       },
       {
         "clip": "move",
         "frame": 22,
         "count": 1,
-        "pixels": 17
+        "pixels": 22
       },
       {
         "clip": "move",
         "frame": 23,
-        "count": 2,
-        "pixels": 3
+        "count": 1,
+        "pixels": 2
       },
       {
         "clip": "move",
@@ -247,105 +265,81 @@
       },
       {
         "clip": "move",
-        "frame": 28,
-        "count": 2,
-        "pixels": 2
-      },
-      {
-        "clip": "move",
-        "frame": 31,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "move",
-        "frame": 32,
-        "count": 2,
-        "pixels": 2
-      },
-      {
-        "clip": "move",
-        "frame": 33,
+        "frame": 27,
         "count": 1,
         "pixels": 1
       },
       {
         "clip": "move",
-        "frame": 35,
+        "frame": 31,
+        "count": 5,
+        "pixels": 9
+      },
+      {
+        "clip": "move",
+        "frame": 32,
         "count": 1,
         "pixels": 1
       },
       {
         "clip": "move",
         "frame": 37,
-        "count": 2,
-        "pixels": 3
-      },
-      {
-        "clip": "move",
-        "frame": 39,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "move",
-        "frame": 42,
-        "count": 1,
-        "pixels": 134
-      },
-      {
-        "clip": "move",
-        "frame": 43,
-        "count": 2,
-        "pixels": 39
-      },
-      {
-        "clip": "move",
-        "frame": 44,
-        "count": 3,
-        "pixels": 9
-      },
-      {
-        "clip": "move",
-        "frame": 46,
-        "count": 2,
-        "pixels": 7
-      },
-      {
-        "clip": "move",
-        "frame": 47,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "move",
-        "frame": 48,
         "count": 1,
         "pixels": 2
       },
       {
         "clip": "move",
+        "frame": 38,
+        "count": 1,
+        "pixels": 1386
+      },
+      {
+        "clip": "move",
+        "frame": 39,
+        "count": 1,
+        "pixels": 1403
+      },
+      {
+        "clip": "move",
+        "frame": 42,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 43,
+        "count": 3,
+        "pixels": 54
+      },
+      {
+        "clip": "move",
+        "frame": 44,
+        "count": 2,
+        "pixels": 9
+      },
+      {
+        "clip": "move",
+        "frame": 45,
+        "count": 1,
+        "pixels": 2
+      },
+      {
+        "clip": "move",
+        "frame": 47,
+        "count": 2,
+        "pixels": 4
+      },
+      {
+        "clip": "move",
+        "frame": 48,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
         "frame": 49,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "move",
-        "frame": 50,
-        "count": 1,
-        "pixels": 10
-      },
-      {
-        "clip": "move",
-        "frame": 51,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "move",
-        "frame": 52,
-        "count": 1,
-        "pixels": 1
+        "count": 2,
+        "pixels": 3
       },
       {
         "clip": "refraction",
@@ -356,12 +350,6 @@
       {
         "clip": "refraction",
         "frame": 7,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "refraction",
-        "frame": 9,
         "count": 1,
         "pixels": 1
       },
@@ -379,19 +367,61 @@
       },
       {
         "clip": "refraction",
-        "frame": 16,
+        "frame": 14,
         "count": 1,
         "pixels": 1
       },
       {
         "clip": "refraction",
+        "frame": 15,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "refraction",
+        "frame": 16,
+        "count": 2,
+        "pixels": 2
+      },
+      {
+        "clip": "refraction",
         "frame": 17,
+        "count": 2,
+        "pixels": 2
+      },
+      {
+        "clip": "refraction",
+        "frame": 18,
         "count": 1,
         "pixels": 1
       },
       {
         "clip": "refraction",
         "frame": 19,
+        "count": 2,
+        "pixels": 2
+      },
+      {
+        "clip": "refraction",
+        "frame": 20,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "refraction",
+        "frame": 21,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "refraction",
+        "frame": 22,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "refraction",
+        "frame": 23,
         "count": 1,
         "pixels": 1
       },
@@ -410,12 +440,12 @@
       {
         "clip": "refraction",
         "frame": 27,
-        "count": 3,
-        "pixels": 3
+        "count": 2,
+        "pixels": 2
       },
       {
         "clip": "refraction",
-        "frame": 28,
+        "frame": 30,
         "count": 1,
         "pixels": 1
       },
@@ -535,6 +565,12 @@
       },
       {
         "clip": "refraction",
+        "frame": 50,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "refraction",
         "frame": 52,
         "count": 1,
         "pixels": 1
@@ -547,63 +583,63 @@
       },
       {
         "clip": "refraction",
-        "frame": 54,
+        "frame": 56,
         "count": 1,
         "pixels": 1
       },
       {
         "clip": "refraction",
-        "frame": 56,
-        "count": 2,
-        "pixels": 2
+        "frame": 59,
+        "count": 1,
+        "pixels": 1
       },
       {
         "clip": "guard",
         "frame": 3,
         "count": 2,
-        "pixels": 1363
+        "pixels": 1322
       },
       {
         "clip": "guard",
         "frame": 4,
         "count": 3,
-        "pixels": 1206
+        "pixels": 1170
       },
       {
         "clip": "guard",
         "frame": 5,
         "count": 1,
-        "pixels": 1050
+        "pixels": 1048
       },
       {
         "clip": "guard",
         "frame": 6,
         "count": 3,
-        "pixels": 950
+        "pixels": 969
       },
       {
         "clip": "guard",
         "frame": 7,
-        "count": 4,
-        "pixels": 838
+        "count": 2,
+        "pixels": 846
       },
       {
         "clip": "guard",
         "frame": 8,
         "count": 2,
-        "pixels": 699
+        "pixels": 692
       },
       {
         "clip": "guard",
         "frame": 9,
         "count": 1,
-        "pixels": 557
+        "pixels": 552
       },
       {
         "clip": "guard",
         "frame": 10,
         "count": 3,
-        "pixels": 387
+        "pixels": 383
       },
       {
         "clip": "guard",
@@ -620,8 +656,8 @@
       {
         "clip": "guard",
         "frame": 13,
-        "count": 2,
-        "pixels": 131
+        "count": 1,
+        "pixels": 130
       },
       {
         "clip": "guard",
@@ -644,152 +680,152 @@
       {
         "clip": "guard",
         "frame": 17,
-        "count": 2,
-        "pixels": 34
+        "count": 3,
+        "pixels": 35
       },
       {
         "clip": "guard",
         "frame": 18,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 19,
-        "count": 2,
-        "pixels": 25
+        "count": 3,
+        "pixels": 26
       },
       {
         "clip": "guard",
         "frame": 20,
-        "count": 2,
-        "pixels": 20
+        "count": 3,
+        "pixels": 21
       },
       {
         "clip": "guard",
         "frame": 21,
-        "count": 2,
-        "pixels": 15
+        "count": 3,
+        "pixels": 16
       },
       {
         "clip": "guard",
         "frame": 22,
-        "count": 3,
-        "pixels": 11
+        "count": 4,
+        "pixels": 12
       },
       {
         "clip": "guard",
         "frame": 23,
-        "count": 1,
-        "pixels": 9
+        "count": 2,
+        "pixels": 10
       },
       {
         "clip": "guard",
         "frame": 24,
-        "count": 1,
-        "pixels": 9
+        "count": 2,
+        "pixels": 10
       },
       {
         "clip": "guard",
         "frame": 25,
-        "count": 1,
-        "pixels": 9
+        "count": 2,
+        "pixels": 10
       },
       {
         "clip": "guard",
         "frame": 26,
-        "count": 3,
-        "pixels": 11
+        "count": 4,
+        "pixels": 12
       },
       {
         "clip": "guard",
         "frame": 27,
-        "count": 2,
-        "pixels": 17
+        "count": 3,
+        "pixels": 18
       },
       {
         "clip": "guard",
         "frame": 28,
-        "count": 2,
-        "pixels": 19
+        "count": 3,
+        "pixels": 20
       },
       {
         "clip": "guard",
         "frame": 29,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 30,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 31,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 32,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 33,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 34,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 35,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 36,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 37,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 38,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 39,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 40,
-        "count": 2,
-        "pixels": 31
+        "count": 3,
+        "pixels": 32
       },
       {
         "clip": "guard",
         "frame": 41,
-        "count": 2,
-        "pixels": 29
+        "count": 3,
+        "pixels": 30
       },
       {
         "clip": "guard",
@@ -818,20 +854,20 @@
       {
         "clip": "guard",
         "frame": 46,
-        "count": 4,
-        "pixels": 452
+        "count": 5,
+        "pixels": 449
       },
       {
         "clip": "guard",
         "frame": 47,
         "count": 2,
-        "pixels": 673
+        "pixels": 660
       },
       {
         "clip": "guard",
         "frame": 48,
-        "count": 4,
-        "pixels": 838
+        "count": 2,
+        "pixels": 846
       },
       {
         "clip": "guard",
@@ -843,13 +879,13 @@
         "clip": "guard",
         "frame": 50,
         "count": 6,
-        "pixels": 1168
+        "pixels": 1134
       },
       {
         "clip": "guard",
         "frame": 51,
-        "count": 3,
-        "pixels": 1334
+        "count": 1,
+        "pixels": 1283
       },
       {
         "clip": "hit",
@@ -1159,12 +1195,6 @@
       },
       {
         "clip": "death",
-        "frame": 63,
-        "count": 1,
-        "pixels": 1
-      },
-      {
-        "clip": "death",
         "frame": 64,
         "count": 1,
         "pixels": 1
@@ -1178,8 +1208,8 @@
       {
         "clip": "death",
         "frame": 67,
-        "count": 1,
-        "pixels": 1
+        "count": 2,
+        "pixels": 2
       },
       {
         "clip": "death",
@@ -1202,8 +1232,8 @@
       {
         "clip": "death",
         "frame": 73,
-        "count": 2,
-        "pixels": 2
+        "count": 1,
+        "pixels": 1
       },
       {
         "clip": "death",
@@ -1232,8 +1262,8 @@
       {
         "clip": "death",
         "frame": 78,
-        "count": 4,
-        "pixels": 4
+        "count": 3,
+        "pixels": 3
       },
       {
         "clip": "death",
@@ -1639,32 +1669,32 @@
       {
         "clip": "move",
         "frame": 4,
-        "count": 7,
-        "pixels": 16
+        "count": 11,
+        "pixels": 55
       },
       {
         "clip": "move",
         "frame": 5,
-        "count": 9,
-        "pixels": 19
+        "count": 12,
+        "pixels": 125
       },
       {
         "clip": "move",
         "frame": 6,
-        "count": 7,
-        "pixels": 11
+        "count": 10,
+        "pixels": 152
       },
       {
         "clip": "move",
         "frame": 7,
-        "count": 6,
-        "pixels": 12
+        "count": 8,
+        "pixels": 165
       },
       {
         "clip": "move",
         "frame": 8,
-        "count": 6,
-        "pixels": 11
+        "count": 7,
+        "pixels": 12
       },
       {
         "clip": "move",
@@ -1675,20 +1705,20 @@
       {
         "clip": "move",
         "frame": 10,
-        "count": 4,
-        "pixels": 11
+        "count": 5,
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 11,
-        "count": 7,
-        "pixels": 893
+        "count": 6,
+        "pixels": 9
       },
       {
         "clip": "move",
         "frame": 12,
-        "count": 6,
-        "pixels": 877
+        "count": 5,
+        "pixels": 881
       },
       {
         "clip": "move",
@@ -1700,13 +1730,13 @@
         "clip": "move",
         "frame": 14,
         "count": 7,
-        "pixels": 869
+        "pixels": 870
       },
       {
         "clip": "move",
         "frame": 15,
-        "count": 7,
-        "pixels": 916
+        "count": 8,
+        "pixels": 953
       },
       {
         "clip": "move",
@@ -1718,7 +1748,7 @@
         "clip": "move",
         "frame": 17,
         "count": 6,
-        "pixels": 881
+        "pixels": 885
       },
       {
         "clip": "move",
@@ -1741,110 +1771,110 @@
       {
         "clip": "move",
         "frame": 21,
-        "count": 4,
-        "pixels": 8
+        "count": 3,
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 22,
-        "count": 7,
-        "pixels": 8
+        "count": 6,
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 23,
-        "count": 5,
-        "pixels": 13
+        "count": 7,
+        "pixels": 80
       },
       {
         "clip": "move",
         "frame": 24,
-        "count": 10,
-        "pixels": 32
+        "count": 5,
+        "pixels": 10
       },
       {
         "clip": "move",
         "frame": 25,
-        "count": 10,
-        "pixels": 19
+        "count": 6,
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 26,
-        "count": 8,
-        "pixels": 25
+        "count": 9,
+        "pixels": 19
       },
       {
         "clip": "move",
         "frame": 27,
-        "count": 13,
-        "pixels": 74
+        "count": 11,
+        "pixels": 48
       },
       {
         "clip": "move",
         "frame": 28,
-        "count": 9,
-        "pixels": 104
+        "count": 11,
+        "pixels": 82
       },
       {
         "clip": "move",
         "frame": 29,
         "count": 8,
-        "pixels": 243
+        "pixels": 169
       },
       {
         "clip": "move",
         "frame": 30,
-        "count": 5,
-        "pixels": 8
+        "count": 12,
+        "pixels": 293
       },
       {
         "clip": "move",
         "frame": 31,
-        "count": 4,
+        "count": 5,
         "pixels": 9
       },
       {
         "clip": "move",
         "frame": 32,
-        "count": 4,
-        "pixels": 8
+        "count": 5,
+        "pixels": 10
       },
       {
         "clip": "move",
         "frame": 33,
-        "count": 6,
-        "pixels": 894
+        "count": 4,
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 34,
-        "count": 7,
-        "pixels": 873
+        "count": 6,
+        "pixels": 871
       },
       {
         "clip": "move",
         "frame": 35,
-        "count": 4,
+        "count": 5,
         "pixels": 854
       },
       {
         "clip": "move",
         "frame": 36,
-        "count": 7,
-        "pixels": 902
+        "count": 8,
+        "pixels": 927
       },
       {
         "clip": "move",
         "frame": 37,
-        "count": 10,
-        "pixels": 950
+        "count": 9,
+        "pixels": 946
       },
       {
         "clip": "move",
         "frame": 38,
         "count": 5,
-        "pixels": 859
+        "pixels": 869
       },
       {
         "clip": "move",
@@ -1880,19 +1910,19 @@
         "clip": "move",
         "frame": 44,
         "count": 5,
-        "pixels": 22
+        "pixels": 6
       },
       {
         "clip": "move",
         "frame": 45,
         "count": 5,
-        "pixels": 15
+        "pixels": 12
       },
       {
         "clip": "move",
         "frame": 46,
         "count": 7,
-        "pixels": 25
+        "pixels": 28
       },
       {
         "clip": "move",
@@ -1903,8 +1933,8 @@
       {
         "clip": "move",
         "frame": 48,
-        "count": 5,
-        "pixels": 6
+        "count": 6,
+        "pixels": 8
       },
       {
         "clip": "move",
@@ -1915,8 +1945,8 @@
       {
         "clip": "move",
         "frame": 50,
-        "count": 6,
-        "pixels": 8
+        "count": 5,
+        "pixels": 6
       },
       {
         "clip": "move",
@@ -1927,8 +1957,8 @@
       {
         "clip": "move",
         "frame": 52,
-        "count": 5,
-        "pixels": 10
+        "count": 4,
+        "pixels": 9
       },
       {
         "clip": "move",
@@ -2017,8 +2047,8 @@
       {
         "clip": "refraction",
         "frame": 13,
-        "count": 8,
-        "pixels": 14
+        "count": 7,
+        "pixels": 13
       },
       {
         "clip": "refraction",
@@ -2047,50 +2077,50 @@
       {
         "clip": "refraction",
         "frame": 18,
-        "count": 7,
-        "pixels": 11
+        "count": 6,
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 19,
-        "count": 8,
-        "pixels": 13
+        "count": 7,
+        "pixels": 12
       },
       {
         "clip": "refraction",
         "frame": 20,
-        "count": 7,
-        "pixels": 11
+        "count": 6,
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 21,
-        "count": 6,
-        "pixels": 10
-      },
-      {
-        "clip": "refraction",
-        "frame": 22,
-        "count": 6,
-        "pixels": 10
-      },
-      {
-        "clip": "refraction",
-        "frame": 23,
         "count": 5,
-        "pixels": 8
-      },
-      {
-        "clip": "refraction",
-        "frame": 24,
-        "count": 6,
         "pixels": 9
       },
       {
         "clip": "refraction",
-        "frame": 25,
+        "frame": 22,
+        "count": 5,
+        "pixels": 9
+      },
+      {
+        "clip": "refraction",
+        "frame": 23,
         "count": 4,
-        "pixels": 8
+        "pixels": 7
+      },
+      {
+        "clip": "refraction",
+        "frame": 24,
+        "count": 5,
+        "pixels": 7
+      },
+      {
+        "clip": "refraction",
+        "frame": 25,
+        "count": 3,
+        "pixels": 6
       },
       {
         "clip": "refraction",
@@ -2107,152 +2137,152 @@
       {
         "clip": "refraction",
         "frame": 28,
-        "count": 6,
-        "pixels": 13
+        "count": 7,
+        "pixels": 14
       },
       {
         "clip": "refraction",
         "frame": 29,
-        "count": 9,
-        "pixels": 16
+        "count": 10,
+        "pixels": 17
       },
       {
         "clip": "refraction",
         "frame": 30,
-        "count": 8,
-        "pixels": 21
+        "count": 9,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 31,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 32,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 33,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 34,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 35,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 36,
         "count": 9,
-        "pixels": 18
-      },
-      {
-        "clip": "refraction",
-        "frame": 37,
-        "count": 9,
-        "pixels": 18
-      },
-      {
-        "clip": "refraction",
-        "frame": 38,
-        "count": 9,
-        "pixels": 18
-      },
-      {
-        "clip": "refraction",
-        "frame": 39,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 40,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 41,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 42,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 43,
-        "count": 9,
-        "pixels": 18
-      },
-      {
-        "clip": "refraction",
-        "frame": 44,
-        "count": 9,
-        "pixels": 18
-      },
-      {
-        "clip": "refraction",
-        "frame": 45,
-        "count": 9,
-        "pixels": 18
-      },
-      {
-        "clip": "refraction",
-        "frame": 46,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 47,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 48,
-        "count": 8,
-        "pixels": 22
-      },
-      {
-        "clip": "refraction",
-        "frame": 49,
-        "count": 8,
-        "pixels": 21
-      },
-      {
-        "clip": "refraction",
-        "frame": 50,
-        "count": 7,
         "pixels": 23
       },
       {
         "clip": "refraction",
+        "frame": 32,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 33,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 34,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 35,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 36,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "refraction",
+        "frame": 37,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "refraction",
+        "frame": 38,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "refraction",
+        "frame": 39,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 40,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 41,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 42,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 43,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "refraction",
+        "frame": 44,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "refraction",
+        "frame": 45,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "refraction",
+        "frame": 46,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 47,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 48,
+        "count": 9,
+        "pixels": 23
+      },
+      {
+        "clip": "refraction",
+        "frame": 49,
+        "count": 9,
+        "pixels": 22
+      },
+      {
+        "clip": "refraction",
+        "frame": 50,
+        "count": 8,
+        "pixels": 24
+      },
+      {
+        "clip": "refraction",
         "frame": 51,
-        "count": 12,
-        "pixels": 26
+        "count": 13,
+        "pixels": 27
       },
       {
         "clip": "refraction",
         "frame": 52,
-        "count": 9,
-        "pixels": 14
+        "count": 10,
+        "pixels": 15
       },
       {
         "clip": "refraction",
@@ -2275,14 +2305,14 @@
       {
         "clip": "refraction",
         "frame": 56,
-        "count": 4,
-        "pixels": 8
+        "count": 3,
+        "pixels": 6
       },
       {
         "clip": "refraction",
         "frame": 57,
-        "count": 7,
-        "pixels": 12
+        "count": 6,
+        "pixels": 11
       },
       {
         "clip": "refraction",
@@ -2293,8 +2323,8 @@
       {
         "clip": "refraction",
         "frame": 59,
-        "count": 8,
-        "pixels": 12
+        "count": 7,
+        "pixels": 11
       },
       {
         "clip": "refraction",
@@ -2305,8 +2335,8 @@
       {
         "clip": "refraction",
         "frame": 61,
-        "count": 7,
-        "pixels": 20
+        "count": 8,
+        "pixels": 21
       },
       {
         "clip": "refraction",
@@ -2377,8 +2407,8 @@
       {
         "clip": "guard",
         "frame": 7,
-        "count": 11,
-        "pixels": 173
+        "count": 10,
+        "pixels": 172
       },
       {
         "clip": "guard",
@@ -2389,14 +2419,14 @@
       {
         "clip": "guard",
         "frame": 9,
-        "count": 7,
-        "pixels": 11
+        "count": 6,
+        "pixels": 10
       },
       {
         "clip": "guard",
         "frame": 10,
-        "count": 10,
-        "pixels": 14
+        "count": 9,
+        "pixels": 12
       },
       {
         "clip": "guard",
@@ -2425,170 +2455,170 @@
       {
         "clip": "guard",
         "frame": 15,
-        "count": 4,
-        "pixels": 10
+        "count": 5,
+        "pixels": 11
       },
       {
         "clip": "guard",
         "frame": 16,
-        "count": 3,
-        "pixels": 5
+        "count": 4,
+        "pixels": 6
       },
       {
         "clip": "guard",
         "frame": 17,
-        "count": 6,
-        "pixels": 7
-      },
-      {
-        "clip": "guard",
-        "frame": 18,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 19,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 20,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 21,
-        "count": 4,
-        "pixels": 6
-      },
-      {
-        "clip": "guard",
-        "frame": 22,
-        "count": 3,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 23,
-        "count": 4,
-        "pixels": 6
-      },
-      {
-        "clip": "guard",
-        "frame": 24,
-        "count": 6,
+        "count": 7,
         "pixels": 8
       },
       {
         "clip": "guard",
-        "frame": 25,
+        "frame": 18,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 19,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 20,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 21,
+        "count": 5,
+        "pixels": 7
+      },
+      {
+        "clip": "guard",
+        "frame": 22,
         "count": 4,
         "pixels": 6
       },
       {
         "clip": "guard",
-        "frame": 26,
-        "count": 3,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 27,
-        "count": 3,
-        "pixels": 4
-      },
-      {
-        "clip": "guard",
-        "frame": 28,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 29,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 30,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 31,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 32,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 33,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 34,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 35,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 36,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 37,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 38,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 39,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 40,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "guard",
-        "frame": 41,
-        "count": 6,
+        "frame": 23,
+        "count": 5,
         "pixels": 7
       },
       {
         "clip": "guard",
-        "frame": 42,
+        "frame": 24,
+        "count": 7,
+        "pixels": 9
+      },
+      {
+        "clip": "guard",
+        "frame": 25,
+        "count": 5,
+        "pixels": 7
+      },
+      {
+        "clip": "guard",
+        "frame": 26,
         "count": 4,
-        "pixels": 10
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 27,
+        "count": 4,
+        "pixels": 5
+      },
+      {
+        "clip": "guard",
+        "frame": 28,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 29,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 30,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 31,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 32,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 33,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 34,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 35,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 36,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 37,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 38,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 39,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 40,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "guard",
+        "frame": 41,
+        "count": 7,
+        "pixels": 8
+      },
+      {
+        "clip": "guard",
+        "frame": 42,
+        "count": 5,
+        "pixels": 11
       },
       {
         "clip": "guard",
@@ -2611,8 +2641,8 @@
       {
         "clip": "guard",
         "frame": 46,
-        "count": 8,
-        "pixels": 13
+        "count": 7,
+        "pixels": 11
       },
       {
         "clip": "guard",
@@ -2623,8 +2653,8 @@
       {
         "clip": "guard",
         "frame": 48,
-        "count": 11,
-        "pixels": 173
+        "count": 10,
+        "pixels": 172
       },
       {
         "clip": "guard",

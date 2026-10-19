@@ -1,5 +1,10 @@
 {
-  "front": {},
+  "front": {
+    "upper_far": {
+      "covers": ["torso", "fore_far"],
+      "source_points": [[65, 101]]
+    }
+  },
   "rear": {
     "thigh_far": {
       "covers": [

@@ -3791,25 +3791,25 @@
       "boss": false,
       "art_scale": 1.0,
       "size_class": "large",
-      "pixel_sha256": "4b1bf17f9f1f0138b1ef8fc3993846144ad28c297513a47466964fcbc2d5a3d0",
+      "pixel_sha256": "334dcefff074ea1c18ae3e6e8ba485c9e174a56d6f461b9529fb8e2c9c4d94fd",
       "metrics": {
         "height": 230,
-        "width": 212,
+        "width": 209,
         "height_drawn": 230.0,
-        "symmetry": 0.6163444850080795,
-        "thin_abs": 0.007340735549079658,
-        "thin_rel": 0.01331661071968715,
-        "feature_px": 6.488044427783645,
-        "regions": 644,
-        "chroma": 0.09178848786923378,
-        "value": 0.23097137915994906,
+        "symmetry": 0.608218764163771,
+        "thin_abs": 0.006599552572706946,
+        "thin_rel": 0.013012677106636783,
+        "feature_px": 6.360227094041753,
+        "regions": 663,
+        "chroma": 0.09102528110423887,
+        "value": 0.23051441446974014,
         "edge_light_share": 0.0,
-        "orphan_share": 0.013611715666383858,
-        "run_length": 2.39796550199027
+        "orphan_share": 0.0156972408650261,
+        "run_length": 2.365079365079365
       },
-      "source_path": "spec/art_identity/jobs/glacial_mirror/mq8_front/processed.png",
-      "source_pixel_sha256": "e544ed7146e64e035dfc52fc1b0a4d79be0d42e8bad25e669d421dae367b0634",
-      "owner_approval": "rr-18 director-approved mq8 paintings; native cutout proof pending director."
+      "source_path": "spec/art_identity/jobs/glacial_mirror/mq8b_front/processed.png",
+      "source_pixel_sha256": "919a6f0dde80f9670c32cef001716b8e7ab85a380ed15d1a7bc4c990c9b664c5",
+      "owner_approval": "rr-23 director-approved mq8b repaint; native cutout proof pending director."
     },
     {
       "path": "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png",
@@ -3820,7 +3820,7 @@
       "boss": false,
       "art_scale": 1.0,
       "size_class": "large",
-      "pixel_sha256": "ec41ee4463022586a5fc8e98c9d7351649e407eb4a79fc4345bb7082951b9a92",
+      "pixel_sha256": "5669f1f6069554ca70ce1125a382ebd7307aa3feceba6240af8fe07a7debdb3b",
       "metrics": {
         "height": 238,
         "width": 211,
@@ -3828,17 +3828,17 @@
         "symmetry": 0.6463303426974555,
         "thin_abs": 0.004429204172024526,
         "thin_rel": 0.010465780825832272,
-        "feature_px": 6.836512012287913,
-        "regions": 599,
-        "chroma": 0.09217507262942326,
-        "value": 0.22956361412974963,
+        "feature_px": 6.741517036101885,
+        "regions": 616,
+        "chroma": 0.09120350526265658,
+        "value": 0.2306772978772878,
         "edge_light_share": 0.002144388849177984,
-        "orphan_share": 0.01600228604086298,
-        "run_length": 2.7937331603632374
+        "orphan_share": 0.015752250321474495,
+        "run_length": 2.9631668077900084
       },
-      "source_path": "spec/art_identity/jobs/glacial_mirror/mq8_rear/processed.png",
-      "source_pixel_sha256": "3e6d9457d609dfb4172a11792daa7e863fd1e81203184743a4fa0fb0a9fb4fd3",
-      "owner_approval": "rr-18 director-approved mq8 paintings; native cutout proof pending director."
+      "source_path": "spec/art_identity/jobs/glacial_mirror/mq8b_rear/processed.png",
+      "source_pixel_sha256": "1d4e1e4b8871b022f94e0f77bc33139d0d25460c55c5f39c9e8b2435a048f368",
+      "owner_approval": "rr-23 director-approved mq8b repaint; native cutout proof pending director."
     }
   ],
   "version": 1
