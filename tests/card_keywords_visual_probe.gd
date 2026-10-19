@@ -1,9 +1,7 @@
 extends SceneTree
 
-# Real-renderer proof for card keywords at 1920x1080 / 100% UI scale:
-# hand rows (active Follow-up, Empower, state and scale bonuses), the Empower
-# command-host toggle with the Stagger turn-order preview, and a targetless
-# Empower confirmation. Run through tools/visual_probe_runner.py.
+# Director-run ui-03 stills, 1920x1080 at 100% scale. Uses real GUI input
+# for the seal tooltip/click, and asserts charge/cursor state before saving.
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -12,11 +10,18 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const CardKeywordsSuite = preload("res://tests/suites/card_keywords_suite.gd")
 
-const OUTPUT_DIR: String = "user://probes/card_keywords_v1/1920x1080"
+const OUTPUT_DIR: String = "user://probes/ui03/1920x1080_ui100"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
+const REST_POINTER := Vector2(1500, 650)
+const TOOLTIP_WAIT_SECONDS: float = 0.8
+const CLIP_FPS: int = 60
+const HOLD_FRAMES: int = 30
+const POINTER_TRAVEL_FRAMES: int = 36
+const PLAY_SETTLE_FRAMES: int = CLIP_FPS * 3
 const ART_BY_FIXTURE := {
 	"kwtest_follow_strike": "quick_stab",
 	"kwtest_empower_time": "bloody_lunge",
+	"kwtest_empower_health": "bloody_lunge",
 	"kwtest_stonefist": "stone_plate",
 	"kwtest_light_strike": "pale_spark",
 	"kwtest_empower_block": "brace",
@@ -31,6 +36,14 @@ func _initialize() -> void:
 	ProgressionStore.clear_saved_run()
 	SettingsStore.set_storage_path("user://card_keywords_probe_settings.json")
 	SettingsStore.clear_storage()
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["display_mode"] = SettingsStore.DISPLAY_WINDOWED
+	SettingsStore.save_settings(settings)
+	SettingsStore.apply_settings(settings, root, false)
+	root.size = VIEWPORT_SIZE
+	var router: Node = root.get_node_or_null("InputRouter")
+	if router != null: router.call("set_forced_state_for_test", "pointer", "xbox")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_install_fixture_cards()
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
@@ -56,59 +69,103 @@ func _install_fixture_cards() -> void:
 	(cards["kwtest_empower_block"] as Dictionary)["name"] = "Braced Guard"
 
 func _capture(packed: PackedScene) -> void:
+	if OS.get_cmdline_user_args().has("--movie"):
+		await _capture_movie(packed)
+	else:
+		await _capture_stills(packed)
+
+func _capture_stills(packed: PackedScene) -> void:
 	var viewport := SubViewport.new()
 	viewport.size = VIEWPORT_SIZE
+	viewport.gui_embed_subwindows = true
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
 	var instance: Node = packed.instantiate()
 	viewport.add_child(instance)
 	await _settle()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
 	_install_combat(instance)
 	await _settle()
 	_hide_log(instance)
+	instance.call("_on_card_hover_started", 1)
 	await _settle()
-	_save(viewport, "hand_keyword_rows.png")
-	# Enlarge the active Follow-up card to inspect its rows.
-	instance.call("_on_card_hover_started", 0)
+	var seal: Button = _seal(instance, 1)
+	_assert(seal.visible and not bool(seal.get("charged")), "Hover offers an unlit seal")
+	_save(viewport, "hover_unlit.png")
+	var seal_point: Vector2 = seal.get_global_transform_with_canvas() * (seal.size * 0.5)
+	await _pointer(viewport, seal_point)
+	await create_timer(TOOLTIP_WAIT_SECONDS).timeout
+	_assert(seal.is_hovered(), "Real pointer hovers the seal for its tooltip")
+	_save(viewport, "seal_hover_tooltip.png")
+	await _pointer(viewport, seal_point, true)
 	await _settle()
-	_save(viewport, "hover_follow_up_active.png")
-	instance.call("_on_card_hover_ended", 0)
+	_assert(bool(instance.call("_hand_card_empowered", 1)), "Seal click charges the hovered hand card")
+	await _pointer(viewport, REST_POINTER)
+	instance.call("_on_card_hover_ended", 1)
 	await _settle()
-	# Targeted Empower: toggle, then hover the Stagger target.
+	_assert(_seal(instance, 1).visible, "Charged hand seal remains visible without hover")
+	_save(viewport, "charged_hand.png")
 	await instance.call("_on_card_pressed", 1)
-	await _settle()
-	await instance.call("_toggle_pending_empower")
-	await _settle()
-	_assert(bool(instance.call("_selected_card_empowered")), "Empower toggles on for the targeted card")
+	var target: Vector2 = _tile_global_position(instance, Vector2i(3, 4))
+	await _pointer(viewport, target)
 	instance.call("_on_board_tile_hovered", Vector2i(3, 4))
-	instance.call("_refresh_board_hover_presentation")
-	instance.call("_sync_click_targeting_arrow", _tile_global_position(instance, Vector2i(3, 4)))
+	instance.call("_sync_click_targeting_arrow", target)
 	await _settle()
-	var delays: Dictionary = instance.call("_turn_order_stagger_preview_delays")
-	_assert(int(delays.get(1, 0)) == 4, "The hovered Stagger target previews its delay")
-	var bar: Node = instance.get("_action_context_command_bar") as Node
-	_assert(bar != null and bar.get_node_or_null("ActionContextEmpower") != null, "The command host shows the Empower toggle")
-	var selected_widget: Node = instance.call("_hand_card_control", 1)
-	var shown_rows: Array = selected_widget.get("_summary_rows") if selected_widget != null else []
-	var empower_active_shown: bool = false
-	for row_var: Variant in shown_rows:
-		for token_var: Variant in row_var as Array:
-			empower_active_shown = empower_active_shown or (str((token_var as Dictionary).get("keyword_segment", "")) == "empower" and bool((token_var as Dictionary).get("active", false)))
-	_assert(empower_active_shown, "The selected hand card marks its Empower segment active")
-	_save(viewport, "empower_on_stagger_preview.png")
-	await instance.call("_cancel_card_selection")
+	_assert(bool(instance.call("_selected_card_empowered")), "Targeting retains charge")
+	_save(viewport, "charged_targeting.png")
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "controller", "steam_deck")
+	instance.call("_refresh_controller_prompts")
 	await _settle()
-	# Targetless Empower at its confirmation stage.
-	await instance.call("_on_card_pressed", 4)
+	_assert(_seal(instance, 1).get_node("Badge").text == "R3", "Controller focus uses the existing glyph")
+	_save(viewport, "charged_controller.png")
+	router.call("clear_forced_state_for_test")
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	instance.call("_cancel_card_selection")
+	var state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	(state["deck"] as Dictionary)["hand"][1] = "kwtest_empower_health"
+	(state["player"] as Dictionary)["hp"] = 2
+	instance.set("_combat_state", state)
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_ui")
+	instance.call("_on_card_hover_started", 1)
 	await _settle()
-	_assert(bool(instance.call("_pending_card_requires_confirmation")), "The targetless card reaches confirmation")
-	_save(viewport, "targetless_empower_offered.png")
+	_assert(bool(_seal(instance, 1).get("blocked")), "Lethal health cost shows the blocked seal")
+	_save(viewport, "blocked.png")
+	# Reduced motion must be inspected in addition to the five required stills.
+	var settings: Dictionary = SettingsStore.load_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	SettingsStore.apply_settings(settings, root, false)
+	instance.set("_settings", settings)
+	(state["player"] as Dictionary)["hp"] = 30
+	instance.call("_mark_combat_preview_state_changed")
 	await instance.call("_toggle_pending_empower")
 	await _settle()
-	_save(viewport, "targetless_empower_on.png")
+	_assert(_seal(instance, 1).scale == Vector2.ONE, "Reduced motion charges without a scale animation")
+	_save(viewport, "charged_reduced_motion.png")
 	instance.queue_free()
 	viewport.queue_free()
 	await process_frame
+
+func _seal(instance: Node, index: int) -> Button:
+	return (instance.call("_hand_card_control", index) as Node).get_node("EmpowerSeal") as Button
+
+func _pointer(viewport: Viewport, point: Vector2, click: bool = false) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	viewport.push_input(motion, true)
+	await _settle()
+	if click:
+		for pressed: bool in [true, false]:
+			var button := InputEventMouseButton.new()
+			button.button_index = MOUSE_BUTTON_LEFT
+			button.position = point
+			button.global_position = point
+			button.pressed = pressed
+			viewport.push_input(button, true)
+			await _settle()
 
 func _install_combat(instance: Node) -> void:
 	instance.call("_cancel_drag_play")
@@ -161,3 +218,81 @@ func _assert(condition: bool, message: String) -> void:
 		return
 	_failed = true
 	push_error(message)
+
+# MovieWriter records the root viewport at fixed 60 fps via ui03_movie_godot.sh.
+func _capture_movie(packed: PackedScene) -> void:
+	Engine.max_fps = CLIP_FPS
+	root.size = VIEWPORT_SIZE
+	root.content_scale_size = VIEWPORT_SIZE
+	root.content_scale_factor = 1.0
+	root.gui_embed_subwindows = true
+	var instance: Node = packed.instantiate()
+	root.add_child(instance)
+	await _settle()
+	root.size = VIEWPORT_SIZE
+	root.content_scale_size = VIEWPORT_SIZE
+	root.content_scale_factor = 1.0
+	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
+	_install_combat(instance)
+	await _settle()
+	_hide_log(instance)
+	await _hold(HOLD_FRAMES)
+	var card: Control = instance.call("_hand_card_control", 1)
+	await _pointer(root, card.get_global_transform_with_canvas() * (card.size * 0.5))
+	instance.call("_on_card_hover_started", 1)
+	await _hold(HOLD_FRAMES)
+	var seal: Button = _seal(instance, 1)
+	await _pointer(root, seal.get_global_transform_with_canvas() * (seal.size * 0.5), true)
+	_assert(bool(instance.call("_hand_card_empowered", 1)), "Clip: first seal click charges")
+	await _hold(HOLD_FRAMES)
+	card = instance.call("_hand_card_control", 1)
+	var start: Vector2 = card.get_global_transform_with_canvas() * (card.size * 0.5)
+	var target: Vector2 = _tile_global_position(instance, Vector2i(3, 4))
+	_send_button(start, true)
+	for frame: int in range(1, POINTER_TRAVEL_FRAMES + 1):
+		var motion := InputEventMouseMotion.new()
+		motion.position = start.lerp(target, float(frame) / float(POINTER_TRAVEL_FRAMES))
+		motion.global_position = motion.position
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		root.push_input(motion, true)
+		await process_frame
+	_send_button(target, false)
+	await _hold(PLAY_SETTLE_FRAMES)
+	_assert(not bool(instance.call("_hand_card_empowered", 1)), "Clip: first charged card is played")
+	_assert(int((instance.get("_combat_state") as Dictionary).get("player_turn_time_spent", 0)) == 6, "Clip: drag-play committed Empower")
+	# Reinstall the same isolated fixture for the second authored gesture.
+	_install_combat(instance)
+	await _settle()
+	_hide_log(instance)
+	card = instance.call("_hand_card_control", 1)
+	await _pointer(root, card.get_global_transform_with_canvas() * (card.size * 0.5), true)
+	await _hold(HOLD_FRAMES)
+	await _pointer(root, target)
+	instance.call("_sync_click_targeting_arrow", target)
+	await _hold(HOLD_FRAMES)
+	_assert(int(instance.get("_selected_card_index")) == 1, "Clip: second card click enters targeting")
+	seal = _seal(instance, 1)
+	await _pointer(root, seal.get_global_transform_with_canvas() * (seal.size * 0.5), true)
+	_assert(bool(instance.call("_selected_card_empowered")), "Clip: seal charges during targeting")
+	await _hold(HOLD_FRAMES)
+	await _pointer(root, target, true)
+	await _hold(PLAY_SETTLE_FRAMES)
+	_assert(int((instance.get("_combat_state") as Dictionary).get("player_turn_time_spent", 0)) == 6, "Clip: click-target play committed Empower")
+	RenderingServer.force_draw()
+	var final_image: Image = root.get_texture().get_image()
+	_assert(final_image.get_size() == VIEWPORT_SIZE, "Movie proof uses 1920x1080")
+	final_image.save_png("%s/clip_complete.png" % OUTPUT_DIR)
+	print("UI03 MOVIE: 1920x1080 at 60 fps; output/ui03/empower-interactions.avi")
+	instance.queue_free()
+	await process_frame
+
+func _send_button(point: Vector2, pressed: bool) -> void:
+	var button := InputEventMouseButton.new()
+	button.position = point
+	button.global_position = point
+	button.button_index = MOUSE_BUTTON_LEFT
+	button.pressed = pressed
+	root.push_input(button, true)
+
+func _hold(frames: int) -> void:
+	for frame: int in range(frames): await process_frame

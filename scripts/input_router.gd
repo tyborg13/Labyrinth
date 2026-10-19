@@ -186,6 +186,9 @@ static func glyph_label_for_family(action_name: StringName, family: String) -> S
 			return "+"
 	return "?"
 
+func empower_glyph_label() -> String:
+	return glyph_label(ACTION_EMPOWER) if using_controller() else "E"
+
 func set_forced_state_for_test(next_modality: String, family: String) -> void:
 	_forced_modality_for_test = MODALITY_CONTROLLER if next_modality == MODALITY_CONTROLLER else MODALITY_POINTER
 	force_family_for_test(family)

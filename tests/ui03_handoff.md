@@ -1,0 +1,159 @@
+# ui-03 implementation handoff
+
+Implementation is complete and uncommitted on `codex/ui-03`. No commit, push,
+branch change, peer review, publication, queue update or windowed launch was run.
+Renderer inspection, peer review, the inspection fixture and publication belong
+to the design owner under this unit's workflow split.
+
+## Files changed
+
+- `scripts/run_scene.gd`: Empower input, preview/commit integration, hand and
+  proxy wiring, pointer/arrow handoff, charge-aware caches and tracker removal.
+- `scripts/card_widget.gd`: seal, rim, mirrored anchor and independent seal input.
+- `scripts/input_router.gd`: input-aware Empower glyph accessor.
+- `scripts/card_empower_charge.gd`: transient charge per hand copy, explicit
+  departures and turn-end clearing, including identical copies.
+- `scripts/card_empower_controller.gd`: availability, health blocking, locking,
+  input precedence, tooltip, widget synchronization and analytics.
+- `scripts/card_empower_seal.gd`: authored `UiSocket` states and charge response.
+- `scripts/card_empower_rim.gd`: static three-band blurred ember rim.
+- `data/glossary.json`, `data/grimoire.json`: only the requested Empower copy.
+- `spec/card_keywords.md`, `spec/analytics.md`: UI contract and additive event.
+- `tests/suites/card_keywords_suite.gd`: seal assertions and regression entrypoint.
+- `tests/suites/relic_u4_suite.gd`: Crown assertions for the new tooltip/summary.
+- `tests/suites/empower_seal_suite.gd`: focused live input/state regression tests.
+- `tests/card_keywords_visual_probe.gd`: required stills plus movie mode.
+- `tests/ui03_movie_godot.sh`: adapter for Godot's built-in 60 fps AVI writer.
+- `tests/proof_contracts/ui03_empower.json`,
+  `tests/proof_contracts/ui03_empower_motion.json`: exact-resolution proof contracts.
+- `tests/ui03_handoff.md` and `output/ui03/headless/`: handoff and observed logs.
+
+The approved mockups and approved assets were inspected and left unchanged.
+No art, icon, audio or font asset was created or downloaded.
+
+## Numbered requirements
+
+1. **Seal:** 66 layout pixels, mirrored from the Time badge's center anchor;
+   approved nearest-filtered Empower icon at 52%; Crown-granted Empower uses the
+   resolved card definition. Hover/selection/focus offer the seal; charge keeps
+   it visible above neighboring card frames. Held and played proxies retain it.
+2. **States:** authored fills, ring tints, ember blends, static halo and three
+   blurred outer bands; blocked desaturation and crimson slash; no hover
+   brightening when locked. Scale/flare response and instant reduced-motion
+   change are implemented. Real-renderer appearance still needs owner inspection.
+3. **Hint:** existing `E`, `RS`/`R3` glyph system; visible only on the raised card
+   and hidden when blocked. Controller copy contains no `[E]`.
+4. **Interaction:** real GUI clicks on both unselected and targeting seals,
+   keyboard/controller precedence, mid-drag toggles, empowered drag-drop,
+   targetless confirmation, deselect/reselect, surviving identical copies and
+   turn-end clearing are tested. Iron Lung's remaining HP cost is checked
+   against current HP. First target/orientation selection locks the choice.
+   AoE rotation and force-aim survive toggles. The cursor returns over hand/HUD;
+   the arrow hides off-board. The tracker has no Empower button/slot. Techniques,
+   Rotate and controller prompts remain. Prepared caches skip charged copies.
+5. **Text:** exact requested glossary definition and grimoire first line;
+   grimoire second line preserved. Seal summaries reuse existing cost/bonus
+   tokens with the requested device/state instructions and health-block text.
+6. **Sound:** no audio changes or new cue. Existing card sounds remain.
+7. **Analytics:** `empower_toggled` appends `{card_id, on, source, phase}` once per
+   successful toggle, with all three sources and four phases covered. Blocked
+   attempts emit no toggle. Existing `card_played` fields remain unchanged.
+
+## Observed checks
+
+All Godot commands used `python3 tools/godot_task_runner.py --task-id ui-03
+--stream -- godot --headless --path . --script <entrypoint>`.
+
+| Entry point/check | Exact result |
+| --- | --- |
+| `tests/card_keywords_test.gd` | `CARD KEYWORDS TEST RESULT: PASS` |
+| `tests/card_keywords_w3_test.gd` | `CARD KEYWORDS W3 TEST RESULT: PASS` |
+| `tests/relic_u1_test.gd` | `RELIC U1 TEST RESULT: PASS` |
+| `tests/relic_u5_test.gd` | `RELIC U5 TEST RESULT: PASS` |
+| `tests/cbt_01_test.gd` | `CBT-01 TESTS: PASS (0 failures)` |
+| `tests/card_pool_overhaul_test.gd` | `CARD POOL OVERHAUL: PASS` |
+| `tests/relic_u4_test.gd` (affected Crown assertions) | `RELIC U4 TEST RESULT: PASS` |
+| `python3 tests/test_ui_identity_lint.py` | `Ran 25 tests` / `OK` |
+| `python3 -m unittest discover -s tests -p 'test_card_heuristic_keywords.py' -v` | `Ran 5 tests` / `OK` |
+| `python3 tools/test_registration_audit.py` | `TEST REGISTRATION AUDIT: PASS (752 scripts; full suite=408, quarantined=29, windowed probe=315)` |
+| `git diff --check` | exit 0, no output |
+| JSON comparison to HEAD | `EMPOWER COPY SCOPE: PASS (only glossary definition and grimoire line 1 changed)` |
+
+The production RunScene and focused suite passed headless `--check-only`
+validation. The final still/movie probe also passed `--check-only`, through the
+Godot runner, and `sh -n tests/ui03_movie_godot.sh` passed. No editor scan was used.
+Full suites were not run, as explicitly directed in the unit's Proof section.
+
+The macOS engine emitted `get_system_ca_certificates` diagnostics in headless
+runs. Card-keyword and pool-overhaul runs also emitted an ObjectDB leak warning
+in some runs; the final result lines above and runner exits were successful.
+These diagnostics are preserved in the logs; they are not claimed fixed.
+
+## Proof for the design owner
+
+No renderer capture or clip has been run or visually inspected in this sandbox.
+Run the following commands on the design owner's window-server-enabled machine.
+The probe forces windowed 1920x1080, 100% UI scale and deterministic input family.
+
+Required stills, plus controller and reduced-motion states:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower.json --result-manifest output/ui03/stills-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03
+```
+
+The probe prints the task-isolated absolute capture directory corresponding to
+`user://probes/ui03/1920x1080_ui100/`:
+
+- `hover_unlit.png`
+- `seal_hover_tooltip.png`
+- `charged_hand.png`
+- `charged_targeting.png`
+- `blocked.png`
+- `charged_controller.png`
+- `charged_reduced_motion.png`
+
+The 60 fps clip uses Godot's built-in MovieWriter, with no encoder dependency.
+The larger timeout accommodates fixed-frame movie writing:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --godot ./tests/ui03_movie_godot.sh --timeout 120 --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower_motion.json --result-manifest output/ui03/movie-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03 -- --movie
+```
+
+Expected movie: `output/ui03/empower-interactions.avi`, 1920x1080 at 60 fps.
+The sequence is hover → charge → drag-play, then click-select → charge through
+its seal with targeting active → target. `clip_complete.png` is written to the
+same task-isolated capture directory for validation.
+
+The brief assigns the inspection fixture to the design owner and does not
+request an `inspection_fixture.py` command for this implementation handoff.
+
+## Design values (decided by the director)
+
+- `CHARGE_RISE_SECONDS = 0.11`: the apex sits at half the 0.22 s response.
+- `CHARGE_EASING_CURVE = Tween.TRANS_QUAD`: quad ease-out to the apex, then quad ease-in.
+
+## Chosen defaults
+
+Only implementation/debug/proof values were selected:
+
+- `SEAL_Z_INDEX = 128`: internal child layer above the hand's emphasis layer.
+- `DRAW_PADDING = 32.0`: rim draw envelope; its corner radius reuses the existing
+  card glow's 18-pixel frame radius.
+- `FIXTURE_SEEDS`: 60301–60306; existing keyword fixture cards plus debug-only
+  two-target and rotatable-area fixtures.
+- `SETTLE_FRAMES = 5`: headless GUI settling; original window size is restored.
+- Proof data: `REST_POINTER = (1500, 650)`, `TOOLTIP_WAIT_SECONDS = 0.8`,
+  `HOLD_FRAMES = 30`, `POINTER_TRAVEL_FRAMES = 36`,
+  `PLAY_SETTLE_FRAMES = CLIP_FPS * 3`; all describe capture choreography only.
+- Contract `regions`: hand area `[450, 650, 1050, 420]`, minimum luma range 65,
+  minimum luma standard deviation 10; movie runner timeout 120 seconds.
+
+## Open issues / owner work
+
+- Resolve the two `TODO_DESIGN_` animation details.
+- Run and inspect both renderer commands, including the five required states,
+  controller state, reduced motion and the interaction clip.
+- Perform the owner-assigned independent visual identity judgement, peer review,
+  commit and verified inspection fixture before considering publication.
+- Non-failing engine diagnostics above remain observable. No baseline assertions
+  were weakened to hide them.

@@ -83,6 +83,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_live_time_badge_surcharge(tree, expect)
 	await _test_live_targetless_empower_confirmation(tree, expect)
 	await _test_live_targeted_empower_and_stagger_preview(tree, expect)
+	await preload("res://tests/suites/empower_seal_suite.gd").run_live(tree, expect)
 	remove_fixtures()
 	# Live plays checkpoint the run; never leave fixture card ids in a saved run.
 	ProgressionStore.clear_saved_run()
@@ -580,10 +581,10 @@ static func _test_live_targetless_empower_confirmation(tree: SceneTree, expect: 
 	await tree.process_frame
 	expect.call(bool(instance.call("_pending_card_requires_confirmation")), "A targetless Empower card enters its confirmation stage")
 	var tracker: Dictionary = instance.call("_action_step_tracker_state")
-	expect.call(str(tracker.get("mode", "")) == "confirmation", "The command host appears at a targetless card's confirmation stage")
+	expect.call(tracker.is_empty(), "Targetless Empower uses the card seal without a tracker grid slot")
 	instance.call("_refresh_action_step_tracker")
 	var button: BaseButton = _command_button(instance, "ActionContextEmpower")
-	expect.call(button != null and button.text == "Empower +1 Time [E]", "The Empower toggle is labelled with its cost and shortcut")
+	expect.call(button == null and str(instance.call("_empower_command_tooltip")).begins_with("Empower: +1 Time"), "The seal tooltip names the cost and the old command is absent")
 	expect.call(int((instance.call("_turn_order_card_time_preview") as Dictionary).get("time", 0)) == 2, "The Time preview starts at the printed Time")
 	await instance.call("_toggle_pending_empower")
 	await tree.process_frame
@@ -593,7 +594,7 @@ static func _test_live_targetless_empower_confirmation(tree: SceneTree, expect: 
 	expect.call(int((instance.call("_turn_order_card_time_preview") as Dictionary).get("time", 0)) == 3, "The turn-order Time preview includes Empower's +Time")
 	instance.call("_refresh_action_step_tracker")
 	button = _command_button(instance, "ActionContextEmpower")
-	expect.call(button != null and button.text.begins_with("✓") and bool(button.get_meta("empower_active", false)), "The toggle shows its active state")
+	expect.call(button == null and bool((instance.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal").get("charged")), "The seal shows its charged state")
 	await instance.call("_on_confirm_card_play_pressed")
 	await tree.process_frame
 	var committed: Dictionary = instance.get("_combat_state")
@@ -611,7 +612,7 @@ static func _test_live_targeted_empower_and_stagger_preview(tree: SceneTree, exp
 	expect.call(str((instance.call("_action_step_tracker_state") as Dictionary).get("mode", "")) == "selection", "A targeted Empower card starts at its first targeted action")
 	instance.call("_refresh_action_step_tracker")
 	var button: BaseButton = _command_button(instance, "ActionContextEmpower")
-	expect.call(button != null and button.text == "Empower +2 Time [E]", "The targeted card offers Empower while its target is pending")
+	expect.call(button == null and (instance.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal").visible, "The targeted card offers its seal while its target is pending")
 	var key := InputEventKey.new()
 	key.keycode = KEY_E
 	key.physical_keycode = KEY_E

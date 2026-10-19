@@ -1,0 +1,127 @@
+{
+  "min_images": 7,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_ui100/hover_unlit.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/seal_hover_tooltip.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/charged_hand.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/charged_targeting.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/blocked.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/charged_controller.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/charged_reduced_motion.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    }
+  ]
+}
