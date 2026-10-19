@@ -13,6 +13,18 @@ METRIC_RULES = {
 }
 
 
+def pocket_signature(pocket):
+    if not isinstance(pocket, dict) or set(pocket) != {'bbox', 'pixel_count'}:
+        raise ValueError('pocket requires bbox and pixel_count')
+    bbox, count = pocket['bbox'], pocket['pixel_count']
+    if (not isinstance(bbox, list) or len(bbox) != 4 or
+            any(type(n) is not int or n < 0 for n in bbox) or
+            bbox[2] <= bbox[0] or bbox[3] <= bbox[1] or
+            type(count) is not int or not 1 < count <= (bbox[2] - bbox[0]) * (bbox[3] - bbox[1])):
+        raise ValueError('pocket requires nonempty pixel bounds and a valid pixel_count')
+    return tuple(bbox), count
+
+
 def load(case):
     path = case / 'gate_exceptions.json'
     if not path.exists():
@@ -22,12 +34,18 @@ def load(case):
         raise ValueError('gate_exceptions.json must be a list')
     approved = set()
     for index, row in enumerate(rows):
-        if not isinstance(row, dict) or set(row) != {'view', 'clip', 'frames', 'rule', 'reason'}:
+        fields = {'view', 'clip', 'frames', 'rule', 'reason'}
+        if not isinstance(row, dict) or set(row) not in (fields, fields | {'pocket'}):
             raise ValueError('exception %d requires view, clip, frames, rule and reason' % index)
         if row['view'] not in ('front', 'rear') or not isinstance(row['clip'], str) or not row['clip'].strip():
             raise ValueError('exception %d has an invalid view or clip' % index)
         if row['rule'] not in EXCEPTION_RULES:
             raise ValueError('exception %d has an unsupported rule' % index)
+        pocket = None
+        if 'pocket' in row:
+            if row['rule'] != JOINT_HOLE_RULE:
+                raise ValueError('pockets apply only to the joint-hole rule')
+            pocket = pocket_signature(row['pocket'])
         if not isinstance(row['reason'], str) or not row['reason'].strip():
             raise ValueError('exception %d requires a director reason' % index)
         frames = row['frames']
@@ -36,15 +54,26 @@ def load(case):
             raise ValueError('exception %d requires an exact nonnegative integer frames list' % index)
         for frame in frames:
             key = (row['view'], row['clip'], frame, row['rule'])
-            if key in approved:
+            if any(entry[:4] == key for entry in approved):
                 raise ValueError('duplicate native gate exception: ' + str(key))
-            approved.add(key)
+            # Retain legacy case exceptions without rewriting other figures.
+            # New pocket entries never create a frame-wide exemption.
+            approved.add((*key, pocket) if pocket is not None else key)
     return frozenset(approved)
 
 
 def frame_errors(key, metric, new_holes, approved=()):
-    """Suppress only a matching view/clip/frame/rule; keep other flags intact."""
+    """Consume each exact pocket once; unmatched holes keep the rule failing."""
     rules = [rule for name, rule in METRIC_RULES.items() if metric[name]]
-    if new_holes:
-        rules.append(JOINT_HOLE_RULE)
+    remaining = set(approved)
+    for hole in new_holes:
+        try:
+            exact = (*key, JOINT_HOLE_RULE, pocket_signature(hole)) if isinstance(hole, dict) else None
+        except ValueError:
+            exact = None  # Malformed observed evidence never earns an exception.
+        if exact in remaining:
+            remaining.remove(exact)
+        else:
+            rules.append(JOINT_HOLE_RULE)
+            break
     return [str(key) + ': ' + rule for rule in rules if (*key, rule) not in approved]

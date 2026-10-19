@@ -77,7 +77,11 @@ def compile_motion(source, creature, layouts, projection):
                     raise ValueError('Invalid keys: ' + name)
                 tracks.append({'source': name, 'bone': bone, 'channel': channel, 'keys': rows,
                                'forward_mode': effective_keys.get(source_bone + '.forward_mode', 'pixels')})
-            if roles or (definition.get('view_keys') and modes):
+            # Numeric tracks already carry their effective mode. Mode-only
+            # supports need metadata even without roles or view overrides.
+            # Keep legacy rigs whose modes are all on tracks byte-identical.
+            tracked_bones = {track['bone'] for track in tracks}
+            if roles or any(bone not in tracked_bones for bone in modes):
                 result.setdefault('view_forward_modes', {}).setdefault(view, {})[clip] = modes
             result['view_tracks'][view][clip] = tracks
             view_release = any(name.endswith('.release_at') for keys in definition.get('view_keys', {}).values()

@@ -2,6 +2,7 @@
 import copy
 import json
 import math
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -23,7 +24,7 @@ from humanoid_cutout.bone_contracts import leg_bend_side
 from humanoid_cutout.leg_roles import roles_for, resolve_bone
 from cutout_pipeline.cases import read_json, digest
 
-PROOF_TASK_ID = 'rr-15'
+PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-16')
 PROOF_TIMEOUT_SECONDS = 180
 FIXTURE_ROTATION_DEG = 1.0
 FIXTURE_HIP_PX = [100, 100]

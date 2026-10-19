@@ -7,6 +7,15 @@ from .bone_contracts import fk_world, target_chains
 DENSE_INTERVALS = 1000
 MIN_REACH_MARGIN_PX = 4.0
 MAX_REACH_OVERSHOOT = 0.02
+MINIMUM_PHASE_RESOLUTION = 1e-6
+
+
+def segment_minimum(a, b):
+    """Distance from the root to the straight segment in the first bone's frame."""
+    delta = b - a
+    squared = float(delta @ delta)
+    fraction = float(np.clip(-(a @ delta) / squared, 0., 1.)) if squared else 0.
+    return float(np.linalg.norm(a + fraction * delta))
 
 
 def report(layout, data, *, step_distance_px, screen_pixel_scale):
@@ -15,19 +24,27 @@ def report(layout, data, *, step_distance_px, screen_pixel_scale):
     step = step_distance_px / screen_pixel_scale
     paths, errors, overreach = [], [], []
     for clip, tracks in data['view_tracks'][view].items():
+        # No consecutive segment crosses a key/interpolation boundary, even
+        # when two keys are much closer than the global dense sample spacing.
         phases = set(np.linspace(0., 1., DENSE_INTERVALS + 1).tolist())
         phases.update(key['at'] for track in tracks for key in track['keys'])
-        summaries = {}
-        for phase in sorted(phases):
+        summaries, vectors = {}, {}
+
+        def sample(phase):
+            if phase in vectors:
+                return vectors[phase]
             values, modes = pose_values(data, view, clip, phase)
-            chains = target_chains(layout, values)
-            if not chains: continue
             fk = fk_world(layout, values, modes, forward, step)
-            for chain in chains:
+            points = {}
+            for chain in target_chains(layout, values):
                 first, second, target = [chain[k] for k in ('first', 'second', 'target')]
                 rest = [np.asarray(layout['joints'][n]['position']) for n in (first, second, target)]
                 lengths = [float(np.linalg.norm(rest[i + 1] - rest[i])) for i in range(2)]
-                distance = float(np.linalg.norm(fk[target][:2, 2] - fk[first][:2, 2]))
+                # Remove the first bone's animated translation AND rotation.
+                # Common body motion must not create an artificial chord dip.
+                point = fk[first][:2, :2].T @ (fk[target][:2, 2] - fk[first][:2, 2])
+                points[target] = point
+                distance = float(np.linalg.norm(point))
                 row = summaries.setdefault(target, {'clip': clip, 'target': target,
                     'chain': chain, 'segment_lengths': lengths, 'samples': 0,
                     'allowed_minimum_px': abs(lengths[0] - lengths[1]) + MIN_REACH_MARGIN_PX,
@@ -40,10 +57,36 @@ def report(layout, data, *, step_distance_px, screen_pixel_scale):
                     row['minimum_px'], row['minimum_phase'] = distance, phase
                 if distance > row['maximum_px']:
                     row['maximum_px'], row['maximum_phase'] = distance, phase
+            vectors[phase] = points
+            return points
+
+        phases = sorted(phases)
+        for phase in phases:
+            sample(phase)
+
+        def refine(target, start, end):
+            row = summaries[target]
+            bound = segment_minimum(sample(start)[target], sample(end)[target])
+            if not np.isfinite(bound):
+                return  # The sampled nonfinite reach has already failed.
+            # Only suspect chords need refinement. Once a violation is found,
+            # also prune chords unable to improve the observed true minimum.
+            if bound >= min(row['allowed_minimum_px'], row['minimum_px']):
+                return
+            middle = (start + end) / 2.
+            sample(middle)
+            if end - start <= MINIMUM_PHASE_RESOLUTION:
+                return
+            refine(target, start, middle)
+            refine(target, middle, end)
+
+        for start, end in zip(phases, phases[1:]):
+            for target in summaries:
+                refine(target, start, end)
         for row in summaries.values():
             tag = '%s/%s/%s' % (view, clip, row['target'])
             if row['minimum_px'] < row['allowed_minimum_px']:
-                errors.append('%s: minimum reach %.6f px < %.6f px at %.6f' %
+                errors.append('%s: minimum reach %.6f px < %.6f px at %.9f' %
                     (tag, row['minimum_px'], row['allowed_minimum_px'], row['minimum_phase']))
             # Director 2026-10-19: overreach straightens the chain toward its target (an intended fling or full
             # extension), so it is reported, not failed. Only inside-minimum targets fold the elbow wrongly.
@@ -53,5 +96,5 @@ def report(layout, data, *, step_distance_px, screen_pixel_scale):
             paths.append(row)
     return {'ok': not errors, 'errors': sorted(set(errors)), 'overreach': sorted(set(overreach)), 'paths': paths,
             'dense_intervals': DENSE_INTERVALS, 'minimum_margin_px': MIN_REACH_MARGIN_PX,
-            'maximum_overshoot': MAX_REACH_OVERSHOOT,
+            'minimum_phase_resolution': MINIMUM_PHASE_RESOLUTION, 'maximum_overshoot': MAX_REACH_OVERSHOOT,
             'step_distance_px': step_distance_px, 'screen_pixel_scale': screen_pixel_scale}

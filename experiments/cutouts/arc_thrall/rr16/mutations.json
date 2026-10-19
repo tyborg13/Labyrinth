@@ -1,0 +1,26 @@
+[
+  {
+    "guard": "3: interval reach refinement",
+    "regression": "tests.test_rr16_review_fixes.ReviewFixTests.test_short_interior_reach_dip_is_bisected_to_true_minimum",
+    "status": "CAUGHT",
+    "exit_code": 1,
+    "log": "/private/tmp/labyrinth_codex/rr-16/mutations/fix3.log",
+    "restored": true
+  },
+  {
+    "guard": "4: required direction coverage",
+    "regression": "tests.test_rr15_action_direction.ActionDirectionTests.test_zero_forward_channels_fail_required_clip_coverage_with_fresh_bones",
+    "status": "CAUGHT",
+    "exit_code": 1,
+    "log": "/private/tmp/labyrinth_codex/rr-16/mutations/fix4.log",
+    "restored": true
+  },
+  {
+    "guard": "5: exact pocket matching",
+    "regression": "tests.test_rr16_review_fixes.ReviewFixTests.test_extra_hole_in_each_approved_frame_is_rejected",
+    "status": "CAUGHT",
+    "exit_code": 1,
+    "log": "/private/tmp/labyrinth_codex/rr-16/mutations/fix5.log",
+    "restored": true
+  }
+]

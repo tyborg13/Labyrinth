@@ -3,12 +3,26 @@
     "ok": true,
     "errors": [],
     "positive_checks": 458,
+    "clip_positive_checks": {
+      "move": 76,
+      "tether": 87,
+      "jab": 53,
+      "hit": 30,
+      "death": 212
+    },
     "minimum_forward_channel_dot": 0.0006470860793003232
   },
   "rear": {
     "ok": true,
     "errors": [],
     "positive_checks": 458,
+    "clip_positive_checks": {
+      "move": 76,
+      "tether": 87,
+      "jab": 53,
+      "hit": 30,
+      "death": 212
+    },
     "minimum_forward_channel_dot": 0.001525832518658371
   }
 }

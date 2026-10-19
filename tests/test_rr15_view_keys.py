@@ -1,6 +1,7 @@
 """Whole-channel view replacement, legacy preservation and real sampling."""
 import copy
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -16,7 +17,7 @@ SCRATCH = Path('/private/tmp/labyrinth_codex/rr-15')
 THRALL = PROJECT / 'experiments/cutouts/arc_thrall/rr11'
 SEER = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-11/motion_tracks.json'
-PROOF_TASK_ID = 'rr-15'
+PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-16')
 PROOF_TIMEOUT_SECONDS = 180
 RELEASE_PHASE_DIVISOR = 2
 

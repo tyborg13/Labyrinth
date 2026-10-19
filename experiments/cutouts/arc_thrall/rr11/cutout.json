@@ -57,5 +57,9 @@
   "runtime_paths": [
     "scripts/maquette_cutout_runtime/humanoid_motion.gd",
     "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ],
+  "direction_clips": [
+    "jab",
+    "tether"
   ]
 }

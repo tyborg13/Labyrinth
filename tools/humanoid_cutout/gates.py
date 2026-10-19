@@ -414,7 +414,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         else:
             from maquette_motion.pixels import PROOF_DEFAULTS
             owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
-            new_holes = joint_holes(occupied, seam, owners, references)
+            new_holes = joint_holes(occupied, seam, owners, references, pocket_details=True)
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -425,7 +425,9 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         rejected = frame_errors(key, metric, new_holes, approved)
         errors += rejected
         if hole_details is not None and new_holes and str(key) + ': new joint-seam hole larger than 1px' in rejected:
-            hole_details.append({'view': view, 'clip': clip, 'frame': frame, 'pixel_counts': new_holes})
+            hole_details.append({'view': view, 'clip': clip, 'frame': frame,
+                                 'pixel_counts': [hole['pixel_count'] for hole in new_holes],
+                                 'pockets': new_holes})
         if rejected:
             # Save renderer crops for the director's weight/coverage diagnosis.
             folder = failure_output if failure_output is not None else case / 'proof/native_failures'
