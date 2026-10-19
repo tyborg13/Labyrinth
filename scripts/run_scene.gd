@@ -25146,6 +25146,7 @@ func _umbra_information_tile_visible(state: Dictionary, tile: Vector2i) -> bool:
 	return false
 
 func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
+	var resume_action: bool = _combat_pacing.begin_movement(str(step.get("actor_key", "")))
 	var from_tile: Vector2i = step.get("from", Vector2i.ZERO)
 	var to_tile: Vector2i = step.get("to", Vector2i.ZERO)
 	var actor_key: String = str(step.get("actor_key", ""))
@@ -25190,6 +25191,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 		)
 	_render_board_state(animated_state, {})
 	await get_tree().create_timer(0.06).timeout
+	_combat_pacing.end_movement(resume_action)
 
 func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, path_values: Array) -> Array[Vector2i]:
 	var path: Array[Vector2i] = _vector2i_array(path_values)
@@ -25283,6 +25285,7 @@ func _illusion_exchange_event(before_state: Dictionary, after_state: Dictionary)
 	return {}
 
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
+	var resume_action: bool = _combat_pacing.begin_movement(actor_key)
 	_ensure_sfx_bank()
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
 	var segment_count: int = maxi(0, path.size() - 1)
@@ -25456,6 +25459,7 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/ZekarionCutout.walk_cycle_distance()}}
 		_render_board_state(display_state, presentation, true)
 	)
+	_combat_pacing.end_movement(resume_action)
 
 func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:
 	var sample: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), clampf(progress, 0.0, 1.0))

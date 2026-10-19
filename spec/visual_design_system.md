@@ -159,6 +159,9 @@ floor shadows); the former navy button bodies clashed with it.
   actor; each acting enemy after the first holds its caption 0.25 s before its
   wind-up (the first uses the 0.35 s banner lead). Move-only turns add no wait
   (owner, playtest 10: "I can't really keep up with what they are all doing").
+  Enemy action wind-up through complete hit reaction and damage numbers uses
+  `ENEMY_ACTION_SPEED_SCALE = 0.80` times combat speed: 0.80 / 1.20 / 1.60.
+  Movement, caption lead and settle keep combat speed alone (pace-02, owner note).
   Reduced Motion retains the existing static banner behavior.
 - Combat speed (Normal / Fast / Fastest) scales enemy and committed-card
   presentation by 1 / 1.5 / 2, preserving normal planning/menus and trailer

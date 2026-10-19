@@ -25,7 +25,7 @@ const FIXTURE_SEED_SEARCH_COUNT: int = 64
 const ROUND_FREE_OFFSETS: Array = [Vector2i(0,0),Vector2i(1,0),Vector2i(2,0),Vector2i(0,-1),Vector2i(0,-2),Vector2i(0,-3),Vector2i(-1,0),Vector2i(-2,0),Vector2i(-3,0),Vector2i(-3,-1),Vector2i(0,1),Vector2i(0,2),Vector2i(0,3)]
 const ROUND_FOES: Array = [[1,"crawler",Vector2i(2,0),"skitter_strike"],[2,"acolyte",Vector2i(0,-3),"dust_bolt"],[3,"frostglass_lancer",Vector2i(0,3),"glass_lunge"],[4,"harrier",Vector2i(-3,-1),"darting_pelt"]]
 const ROUND_CAPTURE_FRAME_USEC: int = 16667
-const BASELINE_COMMIT: String = "6c72aa134815d4bbdbec0c490f202d8ed6cd0e78"
+const BASELINE_COMMIT: String = "4e874c34f"
 
 # Dummy-renderer boundary after normal animation and hit-stop node processing.
 # Unlike process_frame/call_deferred, this ordering exposes late release peaks.
@@ -153,13 +153,14 @@ func _initialize() -> void:
 	_finish()
 
 func _install_baseline_script() -> bool:
-	# Compare the repaired fixture against pace-01's exact parent pacing. Keep
+	# Compare against pace-01's merged pacing, before pace-02's action scale. Keep
 	# the real scene/input/audio pipeline, with no timing approximations.
 	var output: Array = []
-	if not check(OS.execute("git",["show",BASELINE_COMMIT+":scripts/combat_pacing.gd"],output)==0,"Read pace-01 parent pacing for before timeline"): return false
+	if not check(OS.execute("git",["show",BASELINE_COMMIT+":scripts/combat_pacing.gd"],output)==0,"Read merged pace-01 pacing for before timeline"): return false
 	var source: String = str(output[0]).replace("class_name CombatPacing", "")
-	# The new scene hook passes the immutable slice for action classification.
-	source = source.replace("func before_step(step: Dictionary)","func before_step(step: Dictionary, _activation_steps: Array = [])")
+	# Current scene travel hooks are no-ops in the before version: its action
+	# and movement clocks were already identical. Preserve that exact timing.
+	source += "\nfunc begin_movement(_actor_key: String) -> bool:\n\treturn false\n\nfunc end_movement(_resume_action: bool) -> void:\n\tpass\n"
 	var script := GDScript.new()
 	script.source_code = source
 	if not check(script.reload() == OK,"Load original pacing without changing its timings"): return false
@@ -209,6 +210,10 @@ func _round(layout: Dictionary, initial: Dictionary, speed: String) -> void:
 			var action_text: String = str((run_scene.get("action_banner") as Label).text)
 			if action_text.begins_with(str(pacing.get("_caption_prefix"))+": "):
 				check(action_text == str(pacing.get("_caption")),"Rendered action text retains the approved intent caption")
+		if not _baseline and pacing.enemies_active and Engine.time_scale > 0.0:
+			var action_active: bool = bool(pacing.get("_enemy_action_active"))
+			var expected_scale: float = SettingsStore.combat_speed_scale(settings) * (0.80 if action_active else 1.0)
+			check(is_equal_approx(Engine.time_scale, expected_scale), "Live enemy action/lead/walk/settle clock at %s" % speed)
 		await process_frame
 	var banner: Node = run_scene.get("_turn_banner")
 	if saw_enemy_banner and banner.visible and (banner.get("_label") as Label).text == "YOUR TURN" and hero_banner_usec == 0:

@@ -80,16 +80,30 @@ static func _action_waits(tree: SceneTree, expect: Callable, pacing_script: Scri
 			var done: Dictionary = {"done":false}
 			_observe_lead(pacing,intent,[intent,action],done)
 			expect.call(owner.caption == "Fixture: Fixture intent" and not done["done"],"Caption is already showing during the first lead")
+			expect.call(is_equal_approx(Engine.time_scale,scale),"Caption lead uses combat speed without the action multiplier")
 			while not done["done"]: await tree.process_frame
 			_expect_real_wait(began,0.35/scale,expect,"First enemy shares the 0.35 s banner lead at %s reduced=%s" % [speed,reduced])
 			await pacing.before_step(action)
+			expect.call(is_equal_approx(Engine.time_scale,scale*0.80),"Enemy action uses 0.80 times combat speed at %s reduced=%s" % [speed,reduced])
 			# Retained feedback can outlive the action view. It must finish before
 			# settle, even when hit-stop/reduced motion changes real elapsed time.
 			var popup_start: int = pacing.presentation_usec()
 			pacing.get("_popups")["fixture"] = {"start":popup_start}
 			began = Time.get_ticks_usec()
-			await pacing.after_step(action)
-			_expect_real_wait(began,(preload("res://scripts/floating_combat_text.gd").ANIMATION_DURATION_SECONDS+0.15)/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
+			done = {"done":false}
+			_observe_feedback(pacing,action,done)
+			var wrong_feedback_clock: bool = false
+			var wrong_settle_clock: bool = false
+			var saw_settle: bool = false
+			while not done["done"]:
+				var settling: bool = str(pacing.get("_phase")) == "post-action settle"
+				saw_settle = saw_settle or settling
+				if settling: wrong_settle_clock = wrong_settle_clock or not is_equal_approx(Engine.time_scale,scale)
+				else: wrong_feedback_clock = wrong_feedback_clock or not is_equal_approx(Engine.time_scale,scale*0.80)
+				await tree.process_frame
+			expect.call(not wrong_feedback_clock,"Retained numbers keep the enemy action clock through their final frame")
+			expect.call(saw_settle and not wrong_settle_clock,"Settle uses combat speed without the action multiplier")
+			_expect_real_wait(began,preload("res://scripts/floating_combat_text.gd").ANIMATION_DURATION_SECONDS/(scale*0.80)+0.15/scale,expect,"Retained feedback then settle scale at %s reduced=%s" % [speed,reduced])
 			pacing.get("_popups").clear()
 			intent["actor_key"] = "next"
 			action["actor_key"] = "next"
@@ -119,6 +133,10 @@ static func _action_waits(tree: SceneTree, expect: Callable, pacing_script: Scri
 
 static func _observe_lead(pacing: Node, intent: Dictionary, steps: Array, done: Dictionary) -> void:
 	await pacing.before_step(intent,steps)
+	done["done"] = true
+
+static func _observe_feedback(pacing: Node, action: Dictionary, done: Dictionary) -> void:
+	await pacing.after_step(action)
 	done["done"] = true
 
 static func _expect_real_wait(start: int, seconds: float, expect: Callable, message: String) -> void:

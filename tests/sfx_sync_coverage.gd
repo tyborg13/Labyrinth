@@ -101,8 +101,13 @@ static func verify(rows: Array[Dictionary], silences: Array[Dictionary], cues: D
 	var speed: float = float(rows[0].get("speed", 1.0)) if not rows.is_empty() else 1.0
 	var profile: String = str(rows[0].get("frame_profile", "fixed_60")) if not rows.is_empty() else "fixed_60"
 	var run_index: int = -1
+	# New enemy-action clocks inherit every count floor from their corresponding
+	# combat speed. The approved baseline stays byte-for-byte unchanged.
+	var baseline_speed: float = speed
+	for base: float in [1.0, 1.5, 2.0]:
+		if is_equal_approx(speed, base * 0.80): baseline_speed = base
 	for index: int in range(report["runs"].size()):
-		if report["runs"][index][0] == profile and float(report["runs"][index][1]) == speed: run_index = index
+		if report["runs"][index][0] == profile and is_equal_approx(float(report["runs"][index][1]), baseline_speed): run_index = index
 	if run_index < 0:
 		failures.append("Unbaselined frame profile / speed: %s / %s" % [profile, speed])
 	else:
