@@ -300,3 +300,10 @@
   passes only when every pixel maps to air in the approved painting or outside every boulder's painted area and tuck. A
   hole through stone or a joint tearing open still fails. It is a case-level policy, not frame exceptions; every other
   figure keeps the strict rule.
+- Green gate (all rigs from rr-20 on): it targets chroma-key residue only, G ≥ max(R,B) + 12 AND G ≥ 1.5 × max(R,B).
+  Residue texels in the derived presentation are replaced by the nearest non-residue texel of the same piece.
+  Declared feature masks are exempt (the Weaver's green eye). Olive and brown paint is legitimate.
+- Slag Mortar ownership: the crucible owns only iron greys and molten oranges; skin and leather under it belong to the
+  torso or the near upper arm. The bracer belongs to the forearm, and the fist starts at the bracer's lower rim.
+- Weaver gait: a hunched rest bends the stance knee, so the stride lift is 7 px and the pelvis sits at rest height at
+  each swing apex.
