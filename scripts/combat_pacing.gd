@@ -5,6 +5,7 @@ const HitStop = preload("res://scripts/combat_hit_stop.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const OutcomeFeedback = preload("res://scripts/combat_outcome_feedback.gd")
+const DeathSequence = preload("res://scripts/maquette_cutout_runtime/death_sequence.gd")
 const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
 const ENEMY_ACTION_SPEED_SCALE: float = 0.80
@@ -446,6 +447,7 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 			var unit: Dictionary = source.duplicate(true)
 			unit["death_progress"] = progress
 			unit["death_frame"] = int(round(progress * float(int(scene.call("_enemy_death_frame_count_for_unit", unit)) - 1)))
+			DeathSequence.sample(unit, float(clock - int(entry["start"])) / 1000000.0, entry.get("sequence", {}))
 			deaths.append(unit)
 	_deaths = _active_overlays(_deaths, clock)
 	if not deaths.is_empty():
@@ -538,7 +540,15 @@ func overlap_defeats(before: Dictionary, after: Dictionary, skip_terrain: bool) 
 		for unit: Dictionary in units:
 			frames = maxi(frames, int(scene.call("_enemy_death_frame_count_for_unit", unit)))
 			seconds = minf(seconds, float(scene.call("_enemy_death_frame_seconds_for_unit", unit)))
-		_deaths.append({"units": units, "start": presentation_usec(), "duration": int(frames * seconds * 1000000.0)})
+		var entry: Dictionary = {"units": units, "start": presentation_usec(), "duration": int(frames * seconds * 1000000.0)}
+		var sequence: Dictionary = {}
+		DeathSequence.configure(sequence, scene, units, true)
+		if sequence.has("unit_clocks"):
+			# Reuse the blocking path's opt-in clocks with overlap sampling. Legacy
+			# groups keep their original shared progress and lifetime byte for byte.
+			entry["sequence"] = sequence
+			entry["duration"] = int(sequence["hold_end_usec"])
+		_deaths.append(entry)
 	var order_before: Array[Dictionary]
 	order_before.assign(scene.call("_turn_order_entries_from_state", before))
 	var order_after: Array[Dictionary]
