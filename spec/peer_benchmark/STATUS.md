@@ -30,7 +30,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   - rr-14 (humanoid foundations: foot IK, case-driven anatomy, Thrall-shaped fixture) running.
   - det-02 and pace-01 merged; integration green at 4e874c34f (Godot PASS, Python 978 OK). The rr-05 owner-proof
     script and det-02's helper were fixed after the first full-suite run caught them.
-  - rr-14 merged e08e4e296 (green). rr-11 (Thrall v2) running on it. purge-01 signed off, merging.
+  - rr-14 merged e08e4e296; purge-01 merged 3d8b22d4f (integration green: Godot PASS, Python 999 OK). Thrall v2:
+    rr-11 headless gates PASS, native gates 908 → rr-15 cleanup running. Inbox: enemy-pacing, purge-redesign.
   - 2026-10-18 cleanup: removed 15 merged worktrees (93 GB). Kept: anim-01/02 (shelved, unmerged), rr-06/rr-08 (parked),
     qa-05 (merged, but 2 uncommitted edits: scripts/asset_loader.gd, tests/helpers/program_sub_suites.gd; inspect
     before removing), peer-benchmark-playtest-10 (frozen playtest), gear-devlog-capture.
