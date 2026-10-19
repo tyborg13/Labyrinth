@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    211,
+    238
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.09216555553218783,
+    "edge_light_share": 0.0,
+    "feature_px": 6.534698927749914,
+    "height": 238,
+    "height_drawn": 238.0,
+    "orphan_share": 0.10050053628888095,
+    "regions": 655,
+    "run_length": 2.1566813169866603,
+    "symmetry": 0.6448974788927132,
+    "thin_abs": 0.00443332141580266,
+    "thin_rel": 0.010296746514122268,
+    "value": 0.23136786500942888,
+    "width": 211
+  },
+  "pixel_sha256": "1d4e1e4b8871b022f94e0f77bc33139d0d25460c55c5f39c9e8b2435a048f368",
+  "placement": [
+    23,
+    8
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/glacial_mirror/mq8_front/kit.json",
+        "pixel_sha256": "e544ed7146e64e035dfc52fc1b0a4d79be0d42e8bad25e669d421dae367b0634"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "7d8c433033dffaa19ec472411baaf35b39a7661f29cffdb096e15ac916c2c0ad",
+      "protected_body_share": {
+        "front": 0.03243901538915747,
+        "rear": 0.024351868406937243
+      },
+      "reference_pixel_sha256": "e544ed7146e64e035dfc52fc1b0a4d79be0d42e8bad25e669d421dae367b0634",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "338edcb71a6ea596dab6ef650204fe45baf86c81d5501a2e98e2511451e785d2",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "4d511582507641ed3e22832c30a1b40a5948d8165892e95c53099bceeb0c38f0",
+  "shift": [
+    0,
+    0
+  ]
+}
