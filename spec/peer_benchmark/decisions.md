@@ -261,3 +261,7 @@
   sidecars of tracked assets (bf68dc2ce) and removed a stale `.uid`; qa-14 adds a guard test and a workflow note. When an
   in-flight worktree syncs integration, first delete its untracked copies of the newly tracked sidecars, then merge and
   run a headless import.
+- 2026-10-19 checkpoint PUBLISHED: `origin/master` = 209cbc67c (integration at that commit: Godot PASS, Python 1019 OK;
+  `authorize-publish` recorded at 02:31Z). Included pace-02, purge-02/03 (+ a director null-viewport guard, Codex
+  SIGNOFF), qa-14 and the sidecar commit. The primary checkout's local master update was skipped (untracked files);
+  the owner's call. Follow-up: the optional Purge lifecycle regression suggested by the guard review.

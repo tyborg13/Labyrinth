@@ -40,7 +40,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   focused tests in fix rounds; full suites only at merge.
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
-- **Owner approved a master checkpoint after purge-02 + pace-02 merge green** (decisions 2026-10-19).
+- **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
 - Next (in order):
   1. rr-11 (Thrall v2) review → windowed proof → inbox. purge-01 merge → inbox (Purge screens). Owner verdicts on
      enemy-pacing and Purge.
