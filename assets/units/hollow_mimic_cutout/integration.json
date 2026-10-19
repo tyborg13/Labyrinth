@@ -2,12 +2,8 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/hollow_mimic/rr20",
-  "director_sha256": "27285f771462d3491bdfff07e4c5e0c21f2062f0483a098cd1f52e1887d66ece",
-  "design_placeholders": {
-    "TODO_DESIGN_rear_far_apex_knee": "Protected 5px gait lift: rear far apex 50.870 < stance 57.913 degrees at frame 9; 53.229 < 53.591 at frame 28. Director data decision required; gate unchanged.",
-    "TODO_DESIGN_joint_continuation_rest_envelope": "Historical rear death frame 5 neck pocket maps to transparent rest texels in head (118,100)-(120,102), torso (118,99)-(121,101), and sleeve (117,100)-(120,102). A rest-preserving own-piece continuation cannot cover those pixels. A gait-only 26-texel candidate closes the two new move pockets but exposes 20 pixels at both rear move endpoints. Director presentation/art decision required; no exemptions, motion edits or candidate activation.",
-    "TODO_DESIGN_front_head_detached_source_texels": "Approved front head has detached source texels (105,48) and (105,49); rotations put them beyond the strict 2px distance. Derived presentation/art decision required; source unchanged."
-  },
+  "director_sha256": "c0f1ef683f22cb63ef9ad1430560d88e6dd9da378828fca0e793add0ccea28ac",
+  "design_placeholders": {},
   "idle_phase_seed": "slot",
   "step_selectors": {
     "en06_mirror": "mirror"
@@ -35,8 +31,8 @@
     ]
   },
   "files": {
-    "compiled_motion.json": "248e064a2d66501b013d479a61f5c5e6dbc30da0f19e9cb2646852cb6d5ef478",
-    "director_motion.json": "27285f771462d3491bdfff07e4c5e0c21f2062f0483a098cd1f52e1887d66ece",
+    "compiled_motion.json": "33d41730cea68af609899fc97a8c4c63b449926b9784d1fedc9dc850cad6d8c4",
+    "director_motion.json": "c0f1ef683f22cb63ef9ad1430560d88e6dd9da378828fca0e793add0ccea28ac",
     "front/foot_far.png": "4543ba8f4c21f738c81934bfdd20bf5a984b0173896d99d812cdb12ea47bfe0f",
     "front/foot_far_hidden.png": "a640b5b7d6a0fe8dc793d37b2fabea89ca618cc414d81da0155254f4df7e0379",
     "front/foot_near.png": "22a5df43d8606c7718af20158f8ee0ebe39ddd962d1f2be008951fed31e5e4fb",

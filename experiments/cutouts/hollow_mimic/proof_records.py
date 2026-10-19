@@ -16,7 +16,7 @@ def compact(result):
     if not isinstance(result, dict):
         return result
     counts = {key: len(value) for key, value in result.items()
-              if key in ('rows', 'frames', 'stance', 'jab', 'rigid_air', 'overreach') and isinstance(value, list)}
+              if key in ('rows', 'frames', 'stance', 'jab', 'rigid_air', 'overreach', 'rest_space') and isinstance(value, list)}
     retained = {key: compact(value) for key, value in result.items() if key not in counts}
     if counts:
         retained['sample_counts'] = {**retained.get('sample_counts', {}), **counts}

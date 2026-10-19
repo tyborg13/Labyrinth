@@ -1,7 +1,6 @@
 {
   "active": false,
   "native_pixels": false,
-  "TODO_DESIGN": "TODO_DESIGN_joint_continuation_rest_envelope",
   "proposal": "gait_continuations.proposal.json",
   "copied_texels": {
     "front": 0,
@@ -11,5 +10,6 @@
     "first": 20,
     "last": 20
   },
-  "source": "own torso non-outline edge texels; protected motion unchanged"
+  "source": "own torso non-outline edge texels; protected motion unchanged",
+  "director_decision": "Feedback 3: inactive; transparent approved rest space remains air."
 }

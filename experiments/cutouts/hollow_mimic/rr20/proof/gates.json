@@ -1,8 +1,6 @@
 {
-  "ok": false,
-  "errors": [
-    "rear/far: apex swing knee does not exceed stance knee"
-  ],
+  "ok": true,
+  "errors": [],
   "native_pixels": false,
   "native_pending": "director must run density/rest/native/idle/production/review",
   "views": {
@@ -62,10 +60,10 @@
             "samples": 1014,
             "allowed_minimum_px": 4.540821648292365,
             "allowed_maximum_px": 71.19722393062321,
-            "minimum_px": 59.73204222391326,
-            "maximum_px": 74.111486233998,
-            "minimum_phase": 0.366,
-            "maximum_phase": 0.878
+            "minimum_px": 58.20715413686888,
+            "maximum_px": 74.09076000872881,
+            "minimum_phase": 0.375,
+            "maximum_phase": 0.879
           },
           {
             "clip": "move",
@@ -102,10 +100,10 @@
             "samples": 1014,
             "allowed_minimum_px": 7.81788214418593,
             "allowed_maximum_px": 45.150686556029285,
-            "minimum_px": 34.02532456361262,
-            "maximum_px": 51.93843251374752,
-            "minimum_phase": 0.9520000000000001,
-            "maximum_phase": 0.669
+            "minimum_px": 32.176531572839885,
+            "maximum_px": 51.93346413061908,
+            "minimum_phase": 0.9540000000000001,
+            "maximum_phase": 0.27
           },
           {
             "clip": "bolt",
@@ -329,9 +327,9 @@
             "from": 0.0,
             "to": 0.2,
             "peak_frame": 2,
-            "peak_bend_deg": 53.839223954452855,
+            "peak_bend_deg": 60.731606671045746,
             "apex_frame": 2,
-            "apex_swing_bend_deg": 53.839223954452855,
+            "apex_swing_bend_deg": 60.731606671045746,
             "apex_stance_bend_deg": 31.23921488820876
           },
           {
@@ -341,9 +339,9 @@
             "from": 0.0,
             "to": 0.4,
             "peak_frame": 9,
-            "peak_bend_deg": 62.154484437412265,
+            "peak_bend_deg": 69.62356478616361,
             "apex_frame": 9,
-            "apex_swing_bend_deg": 62.154484437412265,
+            "apex_swing_bend_deg": 69.62356478616361,
             "apex_stance_bend_deg": 35.74866675023919
           },
           {
@@ -353,9 +351,9 @@
             "from": 0.2,
             "to": 0.6,
             "peak_frame": 19,
-            "peak_bend_deg": 54.649445446792,
+            "peak_bend_deg": 61.82140989004083,
             "apex_frame": 19,
-            "apex_swing_bend_deg": 54.649445446792,
+            "apex_swing_bend_deg": 61.82140989004083,
             "apex_stance_bend_deg": 28.657117456558133
           },
           {
@@ -365,9 +363,9 @@
             "from": 0.4,
             "to": 0.8,
             "peak_frame": 28,
-            "peak_bend_deg": 64.5158730095827,
+            "peak_bend_deg": 76.04896054123957,
             "apex_frame": 28,
-            "apex_swing_bend_deg": 64.5158730095827,
+            "apex_swing_bend_deg": 76.04896054123957,
             "apex_stance_bend_deg": 32.646810284464586
           },
           {
@@ -377,9 +375,9 @@
             "from": 0.6,
             "to": 1.0,
             "peak_frame": 38,
-            "peak_bend_deg": 51.20179780966149,
+            "peak_bend_deg": 58.22437606309851,
             "apex_frame": 38,
-            "apex_swing_bend_deg": 51.20179780966149,
+            "apex_swing_bend_deg": 58.22437606309851,
             "apex_stance_bend_deg": 31.32011822262528
           },
           {
@@ -389,13 +387,13 @@
             "from": 0.8,
             "to": 1.0,
             "peak_frame": 45,
-            "peak_bend_deg": 58.65478585828433,
+            "peak_bend_deg": 72.6972314522093,
             "apex_frame": 45,
-            "apex_swing_bend_deg": 58.65478585828433,
+            "apex_swing_bend_deg": 72.6972314522093,
             "apex_stance_bend_deg": 23.720376058244597
           }
         ],
-        "minimum_peak_bend_deg": 51.20179780966149,
+        "minimum_peak_bend_deg": 58.22437606309851,
         "maximum_fit_px": 0.8523502234309319,
         "maximum_total_pelvis_drop_px": 2.0000000000000098,
         "maximum_rigid_air_px": 0.0,
@@ -424,9 +422,7 @@
     },
     "rear": {
       "source_errors": [],
-      "bone_errors": [
-        "rear/far: apex swing knee does not exceed stance knee"
-      ],
+      "bone_errors": [],
       "direction": {
         "ok": true,
         "errors": [],
@@ -480,10 +476,10 @@
             "samples": 1014,
             "allowed_minimum_px": 15.910882339705484,
             "allowed_maximum_px": 47.84909998649959,
-            "minimum_px": 31.96637850368844,
-            "maximum_px": 52.1526876985704,
-            "minimum_phase": 0.052000000000000005,
-            "maximum_phase": 0.728
+            "minimum_px": 30.191627326689648,
+            "maximum_px": 52.03170918930096,
+            "minimum_phase": 0.05,
+            "maximum_phase": 0.726
           },
           {
             "clip": "move",
@@ -520,9 +516,9 @@
             "samples": 1014,
             "allowed_minimum_px": 6.330239450063058,
             "allowed_maximum_px": 65.22076518612171,
-            "minimum_px": 55.33559360114537,
-            "maximum_px": 71.17741767488151,
-            "minimum_phase": 0.632,
+            "minimum_px": 53.7639494878531,
+            "maximum_px": 71.15261035960822,
+            "minimum_phase": 0.625,
             "maximum_phase": 0.921
           },
           {
@@ -737,10 +733,8 @@
         }
       },
       "knees": {
-        "ok": false,
-        "errors": [
-          "rear/far: apex swing knee does not exceed stance knee"
-        ],
+        "ok": true,
+        "errors": [],
         "swings": [
           {
             "side": "near",
@@ -749,9 +743,9 @@
             "from": 0.0,
             "to": 0.2,
             "peak_frame": 2,
-            "peak_bend_deg": 81.96919699098757,
+            "peak_bend_deg": 92.14410908717227,
             "apex_frame": 2,
-            "apex_swing_bend_deg": 81.96919699098757,
+            "apex_swing_bend_deg": 92.14410908717227,
             "apex_stance_bend_deg": 22.58769664233877
           },
           {
@@ -761,9 +755,9 @@
             "from": 0.0,
             "to": 0.4,
             "peak_frame": 9,
-            "peak_bend_deg": 50.86960044301471,
+            "peak_bend_deg": 58.72315489290582,
             "apex_frame": 9,
-            "apex_swing_bend_deg": 50.86960044301471,
+            "apex_swing_bend_deg": 58.72315489290582,
             "apex_stance_bend_deg": 57.912940753851046
           },
           {
@@ -772,10 +766,10 @@
             "end": 0.48,
             "from": 0.2,
             "to": 0.6,
-            "peak_frame": 20,
-            "peak_bend_deg": 80.31966143675807,
+            "peak_frame": 19,
+            "peak_bend_deg": 87.86179655614575,
             "apex_frame": 19,
-            "apex_swing_bend_deg": 78.49569025298985,
+            "apex_swing_bend_deg": 87.86179655614575,
             "apex_stance_bend_deg": 23.344010961577503
           },
           {
@@ -785,9 +779,9 @@
             "from": 0.4,
             "to": 0.8,
             "peak_frame": 28,
-            "peak_bend_deg": 53.228521708464704,
+            "peak_bend_deg": 58.0541263047023,
             "apex_frame": 28,
-            "apex_swing_bend_deg": 53.228521708464704,
+            "apex_swing_bend_deg": 58.0541263047023,
             "apex_stance_bend_deg": 53.591225432227645
           },
           {
@@ -797,9 +791,9 @@
             "from": 0.6,
             "to": 1.0,
             "peak_frame": 39,
-            "peak_bend_deg": 76.75576621754465,
+            "peak_bend_deg": 83.16291044021807,
             "apex_frame": 38,
-            "apex_swing_bend_deg": 72.8249697925462,
+            "apex_swing_bend_deg": 78.96341724193587,
             "apex_stance_bend_deg": 21.573723180925338
           },
           {
@@ -809,14 +803,14 @@
             "from": 0.8,
             "to": 1.0,
             "peak_frame": 45,
-            "peak_bend_deg": 45.178277047179805,
+            "peak_bend_deg": 52.76515596941583,
             "apex_frame": 45,
-            "apex_swing_bend_deg": 45.178277047179805,
+            "apex_swing_bend_deg": 52.76515596941583,
             "apex_stance_bend_deg": 40.15752314633872
           }
         ],
-        "minimum_peak_bend_deg": 45.178277047179805,
-        "maximum_fit_px": 0.49750746350494524,
+        "minimum_peak_bend_deg": 52.76515596941583,
+        "maximum_fit_px": 0.4906551098886496,
         "maximum_total_pelvis_drop_px": 2.000000000000007,
         "maximum_rigid_air_px": 0.0,
         "maximum_stance_frame_change_px": 0.0,
@@ -845,6 +839,6 @@
   },
   "full_evidence": {
     "file": "logs/gates.full.json",
-    "sha256": "c5c85672a08606cd3af15c60b823b70712cd3ecf851c195dc660f2fc3eeb1dd7"
+    "sha256": "ea403bda3731a04b55e8e1b9c2f4a6d29eed71026b3c78b4fa89570fdb93ab44"
   }
 }

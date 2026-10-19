@@ -1,5 +1,6 @@
 """Compile gait seam coverage from the sampled, projected skin envelope.
 
+Historical proposal only: feedback 3 keeps it inactive and preserves rest air.
 CPU geometry is a construction/regression aid, never native acceptance. No
 painting, density source, mesh field or non-move texture is rewritten.
 """
@@ -115,7 +116,7 @@ def build(samples):
         write_json(CASE / f'proof/logs/gait_coverage/{view}.json', {'native_pixels': False,
                    'before': before, 'texel_counts': {n: len(r['texels']) for n, r in layout.get('gait_continuations', {}).items()}})
     write_json(CASE / 'gait_continuations.proposal.json', recipes)
-    print('RR20 GAIT COVERAGE: PROPOSAL ONLY (requires rest-envelope design decision)')
+    print('RR20 GAIT COVERAGE: INACTIVE PROPOSAL (feedback 3: preserve approved rest air)')
 
 
 if __name__ == '__main__':

@@ -25,7 +25,7 @@ def task_run(command, *args, **kwargs):
 
 if __name__ == '__main__':
     os.environ['LABYRINTH_TASK_ID'] = TASK_ID
-    suite = unittest.defaultTestLoader.loadTestsFromNames(MODULES)
+    suite = unittest.defaultTestLoader.loadTestsFromNames(sys.argv[1:] or MODULES)
     with patch('subprocess.run', task_run):
         result = unittest.TextTestRunner().run(suite)
     print('RR20 INHERITED RUNNERS: %s (%d Godot invocations forced to rr-20)' %

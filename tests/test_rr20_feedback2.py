@@ -21,7 +21,6 @@ from continuations import derivation_errors
 import proof_records
 
 FIXTURE_VALUE=5
-GAIT_REAR_FAILURE_FRAMES=(6,26)
 GAIT_ENDPOINT_ALPHA_MISMATCH_PX=20
 
 
@@ -91,8 +90,7 @@ class FeedbackTwoTests(unittest.TestCase):
                 expected=full.masks(row,layout[records],full.layers(row)[1])
                 for a,b in zip(actual,expected):np.testing.assert_array_equal(a,b)
 
-    def test_gait_candidate_closes_pockets_but_stays_inactive_for_rest_identity(self):
-        from gait_coverage import pockets
+    def test_gait_candidate_stays_inactive_and_would_change_rest_endpoints(self):
         from humanoid_cutout.gait_continuations import errors
         layout=read_json(CASE/'layouts/rear.json')
         self.assertNotIn('gait_continuations',layout)
@@ -101,10 +99,6 @@ class FeedbackTwoTests(unittest.TestCase):
         self.assertEqual(errors(CASE,candidate),[])
         before,after=CpuPose(CASE,layout),CpuPose(CASE,candidate)
         samples=proof_records.samples()
-        for frame in GAIT_REAR_FAILURE_FRAMES:
-            row=next(r for r in samples['samples'] if r['view']=='rear' and r['clip']=='move' and r['kind']=='presented' and r['frame']==frame)
-            self.assertTrue(pockets(before,row)[0])
-            self.assertEqual(pockets(after,row)[0],[])
         frames=[r for r in samples['samples'] if r['view']=='rear' and r['clip']=='move' and r['kind']=='presented']
         for row in (frames[0],frames[-1]):
             original=np.logical_or.reduce([image[...,3]>0 for _,image,_ in before.layers(row)[0]])

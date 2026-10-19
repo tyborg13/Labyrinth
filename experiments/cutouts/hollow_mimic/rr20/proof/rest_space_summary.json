@@ -1,0 +1,91 @@
+{
+  "ok": true,
+  "native_pixels": false,
+  "scope": "All presented frames; CPU estimates only",
+  "views": {
+    "mimic": {
+      "front": {
+        "ok": true,
+        "frames": 362,
+        "air_pockets": 1996,
+        "approved_detached_components": 355,
+        "retained_legacy_exception_frames": 0,
+        "failures": [],
+        "maximum_air_pocket_pixels": 514
+      },
+      "rear": {
+        "ok": true,
+        "frames": 362,
+        "air_pockets": 2655,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 0,
+        "failures": [],
+        "maximum_air_pocket_pixels": 359
+      }
+    },
+    "seer": {
+      "front": {
+        "ok": true,
+        "frames": 467,
+        "air_pockets": 3232,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 3,
+        "failures": [],
+        "maximum_air_pocket_pixels": 513
+      },
+      "rear": {
+        "ok": true,
+        "frames": 467,
+        "air_pockets": 4589,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 1,
+        "failures": [],
+        "maximum_air_pocket_pixels": 1022
+      }
+    },
+    "thrall": {
+      "front": {
+        "ok": true,
+        "frames": 335,
+        "air_pockets": 988,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 0,
+        "failures": [],
+        "maximum_air_pocket_pixels": 685
+      },
+      "rear": {
+        "ok": true,
+        "frames": 335,
+        "air_pockets": 922,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 0,
+        "failures": [],
+        "maximum_air_pocket_pixels": 1260
+      }
+    },
+    "mirror": {
+      "front": {
+        "ok": true,
+        "frames": 344,
+        "air_pockets": 374,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 0,
+        "failures": [],
+        "maximum_air_pocket_pixels": 1362
+      },
+      "rear": {
+        "ok": true,
+        "frames": 344,
+        "air_pockets": 1976,
+        "approved_detached_components": 0,
+        "retained_legacy_exception_frames": 0,
+        "failures": [],
+        "maximum_air_pocket_pixels": 958
+      }
+    }
+  },
+  "full_evidence": {
+    "file": "logs/feedback3_passed_pockets.md",
+    "sha256": "e7c17c123674258db0019f7bbae602b1edc54588aa1cd2a9de1e41257acfc52e"
+  }
+}

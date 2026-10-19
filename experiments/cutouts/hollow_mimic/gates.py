@@ -168,11 +168,16 @@ def native_residue_errors(capture, manifest, layouts):
 
 
 def native(capture):
-    errors = native_errors(CASE, capture, failure_output=CASE/'proof/logs/native_failures', samples=proof_records.samples())
+    spaces = []
+    errors = native_errors(CASE, capture, failure_output=CASE/'proof/logs/native_failures', samples=proof_records.samples(), space_details=spaces)
     manifest = read_json(capture / 'frames.json')
     layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}
     errors += native_residue_errors(capture, manifest, layouts)
-    return {'ok': not errors, 'errors': errors, 'native_pixels': True}
+    return {'ok': not errors, 'errors': errors, 'native_pixels': True, 'rest_space': spaces,
+            'pocket_failures': [{key:row[key] for key in ('view','clip','frame','failures')}
+                                for row in spaces if row['failures']],
+            'air_pocket_count':sum(len(row['air_pockets']) for row in spaces),
+            'approved_detached_component_count':sum(len(row.get('source_components',[])) for row in spaces)}
 
 
 def main():

@@ -6,8 +6,9 @@ from case import CASE, VIEWS, read_json, write_json
 from humanoid_cutout.cpu_pose import CpuPose as FullCpuPose, mesh_map, mapped, sprite_transform
 from maquette_motion import pixels
 from humanoid_cutout.gates import bindings, clean_metrics
-from humanoid_cutout.silhouette_gates import posed_owners, joint_holes
+from humanoid_cutout.silhouette_gates import posed_owners
 from humanoid_cutout.anatomy import load
+from humanoid_cutout.rest_space import pockets, DetachedSource
 from maquette_motion.pixels import PROOF_DEFAULTS
 import proof_records
 
@@ -56,11 +57,9 @@ class CpuPose(FullCpuPose):
 
 def state(model, pose):
     layers, maps = model.layers(pose)
-    seam = np.logical_or.reduce(model.masks(pose, model.layout['proof_joint_seams'], maps))
-    references = model.masks(pose, model.layout['proof_rest_holes'], maps)
     owners = posed_owners(layers, model.layout['parts'], pose['bones'],
                           PROOF_DEFAULTS['source_offset'], load(CASE)['ownership'])
-    defects = joint_holes(owners > 0, seam, owners, references, pocket_details=True)
+    defects = pockets(layers)['failures']
     return layers, maps, owners, defects
 
 
@@ -68,11 +67,18 @@ def report(view, samples, output):
     current = bindings(CASE)
     if samples['inputs'] != current: raise ValueError('Refresh bound samples before CPU diagnostic')
     model = CpuPose(CASE, read_json(CASE / f'layouts/{view}.json'))
-    failures, count = [], 0
+    detached_source = DetachedSource(CASE, model.layout)
+    failures, space_records, count = [], [], 0
     for pose in samples['samples']:
         if pose['view'] != view or pose['kind'] != 'presented': continue
         layers, _, _, defects = state(model, pose)
         metrics = clean_metrics(layers)
+        space = pockets(layers)
+        detached = detached_source.report(layers, {name: part['transform'] for name, part in pose['parts'].items()})
+        metrics.update(detached['metrics'])
+        if space['air_pockets'] or space['failures'] or detached['source_components']:
+            space_records.append({'clip':pose['clip'],'frame':pose['frame'],**space,
+                                  'source_components':detached['source_components']})
         rejected = {k:metrics[k] for k in ('outside_pixels','exposed_outline_pixels','dark_slab_blocks','outline_outside_pixels','stray_components') if metrics[k]}
         if defects or rejected:
             failures.append({'clip':pose['clip'],'frame':pose['frame'],'holes':defects,'metrics':rejected})
@@ -85,7 +91,7 @@ def report(view, samples, output):
     stale = bindings(CASE) != current
     if stale: failures.append({'evidence_error':'Inputs changed during CPU diagnostic'})
     result = {'ok':not failures,'native_pixels':False,'scope':'CPU estimate; director GPU recapture required',
-              'view':view,'frames':count,'failures':failures,'inputs':current}
+              'view':view,'frames':count,'failures':failures,'rest_space':space_records,'inputs':current}
     write_json(output / 'report.json', result)
     print(f'RR20 CPU {view.upper()}: {"PASS" if result["ok"] else "FAIL"} ({count} frames; {len(failures)} failing frames)', flush=True)
     return result
