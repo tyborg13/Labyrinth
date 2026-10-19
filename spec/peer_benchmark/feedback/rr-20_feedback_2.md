@@ -3,10 +3,10 @@
 The director ran the windowed chain. Density, rest, idle (252 frames) and production (1282 frames, 0 errors) pass. The
 native gates refused sheets and review. Do this round, then hand back:
 
-1. **Sync integration first.** Merge `codex/peer-benchmark` into this branch. It brings gait-01, the humanoid walk on
+1. **Integration is already merged in.** The director committed your round 1 work and merged `codex/peer-benchmark` into this branch. It brings gait-01, the humanoid walk on
    the protagonist's model: the gait block compiler, projected legs, pelvis fit, shared walk gates and compact walk
    reports.
-   - Resolve conflicts toward integration's shared code.
+   - Conflicts were resolved toward integration's shared code. Check that your case code still builds on it.
    - Rig spec §3 and §4 are binding.
 2. **New protected director data** (`spec/peer_benchmark/staged/rr-20/motion_tracks.json`; import byte for byte).
    - `move` is now a gait block, 6 steps per tile, 0.8 s. Retire the Mimic's `leg_roles` as gait-01 did for the

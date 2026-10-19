@@ -3,8 +3,8 @@
 The director ran the windowed chain. Density, rest, idle and production pass. The native gates refused sheets and
 review. Do this round, then hand back:
 
-1. **Sync integration first.** Merge `codex/peer-benchmark` into this branch. It brings gait-01's shared walk: the gait
-   block compiler, lanes, projected leg scale, pelvis fit, shared walk gates and compact walk reports. Resolve conflicts
+1. **Integration is already merged in.** The director committed your round 1 work and merged `codex/peer-benchmark` into this branch. It brings gait-01's shared walk: the gait
+   block compiler, lanes, projected leg scale, pelvis fit, shared walk gates and compact walk reports. Conflicts were resolved
    toward integration's shared code; rig spec §3 and §4 are binding.
 2. **New protected director data** (`spec/peer_benchmark/staged/rr-22/motion_tracks.json`; import byte for byte):
    - `move` is a gait block: 6 steps per tile, 0.85 s, 5 px lift, settle 3.5 px, a torso jolt on the four full-step
