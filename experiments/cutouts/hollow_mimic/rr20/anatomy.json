@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "required_parents": {
+    "root": null,
+    "pelvis": "root",
+    "torso": "pelvis",
+    "head": "torso",
+    "upper_near": "torso",
+    "fore_near": "upper_near",
+    "hand_near": "fore_near",
+    "thigh_near": "pelvis",
+    "shin_near": "thigh_near",
+    "foot_near": "shin_near",
+    "upper_far": "torso",
+    "fore_far": "upper_far",
+    "hand_far": "fore_far",
+    "thigh_far": "pelvis",
+    "shin_far": "thigh_far",
+    "foot_far": "shin_far"
+  },
+  "forbidden_joints": [],
+  "meshes": {
+    "sleeve_near": {
+      "kind": "two_segment",
+      "joints": [
+        "upper_near",
+        "fore_near",
+        "hand_near"
+      ],
+      "bones": [
+        "upper_near",
+        "fore_near"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "leg_near": {
+      "kind": "two_segment",
+      "joints": [
+        "thigh_near",
+        "shin_near",
+        "foot_near"
+      ],
+      "bones": [
+        "thigh_near",
+        "shin_near"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "sleeve_far": {
+      "kind": "two_segment",
+      "joints": [
+        "upper_far",
+        "fore_far",
+        "hand_far"
+      ],
+      "bones": [
+        "upper_far",
+        "fore_far"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    },
+    "leg_far": {
+      "kind": "two_segment",
+      "joints": [
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "bones": [
+        "thigh_far",
+        "shin_far"
+      ],
+      "cuff_rows_px": 4,
+      "blend_half_width_px": 4
+    }
+  },
+  "idle_groups": {
+    "upper_body": {
+      "bones": [
+        "torso",
+        "head",
+        "upper_near",
+        "fore_near",
+        "hand_near",
+        "upper_far",
+        "fore_far",
+        "hand_far"
+      ],
+      "stationary": false
+    },
+    "weapon_arm": {
+      "bones": [
+        "root"
+      ],
+      "stationary": true
+    },
+    "lower_body": {
+      "bones": [
+        "pelvis",
+        "thigh_near",
+        "shin_near",
+        "foot_near",
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "stationary": true
+    }
+  },
+  "knee_policy": {
+    "near_straight_deg": 6
+  },
+  "legs": {
+    "near": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    },
+    "far": {
+      "front": {
+        "bend_side": 1
+      },
+      "rear": {
+        "bend_side": -1
+      }
+    }
+  },
+  "leg_roles": {
+    "front": {
+      "stride": "near",
+      "trailing": "far"
+    },
+    "rear": {
+      "stride": "far",
+      "trailing": "near"
+    }
+  },
+  "planted_bones": [
+    "foot_near",
+    "foot_far"
+  ],
+  "planted_tolerance_px": 0.5,
+  "held_depth_roles": {},
+  "ownership": {
+    "names": [
+      "head",
+      "torso",
+      "pelvis",
+      "sleeve_near",
+      "hand_near",
+      "leg_near",
+      "foot_near",
+      "sleeve_far",
+      "hand_far",
+      "leg_far",
+      "foot_far",
+      "upper_near",
+      "fore_near",
+      "thigh_near",
+      "shin_near",
+      "upper_far",
+      "fore_far",
+      "thigh_far",
+      "shin_far"
+    ],
+    "segments": {
+      "sleeve_near": {
+        "joints": [
+          "upper_near",
+          "fore_near",
+          "hand_near"
+        ],
+        "owners": [
+          "upper_near",
+          "fore_near"
+        ]
+      },
+      "leg_near": {
+        "joints": [
+          "thigh_near",
+          "shin_near",
+          "foot_near"
+        ],
+        "owners": [
+          "thigh_near",
+          "shin_near"
+        ]
+      },
+      "sleeve_far": {
+        "joints": [
+          "upper_far",
+          "fore_far",
+          "hand_far"
+        ],
+        "owners": [
+          "upper_far",
+          "fore_far"
+        ]
+      },
+      "leg_far": {
+        "joints": [
+          "thigh_far",
+          "shin_far",
+          "foot_far"
+        ],
+        "owners": [
+          "thigh_far",
+          "shin_far"
+        ]
+      }
+    },
+    "joint_pairs": [
+      [
+        "torso",
+        "head"
+      ],
+      [
+        "torso",
+        "pelvis"
+      ],
+      [
+        "torso",
+        "upper_near"
+      ],
+      [
+        "upper_near",
+        "fore_near"
+      ],
+      [
+        "fore_near",
+        "hand_near"
+      ],
+      [
+        "pelvis",
+        "thigh_near"
+      ],
+      [
+        "thigh_near",
+        "shin_near"
+      ],
+      [
+        "shin_near",
+        "foot_near"
+      ],
+      [
+        "torso",
+        "upper_far"
+      ],
+      [
+        "upper_far",
+        "fore_far"
+      ],
+      [
+        "fore_far",
+        "hand_far"
+      ],
+      [
+        "pelvis",
+        "thigh_far"
+      ],
+      [
+        "thigh_far",
+        "shin_far"
+      ],
+      [
+        "shin_far",
+        "foot_far"
+      ]
+    ],
+    "free_space_owners": []
+  },
+  "seam_joins": [
+    [
+      "head",
+      "torso"
+    ],
+    [
+      "torso",
+      "pelvis"
+    ],
+    [
+      "sleeve_near",
+      "torso"
+    ],
+    [
+      "hand_near",
+      "sleeve_near"
+    ],
+    [
+      "leg_near",
+      "pelvis"
+    ],
+    [
+      "foot_near",
+      "leg_near"
+    ],
+    [
+      "sleeve_far",
+      "torso"
+    ],
+    [
+      "hand_far",
+      "sleeve_far"
+    ],
+    [
+      "leg_far",
+      "pelvis"
+    ],
+    [
+      "foot_far",
+      "leg_far"
+    ]
+  ],
+  "covered_surfaces": {},
+  "joint_continuations": {
+    "depth_px": 3,
+    "bounded_pieces": []
+  },
+  "tucks": {
+    "base_px": 3,
+    "pieces": {
+      "head": {
+        "depth_px": 3,
+        "covers": [
+          "torso"
+        ],
+        "mode": "radial"
+      },
+      "torso": {
+        "depth_px": 3,
+        "covers": [
+          "head",
+          "pelvis",
+          "sleeve_near",
+          "sleeve_far"
+        ],
+        "mode": "radial"
+      },
+      "pelvis": {
+        "depth_px": 3,
+        "covers": [
+          "torso",
+          "leg_near",
+          "leg_far"
+        ],
+        "mode": "radial"
+      },
+      "sleeve_near": {
+        "depth_px": 3,
+        "covers": [
+          "torso",
+          "hand_near"
+        ],
+        "mode": "radial"
+      },
+      "hand_near": {
+        "depth_px": 3,
+        "covers": [
+          "sleeve_near"
+        ],
+        "mode": "radial"
+      },
+      "leg_near": {
+        "depth_px": 3,
+        "covers": [
+          "pelvis",
+          "foot_near"
+        ],
+        "mode": "radial"
+      },
+      "foot_near": {
+        "depth_px": 3,
+        "covers": [
+          "leg_near"
+        ],
+        "mode": "radial"
+      },
+      "sleeve_far": {
+        "depth_px": 3,
+        "covers": [
+          "torso",
+          "hand_far"
+        ],
+        "mode": "radial"
+      },
+      "hand_far": {
+        "depth_px": 3,
+        "covers": [
+          "sleeve_far"
+        ],
+        "mode": "radial"
+      },
+      "leg_far": {
+        "depth_px": 3,
+        "covers": [
+          "pelvis",
+          "foot_far"
+        ],
+        "mode": "radial"
+      },
+      "foot_far": {
+        "depth_px": 3,
+        "covers": [
+          "leg_far"
+        ],
+        "mode": "radial"
+      }
+    }
+  },
+  "integration": {
+    "production_root": "assets/units/hollow_mimic_cutout",
+    "rig_directory": "",
+    "production_files": [
+      "rig.gd",
+      "renderer.gd",
+      "front.json",
+      "rear.json"
+    ],
+    "binding_files": [
+      "rig.gd",
+      "renderer.gd"
+    ],
+    "binding_folders": [
+      "tools/humanoid_cutout",
+      "scripts/maquette_cutout_runtime",
+      "tests/rr10",
+      "tests/rr20"
+    ],
+    "scale": {
+      "file": "data/enemies.json",
+      "key": "hollow_mimic",
+      "field": "art_scale",
+      "default": 1.0
+    },
+    "identity_registry": "spec/art_identity/registry.json",
+    "identity_id": "hollow_mimic",
+    "density_id": "hollow_mimic_cutout",
+    "identity_kind": "creature",
+    "identity_entry_kind": "legacy",
+    "identity_boss": false,
+    "owner_approval": "rr-20 approved mq9 front/rear paintings; derived source rest, native proof pending director."
+  }
+}

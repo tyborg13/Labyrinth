@@ -18,6 +18,11 @@ static func data_for(type: String) -> Dictionary:
 static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	var data: Dictionary = data_for(str(actor.get("type", "")))
 	if data.is_empty() or bool(effect.get("cancelled", false)): return ""
+	# Compound resolver steps keep their copied action_type. A case can map
+	# their existing marker to a clip without changing gameplay descriptors.
+	var selectors: Dictionary = Presentation.integration_for(str(actor.get("type", ""))).get("step_selectors", {})
+	for flag: String in selectors:
+		if bool(effect.get(flag, false)): return str(selectors[flag])
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
 	# The existing Kindle resolver emits a status snapshot. Normalize only its

@@ -1,0 +1,76 @@
+{
+  "character_id": "hollow_mimic",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_rear_green_texel": "Protected mq9_rear/processed.png source (125,54) exceeds the inherited Mirror G>R+12 and G>B+12 gate. A source correction or explicit gate decision belongs to the director; source rest remains exact."
+  },
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the hero's cut-out bob: torso, head and both free arms drop 2 px and return as one rigid group; pelvis, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.7,
+      "intents": [
+        "recede:move_away"
+      ],
+      "note": "a light, quick step on the stride/trailing pattern: 3 px lift, the pelvis dips 2 px after each landing, a 3 degree lean, the arms swing",
+      "release_at": {}
+    },
+    "bolt": {
+      "seconds": 0.8,
+      "contact": 0.45,
+      "intents": [
+        "shade_bolt:ranged"
+      ],
+      "note": "the near hand draws back, then thrusts open-palmed at the target as the shadow bolt leaves (contact); the body leans into it; the far hand pulls back",
+      "release_at": {}
+    },
+    "mirror": {
+      "seconds": 0.9,
+      "contact": 0.5,
+      "intents": [
+        "mirror:mirror_last_attack"
+      ],
+      "note": "mirrors your last attack: it crouches with both hands drawn back, then thrusts both hands together at the target (contact; the copied effect plays), mask tipped forward; recovers",
+      "release_at": {}
+    },
+    "block": {
+      "seconds": 0.8,
+      "contact": 0.4,
+      "intents": [
+        "recede:block"
+      ],
+      "note": "crosses both forearms in front of the mask and sinks 2 px behind them; holds; lowers",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.4,
+      "terminal": true,
+      "intents": [],
+      "note": "the knees give: the pelvis drops 20 px over planted boots, the torso pitches forward 22 degrees, the mask bows, the hands drop; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "direction_clips": [
+    "bolt",
+    "mirror"
+  ],
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

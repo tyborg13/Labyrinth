@@ -3,7 +3,8 @@ extends RefCounted
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
 	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
-	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor"}
+	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor",
+	"hollow_mimic": "hollow_mimic"}
 static var _integration_cache: Dictionary = {}
 
 static func asset_directory(type: String) -> String:
@@ -34,8 +35,8 @@ static func renderer_roster() -> Dictionary:
 ## instantiate its concrete runtime adapter, including future maquette rigs.
 static func renderer_script(type: String) -> Script:
 	if not handles(type): return null
-	if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor"]:
-		return load("res://assets/units/%s_cutout/renderer.gd" % type) as Script
+	var concrete: String = "res://assets/units/%s_cutout/renderer.gd" % CREATURES[type]
+	if ResourceLoader.exists(concrete): return load(concrete) as Script
 	return load("res://scripts/maquette_cutout_runtime/%s_renderer.gd" % CREATURES[type]) as Script
 
 static func sync(board: Control, type: String, renderers: Dictionary) -> void:

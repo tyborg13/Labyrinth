@@ -1,0 +1,216 @@
+{
+  "task_id": "rr-20",
+  "branch": "codex/rr-20",
+  "uncommitted": true,
+  "publication_or_peer_review_performed": false,
+  "full_suites_run": false,
+  "headless_commands": [
+    {
+      "name": "focused_and_mutations",
+      "command": "python3 -B -m unittest tests.test_rr20_cutout tests.test_rr20_production",
+      "exit": 0,
+      "result_lines": [
+        "Ran 16 tests in 118.856s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/final_focused.log"
+    },
+    {
+      "name": "earlier_rig_regressions",
+      "command": "LABYRINTH_TASK_ID=rr-20 python3 -B -m unittest tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr13_continuations tests.test_rr14_anatomy tests.test_rr14_bone_guards tests.test_rr14_foundations tests.test_rr15_action_direction tests.test_rr15_reach tests.test_rr15_view_keys tests.test_rr16_review_fixes tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr17_production tests.test_rr17_feedback tests.test_rr19_overlap",
+      "exit": 0,
+      "result_lines": [
+        "Ran 113 tests in 211.135s",
+        "OK",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/regressions.log"
+    },
+    {
+      "name": "art_identity",
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "exit": 0,
+      "result_lines": [
+        "Ran 111 tests in 46.523s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/art_identity.log"
+    },
+    {
+      "name": "en06",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/en06_enemies_test.gd",
+      "exit": 0,
+      "result_lines": [
+        "EN06 ENEMIES TEST RESULT: PASS (177 checks, 0 failures)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/en06.log"
+    },
+    {
+      "name": "bone_inventory",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/samples.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
+      "exit": 0,
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (922 poses; headless transforms only)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/samples.log"
+    },
+    {
+      "name": "native_probe_load",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/native_capture.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/native --validate-only",
+      "exit": 0,
+      "result_lines": [
+        "RR20 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/native_load.log"
+    },
+    {
+      "name": "gates",
+      "command": "python3 -B experiments/cutouts/hollow_mimic/gates.py",
+      "exit": 1,
+      "result_lines": [
+        "RR20 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH GATES: FAIL (1 errors; both views)",
+        "RR20 FRONT SWING KNEES: PASS (2 swings; minimum peak 34.379 degrees)",
+        "RR20 FRONT REACH: PASS (14 paths; 1000 intervals; 3 overreach reports)",
+        "RR20 REAR SWING KNEES: PASS (2 swings; minimum peak 39.833 degrees)",
+        "RR20 REAR REACH: PASS (14 paths; 1000 intervals; 3 overreach reports)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/gates.log"
+    },
+    {
+      "name": "density_check",
+      "command": "python3 tools/process_board_density.py --only hollow_mimic_cutout --check",
+      "exit": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: no rebake record; run --record-rests after native rebake"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/density_check.log"
+    },
+    {
+      "name": "registration_audit",
+      "command": "python3 tools/test_registration_audit.py --json experiments/cutouts/hollow_mimic/rr20/proof/logs/registration_audit.json",
+      "exit": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/registration_audit.log"
+    },
+    {
+      "name": "sidecars",
+      "command": "tests.test_godot_sidecars.assert_sidecars_versioned(tracked plus uncommitted closure)",
+      "exit": 0,
+      "result_lines": [
+        "RR20 GODOT SIDECARS: PASS (tracked plus uncommitted unit closure)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/sidecars.log"
+    },
+    {
+      "name": "resource_import",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --import",
+      "exit": 0,
+      "result_lines": [
+        "task runner exit 0; metadata import complete; existing duplicate player placeholder UID warning"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/import.log"
+    },
+    {
+      "name": "sfx_sync_0",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "exit": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/sfx_sync_0.log"
+    },
+    {
+      "name": "sfx_sync_1",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "exit": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/sfx_sync_1.log"
+    },
+    {
+      "name": "sfx_sync_2",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "exit": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/sfx_sync_2.log"
+    }
+  ],
+  "production_scenarios": [
+    {
+      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/hurl_spear/logic_frames.json",
+      "frames": 1283,
+      "ok": true,
+      "native_pixels": false
+    },
+    {
+      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/quick_stab/logic_frames.json",
+      "frames": 1283,
+      "ok": true,
+      "native_pixels": false
+    },
+    {
+      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/whirlwind_slash/logic_frames.json",
+      "frames": 1283,
+      "ok": true,
+      "native_pixels": false
+    },
+    {
+      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/hurl_spear/logic_frames.json",
+      "frames": 1283,
+      "ok": true,
+      "native_pixels": false
+    },
+    {
+      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/quick_stab/logic_frames.json",
+      "frames": 1283,
+      "ok": true,
+      "native_pixels": false
+    },
+    {
+      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/whirlwind_slash/logic_frames.json",
+      "frames": 1283,
+      "ok": true,
+      "native_pixels": false
+    }
+  ],
+  "protected_inventory": {
+    "files": 3528,
+    "changed": []
+  },
+  "acceptance": {
+    "source_rest_mismatch_pixels": {
+      "front": 0,
+      "rear": 0
+    },
+    "director_motion_byte_identical": true,
+    "production_registered": true,
+    "native_density_rest_certified": false,
+    "native_clean_seam_idle_verified": false,
+    "gate_errors": [
+      "rear/head: green-dominant source texel"
+    ],
+    "prior_available_sets": "113 regression tests pass; Seer/Thrall/Capacitor files unchanged",
+    "missing_reference_set": "rr-18 Glacial Mirror cutout is absent from this checkout"
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_rear_green_texel": "Protected mq9_rear/processed.png source (125,54) exceeds the inherited Mirror G>R+12 and G>B+12 gate. A source correction or explicit gate decision belongs to the director; source rest remains exact."
+  },
+  "windowed_proof_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh review"
+  ]
+}

@@ -24517,6 +24517,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			else: await preload("res://scripts/enemy_mechanics/bramble_view.gd").animate(self, animated_state, step)
 			await _combat_pacing.after_step(step)
 			continue
+		var contact_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
+		if preload("res://scripts/maquette_cutout_runtime/contact_actions.gd").handles(step, contact_actor):
+			await preload("res://scripts/maquette_cutout_runtime/contact_actions.gd").animate(self, animated_state, step, contact_actor)
+			await _combat_pacing.after_step(step)
+			continue
 		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
 			var capacitor_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
 			if preload("res://assets/units/storm_capacitor_cutout/actions.gd").handles(step, capacitor_actor):

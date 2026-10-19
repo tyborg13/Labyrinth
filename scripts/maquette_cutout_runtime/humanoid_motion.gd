@@ -96,7 +96,8 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 				result[foot] = target
 			# Case-owned unkeyed supports stay on their rest floor while the
 			# pelvis acts. Existing rigs opt in explicitly through their layout.
-			var planted: bool = not keyed and mode != "body" and clip not in ["move", "death"] and foot in layout.get("planted_bones", [])
+			var supports_clip: bool = clip != "move" and (clip != "death" or bool(layout.get("planted_during_death", false)))
+			var planted: bool = not keyed and mode != "body" and supports_clip and foot in layout.get("planted_bones", [])
 			var support_moved: bool = false
 			if planted:
 				var support: Transform2D = result[foot]

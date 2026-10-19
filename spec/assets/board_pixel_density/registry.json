@@ -601,6 +601,14 @@
     "assets/units/storm_capacitor_cutout/rear/rest.png": {
       "category": "other",
       "reason": "Derived exact rest, separately registered in rest_paths; native rebake pending director."
+    },
+    "assets/units/hollow_mimic_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived rr-20 rest; separately certified by native rest_paths."
+    },
+    "assets/units/hollow_mimic_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived rr-20 rest; separately certified by native rest_paths."
     }
   },
   "entries": [
@@ -5488,6 +5496,92 @@
         "rear": [
           "assets/units/storm_capacitor_cutout/rear/rest.png"
         ]
+      }
+    },
+    {
+      "id": "hollow_mimic_cutout",
+      "unit_type": "hollow_mimic",
+      "kind": "rig",
+      "dir": "assets/units/hollow_mimic_cutout",
+      "rig_script": "assets/units/hollow_mimic_cutout/rig.gd",
+      "paths": [
+        "assets/units/hollow_mimic_cutout/front/foot_far.png",
+        "assets/units/hollow_mimic_cutout/front/foot_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/foot_near.png",
+        "assets/units/hollow_mimic_cutout/front/foot_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/hand_far.png",
+        "assets/units/hollow_mimic_cutout/front/hand_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/hand_near.png",
+        "assets/units/hollow_mimic_cutout/front/hand_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/head.png",
+        "assets/units/hollow_mimic_cutout/front/head_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/leg_far.png",
+        "assets/units/hollow_mimic_cutout/front/leg_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/leg_near.png",
+        "assets/units/hollow_mimic_cutout/front/leg_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/pelvis.png",
+        "assets/units/hollow_mimic_cutout/front/pelvis_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/sleeve_far.png",
+        "assets/units/hollow_mimic_cutout/front/sleeve_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/sleeve_near.png",
+        "assets/units/hollow_mimic_cutout/front/sleeve_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/front/torso.png",
+        "assets/units/hollow_mimic_cutout/front/torso_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/foot_far.png",
+        "assets/units/hollow_mimic_cutout/rear/foot_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/foot_near.png",
+        "assets/units/hollow_mimic_cutout/rear/foot_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/hand_far.png",
+        "assets/units/hollow_mimic_cutout/rear/hand_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/hand_near.png",
+        "assets/units/hollow_mimic_cutout/rear/hand_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/head.png",
+        "assets/units/hollow_mimic_cutout/rear/head_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/leg_far.png",
+        "assets/units/hollow_mimic_cutout/rear/leg_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/leg_near.png",
+        "assets/units/hollow_mimic_cutout/rear/leg_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/pelvis.png",
+        "assets/units/hollow_mimic_cutout/rear/pelvis_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/sleeve_far.png",
+        "assets/units/hollow_mimic_cutout/rear/sleeve_far_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/sleeve_near.png",
+        "assets/units/hollow_mimic_cutout/rear/sleeve_near_hidden.png",
+        "assets/units/hollow_mimic_cutout/rear/torso.png",
+        "assets/units/hollow_mimic_cutout/rear/torso_hidden.png"
+      ],
+      "measurement_path": "assets/units/hollow_mimic_cutout/front/rest.png",
+      "frames": null,
+      "r": 1.0,
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/hollow_mimic_cutout/front/rest.png",
+          "orphan_share": 0.056892612338156894,
+          "t": 1.0344630616907844,
+          "grid": 1.03,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/hollow_mimic_cutout/rear/rest.png",
+          "orphan_share": 0.0321612011062821,
+          "t": 1.0,
+          "grid": 1.0,
+          "mode": "clean"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/hollow_mimic_cutout/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/hollow_mimic_cutout/rear/rest.png"
+        ]
+      },
+      "derivation_note": "rr-20 approved mq9 source partition; hidden same-surface continuations; native rest rebake pending director.",
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "hollow_mimic.art_scale",
+        "expression": "unit width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       }
     }
   ]

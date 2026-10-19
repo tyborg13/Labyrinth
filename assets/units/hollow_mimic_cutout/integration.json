@@ -1,0 +1,89 @@
+{
+  "ready": false,
+  "rig": "humanoid_v2",
+  "case": "experiments/cutouts/hollow_mimic/rr20",
+  "director_sha256": "c0b019fe8e0de2d50d9d63c35c10d7a5746aae933b9bca27b821d9465401665f",
+  "design_placeholders": {
+    "TODO_DESIGN_rear_green_texel": "Protected mq9_rear/processed.png source (125,54) exceeds the inherited Mirror G>R+12 and G>B+12 gate. A source correction or explicit gate decision belongs to the director; source rest remains exact."
+  },
+  "idle_phase_seed": "slot",
+  "step_selectors": {
+    "en06_mirror": "mirror"
+  },
+  "contact_playback_clips": [
+    "bolt",
+    "mirror",
+    "block"
+  ],
+  "death_timing": {
+    "clip_seconds": 1.4,
+    "dissolve_frames": 28,
+    "dissolve_frame_seconds": 0.037
+  },
+  "native_proof": "pending director density/rest/native/production/idle/review",
+  "rest_identity": {
+    "front": 0,
+    "rear": 0
+  },
+  "density": {
+    "entry": "hollow_mimic_cutout",
+    "native_rest_pending": [
+      "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: no rebake record; run --record-rests after native rebake",
+      "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: no rebake record; run --record-rests after native rebake"
+    ]
+  },
+  "files": {
+    "compiled_motion.json": "cd0994021d56de025962c0bbc620295d1bb54b793e170443a57a043318f11d6c",
+    "director_motion.json": "c0b019fe8e0de2d50d9d63c35c10d7a5746aae933b9bca27b821d9465401665f",
+    "front/foot_far.png": "4543ba8f4c21f738c81934bfdd20bf5a984b0173896d99d812cdb12ea47bfe0f",
+    "front/foot_far_hidden.png": "a640b5b7d6a0fe8dc793d37b2fabea89ca618cc414d81da0155254f4df7e0379",
+    "front/foot_near.png": "22a5df43d8606c7718af20158f8ee0ebe39ddd962d1f2be008951fed31e5e4fb",
+    "front/foot_near_hidden.png": "22457c5f9be431a52771672a2c632259c2f410bc57252047849b5c1468c900f5",
+    "front/hand_far.png": "9a85119186ffb62877e39a96efdf963b18b7c19be9e0c075df5b5c5618257c52",
+    "front/hand_far_hidden.png": "9c4e5484749aa7449e679813adf039e7e4011c16ebd48b6c26ae650346826103",
+    "front/hand_near.png": "be1b20e7ed34263eba05ead7a4e0318526495d53cb0d3121991e27668ec0c5be",
+    "front/hand_near_hidden.png": "2a8cb4b9820531a1fffd57aa512880f6113a980cfc8734769d9016cbb86ffaa5",
+    "front/head.png": "f4017a21d9540709ebe557c4e760afff6bbe025112a42f2656a640d2fa4146e6",
+    "front/head_hidden.png": "e6bc30a2b7f6c782e66613c66844cd04dd8fa5790101caf67a12b258012bc240",
+    "front/leg_far.png": "b7ff6f51be4d96deedecf36cefbaeb59f79212a1b252cc4cd8c48a01b59eba70",
+    "front/leg_far_hidden.png": "583a9279845b4b4fb5d3f5418031c7693f526542b6f38c95f971430df7f4b305",
+    "front/leg_near.png": "bf23895d70b904d1742e83f0c363324cc28c39ccd1c145c6e0262a9cb34a5999",
+    "front/leg_near_hidden.png": "18d637d5ded30771cce9a8e41ded50fe4066b7aff07c2dc5b03af7625d766126",
+    "front/pelvis.png": "cac419783426cfa157130a399c5c3fd98d82733eae89cfedb6c2d4b73a0feac2",
+    "front/pelvis_hidden.png": "8aae0ed26d8b7534de85b39225ca4d930a8c2c7c850daf491fc08c67d474b6a9",
+    "front/rest.png": "16b177d8ad516cfa5b11a9607f6c898934bff234c579bafef7e553df571fb138",
+    "front/sleeve_far.png": "df69532a942a4981281cd98797910935c8d7ead17814979ad5762c587add0c89",
+    "front/sleeve_far_hidden.png": "1b7581d575766d5b30c5c06f337616b78e0f0c52ef8edcaec74665a28b72e2ee",
+    "front/sleeve_near.png": "dc37f67213ca8cb4963787fc0312b37fd7d5820fad1930b0bddd0f2e25727cc1",
+    "front/sleeve_near_hidden.png": "323075e135b85930e72ffe77a52c69d5c0ffeef0c449ebeb8cd80ba18a7af459",
+    "front/torso.png": "601ca0efd45f3bf170d5acbd584ef03d5d814d30e5e20aa160dc2fe66c80b232",
+    "front/torso_hidden.png": "a280c1b463ad92d70d62bfb667e7329dfe32eda66b2d73773419883af5616d06",
+    "front.json": "15ab00c5e70608ed6cf8fca86f2159de3717d1933c5715356f558a34244b724c",
+    "rear/foot_far.png": "f892bb100314a8b8c231e675806abd2c8c3a5c31dde801fba0f00ef180826d44",
+    "rear/foot_far_hidden.png": "fcce6e69c089eb5210fb3f937bbe6998db6d902578192ec8607ba4f07f77a990",
+    "rear/foot_near.png": "e6e1b6d7b91a68c94ce3eebffa2bb2e88053eea3463b7b26e236e318d97725c3",
+    "rear/foot_near_hidden.png": "9ebd49d3880198b37c59ec4976cbe3d9ef6847ca7a41c5074685d9da19bbf383",
+    "rear/hand_far.png": "7726594144953c9afcdbc6500523f0d3ab401b0b4347515ead80ceb30fa23e0c",
+    "rear/hand_far_hidden.png": "57f41e5f77f3b62e8fb17a1eeff3c8056f870527e1805cc13a6489c3e8113205",
+    "rear/hand_near.png": "0ae1b19f1d0373af5a19c05262f46c0db6fa8e062545fad04812b121924469c4",
+    "rear/hand_near_hidden.png": "c58783f70937710b8ee5a3b1082ebdd7e4887b8d2504dbcdd6b2abafe16f074f",
+    "rear/head.png": "e37c1deeaeb8718d3a39c74062c60b7852a1fca478d33ba2cc5f108a7e5b2b2d",
+    "rear/head_hidden.png": "9470629c31fc5f6cbba4be341681fcd966be39636d6a33b8f2ca4a3ce6d7646c",
+    "rear/leg_far.png": "3933a8d39544ffd65dfb587511a3e22eb4bc92ad949c3e5df46a7f59d505aa96",
+    "rear/leg_far_hidden.png": "509f02686fe22054c8f2de058589992ab3363b3df85f01da8f9d2d35285f9fef",
+    "rear/leg_near.png": "fa411f015cac96dbd6d2e3188a0d3051a84d0bf3801bf6d2edcfd2658bb6338c",
+    "rear/leg_near_hidden.png": "0d837267026c98d069b525364e0db0d07c7c6020fbd6c680c43c94ddcfca2427",
+    "rear/pelvis.png": "ef3a239fd54b142c7228a20078fdaade4827a0c8fda179beb521b6ba7506190d",
+    "rear/pelvis_hidden.png": "e9d48522b912c36f428fbe43d168e0ac2fd165bf254544ae40953f373177c3a6",
+    "rear/rest.png": "ceee8edb9dedbe9fdeb6c1c56c6bef6f7c382d9ffecb6cac6665b3f3300f8cbc",
+    "rear/sleeve_far.png": "2eb7158b510de401e47ba4e7aaaceaf39859cc0f9c0404d276a98ed58424d443",
+    "rear/sleeve_far_hidden.png": "04369366b5b144151078a9f21c0dd55cb73726583e6bccccdd5c24d9eb628b6b",
+    "rear/sleeve_near.png": "b867af117549f5274d3e491c9ed0aa7a78510c9b54e343c2a2a11f401d6228c3",
+    "rear/sleeve_near_hidden.png": "c1a4d05646986eb597c724c1d67429e6716e9fe35690b26e9ecb702bb4ba7378",
+    "rear/torso.png": "532336e2407d5deeea34b8cb2785c8cb7183c787b7677a9cd53e9e311a130434",
+    "rear/torso_hidden.png": "aa9faaea69069222e2f7ae7f01f0e91eb221c1d30c9efd0c3181c2ed4ab0cfae",
+    "rear.json": "642f8e5e4f603c7fe51dcd5830c429ad1bd2b5f80361a92cdffb3c5581a77252",
+    "renderer.gd": "36be51af9cb29230d8a6b6ae191a5ad8cabceadce974263b0c1ae56a1c87b26a",
+    "rig.gd": "f02c509e11dc2b3552057fc9b24479bb03de3479e0f2f0fae3d5b66e30797816"
+  }
+}
