@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'experiments/cutouts/storm_capacitor'))
-from rr17_build import read, CASE
+from rr17_build import read, CASE, PRODUCTION, write
 from rr17_contract import channels, expected_glow, image_digest
 from rr17_production import production_errors
 from PIL import Image
@@ -91,6 +91,46 @@ class ProductionTests(unittest.TestCase):
         errors = production_errors(mutant)
         self.assertIn('charge: fewer than six changing presented states (1)', errors)
         self.assertIn('charge: VFX before contact', errors)
+
+    def test_production_bindings_are_required(self):
+        mutant = copy.deepcopy(self.report)
+        mutant['inputs']['production:compiled_motion.json'] = 'stale'
+        self.assertIn('Stale production/case runtime bindings', production_errors(mutant))
+        mutant = copy.deepcopy(self.report)
+        del mutant['inputs']['production:front.json']
+        self.assertIn('Stale production/case runtime bindings', production_errors(mutant))
+
+    def test_reversed_production_only_death_lean_is_caught_from_fresh_rigs(self):
+        import rr17_gates as gate
+        path = PRODUCTION / 'compiled_motion.json'
+        original = path.read_bytes()
+        try:
+            compiled = read(path)
+            for tracks in compiled['view_tracks'].values():
+                for track in tracks['death']:
+                    if track['channel'] == 'lean_deg':
+                        for key in track['keys']: key['value'] *= -1
+            write(path, compiled)
+            samples = Path(self.temp.name) / 'mutant_samples.json'
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', os.environ.get('LABYRINTH_TASK_ID', 'rr-17'), '--stream',
+                '--', 'godot', '--headless', '--path', '.', '--script', 'tests/rr17/samples.gd', '--', '--output', str(samples)]
+            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            report = read(samples)
+            self.assertEqual(gate.motion_errors(report), [], 'Case motion stays unchanged')
+            self.assertTrue(any('production:' in e and 'signed' in e for e in gate.production_motion_errors(report)))
+            self.assertTrue(any('protected compilation' in e for e in gate.asset_errors()))
+            output = Path(self.temp.name) / 'mutant_production'
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', os.environ.get('LABYRINTH_TASK_ID', 'rr-17'), '--stream',
+                '--', 'godot', '--headless', '--path', '.', '--script', 'tests/rr17/production_capture.gd', '--',
+                '--type', 'storm_capacitor', '--output', str(output), '--logic-only']
+            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            mutant = read(output / 'logic_frames.json')
+        finally:
+            path.write_bytes(original)
+        # Evaluate after restoration: a stale hash alone cannot satisfy this.
+        self.assertIn('death/cap: production signed local motion differs', production_errors(mutant))
 
 
 if __name__ == '__main__':

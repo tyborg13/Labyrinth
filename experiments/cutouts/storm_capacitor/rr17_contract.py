@@ -39,12 +39,12 @@ def matrix(x=0, y=0, angle=0):
     return np.array([[c, -s, x], [s, c, y], [0, 0, 1]])
 
 
-def bones(clip, phase, view):
+def bones(clip, phase, view, reflection=1):
     ch = channels(clip, phase)
     sign = -1 if view == 'front' else 1
     travel = ch.get('body.forward_px', 0)
-    root = matrix(sign * 2 / math.sqrt(5) * travel, -sign / math.sqrt(5) * travel)
-    cap = matrix(131, 75 - ch.get('cap.lift_px', 0), math.radians(sign * ch.get('cap.lean_deg', 0)))
+    root = matrix(reflection * sign * 2 / math.sqrt(5) * travel, -sign / math.sqrt(5) * travel)
+    cap = matrix(131, 75 - ch.get('cap.lift_px', 0), math.radians(reflection * sign * ch.get('cap.lean_deg', 0)))
     return {'root': {'local': root, 'global': root}, 'column': {'local': np.eye(3), 'global': root},
             'cap': {'local': cap, 'global': root @ cap}}
 

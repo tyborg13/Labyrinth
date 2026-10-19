@@ -29,7 +29,7 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	var hits: Array = step.get("chain_hits", [])
 	var feedback: Dictionary = scene._enemy_phase_status_presentation(step) if clip == "charge" else {}
 	var texts: Array = feedback.get("floating_texts", [])
-	var clock: Dictionary = {"contact": false, "started_hop": -1, "completed_hops": 0}
+	var clock: Dictionary = {"contact": false, "cued_hops": 0, "completed_hops": 0}
 	var count: int = 1 if reduced else Action.frames_for(TYPE, clip)
 	scene._set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
 	await scene._play_timed_animation_frames(count, 0.0 if reduced else seconds / count, func(frame: int) -> void:
@@ -65,6 +65,7 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary, actor: 
 	scene._render_board_state(state, {})
 
 static func finish_hops(scene: Control, state: Dictionary, hits: Array, clock: Dictionary, count: int) -> void:
+	cue_hops(scene, clock, count)
 	while int(clock["completed_hops"]) < count:
 		var hit: Dictionary = hits[int(clock["completed_hops"])]
 		state.merge(hit["state"].duplicate(true), true)
@@ -73,11 +74,14 @@ static func finish_hops(scene: Control, state: Dictionary, hits: Array, clock: D
 
 static func chain_frame(scene: Control, state: Dictionary, step: Dictionary, hits: Array, clock: Dictionary, elapsed: float, shown: Dictionary) -> void:
 	var index: int = mini(hits.size(), int(floor(elapsed / Rules.HOP_SECONDS)))
+	cue_hops(scene, clock, mini(hits.size(), index + 1))
 	finish_hops(scene, state, hits, clock, index)
 	if index >= hits.size(): return
 	var hit: Dictionary = hits[index]
-	if int(clock["started_hop"]) != index:
-		scene._play_sfx(Sfx.entry_for_enemy_step({"kind": "ranged", "element": "lightning"}))
-		clock["started_hop"] = index
 	shown["effect"] = {"kind": "chain", "from": hit["from"], "to": hit["to"], "element": "lightning", "actor_key": step["actor_key"]}
 	shown["effect_progress"] = fposmod(elapsed, Rules.HOP_SECONDS) / Rules.HOP_SECONDS
+
+static func cue_hops(scene: Control, clock: Dictionary, count: int) -> void:
+	while int(clock["cued_hops"]) < count:
+		scene._play_sfx(Sfx.entry_for_enemy_step({"kind": "ranged", "element": "lightning"}))
+		clock["cued_hops"] = int(clock["cued_hops"]) + 1

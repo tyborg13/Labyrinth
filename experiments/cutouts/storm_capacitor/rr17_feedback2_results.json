@@ -1,0 +1,468 @@
+{
+  "runs": [
+    {
+      "name": "focused",
+      "command": [
+        "/Library/Developer/CommandLineTools/usr/bin/python3",
+        "-m",
+        "unittest",
+        "tests.test_rr17_cutout",
+        "tests.test_rr17_production",
+        "tests.test_rr17_integration",
+        "tests.test_rr17_feedback",
+        "tests.test_test_registration_audit",
+        "-q"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 63 tests in 86.039s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/focused.log"
+    },
+    {
+      "name": "rr17_runtime",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr17/runtime_test.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 RUNTIME: PASS (58 checks, 0 failures; headless logic only)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/rr17_runtime.log"
+    },
+    {
+      "name": "rr12_runtime",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr12/runtime_test.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR12 RUNTIME: PASS (44988 checks, 0 failures; headless logic only)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/rr12_runtime.log"
+    },
+    {
+      "name": "sfx_sync_0",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/suites/sfx_sync_0_program.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/sfx_sync_0.log"
+    },
+    {
+      "name": "sfx_sync_1",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/suites/sfx_sync_1_program.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/sfx_sync_1.log"
+    },
+    {
+      "name": "sfx_sync_2",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/suites/sfx_sync_2_program.gd"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/sfx_sync_2.log"
+    },
+    {
+      "name": "samples",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr17/samples.gd",
+        "--",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/samples.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 SAMPLES: PASS (328 authored bone poses; 696 sequential poses; headless transforms only)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/samples.log"
+    },
+    {
+      "name": "headless_gates",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/cutouts/storm_capacitor/rr17_gates.py",
+        "headless",
+        "--samples",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/samples.json",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/headless_gates.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 HEADLESS GATES: PASS (0 errors)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/headless_gates.log"
+    },
+    {
+      "name": "production_capture",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr17/production_capture.gd",
+        "--",
+        "--type",
+        "storm_capacitor",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_logic",
+        "--logic-only"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1011 frames)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_capture.log"
+    },
+    {
+      "name": "production_gates",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/cutouts/storm_capacitor/rr17_gates.py",
+        "production",
+        "--input",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_logic/logic_frames.json",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_gates.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 PRODUCTION GATES: PASS (0 errors)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_gates.log"
+    },
+    {
+      "name": "registration",
+      "command": [
+        "python3",
+        "tools/test_registration_audit.py",
+        "--json",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/registration_audit.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/registration.log"
+    },
+    {
+      "name": "sidecars_indexed",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_godot_sidecars",
+        "-q"
+      ],
+      "exit_code": 1,
+      "result_lines": [
+        "Ran 19 tests in 1.077s",
+        "FAILED (failures=1)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/sidecars_indexed.log"
+    },
+    {
+      "name": "sidecar_guard_tests",
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "tests.test_godot_sidecars.GodotSidecarGuardTests",
+        "-q"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 18 tests in 0.022s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/sidecar_guard_tests.log"
+    },
+    {
+      "name": "feedback_samples",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr17/feedback_samples.gd",
+        "--",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/feedback.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 FEEDBACK SAMPLES: PASS (6 paired deaths, legacy multi-kill, normal/reduced/skipped four-hop cues)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/feedback_samples.log"
+    },
+    {
+      "name": "shadow_baseline",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-17",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "experiments/cutouts/storm_capacitor/rr17_shadow_check.gd",
+        "--",
+        "--baseline",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-17/experiments/cutouts/storm_capacitor/mq5/proof/logs/shadow_baseline.res"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 SHADOW PRESERVATION: PASS (66 existing entries unchanged)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/shadow_baseline.log"
+    },
+    {
+      "name": "headless_gates_restored",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/cutouts/storm_capacitor/rr17_gates.py",
+        "headless",
+        "--samples",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/samples.json",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/headless_gates.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 HEADLESS GATES: PASS (0 errors)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/headless_gates_restored.log"
+    },
+    {
+      "name": "production_gates_restored",
+      "command": [
+        "python3",
+        "-B",
+        "experiments/cutouts/storm_capacitor/rr17_gates.py",
+        "production",
+        "--input",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_logic/logic_frames.json",
+        "--output",
+        "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_gates.json"
+      ],
+      "exit_code": 0,
+      "result_lines": [
+        "RR17 PRODUCTION GATES: PASS (0 errors)"
+      ],
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/production_gates_restored.log"
+    }
+  ],
+  "windowed_runs": false,
+  "full_suites": false,
+  "sidecar_index_block": "index.lock: Operation not permitted",
+  "resolved_test_fixture_error": "Burst SFX stub return type corrected; original failed log preserved in proof/logs/focused_fixture_failure.log",
+  "mutations": [
+    {
+      "mutation": "own_death_clock_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/own_death_clock_removed.log"
+    },
+    {
+      "mutation": "crossed_hop_cues_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/crossed_hop_cues_removed.log"
+    },
+    {
+      "mutation": "production_sampling_guard_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/production_sampling_guard_removed.log"
+    },
+    {
+      "mutation": "production_bindings_guard_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/production_bindings_guard_removed.log"
+    },
+    {
+      "mutation": "production_signed_motion_guard_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/production_signed_motion_guard_removed.log"
+    },
+    {
+      "mutation": "explicit_shadow_baseline_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/explicit_shadow_baseline_removed.log"
+    },
+    {
+      "mutation": "sidecar_guard_removed",
+      "caught": true,
+      "exit": 1,
+      "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/mutations/sidecar_guard_removed.log"
+    }
+  ],
+  "sidecars": {
+    "generated": 52,
+    "working_tree_inventory_guard": "PASS",
+    "guard_unit_tests": 18,
+    "indexed_repository_guard": "FAIL: 48 sidecars untracked",
+    "staging_error": "fatal: Unable to create '/Users/borgerding/workspace/Labyrinth/.git/worktrees/rr-17/index.lock': Operation not permitted",
+    "manifest": "experiments/cutouts/storm_capacitor/rr17_sidecars.txt"
+  },
+  "imports": {
+    "command": [
+      "python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "rr-17",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--import"
+    ],
+    "exit_code": 0,
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/logs/import.log"
+  },
+  "chosen_defaults": {
+    "PROOF_TIMEOUT_SECONDS": 90,
+    "MUTATION_TIMEOUT_SECONDS": 180,
+    "PROOF_CUE_DURATION_SECONDS": 0,
+    "PROOF_ENEMY_ROW": 4
+  },
+  "TODO_DESIGN": [],
+  "sample_counts": {
+    "authored": 328,
+    "samples": 696,
+    "production_authored": 328,
+    "production_samples": 696
+  },
+  "paired_death_clocks": {
+    "hoarfrost_seer": {
+      "frames": 102,
+      "last_frame_usec": 1683367
+    },
+    "arc_thrall": {
+      "frames": 90,
+      "last_frame_usec": 1483363
+    },
+    "burrow_grub": {
+      "frames": 78,
+      "last_frame_usec": 1283359
+    },
+    "ember_tick": {
+      "frames": 54,
+      "last_frame_usec": 883351
+    },
+    "bile_bloomer": {
+      "frames": 78,
+      "last_frame_usec": 1283359
+    },
+    "lightning_wisp": {
+      "frames": 72,
+      "last_frame_usec": 1183357
+    }
+  },
+  "status": "All requested headless proof passed except indexed-sidecar guard blocked by Git permissions"
+}

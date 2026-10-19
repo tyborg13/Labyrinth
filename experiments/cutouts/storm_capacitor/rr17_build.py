@@ -128,7 +128,7 @@ def build():
         shutil.copyfile(PAINTING, CASE / view / 'rest.png')
     config = {'version': 1, 'character_id': 'storm_capacitor', 'source_size': [255, 255],
               'runtime_paths': ['assets/units/storm_capacitor_cutout/renderer.gd', 'assets/units/storm_capacitor_cutout/actions.gd',
-                  'scripts/maquette_cutout_runtime/death.gd', 'assets/units/storm_capacitor_cutout/rig.gd', 'scripts/static_enemy_facing.gd',
+                  'scripts/maquette_cutout_runtime/death.gd', 'scripts/maquette_cutout_runtime/death_sequence.gd', 'assets/units/storm_capacitor_cutout/rig.gd', 'scripts/static_enemy_facing.gd',
                   'scripts/turn_order_portraits.gd', str((CASE / 'integration.json').relative_to(ROOT)),
                   *['tests/rr17/' + p for p in ('native_capture.gd', 'production_capture.gd', 'capture_scene.gd', 'capture_contract.gd', 'samples.gd')],
                   *[str((PRODUCTION / p).relative_to(ROOT)) for p in glow_paths.values()],

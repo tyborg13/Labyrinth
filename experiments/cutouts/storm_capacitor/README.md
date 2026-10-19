@@ -1,93 +1,106 @@
-# rr-17 — Storm Capacitor, director feedback 1
+# rr-17 — director feedback 2
 
-Feedback 1 is implemented on `codex/rr-17`; these revisions are uncommitted.
-The director owns commit, review, windowed inspection and publication. Full
-Godot/Python suites were deferred as requested. No windowed command was run.
-The changed-file inventory is `rr17_files.json`; exact commands and result
-lines are in `mq5/proof/verification_results.json`.
+This round changes runtime clocks, cue delivery and verification. The approved
+painting, cut, vent, glow textures, layouts, motion data, rest images, density,
+shadow records and idle policy are unchanged. All edits remain uncommitted;
+the director owns commit, inspection and publication. No full suite, peer
+review or windowed run was performed.
 
-1. **Revised hit.** The protected motion at director commit `2e84deb66` is
-   re-imported byte for byte and compiled into case and production data. The
-   revised hit presents six unique pixel states and seven transitions per view.
-   Both headless and production gates enforce six changing states for every
-   action, hit included. The previous design placeholder is removed from owned
-   implementation, metadata, documentation and proof. The original cut, vent,
-   five glow levels and exact 0 px rest identity remain intact.
-2. **Declared death timing.** `mq5/integration.json` declares the 1.4 s death
-   clip followed by the existing 28 × 0.037 s dissolve. Production integration
-   carries that declaration. `scripts/maquette_cutout_runtime/death.gd` reads
-   any maquette family's declaration; undeclared families retain their previous
-   frame count, 60 Hz clock, normalized pose phase and simultaneous dissolve.
-   RunScene, Board and CutoutContext use that generic path. Their only remaining
-   Capacitor references are the explicitly retained action preloads in
-   RunScene. Board roster/family registration derives from the existing
-   maquette registry. RunScene's public portrait constant aliases an extracted
-   registry whose 44 paths are tested against the original mapping.
-3. **Declared idle seeding.** Only this case declares `idle_phase_seed: slot`.
-   `presentation.gd` reads the declaration and preserves the existing slot /
-   slot-count formula. A synthetic runtime declaration on Arc Thrall proves
-   the opt-in is independent of creature identity; its production data is not
-   modified. The six prior creatures' idle seeds remain exact.
-
-Before changing shared code, `integration_samples.gd` captured the original
-production counts, frame durations, routed clip phases and actual dissolve
-material phases at HEAD `2d31a138c`. The retained fixture is
-`tests/rr17/fixtures/integration_before_feedback.json`. After the refactor,
-**all 474 existing death/dissolve material frames and all six idle seeds are
-exactly equal**, as is the Capacitor's 147-frame clock. No other creature's
-production files were edited.
-
-| Creature | Death frames | Frame seconds |
-|---|---:|---:|
-| Seer | 102 | 1/60 |
-| Thrall | 90 | 1/60 |
-| Grub | 78 | 1/60 |
-| Tick | 54 | 1/60 |
-| Bloomer | 78 | 1/60 |
-| Wisp | 72 | 1/60 |
-
-The case still uses two rigid pieces, the cap pivot (131, 75), and the supplied
-vent below the column's own paint. Rear uses the same front painting without
-reflection. Source-pixel translation, exact hold keys, 10 fps idle holds,
-1.5° snapping, native half-step handling and baked arc-only recolouring are
-unchanged. Board, pre-battle and portraits share the production renderer.
-Charge/discharge continue to use exact contacts, existing VFX/sounds and the
-original resolver snapshots, including chain reset.
+1. **Sidecars.** Task-runner headless import generated all 52 missing/new
+   deliverable sidecars, listed in `rr17_sidecars.txt`. This includes the two
+   protected PNGs whose sidecars were already absent at the base: the unchanged
+   repository guard requires them. The guard passes on the tracked plus
+   untracked deliverable inventory, and its 18 guard tests pass. Its indexed
+   repository test remains blocked: staging fails with
+   `fatal: Unable to create '/Users/borgerding/workspace/Labyrinth/.git/worktrees/rr-17/index.lock': Operation not permitted`.
+   The guard is unchanged. The director must stage sources and sidecars before
+   rerunning `python3 -m unittest tests.test_godot_sidecars -q`.
+2. **Independent simultaneous deaths.** A generic `death_sequence.gd` opts in
+   only when a dying maquette declares `death_timing`. It samples each actor's
+   existing frames on that actor's own microsecond clock and holds completed
+   actors until the longest sequence ends. FIFO burst deaths keep their onset
+   delay. Without a declaration, the original shared timeline is retained.
+   All six Capacitor pairings compare every changing frame, normalized phase
+   and timestamp with the actual pre-rr17 RunScene method at `eafe1715d`.
+   A legacy multi-kill, including a FIFO burst case, compares the complete
+   presentation byte for byte. The Capacitor keeps all 147 frames in every pair.
+3. **Crossed chain cues.** A separate cue cursor emits each crossed hop once,
+   even if callbacks skip its displayed VFX. The existing four-hop resolver
+   fixture emits four identical ordered cue entries normally, under reduced
+   motion and when only recovery is called. Damage snapshots and popups still
+   finish exactly once per hop.
+4. **Production motion.** Both the case and production rigs are sampled at all
+   authored keys, midpoints, contacts and sequential frames. Production
+   callbacks additionally record real bone and painted sprite transforms.
+   Gates check them against the protected motion oracle, require the protected
+   compilation and validate production bindings. Only authored half-pixel ties
+   admit their two adjacent snapped integers. A regression reverses only the
+   production death lean, loads fresh rigs and a fresh real action capture,
+   restores the data byte for byte, then requires signed-motion rejection.
+5. **Portable shadow baseline.** `rr17_shadow_check.gd -- --baseline PATH`
+   loads the requested resource and rejects missing arguments. The test
+   extracts `eafe1715d:assets/generated/unit_shadow_cache.res` into an isolated
+   temporary directory and verifies all 66 prior entries. The proof script
+   extracts that same Git baseline locally; it has no other-checkout dependency.
 
 ## Verification
 
-Current evidence is in `mq5/proof/`: `samples.json`, `headless_gates.json`,
-`production_logic/logic_frames.json`, `production_gates.json`,
-`integration_after_feedback.json`, `integration_regression.json`, and test logs.
-The native capture script also passes its headless validation mode.
+Exact observed result lines and commands are retained in
+`rr17_feedback2_results.json`. Fresh headless samples, production logic frames,
+unit logs and the guard-removal mutation table are under gitignored
+`mq5/proof/logs/`. Windowed captures remain director-owned. The regression
+fixtures and mutation runner are retained in source; `rr17_feedback2_files.json`
+is the changed-file inventory.
 
 ```text
+Ran 63 tests in 86.039s
+OK
 RR17 RUNTIME: PASS (58 checks, 0 failures; headless logic only)
-RR17 SAMPLES: PASS (328 authored bone poses; 696 sequential poses; headless transforms only)
+RR12 RUNTIME: PASS (44988 checks, 0 failures; headless logic only)
 RR17 HEADLESS GATES: PASS (0 errors)
 MAQUETTE PRODUCTION LOGIC: PASS (1011 frames)
 RR17 PRODUCTION GATES: PASS (0 errors)
-Ran 72 tests in 51.500s
-OK
-RR12 RUNTIME: PASS (44988 checks, 0 failures; headless logic only)
+RR17 FEEDBACK MUTATIONS: PASS (7/7 caught)
+RR17 SHADOW PRESERVATION: PASS (66 existing entries unchanged)
 SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)
 SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)
 SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)
 TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)
-PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)
-TEST RESULT: PASS
-RR17 NATIVE CAPTURE PARSE: PASS
 ```
 
-The 72 focused checks include exact protected inputs, rest/glow, signed bone
-and sprite mutations, strict action coverage including frozen-hit rejection,
-real charge/chain sound and VFX contacts, complete old death-clock comparison,
-identity-independent integration opt-in, portrait mapping preservation,
-`tests.test_test_registration_audit`, and native raster/tie regressions.
-All 696 sequential poses pass with zero held-frame shimmer residual. The
-stray-pixel gate rejects detached components of sizes 1–8; the dark-slab gate
-exempts the protected vent while retaining approved-paint provenance elsewhere.
-These are headless transforms/logic and offline pixel gates, not native proof.
+The unchanged indexed sidecar guard reports `Ran 19 tests in 1.077s` /
+`FAILED (failures=1)` because 48 required sidecars are not yet in the Git index.
+Its 18 guard-only tests pass (`Ran 18 tests in 0.022s` / `OK`). All 52 generated
+sidecars pass the same validator with the full deliverable working-tree inventory.
+
+Rerun focused tests:
+
+```sh
+python3 -m unittest tests.test_rr17_cutout tests.test_rr17_production tests.test_rr17_integration tests.test_rr17_feedback tests.test_test_registration_audit -q
+python3 -B experiments/cutouts/storm_capacitor/rr17_feedback_mutations.py
+```
+
+The retained Git-baseline method changes only empty typed-array declarations
+to their Windows-compatible default initialization; its presentation output
+remains byte-identical.
+
+The mutation runner removes each guard in isolation, requires the corresponding
+regression to fail, and restores every source byte in `finally`. Run it serially,
+without another rr17 proof process. Protected director data and Git metadata
+are never mutated. The separate indexed-sidecar test cannot pass in this
+sandbox until the director stages the generated files.
+
+The guard-removal mutation table (`mq5/proof/logs/mutations/table.json`):
+
+| Removed guard | Regression result |
+|---|---|
+| Independent death-frame sampling | Caught: all six paired base clocks |
+| Crossed-hop cue cursor | Caught: normal, reduced and skipped recovery |
+| Production rig sampling | Caught: reversed production-only death lean |
+| Production file bindings | Caught: missing/stale production hashes |
+| Production callback signed motion | Caught: reversed production-only death lean |
+| Explicit shadow baseline | Caught: supplied 66-entry baseline ignored |
+| Sidecar guard | Caught: missing/stale-sidecar guard tests |
 
 ## Proof for the design owner
 
@@ -127,18 +140,16 @@ A concrete director-owned fixture remains:
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/inspection_fixture.py --task-id rr-17 --run-id rr-17-inspection --scenario combat --enemy-types storm_capacitor,crawler,crawler,crawler --enemy-positions 2:4,3:4,5:4,6:5 --enemy-charge 2 --summary 'rr-17 Storm Capacitor: Charge then Arc Burst'
 ```
 
-## Chosen defaults and remaining work
+## TODO_DESIGN, chosen defaults and open issues
 
-There are no active design placeholders. This feedback selected no new
-player-facing values. The new regression fixture samples every original death
-frame; the headless sampler timeout is the named 60 s test default. Existing
-proof defaults remain: stationary bone coordinate gauge `[0, 0]`; 0.0001 bone
-comparison tolerance; native labels at y=60 / height=60; contact-sheet six
-columns / 24 px labels / 3 px margin; eight settle frames, 30 HP hit fixture,
-1/60 s idle query, existing en-03/en-06 fixtures and 6000 µs controlled clock;
-32 px mutation fixtures and 180 s production timeout. These affect proof only.
+No active design placeholders and no new player-facing values. New proof-only
+named defaults are `PROOF_TIMEOUT_SECONDS = 90` for feedback samples,
+`PROOF_CUE_DURATION_SECONDS = 0` for the silent SFX stub,
+`PROOF_ENEMY_ROW = 4` for deterministic paired-death placement, and
+`MUTATION_TIMEOUT_SECONDS = 180` for negative controls. Existing 180 s
+production and 60 s sampler timeouts, 0.0001 bone tolerance, fixture state,
+canvas, UI scale and controlled clock defaults remain in effect. Runtime
+microsecond rounding is exactly the existing animation runner's rounding.
 
-Native proof and the two density rest records remain director-owned. The
-windowed script records those rests only after native verification, then
-refreshes the two Capacitor shadow keys. Existing paint/rest/shadow records
-are otherwise unchanged; no missing native evidence was fabricated.
+Open issues: the Git-index sidecar check awaits director staging because of
+the sandbox permission failure above; fresh windowed proof awaits the director.

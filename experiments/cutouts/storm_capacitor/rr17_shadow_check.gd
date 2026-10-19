@@ -2,7 +2,16 @@ extends SceneTree
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
-	var baseline: Resource = load("/private/tmp/labyrinth_codex/rr17_shadow_baseline.res")
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if not args.has("--baseline") or args.find("--baseline") + 1 >= args.size():
+		push_error("Use -- --baseline PATH (unit_shadow_cache.res extracted from the task base)")
+		quit(1)
+		return
+	var baseline: Resource = load(args[args.find("--baseline") + 1])
+	if baseline == null:
+		push_error("Cannot load requested shadow baseline")
+		quit(1)
+		return
 	var current: Resource = load("res://assets/generated/unit_shadow_cache.res")
 	var errors: Array[String]
 	for key: String in baseline.entries:

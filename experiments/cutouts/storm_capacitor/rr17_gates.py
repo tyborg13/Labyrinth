@@ -6,10 +6,10 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from rr17_contract import *
-from rr17_build import write, PRODUCTION
+from rr17_build import write, PRODUCTION, compile_motion
 from maquette_motion import pixels, silhouette, native_ties
 from maquette_motion import material_palette
-from maquette_motion.gates import unpack, bindings_match
+from maquette_motion.gates import unpack, bindings_match, production_bindings
 
 
 def coverage(report, field='samples'):
@@ -34,6 +34,9 @@ def coverage(report, field='samples'):
 
 def asset_errors():
     errors = []
+    for directory in (CASE, PRODUCTION):
+        if read(directory / 'compiled_motion.json') != compile_motion():
+            errors.append(str(directory.relative_to(ROOT)) + ': compiled motion differs from protected compilation')
     integration = read(CASE / 'integration.json')
     production = read(PRODUCTION / 'integration.json')
     if any(production.get(key) != value for key, value in integration.items()): errors.append('Production integration declarations differ from case')
@@ -89,6 +92,29 @@ def motion_errors(report):
     return errors
 
 
+def production_motion_errors(report):
+    from rr17_production import presented_matches
+    sampled = {'authored': report.get('production_authored', []), 'samples': report.get('production_samples', [])}
+    errors = ['production: ' + e for e in motion_errors(sampled)]
+    errors.extend('production: ' + e for e in coverage(sampled))
+    column = expected_paint()['column']
+    column = column.crop(column.getbbox())
+    for row in sampled['samples']:
+        expected = bones(row['clip'], row['presented_phase'], row['view'])
+        layout = read(PRODUCTION / (row['view'] + '.json'))
+        for name, bone in expected.items():
+            for space in ('local', 'global'):
+                if not np.allclose(unpack(row['bones'][name][space]), bone[space], atol=TOLERANCE, rtol=0):
+                    errors.append('production: ' + row['clip'] + '/' + name + ': presented signed ' + space + ' motion differs')
+        for part in layout['parts']:
+            if not presented_matches(row['parts'][part['name']]['transform'], expected[part['bone']]['global'], part, layout):
+                errors.append('production: ' + row['clip'] + '/' + part['name'] + ': stepped transform differs')
+        level = int(channels(row['clip'], row['presented_phase']).get('column.glow', 0))
+        if row['glow_sha256'] != image_digest(expected_glow(column, level)): errors.append('production: runtime glow differs')
+    if report.get('production_inputs') != production_bindings(PRODUCTION): errors.append('Stale production sample bindings')
+    return errors
+
+
 def native_contacts(capture, native):
     errors = []
     records = capture.get('contacts', [])
@@ -123,7 +149,7 @@ def native_contacts(capture, native):
 
 
 def pixel_gate(report, native=None):
-    errors = asset_errors() + coverage(report) + motion_errors(report)
+    errors = asset_errors() + coverage(report) + motion_errors(report) + production_motion_errors(report)
     if not bindings_match(CASE, report.get('inputs')): errors.append('Stale sample bindings')
     records, cache, previous, unique, transitions = [], {}, {}, {}, {}
     capture = read(native / 'frames.json') if native else None
@@ -216,6 +242,7 @@ def main():
     parser.add_argument('command', choices=('headless', 'native', 'production'))
     parser.add_argument('--input', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--samples', type=Path, default=CASE / 'proof/samples.json')
     args = parser.parse_args()
     if args.command == 'production':
         from rr17_production import production_errors
@@ -223,7 +250,7 @@ def main():
         errors = production_errors(report)
         result = {'ok': not errors, 'errors': errors}
     else:
-        result = pixel_gate(read(CASE / 'proof/samples.json'), args.input if args.command == 'native' else None)
+        result = pixel_gate(read(args.samples), args.input if args.command == 'native' else None)
     write(args.output or CASE / ('proof/' + args.command + '_gates.json'), result)
     print('RR17 %s GATES: %s (%d errors)' % (args.command.upper(), 'PASS' if result['ok'] else 'FAIL', len(result['errors'])))
     for error in result['errors'][:12]: print(error)

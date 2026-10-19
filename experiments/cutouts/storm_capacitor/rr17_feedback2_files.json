@@ -1,0 +1,315 @@
+{
+  "files": [
+    {
+      "status": " M",
+      "path": "assets/units/storm_capacitor_cutout/actions.gd"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/README.md"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/mq5/cutout.json"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/mq5/proof/.gitignore"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/rr17_build.py"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/rr17_contract.py"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/rr17_gates.py"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/rr17_production.py"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/rr17_proof.sh"
+    },
+    {
+      "status": " M",
+      "path": "experiments/cutouts/storm_capacitor/rr17_shadow_check.gd"
+    },
+    {
+      "status": " M",
+      "path": "scripts/enemy_mechanics/death_burst_view.gd"
+    },
+    {
+      "status": " M",
+      "path": "scripts/run_scene.gd"
+    },
+    {
+      "status": " M",
+      "path": "tests/rr17/production_capture.gd"
+    },
+    {
+      "status": " M",
+      "path": "tests/rr17/samples.gd"
+    },
+    {
+      "status": " M",
+      "path": "tests/test_rr17_production.py"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/actions.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/front/rest.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/cap.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/column.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/column_glow_0.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/column_glow_1.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/paint/column_glow_2.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/rear/rest.png.import"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/renderer.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "assets/units/storm_capacitor_cutout/rig.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/front/rest.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/motion.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/cap.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/column.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_-1.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_-2.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_0.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_1.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_2.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/proof/.gdignore"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/rear/rest.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/source/cap_mask.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/source/front/processed.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/source/rear/processed.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/mq5/source/vent_fill.png.import"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/rr17_feedback2_files.json"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/rr17_feedback2_results.json"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/rr17_feedback_mutations.py"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/rr17_shadow.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/rr17_shadow_check.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "experiments/cutouts/storm_capacitor/rr17_sidecars.txt"
+    },
+    {
+      "status": "??",
+      "path": "scripts/maquette_cutout_runtime/death.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "scripts/maquette_cutout_runtime/death_sequence.gd"
+    },
+    {
+      "status": "??",
+      "path": "scripts/maquette_cutout_runtime/death_sequence.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "scripts/turn_order_portraits.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/front/rest.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/cap.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_-1.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_-2.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_0.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_1.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_2.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/rear/rest.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/peer_benchmark/staged/rr-17/cap_mask.png.import"
+    },
+    {
+      "status": "??",
+      "path": "spec/peer_benchmark/staged/rr-17/vent_fill.png.import"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/capture_contract.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/capture_scene.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/death_scene.gd"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/death_scene.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/feedback_samples.gd"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/feedback_samples.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/fixtures/death_before_feedback.gd"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/fixtures/death_before_feedback.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/integration_samples.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/native_capture.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/production_capture.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/runtime_test.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/rr17/samples.gd.uid"
+    },
+    {
+      "status": "??",
+      "path": "tests/test_rr17_feedback.py"
+    }
+  ],
+  "file_count": 77,
+  "new_sidecars": 52,
+  "all_changes_uncommitted": true
+}

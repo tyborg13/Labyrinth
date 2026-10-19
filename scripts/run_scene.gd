@@ -23420,12 +23420,11 @@ func _animate_defeats_and_terrain_destruction(
 		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
 	var burst_clock: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").timing(before_state, after_state, frame_count, frame_seconds, self, death_units)
+	preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").configure(burst_clock, self, death_units)
 	frame_count = int(burst_clock["frames"])
 	frame_seconds = float(burst_clock["frame_seconds"])
 	var state_validated_for_animation: bool = false
-	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
-		var frame: int = frame_number - 1
-		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
+	var render_death_frame: Callable = func(progress: float) -> void:
 		var animated_units: Array[Dictionary] = []
 		for unit: Dictionary in death_units:
 			var animated_unit: Dictionary = unit.duplicate(true)
@@ -23433,6 +23432,7 @@ func _animate_defeats_and_terrain_destruction(
 			var death_frame: int = int(round(progress * float(maxi(1, unit_frame_count) - 1)))
 			animated_unit["death_frame"] = clampi(death_frame, 0, maxi(0, unit_frame_count - 1))
 			animated_unit["death_progress"] = progress
+			preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").sample(animated_unit, progress * float(burst_clock["duration"]), burst_clock)
 			animated_units.append(animated_unit)
 		var animated_terrain: Array[Dictionary] = []
 		for terrain: Dictionary in destroyed_terrain:
@@ -23451,9 +23451,17 @@ func _animate_defeats_and_terrain_destruction(
 		presentation = preload("res://scripts/enemy_mechanics/death_burst_view.gd").decorate(before_state, after_state, presentation, progress, burst_clock)
 		_render_board_state(preload("res://scripts/enemy_mechanics/death_burst_view.gd").state_for_frame(before_state, after_state, progress, burst_clock), presentation, state_validated_for_animation)
 		state_validated_for_animation = true
-	)
+	if burst_clock.has("unit_clocks"):
+		await _play_death_sequence(burst_clock, render_death_frame)
+	else:
+		await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
+			render_death_frame.call(1.0 if frame_count == 1 else float(frame_number - 1) / float(frame_count - 1))
+		)
 	_render_board_state(after_state, {}, state_validated_for_animation)
 	await get_tree().create_timer(0.04).timeout
+
+func _play_death_sequence(clock: Dictionary, render: Callable) -> void:
+	await preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").play(self, clock, render)
 
 func _death_hold_presentation(
 	before_state: Dictionary,

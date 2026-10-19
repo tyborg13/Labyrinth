@@ -151,6 +151,9 @@ func _capture() -> void:
 	row["player_hp"] = int(_scene.board_view.combat_state["player"]["hp"])
 	row["marks"] = _scene.board_view.combat_state["enemies"][0].get("icefall_tiles", []).size()
 	row["root_alpha"] = rig.bones["root"].modulate.a
+	row["bones"] = preload("samples.gd").bones_for(rig)
+	row["parts"] = preload("res://tests/maquette_cutout/pixel_samples.gd").parts_for(rig)
+	row["forward_reflection"] = renderer._forward_reflection
 	row["glow_sha256"] = preload("samples.gd").glow_digest(rig)
 	row["charge"] = int(_scene.board_view.combat_state["enemies"][0].get("charge", 0))
 	for unit: Dictionary in shown.get("death_animation_units", []):

@@ -9,6 +9,7 @@
     "assets/units/storm_capacitor_cutout/renderer.gd",
     "assets/units/storm_capacitor_cutout/actions.gd",
     "scripts/maquette_cutout_runtime/death.gd",
+    "scripts/maquette_cutout_runtime/death_sequence.gd",
     "assets/units/storm_capacitor_cutout/rig.gd",
     "scripts/static_enemy_facing.gd",
     "scripts/turn_order_portraits.gd",
