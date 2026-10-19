@@ -1,0 +1,5885 @@
+{
+  "front": {
+    "ok": false,
+    "errors": [
+      "front/move/near/frame 23: support target error 5.545222 px",
+      "front/move/near/frame 24: support target error 4.466763 px",
+      "front/move/near/frame 24: stance moved 1.414214 px",
+      "front/move/near/frame 25: support target error 4.466763 px",
+      "front/move/near/frame 26: support target error 3.466910 px",
+      "front/move/near/frame 26: stance moved 1.000000 px",
+      "front/move/near/frame 27: support target error 3.466910 px",
+      "front/move/near/frame 28: support target error 3.466910 px",
+      "front/move/near/frame 29: support target error 3.466910 px",
+      "front/move/near/frame 30: support target error 2.467176 px",
+      "front/move/near/frame 30: stance moved 1.000000 px",
+      "front/move/near/frame 31: support target error 2.467176 px",
+      "front/move/near/frame 32: support target error 1.467805 px",
+      "front/move/near/frame 32: stance moved 1.000000 px",
+      "front/move/near/frame 33: support target error 1.467805 px",
+      "front/move/near/frame 34: support target error 1.467805 px",
+      "front/move/near/frame 35: support target error 1.467805 px",
+      "front/move/near/frame 36: support target error 1.467805 px",
+      "front/move/near/frame 37: stance moved 1.000000 px"
+    ],
+    "frames": [
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.02,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.04,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.46,
+        "target_error_px": 5.5452216547585955,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.48,
+        "target_error_px": 4.466762552052192,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.5,
+        "target_error_px": 4.466762552052192,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.52,
+        "target_error_px": 3.4669096510321498,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.54,
+        "target_error_px": 3.4669096510321498,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.56,
+        "target_error_px": 3.4669096510321498,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 29,
+        "phase": 0.58,
+        "target_error_px": 3.4669096510321498,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 30,
+        "phase": 0.6,
+        "target_error_px": 2.467175988944429,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 31,
+        "phase": 0.62,
+        "target_error_px": 2.467175988944429,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 32,
+        "phase": 0.64,
+        "target_error_px": 1.4678052297317856,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 33,
+        "phase": 0.66,
+        "target_error_px": 1.4678052297317856,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 34,
+        "phase": 0.68,
+        "target_error_px": 1.4678052297317856,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 35,
+        "phase": 0.7,
+        "target_error_px": 1.4678052297317856,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 36,
+        "phase": 0.72,
+        "target_error_px": 1.4678052297317856,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 37,
+        "phase": 0.74,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 38,
+        "phase": 0.76,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 39,
+        "phase": 0.78,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 40,
+        "phase": 0.8,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 41,
+        "phase": 0.82,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 42,
+        "phase": 0.84,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 43,
+        "phase": 0.86,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 44,
+        "phase": 0.88,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 45,
+        "phase": 0.9,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 46,
+        "phase": 0.92,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 47,
+        "phase": 0.94,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 48,
+        "phase": 0.96,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 49,
+        "phase": 0.98,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 50,
+        "phase": 1.0,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.02,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.04,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.06,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.08,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.1,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.12,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.14,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.16,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.18,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.2,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.22,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.24,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.26,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.28,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.3,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.32,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.34,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.36,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.38,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.4,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.42,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.44,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.46,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.48,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.5,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 45,
+        "phase": 0.9,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 46,
+        "phase": 0.92,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 47,
+        "phase": 0.94,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 48,
+        "phase": 0.96,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 49,
+        "phase": 0.98,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 50,
+        "phase": 1.0,
+        "target_error_px": 0.4711125390307914,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.0153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.0307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.0461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.0615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.0769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.0923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.107692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.123076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.138461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.169230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.184615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.2,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.215384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.230769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.246153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.261538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.276923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.292307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.323076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.338461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.353846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.369230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.384615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.4,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.415384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.430769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 29,
+        "phase": 0.446153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 30,
+        "phase": 0.461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 31,
+        "phase": 0.476923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 32,
+        "phase": 0.492307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 33,
+        "phase": 0.507692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 34,
+        "phase": 0.523076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 35,
+        "phase": 0.538461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 36,
+        "phase": 0.553846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 37,
+        "phase": 0.569230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 38,
+        "phase": 0.584615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 39,
+        "phase": 0.6,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 40,
+        "phase": 0.615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 41,
+        "phase": 0.630769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 42,
+        "phase": 0.646153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 43,
+        "phase": 0.661538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 44,
+        "phase": 0.676923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 45,
+        "phase": 0.692307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 46,
+        "phase": 0.707692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 47,
+        "phase": 0.723076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 48,
+        "phase": 0.738461538461539,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 49,
+        "phase": 0.753846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 50,
+        "phase": 0.769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 51,
+        "phase": 0.784615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 52,
+        "phase": 0.8,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 53,
+        "phase": 0.815384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 54,
+        "phase": 0.830769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 55,
+        "phase": 0.846153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 56,
+        "phase": 0.861538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 57,
+        "phase": 0.876923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 58,
+        "phase": 0.892307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 59,
+        "phase": 0.907692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 60,
+        "phase": 0.923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 61,
+        "phase": 0.938461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 62,
+        "phase": 0.953846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 63,
+        "phase": 0.969230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 64,
+        "phase": 0.984615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 65,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.0153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.0307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.0461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.0615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.0769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.0923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.107692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.123076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.138461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.169230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.184615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.2,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.215384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.230769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.246153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.261538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.276923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.292307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.323076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.338461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.353846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.369230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.384615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.4,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.415384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.430769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.446153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.476923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.492307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.507692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.523076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.538461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.553846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.569230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.584615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.6,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.630769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.646153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 43,
+        "phase": 0.661538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 44,
+        "phase": 0.676923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 45,
+        "phase": 0.692307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 46,
+        "phase": 0.707692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 47,
+        "phase": 0.723076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 48,
+        "phase": 0.738461538461539,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 49,
+        "phase": 0.753846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 50,
+        "phase": 0.769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 51,
+        "phase": 0.784615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 52,
+        "phase": 0.8,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 53,
+        "phase": 0.815384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 54,
+        "phase": 0.830769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 55,
+        "phase": 0.846153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 56,
+        "phase": 0.861538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 57,
+        "phase": 0.876923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 58,
+        "phase": 0.892307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 59,
+        "phase": 0.907692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 60,
+        "phase": 0.923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 61,
+        "phase": 0.938461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 62,
+        "phase": 0.953846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 63,
+        "phase": 0.969230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 64,
+        "phase": 0.984615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 65,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.0188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.0377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.0566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.0754716981132075,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.0943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.113207547169811,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.132075471698113,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.150943396226415,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.169811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.207547169811321,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.226415094339623,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.245283018867925,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.264150943396226,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.283018867924528,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.30188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.320754716981132,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.339622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.358490566037736,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.39622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.415094339622642,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.433962264150943,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.452830188679245,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.471698113207547,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.490566037735849,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.509433962264151,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.528301886792453,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 29,
+        "phase": 0.547169811320755,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 30,
+        "phase": 0.566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 31,
+        "phase": 0.584905660377358,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 32,
+        "phase": 0.60377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 33,
+        "phase": 0.622641509433962,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 34,
+        "phase": 0.641509433962264,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 35,
+        "phase": 0.660377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 36,
+        "phase": 0.679245283018868,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 37,
+        "phase": 0.69811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 38,
+        "phase": 0.716981132075472,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 39,
+        "phase": 0.735849056603774,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 40,
+        "phase": 0.754716981132076,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 41,
+        "phase": 0.773584905660377,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 42,
+        "phase": 0.792452830188679,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 43,
+        "phase": 0.811320754716981,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 44,
+        "phase": 0.830188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 45,
+        "phase": 0.849056603773585,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 46,
+        "phase": 0.867924528301887,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 47,
+        "phase": 0.886792452830189,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 48,
+        "phase": 0.905660377358491,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 49,
+        "phase": 0.924528301886792,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 50,
+        "phase": 0.943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 51,
+        "phase": 0.962264150943396,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 52,
+        "phase": 0.981132075471698,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 53,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.0188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.0377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.0566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.0754716981132075,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.0943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.113207547169811,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.132075471698113,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.150943396226415,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.169811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.207547169811321,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.226415094339623,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.245283018867925,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.264150943396226,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.283018867924528,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.30188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.320754716981132,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.339622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.358490566037736,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.39622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.415094339622642,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.433962264150943,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.452830188679245,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.471698113207547,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.490566037735849,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.509433962264151,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.528301886792453,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.547169811320755,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.584905660377358,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.60377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.622641509433962,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.641509433962264,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.660377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.679245283018868,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.69811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.716981132075472,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.735849056603774,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.754716981132076,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.773584905660377,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.792452830188679,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 43,
+        "phase": 0.811320754716981,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 44,
+        "phase": 0.830188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 45,
+        "phase": 0.849056603773585,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 46,
+        "phase": 0.867924528301887,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 47,
+        "phase": 0.886792452830189,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 48,
+        "phase": 0.905660377358491,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 49,
+        "phase": 0.924528301886792,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 50,
+        "phase": 0.943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 51,
+        "phase": 0.962264150943396,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 52,
+        "phase": 0.981132075471698,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 53,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.0344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.0689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.103448275862069,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.137931034482759,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.172413793103448,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.206896551724138,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.241379310344828,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.275862068965517,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.310344827586207,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.379310344827586,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.413793103448276,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.448275862068966,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.482758620689655,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.517241379310345,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.551724137931034,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.586206896551724,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.620689655172414,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.655172413793103,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.724137931034483,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.758620689655172,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.793103448275862,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.827586206896552,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.862068965517241,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.896551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.931034482758621,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.96551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 29,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.0344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.0689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.103448275862069,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.137931034482759,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.172413793103448,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.206896551724138,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.241379310344828,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.275862068965517,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.310344827586207,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.379310344827586,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.413793103448276,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.448275862068966,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.482758620689655,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.517241379310345,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.551724137931034,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.586206896551724,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.620689655172414,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.655172413793103,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.724137931034483,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.758620689655172,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.793103448275862,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.827586206896552,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.862068965517241,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.896551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.931034482758621,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.96551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 29,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      }
+    ],
+    "maximum_target_error_px": 5.5452216547585955,
+    "maximum_frame_change_px": 1.4142135623730951
+  },
+  "rear": {
+    "ok": false,
+    "errors": [
+      "rear/move/near/frame 6: support target error 1.000000 px",
+      "rear/move/near/frame 6: stance moved 1.000000 px",
+      "rear/move/near/frame 7: support target error 1.000000 px",
+      "rear/move/near/frame 8: support target error 2.236068 px",
+      "rear/move/near/frame 8: stance moved 1.414214 px",
+      "rear/move/near/frame 9: support target error 3.162278 px",
+      "rear/move/near/frame 9: stance moved 1.000000 px",
+      "rear/move/near/frame 10: support target error 3.162278 px",
+      "rear/move/near/frame 11: support target error 4.472136 px",
+      "rear/move/near/frame 11: stance moved 1.414214 px",
+      "rear/move/near/frame 12: support target error 5.385165 px",
+      "rear/move/near/frame 12: stance moved 1.000000 px",
+      "rear/move/near/frame 13: support target error 6.708204 px",
+      "rear/move/near/frame 13: stance moved 1.414214 px",
+      "rear/move/near/frame 14: support target error 7.615773 px",
+      "rear/move/near/frame 14: stance moved 1.000000 px",
+      "rear/move/near/frame 15: support target error 8.944272 px",
+      "rear/move/near/frame 15: stance moved 1.414214 px",
+      "rear/move/near/frame 16: support target error 10.295630 px",
+      "rear/move/near/frame 16: stance moved 1.414214 px",
+      "rear/move/near/frame 17: support target error 11.180340 px",
+      "rear/move/near/frame 17: stance moved 1.000000 px",
+      "rear/move/near/frame 18: support target error 11.661904 px",
+      "rear/move/near/frame 18: stance moved 1.000000 px",
+      "rear/move/near/frame 19: support target error 12.529964 px",
+      "rear/move/near/frame 19: stance moved 1.000000 px",
+      "rear/move/near/frame 20: support target error 13.892444 px",
+      "rear/move/near/frame 20: stance moved 1.414214 px",
+      "rear/move/near/frame 21: support target error 14.422205 px",
+      "rear/move/near/frame 21: stance moved 1.000000 px",
+      "rear/move/near/frame 22: support target error 15.264338 px",
+      "rear/move/near/frame 22: stance moved 1.000000 px",
+      "rear/move/near/frame 23: support target error 16.643317 px",
+      "rear/move/near/frame 23: stance moved 1.414214 px",
+      "rear/move/near/frame 24: support target error 18.027756 px",
+      "rear/move/near/frame 24: stance moved 1.414214 px",
+      "rear/move/near/frame 25: support target error 19.416488 px",
+      "rear/move/near/frame 25: stance moved 1.414214 px"
+    ],
+    "frames": [
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.02,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.04,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.06,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.08,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.1,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.12,
+        "target_error_px": 1.0,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.14,
+        "target_error_px": 1.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.16,
+        "target_error_px": 2.23606797749979,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.18,
+        "target_error_px": 3.1622776601683795,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.2,
+        "target_error_px": 3.1622776601683795,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.22,
+        "target_error_px": 4.47213595499958,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.24,
+        "target_error_px": 5.385164807134504,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.26,
+        "target_error_px": 6.708203932499369,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.28,
+        "target_error_px": 7.615773105863909,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.3,
+        "target_error_px": 8.94427190999916,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.32,
+        "target_error_px": 10.295630140987,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.34,
+        "target_error_px": 11.180339887498949,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.36,
+        "target_error_px": 11.661903789690601,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.38,
+        "target_error_px": 12.529964086141668,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.4,
+        "target_error_px": 13.892443989449804,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.42,
+        "target_error_px": 14.422205101855956,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.44,
+        "target_error_px": 15.264337522473747,
+        "frame_change_px": 1.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.46,
+        "target_error_px": 16.64331697709324,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.48,
+        "target_error_px": 18.027756377319946,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.5,
+        "target_error_px": 19.4164878389476,
+        "frame_change_px": 1.4142135623730951
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 45,
+        "phase": 0.9,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 46,
+        "phase": 0.92,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 47,
+        "phase": 0.94,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 48,
+        "phase": 0.96,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 49,
+        "phase": 0.98,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "near",
+        "frame": 50,
+        "phase": 1.0,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.02,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.04,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.46,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.48,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.5,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.52,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.54,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.56,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.58,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.6,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.62,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.64,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.66,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.68,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.7,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.72,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.74,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.76,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.78,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.8,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.82,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.84,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 43,
+        "phase": 0.86,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 44,
+        "phase": 0.88,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 45,
+        "phase": 0.9,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 46,
+        "phase": 0.92,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 47,
+        "phase": 0.94,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 48,
+        "phase": 0.96,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 49,
+        "phase": 0.98,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "move",
+        "side": "far",
+        "frame": 50,
+        "phase": 1.0,
+        "target_error_px": 0.4711125390307934,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.0153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.0307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.0461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.0615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.0769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.0923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.107692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.123076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.138461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.169230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.184615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.2,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.215384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.230769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.246153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.261538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.276923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.292307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.323076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.338461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.353846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.369230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.384615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.4,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.415384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.430769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 29,
+        "phase": 0.446153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 30,
+        "phase": 0.461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 31,
+        "phase": 0.476923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 32,
+        "phase": 0.492307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 33,
+        "phase": 0.507692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 34,
+        "phase": 0.523076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 35,
+        "phase": 0.538461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 36,
+        "phase": 0.553846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 37,
+        "phase": 0.569230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 38,
+        "phase": 0.584615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 39,
+        "phase": 0.6,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 40,
+        "phase": 0.615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 41,
+        "phase": 0.630769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 42,
+        "phase": 0.646153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 43,
+        "phase": 0.661538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 44,
+        "phase": 0.676923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 45,
+        "phase": 0.692307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 46,
+        "phase": 0.707692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 47,
+        "phase": 0.723076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 48,
+        "phase": 0.738461538461539,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 49,
+        "phase": 0.753846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 50,
+        "phase": 0.769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 51,
+        "phase": 0.784615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 52,
+        "phase": 0.8,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 53,
+        "phase": 0.815384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 54,
+        "phase": 0.830769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 55,
+        "phase": 0.846153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 56,
+        "phase": 0.861538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 57,
+        "phase": 0.876923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 58,
+        "phase": 0.892307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 59,
+        "phase": 0.907692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 60,
+        "phase": 0.923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 61,
+        "phase": 0.938461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 62,
+        "phase": 0.953846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 63,
+        "phase": 0.969230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 64,
+        "phase": 0.984615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "near",
+        "frame": 65,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.0153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.0307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.0461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.0615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.0769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.0923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.107692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.123076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.138461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.153846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.169230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.184615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.2,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.215384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.230769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.246153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.261538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.276923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.292307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.307692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.323076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.338461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.353846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.369230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.384615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.4,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.415384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.430769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.446153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.461538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.476923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.492307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.507692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.523076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.538461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.553846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.569230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.584615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.6,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.615384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.630769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.646153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 43,
+        "phase": 0.661538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 44,
+        "phase": 0.676923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 45,
+        "phase": 0.692307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 46,
+        "phase": 0.707692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 47,
+        "phase": 0.723076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 48,
+        "phase": 0.738461538461539,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 49,
+        "phase": 0.753846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 50,
+        "phase": 0.769230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 51,
+        "phase": 0.784615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 52,
+        "phase": 0.8,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 53,
+        "phase": 0.815384615384615,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 54,
+        "phase": 0.830769230769231,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 55,
+        "phase": 0.846153846153846,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 56,
+        "phase": 0.861538461538462,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 57,
+        "phase": 0.876923076923077,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 58,
+        "phase": 0.892307692307692,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 59,
+        "phase": 0.907692307692308,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 60,
+        "phase": 0.923076923076923,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 61,
+        "phase": 0.938461538461538,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 62,
+        "phase": 0.953846153846154,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 63,
+        "phase": 0.969230769230769,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 64,
+        "phase": 0.984615384615385,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "refraction",
+        "side": "far",
+        "frame": 65,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.0188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.0377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.0566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.0754716981132075,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.0943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.113207547169811,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.132075471698113,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.150943396226415,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.169811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.207547169811321,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.226415094339623,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.245283018867925,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.264150943396226,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.283018867924528,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.30188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.320754716981132,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.339622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.358490566037736,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.39622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.415094339622642,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.433962264150943,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.452830188679245,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.471698113207547,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.490566037735849,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.509433962264151,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.528301886792453,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 29,
+        "phase": 0.547169811320755,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 30,
+        "phase": 0.566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 31,
+        "phase": 0.584905660377358,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 32,
+        "phase": 0.60377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 33,
+        "phase": 0.622641509433962,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 34,
+        "phase": 0.641509433962264,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 35,
+        "phase": 0.660377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 36,
+        "phase": 0.679245283018868,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 37,
+        "phase": 0.69811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 38,
+        "phase": 0.716981132075472,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 39,
+        "phase": 0.735849056603774,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 40,
+        "phase": 0.754716981132076,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 41,
+        "phase": 0.773584905660377,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 42,
+        "phase": 0.792452830188679,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 43,
+        "phase": 0.811320754716981,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 44,
+        "phase": 0.830188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 45,
+        "phase": 0.849056603773585,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 46,
+        "phase": 0.867924528301887,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 47,
+        "phase": 0.886792452830189,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 48,
+        "phase": 0.905660377358491,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 49,
+        "phase": 0.924528301886792,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 50,
+        "phase": 0.943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 51,
+        "phase": 0.962264150943396,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 52,
+        "phase": 0.981132075471698,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "near",
+        "frame": 53,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.0188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.0377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.0566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.0754716981132075,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.0943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.113207547169811,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.132075471698113,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.150943396226415,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.169811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.188679245283019,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.207547169811321,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.226415094339623,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.245283018867925,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.264150943396226,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.283018867924528,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.30188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.320754716981132,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.339622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.358490566037736,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.377358490566038,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.39622641509434,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.415094339622642,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.433962264150943,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.452830188679245,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.471698113207547,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.490566037735849,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.509433962264151,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.528301886792453,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 29,
+        "phase": 0.547169811320755,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 30,
+        "phase": 0.566037735849057,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 31,
+        "phase": 0.584905660377358,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 32,
+        "phase": 0.60377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 33,
+        "phase": 0.622641509433962,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 34,
+        "phase": 0.641509433962264,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 35,
+        "phase": 0.660377358490566,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 36,
+        "phase": 0.679245283018868,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 37,
+        "phase": 0.69811320754717,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 38,
+        "phase": 0.716981132075472,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 39,
+        "phase": 0.735849056603774,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 40,
+        "phase": 0.754716981132076,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 41,
+        "phase": 0.773584905660377,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 42,
+        "phase": 0.792452830188679,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 43,
+        "phase": 0.811320754716981,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 44,
+        "phase": 0.830188679245283,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 45,
+        "phase": 0.849056603773585,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 46,
+        "phase": 0.867924528301887,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 47,
+        "phase": 0.886792452830189,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 48,
+        "phase": 0.905660377358491,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 49,
+        "phase": 0.924528301886792,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 50,
+        "phase": 0.943396226415094,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 51,
+        "phase": 0.962264150943396,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 52,
+        "phase": 0.981132075471698,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "guard",
+        "side": "far",
+        "frame": 53,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 1,
+        "phase": 0.0344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 2,
+        "phase": 0.0689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 3,
+        "phase": 0.103448275862069,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 4,
+        "phase": 0.137931034482759,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 5,
+        "phase": 0.172413793103448,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 6,
+        "phase": 0.206896551724138,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 7,
+        "phase": 0.241379310344828,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 8,
+        "phase": 0.275862068965517,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 9,
+        "phase": 0.310344827586207,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 10,
+        "phase": 0.344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 11,
+        "phase": 0.379310344827586,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 12,
+        "phase": 0.413793103448276,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 13,
+        "phase": 0.448275862068966,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 14,
+        "phase": 0.482758620689655,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 15,
+        "phase": 0.517241379310345,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 16,
+        "phase": 0.551724137931034,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 17,
+        "phase": 0.586206896551724,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 18,
+        "phase": 0.620689655172414,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 19,
+        "phase": 0.655172413793103,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 20,
+        "phase": 0.689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 21,
+        "phase": 0.724137931034483,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 22,
+        "phase": 0.758620689655172,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 23,
+        "phase": 0.793103448275862,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 24,
+        "phase": 0.827586206896552,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 25,
+        "phase": 0.862068965517241,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 26,
+        "phase": 0.896551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 27,
+        "phase": 0.931034482758621,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 28,
+        "phase": 0.96551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "near",
+        "frame": 29,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 0,
+        "phase": 0.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 1,
+        "phase": 0.0344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 2,
+        "phase": 0.0689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 3,
+        "phase": 0.103448275862069,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 4,
+        "phase": 0.137931034482759,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 5,
+        "phase": 0.172413793103448,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 6,
+        "phase": 0.206896551724138,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 7,
+        "phase": 0.241379310344828,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 8,
+        "phase": 0.275862068965517,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 9,
+        "phase": 0.310344827586207,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 10,
+        "phase": 0.344827586206897,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 11,
+        "phase": 0.379310344827586,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 12,
+        "phase": 0.413793103448276,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 13,
+        "phase": 0.448275862068966,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 14,
+        "phase": 0.482758620689655,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 15,
+        "phase": 0.517241379310345,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 16,
+        "phase": 0.551724137931034,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 17,
+        "phase": 0.586206896551724,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 18,
+        "phase": 0.620689655172414,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 19,
+        "phase": 0.655172413793103,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 20,
+        "phase": 0.689655172413793,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 21,
+        "phase": 0.724137931034483,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 22,
+        "phase": 0.758620689655172,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 23,
+        "phase": 0.793103448275862,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 24,
+        "phase": 0.827586206896552,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 25,
+        "phase": 0.862068965517241,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 26,
+        "phase": 0.896551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 27,
+        "phase": 0.931034482758621,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 28,
+        "phase": 0.96551724137931,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      },
+      {
+        "clip": "hit",
+        "side": "far",
+        "frame": 29,
+        "phase": 1.0,
+        "target_error_px": 0.0,
+        "frame_change_px": 0.0
+      }
+    ],
+    "maximum_target_error_px": 19.4164878389476,
+    "maximum_frame_change_px": 1.4142135623730951
+  }
+}

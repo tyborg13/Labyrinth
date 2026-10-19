@@ -3,11 +3,17 @@ extends RefCounted
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
 	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
-	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick"}
+	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "glacial_mirror": "glacial_mirror"}
+
+# Optional case-owned contact adapter. Existing action dispatch remains intact.
+const ACTION_ADAPTERS := {"glacial_mirror": "res://assets/units/glacial_mirror_cutout/actions.gd"}
+
+static func action_script(type: String) -> Script:
+	return load(ACTION_ADAPTERS[type]) as Script if ACTION_ADAPTERS.has(type) else null
 
 static func asset_directory(type: String) -> String:
 	var directory: String = "res://assets/units/" + str(CREATURES[type]) + "_cutout"
-	return directory.path_join("humanoid_v2") if type in ["hoarfrost_seer", "arc_thrall"] else directory
+	return directory.path_join("humanoid_v2") if type in ["hoarfrost_seer", "arc_thrall", "glacial_mirror"] else directory
 
 static func handles(type: String) -> bool:
 	return CREATURES.has(type)
@@ -16,7 +22,7 @@ static func handles(type: String) -> bool:
 ## instantiate its concrete runtime adapter, including future maquette rigs.
 static func renderer_script(type: String) -> Script:
 	if not handles(type): return null
-	if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick"]:
+	if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "glacial_mirror"]:
 		return load("res://assets/units/%s_cutout/renderer.gd" % type) as Script
 	return load("res://scripts/maquette_cutout_runtime/%s_renderer.gd" % CREATURES[type]) as Script
 

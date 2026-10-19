@@ -1,0 +1,53 @@
+{
+  "ok": true,
+  "mutations": [
+    {
+      "guard": "production rest identity",
+      "regression": "test_mutation_production_treatment_cannot_hide_rest_mismatch",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "idle rigidity",
+      "regression": "test_mutation_idle_rotation_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "rest RGBA",
+      "regression": "test_mutation_visible_source_rgba_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "required direction coverage",
+      "regression": "test_mutation_zero_forward_loses_required_coverage",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "every swing minimum",
+      "regression": "test_mutation_second_swing_no_knee_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "support stationarity",
+      "regression": "test_mutation_action_support_slide_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    }
+  ]
+}

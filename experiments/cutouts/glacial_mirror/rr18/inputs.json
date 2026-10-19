@@ -1,0 +1,12 @@
+{
+  "front_job": "spec/art_identity/jobs/glacial_mirror/mq8_front",
+  "rear_job": "spec/art_identity/jobs/glacial_mirror/mq8_rear",
+  "front_delivery": "spec/art_identity/maquettes/glacial_mirror/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/glacial_mirror/delivery",
+  "design_placeholders": {
+    "TODO_DESIGN_density_rest_identity": "Required density processing changes 1178 front and 15491 rear production rest pixels against the approved paintings. The source cuts remain 0 px exact. Director must resolve density treatment versus the brief production rest-identity requirement.",
+    "TODO_DESIGN_move_supports": "Protected world_step paths exceed the unchanged leg reach; front support error reaches 5.545222 px, rear 19.416488 px at the reference proof step; stance slides up to 1.414214 px. Director motion decision required.",
+    "TODO_DESIGN_move_swing_apex": "Front stride and rear trailing swing knees bend less than their stance knees at their lift apex. Protected keys retained; director motion decision required.",
+    "TODO_DESIGN_near_knee_facing": "mq8 near-leg rest bends are 8.998 degrees away from front facing and 9.537 degrees away from rear facing; preserving rest bend side conflicts with the facing gate. Director joint/policy decision required."
+  }
+}

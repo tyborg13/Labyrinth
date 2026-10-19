@@ -24545,6 +24545,12 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			# visible spans. The outer dispatch must not settle the same hit again.
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			continue
+		var case_actor: Dictionary = _animation_actor_unit(animated_state, str(step.get("source_actor_key", step.get("actor_key", ""))))
+		var case_actions: Script = MaquetteAction.Presentation.action_script(str(case_actor.get("type", "")))
+		if case_actions != null and case_actions.handles(step, case_actor):
+			await case_actions.animate(self, animated_state, step, case_actor)
+			await _combat_pacing.after_step(step)
+			continue
 		if step.has("en05_after"):
 			if str(step.get("action_type", "")) == "dive_line": await preload("res://scripts/enemy_mechanics/dive_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_beam(self, animated_state, step)

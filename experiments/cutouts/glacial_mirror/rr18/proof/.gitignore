@@ -1,0 +1,12 @@
+*
+!.gitignore
+!build.json
+!gates.json
+!knees.json
+!supports.json
+!directions.json
+!reach.json
+!verification.json
+!mutations.json
+!preservation.json
+!production_rest.json
