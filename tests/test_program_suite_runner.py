@@ -143,9 +143,9 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # det-01 restores owned_cpu_asset_preparation_test after deterministic cancellation coverage;
         # bug-01's four fixed tests left quarantine for the supplemental set at its merge;
         # rr-05 made maquette_cutout_test a real pixel-runtime program (no longer a shared wrapper).
-        # rr-12 and rr-17 each add one rig/runtime domain after the accepted 122.
-        self.assertEqual(len(supplemental), 124, "Preserve the accepted supplemental set plus rr-17")
-        self.assertEqual(supplemental[-3:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}])
+        # rr-12, rr-17 and rr-18 each add one rig/runtime domain after the accepted 122.
+        self.assertEqual(len(supplemental), 125, "Preserve the accepted supplemental set plus rr-17 and rr-18")
+        self.assertEqual(supplemental[-4:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}])
         expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
         expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)
