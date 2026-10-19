@@ -1,98 +1,100 @@
 # rr-20 — Hollow Mimic humanoid v2
 
-Implementation is uncommitted on `codex/rr-20`. The design owner owns commit,
-peer review, the inspection fixture and publication. No windowed command was
-attempted. Feedback 1 changes only director-specified chroma-key residue in
-derived presentation paint; protected art and motion remain unchanged.
+Feedback 2 implementation is uncommitted on `codex/rr-20`. The integrated
+shared gait/runtime code is retained. The director owns commit, review,
+inspection and publication. No windowed run or full project suite was attempted.
 
-## Numbered requirements and task contract
+## Feedback 2 acceptance and current limits
 
-1. `rr20/` owns both mq-09 source registrations, certified maquette input
-   hashes, exact visible ownership, covered continuations, anatomy, source
-   masks and the compiled rig. Each view has four two-bone skinned limbs;
-   head/hair/mask, torso, pelvis, gloves and boots are rigid. The violet crack
-   is a front-only head feature. Both source rests reconstruct with **0 px**
-   mismatch before presentation cleanup. Feedback 1 replaces two front texels
-   and one rear texel using nearest non-residue donors of the same head piece;
-   all other RGB, alpha and geometry stay intact. Front stride is near, rear stride is far; every leg/view declares
-   its facing bend policy. Production paint is adopted and density processed.
-   Its native rest rebake, rest records and shadow refresh await the director.
-2. The protected `motion_tracks.json` is copied byte for byte to
-   `rr20/director_motion.json` and production. The shared compiler interprets
-   every supplied channel without a new channel semantic or modified key.
-   Upper body and both free arms bob as one rigid group; lower body is still.
-   The empty weapon group retains the root as its proof anchor.
-3. The production registry routes board, pre-battle actors and live portraits
-   to the new two-view adapter. Every movement tile uses `move`; Shade Bolt
-   uses `bolt`, the existing en06 marker selects `mirror` for every copied
-   action, and Recede's guard uses `block`. Contact playback submits the
-   existing effect and outcome at the protected contact and uses existing
-   pacing cues. Existing melee preparation swings and approach footsteps stay
-   on their established clocks. Hit and terminal death use the shared runtime;
-   the data-owned death declaration runs collapse before the existing fade.
-   Static facing/reaction lists no longer claim this identity. The existing
-   portrait path dictionary remains unchanged; the live binding replaces its
-   displayed texture by the same established registration path as the Seer.
-4. Headless gates use actual Bone2D samples: all authored keys/midpoints plus
-   all presented frames, strict positive direction coverage for `bolt` and
-   `mirror`, every stride swing, supports and 1000-interval dense reach. Native
-   proof scripts check exact idle pixels, clean isolated GPU pieces, seams,
-   stray pixels and the director's residue rule, with declared feature-mask
-   exemptions. Feature masks are transported by the GPU through every pose;
-   missing, stale or extra mask captures fail. These GPU checks are prepared
-   and load headlessly; they have **not** run. Both headless view gates pass.
+1. The case builds against gait-01. Protected director motion is imported
+   byte for byte, `leg_roles` is retired, both legs use the shared projected
+   walk and pelvis fit, and the production adapter remains data driven.
+   Unit shadow refresh restores exactly the two Mimic sources while asserting
+   every other cached entry and source hash is unchanged.
+2. `move` uses the supplied six-step, 0.8 s near-led gait. `bolt` and `mirror`
+   use the supplied `hand_far` thrusts. Dense reach reports full-extension
+   overreach without changing keys. The shared front walk gate passes. Rear
+   far apex bend fails the binding comparison against the stance knee at
+   frames 9 and 28. Protected data remains unchanged; see the TODO below.
+3. `joint_continuations.json` retains source coordinates traced from the
+   director's native seam failures and the new poses. The rr-15 domain and
+   nearest own-piece non-outline edge donor rule add covered paint beneath
+   existing rest covers. `joint_source/` retains the pre-extension hidden
+   layers; a derivation gate and mutation test verify every added texel.
+   The gait-01 candidate in `gait_continuations.proposal.json` closes the two
+   new move pockets with 26 own-torso donor texels. It adds 20 visible pixels
+   at each rear move endpoint, so it remains **inactive** pending the rest
+   envelope decision. No exemption or motion edit was added. Some native neck gaps map to
+   transparent rest space in every relevant piece, and the front hair speck
+   already exists in the source art. These remain design decisions; native
+   acceptance is pending, not asserted.
+4. Committed `samples.json`, `gates.json` and `native_gates.json` contain
+   summaries, extrema and failures only. Full records live in ignored
+   `proof/logs/*.full.json`, linked by SHA-256. Shared native/sheet/review
+   readers accept both this format and legacy full reports. Native capture
+   measures the same board step/scale as the gait sampler.
+5. Focused verification and exact result lines are in
+   `rr20/proof/verification.json`. Strict failures remain visible. The
+   director's previous density/rest/idle (252 frames)/production (1282 frames,
+   zero errors) passes apply to the prior inputs; the new motion/continuations
+   require a fresh windowed chain.
 
-The three recorded task acceptance criteria are covered by requirements 1–4.
-Source identity, motion import and headless integration are verified. Native
-appearance, density rests and final gate acceptance remain director work.
+### TODO_DESIGN fields
 
-## Small generic extensions
+The named fields are retained in `case.py`, `rr20/inputs.json`, `cutout.json`
+and production integration metadata:
 
-- `scripts/maquette_cutout_runtime/contact_actions.gd`: opt-in, data-declared
-  contact playback; `run_scene.gd` adds only the dispatch hook.
-- `action.gd`: integration `step_selectors` map existing resolver flags to a
-  clip, preserving the copied action type and all gameplay/analytics payloads.
-- `humanoid_motion.gd`: optional `planted_during_death` support. Undeclared
-  figures retain the previous path. Both boots plant during the actual sink.
-- `presentation.gd` registers the identity and discovers concrete adapters;
-  `static_enemy_facing.gd` consults that registry. `cutout_context.gd` removes
-  only this identity from its static list. No new creature-name branches were
-  added to shared code.
-- Feedback 1 changes one shared Python native-gate line to compare the
-  layout's declared rest source. Existing rigs still reference their original
-  source rest; this case references its authorized cleaned presentation rest.
-  Earlier rig files and motion bytes remain unchanged.
+- `TODO_DESIGN_rear_far_apex_knee`: rear move frame 9 is 50.870° swing versus
+  57.913° stance; frame 28 is 53.229° versus 53.591°. The supplied lift is 5 px.
+- `TODO_DESIGN_front_head_detached_source_texels`: front source (105,48) and
+  (105,49) are detached painted hair texels. Rotation moves them beyond the
+  strict 2 px distance. Removing or connecting them changes the rest image.
+- `TODO_DESIGN_joint_continuation_rest_envelope`: a representative remaining
+  native rear death frame 5 neck hole maps into transparent source space in
+  head (118,100)–(120,102), torso (118,99)–(121,101), and sleeve
+  (117,100)–(120,102). An own-piece continuation there changes rest alpha.
 
-The untouched source and prior Seer/Thrall/Capacitor closures are bound in
-`rr20/protected_inputs.json` (3,528 files). The rr-18 Mirror case/production
-assets are absent from this checkout, so its cutout regression cannot be run.
-Its maquette tests are not a substitute for that missing rig set.
+### Chosen defaults
 
-## Tests and headless proof
+New values are proof/construction only: `PROGRESS_INTERVAL_FRAMES=100`,
+`PROOF_UV_MARGIN_PX=1` for retaining all opaque triangle fragments,
+`RASTER_COVERAGE_MARGIN_PX=1` (the rr-15/gait-01 pixel-square construction
+margin), `MAX_CONSTRUCTION_PASSES=16`, and `FIXTURE_VALUE=5` in the summary mutation test. CPU diagnostic
+commands limit BLAS to one thread. No playback tuning was chosen. The tuck
+and continuation depth stays the spec's 3 px. Equal-distance donors retain
+row/column order. The director's residue thresholds stay unchanged.
 
-Exact observed result lines and commands are retained in
-`rr20/proof/verification.json`; detailed logs stay gitignored under
-`rr20/proof/logs/`. The focused suites are:
+### Observed focused results
 
-```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && python3 -B -m unittest tests.test_rr20_cutout tests.test_rr20_residue tests.test_rr20_production
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/samples.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/samples.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && python3 -B experiments/cutouts/hollow_mimic/gates.py
-```
+- Unit tests: `Ran 26 tests in 109.748s`; `FAILED (failures=2, errors=1)`.
+  All three failures are the protected rear apex-knee comparison, including
+  production setup. The missing production walk sample issue is fixed.
+- Six current production captures total 7896 headless frames. Three gates pass
+  and three fail only on the rear walk's apex comparison. Contacts, existing
+  cues and outcomes have no additional gate errors.
+- Cross-rig regressions: `Ran 135 tests in 408.659s`; `FAILED (failures=1)`.
+  Gait-01's unit-scoped no-PNG-change assertion rejects rr-20's owned PNGs.
+  It is unchanged. Independent prior-rig byte checks pass.
+- Mirror/evidence: `Ran 43 tests in 66.418s`; `OK`.
+- Inherited RR14 tests rerun with every nested runner forced to rr-20:
+  `Ran 17 tests in 3.488s`; `OK`; six Godot invocations. Their first invocation
+  used their hardcoded rr-14 IDs despite the environment override; the rerun
+  corrects that and leaves all inherited assertions unchanged.
+- Art identity: `Ran 111 tests in 62.059s`; `OK`.
+- CPU diagnostics (estimates, not native acceptance): front has zero seam-hole
+  frames and 53 detached-speck frames; rear has 73 hole frames, including move
+  frames 6 and 26. Both inspect 362 presented frames and retain current bindings.
+- Sampler: 1008 poses; native probe load, registration audit, sidecars and all
+  three SFX sync programs pass. Godot also emits resource teardown warnings;
+  the complete logs are retained. No windowed/native acceptance is claimed.
 
-The source gate now requires zero residue outside features in case pieces,
-continuations, hidden fills, presentation rests and density-processed
-production paint. Retained `residue_source/` pieces reproduce the exact donor
-derivation, and mutations reject arbitrary non-residue repainting. Native
-frame colour acceptance remains pending. No full suite was run, as directed
-by the unit brief.
+### Proof for the design owner
 
-## Proof for the design owner
-
-Run these exact stages in order. Each stage expands to the required repo
-runner(s) and explicit proof contracts in `proof.sh`. Every visual stage uses
-1920×1080 and 100% UI scale. Source, residue, motion, knee and support gates are
-green; these stages provide the fresh renderer proof.
+Run this exact sequence at 1920×1080 and 100% UI scale after resolving the
+TODO_DESIGN decisions. The wrapper invokes the required task/visual runners
+and proof contracts. Native failure crops now go to ignored `proof/logs/`.
+Existing director native rests are retained as previews; changed part hashes
+correctly require fresh native density certification.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh density
@@ -104,65 +106,26 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutou
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh review
 ```
 
-Expected capture paths under `rr20/proof/`:
+Capture locations: `rr20/proof/native_rest/`, `native/` (including transported
+feature masks), `contact_sheets/`, `idle_native/`, `production_native/`, and
+`hollow_mimic_review.mp4`. All captures, CPU crops and full logs are gitignored.
 
-- `native_rest/rest_pair.png`, `native_rest/{front,rear}_rest.png`;
-- `native/{frames.json,pair_<clip>/frame_*.png,pieces/,holes/,seams/,features/}`;
-- `contact_sheets/{front,rear}_<clip>_3x.png`;
-- `idle_native/idle_comparison/frame_*.png` and
-  `hollow_mimic_protagonist_idle.mp4` (five cycles beside the protagonist);
-- `production_native/{front,rear}/{whirlwind_slash,quick_stab,hurl_spear}/`
-  with full-frame captures and `frames.json` / `verification.json`;
-- `hollow_mimic_review.mp4`.
+Small shared extensions in this round are limited to a sampler report-writer
+hook, hashed full-evidence loading, an optional supplied sample report for
+native gates, and pruning the ignored proof tree before binding traversal.
+No shared game runtime code was changed.
 
-The production stage covers real area, melee and ranged copies in both views,
-including the embedded approach movement. The density stage rebakes only this
-unit, records its two native rests and refreshes only its two shadow records.
-No inspection fixture was created here; the brief assigns it to the director.
+## Original brief retained
 
-## TODO_DESIGN and open issues
+Each view retains rigid head/hair/mask, torso, pelvis, gloves and boots, with
+four skinned two-bone limbs. The front violet crack belongs to the head.
+Source ownership reconstructs both approved paintings with 0 px mismatch;
+feedback 1 cleans only two front and one rear chroma-key residue texels in
+derived presentation. Protected paintings, maquette and motion stay unchanged.
 
-No active TODO_DESIGN placeholder remains. Feedback 1 resolves the former
-rear-green placeholder. Residue means `G >= max(R,B)+12` **and**
-`2*G >= 3*max(R,B)` on nontransparent paint. Declared features are exempt;
-legitimate olive and brown outside the band stay unchanged. Only derived
-piece/continuation/hidden-fill RGB is replaced, from the nearest non-residue
-texel of that same piece. Donors with residue are excluded even if they lie
-inside an exempt feature, so feature green cannot bleed into surrounding paint.
-The original source snapshots and certified maquette baseline remain intact.
-`presentation/` holds the cleaned rest separately; its composition mismatch
-is zero against the cleaned pieces, and its source differences are precisely
-the three authorized residue texels.
-
-The protected death preload raises the pelvis 1 px at .15 while the near leg
-is nearly straight. Exact floor support is geometrically unreachable there.
-The runtime retains the supplied keys and existing length clamp; the support
-report records maximum unclamped excess **0.856754 px front / 0.689794 px rear**.
-Presentation can move the boot by one pixel during that preload. Feedback 1
-explicitly accepts the shift; the proof reports it. The subsequent sink plants
-both boots. Dense reach also reports six overreach paths without
-failing them, as the brief requires. No timing or tuning value was changed.
-
-Fresh GPU seam/clean-piece acceptance, final density rest equivalence and
-visual identity remain unproved until the director runs the windowed stages.
-The import command reports the existing duplicate player placeholder UID; it
-completed successfully. Other figures and their source files remain unchanged.
-Feedback 1 retains the same missing rr-18 cutout reference and windowed-proof
-limitations; it introduces no additional open design issue.
-
-## Chosen defaults
-
-Only proof controls were chosen: `PROOF_WORKERS=2`,
-`PROOF_TIMEOUT_SECONDS=180`, `MUTATION_OFFSET_PX=4`, `FIXTURE_SIZE_PX=8`,
-`PROOF_FEATURE_CHROMA_MARGIN=20` (feature proof mask only),
-`PROOF_IDLE_SEED=.37`, `PROOF_TERMINAL_PHASE=.9`,
-`PROOF_ENEMY_TILE=(4,4)`, `PROOF_HERO_TILES={front:(4,6),rear:(4,2)}` and
-`PROOF_HIT_TILES={front:(4,5),rear:(4,3)}`. Copy fixtures use `whirlwind_slash`, `quick_stab` and
-`hurl_spear` to exercise the existing three copied attack kinds. The source
-pixel/bone epsilon is the existing 0.0001; contact epsilon is 0.000001. Native
-canvas, scale measurement, stepped clock, proof layout and timeouts are reused
-from the supplied reference probes. No player-facing default was invented.
-Feedback-1 thresholds come directly from the director. Equal-distance donor
-ties use source row/column order for deterministic replay. New synthetic test
-colours and dimensions are named `FIXTURE_COLOURS`, `FIXTURE_BROWN`,
-`FIXTURE_GREEN` and `FIXTURE_SIZE_PX` in `tests/test_rr20_residue.py`.
+The upper body and both free arms use the specified rigid idle bob; the lower
+body is still. Board, pre-battle and live portraits share the adapter. Shade
+Bolt selects `bolt`; the en06 copy marker selects `mirror` regardless of copied
+attack kind; every movement tile selects `move`; Recede then selects `block`.
+Existing effects, cues, hit/death and the subsequent fade remain integrated.
+The director-accepted death clamp remains a maximum 1 px presented boot shift.

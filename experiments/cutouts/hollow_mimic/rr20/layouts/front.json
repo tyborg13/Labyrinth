@@ -141153,10 +141153,6 @@
     "foot_far"
   ],
   "planted_during_death": true,
-  "leg_roles": {
-    "stride": "near",
-    "trailing": "far"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -141214,6 +141210,7 @@
   ],
   "rest_source": "presentation/front/rest.png",
   "motion_data": "res://experiments/cutouts/hollow_mimic/rr20/compiled_motion.json",
+  "gait_leg_scale_max": 1.22,
   "proof_layers": {
     "head": {
       "mask": "checks/front/head.png",
@@ -141301,7 +141298,7 @@
       "z_index": -4,
       "source": "pieces/front/sleeve_near_hidden.png",
       "rigid": false,
-      "source_sha256": "323075e135b85930e72ffe77a52c69d5c0ffeef0c449ebeb8cd80ba18a7af459"
+      "source_sha256": "4fa2225c58288b0d394057170dadc08de3f31b8dcfb85f5f2fadd155241388c2"
     },
     "hand_near": {
       "mask": "checks/front/hand_near.png",

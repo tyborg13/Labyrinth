@@ -45,6 +45,10 @@ def record():
     records = []
     for view in VIEWS:
         rest = ASSETS / view / 'rest.png'
+        layout_path = ASSETS / (view + '.json')
+        layout = read_json(layout_path)
+        layout['rest_source_sha256'] = digest(rest)
+        write_json(layout_path, layout)
         relative = str(rest.relative_to(ROOT))
         entry = {'path': relative}
         job = ROOT / f'spec/art_identity/jobs/hollow_mimic/mq9_{view}'
@@ -98,7 +102,7 @@ def register(refresh_sources=False):
         'r': ratio, 'r_derivation': {'path': 'data/enemies.json', 'key': 'hollow_mimic.art_scale',
             'expression': 'unit width 1.03 / 255 * art_scale / hero reference (1.03 / 255)'},
         'facings': facings, 'rest_paths': rests,
-        'derivation_note': 'rr-20 approved mq9 source partition; feedback-1 chroma-key residue cleanup in derived pieces only; native rest rebake pending director.'}
+        'derivation_note': 'rr-20 approved mq9 source partition; feedback-1 residue cleanup and feedback-2 own-edge joint continuations; native rest recertification pending director.'}
     existing = next((e for e in registry['entries'] if e['id'] == ID), None)
     if existing is None: registry['entries'].append(entry)
     else: existing.update(entry)

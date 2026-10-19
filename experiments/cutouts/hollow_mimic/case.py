@@ -28,7 +28,11 @@ for side in ('near', 'far'):
 BONES = {name: labels[0] for name, labels in PIECES.items()}
 GROUPS = {'upper_body': ['head', 'torso', 'sleeve_near', 'hand_near', 'sleeve_far', 'hand_far'],
           'weapon_arm': [], 'lower_body': ['pelvis', 'leg_near', 'foot_near', 'leg_far', 'foot_far']}
-DESIGN_PLACEHOLDERS = {}
+DESIGN_PLACEHOLDERS = {
+    'TODO_DESIGN_rear_far_apex_knee': 'Protected 5px gait lift: rear far apex 50.870 < stance 57.913 degrees at frame 9; 53.229 < 53.591 at frame 28. Director data decision required; gate unchanged.',
+    'TODO_DESIGN_joint_continuation_rest_envelope': 'Historical rear death frame 5 neck pocket maps to transparent rest texels in head (118,100)-(120,102), torso (118,99)-(121,101), and sleeve (117,100)-(120,102). A rest-preserving own-piece continuation cannot cover those pixels. A gait-only 26-texel candidate closes the two new move pockets but exposes 20 pixels at both rear move endpoints. Director presentation/art decision required; no exemptions, motion edits or candidate activation.',
+    'TODO_DESIGN_front_head_detached_source_texels': 'Approved front head has detached source texels (105,48) and (105,49); rotations put them beyond the strict 2px distance. Derived presentation/art decision required; source unchanged.'
+}
 
 
 def initialize():
@@ -57,7 +61,6 @@ def initialize():
                                     'thigh_far', 'shin_far', 'foot_far'], 'stationary': True}},
         'knee_policy': {'near_straight_deg': 6},
         'legs': {side: {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}} for side in ('near', 'far')},
-        'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
         'planted_bones': ['foot_near', 'foot_far'], 'planted_tolerance_px': 0.5,
         'held_depth_roles': {}, 'ownership': {'names': names,
             'segments': {n: {'joints': r['joints'], 'owners': r['bones']} for n, r in MESHES.items()},

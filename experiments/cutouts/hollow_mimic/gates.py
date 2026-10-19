@@ -6,7 +6,8 @@ import numpy as np
 from PIL import Image
 from case import ROOT, CASE, ASSETS, DIRECTOR, VIEWS, read_json, write_json, digest
 sys.path.insert(0, str(ROOT / 'experiments/cutouts/arc_thrall'))
-from rr11_knees import knee_report, lift_track, PRESENTED_TARGET_TOLERANCE_PX
+from rr11_knees import PRESENTED_TARGET_TOLERANCE_PX
+from humanoid_cutout.walk_gates import report as knee_report
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
@@ -14,6 +15,8 @@ from humanoid_cutout.compiler import compile_motion
 from maquette_motion.compiler import evaluate
 from maquette_motion.features import source_pixels
 from residue import count as green_pixels, feature_mask, clean_piece
+import proof_records
+from continuations import derivation_errors as continuation_errors
 
 EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
 
@@ -53,20 +56,17 @@ def supports(layout, data, samples):
     from humanoid_cutout.anatomy import for_layout
     anatomy = for_layout(layout)
     view = layout['facing']
-    stride = 'foot_' + layout['leg_roles']['stride']
     forward = np.asarray(data['projection'][view]['forward'])
     step = samples['step_distance_px'] / samples['screen_pixel_scale']
-    lift = lift_track(layout, data)
-    progress = next(t for t in data['view_tracks'][view]['move'] if t['bone'] == stride and t['channel'] == 'forward_px')
     errors, rows, previous, overreach, boot_shifts = [], [], {}, [], []
     for sample in samples['samples']:
         if sample['view'] != view: continue
         clip, phase = sample['clip'], sample['phase']
-        feet = [stride] if clip == 'move' else ['foot_near', 'foot_far']
-        if clip == 'move' and evaluate(lift['keys'], phase) > EPSILON: continue
+        if clip == 'move': continue  # Both-leg stance is checked by shared walk gates.
+        feet = ['foot_near', 'foot_far']
         for foot in feet:
             rest = np.asarray(layout['joints'][foot]['position'])
-            target = rest + forward * evaluate(progress['keys'], phase) * step if clip == 'move' else rest
+            target = rest.copy()
             clamped = False
             if clip == 'death':
                 # Protected death raises the pelvis 1px at .15. A nearly
@@ -100,6 +100,7 @@ def supports(layout, data, samples):
                 previous[key] = {'frame': sample['frame'], 'presented': presented, 'clamped': clamped}
             rows.append({'clip': clip, 'foot': foot, 'kind': sample['kind'], 'frame': sample['frame'], 'target_error_px': distance})
     for clip in data['clips']:
+        if clip == 'move': continue
         if not any(r['clip'] == clip and r['kind'] == 'presented' for r in rows): errors.append(view + '/' + clip + ': missing support evidence')
     return {'ok': not errors, 'errors': errors, 'rows': rows, 'overreach': overreach,
             'death_boot_clamp': {'director_accepted': True, 'maximum_presented_shift_px': max(boot_shifts, default=0.)},
@@ -112,7 +113,7 @@ def headless(samples):
     reports = {}
     for view in VIEWS:
         layout = read_json(CASE / f'layouts/{view}.json')
-        cut = structure_errors(layout, build) + source_errors(CASE, layout, build) + residue_derivation_errors(layout)
+        cut = structure_errors(layout, build) + source_errors(CASE, layout, build) + residue_derivation_errors(layout) + continuation_errors(layout)
         for part in layout['parts']:
             if green_pixels(source_pixels(CASE, part), feature_mask(CASE, layout, part['logical_part'])):
                 cut.append(view + '/' + part['name'] + ': chroma-key residue')
@@ -167,7 +168,7 @@ def native_residue_errors(capture, manifest, layouts):
 
 
 def native(capture):
-    errors = native_errors(CASE, capture)
+    errors = native_errors(CASE, capture, failure_output=CASE/'proof/logs/native_failures', samples=proof_records.samples())
     manifest = read_json(capture / 'frames.json')
     layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}
     errors += native_residue_errors(capture, manifest, layouts)
@@ -178,11 +179,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native', type=Path)
     args = parser.parse_args()
-    result = native(args.native) if args.native else headless(read_json(CASE / 'proof/samples.json'))
-    write_json(CASE / ('proof/native_gates.json' if args.native else 'proof/gates.json'), result)
+    result = native(args.native) if args.native else headless(proof_records.samples())
+    proof_records.write('native_gates' if args.native else 'gates', result)
     print('RR20 %s GATES: %s (%d errors; both views)' % ('NATIVE' if args.native else 'SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH', 'PASS' if result['ok'] else 'FAIL', len(result['errors'])))
     for view, report in result.get('views', {}).items():
         print('RR20 %s SWING KNEES: %s (%d swings; minimum peak %.3f degrees)' % (view.upper(), 'PASS' if report['knees']['ok'] else 'FAIL', len(report['knees']['swings']), report['knees']['minimum_peak_bend_deg']))
+        print('RR20 %s WALK: %s (6 swings; maximum fit %.3f px; maximum total drop %.3f px)' % (view.upper(), 'PASS' if report['knees']['ok'] else 'FAIL', report['knees']['maximum_fit_px'], report['knees']['maximum_total_pelvis_drop_px']))
         print('RR20 %s REACH: %s (%d paths; 1000 intervals; %d overreach reports)' % (view.upper(), 'PASS' if report['reach']['ok'] else 'FAIL', len(report['reach']['paths']), len(report['reach']['overreach'])))
         print('RR20 %s DEATH BOOT CLAMP: ACCEPTED (maximum presented shift %.0f px; motion unchanged)' % (view.upper(), report['supports']['death_boot_clamp']['maximum_presented_shift_px']))
     for error in result['errors'][:25]: print(error)

@@ -141153,10 +141153,6 @@
     "foot_far"
   ],
   "planted_during_death": true,
-  "leg_roles": {
-    "stride": "near",
-    "trailing": "far"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -141198,5 +141194,6 @@
   },
   "rest_source": "front/rest.png",
   "motion_data": "res://assets/units/hollow_mimic_cutout/compiled_motion.json",
+  "gait_leg_scale_max": 1.22,
   "rest_source_sha256": "c5f057b840c552355c50dba56d422b14668792b3764965588513152e7a175b23"
 }

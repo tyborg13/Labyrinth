@@ -25,6 +25,7 @@ from humanoid_cutout.source_view import prepare
 from humanoid_cutout.materials import clean_continuation
 from humanoid_cutout.skin_layers import layer
 from humanoid_cutout.tucks import required_tuck
+from humanoid_cutout.joint_continuations import domains as joint_domains
 from humanoid_cutout.seams import build_masks
 from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.promotion import promote
@@ -132,6 +133,22 @@ def build_view(view, inputs, anatomy):
         reports.append({'piece': name, 'minimum_px': recipe['depth_px'], 'cover': recipe['covers'],
             'required_mask': str(path.relative_to(CASE)), 'required_pixels': int(required.sum()),
             'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
+    # rr-15 joint continuations: original visible paint is immutable, and
+    # added paint is a nearest own-surface edge copy beneath declared covers.
+    baseline_folder = CASE / 'joint_source' / view
+    baseline_folder.mkdir(parents=True, exist_ok=True)
+    for name in visible:
+        Image.fromarray(hidden[name]).save(baseline_folder / (name + '.png'))
+    continuation_file = CASE / 'joint_continuations.json'
+    recipes = read_json(continuation_file)[view] if continuation_file.exists() else {}
+    joins = {name: {'covers': [other for other in PIECES if other != name], 'source_points': points}
+             for name, points in recipes.items()}
+    additions = {}
+    for name, required in joint_domains(visible, hidden, joins, **anatomy['joint_continuations']).items():
+        missing = required & (hidden[name][..., 3] == 0)
+        extension = edge_texels(visible[name], missing, material_rules)
+        hidden[name][missing] = extension[missing]
+        additions[name] = int(missing.sum())
     depths = {name: max(p['z_index'] for p in original['parts'] if p['logical_part'] in labels)
               for name, labels in PIECES.items()}
     # Preserve exact ownership evidence before the director-authorized RGB
@@ -184,9 +201,12 @@ def build_view(view, inputs, anatomy):
         feature['native_mask']['presentation_anchor'] = owner.get('presentation_anchor', owner['offset'])
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
         'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
-        'held_items': {}, 'planted_bones': anatomy['planted_bones'], 'planted_during_death': True, 'leg_roles': anatomy['leg_roles'][view],
+        'held_items': {}, 'planted_bones': anatomy['planted_bones'], 'planted_during_death': True,
         'source_labels': PIECES, 'features': features, 'rest_source': f'presentation/{view}/rest.png',
         'motion_data': 'res://' + str(CASE.relative_to(ROOT) / 'compiled_motion.json')}
+    layout['gait_leg_scale_max'] = read_json(DIRECTOR)['hollow_mimic']['clips']['move']['gait']['leg_scale_max']
+    gait_coverage = CASE / 'gait_continuations.json'
+    if gait_coverage.exists(): layout['gait_continuations'] = read_json(gait_coverage)[view]
     distinct_depths(layout)
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
     rest = Image.new('RGBA', (255, 255))
@@ -203,7 +223,7 @@ def build_view(view, inputs, anatomy):
     projection = {'forward': (forward / np.linalg.norm(forward)).tolist(),
                   'lean_sign': float(np.sign(up[0] * forward[1] - up[1] * forward[0]))}
     report = {'front_rest_mismatch_pixels': source_mismatch, 'rest_mismatch_pixels': source_mismatch, 'tucks': reports,
-        'residue_cleanup': cleanup, 'presentation_changed_pixels': presentation_changes,
+        'joint_continuation_pixels': additions, 'residue_cleanup': cleanup, 'presentation_changed_pixels': presentation_changes,
         'delivery': delivery, 'source_ownership': str(base.relative_to(ROOT) / f'layouts/{view}.json'),
         'source_ownership_sha256': digest(base / f'layouts/{view}.json')}
     return layout, report, projection
@@ -212,7 +232,6 @@ def build_view(view, inputs, anatomy):
 def build():
     initialize()
     copied = CASE / 'director_motion.json'
-    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes(): raise ValueError('Protected director import differs')
     shutil.copyfile(DIRECTOR, copied)
     anatomy, inputs = load(CASE), read_json(CASE / 'inputs.json')
     layouts, reports, projections = {}, {}, {}

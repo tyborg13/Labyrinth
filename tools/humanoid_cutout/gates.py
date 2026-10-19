@@ -1,5 +1,6 @@
 """v2 structural, signed-bone and native-pixel gates (no CPU skin oracle)."""
 import math
+import os
 from pathlib import Path
 
 import numpy as np
@@ -310,7 +311,7 @@ def unexplained_holes(occupied, references):
     return unexplained
 
 
-def native_errors(case, capture, failure_output=None, hole_details=None):
+def native_errors(case, capture, failure_output=None, hole_details=None, samples=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     anatomy = load(case)
@@ -327,7 +328,8 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     bound_inputs=bindings(case)
     if manifest['inputs'] != bound_inputs: errors.append('stale native proof inputs')
     data = read_json(case / 'compiled_motion.json')
-    sampled=read_json(case/'proof/samples.json')
+    from .bone_evidence import read_samples
+    sampled=read_samples(case) if samples is None else samples
     from .bone_evidence import evidence_errors
     errors += evidence_errors(data, sampled, bound_inputs, EPSILON)
     if sampled.get('inputs')!=bound_inputs: errors.append('stale headless pose reference; rerun samples.gd')
@@ -462,8 +464,11 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
 
 
 def bindings(case):
-    paths = [p for p in case.rglob('*') if p.is_file() and p.suffix in ('.json','.png')
-             and 'proof' not in p.relative_to(case).parts]
+    paths = []
+    # Match the Godot binder: prune captures before traversal, not afterward.
+    for directory, children, files in os.walk(case):
+        children[:] = [name for name in children if name != 'proof']
+        paths.extend(Path(directory) / name for name in files if Path(name).suffix in ('.json', '.png'))
     result = {str(p.relative_to(case)): digest(p) for p in paths}
     project = Path(__file__).resolve().parents[2]
     integration = load(case)['integration']

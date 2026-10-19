@@ -11227,8 +11227,8 @@
     "facing": "front"
   },
   "assets/units/hollow_mimic_cutout/front/sleeve_near_hidden.png": {
-    "pixel_sha256": "fd3b9e666051681b55cf412524fa8ca6fe85fdd3407dc3c126bcbf8a4eb18345",
-    "source_pixel_sha256": "fd3b9e666051681b55cf412524fa8ca6fe85fdd3407dc3c126bcbf8a4eb18345",
+    "pixel_sha256": "a2c2e01c48aed0abd68386879616bd2b33963198bd3bcac29a08b0517dd3d9cf",
+    "source_pixel_sha256": "a2c2e01c48aed0abd68386879616bd2b33963198bd3bcac29a08b0517dd3d9cf",
     "id": "hollow_mimic_cutout",
     "mode": "clean",
     "grid": 1.03,
@@ -11425,8 +11425,8 @@
     "facing": "rear"
   },
   "assets/units/hollow_mimic_cutout/rear/torso_hidden.png": {
-    "pixel_sha256": "1a9d68943a36790b7f330f58071302825ebfd1ce1235e93177fd84a86f751b95",
-    "source_pixel_sha256": "00d94fbde436bccbfda93f7416e43397aeb497bbb97c44e1867ae675f86d52c8",
+    "pixel_sha256": "6f9e4bb11fbeb3be174186bce04039462d93c651449e4b6d06d2c54dbe8c797c",
+    "source_pixel_sha256": "af2b13db73e35048b8f1daf47e9319d9b9730466e4dc983316d41f41270e2301",
     "id": "hollow_mimic_cutout",
     "mode": "clean",
     "grid": 1.0,

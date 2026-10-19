@@ -37,6 +37,7 @@ var failures: Array[String]
 var canvas: SubViewport
 var label: Label
 var hero: Node2D
+var proof_geometry: Dictionary = {"step": Samples.PROOF_STEP_PX, "scale": Samples.PROOF_SCALE}
 var _binding_script = preload("res://tests/rr10/bindings.gd")
 
 func _initialize() -> void:
@@ -52,6 +53,8 @@ func _run() -> void:
 		return
 	output = args[args.find("--output") + 1]
 	data = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
+	if data["clips"].get("move", {}).has("gait"):
+		proof_geometry = await preload("res://tests/gait01/board_geometry.gd").measure(self, str(data["creature"]))
 	anatomy = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
 	if args.has("--validate-only"):
 		for view: String in data["view_tracks"]:
@@ -117,6 +120,7 @@ func _run() -> void:
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
 				var checks: Node2D = make_rig(view)
+				checks.set_meta("gait_proof_checks", true)
 				isolate(checks, [str(part["name"])])
 				var node: Node2D = painted_node(checks, str(part["name"]))
 				node.set("texture", checks._texture(checks.layout["proof_layers"][part["name"]]["mask"]))
@@ -247,8 +251,8 @@ func make_rig(view: String) -> Node2D:
 	rig.position = ORIGIN
 	viewport(POSE_SIZE,true).add_child(rig)
 	if not rig.load_rig(): failures.append(str(rig.load_errors))
-	rig.layout["step_distance_px"] = Samples.PROOF_STEP_PX
-	rig.layout["screen_pixel_scale"] = Samples.PROOF_SCALE
+	rig.layout["step_distance_px"] = proof_geometry["step"]
+	rig.layout["screen_pixel_scale"] = proof_geometry["scale"]
 	rigs.append(rig)
 	return rig
 

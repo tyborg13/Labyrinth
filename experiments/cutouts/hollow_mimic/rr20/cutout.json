@@ -5,7 +5,11 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {},
+  "design_placeholders": {
+    "TODO_DESIGN_rear_far_apex_knee": "Protected 5px gait lift: rear far apex 50.870 < stance 57.913 degrees at frame 9; 53.229 < 53.591 at frame 28. Director data decision required; gate unchanged.",
+    "TODO_DESIGN_joint_continuation_rest_envelope": "Historical rear death frame 5 neck pocket maps to transparent rest texels in head (118,100)-(120,102), torso (118,99)-(121,101), and sleeve (117,100)-(120,102). A rest-preserving own-piece continuation cannot cover those pixels. A gait-only 26-texel candidate closes the two new move pockets but exposes 20 pixels at both rear move endpoints. Director presentation/art decision required; no exemptions, motion edits or candidate activation.",
+    "TODO_DESIGN_front_head_detached_source_texels": "Approved front head has detached source texels (105,48) and (105,49); rotations put them beyond the strict 2px distance. Derived presentation/art decision required; source unchanged."
+  },
   "clips": {
     "idle": {
       "seconds": 0.84,
@@ -15,11 +19,37 @@
       "release_at": {}
     },
     "move": {
-      "seconds": 0.7,
+      "seconds": 0.8,
       "intents": [
         "recede:move_away"
       ],
-      "note": "a light, quick step on the stride/trailing pattern: 3 px lift, the pelvis dips 2 px after each landing, a 3 degree lean, the arms swing",
+      "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 2 px after each landing; a 3 degree lean; the arms swing 4 px opposite the stepping leg",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 5,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.0,
+          "down": 2.0,
+          "passing": 0.5,
+          "up": 0.0
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 4
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 4
+          }
+        },
+        "max_fit_px": 6
+      },
       "release_at": {}
     },
     "bolt": {
@@ -28,7 +58,7 @@
       "intents": [
         "shade_bolt:ranged"
       ],
-      "note": "the near hand draws back, then thrusts open-palmed at the target as the shadow bolt leaves (contact); the body leans into it; the far hand pulls back",
+      "note": "the leading arm (hand_far: the arm on the target's side in both 3/4 views) draws back, then thrusts open-palmed at the target as the shadow bolt leaves (contact), reaching out of the black silhouette so the gesture reads at board scale; the body leans 4 degrees into it; the near hand pulls back",
       "release_at": {}
     },
     "mirror": {
@@ -37,7 +67,7 @@
       "intents": [
         "mirror:mirror_last_attack"
       ],
-      "note": "mirrors your last attack: it crouches with both hands drawn back, then thrusts both hands together at the target (contact; the copied effect plays), mask tipped forward; recovers",
+      "note": "mirrors your last attack: it crouches with both hands drawn back, then thrusts both hands at the target (contact; the copied effect plays), the leading hand (hand_far) reaching furthest so the thrust leaves the black silhouette, mask tipped forward; recovers",
       "release_at": {}
     },
     "block": {

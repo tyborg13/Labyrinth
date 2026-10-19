@@ -1,281 +1,372 @@
 {
-  "task_id": "rr-20",
-  "iteration": "director feedback 1",
-  "branch": "codex/rr-20",
+  "round": "director feedback 2",
+  "ok": false,
   "uncommitted": true,
-  "publication_or_peer_review_performed": false,
-  "full_suites_run": false,
-  "windowed_runs_performed": false,
-  "headless_commands": [
-    {
-      "name": "build",
-      "command": "python3 -B experiments/cutouts/hollow_mimic/build.py",
-      "exit": 0,
-      "result_lines": [
-        "RR20 FRONT BUILD: PASS (source identity mismatch: 0 px; presentation residue cleanup: 2 px; 4 skinned limbs)",
-        "RR20 REAR BUILD: PASS (source identity mismatch: 0 px; presentation residue cleanup: 1 px; 4 skinned limbs)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_build.log"
+  "branch": "codex/rr-20",
+  "integration_head": "b565e47282b9f43b5a769f4fd2e2ab2a10c1d562",
+  "acceptance": {
+    "1_integration_build_shadow": {
+      "implementation": "complete",
+      "rest_source_identity_px": {
+        "front": 0,
+        "rear": 0
+      },
+      "shadow_records_restored": 2,
+      "other_units_unchanged": true
     },
-    {
-      "name": "density_paint",
-      "command": "python3 -B experiments/cutouts/hollow_mimic/density.py --refresh-sources",
-      "exit": 0,
+    "2_protected_motion": {
+      "import_byte_identical": true,
+      "steps_per_tile": 6,
+      "move_seconds": 0.8,
+      "lead": "near",
+      "action_leading_hand": "hand_far",
+      "walk_gate_ok": {
+        "front": true,
+        "rear": false
+      },
+      "overreach_report_only": true,
+      "death_boot_shift_px": 1
+    },
+    "3_native_fixes": {
+      "implementation": "partial; design decisions required",
+      "own_edge_hidden_texels_added": {
+        "front": {
+          "sleeve_near": 54
+        },
+        "rear": {
+          "torso": 75
+        }
+      },
+      "exemptions_added": false,
+      "motion_edits": false,
+      "native_recapture_required": true,
+      "cpu_estimates": {
+        "front": {
+          "native_pixels": false,
+          "frames": 362,
+          "failing_frames": 53,
+          "hole_frames": 0,
+          "stray_frames": 53,
+          "move_failures": [],
+          "full_report": "experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/final/front/report.json"
+        },
+        "rear": {
+          "native_pixels": false,
+          "frames": 362,
+          "failing_frames": 73,
+          "hole_frames": 73,
+          "stray_frames": 0,
+          "move_failures": [
+            {
+              "clip": "move",
+              "frame": 6,
+              "holes": [
+                {
+                  "bbox": [
+                    262,
+                    219,
+                    263,
+                    221
+                  ],
+                  "pixel_count": 2
+                }
+              ],
+              "metrics": {}
+            },
+            {
+              "clip": "move",
+              "frame": 26,
+              "holes": [
+                {
+                  "bbox": [
+                    314,
+                    192,
+                    315,
+                    194
+                  ],
+                  "pixel_count": 2
+                }
+              ],
+              "metrics": {}
+            }
+          ],
+          "full_report": "experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/final/rear/report.json"
+        }
+      },
+      "inactive_gait_candidate": {
+        "active": false,
+        "native_pixels": false,
+        "TODO_DESIGN": "TODO_DESIGN_joint_continuation_rest_envelope",
+        "proposal": "gait_continuations.proposal.json",
+        "copied_texels": {
+          "front": 0,
+          "rear": 26
+        },
+        "rear_move_endpoint_alpha_mismatch_px": {
+          "first": 20,
+          "last": 20
+        },
+        "source": "own torso non-outline edge texels; protected motion unchanged"
+      }
+    },
+    "4_compact_proof": {
+      "complete": true,
+      "tracked_bytes": {
+        "samples": 1068,
+        "gates": 26301,
+        "native_gates": 8303
+      },
+      "full_evidence_ignored": true
+    },
+    "5_every_headless_gate_passes": {
+      "met": false,
+      "errors": [
+        "rear/far: apex swing knee does not exceed stance knee"
+      ],
+      "windowed_run_attempted": false,
+      "full_suites_run": false
+    }
+  },
+  "TODO_DESIGN": {
+    "TODO_DESIGN_rear_far_apex_knee": "Protected 5px gait lift: rear far apex 50.870 < stance 57.913 degrees at frame 9; 53.229 < 53.591 at frame 28. Director data decision required; gate unchanged.",
+    "TODO_DESIGN_joint_continuation_rest_envelope": "Historical rear death frame 5 neck pocket maps to transparent rest texels in head (118,100)-(120,102), torso (118,99)-(121,101), and sleeve (117,100)-(120,102). A rest-preserving own-piece continuation cannot cover those pixels. A gait-only 26-texel candidate closes the two new move pockets but exposes 20 pixels at both rear move endpoints. Director presentation/art decision required; no exemptions, motion edits or candidate activation.",
+    "TODO_DESIGN_front_head_detached_source_texels": "Approved front head has detached source texels (105,48) and (105,49); rotations put them beyond the strict 2px distance. Derived presentation/art decision required; source unchanged."
+  },
+  "checks": {
+    "focused": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_focused.log",
+      "result_lines": [
+        "Ran 26 tests in 109.748s",
+        "FAILED (failures=2, errors=1)"
+      ]
+    },
+    "gates": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_gates.log",
+      "result_lines": [
+        "RR20 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH GATES: FAIL (1 errors; both views)",
+        "RR20 FRONT SWING KNEES: PASS (6 swings; minimum peak 51.202 degrees)",
+        "RR20 FRONT WALK: PASS (6 swings; maximum fit 0.852 px; maximum total drop 2.000 px)",
+        "RR20 FRONT REACH: PASS (14 paths; 1000 intervals; 7 overreach reports)",
+        "RR20 FRONT DEATH BOOT CLAMP: ACCEPTED (maximum presented shift 1 px; motion unchanged)",
+        "RR20 REAR SWING KNEES: FAIL (6 swings; minimum peak 45.178 degrees)",
+        "RR20 REAR WALK: FAIL (6 swings; maximum fit 0.498 px; maximum total drop 2.000 px)",
+        "RR20 REAR REACH: PASS (14 paths; 1000 intervals; 6 overreach reports)",
+        "RR20 REAR DEATH BOOT CLAMP: ACCEPTED (maximum presented shift 1 px; motion unchanged)"
+      ]
+    },
+    "regressions": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_regressions.log",
+      "result_lines": [
+        "Ran 135 tests in 408.659s",
+        "FAILED (failures=1)",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)"
+      ]
+    },
+    "mirror_evidence": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_mirror_evidence.log",
+      "result_lines": [
+        "Ran 43 tests in 66.418s",
+        "OK"
+      ]
+    },
+    "rr14_runner_rerun": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_rr14_runner_rerun.log",
+      "result_lines": [
+        "Ran 17 tests in 3.488s",
+        "OK",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR20 INHERITED RUNNERS: PASS (6 Godot invocations forced to rr-20)"
+      ]
+    },
+    "art_identity": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_art_identity.log",
+      "result_lines": [
+        "Ran 111 tests in 62.059s",
+        "OK"
+      ]
+    },
+    "samples": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_samples.log",
+      "result_lines": [
+        "RR20 COMPACT SAMPLES: PASS (28 inventories; full transforms in ignored logs)",
+        "RR10 BONE SAMPLES: PASS (1008 poses; headless transforms only)"
+      ]
+    },
+    "native_load": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_native_load.log",
+      "result_lines": [
+        "RR20 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    "shadow_refresh": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_shadow_refresh.log",
+      "result_lines": [
+        "RR20 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    "density": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_density.log",
       "result_lines": [
         "PROCESSED 44 file(s)",
         "RR20 DENSITY PAINT: PASS (both views adopted/processed; native rest pending director)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_density.log"
+      ]
     },
-    {
-      "name": "focused_and_mutations",
-      "command": "python3 -B -m unittest tests.test_rr20_cutout tests.test_rr20_residue tests.test_rr20_production",
-      "exit": 0,
+    "density_check": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_density_check.log",
       "result_lines": [
-        "Ran 23 tests in 122.788s",
-        "OK"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_final_focused.log"
+        "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+      ]
     },
-    {
-      "name": "earlier_rig_regressions",
-      "command": "LABYRINTH_TASK_ID=rr-20 python3 -B -m unittest tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr13_continuations tests.test_rr14_anatomy tests.test_rr14_bone_guards tests.test_rr14_foundations tests.test_rr15_action_direction tests.test_rr15_reach tests.test_rr15_view_keys tests.test_rr16_review_fixes tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr17_production tests.test_rr17_feedback tests.test_rr19_overlap",
-      "exit": 0,
-      "result_lines": [
-        "Ran 113 tests in 209.360s",
-        "OK",
-        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
-        "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
-        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
-        "RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_regressions.log"
-    },
-    {
-      "name": "art_identity",
-      "command": "python3 -B tests/test_art_identity_gate.py",
-      "exit": 0,
-      "result_lines": [
-        "Ran 111 tests in 49.595s",
-        "OK"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_art_identity.log"
-    },
-    {
-      "name": "en06",
-      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/en06_enemies_test.gd",
-      "exit": 0,
-      "result_lines": [
-        "EN06 ENEMIES TEST RESULT: PASS (177 checks, 0 failures)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_en06.log"
-    },
-    {
-      "name": "bone_inventory",
-      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/samples.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
-      "exit": 0,
-      "result_lines": [
-        "RR10 BONE SAMPLES: PASS (922 poses; headless transforms only)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_samples.log"
-    },
-    {
-      "name": "native_probe_load",
-      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/native_capture.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/native --validate-only",
-      "exit": 0,
-      "result_lines": [
-        "RR20 NATIVE PROBE LOAD: PASS"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_native_load.log"
-    },
-    {
-      "name": "gates",
-      "command": "python3 -B experiments/cutouts/hollow_mimic/gates.py",
-      "exit": 0,
-      "result_lines": [
-        "RR20 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH GATES: PASS (0 errors; both views)",
-        "RR20 FRONT SWING KNEES: PASS (2 swings; minimum peak 34.379 degrees)",
-        "RR20 FRONT REACH: PASS (14 paths; 1000 intervals; 3 overreach reports)",
-        "RR20 FRONT DEATH BOOT CLAMP: ACCEPTED (maximum presented shift 1 px; motion unchanged)",
-        "RR20 REAR SWING KNEES: PASS (2 swings; minimum peak 39.833 degrees)",
-        "RR20 REAR REACH: PASS (14 paths; 1000 intervals; 3 overreach reports)",
-        "RR20 REAR DEATH BOOT CLAMP: ACCEPTED (maximum presented shift 1 px; motion unchanged)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_gates.log"
-    },
-    {
-      "name": "density_check",
-      "command": "python3 tools/process_board_density.py --only hollow_mimic_cutout --check",
-      "exit": 1,
-      "result_lines": [
-        "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: no rebake record; run --record-rests after native rebake",
-        "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: no rebake record; run --record-rests after native rebake"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_density_check.log"
-    },
-    {
-      "name": "registration_audit",
-      "command": "python3 tools/test_registration_audit.py --json experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_registration_audit.json",
-      "exit": 0,
-      "result_lines": [
-        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_registration_audit.log"
-    },
-    {
-      "name": "sidecars",
-      "command": "tests.test_godot_sidecars.assert_sidecars_versioned(tracked plus uncommitted closure)",
-      "exit": 0,
-      "result_lines": [
-        "RR20 GODOT SIDECARS: PASS (tracked plus uncommitted unit closure)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_sidecars.log"
-    },
-    {
-      "name": "sfx_sync_0",
-      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
-      "exit": 0,
+    "sfx_0": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_sfx_0.log",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_sfx_0.log"
+      ]
     },
-    {
-      "name": "sfx_sync_1",
-      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
-      "exit": 0,
+    "sfx_1": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_sfx_1.log",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_sfx_1.log"
+      ]
     },
-    {
-      "name": "sfx_sync_2",
-      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
-      "exit": 0,
+    "sfx_2": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_sfx_2.log",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
-      ],
-      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback1_sfx_2.log"
+      ]
+    },
+    "registration_audit": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_registration_audit.log",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
+      ]
+    },
+    "final_audit": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_final_audit.log",
+      "result_lines": [
+        "GODOT SIDECARS: gitignored exemptions = 1724",
+        "RR20 GODOT SIDECARS: PASS (tracked plus uncommitted unit closure)",
+        "RR20 PYTHON PARSE / DIFF WHITESPACE: PASS",
+        "RR20 PROTECTED INPUTS: PASS (3528 files; 0 changed)",
+        "RR20 PRIOR RIG BYTES: PASS (Seer, Thrall, Mirror, Capacitor; 0 changed files)"
+      ]
+    },
+    "production_gates": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_production_gates.log",
+      "result_lines": [
+        "RR20 PRODUCTION LOGIC: FAIL (1316 frames; 1 errors)",
+        "RR20 PRODUCTION LOGIC: FAIL (1316 frames; 1 errors)",
+        "RR20 PRODUCTION LOGIC: FAIL (1316 frames; 1 errors)",
+        "RR20 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)"
+      ]
+    },
+    "cpu_front": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_cpu_front.log",
+      "result_lines": [
+        "RR20 CPU front: 100 frames; 0 failing",
+        "RR20 CPU front: 200 frames; 6 failing",
+        "RR20 CPU front: 300 frames; 10 failing",
+        "RR20 CPU FRONT: FAIL (362 frames; 53 failing frames)"
+      ]
+    },
+    "cpu_rear": {
+      "log": "experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_cpu_rear.log",
+      "result_lines": [
+        "RR20 CPU rear: 100 frames; 2 failing",
+        "RR20 CPU rear: 200 frames; 22 failing",
+        "RR20 CPU rear: 300 frames; 29 failing",
+        "RR20 CPU REAR: FAIL (362 frames; 73 failing frames)"
+      ]
     }
-  ],
+  },
   "production_scenarios": [
     {
-      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/hurl_spear/logic_frames.json",
-      "frames": 1283,
-      "ok": true,
-      "native_pixels": false
+      "view": "front",
+      "mirror_card": "whirlwind_slash",
+      "headless_frames": 1316,
+      "strict_gate_ok": false,
+      "errors": [
+        "rear/far: apex swing knee does not exceed stance knee"
+      ],
+      "manifest": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/whirlwind_slash/logic_frames.json"
     },
     {
-      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/quick_stab/logic_frames.json",
-      "frames": 1283,
-      "ok": true,
-      "native_pixels": false
+      "view": "front",
+      "mirror_card": "quick_stab",
+      "headless_frames": 1316,
+      "strict_gate_ok": false,
+      "errors": [
+        "rear/far: apex swing knee does not exceed stance knee"
+      ],
+      "manifest": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/quick_stab/logic_frames.json"
     },
     {
-      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/whirlwind_slash/logic_frames.json",
-      "frames": 1283,
-      "ok": true,
-      "native_pixels": false
+      "view": "front",
+      "mirror_card": "hurl_spear",
+      "headless_frames": 1316,
+      "strict_gate_ok": false,
+      "errors": [
+        "rear/far: apex swing knee does not exceed stance knee"
+      ],
+      "manifest": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/hurl_spear/logic_frames.json"
     },
     {
-      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/hurl_spear/logic_frames.json",
-      "frames": 1283,
-      "ok": true,
-      "native_pixels": false
+      "view": "rear",
+      "mirror_card": "whirlwind_slash",
+      "headless_frames": 1316,
+      "strict_gate_ok": true,
+      "errors": [],
+      "manifest": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/whirlwind_slash/logic_frames.json"
     },
     {
-      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/quick_stab/logic_frames.json",
-      "frames": 1283,
-      "ok": true,
-      "native_pixels": false
+      "view": "rear",
+      "mirror_card": "quick_stab",
+      "headless_frames": 1316,
+      "strict_gate_ok": true,
+      "errors": [],
+      "manifest": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/quick_stab/logic_frames.json"
     },
     {
-      "path": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/whirlwind_slash/logic_frames.json",
-      "frames": 1283,
-      "ok": true,
-      "native_pixels": false
+      "view": "rear",
+      "mirror_card": "hurl_spear",
+      "headless_frames": 1316,
+      "strict_gate_ok": true,
+      "errors": [],
+      "manifest": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/hurl_spear/logic_frames.json"
     }
   ],
-  "protected_inventory": {
+  "production_headless_frames": 7896,
+  "protected_inputs": {
     "files": 3528,
-    "changed": []
+    "changed": 0,
+    "committed_integration_hash_updates": 32
   },
-  "residue_policy": {
-    "green_margin_inclusive": 12,
-    "green_ratio_inclusive": 1.5,
-    "declared_feature_masks_exempt": true,
-    "donors": "nearest non-residue texel of same logical piece, including its continuations and hidden fill; row/column tie order",
-    "cleanup": {
-      "front": {
-        "head": [
-          {
-            "at": [
-              107,
-              84
-            ],
-            "donor": [
-              107,
-              83
-            ]
-          },
-          {
-            "at": [
-              107,
-              85
-            ],
-            "donor": [
-              106,
-              85
-            ]
-          }
-        ]
-      },
-      "rear": {
-        "head": [
-          {
-            "at": [
-              125,
-              54
-            ],
-            "donor": [
-              125,
-              53
-            ]
-          }
-        ]
-      }
-    },
-    "presentation_changed_pixels": {
-      "front": 2,
-      "rear": 1
-    },
-    "protected_sources_modified": false
+  "runner_correction": "Inherited RR14 tests initially hardcoded rr-14 despite LABYRINTH_TASK_ID. Corrected rerun used tests/rr20_regression_runner.py: 17 tests, six Godot invocations forced to rr-20; inherited assertions unchanged.",
+  "known_regression_scope_failure": "Gait-01 test_non_move_tracks_and_out_of_scope_assets_remain_identical requires no PNG changes anywhere; rejects the authorized rr-20 PNG files. Inherited assertion unchanged; all four prior rig closures are byte-identical.",
+  "native_evidence_state": "director previous captures are historical; current native acceptance and density rest certification remain pending",
+  "chosen_defaults": {
+    "PROGRESS_INTERVAL_FRAMES": 100,
+    "PROOF_UV_MARGIN_PX": 1,
+    "RASTER_COVERAGE_MARGIN_PX": 1,
+    "MAX_CONSTRUCTION_PASSES": 16,
+    "FIXTURE_VALUE": 5,
+    "diagnostic_environment": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
   },
-  "acceptance": {
-    "source_rest_mismatch_pixels": {
-      "front": 0,
-      "rear": 0
-    },
-    "headless_gates_pass": true,
-    "gate_errors": [],
-    "director_motion_byte_identical": true,
-    "death_boot_clamp": {
-      "front": {
-        "director_accepted": true,
-        "maximum_presented_shift_px": 1.0
-      },
-      "rear": {
-        "director_accepted": true,
-        "maximum_presented_shift_px": 1.0
-      }
-    },
-    "native_density_rest_certified": false,
-    "native_clean_seam_idle_verified": false,
-    "missing_reference_set": "rr-18 Glacial Mirror cutout is absent from this checkout"
-  },
-  "design_placeholders": {},
-  "windowed_proof_commands": [
+  "shared_extensions": [
+    "tests/rr10/samples.gd: overridable report writer",
+    "tools/humanoid_cutout/bone_evidence.py: legacy/full or hashed compact samples",
+    "tools/humanoid_cutout/gates.py: optional supplied samples; prune ignored proof tree"
+  ],
+  "windowed_sequence": [
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh density",
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh rest",
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh native",
@@ -283,5 +374,124 @@
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh idle",
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh production",
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh review"
-  ]
+  ],
+  "files_changed": [
+    "assets/generated/unit_shadow_cache.res",
+    "assets/units/hollow_mimic_cutout/compiled_motion.json",
+    "assets/units/hollow_mimic_cutout/director_motion.json",
+    "assets/units/hollow_mimic_cutout/front.json",
+    "assets/units/hollow_mimic_cutout/front/sleeve_near_hidden.png",
+    "assets/units/hollow_mimic_cutout/integration.json",
+    "assets/units/hollow_mimic_cutout/rear.json",
+    "assets/units/hollow_mimic_cutout/rear/torso_hidden.png",
+    "experiments/cutouts/hollow_mimic/README.md",
+    "experiments/cutouts/hollow_mimic/build.py",
+    "experiments/cutouts/hollow_mimic/case.py",
+    "experiments/cutouts/hollow_mimic/continuations.py",
+    "experiments/cutouts/hollow_mimic/cpu_proof.py",
+    "experiments/cutouts/hollow_mimic/density.py",
+    "experiments/cutouts/hollow_mimic/gait_coverage.py",
+    "experiments/cutouts/hollow_mimic/gates.py",
+    "experiments/cutouts/hollow_mimic/proof_records.py",
+    "experiments/cutouts/hollow_mimic/rr20/anatomy.json",
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/sleeve_near_hidden.png",
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/torso_hidden.png",
+    "experiments/cutouts/hollow_mimic/rr20/compiled_motion.json",
+    "experiments/cutouts/hollow_mimic/rr20/cutout.json",
+    "experiments/cutouts/hollow_mimic/rr20/director_motion.json",
+    "experiments/cutouts/hollow_mimic/rr20/gait_continuations.proposal.json",
+    "experiments/cutouts/hollow_mimic/rr20/inputs.json",
+    "experiments/cutouts/hollow_mimic/rr20/joint_continuations.json",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/foot_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/foot_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/foot_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/foot_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/hand_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/hand_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/hand_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/hand_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/head.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/head.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/leg_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/leg_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/leg_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/leg_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/pelvis.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/pelvis.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/sleeve_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/sleeve_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/sleeve_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/sleeve_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/torso.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/torso.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/foot_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/foot_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/foot_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/foot_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/hand_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/hand_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/hand_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/hand_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/head.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/head.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/leg_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/leg_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/leg_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/leg_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/pelvis.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/pelvis.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/sleeve_far.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/sleeve_far.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/sleeve_near.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/sleeve_near.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/torso.png",
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/torso.png.import",
+    "experiments/cutouts/hollow_mimic/rr20/layouts/front.json",
+    "experiments/cutouts/hollow_mimic/rr20/layouts/rear.json",
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/sleeve_near_hidden.png",
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/torso_hidden.png",
+    "experiments/cutouts/hollow_mimic/rr20/proof/build.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/gait_proposal.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/gates.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/native_gates.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/verification.json",
+    "experiments/cutouts/hollow_mimic/rr20/protected_inputs.json",
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/sleeve_near_hidden.png",
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/torso_hidden.png",
+    "spec/assets/board_pixel_density/outputs.json",
+    "spec/assets/board_pixel_density/registry.json",
+    "spec/assets/board_pixel_density/sources/assets/units/hollow_mimic_cutout/front/sleeve_near_hidden.png",
+    "spec/assets/board_pixel_density/sources/assets/units/hollow_mimic_cutout/rear/torso_hidden.png",
+    "tests/rr10/samples.gd",
+    "tests/rr20/native_capture.gd",
+    "tests/rr20/production_capture.gd",
+    "tests/rr20/samples.gd",
+    "tests/rr20_regression_runner.py",
+    "tests/test_rr20_cutout.py",
+    "tests/test_rr20_feedback2.py",
+    "tools/humanoid_cutout/bone_evidence.py",
+    "tools/humanoid_cutout/gates.py"
+  ],
+  "headless_commands": {
+    "focused": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B -m unittest tests.test_rr20_cutout tests.test_rr20_residue tests.test_rr20_feedback2 tests.test_rr20_production",
+    "gates": "python3 -B experiments/cutouts/hollow_mimic/gates.py",
+    "sampler": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/samples.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
+    "native_load": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/native_capture.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/native --validate-only",
+    "cpu": [
+      "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/cpu_proof.py --view front --output experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/final/front",
+      "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/cpu_proof.py --view rear --output experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/final/rear"
+    ],
+    "corrected_rr14_runners": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py",
+    "mirror_evidence": "LABYRINTH_TASK_ID=rr-20 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B -m unittest tests.test_rr18_humanoid tests.test_rr18_air_policy tests.test_rr18_materials tests.test_rr10_bone_evidence",
+    "sfx": [
+      "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd"
+    ],
+    "art_identity": "python3 -B tests/test_art_identity_gate.py",
+    "registration": "python3 -B tools/test_registration_audit.py --json experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback2_registration_audit.json",
+    "density_check": "python3 tools/process_board_density.py --check --only hollow_mimic_cutout",
+    "shadow_refresh": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/shadow_refresh.gd"
+  }
 }

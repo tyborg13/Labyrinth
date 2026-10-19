@@ -2,8 +2,12 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/hollow_mimic/rr20",
-  "director_sha256": "c0b019fe8e0de2d50d9d63c35c10d7a5746aae933b9bca27b821d9465401665f",
-  "design_placeholders": {},
+  "director_sha256": "27285f771462d3491bdfff07e4c5e0c21f2062f0483a098cd1f52e1887d66ece",
+  "design_placeholders": {
+    "TODO_DESIGN_rear_far_apex_knee": "Protected 5px gait lift: rear far apex 50.870 < stance 57.913 degrees at frame 9; 53.229 < 53.591 at frame 28. Director data decision required; gate unchanged.",
+    "TODO_DESIGN_joint_continuation_rest_envelope": "Historical rear death frame 5 neck pocket maps to transparent rest texels in head (118,100)-(120,102), torso (118,99)-(121,101), and sleeve (117,100)-(120,102). A rest-preserving own-piece continuation cannot cover those pixels. A gait-only 26-texel candidate closes the two new move pockets but exposes 20 pixels at both rear move endpoints. Director presentation/art decision required; no exemptions, motion edits or candidate activation.",
+    "TODO_DESIGN_front_head_detached_source_texels": "Approved front head has detached source texels (105,48) and (105,49); rotations put them beyond the strict 2px distance. Derived presentation/art decision required; source unchanged."
+  },
   "idle_phase_seed": "slot",
   "step_selectors": {
     "en06_mirror": "mirror"
@@ -25,11 +29,14 @@
   },
   "density": {
     "entry": "hollow_mimic_cutout",
-    "native_rest_pending": []
+    "native_rest_pending": [
+      "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+    ]
   },
   "files": {
-    "compiled_motion.json": "cd0994021d56de025962c0bbc620295d1bb54b793e170443a57a043318f11d6c",
-    "director_motion.json": "c0b019fe8e0de2d50d9d63c35c10d7a5746aae933b9bca27b821d9465401665f",
+    "compiled_motion.json": "248e064a2d66501b013d479a61f5c5e6dbc30da0f19e9cb2646852cb6d5ef478",
+    "director_motion.json": "27285f771462d3491bdfff07e4c5e0c21f2062f0483a098cd1f52e1887d66ece",
     "front/foot_far.png": "4543ba8f4c21f738c81934bfdd20bf5a984b0173896d99d812cdb12ea47bfe0f",
     "front/foot_far_hidden.png": "a640b5b7d6a0fe8dc793d37b2fabea89ca618cc414d81da0155254f4df7e0379",
     "front/foot_near.png": "22a5df43d8606c7718af20158f8ee0ebe39ddd962d1f2be008951fed31e5e4fb",
@@ -50,10 +57,10 @@
     "front/sleeve_far.png": "df69532a942a4981281cd98797910935c8d7ead17814979ad5762c587add0c89",
     "front/sleeve_far_hidden.png": "1b7581d575766d5b30c5c06f337616b78e0f0c52ef8edcaec74665a28b72e2ee",
     "front/sleeve_near.png": "dc37f67213ca8cb4963787fc0312b37fd7d5820fad1930b0bddd0f2e25727cc1",
-    "front/sleeve_near_hidden.png": "323075e135b85930e72ffe77a52c69d5c0ffeef0c449ebeb8cd80ba18a7af459",
+    "front/sleeve_near_hidden.png": "4fa2225c58288b0d394057170dadc08de3f31b8dcfb85f5f2fadd155241388c2",
     "front/torso.png": "601ca0efd45f3bf170d5acbd584ef03d5d814d30e5e20aa160dc2fe66c80b232",
     "front/torso_hidden.png": "a280c1b463ad92d70d62bfb667e7329dfe32eda66b2d73773419883af5616d06",
-    "front.json": "0972e9e5001dd610de67b9954612a6ffcc848de684202291a19310069630ef57",
+    "front.json": "7380bb16f272bd455e08456c9730105ecaddd65d751831818f15b51b1ac55c62",
     "rear/foot_far.png": "f892bb100314a8b8c231e675806abd2c8c3a5c31dde801fba0f00ef180826d44",
     "rear/foot_far_hidden.png": "fcce6e69c089eb5210fb3f937bbe6998db6d902578192ec8607ba4f07f77a990",
     "rear/foot_near.png": "e6e1b6d7b91a68c94ce3eebffa2bb2e88053eea3463b7b26e236e318d97725c3",
@@ -76,8 +83,8 @@
     "rear/sleeve_near.png": "b867af117549f5274d3e491c9ed0aa7a78510c9b54e343c2a2a11f401d6228c3",
     "rear/sleeve_near_hidden.png": "c1a4d05646986eb597c724c1d67429e6716e9fe35690b26e9ecb702bb4ba7378",
     "rear/torso.png": "532336e2407d5deeea34b8cb2785c8cb7183c787b7677a9cd53e9e311a130434",
-    "rear/torso_hidden.png": "aa9faaea69069222e2f7ae7f01f0e91eb221c1d30c9efd0c3181c2ed4ab0cfae",
-    "rear.json": "6add0ea27421bdf78a469253a78dc4a97b5ff69c19d80b166d28bd49cd0de662",
+    "rear/torso_hidden.png": "5f1edc08c7c200bb1d8d8132470a0fed9e7903945bf15e238d480e6fa9e2de78",
+    "rear.json": "139c9fe8a470f1f9921288bd1488fe4ff34d1c30909feecaa3abe956051a32f9",
     "renderer.gd": "36be51af9cb29230d8a6b6ae191a5ad8cabceadce974263b0c1ae56a1c87b26a",
     "rig.gd": "f02c509e11dc2b3552057fc9b24479bb03de3479e0f2f0fae3d5b66e30797816"
   }

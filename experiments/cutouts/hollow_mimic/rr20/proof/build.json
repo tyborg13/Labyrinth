@@ -122,6 +122,9 @@
       "missing_pixels": 0
     }
   ],
+  "joint_continuation_pixels": {
+    "sleeve_near": 54
+  },
   "residue_cleanup": {
     "head": [
       {
@@ -303,6 +306,9 @@
           "missing_pixels": 0
         }
       ],
+      "joint_continuation_pixels": {
+        "sleeve_near": 54
+      },
       "residue_cleanup": {
         "head": [
           {
@@ -484,6 +490,9 @@
           "missing_pixels": 0
         }
       ],
+      "joint_continuation_pixels": {
+        "torso": 75
+      },
       "residue_cleanup": {
         "head": [
           {
@@ -532,7 +541,7 @@
       "source_ownership_sha256": "ad554bfd1470d3109a18285a12f1b6fdfe0da1093cd9523307ddaf88331c0d99"
     }
   },
-  "director_sha256": "c0b019fe8e0de2d50d9d63c35c10d7a5746aae933b9bca27b821d9465401665f",
+  "director_sha256": "27285f771462d3491bdfff07e4c5e0c21f2062f0483a098cd1f52e1887d66ece",
   "production_promoted": true,
   "native_proof": "pending director windowed captures"
 }

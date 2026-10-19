@@ -23,6 +23,7 @@ var _scene: Control
 var _viewport: SubViewport
 var _stage: String
 var _logic: bool
+var _walk_samples: Dictionary = {}
 var _frames: Array[Dictionary]
 var _failures: Array[String]
 var _data: Dictionary
@@ -119,7 +120,7 @@ func _run() -> void:
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/hollow_mimic/rr20")
 	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
-		"size": [1920, 1080], "ui_scale": 1.0, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
+		"size": [1920, 1080], "ui_scale": 1.0, "walk_samples": _walk_samples, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
 	var file := FileAccess.open(_output.path_join("logic_frames.json" if _logic else "frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(report))
 	print("MAQUETTE PRODUCTION %s: %s (%d frames)" % ["LOGIC" if _logic else "NATIVE", "PASS" if _failures.is_empty() else "FAIL", _frames.size()])
@@ -140,7 +141,9 @@ func _capture() -> void:
 		return
 	var snapshot: Dictionary = renderer.snapshot()
 	if snapshot["clip"] != _stage: return
-	var rig: Node = renderer.rigs[snapshot["facing"]]
+	var rig: Node2D = renderer.rigs[snapshot["facing"]]
+	if _stage == "move" and not _walk_samples.has(snapshot["facing"]):
+		_walk_samples[snapshot["facing"]] = preload("res://tests/gait01/production_walk.gd").capture(rig, str(snapshot["clip"]), float(snapshot["phase"]))
 	var pose: Array = []
 	for bone: String in rig.bones:
 		var node: Bone2D = rig.bones[bone]

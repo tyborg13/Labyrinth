@@ -182,11 +182,11 @@
       "file": "rear/torso_hidden.png",
       "offset": [
         104,
-        95
+        90
       ],
       "bbox": [
         104,
-        95,
+        90,
         155,
         131
       ],
@@ -147973,10 +147973,6 @@
     "foot_far"
   ],
   "planted_during_death": true,
-  "leg_roles": {
-    "stride": "far",
-    "trailing": "near"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -148018,5 +148014,6 @@
   },
   "rest_source": "rear/rest.png",
   "motion_data": "res://assets/units/hollow_mimic_cutout/compiled_motion.json",
+  "gait_leg_scale_max": 1.22,
   "rest_source_sha256": "c822a061f43aeab5e2691266570d805926b682c56b3bea35c994dd74c0f4cd89"
 }

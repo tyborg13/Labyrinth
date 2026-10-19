@@ -1,0 +1,15 @@
+{
+  "active": false,
+  "native_pixels": false,
+  "TODO_DESIGN": "TODO_DESIGN_joint_continuation_rest_envelope",
+  "proposal": "gait_continuations.proposal.json",
+  "copied_texels": {
+    "front": 0,
+    "rear": 26
+  },
+  "rear_move_endpoint_alpha_mismatch_px": {
+    "first": 20,
+    "last": 20
+  },
+  "source": "own torso non-outline edge texels; protected motion unchanged"
+}

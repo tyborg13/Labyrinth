@@ -107,5 +107,13 @@
     "('front', 'death', 83): detached opaque component outside outline exemption",
     "('rear', 'death', 83): new joint-seam hole larger than 1px"
   ],
-  "native_pixels": true
+  "native_pixels": true,
+  "evidence_state": "historical director capture before feedback 2; stale for current inputs",
+  "current_inputs_verified": false,
+  "native_recapture_required": true,
+  "historical_capture_manifest_sha256": "af74d64d307cf04054ef7ba23e614944df878541fde1e9020165178e0cc6179f",
+  "full_evidence": {
+    "file": "logs/native_gates.full.json",
+    "sha256": "884a8cfe3981a34a03316d27968df1dddf5782f80fe50c1296ee9ba16f0c229e"
+  }
 }

@@ -182,11 +182,11 @@
       "file": "pieces/rear/torso_hidden.png",
       "offset": [
         104,
-        95
+        90
       ],
       "bbox": [
         104,
-        95,
+        90,
         155,
         131
       ],
@@ -147973,10 +147973,6 @@
     "foot_far"
   ],
   "planted_during_death": true,
-  "leg_roles": {
-    "stride": "far",
-    "trailing": "near"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -148019,6 +148015,7 @@
   "features": [],
   "rest_source": "presentation/rear/rest.png",
   "motion_data": "res://experiments/cutouts/hollow_mimic/rr20/compiled_motion.json",
+  "gait_leg_scale_max": 1.22,
   "proof_layers": {
     "head": {
       "mask": "checks/rear/head.png",
@@ -148057,12 +148054,12 @@
       "mask": "checks/rear/torso_hidden.png",
       "mask_offset": [
         104,
-        95
+        90
       ],
       "z_index": -8,
       "source": "pieces/rear/torso_hidden.png",
       "rigid": true,
-      "source_sha256": "ad3cab663e82b9dfbc2755f06160c9ebf7012eee9b5317ea31149ce95d1736d8"
+      "source_sha256": "0b2bed1ce43916a077314c37a2c2db6b09aa73810a17c4d6604f4448d90d0126"
     },
     "pelvis": {
       "mask": "checks/rear/pelvis.png",
