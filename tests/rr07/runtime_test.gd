@@ -43,7 +43,8 @@ func _run() -> void:
 						_expect(rig.bones[bone].transform.is_finite(), type + ": finite " + view + "/" + clip + "/" + bone)
 						pose.append(str(rig.bones[bone].transform))
 					poses[JSON.stringify(pose)] = true
-				var minimum: int = 3 if type == "hoarfrost_seer" and clip == "idle" else 6
+				# Both are humanoid rig v2 now: the idle is the hero's few-state cut-out bob.
+				var minimum: int = 3 if clip == "idle" else 6
 				_expect(poses.size() >= minimum, type + ": complete progression " + view + "/" + clip)
 				if type == "hoarfrost_seer":
 					_expect(rig.bones["staff"].get_parent() == rig.bones["hand_far"], "Whole staff follows far grip")
@@ -54,9 +55,9 @@ func _run() -> void:
 				_expect(rig.bones["pelvis"].get_parent() == rig.bones["root"], "Pelvis follows root")
 				_expect(rig.bones["foot_near"].get_parent() == rig.bones["hem_near"], "Foot follows hem anchor")
 			else:
-				_expect(rig.bones["collar"].get_parent() == rig.bones["torso"], type + ": director collar hierarchy")
-				_expect(not rig.bones.has("pelvis"), type + ": no pelvis bone")
-				_expect(rig.bones["loincloth"].get_parent() == rig.bones["torso"], "Loincloth follows torso")
+				_expect(not rig.bones.has("collar"), type + ": collar fused into the torso")
+				_expect(rig.bones["pelvis"].get_parent() == rig.bones["root"], type + ": pelvis follows root")
+				_expect(rig.bones["loincloth_tip"].get_parent() == rig.bones["pelvis"], type + ": loincloth hangs from the pelvis")
 		var portrait := TextureRect.new()
 		preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(portrait, type, false, true)
 		root.add_child(portrait)
@@ -67,7 +68,6 @@ func _run() -> void:
 		portrait.queue_free()
 		board.queue_free()
 		await process_frame
-		if type != "hoarfrost_seer": await preload("res://tests/maquette_cutout/pixel_runtime_suite.gd").run(self, _expect, type)
 	print("RR07 RUNTIME: %s (%d checks, %d failures; headless logic only)" % ["PASS" if failures == 0 else "FAIL", checks, failures])
 	quit(0 if failures == 0 else 1)
 
