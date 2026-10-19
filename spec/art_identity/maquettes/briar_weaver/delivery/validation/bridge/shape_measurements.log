@@ -1,0 +1,3 @@
+00:00.343  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/feedback3/final/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+MQ09_NATIVE_SHAPE: briar_weaver; {"cold_mesh_hash": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee", "id": "briar_weaver", "rear_hood": {"component_top_px": {"bark_leaf_hood": 233.66911369905677, "rear_hood_leaf_clumps": 241.58951558887088}, "referenced_vertices": {"bark_leaf_hood": 8320, "rear_hood_leaf_clumps": 2604}, "top_px": 233.66911369905677}, "spec_hash": "7be47f62ecc5ebde6f48e3ba4703bd45bd19fb73451eab5a9d4f324dd76f6b56"}

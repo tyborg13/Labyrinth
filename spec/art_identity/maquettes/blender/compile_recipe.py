@@ -378,6 +378,10 @@ def compile_recipe(recipe):
             piece = spec['pieces'][-1]
             bands = [{**band, 'thickness': band['thickness_px'] * spec['ortho_scale'] / 256}
                      for band in item['bands']]
+            for band in bands:
+                for key in ('width', 'raise', 'edge'):
+                    if key + '_px' in band:
+                        band[key] = band[key + '_px'] * spec['ortho_scale'] / 256
             spec['pieces'].extend(path_bands(item['id'], item['part'], piece['path'],
                 [piece['radius'] * t for t in piece['taper']], bands, COMPILE_DEFAULTS['ring_samples']))
         if item.get('rig_bone'):

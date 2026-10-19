@@ -1,24 +1,24 @@
 {
   "schema": 1,
-  "spec_hash": "6cdef2efe556439ea2002b34da37ce3cc3fd6e12f50bfe0cd5fbabf1bd6c2d73",
+  "spec_hash": "2f288768ebbc303949f72f80be5f096b134414de811f19946c069f9fc689814a",
   "mode": "full",
   "images": {
     "front_clay.png": {
-      "sha256": "c78dd9d2f562c3ee4dfb039a490116916d37dec2d2e466344c20256254feb7d1",
+      "sha256": "508ce0c1fba1b4a77a9e288797b9334e6c1e8bc2c8f673b46d5c25d2735b0b9e",
       "size": [
         1024,
         1024
       ]
     },
     "front_parts.png": {
-      "sha256": "012b78987cd56408d243d45f55a8248c6cf452dbc2b783fcc7534d74f43718fc",
+      "sha256": "2fb1f0c9802de0b7f87d07766e9626210ae33896e4528fc3f2865ff8f27aba3c",
       "size": [
         1024,
         1024
       ]
     },
     "front_silhouette.png": {
-      "sha256": "f5bd292262f1e3d3349f2d77c6d307b9d0568d8c9aef87faadf42150216b366f",
+      "sha256": "1769a4ba615da661f37f395dd1fa1499cee57e7e1d577f14fa1bcfe871b5169b",
       "size": [
         1024,
         1024
@@ -67,7 +67,7 @@
       ]
     },
     "front_solo_head.png": {
-      "sha256": "98d46eb765cc1eac7e97ffdac3cf5715536f4dd017c9c612da3d66c729b78895",
+      "sha256": "6dbc4dcc07491972bd76f406d09614062b63f77191882944db829dcb0ea7b91d",
       "size": [
         1024,
         1024
@@ -144,21 +144,21 @@
       ]
     },
     "rear_clay.png": {
-      "sha256": "a056a9ce037400a94a82cf04b5f97c8489e07fb9bc2de80bce8ba63d768dab68",
+      "sha256": "68536555ec702b4f7b328e6f65f928332df1fb3cca7dab3b0e56e63fa540de23",
       "size": [
         1024,
         1024
       ]
     },
     "rear_parts.png": {
-      "sha256": "13fdb861d786bb23529901ec12d456202644ff2914d4c367a548e653f54a72f9",
+      "sha256": "b99f9c87397caf441a80669be687680d1eae9bdd49e2ebec8c5ad902ad9c425c",
       "size": [
         1024,
         1024
       ]
     },
     "rear_silhouette.png": {
-      "sha256": "6c0eb7fa46498379ce328e0cb32b777388eb2fc52e61b433d4e3e4d7970b42b7",
+      "sha256": "eaccc034832575c281da1d4d992012a643a79a2fd05f9dc2c158acb050f01a41",
       "size": [
         1024,
         1024
@@ -207,7 +207,7 @@
       ]
     },
     "rear_solo_head.png": {
-      "sha256": "3f3cdccde3411b4f6ee5f64655ba956c5b39ea6efbf6ebb7b1398e9e53116859",
+      "sha256": "c8676b966b79c6ab1fa7f78e2d7e990a2678d38d5a5c83eaf1bea0b1fdaf3201",
       "size": [
         1024,
         1024

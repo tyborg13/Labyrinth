@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "spec_hash": "ecf6f8a44803f53407b57664d63b1feb466d1c34a48964f1a619281bf4319fef",
+  "spec_hash": "7be47f62ecc5ebde6f48e3ba4703bd45bd19fb73451eab5a9d4f324dd76f6b56",
   "board_frame": {
     "yaw_radians": -0.0,
     "pivot": [
@@ -40,12 +40,13 @@
       0
     ]
   },
-  "context_key": "323b51870949e8113aafccd1203f4efef14b1a06fb69359f0a42f8063add4a93",
+  "context_key": "a5808bccb43921d38898523e00f9a0a677d00329b29105e86632537d49c0eb84",
   "blender": "5.2.1 LTS",
   "mesh_hashes": {
-    "bark_leaf_hood_render": "fe17349d56fe5680ce92f56238841520f4a6c5320e66c870a322a221d8bbe792",
+    "bark_leaf_hood_render": "10655ba7f75c3240e59f92c6f1d4b4f18ebd00831ac8eec6cd2bef574d2c1c43",
+    "rear_hood_leaf_clumps_render": "9e67766808969cea73be6a2fdb16d6970e10f26689c67c9205a462d5d52a5b6b",
     "shaggy_leaf_clumps_render": "088911bf70816a8f46a579b3972810be1912385fd4487edadadf9d31fa577b7f",
-    "mantle_thorn_0_render": "bdb73a73915fc8ba202f34c3c12effe1bd0c8d7f8727194709ebf9fec5ac165a",
+    "mantle_thorn_0_render": "31db764fdc1dfb8b0c828b5e0bf96f2e5d419ea6ddaddf62e1355f21bf5226a4",
     "mantle_thorn_1_render": "437e87c12d5a42da92be8144a8323eaf8ba37b788b21874dfcbb991a71899070",
     "mantle_thorn_2_render": "9848ba90b305d4228886cf2e10f4c1ceb55bbfefe6a57eb465f64b3965647380",
     "fore_thorn_near_0_render": "398e5dce5e01dba753918684203051db1658d42e62b1b94ae4a5c04bfd7f349c",
@@ -79,7 +80,7 @@
     "body_upper_far": "98f88d47a3266dccb7339ea9d4d7c4beea4b9618e9c84d5512f303ad23db5034",
     "body_upper_near": "ac0436e307ae1ff87901149ee8032089773effb2a23297e72e1015aed808e40a"
   },
-  "combined_mesh_hash": "f8954ea58f5be949438ad2b7695e30fa7deee1c261f222f36b29123ff32dc7f2",
+  "combined_mesh_hash": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee",
   "checks": {
     "labels_cover_every_face": true,
     "view_piece_ownership": true,
@@ -439,7 +440,7 @@
     "curve_roots": {
       "mantle_thorn_0": {
         "support": "bark_leaf_hood_render",
-        "root_distance_m": 0.01173392590135336,
+        "root_distance_m": 0.015450222417712212,
         "root_radius_m": 0.046875,
         "passed": true
       },

@@ -63,6 +63,7 @@ delivery/review/contact_sheet.webp
 delivery/review/curated_metrics.json
 delivery/review/fit_table.md
 delivery/review/form_revision_before.json
+delivery/review/form_revision_r1_before.json
 delivery/review/gates.json
 delivery/review/part_coverage.csv
 delivery/solo_coverage.json
@@ -77,6 +78,7 @@ delivery/validation/bridge/exact_replay.json
 delivery/validation/bridge/exact_replay.log
 delivery/validation/bridge/material_mutation.json
 delivery/validation/bridge/material_mutation.log
+delivery/validation/final_verification.log
 delivery/validation/focused_tests.log
 delivery/validation/native_validation.json
 delivery/validation/rear_turn_tests.log
@@ -84,6 +86,10 @@ delivery/validation/regeneration/bridge.log
 delivery/validation/regeneration/clean_input_sha256.json
 delivery/validation/regeneration/discarded_build_sha256.json
 delivery/validation/regeneration/regeneration.json
+delivery/validation/shape_measurements.json
 discarded_proof_sha256.json
 measurements.json
+native_shape_probe.py
+shape_measurements.py
+shape_proof.py
 workflow.py

@@ -1,7 +1,7 @@
 {
   "front": {
-    "head": 81954,
-    "torso": 119074,
+    "head": 92021,
+    "torso": 119493,
     "pelvis": 33436,
     "upper_near": 19395,
     "fore_near": 17452,
@@ -18,8 +18,8 @@
     "tatters": 40591
   },
   "rear": {
-    "head": 96509,
-    "torso": 126801,
+    "head": 98095,
+    "torso": 127246,
     "pelvis": 32099,
     "upper_near": 11203,
     "fore_near": 17498,

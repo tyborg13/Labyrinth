@@ -2,7 +2,7 @@
   "passed": true,
   "byte_order": "little",
   "rounding": null,
-  "spec_hash": "b6588a6ca5bcc0b6f10b1ed8e6b05a1d0bf4f9eff7775fbce879458665eaae71",
+  "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
   "mesh_count": 31,
   "mesh_hashes": {
     "cold": {
@@ -21,10 +21,10 @@
       "body_torso": "34cc0803f4bc1b995cdd9eb9064ef41e099c080fc09ff7e7ca381706f75057dd",
       "body_upper_far": "b91db795f2ba3a93e753bdf58a91d72d7928c83174d85c627341d2495f90d824",
       "body_upper_near": "be7c2965054fc1d860bee8c76de246f2f69de8bec0c46697d7bbff8dccc325af",
-      "crucible_band_0_render": "62878a492d0ee7f60f11f66db4f21218c9c691ae3cb01b7b4d85b2b7003ab9d1",
-      "crucible_band_1_render": "29c3f9305790964f762befdbb16928b17352690168bfd5988995c53bb3825e99",
-      "crucible_band_2_render": "617e90abef1513cf641e7213f7f74bfa9e5a33f593e3a8a1580002ca84a54598",
-      "crucible_render": "cf4cf42d6f14dc8c3d96913a38ebb564d481a6e8e8988e937bf4fda68d83d84f",
+      "crucible_band_0_render": "022f595ab1e2cb65e7758aa1c28b93f6f7ec24db7a6ad37f6637d07dc94a287c",
+      "crucible_band_1_render": "7c1140c6e4466ff0f401b31d79e63b5b2182fdfc4bc37030f2ed41d00002337d",
+      "crucible_band_2_render": "08ad670b46c713132246bc6ae6e9aedfeb908ae00c12d4deb7ab1ed5c3c91d75",
+      "crucible_render": "087efbbadf9d781f0c06e09f2eca45528413cc40794a4056b0bc94af65f54e18",
       "harness_strap_0_render": "8afed8224e157d75a1eb29ec57ebeb15b30db75ea3c59ab76024caa4b906bd96",
       "harness_strap_1_render": "56beb6e067508e60f9303e364d4a6adefc0180df249ac55ef664db31442b2de1",
       "heavy_brow_render": "c870319cd5019986520f4fa2129b057c0c0831c81c1a3e6f901b71056d8e914a",
@@ -36,7 +36,7 @@
       "iron_bracer_near_render": "1f37a81b0fff66366dbe271e06ada1edae6bc6d5852efeeba4feb9860aa664da",
       "leather_apron_render": "6b0ae1a04d7273d676e2059fa432fca9a31301d4ad981604dbc3f8f13e8d5204",
       "rear_leather_apron_render": "0e83ccd837ec90d3ba202c46679a3f94b0f201580385a1f45486a4ab01fb6055",
-      "slag_surface_render": "30aaceaf5f372d87818a283e60777c2c66aad0a0811d294c991eb3901bcb2aba"
+      "slag_surface_render": "a53679f01c54fe2231872e84ca5421cd4d45c0fe9d39c3974c050f16475bc10d"
     },
     "replay": {
       "body_foot_far": "68984e48f54c10f2909c5d7a7008660bb27101014381ac904647b40e4e1309bb",
@@ -54,10 +54,10 @@
       "body_torso": "34cc0803f4bc1b995cdd9eb9064ef41e099c080fc09ff7e7ca381706f75057dd",
       "body_upper_far": "b91db795f2ba3a93e753bdf58a91d72d7928c83174d85c627341d2495f90d824",
       "body_upper_near": "be7c2965054fc1d860bee8c76de246f2f69de8bec0c46697d7bbff8dccc325af",
-      "crucible_band_0_render": "62878a492d0ee7f60f11f66db4f21218c9c691ae3cb01b7b4d85b2b7003ab9d1",
-      "crucible_band_1_render": "29c3f9305790964f762befdbb16928b17352690168bfd5988995c53bb3825e99",
-      "crucible_band_2_render": "617e90abef1513cf641e7213f7f74bfa9e5a33f593e3a8a1580002ca84a54598",
-      "crucible_render": "cf4cf42d6f14dc8c3d96913a38ebb564d481a6e8e8988e937bf4fda68d83d84f",
+      "crucible_band_0_render": "022f595ab1e2cb65e7758aa1c28b93f6f7ec24db7a6ad37f6637d07dc94a287c",
+      "crucible_band_1_render": "7c1140c6e4466ff0f401b31d79e63b5b2182fdfc4bc37030f2ed41d00002337d",
+      "crucible_band_2_render": "08ad670b46c713132246bc6ae6e9aedfeb908ae00c12d4deb7ab1ed5c3c91d75",
+      "crucible_render": "087efbbadf9d781f0c06e09f2eca45528413cc40794a4056b0bc94af65f54e18",
       "harness_strap_0_render": "8afed8224e157d75a1eb29ec57ebeb15b30db75ea3c59ab76024caa4b906bd96",
       "harness_strap_1_render": "56beb6e067508e60f9303e364d4a6adefc0180df249ac55ef664db31442b2de1",
       "heavy_brow_render": "c870319cd5019986520f4fa2129b057c0c0831c81c1a3e6f901b71056d8e914a",
@@ -69,7 +69,7 @@
       "iron_bracer_near_render": "1f37a81b0fff66366dbe271e06ada1edae6bc6d5852efeeba4feb9860aa664da",
       "leather_apron_render": "6b0ae1a04d7273d676e2059fa432fca9a31301d4ad981604dbc3f8f13e8d5204",
       "rear_leather_apron_render": "0e83ccd837ec90d3ba202c46679a3f94b0f201580385a1f45486a4ab01fb6055",
-      "slag_surface_render": "30aaceaf5f372d87818a283e60777c2c66aad0a0811d294c991eb3901bcb2aba"
+      "slag_surface_render": "a53679f01c54fe2231872e84ca5421cd4d45c0fe9d39c3974c050f16475bc10d"
     },
     "independent_cold": {
       "body_foot_far": "68984e48f54c10f2909c5d7a7008660bb27101014381ac904647b40e4e1309bb",
@@ -87,10 +87,10 @@
       "body_torso": "34cc0803f4bc1b995cdd9eb9064ef41e099c080fc09ff7e7ca381706f75057dd",
       "body_upper_far": "b91db795f2ba3a93e753bdf58a91d72d7928c83174d85c627341d2495f90d824",
       "body_upper_near": "be7c2965054fc1d860bee8c76de246f2f69de8bec0c46697d7bbff8dccc325af",
-      "crucible_band_0_render": "62878a492d0ee7f60f11f66db4f21218c9c691ae3cb01b7b4d85b2b7003ab9d1",
-      "crucible_band_1_render": "29c3f9305790964f762befdbb16928b17352690168bfd5988995c53bb3825e99",
-      "crucible_band_2_render": "617e90abef1513cf641e7213f7f74bfa9e5a33f593e3a8a1580002ca84a54598",
-      "crucible_render": "cf4cf42d6f14dc8c3d96913a38ebb564d481a6e8e8988e937bf4fda68d83d84f",
+      "crucible_band_0_render": "022f595ab1e2cb65e7758aa1c28b93f6f7ec24db7a6ad37f6637d07dc94a287c",
+      "crucible_band_1_render": "7c1140c6e4466ff0f401b31d79e63b5b2182fdfc4bc37030f2ed41d00002337d",
+      "crucible_band_2_render": "08ad670b46c713132246bc6ae6e9aedfeb908ae00c12d4deb7ab1ed5c3c91d75",
+      "crucible_render": "087efbbadf9d781f0c06e09f2eca45528413cc40794a4056b0bc94af65f54e18",
       "harness_strap_0_render": "8afed8224e157d75a1eb29ec57ebeb15b30db75ea3c59ab76024caa4b906bd96",
       "harness_strap_1_render": "56beb6e067508e60f9303e364d4a6adefc0180df249ac55ef664db31442b2de1",
       "heavy_brow_render": "c870319cd5019986520f4fa2129b057c0c0831c81c1a3e6f901b71056d8e914a",
@@ -102,7 +102,7 @@
       "iron_bracer_near_render": "1f37a81b0fff66366dbe271e06ada1edae6bc6d5852efeeba4feb9860aa664da",
       "leather_apron_render": "6b0ae1a04d7273d676e2059fa432fca9a31301d4ad981604dbc3f8f13e8d5204",
       "rear_leather_apron_render": "0e83ccd837ec90d3ba202c46679a3f94b0f201580385a1f45486a4ab01fb6055",
-      "slag_surface_render": "30aaceaf5f372d87818a283e60777c2c66aad0a0811d294c991eb3901bcb2aba"
+      "slag_surface_render": "a53679f01c54fe2231872e84ca5421cd4d45c0fe9d39c3974c050f16475bc10d"
     }
   },
   "joint_matrix_hashes": {

@@ -1,24 +1,24 @@
 {
   "schema": 1,
-  "spec_hash": "ecf6f8a44803f53407b57664d63b1feb466d1c34a48964f1a619281bf4319fef",
+  "spec_hash": "7be47f62ecc5ebde6f48e3ba4703bd45bd19fb73451eab5a9d4f324dd76f6b56",
   "mode": "full",
   "images": {
     "front_clay.png": {
-      "sha256": "d1afce727e0779d9271b39ae73923a800834ce952e024e41cec690e794c6029d",
+      "sha256": "f7c0f0a03d91c1fd03454d17f883e0494ff03970e6ace24b7e14952e4348f004",
       "size": [
         1024,
         1024
       ]
     },
     "front_parts.png": {
-      "sha256": "ae3e72f816d928f5e3d5ee2497ac66fdd6856ace6d738b97c04c73642d306b79",
+      "sha256": "efa1c71f0264f5d6624a65057d6990927eddff53f3dce4b16e8d99b584952808",
       "size": [
         1024,
         1024
       ]
     },
     "front_silhouette.png": {
-      "sha256": "af3bdb116710949d762208b70f732d1cb9e72e99a4fc1bbe5d1832b8f0f26a0b",
+      "sha256": "bc7fdeddbb53095c626dcc2b7bbbfc3d0bb83dcde7829e0ab9e3572f9b2aa514",
       "size": [
         1024,
         1024
@@ -67,7 +67,7 @@
       ]
     },
     "front_solo_head.png": {
-      "sha256": "194525c1080e5f18816e5ee3845a5bbdaff892cf1da1a4f270e608336d2a90e9",
+      "sha256": "4f910e72bdb2b163413b0e1fb09861a05acb640aa9aaa5d12e4706d58f2f064c",
       "size": [
         1024,
         1024
@@ -116,7 +116,7 @@
       ]
     },
     "front_solo_torso.png": {
-      "sha256": "14cae9cd343112d54ac12a57f03cdf4287fb4f9cbfd370554479265764ce96eb",
+      "sha256": "3ce384b1fbe56812ed63ba93a529d94904c157ee82a8c9413a4bcc5e94750b3c",
       "size": [
         1024,
         1024
@@ -151,21 +151,21 @@
       ]
     },
     "rear_clay.png": {
-      "sha256": "e2cd829e04dc352d3088ba091f48d7043b7f063dc1b1b5ab587c502e06d2b3f5",
+      "sha256": "29a939703d9586192264670539549d29fd748ef6721889577a9c51fb7a26d45e",
       "size": [
         1024,
         1024
       ]
     },
     "rear_parts.png": {
-      "sha256": "3d0ce0ef73e54f66feb4dd534cc5d157c03c88017f12d6f28df5f58cdfd6890b",
+      "sha256": "fed8981055a9876d17b0cc72c6af69c94b8b2a3ada69d05c45bd4eb2357b4357",
       "size": [
         1024,
         1024
       ]
     },
     "rear_silhouette.png": {
-      "sha256": "095266be268cfba5662c7aac4f65728122536b89a534383704c8e23366b8f59e",
+      "sha256": "3b7f1de96d0154169a7773744c5c93c70b6d6b33b08c1659cb5e10124c59f8d4",
       "size": [
         1024,
         1024
@@ -214,7 +214,7 @@
       ]
     },
     "rear_solo_head.png": {
-      "sha256": "416732b0662a6ed008d6f4d10d9e6f67bc8d34b46ecc63f2ea3b1c1dae0ae7d8",
+      "sha256": "242a90b43325b2d0f040af75dcb4c4b310d2412faee38e10992975ea7ebf5aff",
       "size": [
         1024,
         1024
@@ -263,7 +263,7 @@
       ]
     },
     "rear_solo_torso.png": {
-      "sha256": "6d98d424f7ba8be6d77f7e7e8bcfb32dff4379a8447a8a7616b71e5090cddf14",
+      "sha256": "d0c4c4d5a15bbf4d6e4413d918722755bb9088cf8a42700b3b773ddecd723182",
       "size": [
         1024,
         1024

@@ -1,6 +1,7 @@
 BUILD_STAGE: append anatomy
 BUILD_STAGE: bind 42342 anatomy vertices
 BUILD_STAGE: bark_leaf_hood
+BUILD_STAGE: rear_hood_leaf_clumps
 BUILD_STAGE: shaggy_leaf_clumps
 BUILD_STAGE: mantle_thorn_0
 BUILD_STAGE: mantle_thorn_1
@@ -24,6 +25,7 @@ Info: Saved as "maquette.blend"
 BUILD_STAGE: append anatomy
 BUILD_STAGE: bind 42342 anatomy vertices
 BUILD_STAGE: bark_leaf_hood
+BUILD_STAGE: rear_hood_leaf_clumps
 BUILD_STAGE: shaggy_leaf_clumps
 BUILD_STAGE: mantle_thorn_0
 BUILD_STAGE: mantle_thorn_1
@@ -47,6 +49,7 @@ Info: Saved as "maquette.blend"
 BUILD_STAGE: append anatomy
 BUILD_STAGE: bind 42342 anatomy vertices
 BUILD_STAGE: bark_leaf_hood
+BUILD_STAGE: rear_hood_leaf_clumps
 BUILD_STAGE: shaggy_leaf_clumps
 BUILD_STAGE: mantle_thorn_0
 BUILD_STAGE: mantle_thorn_1

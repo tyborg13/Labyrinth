@@ -8,8 +8,12 @@ def draft(centre, forward, lateral, rows, scale, rim_shape):
     centre=np.array(centre);forward=np.array(forward);lateral=np.array(lateral)
     plates=[]
     for row in rows:
+        if 'angles' in row and (len(row['angles']) != len(row['variation']) or
+                               not all(math.isfinite(a) for a in row['angles'])):
+            raise ValueError('Leaf patch angles must match its finite clump placements')
         for i,variation in enumerate(row['variation']):
-            angle=math.tau*(i+row['phase'])/len(row['variation'])
+            angle=(row['angles'][i] if 'angles' in row else
+                   math.tau*(i+row['phase'])/len(row['variation']))
             radial=forward*math.cos(angle)+lateral*math.sin(angle)
             tangent=-forward*math.sin(angle)+lateral*math.cos(angle)
             width=row['width_px']*scale*variation

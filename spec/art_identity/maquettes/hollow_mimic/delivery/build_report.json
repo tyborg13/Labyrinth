@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "spec_hash": "6cdef2efe556439ea2002b34da37ce3cc3fd6e12f50bfe0cd5fbabf1bd6c2d73",
+  "spec_hash": "2f288768ebbc303949f72f80be5f096b134414de811f19946c069f9fc689814a",
   "board_frame": {
     "yaw_radians": -0.0,
     "pivot": [
@@ -40,10 +40,10 @@
       0
     ]
   },
-  "context_key": "dc1b229f88004edec26f7282397001e91b565af59b6bdca454c3a87bbbe82ba9",
+  "context_key": "20e8d6be1caf43dcdb6aae3a08d9e8a8df84f36b5f249644051f5b452cc28ea7",
   "blender": "5.2.1 LTS",
   "mesh_hashes": {
-    "hair_crown_render": "c61023767c4eeb9a636860c83824cdbb34538adc055d624b2d21492c27894fbb",
+    "hair_crown_render": "3a0a946d64be6c2a91137485062bd4bc6aab7bed456ed6fba4bc4d05ba645e7b",
     "cracked_mask_render": "b5026db9d41fc69f7542e4450f27bea5c8972c7806bb1c3618e81164eaf4bfc4",
     "suit_chest_render": "b890d80c212d3963f499f55574185f7b76e4c931de56ce5bee565c01d3fde0e8",
     "suit_belly_render": "170aba5ca6c9cfb30e566134d9addd7b3da5154e9c6efea6ff72617f83e663ce",
@@ -69,7 +69,7 @@
     "body_upper_far": "592612dbfb193e20347a6ac8a9a56788ac90bad499241889c491a27a97f16450",
     "body_upper_near": "65f6d2dbdec14dab8fd21ebb8b60cd6ea5b3bf62f876e5c92fd6bc2d3e87326d"
   },
-  "combined_mesh_hash": "387b51bd6654dfd3ffc3df14eb1d984e67f61710c7ef9022ff545b3e063ed1a9",
+  "combined_mesh_hash": "65bbc1f1e6cd2fd95f4408ae82619fb92ae3a92d755454710cdb9b7076167542",
   "checks": {
     "labels_cover_every_face": true,
     "view_piece_ownership": true,

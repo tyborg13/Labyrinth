@@ -1,13 +1,13 @@
 ..BLENDER_BRIDGE_STARTED: long
 .....................................................ss..........DELIVERY_STAGE: PASS; staged
-COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5085810, "figure": "hollow_mimic", "files": 88}
-COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3412223, "figure": "briar_weaver", "files": 74}
-COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3944775, "figure": "slag_mortar", "files": 81}
-MQ09_FIT: PASS; hollow_mimic; front_iou=0.819990803; rear_iou=0.788015458
-MQ09_FIT: PASS; briar_weaver; front_iou=0.707308272; rear_iou=0.688125394
-MQ09_FIT: PASS; slag_mortar; front_iou=0.783361070; rear_iou=0.759250602
-........................
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5179056, "figure": "hollow_mimic", "files": 94}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3535069, "figure": "briar_weaver", "files": 77}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3878387, "figure": "slag_mortar", "files": 84}
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.815673910; rear_iou=0.770515331
+MQ09_FIT: PASS; briar_weaver; front_iou=0.706400955; rear_iou=0.680170738
+MQ09_FIT: PASS; slag_mortar; front_iou=0.799598979; rear_iou=0.772701972
+.............................
 ----------------------------------------------------------------------
-Ran 91 tests in 10.459s
+Ran 96 tests in 9.132s
 
 OK (skipped=2)

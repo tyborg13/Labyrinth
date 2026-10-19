@@ -66,10 +66,13 @@ delivery/validation/bridge/exact_replay.json
 delivery/validation/bridge/exact_replay.log
 delivery/validation/bridge/material_mutation.json
 delivery/validation/bridge/material_mutation.log
+delivery/validation/bridge/shape_measurements.json
+delivery/validation/bridge/shape_measurements.log
 delivery/validation/native_validation.json
 delivery/validation/regeneration/bridge.log
 delivery/validation/regeneration/clean_input_sha256.json
 delivery/validation/regeneration/discarded_build_sha256.json
 delivery/validation/regeneration/regeneration.json
+delivery/validation/shape_measurements.json
 discarded_proof_sha256.json
 measurements.json

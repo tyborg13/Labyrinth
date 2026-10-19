@@ -11,13 +11,16 @@ BOUND_FILES = ('fit_report.json', 'fit_overlay.png', 'provenance.json',
                'recipe_proof.json', 'exact_native_replay.json', 'capture_manifest.json',
                'capture_packing.json', 'native_render_manifest.json',
                'validation/native_validation.json', 'validation/regeneration/regeneration.json',
-               'validation/regeneration/clean_input_sha256.json')
+               'validation/regeneration/clean_input_sha256.json',
+               'validation/shape_measurements.json')
 
 
 def binding(folder):
     spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
     delivery = folder / 'delivery'
     native = validate_delivery(spec, delivery)
+    from .shape_proof import validate as validate_shapes
+    validate_shapes(folder, spec, native)
     fit = json.loads((delivery / 'fit_report.json').read_text())
     mutation = json.loads((delivery / 'validation/native_validation.json').read_text())
     regeneration = json.loads((delivery / 'validation/regeneration/regeneration.json').read_text())

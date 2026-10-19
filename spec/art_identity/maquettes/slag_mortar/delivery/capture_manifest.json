@@ -1,24 +1,24 @@
 {
   "schema": 1,
-  "spec_hash": "b6588a6ca5bcc0b6f10b1ed8e6b05a1d0bf4f9eff7775fbce879458665eaae71",
+  "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
   "mode": "full",
   "images": {
     "front_clay.png": {
-      "sha256": "3d1a4e521f6ea8a93c1365a8f071869b683497be5979c5cdccabc74290a316f4",
+      "sha256": "248365856a5b0c60f1d95b224de6dad91ebf1aa48bcb4e52c4d03c31dd168744",
       "size": [
         1024,
         1024
       ]
     },
     "front_parts.png": {
-      "sha256": "71497b90511aaccf9ec80973f048aa775434780a9018bdf009843b8982144fd1",
+      "sha256": "b19d38006c2750a508ee93ac7e9871dc2cbacc7e28de1f98d13357e7e4c8bbc1",
       "size": [
         1024,
         1024
       ]
     },
     "front_silhouette.png": {
-      "sha256": "08acabda3d247c857ab7bbc06bd6c6775e847efc148bac79dcab3e44f218db81",
+      "sha256": "c0d0e3f1879924aaf9ba828cc3491317022cdd48b2975517d12c049659b5cbdb",
       "size": [
         1024,
         1024
@@ -81,7 +81,7 @@
       ]
     },
     "front_solo_mortar.png": {
-      "sha256": "63ba599390e3a6aaccef67ec2e5dc9992d50eafabee57abbed7a9fc1a0f82ff3",
+      "sha256": "1b31295cd427a12c05812d42a1857da1671eef3583b28fe8c3ea5cf040b328dd",
       "size": [
         1024,
         1024
@@ -158,21 +158,21 @@
       ]
     },
     "rear_clay.png": {
-      "sha256": "4211dc76b9a65e200d8bcfd779a657befd7810b907c3f8c530b0f6d87caca7e4",
+      "sha256": "0da9889151ec4487a71c9fc5bb91389b794a50db9c535a67ca08e5e6c261e935",
       "size": [
         1024,
         1024
       ]
     },
     "rear_parts.png": {
-      "sha256": "59ed1b733ea2fa5fce110ea7a53ec51cb26013bb01632c7522fddf9980c9e69f",
+      "sha256": "39ef4b654dedebbc7b64c98ae8b3b2f8c5f9417f7a4d5c7fc85462c98f18bfc4",
       "size": [
         1024,
         1024
       ]
     },
     "rear_silhouette.png": {
-      "sha256": "8f8dd6efe1086c52b811ad3595857510be498b9e10c7db06d2945556b98db374",
+      "sha256": "7b041a818741d39f23346b36534303fc9f438e27fe4fd9cf07bd9a08a6a52553",
       "size": [
         1024,
         1024
@@ -235,7 +235,7 @@
       ]
     },
     "rear_solo_mortar.png": {
-      "sha256": "5db94e943b715b31a333dfc5a5bac540c268458039089872dc6d2e86a6a13221",
+      "sha256": "9fb05dd275ccb7563a6f39a82b7a567453a118a7f040fa520ad539174bed6d8a",
       "size": [
         1024,
         1024

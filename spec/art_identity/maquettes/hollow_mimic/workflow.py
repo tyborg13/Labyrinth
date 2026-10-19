@@ -18,6 +18,7 @@ from spec.art_identity.maquettes.blender.curate_delivery import (
 from spec.art_identity.maquettes.blender.delivery_validation import seal_delivery, validate_delivery
 from .batch_proof import FIGURES, ROOT, inspect, review_sheet
 from .acceptance import seal as seal_acceptance, validate as validate_acceptance
+from .shape_proof import finish as measure_shape
 
 
 WORKFLOW_DEFAULTS = {'timeout_s': 900, 'proof_subdir': 'proof/final'}
@@ -54,6 +55,12 @@ def build(folder, proof_subdir):
         native_job(folder, 'head_occlusion', folder / 'occlusion_probe.py',
                    [spec_path, capture, folder / 'proof/head_occlusion.json'])
     compact_capture(spec, capture)
+    shape = None
+    if folder.name != 'hollow_mimic':
+        native_job(folder, 'shape_measurements', ROOT / 'hollow_mimic/native_shape_probe.py',
+                   [spec_path, capture, folder / 'proof/native_shape.json'])
+        shape = json.loads((folder / 'proof/native_shape.json').read_text())
+    measure_shape(folder, spec, capture, shape)
     fit = inspect(folder, capture)
     if not fit['passed']:
         raise ValueError('Fit, coverage or true-turn gate failed: ' + folder.name)
@@ -63,6 +70,7 @@ def build(folder, proof_subdir):
     output = folder / 'delivery/validation'
     output.mkdir(exist_ok=True)
     shutil.copyfile(folder / 'proof/native_validation.json', output / 'native_validation.json')
+    shutil.copyfile(capture / 'shape_measurements.json', output / 'shape_measurements.json')
     if folder.name == 'slag_mortar':
         shutil.copyfile(folder / 'proof/head_occlusion.json', output / 'head_occlusion.json')
     shutil.copytree(folder / 'proof/bridge', output / 'bridge', dirs_exist_ok=True)

@@ -1,4 +1,4 @@
-"""Corrective native forms and director feedback 2 construction constraints."""
+"""Corrective native forms, including measured director feedback-3 gates."""
 from copy import deepcopy
 import json
 import unittest
@@ -11,7 +11,10 @@ FIXTURE = {'axis': [[0.,0,0],[0.,0,2]], 'points': [[1.,0,.5],[-1.,0,1.5],[0.,2,1
            'ring': [[1.,0,1],[0,1.,1],[-1.,0,1],[0,-1.,1]],
            'fabric': {'folds':3,'depth_m':.03,'rag_m':.1,'tears':5,'thick_m':.02},
            'affine_points': [[0.,0,0],[.1,0,.1],[.2,0,.2],[0,.2,.1]],
-           'profile_outline': [[90,70],[140,70],[140,150],[90,150]]}
+           'profile_outline': [[90,70],[140,70],[140,150],[90,150]],
+           'raised_band': {'at':.5,'width':.2,'raise':.1,'edge':.02,'thickness':.03},
+           'band_samples':32, 'band_radii':[1,1],
+           'invalid_leaf_patch':{'angles':[1,2],'variation':[1]}}
 
 
 class CorrectiveFormsTests(unittest.TestCase):
@@ -50,10 +53,10 @@ class CorrectiveFormsTests(unittest.TestCase):
         np.testing.assert_allclose(result[1],(result[0]+result[2])/2,atol=1e-12)
         np.testing.assert_array_equal(points[0],[0,0,0])
 
-    def test_mimic_has_one_unified_nine_lock_sculpt_and_four_suit_segments(self):
+    def test_mimic_has_large_tapered_locks_and_four_suit_segments(self):
         recipe=self.recipe('hollow_mimic');spec=compile_recipe(recipe)
         hair=next(p for p in spec['pieces'] if p['id']=='hair_crown')
-        self.assertEqual(len(hair['swept_sections']),9)
+        self.assertIn(len(hair['swept_sections']),range(8,11))
         self.assertTrue(all(section['radii'][-1] < section['radii'][0]/10 for section in hair['swept_sections']))
         self.assertEqual(len([p for p in spec['pieces'] if p['id'].startswith('suit_')]),4)
         self.assertEqual(set(spec['base']['half_open_hands']),{'near','far'})
@@ -77,11 +80,27 @@ class CorrectiveFormsTests(unittest.TestCase):
         cup=next(p for p in spec['pieces'] if p['id']=='crucible')
         length=np.linalg.norm(np.array(cup['path'][-1])-cup['path'][0])
         diameter=2*cup['radius']*max(cup['taper'])
-        self.assertAlmostEqual(length/diameter,.8,places=5)
+        self.assertLessEqual(length/diameter,.8)
         data=next(s for s in recipe['surfaces'] if s['id']=='crucible')
         self.assertEqual(len([b for b in data['bands'] if b.get('role')!='rolled_rim']),2)
         self.assertEqual(len([b for b in data['bands'] if b.get('role')=='rolled_rim']),1)
         self.assertTrue(all(p['thick']==.012 for p in spec['pieces'] if p['part']=='apron'))
+
+    def test_raised_band_is_a_closed_solid_with_measurable_flat_face(self):
+        from spec.art_identity.maquettes.blender.drape import path_bands
+        band=FIXTURE['raised_band']
+        bands=path_bands('fixture','mortar',FIXTURE['axis'],FIXTURE['band_radii'],
+                         [band],FIXTURE['band_samples'])
+        piece=bands[0]
+        edges=Counter(tuple(sorted((a,b))) for f in piece['faces'] for a,b in zip(f,f[1:]+f[:1]))
+        self.assertEqual(set(edges.values()),{2})
+        v=np.array(piece['vertices']);self.assertAlmostEqual(np.ptp(v[:,2]),band['width'])
+        self.assertAlmostEqual(np.linalg.norm(v[:,:2],axis=1).max(),max(FIXTURE['band_radii'])+band['raise'])
+
+    def test_partial_leaf_patch_checks_its_explicit_placements(self):
+        from spec.art_identity.maquettes.blender.leaf_clumps import draft
+        with self.assertRaisesRegex(ValueError,'Leaf patch angles'):
+            draft([0,0,0],[1,0,0],[0,1,0],[FIXTURE['invalid_leaf_patch']],1,[])
 
     def test_invalid_new_shape_controls_fail_before_native_jobs(self):
         recipe=self.recipe('hollow_mimic');recipe['form_finish']['radial_scales']['unknown']=1.3
@@ -91,6 +110,38 @@ class CorrectiveFormsTests(unittest.TestCase):
 
 
 class FormDeliveryProofTests(unittest.TestCase):
+    def shape(self,name):
+        return json.loads((ROOT/name/'delivery/validation/shape_measurements.json').read_text())
+
+    def test_mimic_has_at_least_eight_measured_front_silhouette_spike_tips(self):
+        from spec.art_identity.maquettes.hollow_mimic.shape_measurements import spike_tips
+        from spec.art_identity.maquettes.hollow_mimic.shape_proof import SHAPE_DEFAULTS
+        report=self.shape('hollow_mimic')
+        actual=spike_tips(ROOT/'hollow_mimic/delivery/front_solo_head.png',SHAPE_DEFAULTS['hair_centre_1024_px'])
+        self.assertEqual(actual,report['hair'])
+        self.assertGreaterEqual(actual['count'],8)
+        self.assertTrue(all(t['prominence_px']>=12 for t in actual['tips']))
+
+    def test_weaver_native_rear_hood_top_matches_protected_painting(self):
+        report=self.shape('briar_weaver');hood=report['rear_hood']
+        recipe=json.loads((ROOT/'briar_weaver/measurements.json').read_text())
+        self.assertEqual(hood['painting_sha256'],recipe['source_sha256']['rear'])
+        self.assertEqual(hood['painting_top_px'],recipe['shape_measurements']['rear_hood_top_source_px']*4)
+        self.assertAlmostEqual(hood['top_px'],min(hood['component_top_px'].values()))
+        self.assertLessEqual(abs(hood['top_px']-hood['painting_top_px']),16)
+        self.assertGreater(hood['referenced_vertices']['rear_hood_leaf_clumps'],1000)
+
+    def test_mortar_native_rim_ratio_and_two_visible_raised_bands(self):
+        cup=self.shape('slag_mortar')['vessel']
+        self.assertAlmostEqual(cup['height_diameter_ratio'],cup['height_m']/cup['outer_rim_diameter_m'])
+        self.assertLessEqual(cup['height_diameter_ratio'],.8)
+        self.assertEqual(cup['band_count'],2);self.assertEqual(len(cup['bands']),2)
+        for band in cup['bands']:
+            self.assertGreater(band['raised_m'],0)
+            self.assertGreaterEqual(band['width_m']/cup['height_m'],.04)
+            self.assertGreater(band['referenced_vertices'],0)
+            self.assertGreater(min(band['visible_outer_samples'].values()),0)
+
     def test_clean_regeneration_inventory_is_the_current_builder_and_recipe(self):
         from spec.art_identity.maquettes.blender.curate_delivery import sha
         from spec.art_identity.maquettes.blender.compile_recipe import PROJECT

@@ -1,6 +1,6 @@
 {
   "front": {
-    "head": 41806,
+    "head": 36247,
     "torso": 17716,
     "pelvis": 27481,
     "upper_near": 21071,
@@ -17,7 +17,7 @@
     "foot_far": 11704
   },
   "rear": {
-    "head": 40610,
+    "head": 31918,
     "torso": 15210,
     "pelvis": 29840,
     "upper_near": 17954,

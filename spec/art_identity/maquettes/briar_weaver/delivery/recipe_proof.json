@@ -5,10 +5,10 @@
     "joint_endpoints": true,
     "native_geometry": true
   },
-  "spec_hash": "ecf6f8a44803f53407b57664d63b1feb466d1c34a48964f1a619281bf4319fef",
+  "spec_hash": "7be47f62ecc5ebde6f48e3ba4703bd45bd19fb73451eab5a9d4f324dd76f6b56",
   "cache_revision": 8,
   "raw_hashes_identical": true,
-  "mesh_count": 35,
+  "mesh_count": 36,
   "joint_errors": {
     "pelvis": 7.24817911409187e-08,
     "torso": 7.450580596923828e-09,
@@ -27,21 +27,21 @@
     "ankle_far": 6.899434756527839e-07
   },
   "combined_mesh_hashes": {
-    "cold": "f8954ea58f5be949438ad2b7695e30fa7deee1c261f222f36b29123ff32dc7f2",
-    "replay": "f8954ea58f5be949438ad2b7695e30fa7deee1c261f222f36b29123ff32dc7f2",
-    "independent_cold": "f8954ea58f5be949438ad2b7695e30fa7deee1c261f222f36b29123ff32dc7f2"
+    "cold": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee",
+    "replay": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee",
+    "independent_cold": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee"
   },
   "delivery_binding": {
-    "spec_hash": "ecf6f8a44803f53407b57664d63b1feb466d1c34a48964f1a619281bf4319fef",
-    "cold_mesh_hash": "f8954ea58f5be949438ad2b7695e30fa7deee1c261f222f36b29123ff32dc7f2",
+    "spec_hash": "7be47f62ecc5ebde6f48e3ba4703bd45bd19fb73451eab5a9d4f324dd76f6b56",
+    "cold_mesh_hash": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee",
     "report_sha256": {
-      "build_report.json": "d7c69239c1aead03b2931b2efa67daace4f33f376126eb93abfd76a76c9e44f1",
-      "capture_checks.json": "a5fa7c2791c57a88955d1d43b3b72d54e4c41c82e9d61165e49465f2b6bd5754",
+      "build_report.json": "abc934287f725b58644e8c15d1720cf859fc84672334bcd3fe3e11b0dcadc31b",
+      "capture_checks.json": "cbdf33d4ec055cc177c3dff7f7a7ad62ab2fdccc8b17d90c9293a78e07a7d90c",
       "facing_report.json": "497e9096af975096f18338a72165f6d1f2d34674597c8d87c130b6789be81e63",
       "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
-      "solo_coverage.json": "72232b3c66e15742777f80ed825755c08ada7ca60257ca1fef5fecc2c14a6f19",
-      "capture_manifest.json": "8119997ad968df56c4e0029a31b6b45f82d4ea1dd6f1ea7d5b2043c32992e30a"
+      "solo_coverage.json": "022cb170be80827a772119d5ca13b7ad5d908e96793beff9b2aa818bf915e0a5",
+      "capture_manifest.json": "8d1d0ebb3fb214538aacab64729e763ca9abca428100e5644a021f2b8206d88b"
     },
-    "exact_native_replay_sha256": "c5959b353332dad317531937291e8b4843a8cbf08bc05338b60efcd939d59e45"
+    "exact_native_replay_sha256": "8cc7b6952963f662311787568391cdc62218985b2ba7c1e8d8a07df4bed62c5e"
   }
 }

@@ -1,5 +1,5 @@
-00:00.245  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/forms_final4/determinism/cold/maquette.blend"
-00:00.401  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/forms_final4/determinism/replay/maquette.blend"
-00:00.557  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/forms_final4/determinism/independent_cold/maquette.blend"
+00:00.249  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/feedback3/final/determinism/cold/maquette.blend"
+00:00.410  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/feedback3/final/determinism/replay/maquette.blend"
+00:00.568  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/feedback3/final/determinism/independent_cold/maquette.blend"
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
-EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=35
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=36

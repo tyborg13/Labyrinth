@@ -131,6 +131,27 @@ def path_bands(identifier, part, path, radii, bands, samples):
         first /= np.linalg.norm(first)
         second = np.cross(direction, first)
         radius = (1 - u) * radii[segment] + u * radii[segment + 1]
+        if 'width' in band:
+            # A raised belt has a flat face and bevelled edges. It is a
+            # closed solid, independent of the vessel's ownership/material.
+            from .source_recipe import common
+            width, relief, edge = band['width'], band['raise'], band['edge']
+            if not 0 < edge < min(width / 2, relief) or min(width, relief) <= 0:
+                raise ValueError('Raised band requires positive bevel, width and relief')
+            profile = [(-width/2, -edge), (-width/2, relief-edge),
+                       (-width/2+edge, relief), (width/2-edge, relief),
+                       (width/2, relief-edge), (width/2, -edge)]
+            vertices = [(centre + direction*z + (radius+out)*
+                         (first*math.cos(a)+second*math.sin(a))).tolist()
+                        for z,out in profile for a in np.linspace(0,math.tau,samples,endpoint=False)]
+            faces = [[j*samples+i, j*samples+(i+1)%samples,
+                      ((j+1)%len(profile))*samples+(i+1)%samples,
+                      ((j+1)%len(profile))*samples+i]
+                     for j in range(len(profile)) for i in range(samples)]
+            piece = common(identifier+'_band_'+str(index),'rigid_shell',part)
+            piece.update(vertices=vertices, faces=faces, rig_joint=piece['at'])
+            result.append(piece)
+            continue
         line = [(centre + radius * (first * math.cos(a) + second * math.sin(a))).tolist()
                 for a in np.linspace(0, math.tau, samples, endpoint=False)]
         result.append(curve(identifier + '_band_' + str(index), part, line,

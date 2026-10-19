@@ -1,5 +1,5 @@
-00:00.244  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/forms_final2/determinism/cold/maquette.blend"
-00:04.124  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/forms_final2/determinism/replay/maquette.blend"
-00:07.997  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/forms_final2/determinism/independent_cold/maquette.blend"
+00:00.289  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/determinism/cold/maquette.blend"
+00:04.046  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/determinism/replay/maquette.blend"
+00:07.780  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/determinism/independent_cold/maquette.blend"
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
 EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=25

@@ -1,7 +1,7 @@
 {
   "passed": true,
-  "spec_hash": "b6588a6ca5bcc0b6f10b1ed8e6b05a1d0bf4f9eff7775fbce879458665eaae71",
-  "cold_mesh_hash": "7ea02444ade492a413406ca23d5ddaa0039795da1cbf395d809db93814af71c5",
+  "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
+  "cold_mesh_hash": "37056cfd3ca86f7d01004e8cdb6bca17e5d80986520df931a3346235f5fb864b",
   "checks": {
     "front_face": true,
     "rear_skull": true,
@@ -42,5 +42,5 @@
       "passed": true
     }
   },
-  "native_blend_sha256": "ac64445104d649bb0d0abd14d96cd847f0ee2bd62f085655d3aa6fbc9a193d0f"
+  "native_blend_sha256": "7bd8fe961ac52165c8f4206e67919be35d88a4b9ad52dd05c923c4fa4891387b"
 }
