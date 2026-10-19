@@ -5,6 +5,7 @@ const Pixels = preload("pixel_presentation.gd")
 var character_id: String = "shale_bloomer"
 var case_directory: String = ""
 var precise_angles: Dictionary = {}
+var _glow_textures: Dictionary = {}
 
 func base_path() -> String:
 	return case_directory if not case_directory.is_empty() else "res://assets/units/" + character_id + "_cutout"
@@ -38,3 +39,16 @@ func apply_authored_pose(clip_name: String, phase_value: float) -> void:
 			SemanticMotion.data_for(layout), layout, facing, clip_name, phase_value)
 	for bone: String in bones:
 		(bones[bone] as Bone2D).modulate.a = float(pose.get(bone, {}).get("alpha", 1.0))
+	if layout.has("glow_textures"):
+		# rr-17: swap pre-baked integer light levels; no shader or resampling.
+		var data: Dictionary = SemanticMotion.data_for(layout)
+		var channels: Dictionary = {} if clip_name == "rest" else SemanticMotion.channels_at(data, clip_name, phase_value, facing, 0.0)
+		var level: int = int(channels.get("column", {}).get("glow", 0))
+		for part: Dictionary in layout["parts"]:
+			if part["name"] != "column": continue
+			var path: String = str(layout["glow_textures"][str(level)])
+			if not _glow_textures.has(path): _glow_textures[path] = _texture(path)
+			(bones["column"].get_node("column") as Sprite2D).texture = _glow_textures[path]
+		# Keep the authored float64 half-step decision out of Bone2D's float32
+		# matrix decomposition, as in the rr-05 native agreement path.
+		precise_angles["cap"] = deg_to_rad(float(channels.get("cap", {}).get("lean_deg", 0.0)) * float(layout.get("forward_reflection", 1.0)))

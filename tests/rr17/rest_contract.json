@@ -1,0 +1,35 @@
+{
+  "min_images": 3,
+  "expected_sizes": [
+    "1920x1080",
+    "255x255"
+  ],
+  "required_images": [
+    {
+      "pattern": "rest.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            650,
+            250,
+            620,
+            650
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    },
+    {
+      "pattern": "front_rest.png",
+      "width": 255,
+      "height": 255
+    },
+    {
+      "pattern": "rear_rest.png",
+      "width": 255,
+      "height": 255
+    }
+  ]
+}

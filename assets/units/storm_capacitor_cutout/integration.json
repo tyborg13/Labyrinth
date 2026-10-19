@@ -1,0 +1,33 @@
+{
+  "character_id": "storm_capacitor",
+  "case": "experiments/cutouts/storm_capacitor/mq5",
+  "TODO_DESIGN": {
+    "TODO_DESIGN_hit_changing_frames": "Protected hit has four transitions/four unique states; the brief requires six changing frames per action."
+  },
+  "protected_inputs": {
+    "assets/art/enemies/storm_capacitor.png": "5fd8ec5cd682c465abd1429a8b07ce798aad9d6885eee47647c2499036b3e47d",
+    "spec/peer_benchmark/staged/rr-17/motion_tracks.json": "24c020065a7a3acc933ba522d3ceb78877aafd71da99cbdf9b3e48624f7b72fe",
+    "spec/peer_benchmark/staged/rr-17/cap_mask.png": "1c45fa05db6f1c908e0153710e0d132155c2a90b56f1d3f04d6b126107d4517a",
+    "spec/peer_benchmark/staged/rr-17/vent_fill.png": "f5be297e5ddb5c8189f85a25ac369dce6cdb9697cda5e58d0b773c8fba767043"
+  },
+  "native_proof": "pending director windowed proof",
+  "density": "exact partition of existing treated painting; prescribed glow; protected vent fill",
+  "files": {
+    "actions.gd": "d81299bf84c5109d19368ee1e2385895d72a2914d80c94041e6a8f45513af390",
+    "compiled_motion.json": "d7d717280c712b5c471726427141ebe765ebaa6aed6cb990d439e16b7e09f512",
+    "death.gd": "1b5148c78857478d28313f429405f39af3bdc3e6f0a91492d0ef7b2db995a367",
+    "front/rest.png": "5fd8ec5cd682c465abd1429a8b07ce798aad9d6885eee47647c2499036b3e47d",
+    "front.json": "267c6c6c8d382429251027b4491f648195236256e7490590a21dc1365d6dd0e5",
+    "paint/cap.png": "e4408bb3b966749de075b460ddfc3850555c576840c796ae68a2b7e0546950c7",
+    "paint/column.png": "6f9fc9846c56dfc2da496939205ce11d887300d1ec517207ac515ee846b1137c",
+    "paint/column_glow_-1.png": "741756abb65f26bc539c3376a9c5dead075d160700eba895089728752cc93df5",
+    "paint/column_glow_-2.png": "13b2c84dc1022a19f2b3ca7480dcf9b0f5f732b184d1129f71f9a50b2cea20f5",
+    "paint/column_glow_0.png": "6f9fc9846c56dfc2da496939205ce11d887300d1ec517207ac515ee846b1137c",
+    "paint/column_glow_1.png": "0ec4b3eb3efbefc8026c7198f8d9715bb9531c28ab5fbb630b6ad961c03b8ec3",
+    "paint/column_glow_2.png": "18932b5c135d60a56558ac31a62c5eeec7974faf15ebec327784ba54039ece47",
+    "rear/rest.png": "5fd8ec5cd682c465abd1429a8b07ce798aad9d6885eee47647c2499036b3e47d",
+    "rear.json": "b7b5749f0295045aaeb6da819048abbcbed3ead76fc450a627ef4132e82ee57c",
+    "renderer.gd": "9d114c6fc51eb396be05db4aa90afcb34461f679fe36373f77be163dda784e0b",
+    "rig.gd": "f7119aa47e6c0f6710a86a30d4c0f21791233fad3b01c151299bfe3d79e5f5c0"
+  }
+}

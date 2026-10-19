@@ -1,0 +1,22 @@
+Running task-local command:
+  task: rr-17
+  run: rr-17-1792386870890333000-95610
+  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792386870890333000-95610
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792386870890333000-95610/godot.log --headless --path . --script tests/rr17/production_capture.gd -- --type storm_capacitor --output res://experiments/cutouts/storm_capacitor/mq5/proof/production_logic --logic-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: TODO_DESIGN_hit_changing_frames: fewer than six changing presented states (4)
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/rr17/production_capture.gd:116)
+       [1] record_action (res://tests/rr17/capture_scene.gd:10)
+       [2] record_action (res://tests/fixtures/gust_shrike_capture_scene.gd:37)
+       [3] _capture_current (res://tests/fixtures/gust_shrike_capture_scene.gd:44)
+       [4] _capture (res://tests/rr17/production_capture.gd:137)
+MAQUETTE PRODUCTION LOGIC: FAIL (1011 frames)
+Saved /Users/borgerding/workspace/Labyrinth.worktrees/rr-17/experiments/cutouts/storm_capacitor/mq5/proof/production_logic

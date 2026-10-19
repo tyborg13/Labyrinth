@@ -1,0 +1,3755 @@
+{
+  "tests": [
+    {
+      "path": "tests/acolyte_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/acolyte_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/acolyte_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/acolyte_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/acolyte_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/action_step_tracker_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/actor_presentation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/actor_presentation_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/actor_presentation_suite.gd::run"
+    },
+    {
+      "path": "tests/actor_weapon_clearance_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ambient_particle_batch_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/aoe_targeting_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/asset_loading_performance_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/audio_routing_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/audio_routing_suite.gd::run"
+    },
+    {
+      "path": "tests/balance_pacing_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/balance_pacing_suite.gd::run"
+    },
+    {
+      "path": "tests/banked_play_meter_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/beautify_feel_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/bestiary_lineup_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/bile_bloomer_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/bile_bloomer_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/bile_bloomer_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/bile_bloomer_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/bile_bloomer_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/biome_gallery_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/biome_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/blink_rift_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_backdrop_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_cursor_input_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_density_consumer_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/board_density_consumer_suite.gd::run"
+    },
+    {
+      "path": "tests/board_density_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_hover_coalescing_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/board_startup_assets_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_startup_manifest_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_cache_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_content_regression_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_intent_preview_suite.gd::run, tests/suites/inline_icon_description_suite.gd::run, tests/suites/move_attack_shortcut_suite.gd::run"
+    },
+    {
+      "path": "tests/board_surface_content_smoke_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/board_surface_core_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/board_surface_suite.gd::run"
+    },
+    {
+      "path": "tests/board_surface_data_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/board_surface_dense_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_electric_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_inspection_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_loop_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_material_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_movement_regression_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/move_attack_shortcut_suite.gd::run"
+    },
+    {
+      "path": "tests/board_surface_presentation_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/board_surface_probe_migration_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/board_surface_static_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_surface_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/board_transition_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/boot_splash_export_test.gd",
+      "classification": "quarantined",
+      "evidence": "export-workflow; qa-12; Missing invocation fixture: explicitly requires an exported PCK and an empty project. A source-tree launch fails its precondition; no exported artifact was provided. Requires an export workflow, not an assertion rewrite. (output/qa-08/quarantine-check/boot_splash_export_test.gd.log)"
+    },
+    {
+      "path": "tests/boot_splash_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/button_system_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/campfire_choice_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/canvas_pipeline_loading_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_completion_native_trace_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_completion_stall_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_drag_overlay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_drag_play_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/card_drag_play_suite.gd::run, tests/suites/card_drag_play_suite.gd::run_live"
+    },
+    {
+      "path": "tests/card_draw_hand_flow_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_draw_hand_flow_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/card_draw_sfx_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/attack_sfx_suite.gd::run, tests/suites/attack_sfx_suite.gd::run_live"
+    },
+    {
+      "path": "tests/card_keywords_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/card_keywords_suite.gd::run, tests/suites/card_keywords_suite.gd::run_live"
+    },
+    {
+      "path": "tests/card_keywords_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_keywords_w3_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_keywords_w3_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/card_keywords_w3_suite.gd::run"
+    },
+    {
+      "path": "tests/card_mechanics_surfaces_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/card_mechanics_surfaces_suite.gd::run"
+    },
+    {
+      "path": "tests/card_play_confirmation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_pool_overhaul_contact_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_pool_overhaul_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/card_pool_overhaul_suite.gd::run, tests/suites/card_pool_overhaul_suite.gd::run_live"
+    },
+    {
+      "path": "tests/card_pool_polish_combat_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_pool_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_presentation_cache_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/card_presentation_export_test.gd",
+      "classification": "quarantined",
+      "evidence": "export-workflow; qa-12; Missing invocation fixture: requires an actual exported/imported texture PCK and an empty project. A source-only pack would not test the exported texture-import contract. Requires export integration. (output/qa-08/quarantine-check/card_presentation_export_test.gd.log)"
+    },
+    {
+      "path": "tests/card_proxy_pool_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/card_rarity_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_role_emblem_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_targeting_audit_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_targeting_audit_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/card_targeting_audit_suite.gd::run"
+    },
+    {
+      "path": "tests/card_targeting_rework_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/card_time_badge_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cbt_01_enclosed_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/run_tests.gd::_test_run_scene_block_card_offers_stay_when_enclosed"
+    },
+    {
+      "path": "tests/cbt_01_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Native 1920x1080 capture and OS-cursor proof; semantic/enclosed cases run in the full suite."
+    },
+    {
+      "path": "tests/cbt_01_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/cbt_01_suite.gd::run, tests/suites/cbt_01_suite.gd::run_live"
+    },
+    {
+      "path": "tests/chain_attack_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/chain_attack_suite.gd::run"
+    },
+    {
+      "path": "tests/chain_attack_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/chainbound_gaoler_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/chainbound_gaoler_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/chainbound_gaoler_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/chainbound_gaoler_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/chainbound_gaoler_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/chainbound_gaoler_motion_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/chainbound_gaoler_style_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/character_menu_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/character_overlay_assertions_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/run_tests.gd::_test_run_scene_character_stats_overlay_opens"
+    },
+    {
+      "path": "tests/character_overlay_retention_flow_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/run_tests.gd::_test_run_scene_character_stats_overlay_opens"
+    },
+    {
+      "path": "tests/character_review_fixes_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/choice_material_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/chronicle_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/chronicle_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/cinder_droplet_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cinder_droplet_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cinder_droplet_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/cinder_droplet_cutout_pose_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cinder_droplet_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/cinder_droplet_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/cinder_ooze_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cinder_ooze_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cinder_ooze_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/cinder_ooze_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/cinder_ooze_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/click_first_combat_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_analytics_context_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_art_treatment_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_board_navigation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_board_navigation_test.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Zoom anchoring fails the <=1 px geometry contract. Other navigation checks pass. Needs framing/zoom investigation with renderer proof; changing the expected coordinates here would choose player-visible behavior. (output/qa-08/quarantine-check/combat_board_navigation_test.gd.log)"
+    },
+    {
+      "path": "tests/combat_board_render_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_boundary_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Frozen OriginalRunEngine/OriginalCombatEngine copies disagree with current checkpoints (12 assertions), and the display fixture no longer consumes its one-shot modifier. Requires updating the independent reference to the current save/deck/clock contracts; assertions retained. (output/qa-08/quarantine-check/combat_boundary_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/combat_feel_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_feel_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_ground_marker_depth_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_hand_flanks_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_hud_badges_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_hud_badges_test.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Fixture expects INTENTS [I]/INTENTS ON [I] and the former controller-tooltip contract. These expectations predate the current HUD presentation. Needs the design owner's current UI contract; no copy or layout changed. (output/qa-08/quarantine-check/combat_hud_badges_test.gd.log)"
+    },
+    {
+      "path": "tests/combat_hud_buttons_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_hud_buttons_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_hud_dialogue_input_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_interaction_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_lighting_density_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_lighting_variants_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_motion_timing_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_motion_timing_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_music_integration_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_objective_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/combat_pacing_mutation_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/combat_pacing_regression_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/combat_pacing_regression_suite.gd::run"
+    },
+    {
+      "path": "tests/committed_hand_queries_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; One mixed revealed/hidden forecast fixture no longer reports unrevealed_before_player; prepared and synchronous results still compare equal. Requires rebuilding the scheduled hidden-enemy fixture without weakening that assertion. (output/qa-08/quarantine-check/committed_hand_queries_test.gd.log)"
+    },
+    {
+      "path": "tests/contextual_combat_tutorial_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/contextual_combat_tutorial_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/contextual_creature_keypose_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/contextual_creature_motion_test.gd",
+      "classification": "quarantined",
+      "evidence": "legacy-cutout; qa-10; Non-shipped historical experiment inputs under output/contextual-animation-polish/creatures/cases/crawler are absent (motion.gd, baseline_motion.gd and JSON). The script errors and never reaches quit. Needs a reproducible fixture or migration to the current approved rig. (output/qa-08/quarantine-check/contextual_creature_motion_test.gd.log)"
+    },
+    {
+      "path": "tests/contextual_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/contextual_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/contextual_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/controller_compat_1080_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/controller_desktop_1080_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/crawler_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/crawler_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/crawler_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/crawler_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/crawler_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/crawler_recolour_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cursor_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/cursor_feedback_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/cursor_feedback_suite.gd::run"
+    },
+    {
+      "path": "tests/cutout_pose_application_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/cutout_rig_data_test.gd",
+      "classification": "quarantined",
+      "evidence": "legacy-cutout; qa-10; Legacy Lightning Wisp motion reads crown, which the promoted maquette layout no longer contains. The test can print PASS after this script error; the task runner correctly fails it. Requires migration to the production maquette runtime. (output/qa-08/quarantine-check/cutout_rig_data_test.gd.log)"
+    },
+    {
+      "path": "tests/cutout_submission_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/cutout_workflow_input_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/death_transition_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/death_transition_test.gd",
+      "classification": "windowed probe",
+      "evidence": "Enemy-round feedback waits for frame_post_draw (explicit headless rejection)."
+    },
+    {
+      "path": "tests/defeat_cleanup_overlap_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/deferred_reconciliation_queue_test.gd",
+      "classification": "windowed probe",
+      "evidence": "Asserts one queue step per rendered frame; requires native frame_post_draw."
+    },
+    {
+      "path": "tests/deferred_run_skill_analytics_test.gd",
+      "classification": "windowed probe",
+      "evidence": "Asserts deferred run analytics across production rendered frames."
+    },
+    {
+      "path": "tests/deferred_skill_analytics_test.gd",
+      "classification": "windowed probe",
+      "evidence": "Asserts deferred combat analytics across production rendered frames."
+    },
+    {
+      "path": "tests/defiance_ui_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/demo_capture_settings_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/demo_clip_clock_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/demo_probe_viewport_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/departed_run_cleanup_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/depth_rules_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/depth_rules_suite.gd::run, tests/suites/guardian_suite.gd::run"
+    },
+    {
+      "path": "tests/destruction_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/destruction_preview_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/destruction_preview_suite.gd::run"
+    },
+    {
+      "path": "tests/dragon_area_presentation_test.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Four Fire/Earth cancellation assertions fail against current committed-pattern behavior. This crosses authored counterplay rules; requires a dedicated encounter investigation/approved fixture update, not altered assertions. (output/qa-08/quarantine-check/dragon_area_presentation_test.gd.log)"
+    },
+    {
+      "path": "tests/dragon_attachment_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_boss_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_boss_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/dragon_boss_suite.gd::run"
+    },
+    {
+      "path": "tests/dragon_canceled_area_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_committed_patterns_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_exchange_presentation_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_feedback_mechanics_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_presentation_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_pressure_earth_breath_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_pressure_escape_probe.gd",
+      "classification": "quarantined",
+      "evidence": "long-diagnostic; qa-11; This is an exhaustive headless geometry/Time diagnostic, not a renderer probe. Its all-dragon/all-warning BFS sweep timed out first at 45 seconds, then at the normal 180-second program budget (180.050s, exit 124); no assertion verdict. Needs separately budgeted/partitioned diagnostic coverage before suite inclusion. (output/qa-08/quarantine-check/dragon_pressure_escape_probe.gd.log)"
+    },
+    {
+      "path": "tests/dragon_pressure_grimoire_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_pressure_ice_pursuit_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_pressure_mechanics_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_pressure_presentation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_pressure_ring_copy_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_pressure_warning_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_revision_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_reward_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_reward_feedback_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_reward_tooltip_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_rewards_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_rewards_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Confirmed stale singleton-outbox expectation: the diagnostic observes has_run=false and exactly reward_claimed plus run_scored. The run clears and the claim persists; meta-01 added the second legitimate event. Existing assertion retained as requested; migrate the fixture to test the keyed claim independently. (output/qa-08/quarantine-check/dragon_rewards_test.gd.log)"
+    },
+    {
+      "path": "tests/dragon_shadow_visible_source_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_spire_routes_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_trophy_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/dragon_trophy_feedback_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/dragon_wallet_ack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/earthen_rampart_rotate_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_ambient_transition_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_aoe_attack_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_fx_hash_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/elemental_ranged_attack_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_room_overlays_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_spell_effects_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_spell_fx_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/elemental_spell_geometry_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/elemental_trap_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ember_hearth_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/ember_hearth_suite.gd::run"
+    },
+    {
+      "path": "tests/ember_reward_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ember_reward_feedback_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/ember_reward_feedback_suite.gd::run"
+    },
+    {
+      "path": "tests/en01_enemies_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/en01_enemies_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en02_enemies_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/en02_enemies_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en03_enemies_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/en03_enemies_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en04_enemies_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/en04_enemies_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en05_elemental_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en05_enemies_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/en05_enemies_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en05_integration_sync_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Snapshot assumes the prior Gust Shrike front/rear source hashes and shadow roster. The approved rr-03 cutout promotion changed that presentation, so exact frozen shadow entries/additions no longer match. Needs a new approved baseline. (output/qa-08/quarantine-check/en05_integration_sync_test.gd.log)"
+    },
+    {
+      "path": "tests/en05_live_integration_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en05_probe_contract_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/en06_enemies_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/en06_enemies_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/encounter_entry_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/encounter_framing_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/encounter_tables_test.gd",
+      "classification": "full suite",
+      "evidence": "partitioned headless entrypoint: tests/suites/encounter_rules_program.gd, tests/suites/encounter_placement_0_program.gd, tests/suites/encounter_placement_1_program.gd, tests/suites/encounter_placement_summary_program.gd"
+    },
+    {
+      "path": "tests/enemy_cutout_roster_aoe_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_cutout_roster_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_cutout_roster_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/enemy_intent_compass_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_intent_continuity_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_intent_continuity_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_intent_continuity_suite.gd::run"
+    },
+    {
+      "path": "tests/enemy_intent_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_intent_preview_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_intent_preview_suite.gd::run"
+    },
+    {
+      "path": "tests/enemy_intent_top_edge_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_pathfinding_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_pathfinding_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_pathfinding_suite.gd::run"
+    },
+    {
+      "path": "tests/enemy_route_allocation_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/enemy_shadow_dissolve_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_strike_trail_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_strike_trail_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_strike_trail_suite.gd::run"
+    },
+    {
+      "path": "tests/enemy_surface_acceptance_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_surface_acceptance_suite.gd::run"
+    },
+    {
+      "path": "tests/enemy_tactical_ai_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/enemy_tactical_ai_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/enemy_tactical_ai_suite.gd::run"
+    },
+    {
+      "path": "tests/equipment_inventory_readability_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/equipment_inventory_readability_test.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Current equipment card labels fail the fixture's font-size/word-clipping limits (six named equipment pairs). Requires actual UI proof and owner-directed layout/copy decisions; no visual values changed. (output/qa-08/quarantine-check/equipment_inventory_readability_test.gd.log)"
+    },
+    {
+      "path": "tests/equipment_pickup_visibility_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/event_rules_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/event_view_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/event_view_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/fireball_attack_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/fix_03_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/fix_03_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/fix_03_suite.gd::run"
+    },
+    {
+      "path": "tests/fixtures/native_font_cache_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/floating_damage_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/floating_text_collision_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/flurry_card_pack_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/forced_movement_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/forced_movement_query_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "partitioned headless entrypoint: tests/suites/forced_movement_query_open_program.gd, tests/suites/forced_movement_query_dense_program.gd, tests/suites/forced_movement_query_heart_program.gd, tests/suites/forced_movement_query_surface_ready_program.gd, tests/suites/forced_movement_query_blocked_program.gd"
+    },
+    {
+      "path": "tests/forced_movement_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/forced_movement_suite.gd::run, tests/suites/forced_movement_suite.gd::run_live"
+    },
+    {
+      "path": "tests/foreground_actor_readability_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/frostglass_lancer_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/frostglass_lancer_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/frostglass_lancer_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/frostglass_lancer_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/frostglass_lancer_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/frostglass_lancer_motion_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/frostglass_lancer_style_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/glossary_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/glossary_tooltip_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/graftwright_console_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/graftwright_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/graftwright_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/graftwright_motion_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/graftwright_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/graftwright_resume_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/graftwright_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/graftwright_suite.gd::run"
+    },
+    {
+      "path": "tests/grave_surgeon_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/grave_surgeon_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/grave_surgeon_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/grave_surgeon_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/grave_surgeon_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/grimoire_focus_return_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/grimoire_performance_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/grimoire_search_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/grimoire_search_rows_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/grimoire_search_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/grimoire_search_suite.gd::run"
+    },
+    {
+      "path": "tests/guardian_contract_probe.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/combat_outcome_feedback_suite.gd::run, tests/suites/ground_targeting_suite.gd::run, tests/suites/guardian_suite.gd::run"
+    },
+    {
+      "path": "tests/guardian_cutout_motion_probe.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/guardian_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/guardian_feedback_playback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guardian_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guardian_inspection_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guardian_map_revision_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guardian_revision_03_ui_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guardian_revision_04_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guardian_ui_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/guided_combat_tutorial_integration_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/gust_shrike_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/gust_shrike_cutout_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/gust_shrike_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/hand_card_focus_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/harrier_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/harrier_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/harrier_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/harrier_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/harrier_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/headless_playtest_progression_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/health_bar_theme_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/health_cost_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/health_ghost_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/health_ghost_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/humanoid_cutout_reaction_motion_probe.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/illusion_animation_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/illusion_terrain_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/illusion_terrain_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/illusion_terrain_suite.gd::run"
+    },
+    {
+      "path": "tests/initiative_order_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/initiative_order_suite.gd::run"
+    },
+    {
+      "path": "tests/inline_icon_description_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/inline_icon_description_suite.gd::run"
+    },
+    {
+      "path": "tests/iskaldra_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/iskaldra_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/iskaldra_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/iskaldra_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/iskaldra_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/item_card_art_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/item_pickup_deck_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/item_pickup_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/item_pickup_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/item_pickup_suite.gd::run"
+    },
+    {
+      "path": "tests/large_target_retained_overlay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/late_stop_peak_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/combat_feel_suite.gd::_test_late_stop_peak"
+    },
+    {
+      "path": "tests/lethal_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/lightning_wisp_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/lightning_wisp_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/lightning_wisp_cutout_pack_test.gd",
+      "classification": "quarantined",
+      "evidence": "legacy-cutout; qa-10; The transitive dependency fix exposes the older renderer's crown lookup and old skeleton-count assumptions against the promoted maquette assets. Package build succeeds; verification fails. Needs migration to the actual production maquette renderer, with the original coverage preserved. (output/qa-08/quarantine-check/lightning_wisp_cutout_pack_test.gd.log)"
+    },
+    {
+      "path": "tests/lightning_wisp_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/lightning_wisp_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/loadout_acquisition_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/loadout_material_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/locked_hand_cache_lifecycle_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/magic_deck_character_regression_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/run_tests.gd::_test_run_scene_campfire_choices_use_relic_overlay, tests/run_tests.gd::_test_run_scene_character_stats_overlay_opens, tests/run_tests.gd::_test_run_scene_debug_boss_fixture_boots, tests/run_tests.gd::_test_run_scene_reward_decision_support_matches_claims, tests/suites/ember_hearth_suite.gd::run"
+    },
+    {
+      "path": "tests/magic_deck_guard_mutation_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/magic_deck_input_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/magic_deck_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/magic_deck_ui_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/main_menu_branding_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/main_menu_input_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/main_menu_input_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/main_menu_resume_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/main_menu_resume_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/main_menu_umbra_button_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/maneuver_board_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/maneuver_cards_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/maneuver_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/maneuver_suite.gd::run"
+    },
+    {
+      "path": "tests/map_decision_layer_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/map_overlay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/map_travel_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/maquette_cutout/integration_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/contextual_cutout_suite.gd::run, tests/suites/enemy_strike_trail_suite.gd::run, tests/suites/pre_battle_ui_suite.gd::run"
+    },
+    {
+      "path": "tests/maquette_cutout/movement_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/maquette_cutout/pixel_runtime_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/maquette_cutout/reference_mask_test.gd",
+      "classification": "full suite",
+      "evidence": "Python full suite: tests/test_maquette_native_alpha.py::NativeAlphaTests.test_godot_reference_erosion_matches_independent_pillow_masks"
+    },
+    {
+      "path": "tests/maquette_cutout/runtime_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/maquette_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/merchant_acquisition_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/merchant_stock_equivalence_probe.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/meteor_marks_board_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/missed_equipment_resolution_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/motion_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/move_attack_approach_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/move_attack_shortcut_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/movement_path_arrow_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/movement_undo_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/movement_undo_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/music_continuity_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/new_descent_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/noctyrax_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/noctyrax_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/noctyrax_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/noctyrax_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/noctyrax_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/noncombat_move_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Independent original movement reference omits new run_stats/Chronicle fields and differs on some encounter transitions. The log records 1,920 cases and exact differing keys. Requires a coordinated reference update for current run/encounter flow. (output/qa-08/quarantine-check/noncombat_move_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/objective_glyph_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/opening_boon_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Native opening-boon capture and controller/pointer proof; opening-boon and recovery programs run headless."
+    },
+    {
+      "path": "tests/opening_boon_recovery_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/opening_boon_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/original_music_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/owned_combat_creation_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "long-diagnostic; qa-11; Exhaustive run/tutorial/relic preparation matrix exceeds the existing 180-second program budget (exit 124, no final result). Initial 45-second timeout was rerun at the normal budget. Needs matrix partitioning/performance investigation; no success or gameplay-bug claim. (output/qa-08/quarantine-check/owned_combat_creation_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/owned_cpu_asset_preparation_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pass_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pause_overlay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/performance_phase_fast_path_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/performance_telemetry_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pile_viewer_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/run_tests.gd::_test_run_scene_discard_pile_uses_distinct_icon_controls"
+    },
+    {
+      "path": "tests/pillar_torch_lighting_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pixel_fx_compare_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pixel_fx_render_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pixel_fx_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/player_aim_curve_ownership_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/player_defeat_continuity_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/player_movement_outcome_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/player_movement_outcome_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/player_movement_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/player_movement_suite.gd::run"
+    },
+    {
+      "path": "tests/player_movement_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_deck_fit_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_deck_fit_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pre_battle_living_foes_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_living_foes_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/combat_objective_suite.gd::run, tests/suites/pre_battle_living_foes_suite.gd::run"
+    },
+    {
+      "path": "tests/pre_battle_loadout_refinement_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_material_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_pinned_hover_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_pinned_hover_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pre_battle_preview_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_review_findings_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_review_fixes_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pre_battle_semantics_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pre_battle_true_scale_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/pre_battle_true_scale_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/pre_battle_view_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/premium_button_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/premium_card_material_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/prepared_card_preview_queries_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/prepared_encounter_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Frozen pre_battle_factory_reference no longer matches the complete current combat factory and invalidation inputs after run-flow changes. Twenty-four cases fail reference/state comparisons. Needs independent reference migration. (output/qa-08/quarantine-check/prepared_encounter_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/prepared_equipment_combat_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Same frozen pre-battle factory mismatch across 144 equipment cases (1,625 checks). Updating only expected booleans would hide the migration; dedicated factory-reference work required. (output/qa-08/quarantine-check/prepared_equipment_combat_test.gd.log)"
+    },
+    {
+      "path": "tests/prepared_equipment_scene_handoff_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Prepared equipment scene callback/factory differs from the frozen original complete state (38 checks). Shares the outdated factory reference and requires end-to-end reference/ownership investigation. (output/qa-08/quarantine-check/prepared_equipment_scene_handoff_test.gd.log)"
+    },
+    {
+      "path": "tests/prepared_other_character_view_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/prepared_pre_battle_view_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/prepared_reward_choices_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Missing GameData preload fixed in its workload dependency. It now completes and exposes stale full-state comparisons with the independent reward reference across 20 cases (no pixel differences). Requires reference/committed-analytics reconciliation. (output/qa-08/quarantine-check/prepared_reward_choices_test.gd.log)"
+    },
+    {
+      "path": "tests/prepared_shop_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/prepared_shop_glyph_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Headless path still asserts that cancellation/show/detach crossed real native outline rendering. Needs headless cancellation semantics separated from actual-renderer proof; assertions retained. (output/qa-08/quarantine-check/prepared_shop_glyph_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/prepared_travel_combat_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Complete travel preview/Begin/fallback comparisons disagree with pre_battle_factory_reference (24 cases). Same outdated independent factory reference; no production factory changed in this unit. (output/qa-08/quarantine-check/prepared_travel_combat_test.gd.log)"
+    },
+    {
+      "path": "tests/prepared_unit_canvas_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/profile_read_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/program_suite_runner_test.gd",
+      "classification": "full suite",
+      "evidence": "Python full suite: tests/test_program_suite_runner.py::ProgramSuiteRunnerTests.run_godot_fixture"
+    },
+    {
+      "path": "tests/protagonist_cutout_continue_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/protagonist_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/protagonist_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/protagonist_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/protagonist_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/protagonist_full_gear_motion_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/protagonist_full_gear_motion_suite.gd::run"
+    },
+    {
+      "path": "tests/protagonist_gear_carry_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/protagonist_gear_carry_suite.gd::run"
+    },
+    {
+      "path": "tests/protagonist_gear_motion_gameplay_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/protagonist_gear_motion_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/protagonist_gear_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/protagonist_gear_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/protagonist_gear_suite.gd::run"
+    },
+    {
+      "path": "tests/protagonist_ranged_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/protagonist_ranged_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/protagonist_ranged_suite.gd::run"
+    },
+    {
+      "path": "tests/radiance_package_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/radiance_package_suite.gd::run"
+    },
+    {
+      "path": "tests/reach_rebalance_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/reach_rebalance_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/reach_rebalance_suite.gd::run"
+    },
+    {
+      "path": "tests/ready_wave_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_choice_sparkle_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_damage_feedback_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_offer_fit_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_rework_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/relic_suite.gd::run"
+    },
+    {
+      "path": "tests/relic_u1_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/relic_u1_suite.gd::run"
+    },
+    {
+      "path": "tests/relic_u2_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u2_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/relic_u2_suite.gd::run"
+    },
+    {
+      "path": "tests/relic_u3_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u3_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/relic_u3_suite.gd::run"
+    },
+    {
+      "path": "tests/relic_u4_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u4_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/relic_u4_suite.gd::run"
+    },
+    {
+      "path": "tests/relic_u5_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u5_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/relic_u6_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u6_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/relic_u7_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u7_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/relic_u7_suite.gd::run"
+    },
+    {
+      "path": "tests/relic_u8_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/relic_u8_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/remaining_hitch_native_trace_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/retained_character_deck_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Fixture directly indexes the retired magic slot dictionary after deck-01 removed magic slots. Script error prevents completion. Requires migration to the approved spells-in-deck flow. (output/qa-08/quarantine-check/retained_character_deck_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/retained_character_header_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/retained_character_inventory_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/retained_character_loadout_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/retained_section_map_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Both current panel and old reference fixture are accessed through the removed _event_panel property. Script errors invalidate the printed errors=[]/exit-zero marker; task runner correctly rejects it. Requires fixture/API migration. (output/qa-08/quarantine-check/retained_section_map_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/retained_shop_rows_equivalence_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Fixture indexes a missing sell:frostbolt row. deck-01 changed spells to the new purge/deck flow, so the legacy sell-row fixture no longer reaches its assertion boundary. Requires migration to that flow. (output/qa-08/quarantine-check/retained_shop_rows_equivalence_test.gd.log)"
+    },
+    {
+      "path": "tests/reward_decision_support_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/rr07/runtime_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/rr10/humanoid_runtime_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/rr12/runtime_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/rr17/runtime_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/run_end_recap_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/run_score_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/run_sfx_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/save_pipeline_performance_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/save_resume_boundary_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/save_resume_inspection_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/scavenger_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/scavenger_glowup_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/scavenger_motion_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/scavenger_regression_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/run_tests.gd::_test_equipment_collection_to_equip_deck_flow, tests/run_tests.gd::_test_equipment_run_state_and_reward_cards, tests/run_tests.gd::_test_merchant_assets_load_for_board, tests/run_tests.gd::_test_run_map_merchant_room_spacing_and_density, tests/run_tests.gd::_test_run_scene_character_stats_overlay_opens"
+    },
+    {
+      "path": "tests/scavenger_resource_cache_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/scavenger_resume_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/scavenger_shop_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/scavenger_visual_pass_4_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; Controller trade assertion expects the inspected card purchase to appear in the old magic representation. Requires current deck/purchase fixture and native controller proof; no UI/input behavior changed. (output/qa-08/quarantine-check/scavenger_visual_pass_4_test.gd.log)"
+    },
+    {
+      "path": "tests/section_map_flow_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/section_map_performance_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/section_map_performance_suite.gd::_test_forward_checks, tests/suites/section_map_performance_suite.gd::_test_memo_and_cutoff, tests/suites/section_map_performance_suite.gd::run"
+    },
+    {
+      "path": "tests/section_map_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/section_map_review_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/section_map_structural_rejection_test.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/section_map_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/section_map_suite.gd::run"
+    },
+    {
+      "path": "tests/section_map_type_rejection_test.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/section_map_v2_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/section_map_v5_layout_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/section_map_v5_test.gd",
+      "classification": "full suite",
+      "evidence": "partitioned headless entrypoint: tests/suites/section_map_v5_program.gd, tests/suites/section_map_legacy_hashes_0_program.gd, tests/suites/section_map_legacy_hashes_1_program.gd"
+    },
+    {
+      "path": "tests/section_map_variety_probe.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/section_transition_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/section_transition_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/selection_prompt_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/selective_ui_salvage_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/settings_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/sfx_bank_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/sfx_cue_coverage_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/sfx_sync_bank_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/shadow_triangulation_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/shale_bloomer_art_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/shop_retained_content_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/shortcut_risk_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/skill_combat_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/skill_combat_suite.gd::run"
+    },
+    {
+      "path": "tests/skill_link_geometry_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/skill_material_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/skill_progression_analytics_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/skill_run_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/skill_run_suite.gd::run"
+    },
+    {
+      "path": "tests/skill_tree_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/skill_tree_suite.gd::run"
+    },
+    {
+      "path": "tests/skill_tree_view_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/skill_tree_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/skill_ui_test.gd",
+      "classification": "windowed probe",
+      "evidence": "Production skill analytics drain across rendered frames (documented real-renderer test)."
+    },
+    {
+      "path": "tests/staged_reward_choices_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/start_room_map_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/start_room_map_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/static_facing_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/static_facing_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/static_floor_cache_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/steam_deck_720p_stress_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/steam_deck_compat_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/steam_media_color_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/stone_warden_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/stone_warden_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/stone_warden_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/stone_warden_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/stone_warden_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/strike_trail_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/strike_trail_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/strike_trail_suite.gd::run"
+    },
+    {
+      "path": "tests/structural_route_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/suites/acolyte_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/actor_presentation_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/attack_fx_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/attack_sfx_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/audio_routing_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/balance_pacing_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/bile_bloomer_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/biome_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/board_density_consumer_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/board_surface_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_drag_play_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_keywords_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_keywords_w3_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_mechanics_surfaces_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_playability_summary_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_pool_overhaul_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/card_targeting_audit_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/cbt_01_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/chain_attack_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/chainbound_gaoler_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/chronicle_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/cinder_droplet_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/cinder_ooze_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_action_pacing_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_board_layout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_enemy_action_clock_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_feel_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_lighting_profiles_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_motion_timing_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_objective_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_outcome_feedback_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/combat_pacing_regression_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/contextual_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/controller_input_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/crawler_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/cursor_feedback_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/depth_rules_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/destruction_preview_privacy_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/destruction_preview_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/dragon_area_presentation_suite.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Four Fire/Earth cancellation assertions fail against current committed-pattern behavior. This crosses authored counterplay rules; requires a dedicated encounter investigation/approved fixture update, not altered assertions. (output/qa-08/quarantine-check/dragon_area_presentation_test.gd.log)"
+    },
+    {
+      "path": "tests/suites/dragon_boss_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/dragon_exchange_presentation_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/dragon_pressure_mechanics_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/dragon_spire_routes_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/ember_hearth_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/ember_reward_feedback_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en01_enemies_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en02_enemies_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en02_enemy_integration_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en03_enemies_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en04_enemies_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en05_enemies_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/en06_enemies_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/encounter_tables_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_intent_compass_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_intent_continuity_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_intent_preview_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_pathfinding_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_strike_trail_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_surface_acceptance_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/enemy_tactical_ai_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/event_rules_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/event_view_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/fix_03_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/floating_combat_text_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/forced_movement_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/frostglass_lancer_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/glossary_coverage_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/graftwright_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/grave_surgeon_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/grimoire_search_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/ground_targeting_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/guardian_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/guided_combat_tutorial_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/harrier_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/health_bar_theme_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/health_ghost_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/illusion_terrain_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/initiative_order_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/inline_icon_description_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/iskaldra_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/item_pickup_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/lethal_preview_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/lightning_wisp_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/live_actor_submission_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/magic_deck_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/maneuver_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/map_ui_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/maquette_presentation_surfaces_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/move_attack_approach_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/move_attack_shortcut_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/movement_undo_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/noctyrax_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/opening_boon_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/original_music_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/player_movement_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/pre_battle_living_foes_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/pre_battle_ui_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/protagonist_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/protagonist_full_gear_motion_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/protagonist_gear_carry_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/protagonist_gear_motion_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/protagonist_gear_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/protagonist_ranged_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/radiance_package_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/reach_rebalance_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u1_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u2_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u3_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u4_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u5_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u6_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u7_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/relic_u8_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/run_score_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/run_sfx_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/scavenger_shop_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/section_map_performance_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/section_map_regression_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/section_map_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/section_map_v2_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/section_map_v5_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/section_transition_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/sfx_bank_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/skill_combat_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/skill_run_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/skill_tree_completion_equivalence_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/skill_tree_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/start_room_map_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/steam_service_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/stone_warden_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/strike_trail_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/surface_core_review_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/surface_relic_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/terrain_connectivity_equivalence_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/tharokh_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/threats_at_rest_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/tooltip_consistency_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/turn_clock_activation_selection_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/turn_clock_banner_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/turn_clock_copy_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/turn_clock_hud_review_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/turn_clock_hud_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/turn_clock_wait_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/ui_button_feedback_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/ui_components_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/umbra_action_animation_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/vaeloryx_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/veilbound_acolyte_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/vyraketh_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/suites/zekarion_cutout_suite.gd",
+      "classification": "full suite",
+      "evidence": "called by full-suite execution graph"
+    },
+    {
+      "path": "tests/surface_analytics_batch_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/surface_core_review_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/surface_core_review_suite.gd::run"
+    },
+    {
+      "path": "tests/surface_feedback_ui_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/surface_feedback_ui_test.gd",
+      "classification": "quarantined",
+      "evidence": "needs-design; design-01; Legacy Fire-fuel copy assertion fails and an old dictionary-index expectation errors. Requires current approved surfaces/copy fixtures; no player wording or mechanics changed. (output/qa-08/quarantine-check/surface_feedback_ui_test.gd.log)"
+    },
+    {
+      "path": "tests/surface_parent_review_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/surface_preview_equivalence_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/surface_query_handoff_test.gd",
+      "classification": "quarantined",
+      "evidence": "stale-reference; qa-09; All three handoff modes differ only in analytics; the test compares an engine result to a scene boundary that stages/acknowledges analytics. Needs current committed-analytics reference reconciliation, retaining exact durable-save assertions. (output/qa-08/quarantine-check/surface_query_handoff_test.gd.log)"
+    },
+    {
+      "path": "tests/surface_redraw_equivalence_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/surface_relic_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/surface_save_migration_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/terrain_destruction_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/text_audit_capture_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/text_rewrite_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/tharokh_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/tharokh_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/tharokh_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/tharokh_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/tharokh_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/threats_at_rest_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/threats_at_rest_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/tooltip_consistency_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/treasure_opening_reel_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/treasure_presentation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/turn_clock_copy_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/turn_clock_hud_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/turn_clock_hud_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/turn_clock_hud_suite.gd::run"
+    },
+    {
+      "path": "tests/turn_clock_wait_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/turn_clock_wait_suite.gd::run"
+    },
+    {
+      "path": "tests/turn_order_animation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/turn_order_portraits_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/turn_order_projection_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui02_pixel_identity_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui_button_feedback_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/ui_button_feedback_suite.gd::run"
+    },
+    {
+      "path": "tests/ui_components_gallery_fixture_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/ui_components_gallery_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui_components_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/ui_components_suite.gd::run"
+    },
+    {
+      "path": "tests/ui_feedback_sfx_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui_hover_sfx_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui_material_polish_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/ui_skin_performance_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/umbra_action_animation_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/umbra_action_animation_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/umbra_action_animation_suite.gd::run"
+    },
+    {
+      "path": "tests/umbra_preview_privacy_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/umbra_visual_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/utility_ui_layout_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/vaeloryx_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/vaeloryx_cutout_author_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/vaeloryx_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/vaeloryx_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/vaeloryx_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/vaeloryx_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/vaeloryx_feedback_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/veilbound_acolyte_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/veilbound_acolyte_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/veilbound_acolyte_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/veilbound_acolyte_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/veilbound_acolyte_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/visible_terrain_shortcut_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/visible_terrain_shortcut_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/move_attack_shortcut_suite.gd::run_visible_terrain, tests/suites/move_attack_shortcut_suite.gd::run_visible_terrain_live"
+    },
+    {
+      "path": "tests/vyraketh_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/vyraketh_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/vyraketh_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/vyraketh_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/vyraketh_cutout_suite.gd::run"
+    },
+    {
+      "path": "tests/warden_bulwark_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/wave4_icon_identity_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/zekarion_cutout_asset_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/zekarion_cutout_gameplay_probe.gd",
+      "classification": "windowed probe",
+      "evidence": "Real-renderer capture/interactive proof; excluded from headless execution."
+    },
+    {
+      "path": "tests/zekarion_cutout_pack_test.gd",
+      "classification": "full suite",
+      "evidence": "program"
+    },
+    {
+      "path": "tests/zekarion_cutout_test.gd",
+      "classification": "full suite",
+      "evidence": "shared wrapper: tests/suites/zekarion_cutout_suite.gd::run"
+    }
+  ],
+  "errors": []
+}

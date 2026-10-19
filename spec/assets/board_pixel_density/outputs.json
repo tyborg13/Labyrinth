@@ -14111,5 +14111,61 @@
     "mode": "clean",
     "grid": 0.78,
     "facing": "rear"
+  },
+  "assets/units/storm_capacitor_cutout/paint/cap.png": {
+    "pixel_sha256": "312d62b19fa82972805d312a606e1332a4a929147590bcae0c3a9fe918bc19c1",
+    "source_pixel_sha256": "312d62b19fa82972805d312a606e1332a4a929147590bcae0c3a9fe918bc19c1",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column.png": {
+    "pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "source_pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png": {
+    "pixel_sha256": "d1acada2ca7e1af2736549cb1d05642c98659601df3d0c1c11eba9caaa34eada",
+    "source_pixel_sha256": "d1acada2ca7e1af2736549cb1d05642c98659601df3d0c1c11eba9caaa34eada",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png": {
+    "pixel_sha256": "cdd5ba6ebee0445f5fe731975a4082ac5eb0ee7e4f54ef78ec158b9f1d46e94b",
+    "source_pixel_sha256": "cdd5ba6ebee0445f5fe731975a4082ac5eb0ee7e4f54ef78ec158b9f1d46e94b",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_0.png": {
+    "pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "source_pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_1.png": {
+    "pixel_sha256": "155d5b1e35bfa2b0b701e6f0dbae82dc86d1c5c9bafbd372ccc26de12ea8c5c2",
+    "source_pixel_sha256": "155d5b1e35bfa2b0b701e6f0dbae82dc86d1c5c9bafbd372ccc26de12ea8c5c2",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_2.png": {
+    "pixel_sha256": "91616276060e6c2c75f25ba262178560d665c98ff3f41d772c487a17b09b339e",
+    "source_pixel_sha256": "91616276060e6c2c75f25ba262178560d665c98ff3f41d772c487a17b09b339e",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
   }
 }

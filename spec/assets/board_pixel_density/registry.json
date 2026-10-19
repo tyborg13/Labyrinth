@@ -585,6 +585,14 @@
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png": {
       "category": "other",
       "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
+    },
+    "assets/units/storm_capacitor_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived exact rest, separately registered in rest_paths; native rebake pending director."
+    },
+    "assets/units/storm_capacitor_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived exact rest, separately registered in rest_paths; native rebake pending director."
     }
   },
   "entries": [
@@ -5372,6 +5380,55 @@
         ],
         "rear": [
           "assets/units/ember_tick_cutout/rear/rest.png"
+        ]
+      }
+    },
+    {
+      "id": "storm_capacitor_cutout",
+      "unit_type": "storm_capacitor",
+      "kind": "rig",
+      "dir": "assets/units/storm_capacitor_cutout",
+      "rig_script": "assets/units/storm_capacitor_cutout/rig.gd",
+      "paths": [
+        "assets/units/storm_capacitor_cutout/paint/cap.png",
+        "assets/units/storm_capacitor_cutout/paint/column.png",
+        "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png",
+        "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png",
+        "assets/units/storm_capacitor_cutout/paint/column_glow_0.png",
+        "assets/units/storm_capacitor_cutout/paint/column_glow_1.png",
+        "assets/units/storm_capacitor_cutout/paint/column_glow_2.png"
+      ],
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "storm_capacitor.art_scale",
+        "expression": "art_scale (default 1.0); existing Capacitor BODY_SCALE unchanged"
+      },
+      "exact_source_partition": true,
+      "derivation_note": "rr-17 exact partition of treated assets/art/enemies/storm_capacitor.png; protected vent fill and prescribed glow table. rr17_gates validates every pixel.",
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/storm_capacitor_cutout/front/rest.png",
+          "orphan_share": 0.004998611496806442,
+          "t": 1.0,
+          "grid": 1.0,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/storm_capacitor_cutout/rear/rest.png",
+          "orphan_share": 0.004998611496806442,
+          "t": 1.0,
+          "grid": 1.0,
+          "mode": "clean"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/storm_capacitor_cutout/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/storm_capacitor_cutout/rear/rest.png"
         ]
       }
     }

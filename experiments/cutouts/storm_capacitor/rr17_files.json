@@ -1,0 +1,434 @@
+[
+  {
+    "status": " M",
+    "path": "assets/generated/unit_shadow_cache.res"
+  },
+  {
+    "status": " M",
+    "path": "scripts/combat_board_view.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/cutout_context.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/maquette_cutout_runtime/motion.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/maquette_cutout_runtime/presentation.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/maquette_cutout_runtime/rig.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/run_scene.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/static_enemy_facing.gd"
+  },
+  {
+    "status": " M",
+    "path": "spec/art_identity/registry.json"
+  },
+  {
+    "status": " M",
+    "path": "spec/assets/board_pixel_density/outputs.json"
+  },
+  {
+    "status": " M",
+    "path": "spec/assets/board_pixel_density/registry.json"
+  },
+  {
+    "status": " M",
+    "path": "tests/headless_test_programs.json"
+  },
+  {
+    "status": " M",
+    "path": "tests/suites/pre_battle_living_foes_suite.gd"
+  },
+  {
+    "status": " M",
+    "path": "tests/test_program_suite_runner.py"
+  },
+  {
+    "status": " M",
+    "path": "tools/process_board_density.py"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/actions.gd"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/compiled_motion.json"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/death.gd"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/front.json"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/front/rest.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/integration.json"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/cap.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/column.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/column_glow_0.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/column_glow_1.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/paint/column_glow_2.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/rear.json"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/rear/rest.png"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/renderer.gd"
+  },
+  {
+    "status": "??",
+    "path": "assets/units/storm_capacitor_cutout/rig.gd"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/README.md"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/compiled_motion.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/cutout.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/director_motion.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/front/rest.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/layouts/front.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/layouts/rear.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/motion.gd"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/cap.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/column.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_-1.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_-2.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_0.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_1.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_2.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/density_check.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/en06.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/focused.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/headless_gates.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/identity_native_tests.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/native_parse.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/pre_battle.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_capture.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_gates.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_gates.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_tests.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/registration_audit.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/registration_audit.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/registration_density_tests.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/rr12_regression.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/runtime.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/samples.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/samples.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_0.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_1.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_2.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/shadow_check.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/verification_results.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/protected_inputs.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/rear/rest.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/source/cap_mask.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/source/front/processed.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/source/rear/processed.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/source/spec.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/source/vent_fill.png"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_build.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_contract.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_files.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_gates.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_production.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_proof.sh"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_release.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_review.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_shadow.gd"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/rr17_shadow_check.gd"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/front/rest.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/cap.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_-1.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_-2.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_0.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_1.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/paint/column_glow_2.png"
+  },
+  {
+    "status": "??",
+    "path": "spec/assets/board_pixel_density/sources/assets/units/storm_capacitor_cutout/rear/rest.png"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/capture_contract.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/capture_scene.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/native_capture.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/production_capture.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/production_contract.json"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/render_contract.json"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/rest_contract.json"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/runtime_test.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/samples.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/test_rr17_cutout.py"
+  },
+  {
+    "status": "??",
+    "path": "tests/test_rr17_production.py"
+  }
+]

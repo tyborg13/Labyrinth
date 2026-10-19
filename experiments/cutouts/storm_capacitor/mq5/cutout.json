@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "character_id": "storm_capacitor",
+  "source_size": [
+    255,
+    255
+  ],
+  "runtime_paths": [
+    "assets/units/storm_capacitor_cutout/renderer.gd",
+    "assets/units/storm_capacitor_cutout/actions.gd",
+    "assets/units/storm_capacitor_cutout/death.gd",
+    "assets/units/storm_capacitor_cutout/rig.gd",
+    "scripts/static_enemy_facing.gd",
+    "tests/rr17/native_capture.gd",
+    "tests/rr17/production_capture.gd",
+    "tests/rr17/capture_scene.gd",
+    "tests/rr17/capture_contract.gd",
+    "tests/rr17/samples.gd",
+    "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png",
+    "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png",
+    "assets/units/storm_capacitor_cutout/paint/column_glow_0.png",
+    "assets/units/storm_capacitor_cutout/paint/column_glow_1.png",
+    "assets/units/storm_capacitor_cutout/paint/column_glow_2.png",
+    "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_-2.png",
+    "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_-1.png",
+    "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_0.png",
+    "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_1.png",
+    "experiments/cutouts/storm_capacitor/mq5/paint/column_glow_2.png",
+    "experiments/cutouts/storm_capacitor/mq5/source/cap_mask.png",
+    "experiments/cutouts/storm_capacitor/mq5/source/vent_fill.png"
+  ],
+  "clips": [
+    {
+      "name": "idle",
+      "seconds": 2.0,
+      "loop": true,
+      "frames": 120
+    },
+    {
+      "name": "charge",
+      "seconds": 0.9,
+      "loop": false,
+      "frames": 54
+    },
+    {
+      "name": "discharge",
+      "seconds": 1.0,
+      "loop": false,
+      "frames": 60
+    },
+    {
+      "name": "hit",
+      "seconds": 0.5,
+      "loop": false,
+      "frames": 30
+    },
+    {
+      "name": "death",
+      "seconds": 1.4,
+      "loop": false,
+      "frames": 84
+    }
+  ],
+  "sources": [
+    "director_motion.json",
+    "source/cap_mask.png",
+    "source/vent_fill.png"
+  ],
+  "TODO_DESIGN": {
+    "TODO_DESIGN_hit_changing_frames": "Protected hit has four transitions/four unique states; the brief requires six changing frames per action."
+  }
+}

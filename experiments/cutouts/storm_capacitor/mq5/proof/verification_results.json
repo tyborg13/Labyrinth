@@ -1,0 +1,168 @@
+{
+  "focused": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && PYTHONPATH=tests python3 -m unittest tests.test_rr17_cutout tests.test_rr17_production tests.test_test_registration_audit tests.test_maquette_native_raster tests.test_maquette_native_ties",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/focused.log",
+    "result_lines": [
+      "Ran 66 tests in 41.115s",
+      "OK"
+    ],
+    "exit_code": 0
+  },
+  "identity_native_tests": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && PYTHONPATH=tests python3 -m unittest tests.test_maquette_native_ties tests.test_art_identity_gate tests.test_icon_identity_policy",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/identity_native_tests.log",
+    "result_lines": [
+      "Ran 128 tests in 46.530s",
+      "OK"
+    ],
+    "exit_code": 0
+  },
+  "registration_density_tests": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && PYTHONPATH=tests python3 -m unittest tests.test_program_suite_runner tests.test_board_pixel_density.BoardPixelDensityTest.test_painted_derivations_and_manifest_are_current tests.test_board_pixel_density.BoardPixelDensityTest.test_rig_coverage_names_adoption_command_for_new_art tests.test_board_pixel_density.BoardPixelDensityTest.test_rig_rest_rule_uses_declared_assemblies_only tests.test_board_pixel_density.BoardPixelDensityTest.test_grid_rule_and_measurement_use_untouched_native_sources",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/registration_density_tests.log",
+    "result_lines": [
+      "Ran 32 tests in 31.391s",
+      "OK"
+    ],
+    "exit_code": 0
+  },
+  "registration_audit": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/test_registration_audit.py --json experiments/cutouts/storm_capacitor/mq5/proof/registration_audit.json",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/registration_audit.log",
+    "result_lines": [
+      "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+    ],
+    "exit_code": 0
+  },
+  "density_check": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/process_board_density.py --only storm_capacitor_cutout --check",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/density_check.log",
+    "result_lines": [
+      "rest rebake needed: assets/units/storm_capacitor_cutout/front/rest.png: no rebake record; run --record-rests after native rebake",
+      "rest rebake needed: assets/units/storm_capacitor_cutout/rear/rest.png: no rebake record; run --record-rests after native rebake"
+    ],
+    "exit_code": 1
+  },
+  "production_gates": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 -B experiments/cutouts/storm_capacitor/rr17_gates.py production --input experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/production_gates.log",
+    "result_lines": [
+      "RR17 PRODUCTION GATES: FAIL (1 errors)",
+      "TODO_DESIGN_hit_changing_frames: fewer than six changing presented states (4)"
+    ],
+    "exit_code": 1
+  },
+  "runtime": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/runtime_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/runtime.log",
+    "result_lines": [
+      "RR17 RUNTIME: PASS (48 checks, 0 failures; headless logic only)"
+    ],
+    "exit_code": 0
+  },
+  "samples": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/samples.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/samples.log",
+    "result_lines": [
+      "RR17 SAMPLES: PASS (328 authored bone poses; 696 sequential poses; headless transforms only)"
+    ],
+    "exit_code": 0
+  },
+  "en06": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/en06_enemies_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/en06.log",
+    "result_lines": [
+      "EN06 ENEMIES TEST RESULT: PASS (177 checks, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "rr12_regression": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr12/runtime_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/rr12_regression.log",
+    "result_lines": [
+      "RR12 RUNTIME: PASS (44988 checks, 0 failures; headless logic only)"
+    ],
+    "exit_code": 0
+  },
+  "pre_battle": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/pre_battle_living_foes_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/pre_battle.log",
+    "result_lines": [
+      "PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)",
+      "TEST RESULT: PASS"
+    ],
+    "exit_code": 0
+  },
+  "shadow_check": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow_check.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/shadow_check.log",
+    "result_lines": [
+      "RR17 SHADOW PRESERVATION: PASS (66 existing entries unchanged)"
+    ],
+    "exit_code": 0
+  },
+  "native_parse": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/native_capture.gd -- --validate-only",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/native_parse.log",
+    "result_lines": [
+      "RR17 NATIVE CAPTURE PARSE: PASS"
+    ],
+    "exit_code": 0
+  },
+  "sfx_sync_0": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_0.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "sfx_sync_1": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_1.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "sfx_sync_2": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_2.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "production_capture": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/production_capture.gd -- --type storm_capacitor --output res://experiments/cutouts/storm_capacitor/mq5/proof/production_logic --logic-only",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/production_capture.log",
+    "result_lines": [
+      "MAQUETTE PRODUCTION LOGIC: FAIL (1011 frames)"
+    ],
+    "exit_code": 1
+  },
+  "headless_gates": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 -B experiments/cutouts/storm_capacitor/rr17_gates.py headless",
+    "result_lines": [
+      "RR17 HEADLESS GATES: PASS (0 errors)"
+    ],
+    "report": "experiments/cutouts/storm_capacitor/mq5/proof/headless_gates.json",
+    "exit_code": 0
+  },
+  "limitations": [
+    "No windowed commands attempted; native captures/reel/sheets pending director.",
+    "Full Godot/Python suites deferred to director by unit brief.",
+    "Protected hit has four transitions/four unique states; strict six-changing-frame production gate fails.",
+    "Two native density rest records pending director native rebake."
+  ],
+  "git_diff_check": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && git diff --check",
+    "exit_code": 0,
+    "result_lines": []
+  },
+  "protected_director_data": {
+    "command": "git diff --name-only -- spec/peer_benchmark/staged/rr-17",
+    "result_lines": [],
+    "exit_code": 0
+  }
+}

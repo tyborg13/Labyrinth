@@ -54,7 +54,9 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var result: Dictionary = {}
 	var joints: Dictionary = layout["joints"]
 	var forward := point(data["projection"][facing]["forward"])
+	if layout.has("forward_axis"): forward = layout["forward_axis"]
 	var pixel_scale: float = float(layout.get("screen_pixel_scale", 1.0))
+	if str(data.get("source_units", "")) == "source_pixels": pixel_scale = 1.0
 	for bone: String in joints:
 		var joint: Dictionary = joints[bone]
 		var parent: String = "" if joint.get("parent") == null else str(joint["parent"])
@@ -63,7 +65,7 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		var squash: float = float(channels.get("squash", 1.0))
 		var uniform: float = float(channels.get("scale", 1.0))
 		result[bone] = {"position": origin + translation(channels, forward) / maxf(pixel_scale, 0.000001),
-			"rotation": deg_to_rad(float(channels.get("raise_deg", 0.0)) + float(channels.get("lean_deg", 0.0))),
+			"rotation": deg_to_rad(float(channels.get("raise_deg", 0.0)) + float(channels.get("lean_deg", 0.0)) * float(layout.get("forward_reflection", 1.0))),
 			"scale": Vector2(uniform / squash, uniform * squash), "alpha": float(channels.get("alpha", 1.0))}
 	return result
 

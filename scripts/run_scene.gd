@@ -23538,6 +23538,7 @@ func _death_hold_presentation(
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
+	if str(unit.get("type", "")) == "storm_capacitor": return preload("res://assets/units/storm_capacitor_cutout/death.gd").frames()
 	if MaquetteAction.handles(str(unit.get("type", ""))): return MaquetteAction.frames_for(str(unit["type"]), "death")
 	if board_view != null and board_view.has_method("_unit_death_frame_count"):
 		var board_count: int = int(board_view.call("_unit_death_frame_count", unit))
@@ -23551,6 +23552,9 @@ func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
 	return maxi(1, columns * rows)
 
 func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
+	if str(unit.get("type", "")) == "storm_capacitor":
+		var clock: Script = preload("res://assets/units/storm_capacitor_cutout/death.gd")
+		return clock.total_seconds() / clock.frames()
 	if MaquetteAction.handles(str(unit.get("type", ""))): return 1.0 / MaquetteAction.FPS
 	if board_view != null and board_view.has_method("_unit_death_frame_seconds"):
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
@@ -24556,6 +24560,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
+			var capacitor_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
+			if preload("res://assets/units/storm_capacitor_cutout/actions.gd").handles(step, capacitor_actor):
+				await preload("res://assets/units/storm_capacitor_cutout/actions.gd").animate(self, animated_state, step, capacitor_actor)
+				await _combat_pacing.after_step(step)
+				continue
 			if bool(step.get("en06_mirror", false)): await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
 			await _combat_pacing.after_step(step)
@@ -24639,6 +24648,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
 			"block", "heal", "stoneskin", "status", "status_damage":
 				var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, step_actor_key)
+				if preload("res://assets/units/storm_capacitor_cutout/actions.gd").handles(step, rr07_actor):
+					await preload("res://assets/units/storm_capacitor_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+					await _combat_pacing.after_step(step)
+					continue
 				if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
 					await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
 					await _combat_pacing.after_step(step)

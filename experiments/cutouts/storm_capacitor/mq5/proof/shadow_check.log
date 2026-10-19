@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-17
+  run: rr-17-1792386858480573000-95577
+  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792386858480573000-95577
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792386858480573000-95577/godot.log --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow_check.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR17 SHADOW PRESERVATION: PASS (66 existing entries unchanged)

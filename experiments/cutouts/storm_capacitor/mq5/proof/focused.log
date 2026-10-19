@@ -1,0 +1,8 @@
+..................................................................
+----------------------------------------------------------------------
+Ran 66 tests in 41.115s
+
+OK
+AUDIT MUTATION REJECTED: aliases collected across functions (2 assertion failures)
+AUDIT MUTATION REJECTED: inferred aliases omitted (4 assertion failures)
+AUDIT MUTATION REJECTED: string contents scanned as calls (20 assertion failures)
