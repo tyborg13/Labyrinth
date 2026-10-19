@@ -26,4 +26,3 @@ func _play_timed_animation_frames(count: int, seconds: float, render_frame: Call
 		render_frame.call(frame))
 	if record_clocks:
 		timed_presentations.append({"count":count,"seconds":seconds,"frames":frames,"elapsed":float(_combat_pacing.presentation_usec()-began)/1000000.0})
-
