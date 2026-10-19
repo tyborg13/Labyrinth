@@ -3700,25 +3700,25 @@
       "boss": false,
       "art_scale": 1.0,
       "size_class": "medium",
-      "pixel_sha256": "8e833459fa90b715098e402c086d51b976b3ed7f8edcce5173b7bab7f931a6e4",
+      "pixel_sha256": "053845002f2cf1552da9672655cb5858fd29379565931ec20da58c609fcd29c6",
       "metrics": {
         "height": 202,
         "width": 180,
         "height_drawn": 202.0,
-        "symmetry": 0.5101527659170699,
-        "thin_abs": 0.012517994617262329,
-        "thin_rel": 0.03661513425549223,
-        "feature_px": 5.880667571139444,
-        "regions": 462,
-        "chroma": 0.12848936031820252,
-        "value": 0.19418706842065864,
+        "symmetry": 0.5164977666778733,
+        "thin_abs": 0.013439333711906087,
+        "thin_rel": 0.038866805476686195,
+        "feature_px": 5.392655555934769,
+        "regions": 545,
+        "chroma": 0.14244629771903713,
+        "value": 0.204850041383201,
         "edge_light_share": 0.0,
-        "orphan_share": 0.008574826312824685,
-        "run_length": 2.580264857881137
+        "orphan_share": 0.04952993879740047,
+        "run_length": 2.1948483589530534
       },
-      "source_path": "spec/art_identity/jobs/arc_thrall/mq7_front/processed.png",
-      "source_pixel_sha256": "509138b0af60170c209b557c1ee5055830f738de7ddb5b588a1a45f578fda9c4",
-      "owner_approval": "rr-11 supplied approved mq7 front/rear painting; derived rest snapshot, native proof pending director."
+      "source_path": "spec/art_identity/jobs/arc_thrall/mq7b_front/processed.png",
+      "source_pixel_sha256": "8ea26b1dcf971c7603efe85255496e6f9e3138e3380e328041967cb76dc9006c",
+      "owner_approval": "rr-24 supplied final identity-gate-PASS mq7b front/rear painting; raw ownership identity exact, native density/rest/action proof pending director."
     },
     {
       "path": "assets/units/storm_capacitor_cutout/front/rest.png",
@@ -3839,6 +3839,35 @@
       "source_path": "spec/art_identity/jobs/glacial_mirror/mq8_rear/processed.png",
       "source_pixel_sha256": "3e6d9457d609dfb4172a11792daa7e863fd1e81203184743a4fa0fb0a9fb4fd3",
       "owner_approval": "rr-18 director-approved mq8 paintings; native cutout proof pending director."
+    },
+    {
+      "path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png",
+      "id": "arc_thrall",
+      "kind": "creature",
+      "entry_kind": "legacy",
+      "anatomy": "biped",
+      "boss": false,
+      "art_scale": 1.0,
+      "size_class": "medium",
+      "pixel_sha256": "9bbec3a4b67ac2b7caf22185a8bb1a9ae1773113580136f6814c90a41aec98b8",
+      "metrics": {
+        "height": 217,
+        "width": 180,
+        "height_drawn": 217.0,
+        "symmetry": 0.5239168657860331,
+        "thin_abs": 0.014204880348933191,
+        "thin_rel": 0.04603324295650124,
+        "feature_px": 5.684733105097413,
+        "regions": 525,
+        "chroma": 0.1360164388754441,
+        "value": 0.19723761456014682,
+        "edge_light_share": 0.0,
+        "orphan_share": 0.01732877519745373,
+        "run_length": 2.549744514577698
+      },
+      "source_path": "spec/art_identity/jobs/arc_thrall/mq7b_rear/processed.png",
+      "source_pixel_sha256": "59dea0a3a15ef062f346b21f30302cb4f5713a0c544ce851a9598f579effc9f1",
+      "owner_approval": "rr-24 supplied final identity-gate-PASS mq7b front/rear painting; raw ownership identity exact, native density/rest/action proof pending director."
     }
   ],
   "version": 1

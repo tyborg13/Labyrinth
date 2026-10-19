@@ -4799,6 +4799,12 @@
         "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_head.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png",
@@ -4823,6 +4829,13 @@
         "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_head.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_upper_near.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png",
         "assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png",
@@ -4931,14 +4944,14 @@
       "facings": {
         "front": {
           "measurement_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png",
-          "orphan_share": 0.028353257808099143,
+          "orphan_share": 0.04952993879740047,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"
         },
         "rear": {
           "measurement_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png",
-          "orphan_share": 0.016700492896491736,
+          "orphan_share": 0.01732877519745373,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"

@@ -1,8 +1,11 @@
 {
-  "front_job": "spec/art_identity/jobs/arc_thrall/mq7_front",
-  "rear_job": "spec/art_identity/jobs/arc_thrall/mq7_rear",
+  "front_job": "spec/art_identity/jobs/arc_thrall/mq7b_front",
+  "rear_job": "spec/art_identity/jobs/arc_thrall/mq7b_rear",
   "front_delivery": "spec/art_identity/maquettes/arc_thrall/delivery",
   "rear_delivery": "spec/art_identity/maquettes/arc_thrall/delivery",
   "fused_occlusion": true,
-  "design_placeholders": {}
+  "design_placeholders": {
+    "TODO_DESIGN_COLLAR_DEATH_CLEARANCE": "CPU jaw/collar masks contact in four front death frames (41, 66, 70, 72); fixed mq7b paint and protected motion retained. Director must resolve literal no-overlap requirement after native review.",
+    "TODO_DESIGN_PRESENTED_NEGATIVE_SPACE": "New source gaps can close into CPU-detected pockets during non-move clips (notably front tether at [265,305,268,309], 8 px). Protected source is transparent at every inverse-projected fill candidate. Native review or an owner-authorized shared per-clip continuation extension is required; no exception or generic change was added."
+  }
 }

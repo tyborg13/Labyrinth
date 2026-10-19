@@ -7,7 +7,7 @@
       "minimum_px": 3,
       "cover": "torso",
       "required_mask": "tucks/front_head.png",
-      "required_pixels": 157,
+      "required_pixels": 195,
       "missing_pixels": 0
     },
     {
@@ -19,7 +19,7 @@
         "loincloth"
       ],
       "required_mask": "tucks/front_torso.png",
-      "required_pixels": 819,
+      "required_pixels": 715,
       "missing_pixels": 0
     },
     {
@@ -35,7 +35,7 @@
       "minimum_px": 3,
       "cover": "torso",
       "required_mask": "tucks/front_sleeve_far.png",
-      "required_pixels": 411,
+      "required_pixels": 425,
       "missing_pixels": 0
     },
     {
@@ -55,7 +55,7 @@
         "foot_near"
       ],
       "required_mask": "tucks/front_leg_near.png",
-      "required_pixels": 497,
+      "required_pixels": 261,
       "missing_pixels": 0
     },
     {
@@ -67,7 +67,7 @@
         "foot_far"
       ],
       "required_mask": "tucks/front_leg_far.png",
-      "required_pixels": 182,
+      "required_pixels": 334,
       "missing_pixels": 0
     },
     {
@@ -89,7 +89,7 @@
         "loincloth"
       ],
       "required_mask": "tucks/front_foot_far.png",
-      "required_pixels": 242,
+      "required_pixels": 190,
       "missing_pixels": 0
     },
     {
@@ -97,7 +97,7 @@
       "minimum_px": 3,
       "cover": "torso",
       "required_mask": "tucks/front_loincloth.png",
-      "required_pixels": 241,
+      "required_pixels": 206,
       "missing_pixels": 0
     }
   ],
@@ -122,6 +122,10 @@
   },
   "source_ownership": "experiments/cutouts/arc_thrall/rr11/front_baseline/layouts/front.json",
   "source_ownership_sha256": "df97c16541fd74b54d6f16d953cf52fbf04ca8ebd7262deb3dc835f5bd3bcee8",
+  "raw_rest_mismatch_pixels": 0,
+  "residue_correction_count": 2,
+  "source_job": "spec/art_identity/jobs/arc_thrall/mq7b_front",
+  "source_sha256": "0d5599290b76bab0cc3bc3317af5e4e54b74fcef53d411b4ad25dce04610d381",
   "views": {
     "front": {
       "front_rest_mismatch_pixels": 0,
@@ -132,7 +136,7 @@
           "minimum_px": 3,
           "cover": "torso",
           "required_mask": "tucks/front_head.png",
-          "required_pixels": 157,
+          "required_pixels": 195,
           "missing_pixels": 0
         },
         {
@@ -144,7 +148,7 @@
             "loincloth"
           ],
           "required_mask": "tucks/front_torso.png",
-          "required_pixels": 819,
+          "required_pixels": 715,
           "missing_pixels": 0
         },
         {
@@ -160,7 +164,7 @@
           "minimum_px": 3,
           "cover": "torso",
           "required_mask": "tucks/front_sleeve_far.png",
-          "required_pixels": 411,
+          "required_pixels": 425,
           "missing_pixels": 0
         },
         {
@@ -180,7 +184,7 @@
             "foot_near"
           ],
           "required_mask": "tucks/front_leg_near.png",
-          "required_pixels": 497,
+          "required_pixels": 261,
           "missing_pixels": 0
         },
         {
@@ -192,7 +196,7 @@
             "foot_far"
           ],
           "required_mask": "tucks/front_leg_far.png",
-          "required_pixels": 182,
+          "required_pixels": 334,
           "missing_pixels": 0
         },
         {
@@ -214,7 +218,7 @@
             "loincloth"
           ],
           "required_mask": "tucks/front_foot_far.png",
-          "required_pixels": 242,
+          "required_pixels": 190,
           "missing_pixels": 0
         },
         {
@@ -222,7 +226,7 @@
           "minimum_px": 3,
           "cover": "torso",
           "required_mask": "tucks/front_loincloth.png",
-          "required_pixels": 241,
+          "required_pixels": 206,
           "missing_pixels": 0
         }
       ],
@@ -246,7 +250,11 @@
         "front_solo_loincloth.png": "3e0be7d0b8a3fd2bc5e0d6d5e6dff64c2071e3a532175d484afc2350c7598e46"
       },
       "source_ownership": "experiments/cutouts/arc_thrall/rr11/front_baseline/layouts/front.json",
-      "source_ownership_sha256": "df97c16541fd74b54d6f16d953cf52fbf04ca8ebd7262deb3dc835f5bd3bcee8"
+      "source_ownership_sha256": "df97c16541fd74b54d6f16d953cf52fbf04ca8ebd7262deb3dc835f5bd3bcee8",
+      "raw_rest_mismatch_pixels": 0,
+      "residue_correction_count": 2,
+      "source_job": "spec/art_identity/jobs/arc_thrall/mq7b_front",
+      "source_sha256": "0d5599290b76bab0cc3bc3317af5e4e54b74fcef53d411b4ad25dce04610d381"
     },
     "rear": {
       "front_rest_mismatch_pixels": 0,
@@ -257,7 +265,7 @@
           "minimum_px": 3,
           "cover": "torso",
           "required_mask": "tucks/rear_head.png",
-          "required_pixels": 174,
+          "required_pixels": 132,
           "missing_pixels": 0
         },
         {
@@ -269,7 +277,7 @@
             "loincloth"
           ],
           "required_mask": "tucks/rear_torso.png",
-          "required_pixels": 762,
+          "required_pixels": 753,
           "missing_pixels": 0
         },
         {
@@ -277,7 +285,7 @@
           "minimum_px": 5,
           "cover": "tube",
           "required_mask": "tucks/rear_upper_near.png",
-          "required_pixels": 142,
+          "required_pixels": 153,
           "missing_pixels": 0
         },
         {
@@ -285,7 +293,7 @@
           "minimum_px": 3,
           "cover": "torso",
           "required_mask": "tucks/rear_sleeve_far.png",
-          "required_pixels": 423,
+          "required_pixels": 694,
           "missing_pixels": 0
         },
         {
@@ -305,7 +313,7 @@
             "foot_near"
           ],
           "required_mask": "tucks/rear_leg_near.png",
-          "required_pixels": 154,
+          "required_pixels": 384,
           "missing_pixels": 0
         },
         {
@@ -317,7 +325,7 @@
             "foot_far"
           ],
           "required_mask": "tucks/rear_leg_far.png",
-          "required_pixels": 470,
+          "required_pixels": 231,
           "missing_pixels": 0
         },
         {
@@ -328,7 +336,7 @@
             "loincloth"
           ],
           "required_mask": "tucks/rear_foot_near.png",
-          "required_pixels": 224,
+          "required_pixels": 202,
           "missing_pixels": 0
         },
         {
@@ -347,7 +355,7 @@
           "minimum_px": 3,
           "cover": "torso",
           "required_mask": "tucks/rear_loincloth.png",
-          "required_pixels": 221,
+          "required_pixels": 185,
           "missing_pixels": 0
         }
       ],
@@ -371,10 +379,21 @@
         "rear_solo_loincloth.png": "b04309c056d06b3dcf295ae5dafbe6cf01cebe0d0421197d86ea2507b69d8652"
       },
       "source_ownership": "experiments/cutouts/arc_thrall/rr11/rear_baseline/layouts/rear.json",
-      "source_ownership_sha256": "3666f508f0ced232b4fd7274bf8a59bc4765947f990af43bcbdd6cda06b604ce"
+      "source_ownership_sha256": "3666f508f0ced232b4fd7274bf8a59bc4765947f990af43bcbdd6cda06b604ce",
+      "raw_rest_mismatch_pixels": 0,
+      "residue_correction_count": 5,
+      "source_job": "spec/art_identity/jobs/arc_thrall/mq7b_rear",
+      "source_sha256": "9cdfe676cad158de07b979512f4fa1adcf2d912ef457cfe722e4caa03316f468"
     }
   },
   "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
   "production_promoted": true,
-  "native_proof": "pending director feedback-3 shoulder recapture"
+  "native_proof": "pending director mq7b captures",
+  "rr24_derivation": {
+    "builder_sha256": "081f2f956adab60846f192200e5472aca351291afa578627e4575af2706b79d5",
+    "ownership_sha256": "1e1471a60aa332fab5d8d3820bd368be8fad23fb55c156a3f5f26080cd97f8b1",
+    "gait_coverage_sha256": "e44e497bbb09ba66a681211f57acf7692a5a4c62c02871821c0a4befab9fc646",
+    "raw_authoring": "rr24/raw: exact mq7b RGBA, before the director residue rule",
+    "presentation": "rr11 pieces/source presentation: same-piece residue cleanup only"
+  }
 }

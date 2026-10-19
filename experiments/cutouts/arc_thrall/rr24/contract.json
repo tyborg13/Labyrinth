@@ -1,0 +1,16 @@
+{
+  "task": "rr-24",
+  "branch": "codex/rr-24",
+  "risk_tier": 2,
+  "preflight": "Design owner prepared and passed, per explicit worker assignment.",
+  "acceptance": [
+    "mq7b front/rear exact RGBA rest reconstruction: 0 px; existing limb/shoulder/cap contracts retained",
+    "Collar/lock/chain rigid torso; no presented jaw/mouth overlap; minimum clearance per view",
+    "Full skirt/belt on pelvis/loincloth_tip above both thighs; own-skin hidden fills; follow-through <=4 px and settles",
+    "Density paint updated; native rest and shadow regeneration supplied for director; both-view source/reach/direction/gait/seam/residue checks",
+    "Other figures, protected painting and motion bytes unchanged"
+  ],
+  "proof": "Focused Thrall tests/mutations, Seer/Mirror/Capacitor sets, three SFX programs, registration audit; no full suites per unit brief.",
+  "inspection": "Director owns windowed density/rest/native/sheets/idle/production/review plus collar/hem sheets; worker has no window-server access.",
+  "design_placeholders": {}
+}

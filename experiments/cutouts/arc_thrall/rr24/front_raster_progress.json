@@ -1,0 +1,992 @@
+{
+  "frames": 300,
+  "failures": [
+    {
+      "clip": "tether",
+      "frame": 17,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 17): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 18,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 18): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 19,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 19): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 20,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 20): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 21,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 21): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 22,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 22): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 23,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 23): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 24,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 24): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 25,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 25): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 26,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 26): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 27,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 27): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 28,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 28): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 29,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 29): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 30,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 30): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 31,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 31): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 32,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 32): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 33,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 33): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 34,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 34): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 35,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 35): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 36,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 36): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 37,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 37): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 38,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 38): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 39,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 39): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 40,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 40): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 41,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 41): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 42,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 42): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 43,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 43): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 44,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 44): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 45,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 45): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 46,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 46): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 47,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 47): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 48,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 48): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 49,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 49): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 50,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 50): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 51,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 51): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 52,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 52): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 53,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 53): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 54,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 54): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 55,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 55): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 56,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 56): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 57,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 57): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 58,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 58): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 59,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 59): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 60,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 60): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "tether",
+      "frame": 61,
+      "holes": [
+        {
+          "bbox": [
+            265,
+            305,
+            268,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'tether', 61): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "jab",
+      "frame": 9,
+      "holes": [
+        {
+          "bbox": [
+            266,
+            304,
+            269,
+            308
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 9): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "jab",
+      "frame": 10,
+      "holes": [
+        {
+          "bbox": [
+            266,
+            305,
+            269,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 10): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "jab",
+      "frame": 11,
+      "holes": [
+        {
+          "bbox": [
+            266,
+            305,
+            269,
+            309
+          ],
+          "pixel_count": 8
+        },
+        {
+          "bbox": [
+            230,
+            260,
+            232,
+            261
+          ],
+          "pixel_count": 2
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 11): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "jab",
+      "frame": 12,
+      "holes": [
+        {
+          "bbox": [
+            266,
+            305,
+            269,
+            309
+          ],
+          "pixel_count": 8
+        },
+        {
+          "bbox": [
+            230,
+            260,
+            232,
+            261
+          ],
+          "pixel_count": 2
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 12): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "jab",
+      "frame": 13,
+      "holes": [
+        {
+          "bbox": [
+            266,
+            305,
+            269,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 13): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "jab",
+      "frame": 36,
+      "holes": [
+        {
+          "bbox": [
+            264,
+            305,
+            267,
+            309
+          ],
+          "pixel_count": 8
+        }
+      ],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 36): new joint-seam hole larger than 1px"
+      ]
+    }
+  ]
+}

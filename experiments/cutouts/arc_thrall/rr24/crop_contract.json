@@ -1,0 +1,18 @@
+{
+  "min_images": 44,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "front_move_collar_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "front_move_hem_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "rear_move_collar_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "rear_move_hem_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "front_arc_jab_collar_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "front_arc_jab_hem_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "rear_arc_jab_collar_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "rear_arc_jab_hem_*.png", "min_count": 3, "width": 1920, "height": 1080},
+    {"pattern": "front_death_collar_*.png", "min_count": 5, "width": 1920, "height": 1080},
+    {"pattern": "front_death_hem_*.png", "min_count": 5, "width": 1920, "height": 1080},
+    {"pattern": "rear_death_collar_*.png", "min_count": 5, "width": 1920, "height": 1080},
+    {"pattern": "rear_death_hem_*.png", "min_count": 5, "width": 1920, "height": 1080}
+  ]
+}

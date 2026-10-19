@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "mutations": [
+    {
+      "guard": "collar_attachment",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "skirt_depth",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "cloth_chain",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "collar_contact",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "hem_limit",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "own_skin",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    }
+  ]
+}

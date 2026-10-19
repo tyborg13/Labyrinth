@@ -1,0 +1,66 @@
+{
+  "head": [],
+  "torso": [],
+  "upper_near": [],
+  "tube": [
+    {
+      "target": [
+        71,
+        172
+      ],
+      "donor": [
+        71,
+        171
+      ]
+    },
+    {
+      "target": [
+        66,
+        187
+      ],
+      "donor": [
+        66,
+        186
+      ]
+    }
+  ],
+  "sleeve_far": [],
+  "claw": [],
+  "leg_near": [],
+  "leg_far": [
+    {
+      "target": [
+        147,
+        198
+      ],
+      "donor": [
+        147,
+        197
+      ]
+    },
+    {
+      "target": [
+        171,
+        208
+      ],
+      "donor": [
+        171,
+        207
+      ]
+    }
+  ],
+  "foot_near": [],
+  "foot_far": [
+    {
+      "target": [
+        182,
+        224
+      ],
+      "donor": [
+        182,
+        223
+      ]
+    }
+  ],
+  "loincloth": []
+}
