@@ -285,3 +285,14 @@
 - Other maquettes measured against the rule (front, far higher by / rule): Gloam −56 / 48 and Herald 8 / 34 also fail;
   Seer −12 / 35 (owner-approved, robe and collar hide it); Lancer far 103 above. Fix the Gloam and Herald in their own
   v2 conversion units, checking the Herald's torso yaw (its shoulder line is nearly square to the camera).
+
+## 2026-10-19 Glacial Mirror rig (rr-18) design answers
+- Gait: the step-to walk world-planted the foreshortened far leg, which can't reach. Every humanoid with a foreshortened
+  leg uses the Thrall pattern: the long camera-side leg strides in two half-tile world steps, the other follows the body
+  with a small shuffle. The Mirror's is heavier (5 px stomp, 1 px torso jolt on each plant).
+- Rigid boulder knees resting up to 10° backward are declared near-straight (`knee_policy.near_straight_deg = 10`), so
+  swings bend toward the facing.
+- Rig production rest identity is measured against the density-processed rest (board-density rule, sealed by the
+  windowed rest step). The authoring cut stays exact against the painting. Same precedent as the Thrall and Capacitor.
+- rr-17 review: in a multi-kill each dying creature keeps its own death clock; a long Capacitor death never stretches
+  the others. Every chain hop plays its cue once, including under reduced motion and skipped callbacks.
