@@ -1,0 +1,46 @@
+{
+  "passed": true,
+  "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
+  "cold_mesh_hash": "37056cfd3ca86f7d01004e8cdb6bca17e5d80986520df931a3346235f5fb864b",
+  "checks": {
+    "front_face": true,
+    "rear_skull": true,
+    "rear_harness": true
+  },
+  "samples": {
+    "front_face": {
+      "view": "front",
+      "point_body": [
+        0.488132506608963,
+        0.0023050904273986816,
+        1.6373004913330078
+      ],
+      "first_owner": "head",
+      "expected_owner": "head",
+      "passed": true
+    },
+    "rear_skull": {
+      "view": "rear",
+      "point_body": [
+        0.16240659356117249,
+        0.20033714175224304,
+        1.663405418395996
+      ],
+      "first_owner": "mortar",
+      "expected_owner": "mortar",
+      "passed": true
+    },
+    "rear_harness": {
+      "view": "rear",
+      "point_body": [
+        -0.2103058099746704,
+        0.024690276011824608,
+        1.3365063667297363
+      ],
+      "first_owner": "mortar",
+      "expected_owner": "mortar",
+      "passed": true
+    }
+  },
+  "native_blend_sha256": "7bd8fe961ac52165c8f4206e67919be35d88a4b9ad52dd05c923c4fa4891387b"
+}

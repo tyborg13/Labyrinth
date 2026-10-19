@@ -46,11 +46,17 @@ def plate(piece, spec, body):
         obj = place(mesh_object(piece['id'], [list(v.co) for v in body.data.vertices],
                                 [tuple(p.vertices) for p in body.data.polygons]), piece, spec)
         obj.matrix_world = body.matrix_world.copy()
+        if piece.get('shell_frame'):
+            from mathutils import Matrix
+            frame=Matrix.Rotation(piece['shell_frame'],4,'Z')
+            inverse=frame.inverted() @ obj.matrix_world
+            for vertex in obj.data.vertices: vertex.co=inverse @ vertex.co
+            obj.matrix_world=frame
         obj['body_shell'] = True
         obj['conforming'] = True
         obj['contact_target'] = body.name
         obj['surface_offset'] = piece['offset_surface']
-        obj['surface_allowance'] = piece['offset_surface'] + piece['thick'] / 2 + piece.get('cuff_flare', 0)
+        obj['surface_allowance'] = piece['offset_surface'] + piece['thick'] / 2 + piece.get('cuff_flare', 0) + piece.get('edge_allowance', 0)
         if piece.get('smooth_shell'):
             for polygon in obj.data.polygons:
                 polygon.use_smooth = True
@@ -77,7 +83,7 @@ def plate(piece, spec, body):
         bevel.width = piece['bevel']['width']
         bevel.segments = piece['bevel']['segments']
         bevel.miter_outer = 'MITER_SHARP'
-        if piece.get('smooth_shell'):
+        if piece.get('smooth_shell') and not piece.get('organic_shell'):
             bevel.harden_normals = True
             normals = obj.modifiers.new('boot_normals', 'WEIGHTED_NORMAL')
             normals.keep_sharp = True
@@ -190,6 +196,9 @@ def curve(piece, spec):
     data.use_fill_caps = True
     spline = data.splines.new(piece['spline'])
     points = piece['path']
+    if piece.get('root_on'):
+        from .curve_root import fit
+        points = fit(piece)
     if piece['spline'] == 'BEZIER':
         spline.bezier_points.add(len(points) - 1)
         for p, xyz, radius in zip(spline.bezier_points, points, piece['taper']):
@@ -207,7 +216,13 @@ def curve(piece, spec):
     place(obj, piece, spec)
     if piece.get('conforming'):
         from .conformance import conform_curve
-        conform_curve(obj, piece, bpy.data.objects['posed_body'])
+        body = bpy.data.objects['posed_body']
+        if piece.get('conform_regions'):
+            from .conformance import regional_body
+            body = regional_body(body, {'id': piece['id'] + '_curve_support', 'body_regions': piece['conform_regions']})
+        conform_curve(obj, piece, body)
+        if piece.get('conform_regions'):
+            obj['contact_target'] = body.name
     return obj
 
 
@@ -241,6 +256,9 @@ def rigid_shell(piece, spec):
     topology.to_mesh(obj.data)
     topology.free()
     obj['rig_joint'] = piece['rig_joint']
+    if piece.get('support_side'):
+        from .support_shell import seat
+        seat(obj, piece, spec)
     if piece.get('clearance_parts'):
         from .rigid_clearance import fit
         fit(obj, piece, spec)

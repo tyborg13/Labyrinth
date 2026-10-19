@@ -1,0 +1,619 @@
+{
+  "schema": 2,
+  "spec_hash": "7be47f62ecc5ebde6f48e3ba4703bd45bd19fb73451eab5a9d4f324dd76f6b56",
+  "board_frame": {
+    "yaw_radians": -0.0,
+    "pivot": [
+      0.013258252147247847,
+      0.03977475644174342,
+      0.6112100752766423
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "a5808bccb43921d38898523e00f9a0a677d00329b29105e86632537d49c0eb84",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "bark_leaf_hood_render": "10655ba7f75c3240e59f92c6f1d4b4f18ebd00831ac8eec6cd2bef574d2c1c43",
+    "rear_hood_leaf_clumps_render": "9e67766808969cea73be6a2fdb16d6970e10f26689c67c9205a462d5d52a5b6b",
+    "shaggy_leaf_clumps_render": "088911bf70816a8f46a579b3972810be1912385fd4487edadadf9d31fa577b7f",
+    "mantle_thorn_0_render": "31db764fdc1dfb8b0c828b5e0bf96f2e5d419ea6ddaddf62e1355f21bf5226a4",
+    "mantle_thorn_1_render": "437e87c12d5a42da92be8144a8323eaf8ba37b788b21874dfcbb991a71899070",
+    "mantle_thorn_2_render": "9848ba90b305d4228886cf2e10f4c1ceb55bbfefe6a57eb465f64b3965647380",
+    "fore_thorn_near_0_render": "398e5dce5e01dba753918684203051db1658d42e62b1b94ae4a5c04bfd7f349c",
+    "fore_thorn_near_1_render": "db8f55a831673ffaa357c18ab62b54ca2356adbdfd805544218fb4691b43e816",
+    "fore_thorn_far_0_render": "19bc75735f073231f1f719510015466d4dddf2c5a66e496d02a9f1b90e6d28ff",
+    "fore_thorn_far_1_render": "6c7ba7ba7c819730145dd875bc0581423b92a27d11275bffdb46915a4c93e31e",
+    "twisted_root_near_render": "07318f9a32bb3ac262eb6b0a8874250aa9a507b7e9c19baacfa1816f972b733a",
+    "twisted_root_far_render": "9057808e397cba87f7af414e7fef919de88aac96e3250a58c364e48b98c4081b",
+    "sculpted_leaf_tatters_render": "328e77d3fca7f9cbabe567cda5b870793bd5f47b2fccb3b5c437c83dbb11164c",
+    "hooked_claw_near_0_render": "0942e027c890d51f92a6c621534fdc2cd117cfd50138621dc998c09e8ef4a79c",
+    "hooked_claw_near_1_render": "6b75eeb44791bdf3d14cffe27aa6de4e9b740b9ab3e2667d0f7dbc6c8c5d4459",
+    "hooked_claw_near_2_render": "0dc8e28f1eaa0619f54b287569488797fd2baee95bfb0fcf2481671898a87526",
+    "hooked_claw_far_0_render": "0c9b239a5374a776982d43857ce7393d8c69551391d473f1468c4cbe6dc54824",
+    "hooked_claw_far_1_render": "ae28f8eb7b082dbfd6eedeeb013454a75eb02e77d38e07459dcef5bcbb19f914",
+    "hooked_claw_far_2_render": "ac3c7eb5c9b5e067686f828a3126a4b2bf444ecd969116333596faf9c1ee51bd",
+    "sculpted_leaf_tatters_back_render": "0ea7bc60c75ff640de56e15a941da3f68b5cd641b95d24522571fe390bc19ae9",
+    "far_shoulder_leaf_clump_render": "15dcfda36af808ed904735d53bec98969c24a47a25c10012fd7b4f6c0375a720",
+    "body_foot_far": "054eb6602132ab20f3846bfcaf28a91f98217c2016ea96013f3891a5479368c4",
+    "body_foot_near": "a8c8f04109a52d53d849015b2ff267e6176eae4e82b1fc7655d16db676e22c62",
+    "body_fore_far": "1b31b254805f8c5f8380fc42cbdf5df8dec0324d7969e94ae2dcddeb54fe4377",
+    "body_fore_near": "7b47b6397d84956614eceaf93e1ff41662284a4724a787632eed0cb8c0e484e7",
+    "body_hand_far": "3d9d5f762239b3323c67e252db2b348f78ce5056087f36e3d09624d0dbfa53c6",
+    "body_hand_near": "ad298d411ff721f08b7683b0accfde3e03baed2fea4c76ec082db582d3d15189",
+    "body_head": "5be5a090884ad6927cc808c834d9ac6def14af8f82559befc8c18c5c67bdb40a",
+    "body_pelvis": "f500f4e872caeefe1912543455fd35e75d89ec356dd3bfc2acd8b4c4ac3acd29",
+    "body_shin_far": "8b477296805f589d67e36c872d1244ec0d1479719356e7a4bfe57db3adce6349",
+    "body_shin_near": "fd3085f410272d5a592f68c20b5cc83607c0e7f649c54bfcd1f1985605b79aba",
+    "body_thigh_far": "f93ce52568310f7a8f759d2e5c1181b77b7fea125af58012f90407d35e4212d7",
+    "body_thigh_near": "824721b544706fd912e3a21b5b6924db7ab390d8277c2c25796201e70a14e314",
+    "body_torso": "775c656eb5b010e20ddb8d60eccf929351b3cc64c9d938fee8ceda267d5708b6",
+    "body_upper_far": "98f88d47a3266dccb7339ea9d4d7c4beea4b9618e9c84d5512f303ad23db5034",
+    "body_upper_near": "ac0436e307ae1ff87901149ee8032089773effb2a23297e72e1015aed808e40a"
+  },
+  "combined_mesh_hash": "42f530733fed1da547c4b53d3579ccb3f8419971e30ee979429e677d49bc6cee",
+  "checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "native_skin_normals": true,
+    "floor_contact_correction": true,
+    "native_curve_roots": true,
+    "native_rigid_bindings": true,
+    "native_sculpted_sections": true,
+    "sculpted_blade_roots_attached": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "cloth": {},
+  "geometry_details": {
+    "metric_accessories": {},
+    "rounded_hoods": {},
+    "sewn_rest": {},
+    "floor_contact": {
+      "floor_m": 0.0807695154586738,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.0807695154586738,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.08076951545867372,
+          "above_floor_m": -6.938893903907228e-17,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "excepted_offenders": [],
+      "passed": true,
+      "pose": {
+        "method": "real hip/knee/ankle pose on fitted skin, before native cloth",
+        "joints_before": {
+          "root": [
+            0,
+            0,
+            0
+          ],
+          "pelvis": [
+            0.013258252147247847,
+            0.03977475644174342,
+            0.6112100752766423
+          ],
+          "torso": [
+            -0.003314563036811832,
+            0.029831067331307595,
+            0.9684455543377231
+          ],
+          "head": [
+            0.08949320199392244,
+            -0.049718445552179164,
+            1.1903645640574858
+          ],
+          "head_tip": [
+            0.19341710170629178,
+            -0.049718445552179164,
+            1.6934246518947367
+          ],
+          "shoulder_near": [
+            -0.13258252147247768,
+            0.25190679079770756,
+            1.1470632938682637
+          ],
+          "shoulder_far": [
+            0.13655999711665198,
+            -0.2479293151535332,
+            1.147063293868264
+          ],
+          "elbow_near": [
+            -0.3347708667180059,
+            0.4806116403377315,
+            0.8656050376383211
+          ],
+          "elbow_far": [
+            0.27179416901857917,
+            -0.40437669049105696,
+            0.9684455543377233
+          ],
+          "hand_near": [
+            -0.288366984202639,
+            0.5667902792948417,
+            0.6166227340502951
+          ],
+          "hand_far": [
+            0.3115689254603224,
+            -0.5104427076690392,
+            0.7898278148071828
+          ],
+          "hand_tip_near": [
+            -0.2817378581290148,
+            0.5866776575157137,
+            0.3459897953676581
+          ],
+          "hand_tip_far": [
+            0.33145630368119416,
+            -0.5303300858899108,
+            0.5083695585772404
+          ],
+          "hip_near": [
+            -0.11600970628841792,
+            0.12926795843566566,
+            0.5300201936718512
+          ],
+          "hip_far": [
+            0.06629126073623887,
+            -0.10606601717798206,
+            0.5624961463137675
+          ],
+          "knee_near": [
+            -0.09280776503073433,
+            0.23864853865045976,
+            0.29186320763113066
+          ],
+          "knee_far": [
+            0.12926795843566571,
+            -0.18230096702465687,
+            0.3514024541413109
+          ],
+          "ankle_near": [
+            -0.08286407592029862,
+            0.34802911886525384,
+            0.0807695154586738
+          ],
+          "ankle_far": [
+            -0.04308931947855536,
+            -0.24859222776089576,
+            0.08076951545867372
+          ],
+          "foot_tip_near": [
+            0.04640388251536724,
+            0.28505242116582696,
+            -0.022071001240728253
+          ],
+          "foot_tip_far": [
+            0.0928077650307343,
+            -0.4242640687119286,
+            0.02123026894849371
+          ],
+          "neck_seam": [
+            0.08949320199392244,
+            -0.049718445552179164,
+            1.1903645640574858
+          ],
+          "hood_centre": [
+            0.09612232806754631,
+            -0.02983106733130761,
+            1.5259494080239557
+          ],
+          "mantle_anchor": [
+            -0.16572815184059697,
+            0.046403882515367374,
+            1.1037620236790415
+          ]
+        },
+        "joints_after": {
+          "root": [
+            0,
+            0,
+            0
+          ],
+          "pelvis": [
+            0.013258252147247847,
+            0.03977475644174342,
+            0.6112100752766423
+          ],
+          "torso": [
+            -0.003314563036811832,
+            0.029831067331307595,
+            0.9684455543377231
+          ],
+          "head": [
+            0.08949320199392244,
+            -0.049718445552179164,
+            1.1903645640574858
+          ],
+          "head_tip": [
+            0.19341710170629178,
+            -0.049718445552179164,
+            1.6934246518947367
+          ],
+          "shoulder_near": [
+            -0.13258252147247768,
+            0.25190679079770756,
+            1.1470632938682637
+          ],
+          "shoulder_far": [
+            0.13655999711665198,
+            -0.2479293151535332,
+            1.147063293868264
+          ],
+          "elbow_near": [
+            -0.3347708667180059,
+            0.4806116403377315,
+            0.8656050376383211
+          ],
+          "elbow_far": [
+            0.27179416901857917,
+            -0.40437669049105696,
+            0.9684455543377233
+          ],
+          "hand_near": [
+            -0.288366984202639,
+            0.5667902792948417,
+            0.6166227340502951
+          ],
+          "hand_far": [
+            0.3115689254603224,
+            -0.5104427076690392,
+            0.7898278148071828
+          ],
+          "hand_tip_near": [
+            -0.2817378581290148,
+            0.5866776575157137,
+            0.3459897953676581
+          ],
+          "hand_tip_far": [
+            0.33145630368119416,
+            -0.5303300858899108,
+            0.5083695585772404
+          ],
+          "hip_near": [
+            -0.11600970628841792,
+            0.12926795843566566,
+            0.5300201936718512
+          ],
+          "hip_far": [
+            0.06629126073623887,
+            -0.10606601717798206,
+            0.5624961463137675
+          ],
+          "knee_near": [
+            -0.09280776503073433,
+            0.23864853865045976,
+            0.29186320763113066
+          ],
+          "knee_far": [
+            0.12926795843566571,
+            -0.18230096702465687,
+            0.3514024541413109
+          ],
+          "ankle_near": [
+            -0.08286407592029862,
+            0.34802911886525384,
+            0.0807695154586738
+          ],
+          "ankle_far": [
+            -0.04308931947855536,
+            -0.24859222776089576,
+            0.08076951545867372
+          ],
+          "foot_tip_near": [
+            0.04640388251536724,
+            0.28505242116582696,
+            -0.022071001240728253
+          ],
+          "foot_tip_far": [
+            0.0928077650307343,
+            -0.4242640687119286,
+            0.02123026894849371
+          ],
+          "neck_seam": [
+            0.08949320199392244,
+            -0.049718445552179164,
+            1.1903645640574858
+          ],
+          "hood_centre": [
+            0.09612232806754631,
+            -0.02983106733130761,
+            1.5259494080239557
+          ],
+          "mantle_anchor": [
+            -0.16572815184059697,
+            0.046403882515367374,
+            1.1037620236790415
+          ]
+        },
+        "bones": {
+          "ankle_far": {
+            "head": [
+              -0.04308931529521942,
+              -0.24859225749969482,
+              0.08076951652765274
+            ],
+            "tail": [
+              0.0928080826997757,
+              -0.42426371574401855,
+              0.02122977375984192
+            ]
+          },
+          "hip_far": {
+            "head": [
+              0.06629126518964767,
+              -0.1060660183429718,
+              0.5624961256980896
+            ],
+            "tail": [
+              0.12926793098449707,
+              -0.18230266869068146,
+              0.35140305757522583
+            ]
+          },
+          "knee_far": {
+            "head": [
+              0.12926796078681946,
+              -0.18230095505714417,
+              0.3514024615287781
+            ],
+            "tail": [
+              -0.04308938980102539,
+              -0.24859163165092468,
+              0.0807693600654602
+            ]
+          }
+        },
+        "maximum_bone_endpoint_error_m": 1.7016660245894322e-06,
+        "corrective_shapes": [
+          "CC0_original",
+          "source_outline_fit"
+        ]
+      }
+    },
+    "collar_widths": {},
+    "corner_errors": {},
+    "conformance": {
+      "twisted_root_near": {
+        "max_distance": 0.049175094813108444,
+        "allowed": 0.058251,
+        "shrinkwrap_offset": 0.002,
+        "passed": true
+      },
+      "twisted_root_far": {
+        "max_distance": 0.05714090168476105,
+        "allowed": 0.058251,
+        "shrinkwrap_offset": 0.002,
+        "passed": true
+      }
+    },
+    "curve_roots": {
+      "mantle_thorn_0": {
+        "support": "bark_leaf_hood_render",
+        "root_distance_m": 0.015450222417712212,
+        "root_radius_m": 0.046875,
+        "passed": true
+      },
+      "mantle_thorn_1": {
+        "support": "shaggy_leaf_clumps_render",
+        "root_distance_m": 0.01494817715138197,
+        "root_radius_m": 0.056249999999999994,
+        "passed": true
+      },
+      "mantle_thorn_2": {
+        "support": "shaggy_leaf_clumps_render",
+        "root_distance_m": 0.01862139068543911,
+        "root_radius_m": 0.046875,
+        "passed": true
+      },
+      "fore_thorn_near_0": {
+        "support": "contact_fore_near",
+        "root_distance_m": 0.013715268112719059,
+        "root_radius_m": 0.0375,
+        "passed": true
+      },
+      "fore_thorn_near_1": {
+        "support": "contact_fore_near",
+        "root_distance_m": 0.016104239970445633,
+        "root_radius_m": 0.0375,
+        "passed": true
+      },
+      "fore_thorn_far_0": {
+        "support": "contact_fore_far",
+        "root_distance_m": 0.018724557012319565,
+        "root_radius_m": 0.0375,
+        "passed": true
+      },
+      "fore_thorn_far_1": {
+        "support": "contact_fore_far",
+        "root_distance_m": 0.018739107996225357,
+        "root_radius_m": 0.0375,
+        "passed": true
+      },
+      "hooked_claw_near_0": {
+        "support": "contact_hand_near",
+        "root_distance_m": 0.002428903942927718,
+        "root_radius_m": 0.04265625000000001,
+        "passed": true
+      },
+      "hooked_claw_near_1": {
+        "support": "contact_hand_near",
+        "root_distance_m": 0.002073566196486354,
+        "root_radius_m": 0.04265625000000001,
+        "passed": true
+      },
+      "hooked_claw_near_2": {
+        "support": "contact_hand_near",
+        "root_distance_m": 0.006623184308409691,
+        "root_radius_m": 0.04265625000000001,
+        "passed": true
+      },
+      "hooked_claw_far_0": {
+        "support": "contact_hand_far",
+        "root_distance_m": 0.0018343838164582849,
+        "root_radius_m": 0.04265625000000001,
+        "passed": true
+      },
+      "hooked_claw_far_1": {
+        "support": "contact_hand_far",
+        "root_distance_m": 0.013190973550081253,
+        "root_radius_m": 0.04265625000000001,
+        "passed": true
+      },
+      "hooked_claw_far_2": {
+        "support": "contact_hand_far",
+        "root_distance_m": 0.01465178094804287,
+        "root_radius_m": 0.04265625000000001,
+        "passed": true
+      }
+    },
+    "blade_attachments": {},
+    "source_outline_fit": {
+      "regions": [
+        "foot_far",
+        "foot_near",
+        "fore_far",
+        "fore_near",
+        "hand_far",
+        "hand_near",
+        "shin_far",
+        "shin_near",
+        "thigh_far",
+        "thigh_near",
+        "torso",
+        "upper_far",
+        "upper_near"
+      ],
+      "vertices": 34697,
+      "profile_views": {
+        "upper_near": [
+          "front",
+          "rear"
+        ],
+        "fore_near": [
+          "front",
+          "rear"
+        ],
+        "hand_near": [
+          "front",
+          "rear"
+        ],
+        "upper_far": [
+          "front",
+          "rear"
+        ],
+        "fore_far": [
+          "front",
+          "rear"
+        ],
+        "hand_far": [
+          "front",
+          "rear"
+        ],
+        "thigh_near": [
+          "front",
+          "rear"
+        ],
+        "shin_near": [
+          "front",
+          "rear"
+        ],
+        "foot_near": [
+          "front"
+        ],
+        "thigh_far": [
+          "front",
+          "rear"
+        ],
+        "shin_far": [
+          "front",
+          "rear"
+        ],
+        "foot_far": [
+          "rear"
+        ],
+        "torso": [
+          "front",
+          "rear"
+        ]
+      },
+      "maximum_skinning_error": 8.068242532734509e-07,
+      "maximum_displacement": 0.4376999806545466,
+      "native_corrective_shape": "source_outline_fit"
+    },
+    "facing": {
+      "forward_world": [
+        0.9841556549072266,
+        0.05983012542128563,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.9841556549072266,
+        0.05983012542128563,
+        -0.16690771281719208
+      ],
+      "front_forward_screen": [
+        -0.6535968499233549,
+        0.36910471236631015
+      ],
+      "rear_forward_screen": [
+        0.6535968499233549,
+        -0.36910471236631015
+      ],
+      "board_axis_cosine": 0.9987285237521822,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {}
+  },
+  "passed": true
+}

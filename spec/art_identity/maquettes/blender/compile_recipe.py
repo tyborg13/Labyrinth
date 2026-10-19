@@ -39,6 +39,25 @@ def compile_recipe(recipe):
             'simulation': deepcopy(baseline['simulation']), 'pieces': [], 'joints': {'root': [0, 0, 0]},
             'source_recipe': recipe['id'] + '/measurements.json'}
     spec['base']['covered_regions'] = recipe.get('covered_body_regions', [])
+    if recipe.get('closed_hands'):
+        if len(set(recipe['closed_hands'])) != len(recipe['closed_hands']) or not set(recipe['closed_hands']) <= {'near', 'far'}:
+            raise ValueError('Closed hands must name distinct near/far body sides')
+        spec['base']['closed_hands'] = deepcopy(recipe['closed_hands'])
+        from spec.art_identity.maquettes.blender.hand_pose import HAND_DEFAULTS
+        spec['base']['hand_pose_revision'] = HAND_DEFAULTS['implementation_revision']
+    if recipe.get('half_open_hands'):
+        spec['base']['half_open_hands'] = deepcopy(recipe['half_open_hands'])
+    # Native mesh sampling is opt-in; older measured recipes compile exactly
+    # as before. Keep geometry controls separate from source measurements.
+    if 'anatomy_subdivision_level' in recipe:
+        level = recipe['anatomy_subdivision_level']
+        if type(level) is not int or not 0 <= level <= 2:
+            raise ValueError('Anatomy subdivision level must be an integer in [0, 2]')
+        spec['base']['subdivision_level'] = level
+    if recipe.get('preserve_native_split_normals'):
+        spec['base']['preserve_native_split_normals'] = True
+    if recipe.get('preserve_native_skin_shading'):
+        spec['base']['preserve_native_skin_shading'] = True
     if recipe.get('socket_tucks'):
         spec['base']['socket_tucks'] = deepcopy(recipe['socket_tucks'])
     spec['base'].pop('covered_above_z', None)
@@ -53,10 +72,32 @@ def compile_recipe(recipe):
                 'azimuth_deg': 45, 'elevation_deg': 30, 'ortho_scale': scale}
     if recipe.get('body_source_profiles'):
         spec['base']['source_profiles'] = deepcopy(recipe['body_source_profiles'])
+    for key in ('source_profile_modes', 'source_core_weight', 'source_fit_weighted_blend', 'form_finish'):
+        if recipe.get(key):
+            spec['base'][key] = deepcopy(recipe[key])
+    if recipe.get('source_fit_relaxation'):
+        spec['base']['source_fit_relaxation'] = deepcopy(recipe['source_fit_relaxation'])
+    if recipe.get('form_finish'):
+        from spec.art_identity.maquettes.blender.form_finish import validate as validate_forms
+        validate_forms(recipe['form_finish'], spec['labels'])
+    if recipe.get('source_profile_modes'):
+        if not set(recipe['source_profile_modes']) <= set(recipe.get('body_source_profiles',{})) or not set(recipe['source_profile_modes'].values()) <= {'rows','affine','affine_core'}:
+            raise ValueError('Source fitting modes must name a measured region and supported mode')
+        if 'affine_core' in recipe['source_profile_modes'].values() and not .5 <= recipe['source_core_weight'] < 1:
+            raise ValueError('Native core weight must be in [.5, 1)')
+    if recipe.get('half_open_hands'):
+        if not set(recipe['half_open_hands']) <= {'near','far'} or any(not 0 < v < 1 for v in recipe['half_open_hands'].values()):
+            raise ValueError('Half-open hand fractions must lie in (0, 1) on near/far sides')
     spec['armature'].pop('proposed', None)
+    for name, point in recipe.get('rest_joint_overrides', {}).items():
+        if name not in spec['armature']['rest_joints']:
+            raise ValueError('Unknown native rest joint: ' + name)
+        spec['armature']['rest_joints'][name] = deepcopy(point)
     spec['simulation'].pop('proposed', None)
     for name, pixels in recipe['joints_px'].items():
         spec['joints'][name] = paired_point(spec, *pixels)
+    if recipe.get('covered_body_above_joint'):
+        spec['base']['covered_above_z'] = spec['joints'][recipe['covered_body_above_joint']][2]
     if recipe.get('head_face_axis_px'):
         a, b = np.array(recipe['head_face_axis_px'], float)
         matrix, _, basis, _ = camera(spec, 'front')
@@ -176,10 +217,41 @@ def compile_recipe(recipe):
             if item.get('clearance_parts'):
                 piece['clearance_parts'] = item['clearance_parts']
             spec['pieces'].append(piece)
+        elif kind == 'leaf_clumps':
+            from spec.art_identity.maquettes.blender.leaf_clumps import draft
+            lateral=np.subtract(spec['joints'][item['frame_joints'][1]],spec['joints'][item['frame_joints'][0]])
+            lateral[2]=0;lateral/=np.linalg.norm(lateral)
+            forward=np.cross(lateral,[0,0,1])
+            vertices,faces=draft(spec['joints'][item['joint']],forward,lateral,item['rows'],spec['ortho_scale']/256,item['rim_shape'])
+            piece=common(item['id'],'rigid_shell',item['part'])
+            piece.update(vertices=vertices,faces=faces,rig_joint=item['joint'])
+            spec['pieces'].append(piece)
         elif kind == 'body_plate':
             piece = common(item['id'], 'plate', item['part'])
             piece.update(outline=[[0,0],[1,0],[0,1]], body_shell=True, body_regions=item['regions'], contact_hull=True,
                          smooth_shell=True, thick=item['thick'], bevel=deepcopy(item['bevel']), offset_surface=item['offset_surface'])
+            for key in ('contact_height_fraction', 'shell_frame', 'edge_allowance', 'organic_shell'):
+                if key in item: piece[key]=deepcopy(item[key])
+            if item.get('section_z'):
+                a,b,lo,hi=item['section_z']
+                za,zb=spec['joints'][a][2],spec['joints'][b][2]
+                piece['contact_min_z']=min(za+(zb-za)*lo,za+(zb-za)*hi)
+                piece['contact_max_z']=max(za+(zb-za)*lo,za+(zb-za)*hi)
+            spec['pieces'].append(piece)
+        elif kind == 'mass':
+            # The same native sculpt stack used by the solid figures can
+            # supply a rounded accessory (hair, padding) on a real humanoid.
+            piece = common(item['id'], 'sculpted_mass', item['part'])
+            piece.update(centre=paired_point(spec, *item['centre_px']),
+                         radii=(np.array(item['radii_px']) * spec['ortho_scale'] / 256).tolist())
+            if item.get('swept_sections'):
+                piece['swept_sections']=[{'path':path_points(spec,section),
+                    'radii':[section['radius_px']*t*spec['ortho_scale']/256 for t in section['taper']],
+                    'sculpt':deepcopy(section['sculpt'])} for section in item['swept_sections']]
+                piece['union_voxel_size']=item['union_voxel_size']
+            for key in ('surface', 'relief', 'subdivision_levels', 'profile', 'cutouts'):
+                if key in item:
+                    piece[key] = deepcopy(item[key])
             spec['pieces'].append(piece)
         elif kind == 'neck_collar':
             piece = common(item['id'], 'neck_collar', item['part'])
@@ -243,6 +315,8 @@ def compile_recipe(recipe):
                     spec['pieces'][-1]['smooth_surface'] = True
                 if 'radial_profile' in item:
                     spec['pieces'][-1]['radial_profile'] = deepcopy(item['radial_profile'])
+            if item.get('sculpt'):
+                spec['pieces'][-1]['sculpt'] = deepcopy(item['sculpt'])
         elif kind == 'crystal':
             piece = common(item['id'], 'crystal', item['part'])
             path = path_points(spec, item)
@@ -270,7 +344,7 @@ def compile_recipe(recipe):
                 piece['wind'] = {**deepcopy(item['wind']), 'direction': direction.tolist(), 'location': root.tolist()}
         if 'side_parts' in item:
             spec['pieces'][-1]['side_parts'] = item['side_parts']
-        for key in ('contact_regions', 'collision_refine_levels', 'symmetry_origin', 'symmetry_front', 'symmetry_lateral', 'ownership_mode', 'joint_parts', 'joint_chain', 'seat_on', 'sewn_parts', 'face_plane', 'native_mask', 'closed_cover'):
+        for key in ('contact_regions', 'collision_refine_levels', 'symmetry_origin', 'symmetry_front', 'symmetry_lateral', 'ownership_mode', 'joint_parts', 'joint_chain', 'seat_on', 'sewn_parts', 'face_plane', 'native_mask', 'closed_cover', 'conforming', 'conform_direction', 'offset_surface', 'root_on', 'conform_regions', 'support_side', 'support_regions'):
             if key in item:
                 spec['pieces'][-1][key] = deepcopy(item[key])
         if item.get('symmetry_joint'):
@@ -282,6 +356,14 @@ def compile_recipe(recipe):
                 settings['trailing_splits']['source_row']+=1
             for i in range(first_piece, len(spec['pieces'])):
                 spec['pieces'][i] = tailor(spec['pieces'][i], settings)
+        if item.get('sculpted_folds'):
+            from spec.art_identity.maquettes.blender.folded_fabric import sculpt
+            piece = spec['pieces'][-1]
+            vertices, faces = sculpt([r['points'] for r in piece['pattern']['rows']],
+                                     piece['pattern']['closed'], item['sculpted_folds'])
+            replacement = common(item['id'], 'rigid_shell', item['part'])
+            replacement.update(vertices=vertices, faces=faces, rig_joint=item['joint'])
+            spec['pieces'][-1] = replacement
         if item.get('column_parts'):
             from spec.art_identity.maquettes.blender.contract import pattern_mesh
             piece = spec['pieces'][-1]
@@ -296,8 +378,20 @@ def compile_recipe(recipe):
             piece = spec['pieces'][-1]
             bands = [{**band, 'thickness': band['thickness_px'] * spec['ortho_scale'] / 256}
                      for band in item['bands']]
+            for band in bands:
+                for key in ('width', 'raise', 'edge'):
+                    if key + '_px' in band:
+                        band[key] = band[key + '_px'] * spec['ortho_scale'] / 256
             spec['pieces'].extend(path_bands(item['id'], item['part'], piece['path'],
                 [piece['radius'] * t for t in piece['taper']], bands, COMPILE_DEFAULTS['ring_samples']))
+        if item.get('rig_bone'):
+            # A loft and its generated iron bands are one rigid attachment.
+            for piece in spec['pieces'][first_piece:]:
+                piece['rig_bone'] = item['rig_bone']
+                if item.get('rig_pivot_joint'):
+                    if item['rig_pivot_joint'] not in spec['joints']:
+                        raise ValueError('Rigid pivot must name an existing joint')
+                    piece['rig_pivot_joint'] = item['rig_pivot_joint']
         # Both cloth states use the same collision policy and ownership. The
         # body, rig, joints and every other piece have no view-specific state.
         if 'rear_rows_px' in item:
@@ -316,6 +410,8 @@ def compile_recipe(recipe):
         spec['per_view_cloth_pose'] = deepcopy(recipe['per_view_cloth_pose'])
     if recipe.get('cloth_obstacles'):
         spec['cloth_obstacles'] = deepcopy(recipe['cloth_obstacles'])
+    if recipe.get('native_features'):
+        spec['native_features'] = deepcopy(recipe['native_features'])
     fit = deepcopy(recipe['fit']['front'])
     fit.update(source=recipe['sources']['front'], head_part='head', weapon_parts=recipe['weapon_parts'])
     spec['fit'] = fit

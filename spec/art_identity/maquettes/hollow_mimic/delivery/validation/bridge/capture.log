@@ -1,0 +1,56 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: hair_crown
+BUILD_STAGE: cracked_mask
+BUILD_STAGE: suit_chest
+BUILD_STAGE: suit_belly
+BUILD_STAGE: suit_thigh_near
+BUILD_STAGE: suit_thigh_far
+BUILD_STAGE: ankle_boot_near
+BUILD_STAGE: thick_sole_near
+BUILD_STAGE: ankle_boot_far
+BUILD_STAGE: thick_sole_far
+00:17.950  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:20.206  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:23.112  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_parts.png'
+00:30.117  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_clay.png'
+00:32.922  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:35.603  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:37.965  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:40.247  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:42.585  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:44.887  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:47.204  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:49.488  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:51.834  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:54.143  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:56.544  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+00:58.870  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+01:01.194  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+01:03.385  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+01:05.558  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+01:07.763  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+01:10.715  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/front_silhouette.png'
+01:13.265  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_parts.png'
+01:19.816  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_clay.png'
+01:22.370  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:24.937  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:27.129  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:29.325  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:31.535  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:34.193  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:36.745  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:39.267  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:41.797  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:44.362  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:46.948  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:49.569  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:52.198  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:54.744  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:57.335  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+01:59.916  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+02:03.284  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/hollow_mimic/proof/feedback3/final/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

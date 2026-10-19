@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "figures": {
+    "slag_mortar": {
+      "passed": true,
+      "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true,
+        "required_native_checks_present": true
+      },
+      "details": {}
+    }
+  }
+}

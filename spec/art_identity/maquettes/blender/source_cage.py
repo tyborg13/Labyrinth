@@ -12,6 +12,31 @@ CAGE_DEFAULTS = {'source_size': 256, 'profile_bins': 32, 'epsilon': 1e-8,
                  'support_weight_min': .25}
 
 
+def relax_offsets(offsets, faces, selected, iterations, factor):
+    """Regularize only the corrective field, preserving native skin detail.
+
+    Coordinates are never Laplacian-smoothed: doing so would shrink anatomy.
+    Unfitted vertices remain fixed and disconnected components cannot mix.
+    """
+    if type(iterations) is not int or not 0 <= iterations <= 64 or not 0 <= factor <= 1:
+        raise ValueError('Source relaxation requires bounded iterations and factor')
+    values = np.asarray(offsets, float).copy()
+    edges = sorted({tuple(sorted((int(a), int(b)))) for face in faces
+                    for a, b in zip(face, [*face[1:], face[0]])})
+    if not edges or not iterations:
+        return values
+    pairs = np.asarray(edges)
+    source, target = np.r_[pairs[:, 0], pairs[:, 1]], np.r_[pairs[:, 1], pairs[:, 0]]
+    degree = np.bincount(source, minlength=len(values))
+    active = np.asarray(selected, bool) & (degree > 0)
+    for _ in range(iterations):
+        average = np.column_stack([np.bincount(source, weights=values[target, axis],
+                                               minlength=len(values)) for axis in range(3)])
+        average[active] /= degree[active, None]
+        values[active] = (1 - factor) * values[active] + factor * average[active]
+    return values
+
+
 def polygon_bounds(polygon, y):
     polygon = np.asarray(polygon, float)
     y = np.clip(y, polygon[:, 1].min() + CAGE_DEFAULTS['epsilon'],
@@ -47,22 +72,32 @@ def warped_projection(points, polygon):
     return np.column_stack([bounds[:, 0] + fraction * (bounds[:, 1] - bounds[:, 0]), y])
 
 
-def fit_points(spec, points, profiles):
+def fit_points(spec, points, profiles, mode="rows", reference_points=None):
     """Fit one anatomical region to both measured outlines in one 3D solve."""
     points = np.asarray(points, float)
+    def projection(view, polygon):
+        pixels = project(spec, points, view, CAGE_DEFAULTS['source_size'])[:, :2]
+        if mode == 'rows':
+            return warped_projection(pixels, polygon)
+        if mode not in ('affine', 'affine_core'):
+            raise ValueError('Unknown source fitting mode: ' + mode)
+        polygon = np.asarray(polygon)
+        reference = pixels if reference_points is None else project(spec, reference_points, view, CAGE_DEFAULTS['source_size'])[:, :2]
+        return ((pixels-reference.min(0))/np.maximum(np.ptp(reference,axis=0),CAGE_DEFAULTS['epsilon']) *
+                np.ptp(polygon,axis=0)+polygon.min(0))
     if len(profiles) == 1:
         # A partly occluded opposite view supplies no full silhouette. Retain
         # the approved native depth and fit the observed camera plane only.
         view, polygon = next(iter(profiles.items()))
         pixels = project(spec, points, view, CAGE_DEFAULTS['source_size'])[:, :2]
-        desired = warped_projection(pixels, polygon)
+        desired = projection(view, polygon)
         matrix, _, basis, scale = camera(spec, view)
         right, up = (axis @ matrix[:3, :3] for axis in basis[:2])
         delta = (desired - pixels) * scale / CAGE_DEFAULTS['source_size']
         return points + delta[:, :1] * right - delta[:, 1:] * up
     equations, values = [], []
     for view in ('front', 'rear'):
-        pixels = warped_projection(project(spec, points, view, CAGE_DEFAULTS['source_size'])[:, :2], profiles[view])
+        pixels = projection(view, profiles[view])
         matrix, target, basis, scale = camera(spec, view)
         for axis, value in [(0, (pixels[:, 0] / CAGE_DEFAULTS['source_size'] - .5) * scale),
                             (1, (.5 - pixels[:, 1] / CAGE_DEFAULTS['source_size']) * scale)]:
@@ -82,8 +117,9 @@ def fit_body(spec, body, rig, posed):
     import bpy
     from .rig import evaluated_mesh
     profiles = spec['base'].get('source_profiles')
-    if not profiles:
+    if not profiles and not spec['base'].get('form_finish'):
         return None
+    profiles = profiles or {}
     regions = {b['name']: b['region'] for b in spec['armature']['bones']}
     weights = [{body.vertex_groups[g.group].name: g.weight for g in v.groups if g.weight > 0 and
                 body.vertex_groups[g.group].name in regions} for v in body.data.vertices]
@@ -98,13 +134,31 @@ def fit_body(spec, body, rig, posed):
         indices = [i for i, vertex in enumerate(totals) if vertex.get(region, 0) > CAGE_DEFAULTS['support_weight_min']]
         if not indices:
             raise ValueError('Measured source region has no heat-weight support: ' + region)
-        fitted = fit_points(spec, source[indices], outlines)
+        mode = spec['base'].get('source_profile_modes', {}).get(region,'rows')
+        reference = None
+        if mode == 'affine_core':
+            core = [i for i, vertex in enumerate(totals) if vertex.get(region,0) > spec['base']['source_core_weight']]
+            reference = source[core]
+        fitted = fit_points(spec, source[indices], outlines, mode, reference)
         for index, destination in zip(indices, fitted):
             weight = totals[index][region]
             offsets[index] += (destination - source[index]) * weight
             normalization[index] += weight
     selected = normalization > CAGE_DEFAULTS['epsilon']
-    desired[selected] += offsets[selected] / normalization[selected, None]
+    offsets[selected] /= (np.maximum(normalization[selected,None],1) if spec['base'].get('source_fit_weighted_blend') else normalization[selected,None])
+    relaxation = spec['base'].get('source_fit_relaxation')
+    if relaxation:
+        relaxed = selected.copy()
+        for region in relaxation.get('preserve_regions', []):
+            relaxed &= np.array([vertex.get(region, 0) <= CAGE_DEFAULTS['support_weight_min'] for vertex in totals])
+        offsets = relax_offsets(offsets, [list(p.vertices) for p in posed.data.polygons], relaxed,
+                                relaxation['iterations'], relaxation['factor'])
+    desired[selected] += offsets[selected]
+    if spec['base'].get('form_finish'):
+        from .form_finish import finish
+        desired = finish(desired, [list(p.vertices) for p in posed.data.polygons], totals,
+                         spec['armature']['bones'], spec['joints'], spec['base']['form_finish'])
+        selected |= np.linalg.norm(desired-source,axis=1) > CAGE_DEFAULTS['epsilon']
     transforms = {name: np.asarray(rig.pose.bones[name].matrix @ rig.data.bones[name].matrix_local.inverted())
                   for name in regions}
     body.shape_key_add(name='CC0_original')

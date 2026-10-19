@@ -1,0 +1,40 @@
+{
+  "arc_thrall": {
+    "passed": false,
+    "error": "Commit manifest differs from disk: ['prompt_front_r2.md', 'prompt_rear_r2.md']"
+  },
+  "burrow_grub": {
+    "passed": false,
+    "error": "Commit manifest differs from disk: ['prompt_front_r1.md', 'prompt_rear_r1.md']"
+  },
+  "ember_tick": {
+    "passed": false,
+    "error": "Commit manifest differs from disk: ['prompt_front_r1.md', 'prompt_rear_r1.md']"
+  },
+  "gale_herald": {
+    "passed": false,
+    "error": "Commit manifest differs from disk: ['prompt_front_r1.md', 'prompt_rear_r1.md']"
+  },
+  "glacial_mirror": {
+    "passed": false,
+    "error": "Commit manifest differs from disk: ['prompt_front_r1.md', 'prompt_rear_r1.md']"
+  },
+  "gloam_stalker": {
+    "passed": false,
+    "error": "Commit manifest differs from disk: ['prompt_front_r1.md', 'prompt_rear_r1.md']"
+  },
+  "hoarfrost_seer": {
+    "passed": true,
+    "inventory": {
+      "figure": "hoarfrost_seer",
+      "bytes": 5379233,
+      "files": 203,
+      "budget_bytes": 6000000
+    },
+    "spec_hash": "b37d9b32ac4cd30f92f58040415ec7141c75704ab48dabc28867705c3ed91174",
+    "clays_sha256": {
+      "front": "a9981f9bdc1db100cc456a9ac495e2730614066389c7a60f257f08f4e80d9e10",
+      "rear": "406b19b08e89a809f2595cdda7cd6c7ec45d642daef9c00f446c9d2ff13bb603"
+    }
+  }
+}

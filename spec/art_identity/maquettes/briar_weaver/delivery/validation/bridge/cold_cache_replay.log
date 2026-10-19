@@ -1,0 +1,74 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: bark_leaf_hood
+BUILD_STAGE: rear_hood_leaf_clumps
+BUILD_STAGE: shaggy_leaf_clumps
+BUILD_STAGE: mantle_thorn_0
+BUILD_STAGE: mantle_thorn_1
+BUILD_STAGE: mantle_thorn_2
+BUILD_STAGE: fore_thorn_near_0
+BUILD_STAGE: fore_thorn_near_1
+BUILD_STAGE: fore_thorn_far_0
+BUILD_STAGE: fore_thorn_far_1
+BUILD_STAGE: twisted_root_near
+BUILD_STAGE: twisted_root_far
+BUILD_STAGE: sculpted_leaf_tatters
+BUILD_STAGE: hooked_claw_near_0
+BUILD_STAGE: hooked_claw_near_1
+BUILD_STAGE: hooked_claw_near_2
+BUILD_STAGE: hooked_claw_far_0
+BUILD_STAGE: hooked_claw_far_1
+BUILD_STAGE: hooked_claw_far_2
+BUILD_STAGE: sculpted_leaf_tatters_back
+BUILD_STAGE: far_shoulder_leaf_clump
+Info: Saved as "maquette.blend"
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: bark_leaf_hood
+BUILD_STAGE: rear_hood_leaf_clumps
+BUILD_STAGE: shaggy_leaf_clumps
+BUILD_STAGE: mantle_thorn_0
+BUILD_STAGE: mantle_thorn_1
+BUILD_STAGE: mantle_thorn_2
+BUILD_STAGE: fore_thorn_near_0
+BUILD_STAGE: fore_thorn_near_1
+BUILD_STAGE: fore_thorn_far_0
+BUILD_STAGE: fore_thorn_far_1
+BUILD_STAGE: twisted_root_near
+BUILD_STAGE: twisted_root_far
+BUILD_STAGE: sculpted_leaf_tatters
+BUILD_STAGE: hooked_claw_near_0
+BUILD_STAGE: hooked_claw_near_1
+BUILD_STAGE: hooked_claw_near_2
+BUILD_STAGE: hooked_claw_far_0
+BUILD_STAGE: hooked_claw_far_1
+BUILD_STAGE: hooked_claw_far_2
+BUILD_STAGE: sculpted_leaf_tatters_back
+BUILD_STAGE: far_shoulder_leaf_clump
+Info: Saved as "maquette.blend"
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: bark_leaf_hood
+BUILD_STAGE: rear_hood_leaf_clumps
+BUILD_STAGE: shaggy_leaf_clumps
+BUILD_STAGE: mantle_thorn_0
+BUILD_STAGE: mantle_thorn_1
+BUILD_STAGE: mantle_thorn_2
+BUILD_STAGE: fore_thorn_near_0
+BUILD_STAGE: fore_thorn_near_1
+BUILD_STAGE: fore_thorn_far_0
+BUILD_STAGE: fore_thorn_far_1
+BUILD_STAGE: twisted_root_near
+BUILD_STAGE: twisted_root_far
+BUILD_STAGE: sculpted_leaf_tatters
+BUILD_STAGE: hooked_claw_near_0
+BUILD_STAGE: hooked_claw_near_1
+BUILD_STAGE: hooked_claw_near_2
+BUILD_STAGE: hooked_claw_far_0
+BUILD_STAGE: hooked_claw_far_1
+BUILD_STAGE: hooked_claw_far_2
+BUILD_STAGE: sculpted_leaf_tatters_back
+BUILD_STAGE: far_shoulder_leaf_clump
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=2.1201189703996897e-06

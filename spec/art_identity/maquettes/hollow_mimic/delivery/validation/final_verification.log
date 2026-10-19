@@ -1,0 +1,9 @@
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.815673910; rear_iou=0.770515331
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5180913, "figure": "hollow_mimic", "files": 94}
+MQ09_ACCEPTANCE: PASS; hollow_mimic; fit_pose_turn_native_regeneration_hash_bound=true
+MQ09_FIT: PASS; briar_weaver; front_iou=0.706400955; rear_iou=0.680170738
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3535069, "figure": "briar_weaver", "files": 77}
+MQ09_ACCEPTANCE: PASS; briar_weaver; fit_pose_turn_native_regeneration_hash_bound=true
+MQ09_FIT: PASS; slag_mortar; front_iou=0.799598979; rear_iou=0.772701972
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3878387, "figure": "slag_mortar", "files": 84}
+MQ09_ACCEPTANCE: PASS; slag_mortar; fit_pose_turn_native_regeneration_hash_bound=true

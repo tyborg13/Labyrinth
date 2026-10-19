@@ -10,10 +10,28 @@ import time
 import uuid
 
 BRIDGE_DEFAULTS = {'root': '/private/tmp/labyrinth_codex/blender_bridge',
-                   'timeout_s': 120, 'start_timeout_s': 120,
-                   'result_grace_s': 30, 'poll_s': 1, 'lease_timeout_s': 120}
+                   'timeout_s': 120, 'start_timeout_s': 120, 'busy_timeout_s': 1200, 'idle_timeout_s': 120,
+                   'result_grace_s': 30, 'poll_s': 1, 'lease_timeout_s': 1200}
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 ARG_ROOTS = [SCRIPT_ROOT.parents[2], Path('/private/tmp/labyrinth_codex')]
+
+
+def running_jobs(root):
+    """Director log evidence distinguishes occupied service from idle failure."""
+    log = Path(root) / 'bridge.log'
+    active = set()
+    for line in log.read_text().splitlines() if log.exists() else ():
+        if 'BRIDGE STOP' in line or 'BRIDGE START' in line:
+            active.clear()
+        elif ' RUN ' in line:
+            active.add(line.split(' RUN ', 1)[1].split(':', 1)[0])
+        elif ' DONE ' in line:
+            active.discard(line.split(' DONE ', 1)[1].split(':', 1)[0])
+    return active
+
+
+def idle_since(root, previous, now):
+    return None if running_jobs(root) else (now if previous is None else previous)
 
 
 def submit(script, args, timeout_s=120, root=None):
@@ -40,8 +58,9 @@ def submit(script, args, timeout_s=120, root=None):
 def wait(identifier, timeout_s=120, root=None):
     root = Path(root or BRIDGE_DEFAULTS['root'])
     path = root / 'done' / (identifier + '.json')
-    start_deadline = time.monotonic() + BRIDGE_DEFAULTS['start_timeout_s']
+    start_deadline = time.monotonic() + BRIDGE_DEFAULTS['busy_timeout_s']
     execution_deadline = None
+    idle = None
     while not path.is_file():
         now = time.monotonic()
         if execution_deadline is None:
@@ -50,7 +69,11 @@ def wait(identifier, timeout_s=120, root=None):
                 execution_deadline = now + timeout_s + BRIDGE_DEFAULTS['result_grace_s']
                 print('BLENDER_BRIDGE_STARTED: ' + identifier, flush=True)
             elif now >= start_deadline:
-                raise TimeoutError('Bridge did not start job within 120 s: ' + identifier)
+                raise TimeoutError('Bridge did not start job within 20 minutes: ' + identifier)
+            else:
+                idle = idle_since(root, idle, now)
+                if idle is not None and now - idle >= BRIDGE_DEFAULTS['idle_timeout_s']:
+                    raise TimeoutError('Bridge did not start job; service idle for 120 s: ' + identifier)
         elif now >= execution_deadline:
             raise TimeoutError('Started bridge job has no result after its execution budget: ' + identifier)
         time.sleep(BRIDGE_DEFAULTS['poll_s'])
@@ -69,13 +92,18 @@ def run_job(script, args, timeout_s=120, root=None):
     bridge_root = Path(root or BRIDGE_DEFAULTS['root'])
     with (bridge_root / 'mq03-client.lock').open('a') as lease:
         deadline = time.monotonic() + BRIDGE_DEFAULTS['lease_timeout_s']
+        idle = None
         while True:
             try:
                 fcntl.flock(lease, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 break
             except BlockingIOError:
-                if time.monotonic() >= deadline:
-                    raise TimeoutError('Bridge serial lease unavailable within 120 s; no job submitted')
+                now = time.monotonic()
+                if now >= deadline:
+                    raise TimeoutError('Bridge serial lease unavailable within 20 minutes; no job submitted')
+                idle = idle_since(bridge_root, idle, now)
+                if idle is not None and now - idle >= BRIDGE_DEFAULTS['idle_timeout_s']:
+                    raise TimeoutError('Bridge idle for 120 s while lease is unavailable; no job submitted')
                 time.sleep(BRIDGE_DEFAULTS['poll_s'])
         identifier = submit(script, args, timeout_s, root)
         print('BLENDER_BRIDGE_SUBMITTED: ' + identifier, flush=True)

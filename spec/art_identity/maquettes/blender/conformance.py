@@ -40,6 +40,10 @@ def regional_body(body, piece):
         import bmesh
         mesh = bmesh.new()
         used = {i for face in faces for i in face}
+        bounds = piece.get('contact_height_fraction')
+        if bounds:
+            low=min(vertices[i][2] for i in used); high=max(vertices[i][2] for i in used)
+            piece={**piece,'contact_min_z':low+(high-low)*bounds[0],'contact_max_z':low+(high-low)*bounds[1]}
         for i in sorted(used):
             if piece.get('contact_min_z', -math.inf) <= vertices[i][2] <= piece.get('contact_max_z', math.inf):
                 mesh.verts.new(vertices[i])

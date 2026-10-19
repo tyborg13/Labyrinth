@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "checks": {
+    "fresh_and_replay_raw_hashes": true,
+    "joint_endpoints": true,
+    "native_geometry": true
+  },
+  "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
+  "cache_revision": 8,
+  "raw_hashes_identical": true,
+  "mesh_count": 31,
+  "joint_errors": {
+    "pelvis": 3.244376179109864e-08,
+    "torso": 1.2205306797650762e-07,
+    "head": 1.2013700229374393e-07,
+    "shoulder_near": 1.4057727354849284e-07,
+    "elbow_near": 8.429369702178807e-08,
+    "hand_near": 6.664001874625056e-08,
+    "hip_near": 1.628595347478771e-06,
+    "knee_near": 4.5320112483935206e-07,
+    "ankle_near": 2.1837677467244638e-07,
+    "shoulder_far": 1.9314112360500873e-07,
+    "elbow_far": 8.940696716308594e-08,
+    "hand_far": 6.664001874625056e-08,
+    "hip_far": 8.93572828207311e-07,
+    "knee_far": 7.129236289206556e-07,
+    "ankle_far": 4.877854774026989e-07
+  },
+  "combined_mesh_hashes": {
+    "cold": "37056cfd3ca86f7d01004e8cdb6bca17e5d80986520df931a3346235f5fb864b",
+    "replay": "37056cfd3ca86f7d01004e8cdb6bca17e5d80986520df931a3346235f5fb864b",
+    "independent_cold": "37056cfd3ca86f7d01004e8cdb6bca17e5d80986520df931a3346235f5fb864b"
+  },
+  "delivery_binding": {
+    "spec_hash": "3a1f63a98da47634e0bdc7b4002e5dde6172d52ac5d286e7e3e6415d0a8da48a",
+    "cold_mesh_hash": "37056cfd3ca86f7d01004e8cdb6bca17e5d80986520df931a3346235f5fb864b",
+    "report_sha256": {
+      "build_report.json": "0b4b7f5fd91ac38235558e7d1eb3278c3e97d841c31cae9be9136a82da0eba28",
+      "capture_checks.json": "045060cae3d87b396a7e8d83ccab6d6cd87b2f5a32044637d0bbf63316141cb1",
+      "facing_report.json": "1711204649c320f9f1c1fb40e5bc3a4596bf2aea7f8eda1be874410b3d28a9c7",
+      "ownership_validation.json": "13ef88f36aa6cf3aa85142da9a5de4dffb1da4ab8aec556f756263318c7907bb",
+      "solo_coverage.json": "3f0470a5e23000fe70dbc7e34fc5ec3ee5cb0d58bf0134d55199e4d58c20af77",
+      "capture_manifest.json": "78301c363d18d5103caf7a786a8dcaa02ad60c90ba19992cfd0305f2f12769ef"
+    },
+    "exact_native_replay_sha256": "68b96c2e005741d2e7b50bfdd275e7960d06c1858c3bc67912fea93e3eb06268"
+  }
+}
