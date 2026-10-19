@@ -13,8 +13,8 @@ const EXPECTED_COPY: Dictionary = {
 	"survive": "Survive until the marked time.",
 	"reach_exit": "Reach a marked door to escape."
 }
-const EXPECTED_STATIC := ["gale_herald", "gloam_stalker", "storm_capacitor", "hollow_mimic", "briar_weaver", "slag_mortar", "glacial_mirror"]
-const MAQUETTE_FOES := ["bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick"]
+const EXPECTED_STATIC := ["gale_herald", "gloam_stalker", "hollow_mimic", "briar_weaver", "slag_mortar", "glacial_mirror"]
+const MAQUETTE_FOES := ["bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor"]
 const TEST_STAGE_SIZE := Vector2(206, 365)
 const PROCESS_FRAMES: int = 3
 const PHASE_EPSILON: float = 0.000001
@@ -25,6 +25,7 @@ const OBJECTIVE_TEST_SIZE := Vector2(1000, 100)
 # Independent oracle: board constants plus explicit maquette Scripts, never the
 # selector under test. Shared Guardian instances must also carry their identity.
 const EXPECTED_RENDERERS: Dictionary = {
+	"storm_capacitor": preload("res://assets/units/storm_capacitor_cutout/renderer.gd"),
 	"burrow_grub": preload("res://assets/units/burrow_grub_cutout/renderer.gd"),
 	"ember_tick": preload("res://assets/units/ember_tick_cutout/renderer.gd"),
 	"hoarfrost_seer": preload("res://assets/units/hoarfrost_seer_cutout/renderer.gd"),
@@ -157,7 +158,7 @@ static func _test_roster(expect: Callable) -> void:
 	before = _clocks(actors)
 	await _frames(tree)
 	_assert_frozen(actors, before, expect, "Reduced-motion SceneTree idle stays frozen: ")
-	expect.call(count == 43 and actors.size() == 36, "Every identity is covered (36 cutouts / 7 stills)")
+	expect.call(count == 43 and actors.size() == 37, "Every identity is covered (37 cutouts / 6 stills)")
 	stage.free()
 	host.free()
 	Settings.apply_settings(saved_settings, null, false)

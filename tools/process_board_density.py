@@ -202,6 +202,9 @@ def settings_for_path(entry: dict, path: str) -> dict:
     if "facings" not in entry:
         return entry
     facing = Path(path).parent.name
+    if entry.get("exact_source_partition") and entry["id"] == "storm_capacitor_cutout":
+        # One shared painting, also used for the rear; storage is not a view.
+        facing = "front"
     if facing not in entry["facings"]:
         raise ValueError(f"no facing settings for {path}")
     return entry["facings"][facing]
@@ -212,13 +215,20 @@ def derive(entry: dict, path: str) -> tuple[Image.Image, dict]:
     settings = settings_for_path(entry, path)
     alpha = alpha_settings(entry) if settings["mode"] == "resample" else {}
     with Image.open(source) as original:
-        output = process(original, settings["mode"], settings["grid"], entry["frames"],
-                         settings.get("scale", 1.0), alpha.get("alpha_class"))
+        if entry.get("exact_source_partition"):
+            # rr-17 splits already treated production paint. Reprocessing each
+            # crop would change rest identity and the director's glow table.
+            if entry["id"] != "storm_capacitor_cutout":
+                raise ValueError("exact_source_partition is reserved for rr-17")
+            output = original.convert("RGBA")
+        else:
+            output = process(original, settings["mode"], settings["grid"], entry["frames"],
+                             settings.get("scale", 1.0), alpha.get("alpha_class"))
         source_digest = pixel_digest(original)
     record = {"pixel_sha256": pixel_digest(output), "source_pixel_sha256": source_digest,
               "id": entry["id"], "mode": settings["mode"], "grid": settings["grid"]}
     if "facings" in entry:
-        record["facing"] = Path(path).parent.name
+        record["facing"] = "front" if entry.get("exact_source_partition") else Path(path).parent.name
     if settings["mode"] == "resample":
         record["scale"] = settings["scale"]
         record.update(alpha)

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "facing": "rear",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "parent": null,
+      "position": [
+        0,
+        0
+      ]
+    },
+    "column": {
+      "parent": "root",
+      "position": [
+        0,
+        0
+      ]
+    },
+    "cap": {
+      "parent": "column",
+      "position": [
+        131,
+        75
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "column",
+      "bone": "column",
+      "file": "paint/column.png",
+      "offset": [
+        38,
+        47
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "cap",
+      "bone": "cap",
+      "file": "paint/cap.png",
+      "offset": [
+        86,
+        8
+      ],
+      "z_index": 1
+    }
+  ],
+  "glow_textures": {
+    "-2": "paint/column_glow_-2.png",
+    "-1": "paint/column_glow_-1.png",
+    "0": "paint/column_glow_0.png",
+    "1": "paint/column_glow_1.png",
+    "2": "paint/column_glow_2.png"
+  },
+  "rest_source": "source/rear/processed.png",
+  "motion_data": "res://experiments/cutouts/storm_capacitor/mq5/compiled_motion.json"
+}

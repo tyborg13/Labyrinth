@@ -1,0 +1,26 @@
+Running task-local command:
+  task: rr-17
+  run: rr-17-1792387737226407000-725
+  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792387737226407000-725
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792387737226407000-725/godot.log --headless --path . --script tests/suites/sfx_sync_1_program.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SFX SYNC FATIGUE: fixed_30 / 1.0x / fatigue: 18 requests, 1 plays, 566.661/550.000 ms feedback
+SFX SYNC FATIGUE: fixed_30 / 1.5x / fatigue: 13 requests, 1 plays, 399.996/366.667 ms feedback
+SFX SYNC FATIGUE: fixed_30 / 2.0x / fatigue: 10 requests, 1 plays, 299.997/275.000 ms feedback
+SFX SYNC FATIGUE: fixed_30 / 0.8x / fatigue: 22 requests, 1 plays, 699.993/687.500 ms feedback
+SFX SYNC FATIGUE: fixed_30 / 1.2x / fatigue: 15 requests, 1 plays, 466.662/458.333 ms feedback
+SFX SYNC FATIGUE: fixed_30 / 1.6x / fatigue: 12 requests, 1 plays, 366.663/343.750 ms feedback
+SFX SYNC FATIGUE: fixed_144 / 1.0x / fatigue: 81 requests, 1 plays, 555.520/550.000 ms feedback
+SFX SYNC FATIGUE: fixed_144 / 1.5x / fatigue: 54 requests, 1 plays, 368.032/366.667 ms feedback
+SFX SYNC FATIGUE: fixed_144 / 2.0x / fatigue: 41 requests, 1 plays, 277.760/275.000 ms feedback
+SFX SYNC FATIGUE: fixed_144 / 0.8x / fatigue: 101 requests, 1 plays, 694.400/687.500 ms feedback
+SFX SYNC FATIGUE: fixed_144 / 1.2x / fatigue: 68 requests, 1 plays, 465.248/458.333 ms feedback
+SFX SYNC FATIGUE: fixed_144 / 1.6x / fatigue: 51 requests, 1 plays, 347.200/343.750 ms feedback
+SFX_SYNC_TRACE=/private/tmp/labyrinth-godot-home/rr-17-1792387737226407000-725/Library/Application Support/Escape the Umbra Parallel rr-17-1792387737226407000-725/sfx_sync_trace.json
+SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)

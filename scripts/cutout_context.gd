@@ -10,7 +10,7 @@ const BLOCK_SECONDS: float = 0.30
 const DEATH_SETTLE_PROGRESS: float = 0.62
 # Explicit static roster decisions: existing board flash/shake/dissolve handles
 # these actors. Never route them to another creature's articulated rig.
-const STATIC_ENEMY_TYPES := ["glacial_mirror", "gust_shrike", "gale_herald", "gloam_stalker", "storm_capacitor", "hollow_mimic", "briar_weaver", "slag_mortar"]
+const STATIC_ENEMY_TYPES := ["glacial_mirror", "gust_shrike", "gale_herald", "gloam_stalker", "hollow_mimic", "briar_weaver", "slag_mortar"]
 const FAMILY_KEYS: Dictionary = {
 	"player": "protagonist_motion", "warden": "warden_motion",
 	"crawler": "crawler_motion", "acolyte": "acolyte_motion",
@@ -27,6 +27,7 @@ const FAMILY_KEYS: Dictionary = {
 }
 
 static func family_key(actor_type: String) -> String:
+	if MaquetteAction.handles(actor_type): return actor_type + "_motion"
 	# Static fallback remains explicit until rr-03's complete case is promoted.
 	if actor_type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): return "gust_shrike_motion"
 	return str(FAMILY_KEYS.get(actor_type, "guardian_motion" if Guardian.handles(actor_type) else ""))
@@ -68,6 +69,7 @@ static func apply_to_presentation(state: Dictionary, presentation: Dictionary) -
 			continue
 		var key: String = str(unit.get("key", "enemy_%d" % int(unit.get("id", -1))))
 		var progress: float = float(unit.get("death_progress", 0.0))
+		progress = preload("res://scripts/maquette_cutout_runtime/death.gd").clip_phase(str(unit.get("type", "")), progress)
 		_install_motion(presentation, key, str(unit.get("type", "")), {
 			"clip": "death", "phase": clampf(progress if MaquetteAction.handles(str(unit.get("type", ""))) else progress / DEATH_SETTLE_PROGRESS, 0.0, 1.0)
 		}, true)

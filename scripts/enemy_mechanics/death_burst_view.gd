@@ -65,9 +65,25 @@ static func timing(before: Dictionary, after: Dictionary, frames: int, seconds: 
 		frame_seconds = BURST_CHAIN_SECONDS / ceilf(BURST_CHAIN_SECONDS / seconds)
 		frames = ceili((death_seconds + float(count - 1) * BURST_CHAIN_SECONDS) / frame_seconds) + 1
 	var death_frames: Dictionary = {}
+	var death_delays: Dictionary = {}
 	if count > 0 and scene != null:
-		for unit: Dictionary in units: death_frames[str(unit.get("key", ""))] = scene._enemy_death_frame_count_for_unit(unit)
-	return {"death_frames": death_frames, "frames": frames, "frame_seconds": frame_seconds, "duration": float(frames - 1) * frame_seconds, "death_seconds": death_seconds, "first_start": frame_seconds}
+		for unit: Dictionary in units:
+			death_frames[str(unit.get("key", ""))] = scene._enemy_death_frame_count_for_unit(unit)
+			death_delays[str(unit.get("key", ""))] = death_delay(unit, before, after, frame_seconds)
+	return {"death_frames": death_frames, "death_delays": death_delays, "frames": frames, "frame_seconds": frame_seconds, "duration": float(frames - 1) * frame_seconds, "death_seconds": death_seconds, "first_start": frame_seconds, "burst_count": count, "burst_chain_seconds": BURST_CHAIN_SECONDS}
+
+static func death_delay(unit: Dictionary, before: Dictionary, after: Dictionary, first_start: float) -> float:
+	var baseline: int = (before.get("death_burst_events", []) as Array).size()
+	var events: Array = after.get("death_burst_events", [])
+	var delay: float = 0.0
+	for index: int in range(baseline, events.size()):
+		var snapshot: Dictionary = events[index]["before"]
+		var was_alive: bool = int(snapshot.get("player", {}).get("hp", 0)) > 0 if str(unit.get("role", "")) == "player" else false
+		for enemy: Dictionary in snapshot.get("enemies", []):
+			if str(unit.get("role", "")) != "player" and int(enemy.get("id", -1)) == int(unit.get("id", -2)): was_alive = int(enemy.get("hp", 0)) > 0
+		if not was_alive: break
+		delay = first_start + float(index - baseline) * BURST_CHAIN_SECONDS
+	return delay
 
 static func event_slot(before: Dictionary, after: Dictionary, progress: float, clock: Dictionary = {}) -> int:
 	var count: int = (after.get("death_burst_events", []) as Array).size() - (before.get("death_burst_events", []) as Array).size()
@@ -93,14 +109,7 @@ static func decorate(before: Dictionary, after: Dictionary, presentation: Dictio
 	var visible_deaths: Array[Dictionary]
 	for unit: Dictionary in presentation.get("death_animation_units", []):
 		var live: bool = false
-		var delay: float = 0.0
-		for index: int in range(baseline, events.size()):
-			var snapshot: Dictionary = events[index]["before"]
-			var was_alive: bool = int(snapshot.get("player", {}).get("hp", 0)) > 0 if str(unit.get("role", "")) == "player" else false
-			for enemy: Dictionary in snapshot.get("enemies", []):
-				if str(unit.get("role", "")) != "player" and int(enemy.get("id", -1)) == int(unit.get("id", -2)): was_alive = int(enemy.get("hp", 0)) > 0
-			if not was_alive: break
-			delay = float(clock.get("first_start", FALLBACK_FRAME_SECONDS)) + float(index - baseline) * BURST_CHAIN_SECONDS
+		var delay: float = death_delay(unit, before, after, float(clock.get("first_start", FALLBACK_FRAME_SECONDS)))
 		if str(unit.get("role", "")) == "player": live = int(frame_state.get("player", {}).get("hp", 0)) > 0
 		else:
 			for enemy: Dictionary in frame_state.get("enemies", []):
@@ -110,6 +119,7 @@ static func decorate(before: Dictionary, after: Dictionary, presentation: Dictio
 		shown["death_progress"] = clampf((elapsed - delay) / maxf(0.01, float(clock.get("death_seconds", FALLBACK_DEATH_SECONDS))), 0.0, 1.0)
 		var frames: int = int(clock.get("death_frames", {}).get(str(unit.get("key", "")), 16))
 		shown["death_frame"] = int(round(float(shown["death_progress"]) * float(maxi(0, frames - 1))))
+		preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").sample(shown, elapsed - delay, clock)
 		visible_deaths.append(shown)
 	presentation["death_animation_units"] = visible_deaths
 	return presentation

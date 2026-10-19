@@ -1218,53 +1218,7 @@ const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
-const TURN_ORDER_PORTRAITS := {
-	"briar_weaver": "res://assets/art/portraits/briar_weaver.png",
-	"slag_mortar": "res://assets/art/portraits/slag_mortar.png",
-	"storm_capacitor": "res://assets/art/portraits/storm_capacitor.png",
-	"hollow_mimic": "res://assets/art/portraits/hollow_mimic.png",
-	"hoarfrost_seer": "res://assets/art/portraits/hoarfrost_seer.png",
-	"gale_herald": "res://assets/art/portraits/gale_herald.png",
-	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
-	"gloam_stalker": "res://assets/art/portraits/gloam_stalker.png",
-	"glacial_mirror": "res://assets/art/portraits/glacial_mirror.png",
-	"gust_shrike": "res://assets/art/portraits/gust_shrike.png",
-	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
-	"ember_tick": "res://assets/art/portraits/ember_tick.png",
-	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
-	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
-	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",
-	"craghide": "res://assets/art/portraits/guardians/craghide_portrait.png",
-	"gallows_roc": "res://assets/art/portraits/guardians/gallows_roc_portrait.png",
-	"last_lamplighter": "res://assets/art/portraits/guardians/last_lamplighter_portrait.png",
-	"rime_spitter": "res://assets/art/portraits/guardians/rime_spitter_portrait.png",
-	"rime_whelp": "res://assets/art/portraits/guardians/rime_whelp_portrait.png",
-	"rimejaw": "res://assets/art/portraits/guardians/rimejaw_portrait.png",
-	"roc_fledgling": "res://assets/art/portraits/guardians/roc_fledgling_portrait.png",
-	"stoneback_mite": "res://assets/art/portraits/guardians/stoneback_mite_portrait.png",
-	"storm_cantor": "res://assets/art/portraits/guardians/storm_cantor_portrait.png",
-	"wick_shade": "res://assets/art/portraits/guardians/wick_shade_portrait.png",
-
-	"player": "res://assets/art/portraits/player_reaver.png",
-	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
-	"acolyte": "res://assets/art/portraits/dust_acolyte.png",
-	"harrier": "res://assets/art/portraits/bone_harrier.png",
-	"grave_surgeon": "res://assets/art/portraits/grave_surgeon.png",
-	"warden": "res://assets/art/portraits/stone_warden.png",
-	"bile_bloomer": "res://assets/art/portraits/bile_bloomer.png",
-	"chainbound_gaoler": "res://assets/art/portraits/chainbound_gaoler.png",
-	"zekarion": "res://assets/art/portraits/zekarion.png",
-	"tharokh": "res://assets/art/portraits/tharokh.png",
-	"vyraketh": "res://assets/art/portraits/vyraketh.png",
-	"vaeloryx": "res://assets/art/portraits/vaeloryx.png",
-	"iskaldra": "res://assets/art/portraits/iskaldra.png",
-	"noctyrax": "res://assets/art/portraits/noctyrax.png",
-	"veilbound_acolyte": "res://assets/art/portraits/veilbound_acolyte.png",
-	"lightning_wisp": "res://assets/art/portraits/lightning_wisp.png",
-	"frostglass_lancer": "res://assets/art/portraits/frostglass_lancer.png",
-	"cinder_ooze": "res://assets/art/portraits/cinder_ooze.png",
-	"cinder_droplet": "res://assets/art/portraits/cinder_droplet.png"
-}
+const TURN_ORDER_PORTRAITS = preload("res://scripts/turn_order_portraits.gd").PATHS
 const MUSIC_FADE_SECONDS: float = 2.5
 const MUSIC_SILENCE_DB: float = -60.0
 const DEATH_MUSIC_FADE_OUT_SECONDS: float = 0.6
@@ -23466,12 +23420,11 @@ func _animate_defeats_and_terrain_destruction(
 		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
 	var burst_clock: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").timing(before_state, after_state, frame_count, frame_seconds, self, death_units)
+	preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").configure(burst_clock, self, death_units)
 	frame_count = int(burst_clock["frames"])
 	frame_seconds = float(burst_clock["frame_seconds"])
 	var state_validated_for_animation: bool = false
-	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
-		var frame: int = frame_number - 1
-		var progress: float = 1.0 if frame_count == 1 else float(frame) / float(frame_count - 1)
+	var render_death_frame: Callable = func(progress: float) -> void:
 		var animated_units: Array[Dictionary] = []
 		for unit: Dictionary in death_units:
 			var animated_unit: Dictionary = unit.duplicate(true)
@@ -23479,6 +23432,7 @@ func _animate_defeats_and_terrain_destruction(
 			var death_frame: int = int(round(progress * float(maxi(1, unit_frame_count) - 1)))
 			animated_unit["death_frame"] = clampi(death_frame, 0, maxi(0, unit_frame_count - 1))
 			animated_unit["death_progress"] = progress
+			preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").sample(animated_unit, progress * float(burst_clock["duration"]), burst_clock)
 			animated_units.append(animated_unit)
 		var animated_terrain: Array[Dictionary] = []
 		for terrain: Dictionary in destroyed_terrain:
@@ -23497,9 +23451,17 @@ func _animate_defeats_and_terrain_destruction(
 		presentation = preload("res://scripts/enemy_mechanics/death_burst_view.gd").decorate(before_state, after_state, presentation, progress, burst_clock)
 		_render_board_state(preload("res://scripts/enemy_mechanics/death_burst_view.gd").state_for_frame(before_state, after_state, progress, burst_clock), presentation, state_validated_for_animation)
 		state_validated_for_animation = true
-	)
+	if burst_clock.has("unit_clocks"):
+		await _play_death_sequence(burst_clock, render_death_frame)
+	else:
+		await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
+			render_death_frame.call(1.0 if frame_count == 1 else float(frame_number - 1) / float(frame_count - 1))
+		)
 	_render_board_state(after_state, {}, state_validated_for_animation)
 	await get_tree().create_timer(0.04).timeout
+
+func _play_death_sequence(clock: Dictionary, render: Callable) -> void:
+	await preload("res://scripts/maquette_cutout_runtime/death_sequence.gd").play(self, clock, render)
 
 func _death_hold_presentation(
 	before_state: Dictionary,
@@ -23538,7 +23500,7 @@ func _death_hold_presentation(
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
-	if MaquetteAction.handles(str(unit.get("type", ""))): return MaquetteAction.frames_for(str(unit["type"]), "death")
+	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frames(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_count"):
 		var board_count: int = int(board_view.call("_unit_death_frame_count", unit))
 		if board_count > 0:
@@ -23551,7 +23513,7 @@ func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
 	return maxi(1, columns * rows)
 
 func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
-	if MaquetteAction.handles(str(unit.get("type", ""))): return 1.0 / MaquetteAction.FPS
+	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frame_seconds(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_seconds"):
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
 	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))
@@ -24556,6 +24518,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
+			var capacitor_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
+			if preload("res://assets/units/storm_capacitor_cutout/actions.gd").handles(step, capacitor_actor):
+				await preload("res://assets/units/storm_capacitor_cutout/actions.gd").animate(self, animated_state, step, capacitor_actor)
+				await _combat_pacing.after_step(step)
+				continue
 			if bool(step.get("en06_mirror", false)): await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
 			await _combat_pacing.after_step(step)
@@ -24639,6 +24606,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
 			"block", "heal", "stoneskin", "status", "status_damage":
 				var rr07_actor: Dictionary = MaquetteAction.actor_for(animated_state, step_actor_key)
+				if preload("res://assets/units/storm_capacitor_cutout/actions.gd").handles(step, rr07_actor):
+					await preload("res://assets/units/storm_capacitor_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
+					await _combat_pacing.after_step(step)
+					continue
 				if preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").handles(step, rr07_actor):
 					await preload("res://assets/units/hoarfrost_seer_cutout/actions.gd").animate(self, animated_state, step, rr07_actor)
 					await _combat_pacing.after_step(step)

@@ -1,0 +1,133 @@
+{
+  "scope": "rr-17 director feedback 1; no full suites or windowed commands",
+  "base_head": "2d31a138c3cf8d84bb1f24e3b8206e48d9b89e56",
+  "focused": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && PYTHONPATH=tests python3 -m unittest tests.test_rr17_cutout tests.test_rr17_production tests.test_rr17_integration tests.test_test_registration_audit tests.test_maquette_native_raster tests.test_maquette_native_ties",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/focused.log",
+    "result_lines": [
+      "Ran 72 tests in 51.500s",
+      "OK"
+    ],
+    "exit_code": 0
+  },
+  "integration_tests": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && PYTHONPATH=tests python3 -m unittest tests.test_rr17_integration",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/integration_tests.log",
+    "result_lines": [
+      "Ran 5 tests in 6.482s",
+      "OK"
+    ],
+    "exit_code": 0
+  },
+  "runtime": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/runtime_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/runtime.log",
+    "result_lines": [
+      "RR17 RUNTIME: PASS (58 checks, 0 failures; headless logic only)"
+    ],
+    "exit_code": 0
+  },
+  "samples": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/samples.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/samples.log",
+    "result_lines": [
+      "RR17 SAMPLES: PASS (328 authored bone poses; 696 sequential poses; headless transforms only)"
+    ],
+    "exit_code": 0
+  },
+  "headless_gates": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 -B experiments/cutouts/storm_capacitor/rr17_gates.py headless",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/headless_gates.log",
+    "result_lines": [
+      "RR17 HEADLESS GATES: PASS (0 errors)"
+    ],
+    "exit_code": 0
+  },
+  "production_capture": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --verbose --path . --script tests/rr17/production_capture.gd -- --type storm_capacitor --output res://experiments/cutouts/storm_capacitor/mq5/proof/production_logic --logic-only",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/production_capture.log",
+    "result_lines": [
+      "MAQUETTE PRODUCTION LOGIC: PASS (1011 frames)"
+    ],
+    "exit_code": 0
+  },
+  "production_gates": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 -B experiments/cutouts/storm_capacitor/rr17_gates.py production --input experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/production_gates.log",
+    "result_lines": [
+      "RR17 PRODUCTION GATES: PASS (0 errors)"
+    ],
+    "exit_code": 0
+  },
+  "rr12_regression": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr12/runtime_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/rr12_regression.log",
+    "result_lines": [
+      "RR12 RUNTIME: PASS (44988 checks, 0 failures; headless logic only)"
+    ],
+    "exit_code": 0
+  },
+  "registration_audit": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/test_registration_audit.py --json experiments/cutouts/storm_capacitor/mq5/proof/registration_audit.json",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/registration_audit.log",
+    "result_lines": [
+      "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+    ],
+    "exit_code": 0
+  },
+  "native_parse": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/rr17/native_capture.gd -- --validate-only",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/native_parse.log",
+    "result_lines": [
+      "RR17 NATIVE CAPTURE PARSE: PASS"
+    ],
+    "exit_code": 0
+  },
+  "pre_battle": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/pre_battle_living_foes_test.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/pre_battle.log",
+    "result_lines": [
+      "PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)",
+      "TEST RESULT: PASS"
+    ],
+    "exit_code": 0
+  },
+  "sfx_sync_0": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_0.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "sfx_sync_1": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_1.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "sfx_sync_2": {
+    "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-17 && python3 tools/godot_task_runner.py --task-id rr-17 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+    "log": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_2.log",
+    "result_lines": [
+      "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+    ],
+    "exit_code": 0
+  },
+  "integration_regression": {
+    "baseline_head": "2d31a138c3cf8d84bb1f24e3b8206e48d9b89e56",
+    "baseline": "tests/rr17/fixtures/integration_before_feedback.json",
+    "after": "experiments/cutouts/storm_capacitor/mq5/proof/integration_after_feedback.json",
+    "report": "experiments/cutouts/storm_capacitor/mq5/proof/integration_regression.json",
+    "result_lines": [
+      "RR17 INTEGRATION REGRESSION: PASS (474 existing death/dissolve material frames exact; 6 existing idle seeds exact; declared 147-frame clock exact)"
+    ]
+  },
+  "remaining_work": [
+    "Director windowed native/production capture, review MP4 and contact sheets.",
+    "Two native density rest records remain pending director capture; exact rest paint is unchanged.",
+    "Full Godot/Python suites deferred as requested."
+  ]
+}

@@ -7,7 +7,7 @@ const Data = preload("res://scripts/game_data.gd")
 var _mirrored_textures: Dictionary = {}
 
 static func handles(type: String) -> bool:
-	if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick"]: return false
+	if type in ["hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor"]: return false
 	if type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): return false
 	return not str(Data.enemy_def(type).get("art_rear_path", "")).is_empty()
 

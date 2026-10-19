@@ -1,0 +1,62 @@
+Running task-local command:
+  task: rr-17
+  run: rr-17-1792387737222270000-724
+  HOME: /private/tmp/labyrinth-godot-home/rr-17-1792387737222270000-724
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-17-1792387737222270000-724/godot.log --headless --path . --script tests/suites/sfx_sync_0_program.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SFX SYNC FATIGUE: fixed_60 / 1.0x / fatigue: 34 requests, 1 plays, 550.011/550.000 ms feedback
+SFX SYNC FATIGUE: fixed_60 / 1.5x / fatigue: 23 requests, 1 plays, 366.674/366.667 ms feedback
+SFX SYNC FATIGUE: fixed_60 / 2.0x / fatigue: 18 requests, 1 plays, 283.339/275.000 ms feedback
+SFX SYNC FATIGUE: fixed_60 / 0.8x / fatigue: 43 requests, 1 plays, 700.014/687.500 ms feedback
+SFX SYNC FATIGUE: fixed_60 / 1.2x / fatigue: 29 requests, 1 plays, 466.676/458.333 ms feedback
+SFX SYNC FATIGUE: fixed_60 / 1.6x / fatigue: 22 requests, 1 plays, 350.007/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue: 30 requests, 1 plays, 550.007/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue/spike_phase_1: 30 requests, 1 plays, 550.007/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue/spike_phase_2: 30 requests, 1 plays, 550.007/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue/spike_phase_3: 30 requests, 1 plays, 550.007/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue/spike_phase_4: 30 requests, 1 plays, 550.007/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue/spike_phase_5: 30 requests, 1 plays, 550.007/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.0x / fatigue/spike_phase_6: 30 requests, 1 plays, 566.673/550.000 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue: 21 requests, 1 plays, 366.672/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue/spike_phase_1: 21 requests, 1 plays, 383.338/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue/spike_phase_2: 20 requests, 1 plays, 366.671/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue/spike_phase_3: 20 requests, 1 plays, 366.671/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue/spike_phase_4: 20 requests, 1 plays, 366.671/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue/spike_phase_5: 20 requests, 1 plays, 366.671/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 1.5x / fatigue/spike_phase_6: 20 requests, 1 plays, 366.671/366.667 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue: 16 requests, 1 plays, 283.337/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue/spike_phase_1: 16 requests, 1 plays, 283.337/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue/spike_phase_2: 16 requests, 1 plays, 283.337/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue/spike_phase_3: 16 requests, 1 plays, 283.337/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue/spike_phase_4: 16 requests, 1 plays, 283.337/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue/spike_phase_5: 16 requests, 1 plays, 283.337/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 2.0x / fatigue/spike_phase_6: 16 requests, 1 plays, 300.003/275.000 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue: 38 requests, 1 plays, 700.009/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue/spike_phase_1: 38 requests, 1 plays, 700.009/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue/spike_phase_2: 38 requests, 1 plays, 700.009/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue/spike_phase_3: 38 requests, 1 plays, 700.009/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue/spike_phase_4: 38 requests, 1 plays, 700.009/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue/spike_phase_5: 38 requests, 1 plays, 716.675/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 0.8x / fatigue/spike_phase_6: 37 requests, 1 plays, 700.008/687.500 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue: 26 requests, 1 plays, 466.673/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue/spike_phase_1: 26 requests, 1 plays, 466.673/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue/spike_phase_2: 26 requests, 1 plays, 466.673/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue/spike_phase_3: 26 requests, 1 plays, 483.339/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue/spike_phase_4: 25 requests, 1 plays, 466.672/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue/spike_phase_5: 25 requests, 1 plays, 466.672/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.2x / fatigue/spike_phase_6: 25 requests, 1 plays, 466.672/458.333 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue: 20 requests, 1 plays, 350.005/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue/spike_phase_1: 20 requests, 1 plays, 350.005/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue/spike_phase_2: 20 requests, 1 plays, 366.671/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue/spike_phase_3: 19 requests, 1 plays, 350.004/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue/spike_phase_4: 19 requests, 1 plays, 350.004/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue/spike_phase_5: 19 requests, 1 plays, 350.004/343.750 ms feedback
+SFX SYNC FATIGUE: spikes / 1.6x / fatigue/spike_phase_6: 19 requests, 1 plays, 350.004/343.750 ms feedback
+SFX_SYNC_TRACE=/private/tmp/labyrinth-godot-home/rr-17-1792387737222270000-724/Library/Application Support/Escape the Umbra Parallel rr-17-1792387737222270000-724/sfx_sync_trace.json
+SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)

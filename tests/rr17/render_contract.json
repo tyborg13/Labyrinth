@@ -1,0 +1,99 @@
+{
+  "min_images": 33,
+  "expected_sizes": [
+    "1920x1080",
+    "255x255"
+  ],
+  "required_images": [
+    {
+      "pattern": "rest.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "front_idle_*_overview.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            650,
+            250,
+            620,
+            650
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    },
+    {
+      "pattern": "front_charge_*_overview.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            650,
+            250,
+            620,
+            650
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    },
+    {
+      "pattern": "front_discharge_*_overview.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            650,
+            250,
+            620,
+            650
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    },
+    {
+      "pattern": "front_hit_*_overview.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            650,
+            250,
+            620,
+            650
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    },
+    {
+      "pattern": "front_death_*_overview.png",
+      "width": 1920,
+      "height": 1080,
+      "min_count": 6,
+      "regions": [
+        {
+          "rect": [
+            650,
+            250,
+            620,
+            650
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    }
+  ]
+}

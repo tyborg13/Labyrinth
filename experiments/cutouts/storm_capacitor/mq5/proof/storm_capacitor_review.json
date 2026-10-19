@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "frames": 792,
+  "format": {
+    "width": 1920,
+    "height": 1080,
+    "r_frame_rate": "60/1",
+    "duration": "13.200000",
+    "nb_frames": "792"
+  },
+  "sha256": "19baf31298049de52ba9bbe573ee2dca48fa00862c907989407b0e1e95a34a5f",
+  "native_manifest_sha256": "31077d0234972bab0b868cfd56dd6169fb344241463800fae5b4f9db13624fbc"
+}

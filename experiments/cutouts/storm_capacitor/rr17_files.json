@@ -1,0 +1,202 @@
+[
+  {
+    "status": " M",
+    "path": "assets/units/storm_capacitor_cutout/compiled_motion.json"
+  },
+  {
+    "status": " D",
+    "path": "assets/units/storm_capacitor_cutout/death.gd"
+  },
+  {
+    "status": " M",
+    "path": "assets/units/storm_capacitor_cutout/integration.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/README.md"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/compiled_motion.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/cutout.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/director_motion.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/focused.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/headless_gates.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/native_parse.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/pre_battle.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_capture.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_gates.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_gates.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/rr12_regression.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/runtime.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/samples.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/samples.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_0.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_1.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/sfx_sync_2.log"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/verification_results.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/mq5/protected_inputs.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/rr17_build.py"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/rr17_contract.py"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/rr17_files.json"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/rr17_gates.py"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/rr17_production.py"
+  },
+  {
+    "status": " M",
+    "path": "experiments/cutouts/storm_capacitor/rr17_proof.sh"
+  },
+  {
+    "status": " M",
+    "path": "scripts/combat_board_view.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/cutout_context.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/maquette_cutout_runtime/presentation.gd"
+  },
+  {
+    "status": " M",
+    "path": "scripts/run_scene.gd"
+  },
+  {
+    "status": " M",
+    "path": "tests/rr17/capture_contract.gd"
+  },
+  {
+    "status": " M",
+    "path": "tests/rr17/production_capture.gd"
+  },
+  {
+    "status": " M",
+    "path": "tests/rr17/runtime_test.gd"
+  },
+  {
+    "status": " M",
+    "path": "tests/test_rr17_cutout.py"
+  },
+  {
+    "status": " M",
+    "path": "tests/test_rr17_production.py"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/integration.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/headless_gates.log"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/integration_after_feedback.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/integration_regression.json"
+  },
+  {
+    "status": "??",
+    "path": "experiments/cutouts/storm_capacitor/mq5/proof/integration_tests.log"
+  },
+  {
+    "status": "??",
+    "path": "scripts/maquette_cutout_runtime/death.gd"
+  },
+  {
+    "status": "??",
+    "path": "scripts/turn_order_portraits.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/fixtures/integration_before_feedback.json"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/fixtures/turn_order_portraits_before_feedback.json"
+  },
+  {
+    "status": "??",
+    "path": "tests/rr17/integration_samples.gd"
+  },
+  {
+    "status": "??",
+    "path": "tests/test_rr17_integration.py"
+  }
+]
