@@ -1,0 +1,34 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: shell
+BUILD_STAGE: head
+BUILD_STAGE: leg_near_1_upper
+BUILD_STAGE: leg_near_1_lower
+BUILD_STAGE: leg_near_2_upper
+BUILD_STAGE: leg_near_2_lower
+BUILD_STAGE: leg_near_3_upper
+BUILD_STAGE: leg_near_3_lower
+BUILD_STAGE: leg_near_4_upper
+BUILD_STAGE: leg_near_4_lower
+BUILD_STAGE: leg_far_1_upper
+BUILD_STAGE: leg_far_1_lower
+BUILD_STAGE: leg_far_2_upper
+BUILD_STAGE: leg_far_2_lower
+BUILD_STAGE: leg_far_3_upper
+BUILD_STAGE: leg_far_3_lower
+BUILD_STAGE: leg_far_4_upper
+BUILD_STAGE: leg_far_4_lower
+BUILD_STAGE: mouthpart_-1
+BUILD_STAGE: mouthpart_1
+BUILD_STAGE: leg_near_1_upper_joint
+BUILD_STAGE: leg_near_2_upper_joint
+BUILD_STAGE: leg_near_3_upper_joint
+BUILD_STAGE: leg_near_4_upper_joint
+BUILD_STAGE: leg_far_1_upper_joint
+BUILD_STAGE: leg_far_2_upper_joint
+BUILD_STAGE: leg_far_3_upper_joint
+BUILD_STAGE: leg_far_4_upper_joint
+BUILD_STAGE: palp_-1
+BUILD_STAGE: palp_1
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_MAQUETTE: PASS

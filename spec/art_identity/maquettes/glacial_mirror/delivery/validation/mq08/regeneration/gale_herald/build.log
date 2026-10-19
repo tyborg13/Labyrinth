@@ -1,0 +1,81 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: masked_hood
+ROUNDED_HOOD_REST: {"head_bounds": [[-0.0035092979669570923, -0.11830908060073853, 1.781099557876587], [0.17468763887882233, 0.03956574201583862, 1.9787472486495972]], "head_width": 0.15787482261657715, "opening_width": 0, "opening_width_ratio": 0, "opening_height": 0.24375, "collision_allowance": 0.063, "opening_rows": [], "closed_crown_and_seam": true, "defaults": {"revision": 1, "skull_rows": 25, "columns": 48, "shoulder_rows": 8, "crown_pin_rows": 3}}
+CLOTH_PATTERN: masked_hood; vertices=1537; pins=97
+CLOTH_FRAME: masked_hood; 8/8
+BUILD_STAGE: shoulder_yoke
+CLOTH_PATTERN: shoulder_yoke; vertices=829; pins=64
+CLOTH_FRAME: shoulder_yoke; 8/8
+BUILD_STAGE: tunic
+SEWN_NATIVE_REST: {"connected": true, "nonmanifold_edges": 0, "boundary_loops": 1, "source": "native anatomy union / sewn shoulder rest surface", "regions": ["torso"], "pins": 246, "vertices": 1361, "removed_sampling_islands": [], "defaults": {"revision": 1, "voxel_size": 0.022, "smoothing_iterations": 4, "smoothing_factor": 0.5, "upper_cuff_pins": 2}}
+CLOTH_PATTERN: tunic; vertices=1316; pins=239
+CLOTH_FRAME: tunic; 8/24
+CLOTH_FRAME: tunic; 16/24
+CLOTH_FRAME: tunic; 24/24
+BUILD_STAGE: belt
+CLOTH_PATTERN: belt; vertices=221; pins=64
+CLOTH_FRAME: belt; 8/64
+CLOTH_FRAME: belt; 16/64
+CLOTH_FRAME: belt; 24/64
+CLOTH_FRAME: belt; 32/64
+CLOTH_FRAME: belt; 40/64
+CLOTH_FRAME: belt; 48/64
+CLOTH_FRAME: belt; 56/64
+CLOTH_FRAME: belt; 64/64
+BUILD_STAGE: tabard
+CLOTH_PATTERN: tabard; vertices=208; pins=16
+CLOTH_FRAME: tabard; 8/64
+CLOTH_FRAME: tabard; 16/64
+CLOTH_FRAME: tabard; 24/64
+CLOTH_FRAME: tabard; 32/64
+CLOTH_FRAME: tabard; 40/64
+CLOTH_FRAME: tabard; 48/64
+CLOTH_FRAME: tabard; 56/64
+CLOTH_FRAME: tabard; 64/64
+BUILD_STAGE: banner_near_front
+CLOTH_PATTERN: banner_near_front; vertices=584; pins=16
+CLOTH_FRAME: banner_near_front; 8/24
+CLOTH_FRAME: banner_near_front; 16/24
+CLOTH_FRAME: banner_near_front; 24/24
+BUILD_STAGE: banner_near_rear
+CLOTH_PATTERN: banner_near_rear; vertices=592; pins=16
+CLOTH_FRAME: banner_near_rear; 8/24
+CLOTH_FRAME: banner_near_rear; 16/24
+CLOTH_FRAME: banner_near_rear; 24/24
+BUILD_STAGE: banner_far_front
+CLOTH_PATTERN: banner_far_front; vertices=592; pins=16
+CLOTH_FRAME: banner_far_front; 8/24
+CLOTH_FRAME: banner_far_front; 16/24
+CLOTH_FRAME: banner_far_front; 24/24
+BUILD_STAGE: banner_far_rear
+CLOTH_PATTERN: banner_far_rear; vertices=592; pins=16
+CLOTH_FRAME: banner_far_rear; 8/24
+CLOTH_FRAME: banner_far_rear; 16/24
+CLOTH_FRAME: banner_far_rear; 24/24
+BUILD_STAGE: horn
+BUILD_STAGE: horn_band_0
+BUILD_STAGE: horn_band_1
+BUILD_STAGE: horn_band_2
+BUILD_STAGE: horn_band_3
+BUILD_STAGE: horn_band_4
+BUILD_STAGE: crest_mask
+BUILD_STAGE: upper_plate_near
+BUILD_STAGE: fore_plate_near
+BUILD_STAGE: upper_plate_far
+BUILD_STAGE: fore_plate_far
+BUILD_STAGE: shoulder_lame_near_0
+BUILD_STAGE: shoulder_lame_near_1
+BUILD_STAGE: shoulder_lame_near_2
+BUILD_STAGE: armour_thigh_near
+BUILD_STAGE: armour_shin_near
+BUILD_STAGE: armour_thigh_far
+BUILD_STAGE: armour_shin_far
+BUILD_STAGE: tabard_back
+CLOTH_PATTERN: tabard_back; vertices=304; pins=16
+CLOTH_FRAME: tabard_back; 8/24
+CLOTH_FRAME: tabard_back; 16/24
+CLOTH_FRAME: tabard_back; 24/24
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_MAQUETTE: PASS

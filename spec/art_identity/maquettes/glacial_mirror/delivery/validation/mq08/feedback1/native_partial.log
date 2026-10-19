@@ -1,0 +1,12 @@
+00:00.295  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/gMQ08_BRIDGE: native_partial; exit=0
+NATIVE_PARTIAL_CAPTURE: PASS; mode=ownership; full_certification=rejected
+sers/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/feedback1/native_partial/front_silhouette.png'
+00:14.372  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/feedback1/native_partial/front_silhouette.png'
+00:17.965  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/feedback1/native_partial/front_parts.png'
+00:20.663  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/feedback1/native_partial/front_silhouette.png'
+00:23.959  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/feedback1/native_partial/front_silhouette.png'
+BLENDER_FACING: PASS
+MIRROR_BOUNDED_CAPTURE: PASS; view=front; solos=['upper_far']
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

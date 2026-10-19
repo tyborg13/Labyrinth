@@ -104,8 +104,8 @@
     "faces": 20104
   },
   "shoulder_far_mass_render": {
-    "vertices": 23628,
-    "faces": 23626
+    "vertices": 22644,
+    "faces": 22642
   },
   "shoulder_near_crest_render": {
     "vertices": 22644,
@@ -141,7 +141,7 @@
   },
   "part_contacts": {
     "surface_intersections": {
-      "torso/head": 474,
+      "head/torso": 474,
       "torso/pelvis": 916,
       "torso/upper_near": 900,
       "upper_near/fore_near": 653,
@@ -150,13 +150,13 @@
       "thigh_near/shin_near": 475,
       "shin_near/foot_near": 2348,
       "torso/upper_far": 1492,
-      "upper_far/fore_far": 496,
-      "fore_far/hand_far": 433,
+      "upper_far/fore_far": 470,
+      "fore_far/hand_far": 396,
       "pelvis/thigh_far": 522,
       "thigh_far/shin_far": 189,
       "shin_far/foot_far": 1261
     },
     "passed": true,
-    "blend_sha256": "ede9547ae10219f8537c72c12b0a8473eb1b37f14568afdec60c0eb4a23ec803"
+    "blend_sha256": "a3c7fcfcd1f9d79e426acd1a89a4b701929bd06b781e11318ee3f4ba65354cbd"
   }
 }

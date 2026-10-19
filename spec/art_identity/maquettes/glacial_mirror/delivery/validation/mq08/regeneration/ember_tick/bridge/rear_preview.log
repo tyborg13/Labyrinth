@@ -1,0 +1,8 @@
+00:00.350  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/ember_tick/build/maquette.blend"
+00:05.622  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/ember_tick/capture_jobs/batches/rear_preview/rear_parts.png'
+00:12.922  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/ember_tick/capture_jobs/batches/rear_preview/rear_clay.png'
+00:15.706  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/ember_tick/capture_jobs/batches/rear_preview/rear_silhouette.png'
+MIRROR_BOUNDED_CAPTURE: PASS; view=rear; solos=None
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit

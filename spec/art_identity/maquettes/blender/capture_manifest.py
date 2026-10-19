@@ -7,6 +7,20 @@ import struct
 CAPTURE_MODES = ('full', 'fit', 'preview', 'silhouettes', 'ownership')
 
 
+def capture_mode(*, ownership_only=False, solo_parts=None, fit_only=False, preview=False, silhouettes_only=False):
+    if ownership_only or solo_parts is not None:
+        return 'ownership'
+    return 'fit' if fit_only else 'preview' if preview else 'silhouettes' if silhouettes_only else 'full'
+
+
+def selected_solos(labels, selection=None):
+    """Validate a bounded solo batch without changing global material indices."""
+    result = list(labels if selection is None else selection)
+    if not result or len(set(result)) != len(result) or not set(result) <= set(labels):
+        raise ValueError('Solo selection must contain distinct registered labels')
+    return result
+
+
 def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 

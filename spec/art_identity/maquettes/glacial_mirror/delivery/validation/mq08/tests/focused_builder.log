@@ -1,0 +1,12 @@
+........NATIVE_CAPTURE_PACKING: PASS; raw_bytes=592; packed_bytes=468
+...............................................DELIVERY_STAGE: PASS; staged
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5131690, "figure": "burrow_grub", "files": 163}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5319081, "figure": "ember_tick", "files": 88}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5307157, "figure": "glacial_mirror", "files": 134}
+CLEAN_REGENERATION: PASS; native_fixture; canonical_png_sha256=true
+BLENDER_BRIDGE_STARTED: long
+.......................
+----------------------------------------------------------------------
+Ran 78 tests in 53.233s
+
+OK

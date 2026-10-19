@@ -1,0 +1,7 @@
+CLEAN_REGENERATION: PASS; hoarfrost_seer; canonical_png_sha256=true
+CLEAN_REGENERATION: PASS; gale_herald; canonical_png_sha256=true
+CLEAN_REGENERATION: PASS; arc_thrall; canonical_png_sha256=true
+CLEAN_REGENERATION: PASS; gloam_stalker; canonical_png_sha256=true
+CLEAN_REGENERATION: PASS; burrow_grub; canonical_png_sha256=true
+CLEAN_REGENERATION: PASS; ember_tick; canonical_png_sha256=true
+CLEAN_REGENERATION: PASS; frostglass_lancer; canonical_png_sha256=true

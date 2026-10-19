@@ -1,0 +1,46 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 10582 anatomy vertices
+BUILD_STAGE: hood
+CLOTH_PATTERN: hood; vertices=160; pins=64
+CLOTH_FRAME: hood; 8/8
+BUILD_STAGE: face_plate
+BUILD_STAGE: face_crossbar_accent
+BUILD_STAGE: face_slit_accent
+BUILD_STAGE: collar
+CLOTH_PATTERN: collar; vertices=96; pins=32
+CLOTH_FRAME: collar; 8/8
+BUILD_STAGE: pauldron_near
+BUILD_STAGE: pauldron_far
+BUILD_STAGE: breastplate
+BUILD_STAGE: chest_gem
+BUILD_STAGE: belt
+BUILD_STAGE: diagonal_strap
+BUILD_STAGE: tabard_front
+CLOTH_PATTERN: tabard_front; vertices=102; pins=17
+CLOTH_FRAME: tabard_front; 8/24
+CLOTH_FRAME: tabard_front; 16/24
+CLOTH_FRAME: tabard_front; 24/24
+BUILD_STAGE: tasset_far
+BUILD_STAGE: tasset_near
+BUILD_STAGE: cloak
+CLOTH_PATTERN: cloak; vertices=480; pins=96
+CLOTH_FRAME: cloak; 8/8
+BUILD_STAGE: vambrace_near
+BUILD_STAGE: gauntlet_near
+BUILD_STAGE: cuisse_near
+BUILD_STAGE: poleyn_near
+BUILD_STAGE: greave_near
+BUILD_STAGE: boot_near
+BUILD_STAGE: sabaton_near
+BUILD_STAGE: vambrace_far
+BUILD_STAGE: gauntlet_far
+BUILD_STAGE: cuisse_far
+BUILD_STAGE: poleyn_far
+BUILD_STAGE: greave_far
+BUILD_STAGE: boot_far
+BUILD_STAGE: sabaton_far
+BUILD_STAGE: spear_shaft
+BUILD_STAGE: spear_blade
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_MAQUETTE: PASS

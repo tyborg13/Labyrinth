@@ -1,4 +1,35 @@
-# Glacial Mirror — mq-05 fitted native maquette
+# Glacial Mirror — mq-08 shoulder revision (maquette r2)
+
+The mq-08 brief and `spec/peer_benchmark/humanoid_cutout_rig.md` §3 supersede the mq-05 far-shoulder placement and tall cap. The far shoulder is `(280, 241.7)` in the native front, exactly 0.15 × 442 px above the unchanged near shoulder `(722, 308)`, with equal body-space shoulder heights. The existing two-bone solver preserves every bone length and minimizes displacement of the far hand: `(176, 524)` becomes `(187.83, 491.88)`. The far elbow straightens; the torso, mirror, head, near arm and legs retain their exact compiled surfaces/joints.
+
+`shoulder_revision.py` is an explicit, reproducible recipe migration from the retained `delivery/review/mq08_before_recipe.json`. The old joint lock is retained as `shoulder_revision_contract.superseded_joint_lock_sha256`; the current joint lock records the authorized four-joint correction. All 15 labels remain unchanged. The far cap copies the existing near crest's dimensions and sculpt exactly. Its front top is 92.84 px, versus the near top at 159.14 px and head top at 67.58 px (native mesh vertices). The shoulder bedding retains its original torso attachment. Both views render the same frozen meshes with a 180° turn.
+
+The native 1024 comparison is `delivery/review/mq08_shoulders.html`: old clay / new clay / new part map for front and rear. Every cell stays 1024×1024 with no resampling; the linked sheet reuses current native PNGs and two lossless, RGBA-verified old-clay WebPs to meet the figure's 6 MB budget. Circles mark both real shoulder joints; crosses mark the two mass tops. Yellow is near, cyan is far. `mq08_joint_table.md` gives before/after joints, and `mq08_gates.json` binds shoulder, pauldron, fixed anatomy, native geometry, cold/replay and fit gates. The original approved paintings remain untouched; front IoU changes from 0.769369877 to 0.762240013 and rear from 0.729296855 to 0.702771369, above the 0.70 / 0.65 gates. The stale mq-05 2× crop and optional preview fit masks are discarded with hashes; the new native comparison replaces them. An optional duplicate raster export is available with `proof --export-webp` and is omitted by curation.
+
+The shared builder changes are `blender/capture_manifest.py:selected_solos` / `capture_mode` and the opt-in `solo_parts` argument in `blender/render.py`. They split native solos into bounded bridge jobs without changing material indices, geometry, camera, sampling or default full captures. A partial batch has `ownership` mode and cannot validate as a full delivery. The unit workflow combines hash-checked batches, requires every solo in both views, and runs the existing fail-closed delivery seal. Native geometry, material/modifier mutations, all 14 anatomical adjacencies, replay and clean regeneration receipts live in `delivery/validation/mq08/`.
+
+Director feedback 1 freezes the accepted clays, part maps, solos and joints byte for byte. `guards.py` is now the live shoulder/pauldron/turn implementation used by certification and curation. Tests measure both shoulders and all three required mass tops directly from delivery, assert the accepted cap centre and turn matrix, and reject lowered shoulders, lifted caps, mirrored rears and partial captures through those live guards. `mutation_proof.py` removes each guard in memory and runs the negative fixtures; it also moves both migration and canonical cap data together by 80 px. No accepted data or image file is edited by this proof.
+
+`regeneration_inputs.py` requires a fresh empty directory for a new run. The source snapshot contains only the explicit Python/recipe inputs and retains its original inventory and state on resume. A resume compares both against current authoritative sources and every file/directory in the snapshot; generated builds, captures, caches, added files, changed files and forged inventories are rejected. Compilation, builds and captures live outside `clean_project`. Reports distinguish actual matching cloth-cache hits from reuse of a successful bridge receipt. The feedback proof and protected-file hashes are in `delivery/validation/mq08/feedback1/`.
+
+Proof for the design owner (all commands run from this worktree; Blender is launched only by the owner bridge):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.workflow regenerate
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.workflow regenerate --resume
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.workflow baselines
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.workflow baselines --resume
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.partial_capture_proof --resume
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.mutation_proof
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m unittest discover -s tests -p 'test_glacial_mirror_*.py'
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-08 && python3 -B -m spec.art_identity.maquettes.glacial_mirror.workflow curate
+```
+
+The brief requests offline Blender proof, without runtime or rig integration. Godot/windowed probes, 1920×1080 UI proof and `inspection_fixture.py` are not applicable. The design owner handles full suites, peer review, commits and publication. This unit remains uncommitted.
+
+No design placeholders or new dependencies/assets are introduced. Non-player defaults are named in `REVISION_DEFAULTS` (rotation epsilon), `WORKFLOW_DEFAULTS` (90 s bridge execution budget, five solos per batch, native joint error threshold), `PROOF_DEFAULTS` (native comparison layout/captions, marker colours/sizes and numerical tolerance), `GUARD_DEFAULTS` (the existing numerical tolerance), `partial_capture_proof.py:PROBE_DEFAULTS` (front upper-far solo), and both test modules' `TEST_DEFAULTS` (synthetic fixtures and test precision, including a 40 px invalid shoulder offset). The shoulder slope, tolerances, native size and IoU thresholds are brief requirements, not chosen defaults.
+
+The following sections describe the inherited mq-05 pipeline and form/contact requirements; mq-08 changes only the shoulder placement, cap and bounded proof capture described above.
 
 `measurements.json` is the canonical Blender build input, bound by SHA-256 to the untouched approved front/rear processed paintings. It contains source landmarks, measured/fitted three-dimensional surfaces, the exact 15 director part labels and explicit feature ownership. `spec_native.json` is generated compiler output and is not retained in the curated tree.
 
@@ -14,13 +45,7 @@ The native board frame remains +X forward, orthographic azimuth 45°/elevation 3
 
 Shared fit table, all per-part/leg coverage and the single common-scale roster contact sheet (batch B + Lancer + batch A) are in [Ember Tick's review directory](../ember_tick/delivery/review/). The acceptance bars are front IoU ≥0.70 and rear ≥0.65. Whole-silhouette registration uses source/native top, bottom and ground-contact centroid, retaining the same normalisation as batch A without inventing humanoid landmark rules for crawlers. `delivery/fit_report.json` is the authoritative current fit/coverage result. The contact sheet is lossless WebP to stay within the per-figure budget; its decoded RGBA pixels are verified identical to the composed composed sheet. Technical proof does not confer design-owner paint/quality approval.
 
-Regenerate from an empty input-only project, through the owner bridge:
-
-```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-05 && python3 -B -m spec.art_identity.maquettes.blender.regenerate_delivery spec/art_identity/maquettes/glacial_mirror --out spec/art_identity/maquettes/glacial_mirror/regenerated --verify --discard-build
-```
-
-Omit `--discard-build` to retain the regenerated editable `.blend` for local inspection. Output must be new/empty. This is offline Blender proof: no GDScript, scenes, production art, analytics or saves changed; Godot/windowed probes and `inspection_fixture.py` are not applicable to this unit.
+Use the bounded mq-08 regeneration command above. Its first run copies only inputs into `proof/regeneration/glacial_mirror/clean_project`, then builds and captures through separate bridge jobs. `--resume` validates the original inventory before reusing successful receipts bound to the same inputs and builder. Generated `spec_native.json`, `build/maquette.blend`, cloth caches and captures remain beside the input snapshot until curation. This is offline Blender proof: no GDScript, scenes, production art, analytics or saves changed; Godot/windowed probes and `inspection_fixture.py` are not applicable to this unit.
 
 ## Contract, implementation and validation
 
@@ -31,7 +56,7 @@ Omit `--discard-build` to retain the regenerated editable `.blend` for local ins
 
 Shared builder additions: `creature_recipe.py`, `creature_rig.py`, `sculpted_mass.py`, `mass_topology.py`, `surface_relief.py`, `compact_capture.py`, `solid_features.py`, `solid_review.py`, `solid_workflow.py`, `inspect_solid_replay.py`, and portable `test_creature.py`, with guarded integration into existing compilation/build/validation/facing/delivery modules. Existing batch A recipes use their unchanged path; their compiled spec hashes and clean native raster regenerations are checked separately.
 
-Task risk is high for shared offline builder changes; required proof is focused maquette/delivery/art-identity plus full Python discovery, native gates, regeneration and batch A regression. The design owner supplied the prepared branch/task contract/preflight and retains commit, peer review, inspection approval and publication. This engineer makes no Git publication or review/signoff action.
+Task risk is high for shared offline builder changes. This round runs the requested focused maquette/delivery/art-identity tests, invalid fixtures, native gates, regeneration and batch A regression; the design owner runs full suites at merge. The design owner supplied the prepared branch/task contract/preflight and retains commit, peer review, inspection approval and publication. This engineer makes no Git publication or review/signoff action.
 
 No `TODO_DESIGN_` placeholders remain. Chosen non-player defaults are named: `proof_defaults.part_palette` (unique debug ownership colours), `MASS_DEFAULTS` (64×32 sphere sampling and numerical epsilon), `SOLID_DEFAULTS` (12 crack samples/segment and implementation revision), `RELIEF_DEFAULTS` (stateless noise hash/octaves), `TOPOLOGY_DEFAULTS` (clip tolerance), `FEATURE_DEFAULTS` (30 m inspection rays/1e-5 m coincidence tolerance), `PACKING_DEFAULTS` (lossless mask export bookkeeping), `REVIEW_DEFAULTS` (native cells/proof captions/layout and lossless WebP encoding), `WORKFLOW_DEFAULTS` (900 s known multi-capture job budget, matching batch A, and shared review owner index 1), `BRIDGE_DEFAULTS.lease_timeout_s` (120 s busy-lease deadline), and `TEST_DEFAULTS` (synthetic mask fixtures). Model dimensions/contours/pose fit the brief and approved paintings; no new player art, text, tuning, audio, font or icon is generated.
 

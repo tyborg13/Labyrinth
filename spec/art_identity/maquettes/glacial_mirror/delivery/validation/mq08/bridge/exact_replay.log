@@ -1,0 +1,5 @@
+00:00.303  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/determinism/cold/maquette.blend"
+00:03.099  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/determinism/replay/maquette.blend"
+00:06.366  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/determinism/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=35

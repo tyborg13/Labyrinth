@@ -1,0 +1,11 @@
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/clean_project/spec/art_identity/maquettes/glacial_mirror/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-87bfef44a8e14170bc9a74d31c09f4d3
+BLENDER_BRIDGE_STARTED: mq03-87bfef44a8e14170bc9a74d31c09f4d3
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-e146a6d0c0794fe98790e94209fe56d6
+BLENDER_BRIDGE_STARTED: mq03-e146a6d0c0794fe98790e94209fe56d6
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-41a2f1b29ac242fea1a2da19bea0aa9d
+BLENDER_BRIDGE_STARTED: mq03-41a2f1b29ac242fea1a2da19bea0aa9d
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; glacial_mirror; canonical_png_sha256=true

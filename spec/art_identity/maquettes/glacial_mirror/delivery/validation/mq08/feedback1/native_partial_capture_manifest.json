@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "spec_hash": "4370346c1cd0770f7c80ef75d41445d6c625ce416073b4bf85a202badcaf7b20",
+  "mode": "ownership",
+  "images": {
+    "front_parts.png": {
+      "sha256": "fd4bd77a62e3cba7cbee4f7683b10c3a441e96277c671deeed04de05f1180425",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_silhouette.png": {
+      "sha256": "5635191eace7210cfbfcb0d970b66f26a8137358d055c3d17134cffaefed379a",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_solo_upper_far.png": {
+      "sha256": "ab9627d4d49b6895054f4cded6ad495981a2fdc887cc3a3b4426902238a4d2da",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_torso.png": {
+      "sha256": "344d92f7ccefa611dbdeebfb60d85a4e2ca944f0a6370265c04844fe2b9f0b66",
+      "size": [
+        1024,
+        1024
+      ]
+    },
+    "front_torso_frontal_control.png": {
+      "sha256": "2198a5f65bf707316cfc9266ec8f192b835427aaaa2fa339e8c50176832a8552",
+      "size": [
+        1024,
+        1024
+      ]
+    }
+  },
+  "joints_sha256": "7e62437fa30e08545022eacaf215c9608225adfd4b1e881eaf92f66858ea5af0"
+}
