@@ -36,7 +36,13 @@ def cutout_families(code: str) -> set[str]:
     # Include conditional equality branches as well as the final `in` roster.
     # Inspect the entire function, independent of whether a rig is available.
     body = function_text(code, "_unit_uses_cutout")
-    return set(re.findall(r'"([a-z_]+)"', body)) - {"type", "player"}
+    families = set(re.findall(r'"([a-z_]+)"', body)) - {"type", "player"}
+    # The maquette rigs are data-driven (MaquettePresentation.handles); their roster lives in presentation.gd.
+    roster = (ROOT / "scripts/maquette_cutout_runtime/presentation.gd").read_text()
+    creatures = re.search(r"const CREATURES := \{(.*?)\}", roster, re.S)
+    if creatures:
+        families |= set(re.findall(r'"([a-z_]+)":', creatures.group(1)))
+    return families
 
 
 def mask_bounds(mask: np.ndarray) -> tuple[int, int, int, int] | None:
