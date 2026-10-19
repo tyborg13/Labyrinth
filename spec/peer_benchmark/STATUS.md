@@ -44,10 +44,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
 - Next (in order):
-  1. Integration green at 6e26013c0 (Godot PASS, Python OK): Thrall v2 (rr-11/15/16) and the Mirror maquette r2 (mq-08)
-     merged; Mirror repaint committed. Running: rr-18 (Mirror rig), rr-17 Codex review (Capacitor), mq-09 (Mimic,
-     Weaver, Mortar maquettes; bridge serves mq-09). Owner verdicts open: thrall-rig-v2, capacitor-rig, purge-polish,
-     enemy-pacing-2.
+  1. Integration: Capacitor (rr-17/19) and batch C maquettes (mq-09) merged; Godot PASS; Python red on builder tooling
+     tests until mq-10 lands. Running: mq-10 (builder reconcile; bridge serves mq-10), rr-18 windowed proof (Mirror),
+     rr-20/21/22 (Mimic, Weaver, Mortar rigs; paint-overs committed 4985804e2). Owner verdicts open: thrall-rig-v2,
+     capacitor-rig, purge-polish, enemy-pacing-2.
   2. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
      conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
   3. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
