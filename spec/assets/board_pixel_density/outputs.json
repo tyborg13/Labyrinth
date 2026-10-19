@@ -10192,6 +10192,14 @@
     "grid": 1.0,
     "facing": "rear"
   },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_sleeve_far_edge_underlap.png": {
+    "pixel_sha256": "a13337f0950053488252d37ad82c4bfee921d455a59c5748fb12a2c844f1a9d2",
+    "source_pixel_sha256": "a13337f0950053488252d37ad82c4bfee921d455a59c5748fb12a2c844f1a9d2",
+    "id": "hoarfrost_seer_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png": {
     "pixel_sha256": "25d0da1cf54229da589e5cb7b8c3b40db1f00f2dc9b51ae97e9c05d38765b76a",
     "source_pixel_sha256": "d487a56eae8e5d16140457d6ba2cb5d721f2baf6d2778daa966e0e053dcd6efb",
@@ -11355,8 +11363,8 @@
     "facing": "rear"
   },
   "assets/units/hollow_mimic_cutout/rear/leg_near_hidden.png": {
-    "pixel_sha256": "e9404beda3e3a0b2768f26561442bd1c6aa477ee2a20c86e06102d0cbc4809aa",
-    "source_pixel_sha256": "6613cd2c470347f12693534077132b10d94b8c19e9aa7019ab3598ee534497f6",
+    "pixel_sha256": "96a2c0f5ff8a51fd9d0d34bb8870076216d40465a0b2235cedd90b4de9089e80",
+    "source_pixel_sha256": "9f166855a00bd13c49ab686738b14fa5ab74009d28787430f25b507fa0d487d0",
     "id": "hollow_mimic_cutout",
     "mode": "clean",
     "grid": 1.0,

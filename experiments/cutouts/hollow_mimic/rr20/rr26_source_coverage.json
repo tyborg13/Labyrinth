@@ -1,0 +1,26 @@
+{
+  "assets/units/hoarfrost_seer_cutout/rear.json": {
+    "before_sha256": "ce38b23324e30aed28011b1d649248f329de3d01103bc0728ad05a4c4b627220",
+    "after_sha256": "e96065afb50bbc0efea88c32773833da83a00a583fb6ae2594be5b989f001560"
+  },
+  "assets/units/hoarfrost_seer_cutout/integration.json": {
+    "before_sha256": "3eda5c1a36f628003c03711e7883cc54b1684ad4b8759559612f98c3d5d5da85",
+    "after_sha256": "c8f301036a0d150f845302d2f5a57671931a5e81dbf5149ea75ceed5d3b31306"
+  },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json": {
+    "before_sha256": "10e14513bb16a84260cbac2bd683b48987dc2793d4668265d5bc8d5911833360",
+    "after_sha256": "c5ae5e2660622159dc464221e596cf04abb7d4012c0782af2ba4ec3ff7896623"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10_build.py": {
+    "before_sha256": "c8486d25e79822b0c5c1cb66564a391cda1e5e5f4aee0e3b8a0083d8f75a6ca4",
+    "after_sha256": "285a74e7c66daafde39fc5c9971b748d467fe4d3b4569b9dfbc164c72118dcc4"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10_proof.sh": {
+    "before_sha256": "c80a1eae41034dc37dad6049d7f1a64fdcc2056ed120bada464c7b8d11df9586",
+    "after_sha256": "d9a63b4d9bd4c039e1334d5989f052ac8a43af53e15afd48d39c98a75c5511fd"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json": {
+    "before_sha256": "dd063dfe3bc6ef41c503af8c22671edbf96adb80d562f62271657588246296d7",
+    "after_sha256": "a7c3cef94fe20ade1612388217c09e1f1ed56cd54231895df1f7028190158a26"
+  }
+}

@@ -23,8 +23,20 @@ EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
 
 def protected_errors():
     errors = []
+    coverage_path = CASE / 'rr26_source_coverage.json'
+    coverage = read_json(coverage_path) if coverage_path.exists() else {}
     for name, expected in read_json(CASE / 'protected_inputs.json').items():
-        if digest(ROOT / name) != expected: errors.append('Protected/baseline bytes changed: ' + name)
+        actual = digest(ROOT / name)
+        change = coverage.get(name, {})
+        # Feedback 1 explicitly opens Seer source coverage for this fix. Keep
+        # the original protected ledger immutable, and bind each authorized
+        # derived change to both its old baseline and exact replacement bytes.
+        seer_path = name.startswith(('assets/units/hoarfrost_seer_cutout/',
+                                     'experiments/cutouts/hoarfrost_seer/'))
+        authorized = (seer_path and change.get('before_sha256') == expected and
+                      change.get('after_sha256') == actual)
+        if actual != expected and not authorized:
+            errors.append('Protected/baseline bytes changed: ' + name)
     if (CASE / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('Protected director copy changed')
     layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}
     data = read_json(CASE / 'compiled_motion.json')

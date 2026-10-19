@@ -32,6 +32,7 @@ from humanoid_cutout.promotion import promote
 from humanoid_cutout.mesh import grid, weights_for
 from humanoid_cutout.underlays import distinct_depths
 from residue import clean_piece, feature_mask
+from underlaps import apply as source_underlaps
 
 PROOF_FEATURE_CHROMA_MARGIN = 20  # Proof mask extraction only; never changes paint.
 
@@ -172,6 +173,7 @@ def build_view(view, inputs, anatomy):
         Image.fromarray(native_mask).save(native_path)
         features.append({'name': 'violet_crack', 'piece': 'head', 'mask': str(path.relative_to(CASE)),
             'native_mask': {'name': 'FeatureVioletCrack', 'bone': 'head', 'file': str(native_path.relative_to(CASE))}})
+    source_underlaps(visible, hidden, view)
     cleanup = {}
     for name in visible:
         source_folder = CASE / 'residue_source' / view

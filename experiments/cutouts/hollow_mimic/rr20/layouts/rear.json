@@ -148147,7 +148147,7 @@
       "z_index": -3,
       "source": "pieces/rear/leg_near_hidden.png",
       "rigid": false,
-      "source_sha256": "250b9731335782891c889bf15236c638af4314de3417febb4090a6e88ee236ca"
+      "source_sha256": "2514ef3b65c9bf42b8e557f8e4be9bff7c6f40c856e8d9c332c1495bcb15971b"
     },
     "foot_near": {
       "mask": "checks/rear/foot_near.png",

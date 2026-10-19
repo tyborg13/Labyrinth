@@ -97,9 +97,10 @@
     "humanoid_v2/rear/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/torso.png": "eb2912b4ecf4aaff5b38c30d7f773ae15717cbc97558eea8a5ca94c365ac3380",
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "10e14513bb16a84260cbac2bd683b48987dc2793d4668265d5bc8d5911833360",
-    "rear.json": "ce38b23324e30aed28011b1d649248f329de3d01103bc0728ad05a4c4b627220",
+    "humanoid_v2/rear.json": "c5ae5e2660622159dc464221e596cf04abb7d4012c0782af2ba4ec3ff7896623",
+    "rear.json": "e96065afb50bbc0efea88c32773833da83a00a583fb6ae2594be5b989f001560",
     "renderer.gd": "0f607acd367d0acb5af8102c0f0cb9acbe57dad147f2300b74974dbd8fcf5e5a",
-    "rig.gd": "e44395d3bf6080fa72d4de05a183f65ab8d1ccf2b6f643fa198dfba7be04e421"
+    "rig.gd": "e44395d3bf6080fa72d4de05a183f65ab8d1ccf2b6f643fa198dfba7be04e421",
+    "humanoid_v2/rear/hidden_sleeve_far_edge_underlap.png": "79f2c105634a60301d4dc67b8a95a62e2ce924ea4c4cfd0949a539fe8bd5e43b"
   }
 }

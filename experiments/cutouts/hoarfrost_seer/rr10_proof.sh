@@ -3,7 +3,7 @@
 set -eu
 stage="${1:?Use density, rest, native, production, idle, review or sheets}"
 project="$(pwd)"
-task_id="${LABYRINTH_TASK_ID:-rr-13}"
+task_id="${LABYRINTH_TASK_ID:-rr-26}"
 rig_case="$project/experiments/cutouts/hoarfrost_seer/rr10"
 proof="$rig_case/proof"
 case "$stage" in

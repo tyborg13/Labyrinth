@@ -151,6 +151,8 @@ def derivation_errors(layout):
         missing=target & (hidden[name][...,3]==0)
         replacement=edge_texels(visible[name],missing,rules(CASE,layout['facing']))
         hidden[name][missing]=replacement[missing]
+    from underlaps import apply as source_underlaps
+    source_underlaps(visible, hidden, layout['facing'])
     errors=[]
     for name in PIECES:
         actual=np.asarray(Image.open(CASE/'residue_source'/layout['facing']/(name+'_hidden.png')).convert('RGBA'))

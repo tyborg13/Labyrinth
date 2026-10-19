@@ -1,3 +1,5 @@
+Feedback 1 coverage status and both owner sequences: [rr26_feedback1.md](rr26_feedback1.md).
+
 # rr-26 strict provenance follow-up
 
 See [the rr-26 implementation handoff](rr26_implementation.md) for the strict

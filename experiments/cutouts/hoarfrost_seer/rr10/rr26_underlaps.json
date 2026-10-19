@@ -1,0 +1,17 @@
+{
+  "front": [],
+  "rear": [
+    {
+      "name": "hidden_sleeve_far_edge_underlap",
+      "garment": "sleeve_far",
+      "edge_source_points": [[154, 95]],
+      "source_points": [[156, 96]]
+    }
+  ],
+  "TODO_DESIGN_SEER_HEM_CONTINUATION_POLICY": {
+    "required": "Owner-supplied move-only continuation policy or corrected hem ownership/attachment that preserves approved rest identity and poses.",
+    "front_move_frames": [11, 12, 15],
+    "rear_move_frames": [10, 13],
+    "source_air_examples": [[151, 235], [154, 234], [99, 229], [102, 228], [105, 228]]
+  }
+}
