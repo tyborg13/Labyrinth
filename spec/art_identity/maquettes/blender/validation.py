@@ -111,6 +111,9 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             'collar_front_no_wider_than_back': bool(collar_ok),
             'plate_corners_preserved': bool(corners_ok),
             'armour_conforms_to_body': bool(conform_ok)}
+    if spec['base'].get('preserve_native_split_normals'):
+        from .skin_normals import matches as skin_normals_match
+        result['native_skin_normals'] = skin_normals_match(body.data,objects)
     if spec.get('planted_leg'):
         from .floor_contact import spec_contacts
         from .rear_body import REAR_POSE_DEFAULTS
@@ -130,10 +133,11 @@ def geometry_report(spec, objects, cloth_reports, details=None):
         from .curve_root import validate as roots
         details['curve_roots'] = roots(spec)
         result['native_curve_roots'] = all(row['passed'] for row in details['curve_roots'].values())
-    if spec['base'].get('closed_hands'):
+    hand_sides = spec['base'].get('closed_hands', []) + list(spec['base'].get('half_open_hands', {}))
+    if hand_sides:
         hands = json.loads(bpy.data.objects['posed_body'].get('native_hand_pose', '{}'))
         details['native_hand_pose'] = hands
-        result['native_hand_pose'] = (set(hands) == {'hand_' + side for side in spec['base']['closed_hands']} and
+        result['native_hand_pose'] = (set(hands) == {'hand_' + side for side in hand_sides} and
                                       all(row.get('passed') and row['curled_vertices'] > 0 for row in hands.values()))
     if bound:
         # The editable source, not the immutable render copy, owns the binding.
@@ -151,6 +155,9 @@ def geometry_report(spec, objects, cloth_reports, details=None):
         result['native_sculpted_surfaces'] = all(native_stack_matches(p, bpy.data.objects.get(p['id'])) and
             frozen_differs_from_base(bpy.data.objects.get(p['id']),bpy.data.objects.get(p['id']+'_render'))
                                                for p in masses)
+    unions=[p for p in masses if p.get('swept_sections')]
+    if unions:
+        result['native_sculpted_union_shading'] = all(all(face.use_smooth for face in bpy.data.objects[p['id']+'_render'].data.polygons) for p in unions)
     if spec.get('native_features'):
         from .solid_features import feature_report
         details['native_features'] = feature_report(spec, objects)

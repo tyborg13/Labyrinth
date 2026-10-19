@@ -4,6 +4,7 @@ COMMIT_MANIFEST.txt
 README.md
 acceptance.py
 batch_proof.py
+curated_metrics.py
 delivery/acceptance_binding.json
 delivery/build_report.json
 delivery/capture_checks.json
@@ -59,7 +60,9 @@ delivery/rear_solo_upper_near.png
 delivery/recipe_proof.json
 delivery/review/contact_sheet.json
 delivery/review/contact_sheet.webp
+delivery/review/curated_metrics.json
 delivery/review/fit_table.md
+delivery/review/form_revision_before.json
 delivery/review/gates.json
 delivery/review/part_coverage.csv
 delivery/solo_coverage.json

@@ -328,191 +328,220 @@
       "joint": "hood_centre",
       "rings": [
         [
+          34,
+          0.4,
+          0.4
+        ],
+        [
+          32,
+          12,
+          14
+        ],
+        [
+          26,
+          23,
+          24
+        ],
+        [
+          16,
           33,
-          0.5,
-          0.5
+          34
         ],
         [
+          4,
+          38,
+          36
+        ],
+        [
+          -9,
+          33,
+          34
+        ],
+        [
+          -20,
           29,
-          14,
-          15
+          32
         ],
         [
-          21,
+          -29,
           30,
-          31
+          36
         ],
         [
-          8,
-          40,
-          38
-        ],
-        [
-          -4,
+          -35,
           36,
-          35
-        ],
-        [
-          -16,
-          29,
-          29
-        ],
-        [
-          -28,
-          24,
-          27
+          42
         ]
       ],
       "opening_half_angles": [
         0,
         0,
-        0.15,
-        0.55,
-        0.65,
+        0.04,
+        0.24,
+        0.6,
+        0.7,
+        0.64,
         0.5,
-        0.25
+        0.36
       ],
       "closed": false,
-      "drape": {
-        "row_subdivisions": 6,
-        "pin_rows": [
-          0,
-          1,
-          2
-        ],
-        "pin_opening_rows": [
-          2,
-          3,
-          4,
-          5
-        ],
-        "frames": 24,
-        "self_collision": true,
-        "collision_refine_levels": 2,
-        "rag": {
-          "count": 9,
-          "depth": 0.045,
-          "seed": 9
-        },
-        "smooth_normals": true,
-        "collision_quality": 8,
-        "stiffness": {
-          "quality": 16,
-          "mass": 0.45,
-          "tension_stiffness": 45,
-          "compression_stiffness": 45,
-          "shear_stiffness": 30,
-          "bending_stiffness": 6,
-          "tension_damping": 8,
-          "compression_damping": 8,
-          "shear_damping": 8,
-          "bending_damping": 2,
-          "pin_stiffness": 1,
-          "time_scale": 0.2
-        },
-        "self_distance_min": 0.0005,
-        "solver_margin": 0.015,
-        "pin_filled_spans": [
-          [
-            0,
-            2
-          ]
-        ],
-        "weld_tolerance": 0.0003
-      },
       "contact_regions": [
         "head",
         "torso"
       ],
-      "collision_refine_levels": 3
+      "collision_refine_levels": 3,
+      "columns": 64,
+      "sculpted_folds": {
+        "folds": 9,
+        "depth_m": 0.027,
+        "rag_m": 0.095,
+        "tears": 11,
+        "thick_m": 0.008
+      },
+      "rig_bone": "head",
+      "frame_joints": [
+        "shoulder_far",
+        "shoulder_near"
+      ]
     },
     {
-      "id": "leaf_mantle",
+      "id": "shaggy_leaf_clumps",
+      "shape": "leaf_clumps",
       "part": "torso",
-      "kind": "cloak",
-      "shape": "cowl",
       "joint": "mantle_anchor",
-      "rings": [
-        [
-          29,
-          12,
-          20
-        ],
-        [
-          19,
-          28,
-          35
-        ],
-        [
-          3,
-          39,
-          51
-        ],
-        [
-          -12,
-          37,
-          46
-        ]
+      "frame_joints": [
+        "shoulder_far",
+        "shoulder_near"
       ],
-      "angles": [
-        0,
-        6.283185307179586
-      ],
-      "closed": true,
-      "fold_allowance_px": [
-        0,
-        2,
-        0,
-        -1,
-        0,
-        2,
-        0,
-        -2,
-        0,
-        1,
-        0,
-        -1,
-        0,
-        2,
-        0,
-        -1
-      ],
-      "drape": {
-        "row_subdivisions": 6,
-        "pin_rows": [
+      "rig_bone": "torso",
+      "rim_shape": [
+        [
+          -0.15,
           0
         ],
-        "frames": 24,
-        "self_collision": true,
-        "collision_refine_levels": 2,
-        "rag": {
-          "count": 16,
-          "depth": 0.075,
-          "seed": 13
+        [
+          0.27,
+          0.03
+        ],
+        [
+          0.52,
+          0.25
+        ],
+        [
+          0.28,
+          0.3
+        ],
+        [
+          0.48,
+          0.53
+        ],
+        [
+          0.17,
+          0.5
+        ],
+        [
+          0.24,
+          0.76
+        ],
+        [
+          0,
+          1
+        ],
+        [
+          -0.18,
+          0.72
+        ],
+        [
+          -0.45,
+          0.83
+        ],
+        [
+          -0.3,
+          0.51
+        ],
+        [
+          -0.53,
+          0.56
+        ],
+        [
+          -0.35,
+          0.24
+        ]
+      ],
+      "rows": [
+        {
+          "z_px": 20,
+          "root_radius_px": 21,
+          "width_px": 23.400000000000002,
+          "length_px": 30,
+          "fall_px": 28,
+          "relief_px": 5.5,
+          "thick_px": 1.1,
+          "phase": 0,
+          "variation": [
+            1,
+            0.9,
+            1.1,
+            0.95,
+            1.08,
+            0.9,
+            1.12,
+            0.9,
+            1.03,
+            0.95,
+            1.05,
+            0.9
+          ]
         },
-        "smooth_normals": true,
-        "collision_quality": 8,
-        "stiffness": {
-          "quality": 16,
-          "mass": 0.45,
-          "tension_stiffness": 45,
-          "compression_stiffness": 45,
-          "shear_stiffness": 30,
-          "bending_stiffness": 6,
-          "tension_damping": 8,
-          "compression_damping": 8,
-          "shear_damping": 8,
-          "bending_damping": 2,
-          "pin_stiffness": 1,
-          "time_scale": 0.2
+        {
+          "z_px": 10,
+          "root_radius_px": 31,
+          "width_px": 27.0,
+          "length_px": 34,
+          "fall_px": 28,
+          "relief_px": 6.0,
+          "thick_px": 1.2,
+          "phase": 0.5,
+          "variation": [
+            0.9,
+            1.05,
+            0.95,
+            1.1,
+            0.9,
+            1.05,
+            1.1,
+            0.9,
+            1.04,
+            0.95,
+            1.1,
+            0.95
+          ]
         },
-        "self_distance_min": 0.0005,
-        "solver_margin": 0.015,
-        "radial_rest": {
-          "joint": "mantle_anchor"
+        {
+          "z_px": -2,
+          "root_radius_px": 34,
+          "width_px": 25.2,
+          "length_px": 30,
+          "fall_px": 23,
+          "relief_px": 5.0,
+          "thick_px": 1.1,
+          "phase": 0.15,
+          "variation": [
+            1.1,
+            0.95,
+            1,
+            0.9,
+            1.1,
+            0.93,
+            1.04,
+            0.9,
+            1.1,
+            0.95,
+            1,
+            0.92
+          ]
         }
-      },
-      "ownership_mode": "whole_piece"
+      ]
     },
     {
       "id": "mantle_thorn_0",
@@ -592,7 +621,7 @@
         0.7,
         0.015
       ],
-      "root_on": "leaf_mantle"
+      "root_on": "shaggy_leaf_clumps"
     },
     {
       "id": "mantle_thorn_2",
@@ -632,7 +661,7 @@
         0.7,
         0.015
       ],
-      "root_on": "leaf_mantle"
+      "root_on": "shaggy_leaf_clumps"
     },
     {
       "id": "fore_thorn_near_0",
@@ -1831,197 +1860,335 @@
       ]
     },
     {
-      "id": "layered_bark_leaf_mantle",
-      "part": "torso",
+      "id": "far_shoulder_leaf_clump",
       "shape": "ridged_shell",
+      "part": "torso",
       "joint": "torso",
       "rig_bone": "torso",
       "layers": [
         {
           "front_rim_px": [
             [
-              150,
-              101
+              86.17,
+              116.47000000000001
             ],
             [
-              167,
-              91
+              96.97,
+              106.75
             ],
             [
-              181,
-              97
+              109.92999999999999,
+              114.31000000000003
             ],
             [
-              194,
-              109
+              112.08999999999999,
+              126.19000000000001
             ],
             [
-              202,
-              122
+              103.45,
+              132.67000000000002
             ],
             [
-              196,
-              121
+              95.88999999999999,
+              129.43
             ],
             [
-              197,
-              133
+              90.49,
+              134.83
             ],
             [
-              182,
-              128
-            ],
-            [
-              181,
-              138
-            ],
-            [
-              166,
-              130
-            ],
-            [
-              155,
-              123
+              84.00999999999999,
+              128.35000000000002
             ]
           ],
           "rear_rim_px": [
             [
-              106,
-              107
+              169.82999999999998,
+              109.16000000000004
             ],
             [
-              89,
-              85
+              159.03,
+              100.52000000000002
             ],
             [
-              75,
-              89
+              146.07,
+              110.24000000000004
             ],
             [
-              61,
-              103
+              143.91,
+              122.12000000000003
             ],
             [
-              52,
-              116
+              152.54999999999998,
+              131.84
             ],
             [
-              60,
-              114
+              160.11,
+              127.52000000000002
             ],
             [
-              59,
-              128
+              165.51,
+              136.16000000000003
             ],
             [
-              75,
-              124
-            ],
-            [
-              78,
-              136
-            ],
-            [
-              94,
-              126
-            ],
-            [
-              104,
-              119
+              171.99,
+              126.44000000000001
             ]
           ],
           "ridge_px": [
             [
-              172,
-              110
+              99.53675534661872,
+              127.40807185658281
             ],
             [
-              81,
-              114
+              156.4632446533813,
+              119.72794451906479
             ]
           ],
-          "thickness_px": 1
+          "thickness_px": 1.3
         },
         {
           "front_rim_px": [
             [
-              87,
-              117
+              87.83,
+              119.83940107675849
             ],
             [
-              97,
-              108
+              97.03,
+              111.55940107675852
             ],
             [
-              109,
-              115
+              108.07,
+              117.99940107675853
             ],
             [
-              111,
-              126
+              109.91,
+              128.1194010767585
             ],
             [
-              103,
-              132
+              102.55000000000001,
+              133.6394010767585
             ],
             [
-              96,
-              129
+              96.10999999999999,
+              130.8794010767585
             ],
             [
-              91,
-              134
+              91.50999999999999,
+              135.4794010767585
             ],
             [
-              85,
-              128
+              85.99000000000001,
+              129.9594010767585
             ]
           ],
           "rear_rim_px": [
             [
-              169,
-              110
+              168.17000000000002,
+              113.14940107675852
             ],
             [
-              159,
-              102
+              158.97,
+              105.78940107675854
             ],
             [
-              147,
-              111
+              147.93,
+              114.06940107675854
             ],
             [
-              145,
-              122
+              146.09,
+              124.18940107675853
             ],
             [
-              153,
-              131
+              153.45,
+              132.4694010767585
             ],
             [
-              160,
-              127
+              159.89000000000001,
+              128.7894010767585
             ],
             [
-              165,
-              135
+              164.49,
+              136.14940107675855
             ],
             [
-              171,
-              126
+              170.01,
+              127.8694010767585
             ]
           ],
           "ridge_px": [
             [
-              100,
-              120
+              99.96910641594245,
+              130.47408730465784
             ],
             [
-              156,
-              121
+              156.03089358405757,
+              121.8829344996362
             ]
           ],
-          "thickness_px": 1
+          "thickness_px": 1.3
+        },
+        {
+          "front_rim_px": [
+            [
+              88.86749999999999,
+              123.2731823688687
+            ],
+            [
+              97.0675,
+              115.89318236886872
+            ],
+            [
+              106.9075,
+              121.63318236886873
+            ],
+            [
+              108.54749999999999,
+              130.65318236886873
+            ],
+            [
+              101.9875,
+              135.57318236886871
+            ],
+            [
+              96.24749999999999,
+              133.1131823688687
+            ],
+            [
+              92.14749999999998,
+              137.21318236886873
+            ],
+            [
+              87.22749999999999,
+              132.2931823688687
+            ]
+          ],
+          "rear_rim_px": [
+            [
+              167.1325,
+              116.97068236886872
+            ],
+            [
+              158.9325,
+              110.41068236886873
+            ],
+            [
+              149.0925,
+              117.79068236886874
+            ],
+            [
+              147.45250000000001,
+              126.81068236886873
+            ],
+            [
+              154.0125,
+              134.19068236886872
+            ],
+            [
+              159.7525,
+              130.91068236886872
+            ],
+            [
+              163.85250000000002,
+              137.47068236886875
+            ],
+            [
+              168.7725,
+              130.09068236886873
+            ]
+          ],
+          "ridge_px": [
+            [
+              99.75293088128058,
+              132.86706141110972
+            ],
+            [
+              156.24706911871942,
+              124.73142133983991
+            ]
+          ],
+          "thickness_px": 1.3
+        },
+        {
+          "front_rim_px": [
+            [
+              82.63125,
+              137.31875000000002
+            ],
+            [
+              89.13125,
+              131.46875000000003
+            ],
+            [
+              96.93125,
+              136.01875000000004
+            ],
+            [
+              98.23125,
+              143.16875000000002
+            ],
+            [
+              93.03125,
+              147.06875
+            ],
+            [
+              88.48124999999999,
+              145.11875
+            ],
+            [
+              85.23124999999999,
+              148.36875000000003
+            ],
+            [
+              81.33125,
+              144.46875000000003
+            ]
+          ],
+          "rear_rim_px": [
+            [
+              173.36875,
+              122.67500000000004
+            ],
+            [
+              166.86875,
+              117.47500000000005
+            ],
+            [
+              159.06875,
+              123.32500000000006
+            ],
+            [
+              157.76875,
+              130.47500000000005
+            ],
+            [
+              162.96875,
+              136.32500000000002
+            ],
+            [
+              167.51875,
+              133.72500000000002
+            ],
+            [
+              170.76875,
+              138.92500000000004
+            ],
+            [
+              174.66875,
+              133.07500000000005
+            ]
+          ],
+          "ridge_px": [
+            [
+              92.18528195060432,
+              146.54299341355758
+            ],
+            [
+              163.81471804939568,
+              128.49632787478416
+            ]
+          ],
+          "thickness_px": 1.3
         }
       ]
     }
@@ -2134,122 +2301,6 @@
   },
   "unresolved_design": {},
   "body_source_profiles": {
-    "torso": {
-      "front": [
-        [
-          115,
-          123
-        ],
-        [
-          145,
-          121
-        ],
-        [
-          160,
-          137
-        ],
-        [
-          163,
-          159
-        ],
-        [
-          143,
-          177
-        ],
-        [
-          121,
-          169
-        ],
-        [
-          111,
-          151
-        ]
-      ],
-      "rear": [
-        [
-          109,
-          123
-        ],
-        [
-          137,
-          116
-        ],
-        [
-          158,
-          134
-        ],
-        [
-          158,
-          156
-        ],
-        [
-          144,
-          173
-        ],
-        [
-          120,
-          174
-        ],
-        [
-          105,
-          156
-        ]
-      ]
-    },
-    "pelvis": {
-      "front": [
-        [
-          122,
-          163
-        ],
-        [
-          144,
-          164
-        ],
-        [
-          151,
-          179
-        ],
-        [
-          140,
-          193
-        ],
-        [
-          123,
-          187
-        ],
-        [
-          114,
-          177
-        ]
-      ],
-      "rear": [
-        [
-          116,
-          162
-        ],
-        [
-          143,
-          161
-        ],
-        [
-          152,
-          176
-        ],
-        [
-          143,
-          191
-        ],
-        [
-          122,
-          187
-        ],
-        [
-          109,
-          177
-        ]
-      ]
-    },
     "upper_near": {
       "front": [
         [
@@ -3457,6 +3508,68 @@
           220
         ]
       ]
+    },
+    "torso": {
+      "front": [
+        [
+          115,
+          122.44
+        ],
+        [
+          145,
+          121.0
+        ],
+        [
+          160,
+          132.52
+        ],
+        [
+          163,
+          148.36
+        ],
+        [
+          143,
+          161.32
+        ],
+        [
+          121,
+          155.56
+        ],
+        [
+          111,
+          142.6
+        ]
+      ],
+      "rear": [
+        [
+          109,
+          121.04
+        ],
+        [
+          137,
+          116.0
+        ],
+        [
+          158,
+          128.96
+        ],
+        [
+          158,
+          144.8
+        ],
+        [
+          144,
+          157.04
+        ],
+        [
+          120,
+          157.76
+        ],
+        [
+          105,
+          144.8
+        ]
+      ]
     }
   },
   "measurement_basis": "mq-09 approved processed paintings. Pixel coordinates trace the visible anatomy and named attachments. Real CC0 anatomy topology, armature and board facing are retained. No raster painting is authored.",
@@ -3498,12 +3611,8 @@
     ]
   },
   "source_fit_relaxation": {
-    "iterations": 8,
-    "factor": 0.5,
-    "preserve_regions": [
-      "foot_near",
-      "foot_far"
-    ]
+    "iterations": 24,
+    "factor": 0.5
   },
   "tatters_construction": "Director continue 1: sculpted, shaped closed mesh instead of unstable leaf-fringe simulation; every curved leaf shares the tatters owner and pelvis attachment.",
   "grounded_profile_measurements": {
@@ -3531,5 +3640,85 @@
     "row_step_px": 1,
     "method": "Full visible foot contour traced from approved alpha; opposite-view depth stays native."
   },
-  "preserve_native_skin_shading": true
+  "preserve_native_skin_shading": true,
+  "source_profile_modes": {
+    "upper_near": "affine_core",
+    "fore_near": "affine_core",
+    "hand_near": "affine_core",
+    "upper_far": "affine_core",
+    "fore_far": "affine_core",
+    "hand_far": "affine_core",
+    "thigh_near": "affine_core",
+    "shin_near": "affine_core",
+    "foot_near": "rows",
+    "thigh_far": "affine_core",
+    "shin_far": "affine_core",
+    "foot_far": "rows",
+    "torso": "affine_core"
+  },
+  "form_finish": {
+    "fair_regions": [
+      "upper_near",
+      "fore_near",
+      "upper_far",
+      "fore_far",
+      "thigh_near",
+      "thigh_far",
+      "shin_near",
+      "shin_far",
+      "torso",
+      "pelvis"
+    ],
+    "radial_scales": {
+      "upper_near": 1.2,
+      "upper_far": 1.2
+    },
+    "spirals": {
+      "upper_near": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "fore_near": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "upper_far": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "fore_far": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "thigh_near": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "shin_near": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "thigh_far": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      },
+      "shin_far": {
+        "depth_m": 0.004,
+        "strands": 3,
+        "turns": 1.25
+      }
+    },
+    "fair_iterations": 16,
+    "fair_factor": 0.4
+  },
+  "source_core_weight": 0.8,
+  "source_fit_weighted_blend": true,
+  "preserve_native_split_normals": true
 }

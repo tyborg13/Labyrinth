@@ -107,6 +107,11 @@ def build(spec, output, bundle, cache):
                 bpy.context.view_layer.update()
                 obj['rig_bone'] = piece['rig_bone']
             data = evaluated_mesh(obj)
+            if piece.get('swept_sections'):
+                # Voxel remesh emits new polygons; propagate the sculpt's
+                # smooth skin to these evaluated faces, not only the rest.
+                for polygon in data.polygons: polygon.use_smooth = True
+                for edge in data.edges: edge.use_edge_sharp = False
             # Keep the native curve/modifier stack editable in the saved blend;
             # render immutable evaluated copies so camera turns cannot change
             # shrinkwrap or collision evaluation beneath a captured frame.
@@ -145,6 +150,11 @@ def build(spec, output, bundle, cache):
         if spec['base'].get('preserve_native_skin_shading'):
             for polygon, original in zip(obj.data.polygons, skin):
                 polygon.use_smooth = original.use_smooth
+        if spec['base'].get('preserve_native_split_normals'):
+            # Ownership splitting must not turn a continuous CC0 limb into
+            # separately shaded tubes at every elbow, wrist and knee.
+            from spec.art_identity.maquettes.blender.skin_normals import copy_to
+            copy_to(posed.data, skin, obj.data)
         obj.matrix_world = posed.matrix_world.copy()
         obj['part'] = region
         obj['owner_index'] = list(spec['labels']).index(region)

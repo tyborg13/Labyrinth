@@ -3,7 +3,7 @@
   "figures": {
     "briar_weaver": {
       "passed": true,
-      "spec_hash": "269ff1f855205e604280affa032bbea0d1110059c4e6e9508a0f3da855cab463",
+      "spec_hash": "ecf6f8a44803f53407b57664d63b1feb466d1c34a48964f1a619281bf4319fef",
       "checks": {
         "current_spec": true,
         "native_geometry": true,

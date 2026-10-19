@@ -21,9 +21,11 @@ BUILDS = ('cold', 'replay', 'independent_cold')
 
 def geometry_checks(spec):
     required = GEOMETRY_CHECKS
+    if spec.get('base', {}).get('preserve_native_split_normals'):
+        required += ('native_skin_normals',)
     if spec.get('base', {}).get('socket_tucks'):
         required += ('native_socket_tucks',)
-    if spec.get('base', {}).get('closed_hands'):
+    if spec.get('base', {}).get('closed_hands') or spec.get('base', {}).get('half_open_hands'):
         required += ('native_hand_pose',)
     if any(p.get('root_on') for p in spec['pieces']):
         required += ('native_curve_roots',)
@@ -35,6 +37,8 @@ def geometry_checks(spec):
         required += ('native_rigid_bindings',)
     if any(p['type'] == 'sculpted_mass' for p in spec['pieces']):
         required += ('native_sculpted_surfaces',)
+    if any(p.get('swept_sections') for p in spec['pieces']):
+        required += ('native_sculpted_union_shading',)
     if any(p.get('sculpt') for p in spec['pieces']):
         required += ('native_sculpted_sections',)
     if spec.get('native_contacts') or spec.get('foot_contacts') or any('support_z' in p for p in spec['pieces']):

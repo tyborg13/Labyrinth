@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "spec_hash": "269ff1f855205e604280affa032bbea0d1110059c4e6e9508a0f3da855cab463",
+  "spec_hash": "ecf6f8a44803f53407b57664d63b1feb466d1c34a48964f1a619281bf4319fef",
   "board_frame": {
     "yaw_radians": -0.0,
     "pivot": [
@@ -40,46 +40,46 @@
       0
     ]
   },
-  "context_key": "49af70c14701b529b5f67df92548509c402714573121889d310ee2da59960709",
+  "context_key": "323b51870949e8113aafccd1203f4efef14b1a06fb69359f0a42f8063add4a93",
   "blender": "5.2.1 LTS",
   "mesh_hashes": {
-    "bark_leaf_hood_render": "fbbd952da81bc2b059b8384c8ae2c556749c68b2eccaea79e3ddeb47a2dc97b3",
-    "leaf_mantle_render": "d3b9adba246ef31837ce0a15e5afe1405869f04f11e1703bbab3d73ef3dcbde3",
-    "mantle_thorn_0_render": "a7e6f1f754a49ad81ca3838de6a3635dc4275528472713a7a7ea3d55c0a3f0fe",
-    "mantle_thorn_1_render": "21d5853c27c919dac28d6ed39f3982c278836b6f00e84c7696b310b8f94a3b1f",
-    "mantle_thorn_2_render": "8a8522c2ba34a54c44d7213df5e3920904d9ce331320d21e47fcd9cdbc9da985",
-    "fore_thorn_near_0_render": "b186cbbbb166493d0ad1b9ee7a222c1e4f96ba3b5f061f9f6da78f2f657f2a25",
-    "fore_thorn_near_1_render": "8ea92c4cde73b618ec8e4ef935c9131df1992f89ea9464f7b2cc641f12980a21",
-    "fore_thorn_far_0_render": "364866a9af5ef98e897b6a2d4475401ce607695b6ad2b63d74b6ec422b9f31d7",
-    "fore_thorn_far_1_render": "27b6ddd6bc9e9112fad253bc55834bc7d34ad73cb39d496f1dacbbbc3a681db7",
-    "twisted_root_near_render": "3ba812139cdfaa76e230369f0e830e0e4cff3a5a57fa6a9e8cd37ade493dd507",
-    "twisted_root_far_render": "0113b3914e080a066d996da24fd37f1c557bc4b27c53ec6601da9c0205b4d61a",
-    "sculpted_leaf_tatters_render": "8f5efb32ca111b51d53e3d1a4cf041858674fb20dc788fead610023b9f6d5b7e",
-    "hooked_claw_near_0_render": "6c46cc9221308213dcd85616bf1f3a48acdc73cb36e59956993f71afc9fcf2a3",
-    "hooked_claw_near_1_render": "305838106cd49f0c296ae6b32a82d1470c2cd21592188a19b919b7330f740de6",
-    "hooked_claw_near_2_render": "8ef32fdb33c865fcc3e93df41d424937b78a2036fd87e0efd379bf49ebc5193a",
-    "hooked_claw_far_0_render": "2891a6e5b9ca1e950f53693003696401b46f19601f2b723ada62ecefaf7b1f9d",
-    "hooked_claw_far_1_render": "44a4fe78c8de2f55782ba42801a79855e6304584699ba7bb9a200dfe99cec5a6",
-    "hooked_claw_far_2_render": "a388e2cacb67e6c0fcbcf7adf2f355b88a6806b6db55b5de297483fd2fe48c66",
-    "sculpted_leaf_tatters_back_render": "9a2e8856f3224a46f5c04e449446edd63b62aa6428606ac664266a28f603c3c2",
-    "layered_bark_leaf_mantle_render": "307898729c5ca1c054d7d317da89fa1ce635e42eb4fc556b4745c6da341ab9c0",
-    "body_foot_far": "85b34d197c4df1512ebe07d59e1d179480cad4623a3cf25b9cef8b9f6dc4e6f1",
-    "body_foot_near": "2c6bdd97bf193f84f543b74d49033dc6eb7aeeae9cb4db2c895187320f002afd",
-    "body_fore_far": "0c30f0468901be5857eacc9b2e2e7a50ccec4419c87160fc4fd2ca0e54db5050",
-    "body_fore_near": "5213a29166252afa0810f37876bac6d139912014c6c6d6334284e246fc6fcfd1",
-    "body_hand_far": "34f323bc4010880a1909c27f12318017231caee07ce56e7d63d9147ab72d004e",
-    "body_hand_near": "c8c204e14f7df2b4aa5c90767d1d1900762ac1ccd70a2af548e3eb8d7da15490",
-    "body_head": "bd21e6d1877a7f9a8addf3822dd20182d4600f0a341d11641d137742fe8acc61",
-    "body_pelvis": "dd814fb6822bd56ce461f7eeb4c634fb00015d6cc0c3e7e9a945154e2d308585",
-    "body_shin_far": "26ef63074b0d950025edbbba5387ce369c14b7e00b195323f4b5b43b0432ff33",
-    "body_shin_near": "75faca776c94a57b5fcc7da560751585bffb0961912497dd5d07e138406ffef4",
-    "body_thigh_far": "d16d6b5e0179dc90e77d58cfc8dbccc35f03b8954283358962db810660236ff2",
-    "body_thigh_near": "de20cc528c54a0170c8a58b5af4196a252c6e465ac496c2ecfd6823c4a504ce1",
-    "body_torso": "8296b935085e2ccd2790668cd441f98f7d22bff5b42a892f82a95f97f0512e2a",
-    "body_upper_far": "a530c840307ba8af08131260bc430eb08ee02c64d68374b2deb39747de8f80a0",
-    "body_upper_near": "5be99afc6d49568281ba6ae31e83a257df90ff7352520ef25a1cd3252ef1e44b"
+    "bark_leaf_hood_render": "fe17349d56fe5680ce92f56238841520f4a6c5320e66c870a322a221d8bbe792",
+    "shaggy_leaf_clumps_render": "088911bf70816a8f46a579b3972810be1912385fd4487edadadf9d31fa577b7f",
+    "mantle_thorn_0_render": "bdb73a73915fc8ba202f34c3c12effe1bd0c8d7f8727194709ebf9fec5ac165a",
+    "mantle_thorn_1_render": "437e87c12d5a42da92be8144a8323eaf8ba37b788b21874dfcbb991a71899070",
+    "mantle_thorn_2_render": "9848ba90b305d4228886cf2e10f4c1ceb55bbfefe6a57eb465f64b3965647380",
+    "fore_thorn_near_0_render": "398e5dce5e01dba753918684203051db1658d42e62b1b94ae4a5c04bfd7f349c",
+    "fore_thorn_near_1_render": "db8f55a831673ffaa357c18ab62b54ca2356adbdfd805544218fb4691b43e816",
+    "fore_thorn_far_0_render": "19bc75735f073231f1f719510015466d4dddf2c5a66e496d02a9f1b90e6d28ff",
+    "fore_thorn_far_1_render": "6c7ba7ba7c819730145dd875bc0581423b92a27d11275bffdb46915a4c93e31e",
+    "twisted_root_near_render": "07318f9a32bb3ac262eb6b0a8874250aa9a507b7e9c19baacfa1816f972b733a",
+    "twisted_root_far_render": "9057808e397cba87f7af414e7fef919de88aac96e3250a58c364e48b98c4081b",
+    "sculpted_leaf_tatters_render": "328e77d3fca7f9cbabe567cda5b870793bd5f47b2fccb3b5c437c83dbb11164c",
+    "hooked_claw_near_0_render": "0942e027c890d51f92a6c621534fdc2cd117cfd50138621dc998c09e8ef4a79c",
+    "hooked_claw_near_1_render": "6b75eeb44791bdf3d14cffe27aa6de4e9b740b9ab3e2667d0f7dbc6c8c5d4459",
+    "hooked_claw_near_2_render": "0dc8e28f1eaa0619f54b287569488797fd2baee95bfb0fcf2481671898a87526",
+    "hooked_claw_far_0_render": "0c9b239a5374a776982d43857ce7393d8c69551391d473f1468c4cbe6dc54824",
+    "hooked_claw_far_1_render": "ae28f8eb7b082dbfd6eedeeb013454a75eb02e77d38e07459dcef5bcbb19f914",
+    "hooked_claw_far_2_render": "ac3c7eb5c9b5e067686f828a3126a4b2bf444ecd969116333596faf9c1ee51bd",
+    "sculpted_leaf_tatters_back_render": "0ea7bc60c75ff640de56e15a941da3f68b5cd641b95d24522571fe390bc19ae9",
+    "far_shoulder_leaf_clump_render": "15dcfda36af808ed904735d53bec98969c24a47a25c10012fd7b4f6c0375a720",
+    "body_foot_far": "054eb6602132ab20f3846bfcaf28a91f98217c2016ea96013f3891a5479368c4",
+    "body_foot_near": "a8c8f04109a52d53d849015b2ff267e6176eae4e82b1fc7655d16db676e22c62",
+    "body_fore_far": "1b31b254805f8c5f8380fc42cbdf5df8dec0324d7969e94ae2dcddeb54fe4377",
+    "body_fore_near": "7b47b6397d84956614eceaf93e1ff41662284a4724a787632eed0cb8c0e484e7",
+    "body_hand_far": "3d9d5f762239b3323c67e252db2b348f78ce5056087f36e3d09624d0dbfa53c6",
+    "body_hand_near": "ad298d411ff721f08b7683b0accfde3e03baed2fea4c76ec082db582d3d15189",
+    "body_head": "5be5a090884ad6927cc808c834d9ac6def14af8f82559befc8c18c5c67bdb40a",
+    "body_pelvis": "f500f4e872caeefe1912543455fd35e75d89ec356dd3bfc2acd8b4c4ac3acd29",
+    "body_shin_far": "8b477296805f589d67e36c872d1244ec0d1479719356e7a4bfe57db3adce6349",
+    "body_shin_near": "fd3085f410272d5a592f68c20b5cc83607c0e7f649c54bfcd1f1985605b79aba",
+    "body_thigh_far": "f93ce52568310f7a8f759d2e5c1181b77b7fea125af58012f90407d35e4212d7",
+    "body_thigh_near": "824721b544706fd912e3a21b5b6924db7ab390d8277c2c25796201e70a14e314",
+    "body_torso": "775c656eb5b010e20ddb8d60eccf929351b3cc64c9d938fee8ceda267d5708b6",
+    "body_upper_far": "98f88d47a3266dccb7339ea9d4d7c4beea4b9618e9c84d5512f303ad23db5034",
+    "body_upper_near": "ac0436e307ae1ff87901149ee8032089773effb2a23297e72e1015aed808e40a"
   },
-  "combined_mesh_hash": "e98d2c9dcc2673f6fe994f11b12cf435588d11799b5090f7361801dda9083eed",
+  "combined_mesh_hash": "f8954ea58f5be949438ad2b7695e30fa7deee1c261f222f36b29123ff32dc7f2",
   "checks": {
     "labels_cover_every_face": true,
     "view_piece_ownership": true,
@@ -89,14 +89,12 @@
     "collar_front_no_wider_than_back": true,
     "plate_corners_preserved": true,
     "armour_conforms_to_body": true,
+    "native_skin_normals": true,
     "floor_contact_correction": true,
     "native_curve_roots": true,
     "native_rigid_bindings": true,
     "native_sculpted_sections": true,
     "sculpted_blade_roots_attached": true,
-    "native_cloth_drape": true,
-    "native_cloth_stability": true,
-    "native_cloth_contact_stability": true,
     "source_fit_native_skinning": true,
     "board_facing_axis": true,
     "front_chest_attachment_axes": true,
@@ -104,22 +102,7 @@
     "rendered_torso_asymmetry": true,
     "capture_geometry_unchanged": true
   },
-  "cloth": {
-    "bark_leaf_hood": {
-      "minimum_signed_distance": 0.082225002348423,
-      "margin": 0.003,
-      "samples_below_margin": 0,
-      "intersecting_face_pairs": 0,
-      "passed": true
-    },
-    "leaf_mantle": {
-      "minimum_signed_distance": 0.036655254662036896,
-      "margin": 0.003,
-      "samples_below_margin": 0,
-      "intersecting_face_pairs": 0,
-      "passed": true
-    }
-  },
+  "cloth": {},
   "geometry_details": {
     "metric_accessories": {},
     "rounded_hoods": {},
@@ -441,13 +424,13 @@
     "corner_errors": {},
     "conformance": {
       "twisted_root_near": {
-        "max_distance": 0.05678524449467659,
+        "max_distance": 0.049175094813108444,
         "allowed": 0.058251,
         "shrinkwrap_offset": 0.002,
         "passed": true
       },
       "twisted_root_far": {
-        "max_distance": 0.05702419579029083,
+        "max_distance": 0.05714090168476105,
         "allowed": 0.058251,
         "shrinkwrap_offset": 0.002,
         "passed": true
@@ -456,108 +439,84 @@
     "curve_roots": {
       "mantle_thorn_0": {
         "support": "bark_leaf_hood_render",
-        "root_distance_m": 0.017407521605491638,
+        "root_distance_m": 0.01173392590135336,
         "root_radius_m": 0.046875,
         "passed": true
       },
       "mantle_thorn_1": {
-        "support": "leaf_mantle_render",
-        "root_distance_m": 0.02212562784552574,
+        "support": "shaggy_leaf_clumps_render",
+        "root_distance_m": 0.01494817715138197,
         "root_radius_m": 0.056249999999999994,
         "passed": true
       },
       "mantle_thorn_2": {
-        "support": "leaf_mantle_render",
-        "root_distance_m": 0.01743757724761963,
+        "support": "shaggy_leaf_clumps_render",
+        "root_distance_m": 0.01862139068543911,
         "root_radius_m": 0.046875,
         "passed": true
       },
       "fore_thorn_near_0": {
         "support": "contact_fore_near",
-        "root_distance_m": 0.01871730573475361,
+        "root_distance_m": 0.013715268112719059,
         "root_radius_m": 0.0375,
         "passed": true
       },
       "fore_thorn_near_1": {
         "support": "contact_fore_near",
-        "root_distance_m": 0.018174095079302788,
+        "root_distance_m": 0.016104239970445633,
         "root_radius_m": 0.0375,
         "passed": true
       },
       "fore_thorn_far_0": {
         "support": "contact_fore_far",
-        "root_distance_m": 0.016951333731412888,
+        "root_distance_m": 0.018724557012319565,
         "root_radius_m": 0.0375,
         "passed": true
       },
       "fore_thorn_far_1": {
         "support": "contact_fore_far",
-        "root_distance_m": 0.01273733377456665,
+        "root_distance_m": 0.018739107996225357,
         "root_radius_m": 0.0375,
         "passed": true
       },
       "hooked_claw_near_0": {
         "support": "contact_hand_near",
-        "root_distance_m": 0.0013344160979613662,
+        "root_distance_m": 0.002428903942927718,
         "root_radius_m": 0.04265625000000001,
         "passed": true
       },
       "hooked_claw_near_1": {
         "support": "contact_hand_near",
-        "root_distance_m": 0.004138825461268425,
+        "root_distance_m": 0.002073566196486354,
         "root_radius_m": 0.04265625000000001,
         "passed": true
       },
       "hooked_claw_near_2": {
         "support": "contact_hand_near",
-        "root_distance_m": 0.0015059231081977487,
+        "root_distance_m": 0.006623184308409691,
         "root_radius_m": 0.04265625000000001,
         "passed": true
       },
       "hooked_claw_far_0": {
         "support": "contact_hand_far",
-        "root_distance_m": 0.0023091037292033434,
+        "root_distance_m": 0.0018343838164582849,
         "root_radius_m": 0.04265625000000001,
         "passed": true
       },
       "hooked_claw_far_1": {
         "support": "contact_hand_far",
-        "root_distance_m": 0.008448684588074684,
+        "root_distance_m": 0.013190973550081253,
         "root_radius_m": 0.04265625000000001,
         "passed": true
       },
       "hooked_claw_far_2": {
         "support": "contact_hand_far",
-        "root_distance_m": 0.019473087042570114,
+        "root_distance_m": 0.01465178094804287,
         "root_radius_m": 0.04265625000000001,
         "passed": true
       }
     },
     "blade_attachments": {},
-    "cloth_simulation": {
-      "bark_leaf_hood": {
-        "frames": 24,
-        "vertices": 1177,
-        "pins": 415,
-        "free_vertices": 762,
-        "maximum_solver_displacement": 0.039895717320491915,
-        "maximum_free_solver_displacement": 0.039895717320491915,
-        "maximum_pin_error": 0.0,
-        "maximum_contact_displacement": 0.003111802274361253,
-        "maximum_contact_displacement_allowed": 0.17200000000000001
-      },
-      "leaf_mantle": {
-        "frames": 24,
-        "vertices": 608,
-        "pins": 32,
-        "free_vertices": 576,
-        "maximum_solver_displacement": 0.1376652853941589,
-        "maximum_free_solver_displacement": 0.1376652853941589,
-        "maximum_pin_error": 0.0,
-        "maximum_contact_displacement": 0.02142263390123844,
-        "maximum_contact_displacement_allowed": 0.17200000000000001
-      }
-    },
     "source_outline_fit": {
       "regions": [
         "foot_far",
@@ -566,7 +525,6 @@
         "fore_near",
         "hand_far",
         "hand_near",
-        "pelvis",
         "shin_far",
         "shin_near",
         "thigh_far",
@@ -575,16 +533,8 @@
         "upper_far",
         "upper_near"
       ],
-      "vertices": 28626,
+      "vertices": 34697,
       "profile_views": {
-        "torso": [
-          "front",
-          "rear"
-        ],
-        "pelvis": [
-          "front",
-          "rear"
-        ],
         "upper_near": [
           "front",
           "rear"
@@ -630,10 +580,14 @@
         ],
         "foot_far": [
           "rear"
+        ],
+        "torso": [
+          "front",
+          "rear"
         ]
       },
-      "maximum_skinning_error": 5.718845357729783e-07,
-      "maximum_displacement": 0.32365842256356914,
+      "maximum_skinning_error": 8.068242532734509e-07,
+      "maximum_displacement": 0.4376999806545466,
       "native_corrective_shape": "source_outline_fit"
     },
     "facing": {

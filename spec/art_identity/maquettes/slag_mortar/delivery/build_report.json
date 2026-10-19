@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "spec_hash": "74fe94d65f9c6284a93e604b483a230b5be547fc21e213547eba90cac1a41b54",
+  "spec_hash": "b6588a6ca5bcc0b6f10b1ed8e6b05a1d0bf4f9eff7775fbce879458665eaae71",
   "board_frame": {
     "yaw_radians": -0.0,
     "pivot": [
@@ -40,41 +40,42 @@
       0
     ]
   },
-  "context_key": "0b479f37ae8a86f595d15af02061548fedc60b7138b21a20e6cbddd0b255ef74",
+  "context_key": "6e7e0fd35a172af31f8be9361c6124bb1774f78ff64b68afd9a2be203cbe7bee",
   "blender": "5.2.1 LTS",
   "mesh_hashes": {
-    "leather_apron_render": "28a9e0cba1c5b20f4022dbfd64accb65d5b936a05facfd4eb78cd7b25178de8a",
-    "rear_leather_apron_render": "3fc787fe57cd8c30c94f7d2286f2c1b737340eb80bb2584b323354df7c2e469a",
-    "crucible_render": "9e714aa126c639c2dc3246b5f2ded28fabe4ac8881659b8e53312fb7a528636c",
-    "crucible_band_0_render": "d8b4c19f14174306db2c18e4a9f461fae428dad622c9f70b11c4ee9a762cc53c",
-    "crucible_band_1_render": "7dcc783335cde07e211c321ba2419605e103d4f989a67296034431273c40fbea",
-    "crucible_band_2_render": "c6a77a6093892e21e632a6973157f6d515ceb25e1a2f0f323d47acf6f5641b73",
-    "slag_surface_render": "fa1ce0384d507f7d99477c3fdce270ac3bebe8f40c8bd33c2b1f6637602479ca",
-    "harness_strap_0_render": "50ac3c8838cf1ffd63fc161e8aa9c8fe07fb30dbc9a3dfce86145502d729c6e9",
-    "harness_strap_1_render": "98a1549338c9201de9a6d980086a7d63393cf52db590972e83c020097bc0514b",
+    "leather_apron_render": "3323516e53aa868f9b88e4aecc13ec9f970f55e2a02fe4cf91d431483e5a6b88",
+    "rear_leather_apron_render": "6e68bd22919f125c468364d6a4274aafb514254213939c4fa1bfd738d68f50cf",
+    "crucible_render": "801d5343161e99e6ffd5dac60ca775eb281974b3d6a95f47f6b5628d082a2ee0",
+    "crucible_band_0_render": "6e16cac376b3a43f9d09d6a41872c87eecce1167fd6c83cfe63fe20387836280",
+    "crucible_band_1_render": "9b20a6c5d687a91e5e0ec63b62d6ababf3996a8e56aaf762a7dd7c91adac96ec",
+    "crucible_band_2_render": "875ca57d1de6f3967de059a124fbfe0f7cbd14faaf12081fdb586731c67332c2",
+    "slag_surface_render": "41fcde03543a497d99c335de1d39a9d187fe32cfbe128319a6351f5c28b7900f",
+    "harness_strap_0_render": "28cc73cd20e1a4056997243a3ed9205d15b1f7493c01e58eed98a3b5f1b3859e",
+    "harness_strap_1_render": "57164435a53b9d7400a8b5a50bbaf5240d842ef36240329b3953e2e4986e2f88",
     "iron_bracer_near_render": "0a074f2adac9e3172fb7111249692d360b59b3c57e55b39158daf0797a40f05d",
     "iron_bracer_near_band_0_render": "88543edb8439f7afae48d347bfd9a7c35b723b10c3c718a475292831481457cf",
     "iron_bracer_near_band_1_render": "e95ee63927455c75ec9a831d54d59ea18b2c287c39f34d20360a23fb39e1b1dd",
     "iron_bracer_far_render": "ebbb5b77a0caf71b296ed9e87c38960a55806995a7deb0f40bdf678ba7a2010a",
     "iron_bracer_far_band_0_render": "69cecae920fa65f4181303586b10f789a0a7a4c160f60eba8561bd9309e01909",
     "iron_bracer_far_band_1_render": "cd54ebfe287d2f674e36bbb00e5fb1a37a7f91716b6ff8526cfde91047ff78b4",
-    "body_foot_far": "4a3bc1689ccaddeead3e1c55dfd2bc7af16ebaac8ae8446cc4ab89b77787b4ae",
-    "body_foot_near": "9154115e31579c6e91f6a41ef63fbdb48fff0efada57612ed6c42128624888b2",
-    "body_fore_far": "46d00600e649ecb31df59a4fc9e036b3af4b0af4e999eee50c0c4476fa668f02",
-    "body_fore_near": "4854c7bdfd7595945aee9846f2fd0d06559244e5c66797972b8ddbab1da0871e",
-    "body_hand_far": "83fa093bee4e86e5b72783e6ae04f0ac2de4efbef4819943ad4712a635f6e9c5",
-    "body_hand_near": "e7109c9d26c6842807bc81baa299f4133d12fa49b717a7ae61772d4b4d430bbc",
-    "body_head": "37f37aee05a7006b635c0b5e69251767129ad2817c800631102e1549fe630b63",
-    "body_pelvis": "9647d34fcc330610848a2e106bcbf629cd98e5043f92daa0b152d0483ce5c0a8",
-    "body_shin_far": "d8a0e6eca01757e452e434a93aa044171651be4157231e903d622afb0d8d13bf",
-    "body_shin_near": "5bc459e977806b34d7abf72c4b98b2c2188868e39a1b0b6a5c22a2c762c383f1",
-    "body_thigh_far": "2796851e616bd25aab54ed91c333373e90d96ae441caad1039a810527235a27f",
-    "body_thigh_near": "d73f9e697ef15d686da92fe5ac6775ab02f43a54b7a2663c1c880a309dfdcbeb",
-    "body_torso": "8016d8f82bdc55e63001a1eed9d00a074ec9e1c659c719f2f3ea631c7970278a",
-    "body_upper_far": "6f6e6eddb2f42e20b30e8edf41b0fa45de2055fd69d87e613823f5758bac9a94",
-    "body_upper_near": "9b54b3d8ef73b1f716cdb24c2f7ab6df1568eb6dec6832b1441e9253ec880f3a"
+    "heavy_brow_render": "698e271a43ad4afc59277dd118c5fc96105b8bff72588e9bbb9cd18b56f86397",
+    "body_foot_far": "a2d09ce23434be8394bb503a57c680890f402049b4196f1fbc41bbdf760f4756",
+    "body_foot_near": "2a3286eb436771db4e3acee28bacb3ffe589027313e45590d2e08bee012bfbcc",
+    "body_fore_far": "3b76b9e1abbff4995356e6b3cefc2c83313390055c713e4ed242399053adc988",
+    "body_fore_near": "a6ded8e404fbc38e28080d935eee49e9c1c11f55de7663c7e2c8217e99f83c80",
+    "body_hand_far": "14c200e3e21bb0973a7601e52c3f5084c44d97d6f2e7ccaf299f8affc6a89429",
+    "body_hand_near": "4797be67ef61701a25cd1f724d061206be368d5e43ca0ed6936bb6d0496ce5e3",
+    "body_head": "15f126eb48270bbdc78ec2d347d759b5b69ecbcdb0958b5eaa8be994acff3736",
+    "body_pelvis": "648aabe44428ba1c45f0e9f0285051e9de0f3128f1aad22336becbb560acddd1",
+    "body_shin_far": "defbefbd60fe9a06657aec11fa8ac89f20179f5d6e34749ccd686b1a3c6b3948",
+    "body_shin_near": "e067e912da754bbd6fe697a7eb989bf1288e91841cd2ce8de5ff3b249250534b",
+    "body_thigh_far": "3368acbf3b075ced8c8c205e8f213332db9993dd6562ece99a3e9a6197aca579",
+    "body_thigh_near": "57785be60d0aade512b829c37fec3fef172e0b79e2847b051118325dd50acffe",
+    "body_torso": "202fc61afca9f1df98a1bf12618bb9002fc823760291613aef25c81f3c25dc4f",
+    "body_upper_far": "154f8200d8da0def96d5ccb878e04288db9a84c48e0646dfab9eadf883b63701",
+    "body_upper_near": "f782d02ec239a4d1929584bb11f1e3cdf382f51d184af6a01806b59697ca50df"
   },
-  "combined_mesh_hash": "4094ac79a6093e78e0c779bf6d949b6c240dd0b6f4307a7708575689879791b3",
+  "combined_mesh_hash": "7ea02444ade492a413406ca23d5ddaa0039795da1cbf395d809db93814af71c5",
   "checks": {
     "labels_cover_every_face": true,
     "view_piece_ownership": true,
@@ -84,6 +85,7 @@
     "collar_front_no_wider_than_back": true,
     "plate_corners_preserved": true,
     "armour_conforms_to_body": true,
+    "native_skin_normals": true,
     "floor_contact_correction": true,
     "native_hand_pose": true,
     "native_rigid_bindings": true,
@@ -102,14 +104,14 @@
   },
   "cloth": {
     "leather_apron": {
-      "minimum_signed_distance": 0.039110224694013596,
+      "minimum_signed_distance": 0.038455668836832047,
       "margin": 0.003,
       "samples_below_margin": 0,
       "intersecting_face_pairs": 0,
       "passed": true
     },
     "rear_leather_apron": {
-      "minimum_signed_distance": 0.03600649535655975,
+      "minimum_signed_distance": 0.03625056520104408,
       "margin": 0.003,
       "samples_below_margin": 0,
       "intersecting_face_pairs": 0,
@@ -161,14 +163,14 @@
             1.1470632938682637
           ],
           "head": [
-            0.2625503997727131,
-            0.267779686117198,
-            1.4988861141556922
+            0.26255039977271327,
+            0.0911424384564139,
+            1.4014582562299425
           ],
           "head_tip": [
-            0.34222863355083316,
-            0.14832669589733452,
-            1.9048355221796474
+            0.34222863355083294,
+            0.1483266958973344,
+            1.8074076642538979
           ],
           "shoulder_near": [
             -0.23296068411884324,
@@ -278,14 +280,14 @@
             1.1470632938682637
           ],
           "head": [
-            0.2625503997727131,
-            0.267779686117198,
-            1.4988861141556922
+            0.26255039977271327,
+            0.0911424384564139,
+            1.4014582562299425
           ],
           "head_tip": [
-            0.34222863355083316,
-            0.14832669589733452,
-            1.9048355221796474
+            0.34222863355083294,
+            0.1483266958973344,
+            1.8074076642538979
           ],
           "shoulder_near": [
             -0.23296068411884324,
@@ -427,22 +429,28 @@
     "corner_errors": {},
     "conformance": {
       "harness_strap_0": {
-        "max_distance": 0.056596625596284866,
+        "max_distance": 0.05606022849678993,
         "allowed": 0.058157553398058254,
         "shrinkwrap_offset": 0.004,
         "passed": true
       },
       "harness_strap_1": {
-        "max_distance": 0.05564044043421745,
+        "max_distance": 0.05726417526602745,
         "allowed": 0.058157553398058254,
         "shrinkwrap_offset": 0.004,
+        "passed": true
+      },
+      "heavy_brow": {
+        "max_distance": 0.047492701560258865,
+        "allowed": 0.047876,
+        "shrinkwrap_offset": 0.001,
         "passed": true
       }
     },
     "native_hand_pose": {
       "hand_near": {
-        "knuckle_distance_m": 0.11132455695435789,
-        "native_distal_length_m": 0.1026225822134112,
+        "knuckle_distance_m": 0.11132443114310347,
+        "native_distal_length_m": 0.10262259247972372,
         "curled_vertices": 1474,
         "finger_groups": 4,
         "palm_contact_arc_degrees": [
@@ -453,13 +461,13 @@
         ],
         "thumb_curled_vertices": 408,
         "native_vertices": 2832,
-        "maximum_axial_before_m": 0.21394713916776908,
-        "maximum_axial_after_m": 0.15733277243038127,
+        "maximum_axial_before_m": 0.2139470236228272,
+        "maximum_axial_after_m": 0.15733271546044234,
         "passed": true
       },
       "hand_far": {
-        "knuckle_distance_m": 0.10609133660926788,
-        "native_distal_length_m": 0.09759635011461816,
+        "knuckle_distance_m": 0.10609141073590954,
+        "native_distal_length_m": 0.09759632270958772,
         "curled_vertices": 1474,
         "finger_groups": 4,
         "palm_contact_arc_degrees": [
@@ -470,35 +478,35 @@
         ],
         "thumb_curled_vertices": 408,
         "native_vertices": 2832,
-        "maximum_axial_before_m": 0.20368768672388604,
-        "maximum_axial_after_m": 0.1508590559443404,
+        "maximum_axial_before_m": 0.20368773344549726,
+        "maximum_axial_after_m": 0.15085915711651177,
         "passed": true
       }
     },
     "rigid_pivots": {
       "crucible": {
         "joint": "mortar_pivot",
-        "error_m": 1.23342592334697e-07,
+        "error_m": 1.471516772532363e-07,
         "passed": true
       },
       "crucible_band_0": {
         "joint": "mortar_pivot",
-        "error_m": 1.23342592334697e-07,
+        "error_m": 1.471516772532363e-07,
         "passed": true
       },
       "crucible_band_1": {
         "joint": "mortar_pivot",
-        "error_m": 1.23342592334697e-07,
+        "error_m": 1.471516772532363e-07,
         "passed": true
       },
       "crucible_band_2": {
         "joint": "mortar_pivot",
-        "error_m": 1.23342592334697e-07,
+        "error_m": 1.471516772532363e-07,
         "passed": true
       },
       "slag_surface": {
         "joint": "mortar_pivot",
-        "error_m": 1.23342592334697e-07,
+        "error_m": 1.471516772532363e-07,
         "passed": true
       }
     },
@@ -516,9 +524,9 @@
             "expected": "visible",
             "visible_points_body": [
               [
-                -0.22213223576545715,
-                0.3381405472755432,
-                1.9978002309799194
+                -0.26086723804473877,
+                0.3386839032173157,
+                1.9678575992584229
               ]
             ]
           },
@@ -528,9 +536,9 @@
             "expected": "visible",
             "visible_points_body": [
               [
-                -0.22213223576545715,
-                0.3381405472755432,
-                1.9978002309799194
+                -0.26086723804473877,
+                0.3386839032173157,
+                1.9678575992584229
               ]
             ]
           }
@@ -545,22 +553,22 @@
         "vertices": 304,
         "pins": 16,
         "free_vertices": 288,
-        "maximum_solver_displacement": 0.12469055431746308,
-        "maximum_free_solver_displacement": 0.12253603689667777,
+        "maximum_solver_displacement": 0.1325305802343081,
+        "maximum_free_solver_displacement": 0.1325305802343081,
         "maximum_pin_error": 0.0,
-        "maximum_contact_displacement": 0.0054122526198625565,
-        "maximum_contact_displacement_allowed": 0.17200000000000001
+        "maximum_contact_displacement": 0.006543025374412537,
+        "maximum_contact_displacement_allowed": 0.184
       },
       "rear_leather_apron": {
         "frames": 24,
         "vertices": 304,
         "pins": 16,
         "free_vertices": 288,
-        "maximum_solver_displacement": 0.2036949281034148,
-        "maximum_free_solver_displacement": 0.2036949281034148,
-        "maximum_pin_error": 3.725290298461914e-09,
-        "maximum_contact_displacement": 0.013731018640100956,
-        "maximum_contact_displacement_allowed": 0.17200000000000001
+        "maximum_solver_displacement": 0.2116220745618234,
+        "maximum_free_solver_displacement": 0.2116220745618234,
+        "maximum_pin_error": 7.450580596923828e-09,
+        "maximum_contact_displacement": 0.008199016563594341,
+        "maximum_contact_displacement_allowed": 0.184
       }
     },
     "source_outline_fit": {
@@ -580,7 +588,7 @@
         "upper_far",
         "upper_near"
       ],
-      "vertices": 41346,
+      "vertices": 42342,
       "profile_views": {
         "head": [
           "front"
@@ -636,30 +644,30 @@
           "rear"
         ]
       },
-      "maximum_skinning_error": 6.446701343782449e-07,
-      "maximum_displacement": 0.34825380896408176,
+      "maximum_skinning_error": 5.856649374427352e-07,
+      "maximum_displacement": 0.26462992524448886,
       "native_corrective_shape": "source_outline_fit"
     },
     "facing": {
       "forward_world": [
-        0.9737987518310547,
-        -0.10203655809164047,
+        0.8684456944465637,
+        6.740230418245119e-08,
         0.0
       ],
       "anatomical_forward_world": [
-        0.9737987518310547,
-        -0.10203655809164047,
-        -0.2032347172498703
+        0.8684456944465637,
+        6.740230418245119e-08,
+        -0.49578428268432617
       ],
       "front_forward_screen": [
-        -0.7607304430862687,
-        0.30821447938760027
+        -0.6140837919747992,
+        0.30704194364802595
       ],
       "rear_forward_screen": [
-        0.7607304430862687,
-        -0.30821447938760027
+        0.6140837919747992,
+        -0.30704194364802595
       ],
-      "board_axis_cosine": 0.9969044111476264,
+      "board_axis_cosine": 0.999999999999998,
       "passed": true
     },
     "front_chest_attachment_axes": {}

@@ -150,7 +150,7 @@ def apply(spec, body, rig, posed, owners):
     import bpy
     from .source_cage import unpose_point
     from .rig import evaluated_mesh
-    requested = spec['base'].get('closed_hands', [])
+    requested = spec['base'].get('closed_hands', []) + list(spec['base'].get('half_open_hands', {}))
     if not requested:
         return None
     points = np.array([list(v.co) for v in posed.data.vertices])
@@ -169,6 +169,11 @@ def apply(spec, body, rig, posed, owners):
         faces = [[lookup[i] for i in face.vertices] for face, owner in zip(posed.data.polygons, owners)
                  if owner == part]
         desired, report = closed_fingers(points[indices], wrist, direction, inward, faces)
+        if side in spec['base'].get('half_open_hands', {}):
+            fraction = spec['base']['half_open_hands'][side]
+            desired = points[indices] + fraction * (desired-points[indices])
+            report['partial_curl_fraction'] = fraction
+            report['maximum_axial_after_m'] = float(((desired-wrist) @ (direction/np.linalg.norm(direction))).max())
         for index, point in zip(indices, desired):
             weights = {body.vertex_groups[g.group].name: g.weight for g in body.data.vertices[index].groups
                        if g.weight > 0 and body.vertex_groups[g.group].name in regions}

@@ -5,7 +5,7 @@ import numpy as np
 LIMB_DEFAULTS = {'samples_per_span': 10, 'radial_samples': 16, 'epsilon': 1e-9}
 
 
-def sampled_axis(points, radii, closed=False):
+def sampled_axis(points, radii, closed=False, smooth_radii=False):
     points = np.asarray(points, float)
     output = []
     for index in range(len(points) if closed else len(points)-1):
@@ -15,14 +15,20 @@ def sampled_axis(points, radii, closed=False):
         ma, mb = (b-before)*.5, (after-a)*.5
         for t in np.linspace(0, 1, LIMB_DEFAULTS['samples_per_span'], endpoint=False):
             p = (2*t**3-3*t*t+1)*a + (t**3-2*t*t+t)*ma + (-2*t**3+3*t*t)*b + (t**3-t*t)*mb
-            output.append((p, radii[index]*(1-t)+radii[(index+1)%len(points)]*t))
+            radius=radii[index]*(1-t)+radii[(index+1)%len(points)]*t
+            if smooth_radii:
+                ra,rb=radii[index],radii[(index+1)%len(points)]
+                before_r=radii[(index-1)%len(points)] if closed else radii[max(0,index-1)]
+                after_r=radii[(index+2)%len(points)] if closed else radii[min(len(points)-1,index+2)]
+                radius=(2*t**3-3*t*t+1)*ra+(t**3-2*t*t+t)*(rb-before_r)/2+(-2*t**3+3*t*t)*rb+(t**3-t*t)*(after_r-ra)/2
+            output.append((p, max(radius,LIMB_DEFAULTS['epsilon'])))
     return output if closed else output + [(points[-1], radii[-1])]
 
 
 def section_mesh(points, radii, sculpt, closed=False):
-    axis = sampled_axis(points, radii,closed)
+    axis = sampled_axis(points, radii,closed,sculpt.get('smooth_radii',False))
     vertices, faces, frames = [], [], []
-    sides = LIMB_DEFAULTS['radial_samples']
+    sides = sculpt.get('radial_samples',LIMB_DEFAULTS['radial_samples'])
     extent=np.ptp(np.asarray(points),axis=0) if closed else abs(axis[-1][0]-axis[0][0])
     reference = np.eye(3)[int(np.argmin(extent))]
     for row, (centre, radius) in enumerate(axis):
@@ -77,6 +83,8 @@ def build(piece, spec):
 
 
 def validate_sculpt(sculpt):
+    if 'radial_samples' in sculpt and (type(sculpt['radial_samples']) is not int or not 8 <= sculpt['radial_samples'] <= 128):
+        raise ValueError('Sculpt radial sampling must be an integer in [8, 128]')
     if not (0 <= sculpt['ridge_depth'] <= .5 and type(sculpt['ridge_count']) is int and sculpt['ridge_count'] > 0 and 0 <= sculpt['asymmetry'] <= .25):
         raise ValueError('Limb sculpt requires bounded relief and positive annular count')
     for spine in sculpt.get('spines', []):

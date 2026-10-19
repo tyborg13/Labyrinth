@@ -46,11 +46,17 @@ def plate(piece, spec, body):
         obj = place(mesh_object(piece['id'], [list(v.co) for v in body.data.vertices],
                                 [tuple(p.vertices) for p in body.data.polygons]), piece, spec)
         obj.matrix_world = body.matrix_world.copy()
+        if piece.get('shell_frame'):
+            from mathutils import Matrix
+            frame=Matrix.Rotation(piece['shell_frame'],4,'Z')
+            inverse=frame.inverted() @ obj.matrix_world
+            for vertex in obj.data.vertices: vertex.co=inverse @ vertex.co
+            obj.matrix_world=frame
         obj['body_shell'] = True
         obj['conforming'] = True
         obj['contact_target'] = body.name
         obj['surface_offset'] = piece['offset_surface']
-        obj['surface_allowance'] = piece['offset_surface'] + piece['thick'] / 2 + piece.get('cuff_flare', 0)
+        obj['surface_allowance'] = piece['offset_surface'] + piece['thick'] / 2 + piece.get('cuff_flare', 0) + piece.get('edge_allowance', 0)
         if piece.get('smooth_shell'):
             for polygon in obj.data.polygons:
                 polygon.use_smooth = True
@@ -77,7 +83,7 @@ def plate(piece, spec, body):
         bevel.width = piece['bevel']['width']
         bevel.segments = piece['bevel']['segments']
         bevel.miter_outer = 'MITER_SHARP'
-        if piece.get('smooth_shell'):
+        if piece.get('smooth_shell') and not piece.get('organic_shell'):
             bevel.harden_normals = True
             normals = obj.modifiers.new('boot_normals', 'WEIGHTED_NORMAL')
             normals.keep_sharp = True

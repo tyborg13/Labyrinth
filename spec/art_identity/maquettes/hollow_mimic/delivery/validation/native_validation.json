@@ -3,7 +3,7 @@
   "figures": {
     "hollow_mimic": {
       "passed": true,
-      "spec_hash": "5732f754891d43ff5043f874dff0317604c908d97b409df982236663ad305a4d",
+      "spec_hash": "6cdef2efe556439ea2002b34da37ce3cc3fd6e12f50bfe0cd5fbabf1bd6c2d73",
       "checks": {
         "current_spec": true,
         "native_geometry": true,

@@ -45,6 +45,8 @@ def compile_recipe(recipe):
         spec['base']['closed_hands'] = deepcopy(recipe['closed_hands'])
         from spec.art_identity.maquettes.blender.hand_pose import HAND_DEFAULTS
         spec['base']['hand_pose_revision'] = HAND_DEFAULTS['implementation_revision']
+    if recipe.get('half_open_hands'):
+        spec['base']['half_open_hands'] = deepcopy(recipe['half_open_hands'])
     # Native mesh sampling is opt-in; older measured recipes compile exactly
     # as before. Keep geometry controls separate from source measurements.
     if 'anatomy_subdivision_level' in recipe:
@@ -52,6 +54,8 @@ def compile_recipe(recipe):
         if type(level) is not int or not 0 <= level <= 2:
             raise ValueError('Anatomy subdivision level must be an integer in [0, 2]')
         spec['base']['subdivision_level'] = level
+    if recipe.get('preserve_native_split_normals'):
+        spec['base']['preserve_native_split_normals'] = True
     if recipe.get('preserve_native_skin_shading'):
         spec['base']['preserve_native_skin_shading'] = True
     if recipe.get('socket_tucks'):
@@ -68,8 +72,22 @@ def compile_recipe(recipe):
                 'azimuth_deg': 45, 'elevation_deg': 30, 'ortho_scale': scale}
     if recipe.get('body_source_profiles'):
         spec['base']['source_profiles'] = deepcopy(recipe['body_source_profiles'])
+    for key in ('source_profile_modes', 'source_core_weight', 'source_fit_weighted_blend', 'form_finish'):
+        if recipe.get(key):
+            spec['base'][key] = deepcopy(recipe[key])
     if recipe.get('source_fit_relaxation'):
         spec['base']['source_fit_relaxation'] = deepcopy(recipe['source_fit_relaxation'])
+    if recipe.get('form_finish'):
+        from spec.art_identity.maquettes.blender.form_finish import validate as validate_forms
+        validate_forms(recipe['form_finish'], spec['labels'])
+    if recipe.get('source_profile_modes'):
+        if not set(recipe['source_profile_modes']) <= set(recipe.get('body_source_profiles',{})) or not set(recipe['source_profile_modes'].values()) <= {'rows','affine','affine_core'}:
+            raise ValueError('Source fitting modes must name a measured region and supported mode')
+        if 'affine_core' in recipe['source_profile_modes'].values() and not .5 <= recipe['source_core_weight'] < 1:
+            raise ValueError('Native core weight must be in [.5, 1)')
+    if recipe.get('half_open_hands'):
+        if not set(recipe['half_open_hands']) <= {'near','far'} or any(not 0 < v < 1 for v in recipe['half_open_hands'].values()):
+            raise ValueError('Half-open hand fractions must lie in (0, 1) on near/far sides')
     spec['armature'].pop('proposed', None)
     for name, point in recipe.get('rest_joint_overrides', {}).items():
         if name not in spec['armature']['rest_joints']:
@@ -199,10 +217,26 @@ def compile_recipe(recipe):
             if item.get('clearance_parts'):
                 piece['clearance_parts'] = item['clearance_parts']
             spec['pieces'].append(piece)
+        elif kind == 'leaf_clumps':
+            from spec.art_identity.maquettes.blender.leaf_clumps import draft
+            lateral=np.subtract(spec['joints'][item['frame_joints'][1]],spec['joints'][item['frame_joints'][0]])
+            lateral[2]=0;lateral/=np.linalg.norm(lateral)
+            forward=np.cross(lateral,[0,0,1])
+            vertices,faces=draft(spec['joints'][item['joint']],forward,lateral,item['rows'],spec['ortho_scale']/256,item['rim_shape'])
+            piece=common(item['id'],'rigid_shell',item['part'])
+            piece.update(vertices=vertices,faces=faces,rig_joint=item['joint'])
+            spec['pieces'].append(piece)
         elif kind == 'body_plate':
             piece = common(item['id'], 'plate', item['part'])
             piece.update(outline=[[0,0],[1,0],[0,1]], body_shell=True, body_regions=item['regions'], contact_hull=True,
                          smooth_shell=True, thick=item['thick'], bevel=deepcopy(item['bevel']), offset_surface=item['offset_surface'])
+            for key in ('contact_height_fraction', 'shell_frame', 'edge_allowance', 'organic_shell'):
+                if key in item: piece[key]=deepcopy(item[key])
+            if item.get('section_z'):
+                a,b,lo,hi=item['section_z']
+                za,zb=spec['joints'][a][2],spec['joints'][b][2]
+                piece['contact_min_z']=min(za+(zb-za)*lo,za+(zb-za)*hi)
+                piece['contact_max_z']=max(za+(zb-za)*lo,za+(zb-za)*hi)
             spec['pieces'].append(piece)
         elif kind == 'mass':
             # The same native sculpt stack used by the solid figures can
@@ -210,6 +244,11 @@ def compile_recipe(recipe):
             piece = common(item['id'], 'sculpted_mass', item['part'])
             piece.update(centre=paired_point(spec, *item['centre_px']),
                          radii=(np.array(item['radii_px']) * spec['ortho_scale'] / 256).tolist())
+            if item.get('swept_sections'):
+                piece['swept_sections']=[{'path':path_points(spec,section),
+                    'radii':[section['radius_px']*t*spec['ortho_scale']/256 for t in section['taper']],
+                    'sculpt':deepcopy(section['sculpt'])} for section in item['swept_sections']]
+                piece['union_voxel_size']=item['union_voxel_size']
             for key in ('surface', 'relief', 'subdivision_levels', 'profile', 'cutouts'):
                 if key in item:
                     piece[key] = deepcopy(item[key])
@@ -317,6 +356,14 @@ def compile_recipe(recipe):
                 settings['trailing_splits']['source_row']+=1
             for i in range(first_piece, len(spec['pieces'])):
                 spec['pieces'][i] = tailor(spec['pieces'][i], settings)
+        if item.get('sculpted_folds'):
+            from spec.art_identity.maquettes.blender.folded_fabric import sculpt
+            piece = spec['pieces'][-1]
+            vertices, faces = sculpt([r['points'] for r in piece['pattern']['rows']],
+                                     piece['pattern']['closed'], item['sculpted_folds'])
+            replacement = common(item['id'], 'rigid_shell', item['part'])
+            replacement.update(vertices=vertices, faces=faces, rig_joint=item['joint'])
+            spec['pieces'][-1] = replacement
         if item.get('column_parts'):
             from spec.art_identity.maquettes.blender.contract import pattern_mesh
             piece = spec['pieces'][-1]

@@ -62,7 +62,7 @@ def tailor(piece, settings):
         pattern['splits'] = {'from_row': split['source_row'] * subdivisions, 'columns': split['columns'], 'gap_columns': split['gap_columns']}
     pattern.update(rows=[{'points': row} for row in rows], pins=pins)
     for key in ('frames', 'stiffness', 'self_collision', 'solver_margin',
-                'collision_margin', 'collision_refine_levels', 'rag'):
+                'collision_margin', 'collision_refine_levels', 'rag', 'thick'):
         if key in settings:
             result[key] = deepcopy(settings[key])
     result['drape'] = deepcopy(settings)

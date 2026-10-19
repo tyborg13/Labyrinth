@@ -3,7 +3,7 @@
   "figures": {
     "slag_mortar": {
       "passed": true,
-      "spec_hash": "74fe94d65f9c6284a93e604b483a230b5be547fc21e213547eba90cac1a41b54",
+      "spec_hash": "b6588a6ca5bcc0b6f10b1ed8e6b05a1d0bf4f9eff7775fbce879458665eaae71",
       "checks": {
         "current_spec": true,
         "native_geometry": true,

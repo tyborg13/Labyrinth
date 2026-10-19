@@ -1,5 +1,5 @@
-| Figure | Front IoU | Rear IoU | Shoulder observed / expected px | Shoulder error px | Gates |
-|---|---:|---:|---:|---:|---|
-| hollow_mimic | 0.748841419 | 0.668356378 | 28.800 / 28.800 | 0.000 | PASS |
-| briar_weaver | 0.716258381 | 0.720184800 | 34.800 / 34.800 | 0.000 | PASS |
-| slag_mortar | 0.807755131 | 0.657356636 | 40.800 / 47.138 | 6.338 | PASS |
+| Figure | Front IoU before → after | Rear IoU before → after | Shoulder observed / expected (error) px | Front near / far | Rear near / far | Curated bytes |
+|---|---:|---:|---:|---:|---:|---:|
+| hollow_mimic | 0.748841419 → 0.819990803 | 0.668356378 → 0.788015458 | 28.800000 / 28.800000 (0.000000) | 4419 / 0 | 0 / 6172 | 5120558 |
+| briar_weaver | 0.716258381 → 0.707308272 | 0.720184800 → 0.688125394 | 34.800000 / 34.800000 (0.000000) | 87 / 0 | 0 / 3693 | 3412223 |
+| slag_mortar | 0.807755131 → 0.783361070 | 0.657356636 → 0.759250602 | 40.800000 / 47.137864 (6.337864) | 3693 / 882 | 0 / 15243 | 3944775 |

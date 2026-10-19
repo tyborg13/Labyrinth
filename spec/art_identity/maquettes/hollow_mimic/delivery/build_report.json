@@ -1,6 +1,6 @@
 {
   "schema": 2,
-  "spec_hash": "5732f754891d43ff5043f874dff0317604c908d97b409df982236663ad305a4d",
+  "spec_hash": "6cdef2efe556439ea2002b34da37ce3cc3fd6e12f50bfe0cd5fbabf1bd6c2d73",
   "board_frame": {
     "yaw_radians": -0.0,
     "pivot": [
@@ -40,36 +40,36 @@
       0
     ]
   },
-  "context_key": "01d5eaf0b5ec54e70c7aa329ce4ad9152790b6be695cbe551953f1dff6414737",
+  "context_key": "dc1b229f88004edec26f7282397001e91b565af59b6bdca454c3a87bbbe82ba9",
   "blender": "5.2.1 LTS",
   "mesh_hashes": {
-    "hair_spike_0_render": "4357210a41ac269a03d9ec3e5f29cab0f3f99cf58a9556532046106390f9e1ea",
-    "hair_spike_1_render": "68f070d9ead7191a4924222b26e12d895f9be7d137b2929e48cf9141d1f61d70",
-    "hair_spike_2_render": "c21d46d4c60c5f1b5330ad64cad362c480aec15f4ab7270153a473ae964a8638",
-    "hair_spike_3_render": "4a863378ddfa7291e1c86f8c3c81c68f08fe2503bf0d8fe38839d14bbd3a84cc",
-    "hair_spike_4_render": "95adb0e597aece2c655a6cfce28348dece52a8a5bc5360a032fd359f306c71ff",
-    "hair_spike_5_render": "4e27c7d8412a9e5eb36f7e3416f34c41333d311d655bf7422eff7db71aeb82a9",
-    "hair_spike_6_render": "442e5d88b9b1667a9cdad22da447459070e8224a58ab8205e23a5a4f352bbf55",
-    "hair_spike_7_render": "0d1ec5104f1d252463826c08c6053e38e4cfff90df5261c44d82697b5ead1212",
-    "hair_crown_render": "0e16a01ba64cea1c9d5559421e5839e46d62764e110fe740c552e91fc11b5195",
-    "cracked_mask_render": "eb21f4694eadb8b09d413a4625c6fa9bb62bcf663c50f401a747691a66551931",
-    "body_foot_far": "e78ac6357d952cf2ff2862770b302f1996c427ea7fbc4b465cdf83e74ba63104",
-    "body_foot_near": "2fae24e9aa4e39d2992a71a34ac43f47b99ac105e960657c286ea008b87800d1",
-    "body_fore_far": "85f54e4f72477e343477154b37ecf55cf79e68f0849eef438b289a591f4dde5e",
-    "body_fore_near": "8fbeafcb0855da11274306c911cd7aee5f3822b93e78356bd6f9a9231bbc13a4",
-    "body_hand_far": "80d64c72f1ba1346c2f8cfc4d06294954603e4f0405622bf397a96cddcbf0e91",
-    "body_hand_near": "2de3afdb08fc2910d6d59001a9c64ae54a0b22319e4ade62d38ab49ad8cc2007",
-    "body_head": "ffc94832bf2b2ae2bdcbc1e2121aff619adddbe1e906ca5014b00b3ba1d61560",
-    "body_pelvis": "dd073c89ce8f269d5d9943eef78ec854e79d36ead386a257358da3b3208b2f07",
-    "body_shin_far": "33b2640f1a52064a21b3644f387db6cb683545360ef3c674700b42592e10fd9d",
-    "body_shin_near": "6db6671573fb8f746c77c8e440f7cf3b6d10c67b672fefb11a7f35ba92147f8c",
-    "body_thigh_far": "d0748cda991412ba710a96cbfdf7b5b68fd82d1b6772a67a76c735168d2b0d9b",
-    "body_thigh_near": "b313cfaa0f2be5f463cab0f1fb6ddc111601cc3550c033d5eb78a17d2aab2c5c",
-    "body_torso": "c50196a53ee49476ee4cd4d16093cb48c26fd4000d3e84611f866ed1b5a9310b",
-    "body_upper_far": "28cf111e324b9f396d599b7d2f6dd76437266a2d3b88f292ceea873a951ac3a3",
-    "body_upper_near": "1b90304b1c307a712f45f7df2fd19173377ae5a8353229f95e65147cb823302e"
+    "hair_crown_render": "c61023767c4eeb9a636860c83824cdbb34538adc055d624b2d21492c27894fbb",
+    "cracked_mask_render": "b5026db9d41fc69f7542e4450f27bea5c8972c7806bb1c3618e81164eaf4bfc4",
+    "suit_chest_render": "b890d80c212d3963f499f55574185f7b76e4c931de56ce5bee565c01d3fde0e8",
+    "suit_belly_render": "170aba5ca6c9cfb30e566134d9addd7b3da5154e9c6efea6ff72617f83e663ce",
+    "suit_thigh_near_render": "b270f36b1e8efcebfd08ec407eca066949c764ba57df1b216d9e773dcbb90504",
+    "suit_thigh_far_render": "ef649854f88e3ed1fc2cf7543e0b033465d1bb17742c5e5a03ff7b121d3fd4ec",
+    "ankle_boot_near_render": "4360903ccfd8b5f2cd5eb05a177506bafe91a7e864cdc17cd6807dc683d2cc47",
+    "thick_sole_near_render": "c85c5b16de732f26b8009d48dfd018c9538bf7447882c866574dde0aa99ee9cd",
+    "ankle_boot_far_render": "4a7e03af79feb574831eb5a301db36399dc2918ea2e5838910f6d819f5ea8d6a",
+    "thick_sole_far_render": "1c053110cfa96120f61b45d33a930d96d20363c94b5101f6fe39796a52a1ad1f",
+    "body_foot_far": "38ceba858a3f247e21ce0a8d932543187148d129444cc6649bf4f79a80a63110",
+    "body_foot_near": "e2aa90b0a0995c3b6e29a33eb90479ede3e7c414a84facd10d71f718ed38cb67",
+    "body_fore_far": "166d39cbb8e5d012639311e8da533d8e83e63547c0949ca9ea9381f750d664a8",
+    "body_fore_near": "12f1511a4a506ea025e4ebffc4637bc8acf5588135cf58c5db80757834634ffa",
+    "body_hand_far": "d365585123f63a93c3c9e0820fbeac4ae82f2af9998e2a48a5de5d8324338b45",
+    "body_hand_near": "b931b2c7b619600b0caedd252984a26e491e812ae588ef3e2fcdc7f0fcd7b96a",
+    "body_head": "7390469e513a02409aff09acd42e878957d3c834fb38cf6e17393d610f4c70ca",
+    "body_pelvis": "c523764f4eea14274a4f893e786e09ccc98bf7445a14bb1dab59522d268ba144",
+    "body_shin_far": "8c7d45a15764e4004bc885c300160b579b007a72687c15c892924639b60bb233",
+    "body_shin_near": "43de92dc68854d971dcf0dded4a845579467978bfb2b86b0eaae699bbd1b386e",
+    "body_thigh_far": "2e33fcb5d7919676aeb4718fa2485ce794f67fe8b676cbffcc2489176fa14837",
+    "body_thigh_near": "d8f4e998a3e0f01d14d71fe21d98c1c8bd8c477259a01fa110fbd066bbc732e9",
+    "body_torso": "5881701b004bc175ea856d70da50026bd0471b5e7e76bbf4a79c0fa5ceffc1e3",
+    "body_upper_far": "592612dbfb193e20347a6ac8a9a56788ac90bad499241889c491a27a97f16450",
+    "body_upper_near": "65f6d2dbdec14dab8fd21ebb8b60cd6ea5b3bf62f876e5c92fd6bc2d3e87326d"
   },
-  "combined_mesh_hash": "518db6c40fa6477444aaede0aeae51b2756f4a082133f83b0cde3c7b2235d358",
+  "combined_mesh_hash": "387b51bd6654dfd3ffc3df14eb1d984e67f61710c7ef9022ff545b3e063ed1a9",
   "checks": {
     "labels_cover_every_face": true,
     "view_piece_ownership": true,
@@ -79,9 +79,12 @@
     "collar_front_no_wider_than_back": true,
     "plate_corners_preserved": true,
     "armour_conforms_to_body": true,
+    "native_skin_normals": true,
     "floor_contact_correction": true,
+    "native_hand_pose": true,
     "native_rigid_bindings": true,
     "native_sculpted_surfaces": true,
+    "native_sculpted_union_shading": true,
     "sculpted_blade_roots_attached": true,
     "source_fit_native_skinning": true,
     "board_facing_axis": true,
@@ -390,7 +393,94 @@
     },
     "collar_widths": {},
     "corner_errors": {},
-    "conformance": {},
+    "conformance": {
+      "suit_chest": {
+        "max_distance": 0.006500072777271271,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.002,
+        "passed": true
+      },
+      "suit_belly": {
+        "max_distance": 0.006500023417174816,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.002,
+        "passed": true
+      },
+      "suit_thigh_near": {
+        "max_distance": 0.006500041577965021,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.002,
+        "passed": true
+      },
+      "suit_thigh_far": {
+        "max_distance": 0.0065000285394489765,
+        "allowed": 0.012501,
+        "shrinkwrap_offset": 0.002,
+        "passed": true
+      },
+      "ankle_boot_near": {
+        "max_distance": 0.013009578920900822,
+        "allowed": 0.022001,
+        "shrinkwrap_offset": 0.004,
+        "passed": true
+      },
+      "thick_sole_near": {
+        "max_distance": 0.016520369797945023,
+        "allowed": 0.020501000000000002,
+        "shrinkwrap_offset": 0.005,
+        "passed": true
+      },
+      "ankle_boot_far": {
+        "max_distance": 0.01300119049847126,
+        "allowed": 0.022001,
+        "shrinkwrap_offset": 0.004,
+        "passed": true
+      },
+      "thick_sole_far": {
+        "max_distance": 0.016500014811754227,
+        "allowed": 0.020501000000000002,
+        "shrinkwrap_offset": 0.005,
+        "passed": true
+      }
+    },
+    "native_hand_pose": {
+      "hand_near": {
+        "knuckle_distance_m": 0.07268714117897415,
+        "native_distal_length_m": 0.06700545768510413,
+        "curled_vertices": 1474,
+        "finger_groups": 4,
+        "palm_contact_arc_degrees": [
+          270.00000000000017,
+          270.00000000000017,
+          270.00000000000017,
+          270.00000000000017
+        ],
+        "thumb_curled_vertices": 414,
+        "native_vertices": 2832,
+        "maximum_axial_before_m": 0.13969259886407828,
+        "maximum_axial_after_m": 0.11776033305773614,
+        "partial_curl_fraction": 0.3,
+        "passed": true
+      },
+      "hand_far": {
+        "knuckle_distance_m": 0.07272276183402106,
+        "native_distal_length_m": 0.06689955117406514,
+        "curled_vertices": 1474,
+        "finger_groups": 4,
+        "palm_contact_arc_degrees": [
+          270.00000000000017,
+          270.00000000000017,
+          270.00000000000017,
+          270.00000000000017
+        ],
+        "thumb_curled_vertices": 408,
+        "native_vertices": 2832,
+        "maximum_axial_before_m": 0.1396223130080862,
+        "maximum_axial_after_m": 0.11791211539206187,
+        "partial_curl_fraction": 0.3,
+        "passed": true
+      }
+    },
     "blade_attachments": {},
     "source_outline_fit": {
       "regions": [
@@ -408,7 +498,7 @@
         "upper_far",
         "upper_near"
       ],
-      "vertices": 40084,
+      "vertices": 42342,
       "profile_views": {
         "upper_near": [
           "front",
@@ -461,33 +551,56 @@
           "rear"
         ]
       },
-      "maximum_skinning_error": 8.98915218651522e-07,
-      "maximum_displacement": 0.1719630146140644,
+      "maximum_skinning_error": 8.972090871599504e-07,
+      "maximum_displacement": 0.19134317315281674,
       "native_corrective_shape": "source_outline_fit"
     },
     "facing": {
       "forward_world": [
-        0.9999901652336121,
-        0.00026194375823251903,
+        0.9998660087585449,
+        0.000968530192039907,
         0.0
       ],
       "anatomical_forward_world": [
-        0.9999901652336121,
-        0.00026194375823251903,
-        -0.004418844822794199
+        0.9998660087585449,
+        0.000968530192039907,
+        -0.016341855749487877
       ],
       "front_forward_screen": [
-        -0.7069146047488074,
-        0.35364252458213946
+        -0.7063271808045197,
+        0.35384844466883514
       ],
       "rear_forward_screen": [
-        0.7069146047488074,
-        -0.35364252458213946
+        0.7063271808045197,
+        -0.35384844466883514
       ],
-      "board_axis_cosine": 0.9999999780360148,
+      "board_axis_cosine": 0.9999996993941224,
       "passed": true
     },
-    "front_chest_attachment_axes": {}
+    "front_chest_attachment_axes": {
+      "suit_chest_render": {
+        "forward_world": [
+          1.0,
+          -3.1391647326017846e-07,
+          0.0
+        ],
+        "anatomical_forward_world": [
+          1.0,
+          -3.1391647326017846e-07,
+          0.0
+        ],
+        "front_forward_screen": [
+          -0.7071070031590144,
+          0.35355327960704025
+        ],
+        "rear_forward_screen": [
+          0.7071070031590144,
+          -0.35355327960704025
+        ],
+        "board_axis_cosine": 0.9999999999999686,
+        "passed": true
+      }
+    }
   },
   "passed": true
 }

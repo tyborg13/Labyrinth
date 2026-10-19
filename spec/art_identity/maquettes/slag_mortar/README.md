@@ -1,51 +1,48 @@
-# mq-09 — slag_mortar
+# mq-09 feedback 2 — slag_mortar
 
-15 humanoid labels plus mortar and apron. Harness straps share torso; bracers share their forearms. The native CC0 fingers close into the palm. Every crucible band and its single slag surface share mortar, parented to torso with their editable origins at mortar_pivot between the shoulder blades. The slag surface has native visibility checks in both views.
+The crucible is a squat, wide native hollow loft: axial height / body diameter is 0.8. It has a thick rolled rim and two iron body bands; its mouth faces up and back. The slag cap follows the real inner mouth and is one `mortar` feature visible in both views. The vessel, bands and cap share a rigid torso attachment whose origin remains the harness pivot between the shoulder blades. The broadened native torso and massive arms surround a low, forward head with a conformed heavy brow. Native leather apron panels have 12 mm thickness, folds, pleats and torn hems, and remain bound to `pelvis`; harness straps remain on `torso` and bracers on their forearm labels.
 
-Status: final native delivery; all quantitative acceptance and clean-regeneration gates passed. The sole authored build input is `measurements.json`; `spec_native.json` is compiled output and will be discarded by curation. Approved processed paintings are protected by SHA-256; no painting, image generation, font, audio, game data, save, analytics or runtime change is included.
+The sole authoring input is `measurements.json`; `spec_native.json` is generated and discarded. The approved processed paintings retain their protected SHA-256 values. All geometry is real and native on the approved CC0 humanoid armature. Every figure uses one frozen pose and mesh for the front and true 180-degree rear; no mirror, per-view pose or camera correction is used. Native corner normals survive the ownership split so the segmentation does not change the skin shading at joints.
 
-## Construction
+## Numbered acceptance criteria
 
-The real CC0 humanoid anatomy, heat weights and armature remain editable in the transient build. Native neck registration places the head bone at the anatomical neck instead of leaving the face weighted to the torso. Two-view measured profiles fit the skin; the corrective field is regularized without smoothing or shrinking native skin. Native skin shading flags survive the ownership split. The torso retains the original anatomical shape instead of a row-wise chest warp; the remaining profiles fit the hulking limb proportions. Both cloth aprons are pelvis-bound. Full feet use their observed contour from one view, retaining native depth in the opposite view. Both views share the same pose and immutable geometry; the rear is its 180-degree turn.
-
-## Chosen defaults
-
-Implementation/proof sampling only: anatomy subdivision level 1; corrective-field relaxation recorded in the recipe at factor 0.5; the native neck rest registration is 1.68 m. Cloth uses the existing accepted stiffness, damping, mass and collision settings, with fixed native pre-roll recorded in each recipe. Angular/longitudinal sampling and root/pivot tolerances are named in the owning builder module. Limb roots use 8 interpolated samples per source span where surface projection requires it.
-
-Slag fist closure derives four finger groups and their returning arcs from the native webbing, palm plane and skin thickness; the implementation quantiles and 48 bisection steps live in `HAND_DEFAULTS`. Native thumb opposition uses a length-preserving two-segment solve in `THUMB_DEFAULTS`. The other figures retain their open hands. The shaped leaf support uses the existing armature collision margin and a common, permanent native-space translation along its source registration ray. Curve roots embed half their existing measured root radius in the native support. These are fitting operations, not new character design or gameplay tuning.
-
-Proof composition uses native 1024 clay cells at the inherited 2.4 m scale, a 28 px caption strip, 4 px padding, the existing Pillow default font, background (24,24,24,255), and lossless WebP. Approved fit overlays alone are magnified with nearest sampling; clay cells are copied 1:1. No local windowed Godot run or inspection fixture applies to offline Blender maquettes.
+1. The Blender-native spec, 3/4 facing axis and rendered torso-asymmetry checks pass. The forms above implement the director's feedback; the contact sheet compares them directly with the approved paintings and the Lancer r3, Thrall mq-07 and batch-B clays.
+2. Front IoU **0.807755131 → 0.783361070**; rear **0.657356636 → 0.759250602**. Every label has a nonempty solo and genuine visible owner pixels in both views. No explicit whole-part occlusion exception is needed. `delivery/fit_report.json` and the batch `part_coverage.csv` report each arm and leg part separately.
+3. Shoulder observed / expected: **40.800000 / 47.137864 px**; error **6.337864 px**; 3D height difference **0.000000000 m**. Both feet are planted. Front lower foot is near, rear lower foot is far, and each lower foot is on the right. Near / far body-side pixels over torso: front **3693 / 882**; rear **0 / 15243**. The independent pixel true-turn gate passes.
+4. Curated native 1024 clays, part maps, solos, joints, manifests and fit overlays are in `delivery/`. The batch contact sheet and before/after table are in `../hollow_mimic/delivery/review/`. `COMMIT_MANIFEST.txt` inventories the complete retained tree under the 6,000,000-byte cap. No `.blend`, cache, candidate or determinism copy is retained; discarded evidence is hashed before removal.
+5. Native cold/cache/independent geometry, exact mesh/joint replay, ownership and mutation gates pass. A clean input-only regeneration matches all four canonical front/rear clay and part-map PNG SHA-256 values, without a reused cache. Native delivery and `acceptance_binding.json` bind those outputs, fit, pose and mutation/regeneration receipts to the current recipe and cold mesh. The clean input inventory records the exact builder source.
 
 ## Proof for the design owner
 
-All Blender execution goes through `blender/bridge_client.py`. The director continuation allows 20 minutes while another bridge job is running, and fails after 120 seconds of idle service. Each native job has its own 900-second execution budget.
+All Blender execution is through the director-owned bridge. These commands wrap that bridge; they do not launch Blender directly. Use fresh, empty proof directories.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-09 && python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow build slag_mortar
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-09 && python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow regenerate slag_mortar
-cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-09 && python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow verify slag_mortar
+python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow build slag_mortar --proof-subdir proof/owner_fresh
+python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow regenerate slag_mortar --regeneration-subdir proof/owner_regeneration
+python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow verify slag_mortar
 ```
 
-Use empty proof directories for fresh builds; retain/hash any previous intermediates before replacement. The batch sheet is produced by `workflow sheet`; `delivery/acceptance_binding.json` binds fit, pose, native mutation and verified regeneration to the cold proof; curation by `workflow curate`, after all gates and clean regeneration pass. The design owner retains commits, peer review, inspection and publication.
+The batch sheet is regenerated with `python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow sheet`. Its first three rows are approved painting | clay, front and rear, at the same board scale. The reference row uses native 1:1 clays; the final row contains the three fit overlays. Source hashes and cell positions are recorded in `contact_sheet.json`.
 
-No TODO_DESIGN placeholders are required by the supplied brief.
+No windowed Godot probe or inspection fixture applies to this offline Blender unit. The director retains commits, peer review, inspection and publication. All implementation changes are left uncommitted.
 
-## Acceptance
+## Focused verification
 
-1. The sole measured recipe compiles the real CC0 anatomy and humanoid armature, with board-facing and torso-asymmetry gates passing. Native neck registration and skin shading are preserved. The hidden rear head outline is not guessed: the complete front contour fits the same forward-posed skull. The crucible fits the approved rim and axis; its surface follows the inner native mouth one wall thickness below the rim. The measured lower-body spans and their width registration are recorded in `body_span_fit`. Fingers/thumbs close using the original native skin and topology. The rigid mortar/bands share `mortar_pivot` on torso. Both leather aprons use native cloth attached to the measured waist, with a directional hip-frame rest keeping free fabric on the correct side of the legs.
-2. Front IoU 0.807755131; rear IoU 0.657356636. All 17 labels have nonempty solos and genuine owner pixels in both views, with no occlusion exception. Exact per-part coverage is in `delivery/fit_report.json` and `../hollow_mimic/delivery/review/part_coverage.csv`.
-3. Front shoulder offset 40.800000 px, expected 47.137864 px; error 6.337864 px (within the brief's 10 px tolerance). 3D shoulder height difference 0.000000000 m. Both feet are planted, and both pixel true-turn views pass. Front near/far body-side pixels over torso: 115/0; rear: 0/8303. The front head has zero genuine mortar pixels over its solo; the rear has 1304. The bridge-only `occlusion_probe.py` independently ray-tests the anterior skull, posterior skull and harness pivot: front face first owner=head; rear skull and rear pivot first owner=mortar. This report is bound to the current spec and cold mesh.
-4. `delivery/` contains native 1024 clays, packed part maps and solos, joints, manifests, overlay and compact proof receipts. The exhaustive `COMMIT_MANIFEST.txt` is capped at 6,000,000 bytes. Models, caches, candidates and proof bulk are hashed before removal. The single batch contact sheet uses native 1:1 clay cells for all three figures and the Lancer r3, Thrall r2 and both batch-B references.
-5. Native cold/cache/independent geometry, exact mesh/joint replay, ownership, rigid binding/pivot, single slag-surface visibility in both views, modifier/material mutation, and front/rear head-occlusion gates pass. Clean regeneration and its hash-bound receipt are retained in `delivery/validation/` and `delivery/acceptance_binding.json`.
-
-Observed result lines:
-
-```text
-MQ09_FIT: PASS; slag_mortar; front_iou=0.807755131; rear_iou=0.657356636
-MQ09_HEAD_OCCLUSION: PASS
-CLEAN_REGENERATION: PASS; slag_mortar; canonical_png_sha256=true
+```sh
+python3 -B -m unittest spec.art_identity.maquettes.blender.test_source_recipe spec.art_identity.maquettes.blender.test_delivery spec.art_identity.maquettes.blender.test_delivery_validation tests.test_maquette_blender tests.test_mq09_maquettes tests.test_mq09_forms
+python3 -B -m unittest tests.test_maquette_rear_turn
+python3 -B tests/test_art_identity_gate.py
+python3 -B -m spec.art_identity.maquettes.hollow_mimic.workflow verify
 ```
 
-The probe's named defaults are upper_skull_fraction=0.5 and ray_distance_m=30. The first selects a proof sample above the neck; the second matches the existing native feature ray length. They do not add appearance controls. Pixel occlusion uses the existing coverage alpha threshold and genuine-colour tolerance, excluding nearest-colour antialias false positives.
+Observed final test logs are retained in `../hollow_mimic/delivery/validation/`. The full suites are left to the director at merge, as requested. The two optional Lancer native bridge tests remain opt-in; all three new figures have their own fresh native proofs and clean regenerations.
 
-Final shared focused test logs and the comparison sheet are in `../hollow_mimic/delivery/validation/` and `../hollow_mimic/delivery/review/`. The director runs the full suites at merge, as specified by the unit brief. Earlier figure recipes and native seals remain unchanged; six pre-existing prompt-file inventory mismatches are retained in the shared baseline report.
+## Chosen defaults
+
+Only implementation/proof controls were chosen: `FORM_DEFAULTS` epsilon 1e-9; `FABRIC_DEFAULTS` 8 samples per measured row span; `SKIN_NORMAL_DEFAULTS` maximum normal dot error 0.0001. The native corrective fitting uses the named `source_core_weight` and `source_fit_relaxation` fields. Native hair resolution is recorded as 48 radial samples, smooth radius interpolation and a 0.003 m union voxel size. These resolve the fitted surface; they introduce no gameplay tuning. Existing cloth physics and native neck registration are retained.
+
+`PROOF_DEFAULTS` retains native 1024 px cells, 28 px captions, 4 px padding, RGBA background 24/24/24/255 and the existing Pillow default font. The new sheet has four columns and five rows; the approved 255 px processed crops are enlarged exactly 4× with nearest sampling and clays stay 1:1. `FIXTURE` in `tests/test_mq09_forms.py` holds the synthetic test geometry. Native jobs retain the 900-second budget; bridge waiting follows the director's 20-minute busy / 120-second idle rule.
+
+## TODO_DESIGN and open issues
+
+No TODO_DESIGN placeholder is needed. The six previously recorded prompt-manifest mismatches belong to earlier director-owned figures and remain unchanged. Their seven compiled specs and native delivery seals remain unchanged and validate; `../hollow_mimic/delivery/validation/baseline_compatibility.json` records this check.

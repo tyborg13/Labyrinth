@@ -296,344 +296,539 @@
   },
   "surfaces": [
     {
-      "id": "hair_spike_0",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          112.5,
-          58.0
-        ],
-        [
-          101,
-          49
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          141.5,
-          67.5
-        ],
-        [
-          153,
-          64
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_1",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          117.0,
-          54.0
-        ],
-        [
-          110,
-          41
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          139.0,
-          60.5
-        ],
-        [
-          148,
-          50
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_2",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          123.0,
-          53.0
-        ],
-        [
-          122,
-          39
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          131.0,
-          56.0
-        ],
-        [
-          132,
-          41
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_3",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          130.0,
-          54.0
-        ],
-        [
-          136,
-          41
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          122.5,
-          56.0
-        ],
-        [
-          115,
-          41
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_4",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          138.0,
-          56.5
-        ],
-        [
-          152,
-          46
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          116.5,
-          59.5
-        ],
-        [
-          103,
-          48
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_5",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          142.0,
-          60.5
-        ],
-        [
-          160,
-          54
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          112.0,
-          65.0
-        ],
-        [
-          94,
-          59
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_6",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          143.5,
-          66.0
-        ],
-        [
-          163,
-          65
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          110.5,
-          72.5
-        ],
-        [
-          91,
-          74
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
-      "id": "hair_spike_7",
-      "part": "head",
-      "shape": "curve",
-      "path_px": [
-        [
-          124,
-          67
-        ],
-        [
-          142.0,
-          71.5
-        ],
-        [
-          160,
-          76
-        ]
-      ],
-      "rear_path_px": [
-        [
-          130,
-          71
-        ],
-        [
-          113.5,
-          78.0
-        ],
-        [
-          97,
-          85
-        ]
-      ],
-      "radius_px": 5,
-      "taper": [
-        1.4,
-        0.8,
-        0.03
-      ]
-    },
-    {
       "id": "hair_crown",
       "part": "head",
       "shape": "mass",
       "centre_px": [
         [
-          126,
-          65
+          128,
+          73
         ],
         [
           130,
-          70
+          81
         ]
       ],
       "radii_px": [
-        18,
+        17,
         20,
-        17
+        19
       ],
       "surface": "organic",
       "relief": {
-        "strength": 0.0046875,
+        "strength": 0.0005,
         "scale": 0.04,
         "depth": 2
       },
       "subdivision_levels": 1,
-      "rig_bone": "head"
+      "rig_bone": "head",
+      "swept_sections": [
+        {
+          "id": "hair_spike_0",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              110,
+              79
+            ],
+            [
+              115,
+              65
+            ],
+            [
+              123.5,
+              53.0
+            ],
+            [
+              123,
+              41
+            ]
+          ],
+          "rear_path_px": [
+            [
+              146,
+              86
+            ],
+            [
+              141,
+              68
+            ],
+            [
+              132.5,
+              56.0
+            ],
+            [
+              133,
+              44
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_1",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              113,
+              69
+            ],
+            [
+              118,
+              55
+            ],
+            [
+              131.5,
+              46.0
+            ],
+            [
+              136,
+              37
+            ]
+          ],
+          "rear_path_px": [
+            [
+              143,
+              76
+            ],
+            [
+              138,
+              58
+            ],
+            [
+              124.5,
+              49.0
+            ],
+            [
+              120,
+              40
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_2",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              118,
+              62
+            ],
+            [
+              123,
+              48
+            ],
+            [
+              140.0,
+              44.0
+            ],
+            [
+              148,
+              40
+            ]
+          ],
+          "rear_path_px": [
+            [
+              138,
+              69
+            ],
+            [
+              133,
+              51
+            ],
+            [
+              116.0,
+              47.0
+            ],
+            [
+              108,
+              43
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_3",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              124,
+              63
+            ],
+            [
+              129,
+              49
+            ],
+            [
+              147.0,
+              47.5
+            ],
+            [
+              156,
+              46
+            ]
+          ],
+          "rear_path_px": [
+            [
+              132,
+              70
+            ],
+            [
+              127,
+              52
+            ],
+            [
+              109.0,
+              50.5
+            ],
+            [
+              100,
+              49
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_4",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              129,
+              67
+            ],
+            [
+              134,
+              53
+            ],
+            [
+              153.0,
+              53.0
+            ],
+            [
+              163,
+              53
+            ]
+          ],
+          "rear_path_px": [
+            [
+              127,
+              74
+            ],
+            [
+              122,
+              56
+            ],
+            [
+              103.0,
+              56.0
+            ],
+            [
+              93,
+              56
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_5",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              134,
+              71
+            ],
+            [
+              139,
+              57
+            ],
+            [
+              156.5,
+              59.0
+            ],
+            [
+              165,
+              61
+            ]
+          ],
+          "rear_path_px": [
+            [
+              122,
+              78
+            ],
+            [
+              117,
+              60
+            ],
+            [
+              99.5,
+              62.0
+            ],
+            [
+              91,
+              64
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_6",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              137,
+              76
+            ],
+            [
+              142,
+              62
+            ],
+            [
+              156.5,
+              65.5
+            ],
+            [
+              162,
+              69
+            ]
+          ],
+          "rear_path_px": [
+            [
+              119,
+              83
+            ],
+            [
+              114,
+              65
+            ],
+            [
+              99.5,
+              68.5
+            ],
+            [
+              94,
+              72
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_7",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              132,
+              81
+            ],
+            [
+              137,
+              67
+            ],
+            [
+              151.0,
+              71.0
+            ],
+            [
+              156,
+              75
+            ]
+          ],
+          "rear_path_px": [
+            [
+              124,
+              88
+            ],
+            [
+              119,
+              70
+            ],
+            [
+              105.0,
+              74.0
+            ],
+            [
+              100,
+              78
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        },
+        {
+          "id": "hair_spike_8",
+          "shape": "curve",
+          "part": "head",
+          "path_px": [
+            [
+              126,
+              84
+            ],
+            [
+              131,
+              70
+            ],
+            [
+              145.5,
+              75.0
+            ],
+            [
+              151,
+              80
+            ]
+          ],
+          "rear_path_px": [
+            [
+              130,
+              91
+            ],
+            [
+              125,
+              73
+            ],
+            [
+              110.5,
+              78.0
+            ],
+            [
+              105,
+              83
+            ]
+          ],
+          "radius_px": 8,
+          "taper": [
+            0.95,
+            1.05,
+            0.7,
+            0.015
+          ],
+          "sculpt": {
+            "ridge_depth": 0,
+            "ridge_count": 1,
+            "asymmetry": 0.04,
+            "radial_samples": 48,
+            "smooth_radii": true
+          },
+          "rig_bone": "head"
+        }
+      ],
+      "union_voxel_size": 0.003
     },
     {
       "id": "cracked_mask",
@@ -641,78 +836,585 @@
       "shape": "plate",
       "front_outline_px": [
         [
-          114,
-          72
+          133.0,
+          85.0
         ],
         [
-          126,
-          74
+          133.34823539447413,
+          87.08841907552082
         ],
         [
-          135,
-          81
+          133.46807878051877,
+          89.14110472164033
         ],
         [
-          133,
-          92
+          133.35747960457186,
+          91.12293491784143
         ],
         [
-          123,
-          101
+          133.0183302491977,
+          93.0
         ],
         [
-          112,
-          94
+          132.45643365389674,
+          94.74018286413953
         ],
         [
-          108,
-          82
+          131.68140402520174,
+          96.31370849898477
+        ],
+        [
+          130.7065023349385,
+          97.69365344465976
+        ],
+        [
+          129.54840942132122,
+          98.85640646055101
+        ],
+        [
+          128.2269405751859,
+          99.78207252018059
+        ],
+        [
+          126.7647064948703,
+          100.45481322062508
+        ],
+        [
+          125.18672641089648,
+          100.86311778198096
+        ],
+        [
+          123.52,
+          101.0
+        ],
+        [
+          121.79304541317515,
+          100.86311778198097
+        ],
+        [
+          120.03541132220475,
+          100.4548132206251
+        ],
+        [
+          118.27717133369356,
+          99.78207252018059
+        ],
+        [
+          116.54840942132122,
+          98.85640646055101
+        ],
+        [
+          114.87870518071179,
+          97.69365344465976
+        ],
+        [
+          113.29662771435153,
+          96.31370849898477
+        ],
+        [
+          111.82924680632463,
+          94.74018286413954
+        ],
+        [
+          110.50166975080231,
+          93.0
+        ],
+        [
+          109.33661175927838,
+          91.12293491784143
+        ],
+        [
+          108.354007297003,
+          89.14110472164033
+        ],
+        [
+          107.57066899875504,
+          87.08841907552083
+        ],
+        [
+          107.0,
+          85.0
+        ],
+        [
+          106.65176460552588,
+          82.91158092447918
+        ],
+        [
+          106.53192121948125,
+          80.85889527835967
+        ],
+        [
+          106.64252039542816,
+          78.87706508215857
+        ],
+        [
+          106.98166975080228,
+          77.0
+        ],
+        [
+          107.54356634610325,
+          75.25981713586047
+        ],
+        [
+          108.31859597479823,
+          73.68629150101525
+        ],
+        [
+          109.29349766506148,
+          72.30634655534024
+        ],
+        [
+          110.45159057867878,
+          71.14359353944899
+        ],
+        [
+          111.7730594248141,
+          70.21792747981942
+        ],
+        [
+          113.2352935051297,
+          69.54518677937492
+        ],
+        [
+          114.8132735891035,
+          69.13688221801904
+        ],
+        [
+          116.48,
+          69.0
+        ],
+        [
+          118.20695458682485,
+          69.13688221801903
+        ],
+        [
+          119.96458867779525,
+          69.5451867793749
+        ],
+        [
+          121.72282866630644,
+          70.21792747981941
+        ],
+        [
+          123.45159057867876,
+          71.14359353944897
+        ],
+        [
+          125.12129481928821,
+          72.30634655534023
+        ],
+        [
+          126.70337228564846,
+          73.68629150101523
+        ],
+        [
+          128.17075319367535,
+          75.25981713586046
+        ],
+        [
+          129.4983302491977,
+          77.0
+        ],
+        [
+          130.6633882407216,
+          78.87706508215855
+        ],
+        [
+          131.645992702997,
+          80.85889527835965
+        ],
+        [
+          132.42933100124495,
+          82.91158092447915
         ]
       ],
       "rear_outline_px": [
         [
-          142,
-          78
+          123.0,
+          91.0
         ],
         [
-          130,
-          80
+          122.65176460552587,
+          93.08841907552082
         ],
         [
-          121,
-          87
+          122.53192121948123,
+          95.14110472164033
         ],
         [
-          123,
-          98
+          122.64252039542814,
+          97.12293491784143
         ],
         [
-          133,
-          107
+          122.9816697508023,
+          99.0
         ],
         [
-          144,
-          100
+          123.54356634610326,
+          100.74018286413953
         ],
         [
-          148,
-          88
+          124.31859597479826,
+          102.31370849898477
+        ],
+        [
+          125.2934976650615,
+          103.69365344465976
+        ],
+        [
+          126.45159057867878,
+          104.85640646055101
+        ],
+        [
+          127.77305942481411,
+          105.78207252018059
+        ],
+        [
+          129.2352935051297,
+          106.45481322062508
+        ],
+        [
+          130.81327358910352,
+          106.86311778198096
+        ],
+        [
+          132.48000000000002,
+          107.0
+        ],
+        [
+          134.20695458682485,
+          106.86311778198097
+        ],
+        [
+          135.96458867779523,
+          106.4548132206251
+        ],
+        [
+          137.72282866630644,
+          105.78207252018059
+        ],
+        [
+          139.45159057867878,
+          104.85640646055101
+        ],
+        [
+          141.1212948192882,
+          103.69365344465976
+        ],
+        [
+          142.70337228564847,
+          102.31370849898477
+        ],
+        [
+          144.17075319367535,
+          100.74018286413954
+        ],
+        [
+          145.4983302491977,
+          99.0
+        ],
+        [
+          146.66338824072162,
+          97.12293491784143
+        ],
+        [
+          147.645992702997,
+          95.14110472164033
+        ],
+        [
+          148.42933100124498,
+          93.08841907552083
+        ],
+        [
+          149.0,
+          91.0
+        ],
+        [
+          149.3482353944741,
+          88.91158092447918
+        ],
+        [
+          149.46807878051874,
+          86.85889527835967
+        ],
+        [
+          149.35747960457184,
+          84.87706508215857
+        ],
+        [
+          149.01833024919773,
+          83.0
+        ],
+        [
+          148.45643365389674,
+          81.25981713586047
+        ],
+        [
+          147.68140402520177,
+          79.68629150101525
+        ],
+        [
+          146.70650233493853,
+          78.30634655534024
+        ],
+        [
+          145.54840942132122,
+          77.14359353944899
+        ],
+        [
+          144.2269405751859,
+          76.21792747981942
+        ],
+        [
+          142.7647064948703,
+          75.54518677937492
+        ],
+        [
+          141.18672641089648,
+          75.13688221801904
+        ],
+        [
+          139.51999999999998,
+          75.0
+        ],
+        [
+          137.79304541317515,
+          75.13688221801903
+        ],
+        [
+          136.03541132220477,
+          75.5451867793749
+        ],
+        [
+          134.27717133369356,
+          76.21792747981941
+        ],
+        [
+          132.54840942132125,
+          77.14359353944897
+        ],
+        [
+          130.8787051807118,
+          78.30634655534023
+        ],
+        [
+          129.29662771435153,
+          79.68629150101523
+        ],
+        [
+          127.82924680632465,
+          81.25981713586046
+        ],
+        [
+          126.50166975080231,
+          83.0
+        ],
+        [
+          125.33661175927841,
+          84.87706508215855
+        ],
+        [
+          124.354007297003,
+          86.85889527835965
+        ],
+        [
+          123.57066899875505,
+          88.91158092447915
         ]
       ],
       "thick": 0.004,
       "bevel": {
         "width": 0.002,
-        "segments": 2,
+        "segments": 3,
         "angle_limit": 0.4
       },
       "native_mask": true,
       "closed_cover": true
+    },
+    {
+      "id": "suit_chest",
+      "part": "torso",
+      "shape": "body_plate",
+      "regions": [
+        "torso"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.002,
+      "bevel": {
+        "width": 0.006,
+        "segments": 3,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "torso",
+      "section_z": [
+        "torso",
+        "head",
+        0.1,
+        0.92
+      ],
+      "edge_allowance": 0.006,
+      "shell_frame": 1.5707963267948966,
+      "organic_shell": true
+    },
+    {
+      "id": "suit_belly",
+      "part": "pelvis",
+      "shape": "body_plate",
+      "regions": [
+        "pelvis"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.002,
+      "bevel": {
+        "width": 0.006,
+        "segments": 3,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "pelvis",
+      "section_z": [
+        "pelvis",
+        "torso",
+        0.15,
+        0.95
+      ],
+      "edge_allowance": 0.006,
+      "organic_shell": true
+    },
+    {
+      "id": "suit_thigh_near",
+      "part": "thigh_near",
+      "shape": "body_plate",
+      "regions": [
+        "thigh_near"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.002,
+      "bevel": {
+        "width": 0.006,
+        "segments": 3,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "hip_near",
+      "edge_allowance": 0.006,
+      "organic_shell": true
+    },
+    {
+      "id": "suit_thigh_far",
+      "part": "thigh_far",
+      "shape": "body_plate",
+      "regions": [
+        "thigh_far"
+      ],
+      "thick": 0.009,
+      "offset_surface": 0.002,
+      "bevel": {
+        "width": 0.006,
+        "segments": 3,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "hip_far",
+      "edge_allowance": 0.006,
+      "organic_shell": true
+    },
+    {
+      "id": "ankle_boot_near",
+      "part": "foot_near",
+      "shape": "body_plate",
+      "regions": [
+        "foot_near",
+        "shin_near"
+      ],
+      "thick": 0.018,
+      "offset_surface": 0.004,
+      "bevel": {
+        "width": 0.009,
+        "segments": 4,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "ankle_near",
+      "edge_allowance": 0.009,
+      "contact_height_fraction": [
+        0,
+        0.43
+      ],
+      "organic_shell": true
+    },
+    {
+      "id": "thick_sole_near",
+      "part": "foot_near",
+      "shape": "body_plate",
+      "regions": [
+        "foot_near"
+      ],
+      "thick": 0.023,
+      "offset_surface": 0.005,
+      "bevel": {
+        "width": 0.004,
+        "segments": 3,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "ankle_near",
+      "edge_allowance": 0.004,
+      "contact_height_fraction": [
+        0,
+        0.27
+      ],
+      "organic_shell": true
+    },
+    {
+      "id": "ankle_boot_far",
+      "part": "foot_far",
+      "shape": "body_plate",
+      "regions": [
+        "foot_far",
+        "shin_far"
+      ],
+      "thick": 0.018,
+      "offset_surface": 0.004,
+      "bevel": {
+        "width": 0.009,
+        "segments": 4,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "ankle_far",
+      "edge_allowance": 0.009,
+      "contact_height_fraction": [
+        0,
+        0.43
+      ],
+      "organic_shell": true
+    },
+    {
+      "id": "thick_sole_far",
+      "part": "foot_far",
+      "shape": "body_plate",
+      "regions": [
+        "foot_far"
+      ],
+      "thick": 0.023,
+      "offset_surface": 0.005,
+      "bevel": {
+        "width": 0.004,
+        "segments": 3,
+        "angle_limit": 0.4
+      },
+      "rig_bone": "ankle_far",
+      "edge_allowance": 0.004,
+      "contact_height_fraction": [
+        0,
+        0.27
+      ],
+      "organic_shell": true
     }
   ],
   "bone_scales": {
     "head": [
       0.8,
       0.8
+    ],
+    "torso": [
+      1.15,
+      1.1
     ]
   },
   "region_map": {},
@@ -1607,7 +2309,7 @@
       ]
     }
   },
-  "measurement_basis": "mq-09 approved processed paintings. Pixel coordinates trace the visible anatomy and named attachments. Real CC0 anatomy topology, armature and board facing are retained. No raster painting is authored.",
+  "measurement_basis": "mq-09 approved processed paintings. Pixel coordinates trace the visible anatomy and named attachments. Real CC0 anatomy topology, armature and board facing are retained. No raster painting is authored. Director feedback 2: chunky hero proportions, nine large swept locks, oval mask, half-open enlarged gloves, four shallow suit plates and ankle boots with thick soles.",
   "source_sha256": {
     "front": "a9e902b2dff31a820e5c6c49e8d5b19bf17733662588306ed5eae89bf3d77965",
     "rear": "56ece62e2515a46c36970c38fb983d4c475ce1c73e0aa33420e0850b6140fd13"
@@ -1637,8 +2339,61 @@
     ]
   },
   "source_fit_relaxation": {
-    "iterations": 64,
+    "iterations": 24,
     "factor": 0.5
   },
-  "preserve_native_skin_shading": true
+  "preserve_native_skin_shading": true,
+  "source_profile_modes": {
+    "upper_near": "affine_core",
+    "fore_near": "affine_core",
+    "hand_near": "affine_core",
+    "upper_far": "affine_core",
+    "fore_far": "affine_core",
+    "hand_far": "affine_core",
+    "thigh_near": "affine_core",
+    "shin_near": "affine_core",
+    "foot_near": "rows",
+    "thigh_far": "affine_core",
+    "shin_far": "affine_core",
+    "foot_far": "rows"
+  },
+  "half_open_hands": {
+    "near": 0.3,
+    "far": 0.3
+  },
+  "form_finish": {
+    "fair_regions": [
+      "torso",
+      "pelvis",
+      "upper_near",
+      "fore_near",
+      "upper_far",
+      "fore_far",
+      "thigh_near",
+      "thigh_far",
+      "shin_near",
+      "shin_far"
+    ],
+    "fair_iterations": 24,
+    "fair_factor": 0.5,
+    "radial_scales": {
+      "upper_near": 1.9,
+      "fore_near": 1.3,
+      "hand_near": 1.3,
+      "upper_far": 1.7,
+      "fore_far": 1.3,
+      "hand_far": 1.3,
+      "thigh_near": 1.3,
+      "shin_near": 1.3,
+      "thigh_far": 1.3,
+      "shin_far": 1.3
+    },
+    "length_scales": {
+      "hand_near": 1.3,
+      "hand_far": 1.3
+    }
+  },
+  "source_core_weight": 0.8,
+  "source_fit_weighted_blend": true,
+  "preserve_native_split_normals": true
 }

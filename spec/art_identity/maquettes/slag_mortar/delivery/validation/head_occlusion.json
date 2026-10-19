@@ -1,7 +1,7 @@
 {
   "passed": true,
-  "spec_hash": "74fe94d65f9c6284a93e604b483a230b5be547fc21e213547eba90cac1a41b54",
-  "cold_mesh_hash": "4094ac79a6093e78e0c779bf6d949b6c240dd0b6f4307a7708575689879791b3",
+  "spec_hash": "b6588a6ca5bcc0b6f10b1ed8e6b05a1d0bf4f9eff7775fbce879458665eaae71",
+  "cold_mesh_hash": "7ea02444ade492a413406ca23d5ddaa0039795da1cbf395d809db93814af71c5",
   "checks": {
     "front_face": true,
     "rear_skull": true,
@@ -11,9 +11,9 @@
     "front_face": {
       "view": "front",
       "point_body": [
-        0.525414764881134,
-        0.057688355445861816,
-        1.6783584356307983
+        0.488132506608963,
+        0.0023050904273986816,
+        1.6373004913330078
       ],
       "first_owner": "head",
       "expected_owner": "head",
@@ -22,9 +22,9 @@
     "rear_skull": {
       "view": "rear",
       "point_body": [
-        0.16433781385421753,
-        0.1985616683959961,
-        1.8447368144989014
+        0.16240659356117249,
+        0.20033714175224304,
+        1.663405418395996
       ],
       "first_owner": "mortar",
       "expected_owner": "mortar",
@@ -42,5 +42,5 @@
       "passed": true
     }
   },
-  "native_blend_sha256": "5b31d54aff1c9e6f75996ba326ecab768be7032d85788250f88df4c2ea7abb17"
+  "native_blend_sha256": "ac64445104d649bb0d0abd14d96cd847f0ee2bd62f085655d3aa6fbc9a193d0f"
 }

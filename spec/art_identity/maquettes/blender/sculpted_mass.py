@@ -52,6 +52,17 @@ def sculpted_mass(piece, spec):
         for vertex in obj.data.vertices:
             for axis in range(3):
                 vertex.co[axis] *= piece['radii'][axis]
+    if piece.get('swept_sections'):
+        from .limb_mesh import section_mesh
+        vertices=[list(v.co) for v in obj.data.vertices];faces=[list(p.vertices) for p in obj.data.polygons]
+        for section in piece['swept_sections']:
+            path=[[point[i]-piece['centre'][i] for i in range(3)] for point in section['path']]
+            v,f=section_mesh(path,section['radii'],section['sculpt'])
+            start=len(vertices);vertices.extend(v);faces.extend([[start+i for i in face] for face in f])
+        old=obj.data;mesh=bpy.data.meshes.new(piece['id']+'_compound_rest')
+        mesh.from_pydata(vertices,[],faces);mesh.update();obj.data=mesh;bpy.data.meshes.remove(old)
+        union=obj.modifiers.new('sculpted_section_union','REMESH');union.mode='VOXEL'
+        union.voxel_size=piece['union_voxel_size'];union.use_smooth_shade=True
     references = [vertex.co.copy() for vertex in obj.data.vertices]
     if profile:
         from .sculpt_profile import deform
@@ -163,6 +174,14 @@ def validate_mass(piece):
         for path in grooves['paths']:
             for point in path:
                 vector(point, 3, 'groove point')
+    if piece.get('swept_sections'):
+        if not 0 < piece['union_voxel_size'] <= min(piece['radii']):
+            raise ValueError('Section union requires a positive sub-radius voxel size')
+        from .limb_mesh import validate_sculpt
+        for section in piece['swept_sections']:
+            if len(section['path']) != len(section['radii']) or min(section['radii']) <= 0:
+                raise ValueError('Swept sections require corresponding positive radii')
+            validate_sculpt(section['sculpt'])
     from .mass_topology import validate_volume
     if piece.get('profile'):
         from .sculpt_profile import validate_profile
@@ -212,6 +231,10 @@ def native_stack_matches(piece, source):
         modifier=modifiers.get(name)
         passed &= (modifier is not None and modifier.type == 'BOOLEAN' and
                    modifier.operation == 'DIFFERENCE' and modifier.solver == 'EXACT' and modifier.object is not None)
+    if piece.get('swept_sections'):
+        union=modifiers.get('sculpted_section_union')
+        passed &= (union is not None and union.type=='REMESH' and union.mode=='VOXEL' and
+                   abs(union.voxel_size-piece['union_voxel_size']) <= MASS_DEFAULTS['weight_epsilon'])
     if piece.get('profile'):
         passed &= bool(source.get('modelled_profile'))
     return bool(passed)
