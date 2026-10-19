@@ -43,7 +43,7 @@
    "move": {
     "seconds": 0.9,
     "intents": [],
-    "note": "a hunched shuffle on the stride/trailing pattern: 4 px lift, the pelvis dips 3 px after each landing, the claws sway, the leaf tatters trail 2 px",
+    "note": "a hunched shuffle on the stride/trailing pattern: the stride foot lifts 7 px (the hunch already bends the stance knee, so the swing must bend more), the pelvis is at rest height at each swing apex and dips 2 px after each landing, the claws sway, the leaf tatters trail 2 px",
     "keys": {
      "root.forward_px": [
       [
@@ -98,7 +98,7 @@
       ],
       [
        0.2,
-       4
+       7
       ],
       [
        0.38,
@@ -110,7 +110,7 @@
       ],
       [
        0.65,
-       4
+       7
       ],
       [
        0.83,
@@ -197,27 +197,27 @@
       ],
       [
        0.05,
-       -2
+       -1
       ],
       [
        0.2,
-       -1
+       0
       ],
       [
        0.4,
-       -3
-      ],
-      [
-       0.5,
        -2
       ],
       [
-       0.65,
+       0.5,
        -1
       ],
       [
+       0.65,
+       0
+      ],
+      [
        0.85,
-       -3
+       -2
       ],
       [
        1,
