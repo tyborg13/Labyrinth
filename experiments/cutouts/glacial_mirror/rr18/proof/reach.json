@@ -162,9 +162,9 @@
         "samples": 1002,
         "allowed_minimum_px": 5.562217807678174,
         "allowed_maximum_px": 67.98767774440775,
-        "minimum_px": 23.430025609958548,
+        "minimum_px": 53.21614354374006,
         "maximum_px": 66.65458597313466,
-        "minimum_phase": 0.35,
+        "minimum_phase": 0.45,
         "maximum_phase": 0.0
       },
       {
@@ -418,9 +418,9 @@
         "samples": 1002,
         "allowed_minimum_px": 5.954304483476172,
         "allowed_maximum_px": 85.05219537456335,
-        "minimum_px": 31.6950528700424,
+        "minimum_px": 65.06964681728999,
         "maximum_px": 83.38450523028844,
-        "minimum_phase": 0.35,
+        "minimum_phase": 0.45,
         "maximum_phase": 0.0
       },
       {
