@@ -12,13 +12,56 @@ PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(PROJECT / 'tools')]
 from humanoid_cutout.source_space import PaintedComponents, pocket_report, apply_painted_components
 from humanoid_cutout.silhouette_gates import detached_metrics
+from humanoid_cutout.gates import clean_metrics
+from humanoid_cutout.native_exceptions import frame_errors, DETACHED_RULE
 from maquette_motion import pixels
 
 FIXTURE_SIZE = 255
 FIXTURE_DISPLACEMENT_PX = 8
+FIXTURE_DARK_TIP_RGBA = [10, 10, 10, 255]
+FIXTURE_BRIGHT_TIP_RGBA = [100, 60, 40, 255]
 
 
 class SourceSpaceTests(unittest.TestCase):
+    def test_review_connected_tip_cannot_detach_even_when_dark_or_skinned(self):
+        for skinned in (False, True):
+            with tempfile.TemporaryDirectory(prefix='rr25-detached-') as folder:
+                root = Path(folder)
+                paint = np.zeros((FIXTURE_SIZE, FIXTURE_SIZE, 4), dtype=np.uint8)
+                paint[10:25, 10:25] = FIXTURE_BRIGHT_TIP_RGBA
+                paint[10, 25:27] = FIXTURE_DARK_TIP_RGBA
+                for name in ('rest.png', 'part.png'):
+                    Image.fromarray(paint).save(root / name)
+                part = {'name': 'arm', 'file': 'part.png', 'offset': [0, 0],
+                        'z_index': 0, 'bone': 'upper'}
+                layout = {'rest_source': 'rest.png', 'parts': [part],
+                          'joint_meshes': [{'name': 'arm'}] if skinned else []}
+                pose = {'parts': {'arm': {'transform': [1, 0, 0, 1, 0, 0]}}}
+                policy = PaintedComponents(root, layout)
+                checks = np.zeros_like(paint)
+                checks[paint[..., 3] > 0] = [255, 0, 0, 255]
+                checks = pixels.render(Image.fromarray(checks), np.eye(3))
+                for rgba in (FIXTURE_BRIGHT_TIP_RGBA, FIXTURE_DARK_TIP_RGBA):
+                    with self.subTest(skinned=skinned, rgba=rgba):
+                        mutant = paint.copy()
+                        mutant[10, 25] = 0  # Remove the originally painted bridge.
+                        mutant[10, 26] = rgba
+                        layers = [(part, pixels.render(Image.fromarray(mutant), np.eye(3)), checks)]
+                        certified = policy.report(layers, pose)
+                        self.assertEqual(certified, [])
+                        metric = apply_painted_components(clean_metrics(layers), certified)
+                        self.assertEqual(metric['exempt_outline_components'], 0)
+                        self.assertEqual(metric['stray_components'], 1)
+                        self.assertEqual(metric['stray_pixels'], 1)
+                        if rgba == FIXTURE_DARK_TIP_RGBA:
+                            legacy = detached_metrics(layers[0][1])
+                            self.assertEqual(legacy['exempt_outline_components'], 1)
+                            with self.assertRaisesRegex(ValueError, 'strict detached metrics'):
+                                apply_painted_components(legacy, certified)
+                        spaces = pocket_report(layers)
+                        errors = frame_errors(('front', 'death', 0), metric, spaces['failures'])
+                        self.assertIn("('front', 'death', 0): " + DETACHED_RULE, errors)
+
     def test_natural_air_reports_each_bound(self):
         paint = np.zeros((12, 12, 4), dtype=np.uint8)
         paint[2:10, 2:10] = [100, 60, 40, 255]
@@ -81,7 +124,7 @@ class SourceSpaceTests(unittest.TestCase):
             accepted = policy.report(layers, pose)
             self.assertEqual(len(accepted), 1)
             self.assertEqual(accepted[0]['owner'], 'head')
-            metric = apply_painted_components(detached_metrics(layers[0][1]), accepted)
+            metric = apply_painted_components(detached_metrics(layers[0][1], allow_outline=False), accepted)
             self.assertEqual(metric['stray_components'], 0)
             self.assertEqual(metric['stray_pixels'], 0)
             frozen = copy.deepcopy(pose)
@@ -94,7 +137,7 @@ class SourceSpaceTests(unittest.TestCase):
                 root = Path(folder)
                 layout, pose, layers = self.component_fixture(root, **options)
                 self.assertEqual(PaintedComponents(root, layout).report(layers, pose), [])
-                self.assertEqual(detached_metrics(layers[0][1])['stray_components'], 1)
+                self.assertEqual(detached_metrics(layers[0][1], allow_outline=False)['stray_components'], 1)
 
     def test_unrelated_stray_does_not_borrow_certification(self):
         with tempfile.TemporaryDirectory(prefix='rr22-space-') as folder:
@@ -102,9 +145,10 @@ class SourceSpaceTests(unittest.TestCase):
             layout, pose, layers = self.component_fixture(root)
             layers[0][1][170:174, 170:174] = [90, 50, 30, 255]
             accepted = PaintedComponents(root, layout).report(layers, pose)
-            metric = apply_painted_components(detached_metrics(layers[0][1]), accepted)
+            metric = apply_painted_components(detached_metrics(layers[0][1], allow_outline=False), accepted)
             self.assertEqual(metric['stray_components'], 1)
             self.assertEqual(metric['stray_pixels'], 16)
+            self.assertEqual(metric['exempt_outline_components'], 0)
 
     def test_painted_outline_is_not_subtracted_from_unrelated_stray(self):
         with tempfile.TemporaryDirectory(prefix='rr22-space-') as folder:
@@ -121,10 +165,10 @@ class SourceSpaceTests(unittest.TestCase):
             layers = [(layers[0][0], presented, presented.copy())]
             accepted = PaintedComponents(root, layout).report(layers, pose)
             self.assertEqual(len(accepted), 1)
-            self.assertFalse(accepted[0]['ordinary_stray'])
-            metric = apply_painted_components(detached_metrics(presented), accepted)
+            metric = apply_painted_components(detached_metrics(presented, allow_outline=False), accepted)
             self.assertEqual(metric['stray_components'], 1)
             self.assertEqual(metric['stray_pixels'], 16)
+            self.assertEqual(metric['exempt_outline_components'], 0)
 
 
 if __name__ == '__main__':

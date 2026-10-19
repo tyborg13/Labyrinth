@@ -11,11 +11,7 @@ from PIL import Image
 
 from maquette_motion import pixels
 from maquette_motion.features import source_pixels
-from maquette_motion.material_palette import luma
 from maquette_motion.silhouette import components, holes
-from .silhouette_gates import (OUTLINE_COMPONENT_DISTANCE_PX, OUTLINE_COMPONENT_MAX_PIXELS,
-                               OUTLINE_COMPONENT_MAX_LUMA)
-from maquette_motion.silhouette import dilate
 
 
 def bounds(mask):
@@ -83,12 +79,8 @@ class PaintedComponents:
             return []
         # Topmost ownership prevents another piece from borrowing a source speck.
         owners = np.full(occupied.shape, '', dtype=object)
-        composite = np.zeros((*occupied.shape, 4), dtype=np.uint8)
         for part, image, _ in sorted(layers, key=lambda item: item[0]['z_index']):
             owners[image[..., 3] > 0] = part['name']
-            composite[image[..., 3] > 0] = image[image[..., 3] > 0]
-        nearby = dilate(labels == groups[0][0], OUTLINE_COMPONENT_DISTANCE_PX)
-        dark = luma(composite) / 255 < OUTLINE_COMPONENT_MAX_LUMA
         accepted = []
         references = {}
         for label, size in groups[1:]:
@@ -103,20 +95,16 @@ class PaintedComponents:
                 transform = pixels.unpack(pose['parts'][name]['transform'])
                 references[name] = pixels.render(self.certified[name], transform)[..., 3] > 0
             if np.all(references[name][component]):
-                outline = (size <= OUTLINE_COMPONENT_MAX_PIXELS and dark[component].all()
-                           and nearby[component].any())
-                accepted.append({'bbox': bounds(component), 'pixel_count': size, 'owner': name,
-                                 'ordinary_stray': not bool(outline)})
+                accepted.append({'bbox': bounds(component), 'pixel_count': size, 'owner': name})
         return accepted
 
 
 def apply_painted_components(metric, accepted):
-    """Remove only independently certified components from the stray totals."""
+    """Remove certified components from strict, colour-independent totals."""
     result = dict(metric)
-    # Dark outline components already counted as outline exceptions are not
-    # subtracted twice. The ordinary detached rule is still authoritative.
-    strays = [row for row in accepted if row['ordinary_stray']]
-    result['stray_components'] -= len(strays)
-    result['stray_pixels'] -= sum(r['pixel_count'] for r in strays)
+    if result.get('exempt_outline_components', 0):
+        raise ValueError('Source provenance requires strict detached metrics (allow_outline=False)')
+    result['stray_components'] -= len(accepted)
+    result['stray_pixels'] -= sum(r['pixel_count'] for r in accepted)
     result['painted_detached_components'] = len(accepted)
     return result

@@ -5,6 +5,7 @@ const Action = preload("res://scripts/maquette_cutout_runtime/action.gd")
 const Death = preload("res://scripts/maquette_cutout_runtime/death.gd")
 const PROOF_IDLE_SEED: float = 0.37
 const PROOF_ACTION_PHASE: float = 0.6
+const PROOF_WALK_MUTATION_SECONDS: float = 1.25
 var checks: int = 0
 var failures: Array[String]
 
@@ -21,6 +22,7 @@ func _run() -> void:
 	renderer.seed_idle_phase(PROOF_IDLE_SEED)
 	root.add_child(renderer)
 	check(renderer.rigs.size() == 2, "both production views load")
+	_check_walk_cadence(renderer)
 	check(is_equal_approx(float(renderer.snapshot()["phase"]), PROOF_IDLE_SEED), "seed retained")
 	check(Presentation.asset_directory("slag_mortar").ends_with("humanoid_v2"), "production path")
 	check(not preload("res://scripts/static_enemy_facing.gd").handles("slag_mortar"), "static roster removed")
@@ -70,3 +72,13 @@ func _run() -> void:
 	print("RR22 RUNTIME: %s (%d checks; headless logic only)" % ["PASS" if failures.is_empty() else "FAIL", checks])
 	renderer.free()
 	quit(0 if failures.is_empty() else 1)
+
+func _check_walk_cadence(renderer: Node) -> void:
+	var move: Dictionary = Action.data_for("slag_mortar")["clips"]["move"]
+	var original: float = float(move["seconds"])
+	check(renderer.walk_segment_frames(0.0) == Action.frames_for("slag_mortar", "move"), "compiled walk cadence")
+	# Mutate only this process's cached test data; restore before other checks.
+	move["seconds"] = PROOF_WALK_MUTATION_SECONDS
+	check(renderer.walk_segment_frames(0.0) == Action.frames_for("slag_mortar", "move"), "walk follows changed compiled duration")
+	move["seconds"] = original
+	check(renderer.walk_segment_frames(0.0) == Action.frames_for("slag_mortar", "move"), "walk cadence restored")

@@ -288,7 +288,8 @@ def clean_metrics(layers, outline_rules=None):
         occupied |= paint
     result['exposed_outline_pixels'] = int(exposed_dark.sum())
     result['outline_outside_pixels'] = int(outside_outline.sum())
-    result.update(detached_metrics(visible))
+    # Detached paint needs approved-source provenance, regardless of darkness.
+    result.update(detached_metrics(visible, allow_outline=False))
     result['dark_slab_blocks']=dark_slab_blocks(slab_dark)
     labels,groups=components(~occupied)
     edge=set(np.concatenate((labels[0],labels[-1],labels[:,0],labels[:,-1])).tolist())

@@ -246,5 +246,35 @@
       "clip": "brace",
       "frame": 24
     }
-  ]
+  ],
+  "feedback1_review_fixture": {
+    "body_bbox": [
+      10,
+      10,
+      25,
+      25
+    ],
+    "bridge_xy": [
+      25,
+      10
+    ],
+    "tip_xy": [
+      26,
+      10
+    ],
+    "dark_rgba": [
+      10,
+      10,
+      10,
+      255
+    ],
+    "bright_rgba": [
+      100,
+      60,
+      40,
+      255
+    ],
+    "walk_duration_mutation_seconds": 1.25,
+    "scope": "synthetic regression/process-local cache mutation only"
+  }
 }

@@ -19,7 +19,7 @@ attempted. The existing `rr22/` case paths remain the production integration.
    shoulder/head. `rr22_surface_gates.py` now also rejects hidden texels whose
    RGB has no donor in their own visible piece. A one-skin-texel contamination
    mutation fails this gate. The protected paintings, masks, generator and
-   motion stay unchanged. No exemptions or shared-code changes were added.
+   motion stay unchanged. No exemptions were added. Feedback 1 makes the shared detached-paint checks strict, as described below.
 
    All **862 CPU coverage frames pass**, replacing rr-22's 8 front / 75 rear
    failed frames. There are zero holes or detached-paint errors. The existing
@@ -44,6 +44,38 @@ exact mask ownership/connected near arm/0 px rest; and all headless Mortar
 coverage, source, bone and gait gates in both views. Native GPU acceptance
 remains pending the design owner's windowed sequence.
 
+## Feedback 1 — review of 5369d4cb6
+
+1. **Detached opaque paint requires provenance.** `clean_metrics` now requests
+   colour-independent counts from `detached_metrics(..., allow_outline=False)`.
+   `source_space.py` removes only components certified as originally detached
+   in the approved painting and transported rigidly with their owner. It no
+   longer classifies certified components by size, darkness or distance.
+   Feeding pre-exempted legacy metrics to the classifier fails explicitly.
+   The director reproduction and the regression cover bright/dark severed
+   tips for both rigid and skinned owners. Every unmatched tip fails.
+
+   Generic changes are limited to `tools/humanoid_cutout/source_space.py`,
+   `gates.py` and the optional strict-count argument in `silhouette_gates.py`.
+   The legacy primitive remains available to older diagnostics; native/CPU
+   clean-piece gates always request strict counts. `rest_space.py` is not
+   present on this branch and was not changed; rr-26 can reuse strict counts.
+2. **Walk clock has one source.** The Mortar renderer calls
+   `Action.frames_for("slag_mortar", "move")`. The duplicate cycle duration is removed; the required frame-period API
+   derives from `Action.FPS`. The runtime regression mutates only the process-local cached
+   move duration to a named test value, verifies the frame count follows it,
+   and restores the original before other checks. Protected motion is unchanged.
+3. **Focused handoff: PASS.** All 862 strict CPU frames pass with zero errors;
+   no Mortar textures changed. The focused set reports `Ran 30 tests in 15.112s`
+   / `OK`; references plus legacy silhouette primitive checks report
+   `Ran 99 tests in 188.553s` / `OK`. Runtime passes 478 checks, affected
+   integration 513 checks, production 1,516 frames per view, and the exported
+   package passes with `editor=false`. Exact feedback-round logs/results are recorded under
+   `proof/results.json` → `feedback_1`. Windowed proof is still pending the
+   owner; the eight commands below remain unchanged. The package fixture was
+   updated to handle the registry's formatted renderer path before traversing
+   the new Action preload closure; the exported package smoke passes.
+
 ## Files changed
 
 - `rr22_build.py`: also imports the protected mask generator as provenance.
@@ -58,8 +90,8 @@ remains pending the design owner's windowed sequence.
 - `spec/assets/board_pixel_density/`: eight changed Mortar source textures and
   their eight output records. Every other record is identical.
 
-Shared code, every other figure, the identity registry and shadow-cache bytes
-are unchanged. Scoped shadow refresh passes for both v2 views and verifies
+Every other figure, shared runtime files, the identity registry and shadow-cache
+bytes are unchanged. The three generic offline gate changes are listed below. Scoped shadow refresh passes for both v2 views and verifies
 that every other unit's entries/fingerprints are retained. Protected inputs
 (152 tracked files) remain byte-identical to HEAD.
 
@@ -137,9 +169,12 @@ None. No director choices or perceivable defaults were introduced.
 
 ## Chosen defaults
 
-Only the new test fixture's 4×4 canvas, grey pot texel (70,70,70,255) and skin
+The original test fixture's 4×4 canvas, grey pot texel (70,70,70,255) and skin
 mutation (110,60,30,255), plus the five CPU diagnostic frame selections.
-They are named in the tests and `proof/chosen_defaults.json`. Existing proof
+Feedback 1 adds the synthetic connected dark-tip fixture (bridge/tip at
+(25,10)/(26,10), dark RGB 10/10/10 and bright RGB 100/60/40), and a 1.25 s
+process-local duration mutation. They are named in the tests and
+`proof/chosen_defaults.json`. Existing proof
 origins, camera/layout values, seeds and timeouts are retained there too.
 
 ## Open issues

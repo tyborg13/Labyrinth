@@ -134,7 +134,7 @@
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear.json": "a8b6179e8eb931a01ffd673d91261c82de181dc6335a71b341f1e66f2403d869",
     "rear.json": "cfddfb59ad08ccd8f51135a9d88e8bb2e092c07ad4691e5377ce7ed3abeba881",
-    "renderer.gd": "2822cf126a9ed8a7e602de911b757e2e146a5a14310d96b06ac421cf5602d896",
+    "renderer.gd": "60303ea796360d922e71e2ab1c0ec11350d5eee510ab4b1bcdd976f0141af739",
     "rig.gd": "d43d021d0f57ee0a188d839afe9422cd7ac7e4763231f637d21d5b6b72bdfe8a"
   },
   "rig_directory": "humanoid_v2",

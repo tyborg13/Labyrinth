@@ -14,12 +14,15 @@ func _initialize() -> void:
 	var scripts: Dictionary = {}
 	check(pack.pck_start(args[0]) == OK, "PCK opens")
 	var script_packer: Script = load("res://tests/helpers/source_script_pack.gd")
+	# Action.frames_for brings the registry into the renderer preload closure.
+	# Its formatted renderer path is handled explicitly below, not as a file.
+	var registry: String = "res://scripts/maquette_cutout_runtime/presentation.gd"
+	scripts[registry] = true
 	check(script_packer.add_tree(pack, "res://assets/units/slag_mortar_cutout/renderer.gd", scripts) == OK, "Packs renderer closure")
 	check(script_packer.add_tree(pack, "res://assets/units/slag_mortar_cutout/rig.gd", scripts) == OK, "Packs rig closure")
 	check(script_packer.add_tree(pack, "res://assets/units/hoarfrost_seer_cutout/precision.gd", scripts) == OK, "Packs shared legacy precision dependency")
 	# The registry also contains a formatted runtime renderer path. Pack its
 	# literal preloads; the selected concrete renderer is already packed above.
-	var registry: String = "res://scripts/maquette_cutout_runtime/presentation.gd"
 	check(pack.add_file(registry, registry) == OK, "Packs registry")
 	var preloads := RegEx.new()
 	preloads.compile('preload\\("([^"\\n]+\\.gd)"\\)')
