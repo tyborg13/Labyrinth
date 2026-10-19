@@ -147,18 +147,9 @@
       }
     }
   },
-  "leg_roles": {
-    "front": {
-      "stride": "near",
-      "trailing": "far"
-    },
-    "rear": {
-      "stride": "far",
-      "trailing": "near"
-    }
-  },
   "planted_bones": [
-    "foot_stride"
+    "foot_near",
+    "foot_far"
   ],
   "planted_tolerance_px": 0.5,
   "held_depth_roles": {},

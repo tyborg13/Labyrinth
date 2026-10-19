@@ -26,7 +26,6 @@ from humanoid_cutout.tucks import required_tuck
 from humanoid_cutout.seams import build_masks
 from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.promotion import promote
-from humanoid_cutout.leg_roles import resolve_bone
 from humanoid_cutout.underlays import distinct_depths
 from rr21_residue import clean_piece, feature_mask, feature_definitions
 
@@ -186,11 +185,17 @@ def build_view(view, inputs, anatomy):
             raise ValueError('Feature is not owned by its declared piece: ' + feature['name'])
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
         'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
-        'held_items': {}, 'ik_chains': [], 'planted_bones': [resolve_bone(n, anatomy, view) for n in anatomy['planted_bones']],
-        'leg_roles': anatomy['leg_roles'][view], 'source_labels': PIECES, 'features': features,
+        'held_items': {}, 'ik_chains': [], 'planted_bones': anatomy['planted_bones'],
+        'source_labels': PIECES, 'features': features,
         'rest_source': f'source/{view}/processed.png',
         'motion_data': 'res://' + str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     distinct_depths(layout)
+    continuations = CASE / 'gait_continuations.json'
+    if continuations.exists(): layout['gait_continuations'] = read_json(continuations)[view]
+    clips = CASE / 'clip_continuations.json'
+    if clips.exists(): layout['clip_continuations'] = read_json(clips)[view]
+    gait = read_json(DIRECTOR)['briar_weaver']['clips']['move'].get('gait')
+    if gait: layout['gait_leg_scale_max'] = gait['leg_scale_max']
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
     write_json(CASE / f'layouts/{view}.json', layout)
     reconstructed = Image.new('RGBA', (255, 255))

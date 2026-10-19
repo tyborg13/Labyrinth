@@ -38,19 +38,22 @@ class ProductionTests(unittest.TestCase):
         for view, report in self.reports.items():
             result = motion_gates(report, self.data)
             self.assertEqual(result['errors'], [], view)
-            self.assertEqual(len(result['knees']['swings']), 2)
-            self.assertEqual(result['supports']['maximum_stance_frame_change_px'], 0)
+            self.assertEqual(len(result['walk']['swings']), 6)
+            self.assertEqual(result['walk']['maximum_stance_frame_change_px'], 0)
+            for supports in result['supports'].values():
+                self.assertEqual(supports['maximum_jab_frame_change_px'], 0)
             self.assertEqual(result['design_placeholders'], {})
 
     def test_mutations_reject_late_contact_stale_binding_and_missing_pose(self):
         original = self.reports['front']
-        for kind in ('contact', 'binding', 'pose', 'early_heal', 'reversed_pose'):
+        for kind in ('contact', 'binding', 'pose', 'early_heal', 'reversed_pose', 'walk_samples'):
             mutant = copy.deepcopy(original)
             if kind == 'contact':
                 for row in mutant['frames']:
                     if row['stage'] == 'lash' and abs(row['snapshot']['phase'] - .45) < 1e-6:
                         row['snapshot']['phase'] += .01
             elif kind == 'binding': mutant['inputs'] = {}
+            elif kind == 'walk_samples': mutant['walk_samples'] = {}
             elif kind == 'pose':
                 next(r for r in mutant['frames'] if r['stage'] == 'thornwall')['bones'] = {}
             elif kind == 'early_heal':

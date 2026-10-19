@@ -1,7 +1,7 @@
-"""Gait-only own-edge texel copies, on the garment's existing skin field.
+"""Clip-scoped own-edge texel copies, on the garment's existing skin field.
 
 The recipe stores coordinates, not new paint. Production copies its already
-density-treated donor; rest and every non-gait clip retain the original texture.
+density-treated donor; clips without a recipe retain the original texture.
 """
 import numpy as np
 from PIL import Image
@@ -9,12 +9,14 @@ from PIL import Image
 from maquette_motion.material_palette import interior_donors, rules
 
 
-def texture(case, layout, part, *, gait=False, checks=False):
+def texture(case, layout, part, *, gait=False, checks=False, clip=None):
     record = layout['proof_layers'][part['name']] if checks else part
     path = record['mask'] if checks else record['file']
     with Image.open(case / path) as image:
         result = np.asarray(image.convert('RGBA')).copy()
-    recipe = layout.get('gait_continuations', {}).get(part['name']) if gait else None
+    recipes = (layout.get('gait_continuations', {}) if gait else
+               layout.get('clip_continuations', {}).get(clip, {}))
+    recipe = recipes.get(part['name'])
     if recipe:
         donor = next(p for p in layout['parts'] if p['name'] == recipe['donor'])
         with Image.open(case / donor['file']) as image:
@@ -41,9 +43,11 @@ def nearest_donors(case, layout, part, targets):
 
 
 def errors(case, layout):
+    tables = [layout.get('gait_continuations', {})]
+    tables += list(layout.get('clip_continuations', {}).values())
     parts = {p['name']: p for p in layout['parts']}
     result = []
-    for name, recipe in layout.get('gait_continuations', {}).items():
+    for name, recipe in [entry for recipes in tables for entry in recipes.items()]:
         if name not in parts or recipe.get('donor') not in parts:
             result.append('gait continuation: unknown part/donor: ' + name)
             continue

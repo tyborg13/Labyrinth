@@ -86,6 +86,15 @@ def source_report(case, assets):
                 count = outside_count(image, mask)
                 rows.append({'family': label, 'view': view, 'part': part['name'], 'residue_outside_features': count})
                 if count: errors.append(f'{label}/{view}/{part["name"]}: {count} residue texels outside features')
+                from humanoid_cutout.gait_continuations import texture
+                variants = {'move': layout.get('gait_continuations', {})}
+                variants.update(layout.get('clip_continuations', {}))
+                for clip, recipes in variants.items():
+                    if part['name'] not in recipes: continue
+                    pixels = texture(root, layout, part, gait=clip == 'move', clip=clip)
+                    count = outside_count(pixels, mask)
+                    rows.append({'family': label, 'view': view, 'part': part['name'], 'clip': clip, 'residue_outside_features': count})
+                    if count: errors.append(f'{label}/{view}/{clip}/{part["name"]}: {count} residue texels outside features')
             rest = Image.open(root / layout['rest_source']).convert('RGBA')
             count = outside_count(rest, feature_mask(case, view))
             rows.append({'family': label, 'view': view, 'part': 'rest', 'residue_outside_features': count})

@@ -21,7 +21,33 @@
     "move": {
       "seconds": 0.9,
       "intents": [],
-      "note": "a hunched shuffle on the stride/trailing pattern: the stride foot lifts 7 px (the hunch already bends the stance knee, so the swing must bend more), the pelvis is at rest height at each swing apex and dips 2 px after each landing, the claws sway, the leaf tatters trail 2 px",
+      "note": "a hunched creep on the protagonist's model: both legs step, six small steps per tile rest to rest, the near foot leading; 7 px lift (the hunch already bends the stance knee, so the swing must bend more); the pelvis settles 2.5 px after each landing; a 3 degree lean; the claws sway 3 px opposite the stepping leg; the leaf tatters trail 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 7,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.0,
+          "down": 2.5,
+          "passing": 0.5,
+          "up": 0.2
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
       "release_at": {}
     },
     "thornwall": {

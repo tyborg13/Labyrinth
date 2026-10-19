@@ -53,28 +53,25 @@ def errors(report, data):
 
 def motion_gates(report, data):
     """Apply the same knee/support gates at the measured production step size."""
-    from pathlib import Path
-    sys.path.insert(0, str(CASE.parents[3] / 'experiments/cutouts/arc_thrall'))
-    from rr11_knees import knee_report, support_report
+    from humanoid_cutout.walk_gates import report as walk_report, planted_support_report, summary
     moves = [r for r in report['frames'] if r['stage'] == 'move']
     if not moves: return {'ok': False, 'errors': ['missing production move evidence']}
     view = moves[0]['snapshot']['facing']
-    samples = {'step_distance_px': moves[0]['snapshot']['step_distance_px'],
-        'screen_pixel_scale': moves[0]['snapshot']['screen_pixel_scale'], 'samples': []}
-    for clip in ('move', 'lash'):
-        for frame, row in enumerate(r for r in report['frames'] if r['stage'] == clip):
-            samples['samples'].append(dict(row, view=view, clip='jab' if clip == 'lash' else 'move',
-                phase=row['snapshot']['phase'], frame=frame, kind='presented'))
+    samples = report.get('walk_samples', {}).get(view)
+    if not samples: return {'ok': False, 'errors': ['missing production walk samples']}
     layout = read_json(CASE / f'layouts/{view}.json')
-    knees = knee_report(layout, data, samples)
-    supports = support_report(layout, data, samples)
-    findings = knees['errors'] + supports['errors']
-    design = {}
-    if knees['errors']: design['TODO_DESIGN_' + view + '_move_knee_apex'] = knees['errors']
-    if supports['errors']: design['TODO_DESIGN_' + view + '_move_supports'] = supports['errors']
-    return {'ok': not findings, 'errors': findings, 'view': view, 'knees': knees, 'supports': supports,
+    walk = walk_report(layout, data, samples)
+    actions = {}
+    for facing in ('front', 'rear'):
+        rows = [dict(row, view=facing, clip=row['stage'], phase=row['snapshot']['phase'],
+                     frame=index, kind='presented') for index, row in enumerate(report['frames'])
+                if row['stage'] in ('thornwall', 'lash', 'mend', 'hit') and row['snapshot']['facing'] == facing]
+        if not rows: continue
+        actions[facing] = summary(planted_support_report(read_json(CASE / f'layouts/{facing}.json'), {'samples': rows}))
+    findings = sorted(set(walk['errors'] + [e for result in actions.values() for e in result['errors']]))
+    return {'ok': not findings, 'errors': findings, 'view': view, 'walk': summary(walk), 'supports': actions,
         'measured_step_distance_px': samples['step_distance_px'], 'measured_screen_pixel_scale': samples['screen_pixel_scale'],
-        'design_placeholders': design}
+        'design_placeholders': {}}
 
 
 if __name__ == '__main__':

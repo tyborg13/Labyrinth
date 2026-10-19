@@ -635,7 +635,7 @@
       }
     }
   },
-  "director_sha256": "947ed701639c51d948647225b10d46df30888a3bb3254275caab8051fc5410ca",
+  "director_sha256": "44906439aafd02f3fb0953f0c74ef2384b91f34fc6a6dbd2a1b47e9ccbbcecff",
   "production_promoted": true,
   "native_proof": "pending director windowed captures"
 }

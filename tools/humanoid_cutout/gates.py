@@ -327,8 +327,8 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     bound_inputs=bindings(case)
     if manifest['inputs'] != bound_inputs: errors.append('stale native proof inputs')
     data = read_json(case / 'compiled_motion.json')
-    sampled=read_json(case/'proof/samples.json')
-    from .bone_evidence import evidence_errors
+    from .bone_evidence import evidence_errors, load_samples
+    sampled=load_samples(case)
     errors += evidence_errors(data, sampled, bound_inputs, EPSILON)
     if sampled.get('inputs')!=bound_inputs: errors.append('stale headless pose reference; rerun samples.gd')
     expected_poses={(r['view'],r['clip'],r['frame']):r for r in sampled['samples'] if r['kind']=='presented'}
@@ -398,7 +398,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
                 from .gait_continuations import texture
-                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip]))
+                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip], clip=clip))
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.

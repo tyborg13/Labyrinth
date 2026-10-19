@@ -1,4 +1,5 @@
 native/
+native_failures/
 native_rest/
 production_native/
 idle_native/

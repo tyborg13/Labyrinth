@@ -11,7 +11,7 @@ static func apply(rig: Node2D, clip: String) -> void:
 	var source: Transform2D = rig.global_transform.affine_inverse()
 	var world: Dictionary = {}
 	var gait: bool = Motion.data_for(rig.layout).get("clips", {}).get(clip, {}).has("gait")
-	preload("humanoid_continuations.gd").apply(rig, gait)
+	preload("humanoid_continuations.gd").apply(rig, gait, clip)
 	var targets: Dictionary = rig.layout["_gait_world_targets"] if gait else {}
 	for name: String in rig.bones:
 		var bone: Bone2D = rig.bones[name]

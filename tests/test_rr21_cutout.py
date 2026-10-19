@@ -23,7 +23,9 @@ from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, 
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.production_gates import production_errors
-from rr11_knees import knee_report
+from humanoid_cutout.walk_gates import report as walk_report
+from humanoid_cutout.bone_evidence import load_samples
+from rr21_evidence import compact_samples, FULL_SAMPLES
 
 PROOF_TIMEOUT_SECONDS = 180
 FIXTURE_TRANSLATION_PX = 1
@@ -32,7 +34,7 @@ FIXTURE_STEP_PX = 96
 FIXTURE_SCREEN_SCALE = 2
 FIXTURE_RGBA_SIZE = (8, 8)
 FIXTURE_PAINT_RGBA = (80, 60, 40, 255)
-PRESERVED_FAMILIES = ('hoarfrost_seer', 'arc_thrall', 'storm_capacitor')
+PRESERVED_FAMILIES = ('hoarfrost_seer', 'arc_thrall', 'glacial_mirror', 'storm_capacitor')
 
 
 def run_script(script, *args):
@@ -50,8 +52,9 @@ class CutoutTests(unittest.TestCase):
         cls.layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in ('front', 'rear')}
         cls.data = read_json(CASE / 'compiled_motion.json')
         cls.build = read_json(CASE / 'proof/build.json')
-        run_script('tests/rr21/samples.gd', '--case', CASE, '--output', CASE / 'proof/samples.json')
-        cls.samples = read_json(CASE / 'proof/samples.json')
+        run_script('tests/rr21/samples.gd', '--case', CASE, '--output', FULL_SAMPLES)
+        compact_samples()
+        cls.samples = load_samples(CASE)
         cls.bound = bindings(CASE)
 
     def test_protected_import_compilation_and_native_delivery(self):
@@ -83,16 +86,21 @@ class CutoutTests(unittest.TestCase):
             self.assertEqual(report['errors'], [])
             for clip in ('lash', 'thornwall'): self.assertGreater(report['clip_positive_checks'][clip], 0)
 
-    def test_revised_move_knees_pass_without_runtime_tuning(self):
-        author = read_json(DIRECTOR)['briar_weaver']['clips']['move']['keys']
-        self.assertEqual([v for _, v in author['foot_stride.lift_px'] if v > 0], [7, 7])
-        pelvis = dict(author['pelvis.lift_px'])
-        self.assertEqual([pelvis[.2], pelvis[.65]], [0, 0])
-        self.assertEqual([pelvis[.4], pelvis[.85]], [-2, -2])
+    def test_director_walk_passes_shared_gates_without_runtime_tuning(self):
+        author = read_json(DIRECTOR)['briar_weaver']['clips']['move']
+        self.assertEqual(author['seconds'], .9)
+        gait = author['gait']
+        self.assertEqual(gait['steps_per_tile'], 6)
+        self.assertEqual(gait['lift_px'], 7)
+        self.assertEqual(gait['settle_px']['down'], 2.5)
         for layout in self.layouts.values():
-            report = knee_report(layout, self.data, self.samples)
-            self.assertEqual(len(report['swings']), 2)
+            self.assertNotIn('leg_roles', layout)
+            self.assertEqual(layout['planted_bones'], ['foot_near', 'foot_far'])
+            report = walk_report(layout, self.data, self.samples)
+            self.assertEqual(len(report['swings']), 6)
             self.assertEqual(report['errors'], [])
+            self.assertEqual(report['maximum_stance_frame_change_px'], 0)
+        self.assertNotIn('leg_roles', read_json(CASE / 'anatomy.json'))
         self.assertEqual(read_json(CASE / 'inputs.json')['design_placeholders'], {})
 
     def test_reach_reports_1000_intervals_and_no_hidden_clamp(self):

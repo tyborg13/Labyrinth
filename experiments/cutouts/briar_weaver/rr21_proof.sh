@@ -17,7 +17,8 @@ rest)
 python3 tools/visual_probe_runner.py --task-id rr-21 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/rr21/rest_contract.json tests/rr21/native_capture.gd -- --case "$rig_case" --output "$proof/native_rest" --rest-only
 ;;
 native)
-python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/rr21/samples.gd -- --case "$rig_case" --output "$proof/samples.json"
+python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/rr21/samples.gd -- --case "$rig_case" --output "$proof/logs/samples.json"
+PYTHONPATH=tools python3 -B experiments/cutouts/briar_weaver/rr21_evidence.py
 python3 tools/visual_probe_runner.py --task-id rr-21 --no-headless --display-driver macos --audio-driver Dummy --timeout 3600 --expect-size 1920x1080 --proof-contract tests/rr21/render_contract.json tests/rr21/native_capture.gd -- --case "$rig_case" --output "$proof/native"
 python3 -B experiments/cutouts/briar_weaver/rr21_gates.py --native "$proof/native"
 ;;

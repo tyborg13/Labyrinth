@@ -5,6 +5,20 @@ import math
 SAMPLE_FPS = 60
 
 
+def load_samples(case):
+    """Read legacy evidence or a compact record's hash-bound full diagnostics."""
+    from cutout_pipeline.cases import read_json, digest
+    proof = (case / 'proof').resolve()
+    record = read_json(proof / 'samples.json')
+    if 'full_samples' not in record:
+        return record
+    reference = record['full_samples']
+    path = (proof / reference['file']).resolve()
+    if not path.is_relative_to(proof) or not path.is_file() or digest(path) != reference['sha256']:
+        raise ValueError('bone evidence: missing or changed full sample diagnostics; rerun sampler')
+    return read_json(path)
+
+
 def evidence_errors(data, report, current_bindings, tolerance):
     errors = []
     if report.get('ok') is not True:
