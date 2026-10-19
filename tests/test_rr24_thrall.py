@@ -92,19 +92,22 @@ class ThrallOwnerFixTests(unittest.TestCase):
             with patch('rr24_check.source_pixels',side_effect=contaminated):
                 self.assertIn('hidden fill must use own skin: hidden_leg_near',source_errors(view,layout))
 
-    def test_idle_jaw_clearance_and_head_drop_mutation(self):
-        samples=deepcopy(self.samples)
-        samples['samples']=[p for p in samples['samples'] if p['clip']=='idle']
-        baseline=collar_report('front',self.layouts['front'],samples)
-        self.assertEqual(baseline['overlap_frames'],[])
-        for row in samples['samples']:row['bones']['head']['global'][5]+=FIXTURE_HEAD_DROP_PX
-        self.assertTrue(collar_report('front',self.layouts['front'],samples)['overlap_frames'])
+    def test_contact_allowed_but_reversed_head_ownership_is_caught(self):
+        for view,layout in self.layouts.items():
+            report=collar_report(view,layout,self.samples)
+            self.assertTrue(report['ok'])
+            self.assertTrue(report['contact_frames'])
+            self.assertTrue(all(r['collar_over_head_pixels']==0 for r in report['rows']))
+            mutant=deepcopy(layout)
+            body=next(p for p in mutant['parts'] if p['name']=='torso')
+            next(p for p in mutant['parts'] if p['name']=='head')['z_index']=body['z_index']-1
+            self.assertFalse(collar_report(view,mutant,self.samples)['ok'])
 
-    def test_death_contact_is_reported_and_remains_a_design_todo(self):
+    def test_contact_frames_are_reported_and_design_questions_are_resolved(self):
         report=collar_report('front',self.layouts['front'],self.samples)
-        self.assertEqual([(r['clip'],r['frame'],r['overlap_px']) for r in report['overlap_frames']],
-                         [('death',41,1),('death',66,1),('death',70,1),('death',72,1)])
-        self.assertIn('TODO_DESIGN_COLLAR_DEATH_CLEARANCE',read_json(CASE/'inputs.json')['design_placeholders'])
+        self.assertTrue(any(r['clip']=='death'and r['frame']==41 for r in report['contact_frames']))
+        for name in ('TODO_DESIGN_COLLAR_DEATH_CLEARANCE','TODO_DESIGN_PRESENTED_NEGATIVE_SPACE'):
+            self.assertNotIn(name,read_json(CASE/'inputs.json')['design_placeholders'])
 
     def test_hem_limit_settling_and_excessive_follow_through_mutation(self):
         for view,layout in self.layouts.items():

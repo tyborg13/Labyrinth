@@ -26,6 +26,9 @@ from humanoid_cutout.anatomy import load as load_anatomy
 from maquette_motion.silhouette import holes
 from cutout_pipeline.cases import read_json
 from tests.gait01.mutations import without_bind_anchor, without_transparent_target_guard
+sys.path.insert(0,str(ROOT/"experiments/cutouts/arc_thrall"))
+from rr24_baseline import BASELINE_FILE as THRALL_BASELINE, OWNED_ART_PREFIXES, assert_preserved as assert_repaint_preserved
+from rr24_seams import SkirtAirPolicy, frame_report as thrall_frame_report
 
 CASES={'arc_thrall':'rr11','glacial_mirror':'rr18'}
 DIRECTOR_DATA_REVISION='80d5ec39b'
@@ -268,23 +271,22 @@ class GaitTests(unittest.TestCase):
 
     def test_thrall_projected_seams_close_and_removing_coverage_reopens_them(self):
         case,_,layouts,samples=self.cases['arc_thrall']
-        failed={'front':(2,9,10,11,19,25,31,39,40,41,43,44,45),'rear':(5,45)}
+        failed=read_json(THRALL_BASELINE)['gait_removal_frames']
         for view,frames in failed.items():
+            self.assertTrue(frames)
             layout=layouts[view]
             model=CpuPose(case,copy.deepcopy(layout))
             unfilled=copy.deepcopy(layout);unfilled.pop('gait_continuations')
             baseline=CpuPose(case,unfilled)
-            for frame in frames:
+            policy=SkirtAirPolicy(case,layout)
+            for fixture in frames:
+                frame=fixture['frame']
                 pose=next(r for r in samples['samples'] if r['view']==view and r['clip']=='move'
                           and r['kind']=='presented' and r['frame']==frame)
-                def pockets(subject):
-                    layers,maps=subject.layers(pose)
-                    seams=np.logical_or.reduce(subject.masks(pose,layout['proof_joint_seams'],maps))
-                    owners=posed_owners(layers,layout['parts'],pose['bones'],[128,128],load_anatomy(case)['ownership'])
-                    return joint_holes(owners>0,seams,owners,pocket_details=True)
                 with self.subTest(view=view,frame=frame):
-                    self.assertEqual(pockets(model),[])
-                    self.assertTrue(pockets(baseline),'fed320023 source must reproduce the seam regression')
+                    self.assertEqual(thrall_frame_report(model,pose,policy)[-1]['failures'],[])
+                    defects=thrall_frame_report(baseline,pose,policy)[-1]['failures']
+                    self.assertEqual([{k:d[k] for k in ('bbox','pixel_count')} for d in defects],fixture['pockets'])
 
     def test_gait_continuations_are_own_edge_copies_and_preserve_non_move_textures(self):
         self.assertIn('GAIT CONTINUATION TEXTURES: PASS',run_godot('tests/gait01/continuation_checks.gd'))
@@ -313,7 +315,7 @@ class GaitTests(unittest.TestCase):
         source=continuation_texture(case,layout,part)
         x,y=FIXTURE_OPAQUE_TARGET
         self.assertGreater(source[y,x,3],0)
-        valid=layout['gait_continuations'][FIXTURE_OPAQUE_PART]['texels'][0][:2]
+        valid=read_json(THRALL_BASELINE)['opaque_fixture']['transparent_target']
         self.assertEqual(source[valid[1],valid[0],3],0)
         targets={'opaque':[FIXTURE_OPAQUE_TARGET], 'duplicate':[valid,valid],
                  'left':[[-1,valid[1]]], 'right':[[source.shape[1],valid[1]]],
@@ -379,7 +381,9 @@ class GaitTests(unittest.TestCase):
                    'assets/units/storm_capacitor_cutout/','experiments/cutouts/storm_capacitor/',
                    'spec/peer_benchmark/staged/')
         self.assertEqual([p for p in changed if p.startswith(protected)],[])
-        self.assertEqual([p for p in changed if p.endswith('.png')],[])
+        repaint=[p for p in changed if p.endswith('.png') and p.startswith(OWNED_ART_PREFIXES)]
+        for path in repaint: assert_repaint_preserved(self,path)
+        self.assertEqual([p for p in changed if p.endswith('.png') and not p.startswith(OWNED_ART_PREFIXES)],[])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

@@ -142,7 +142,7 @@
         73
       ],
       "bone": "head",
-      "z_index": -20,
+      "z_index": -22,
       "hidden_material": true,
       "logical_part": "head",
       "presentation_anchor": [
@@ -169,7 +169,7 @@
         29
       ],
       "bone": "head",
-      "z_index": 13,
+      "z_index": 15,
       "logical_part": "head"
     },
     {
@@ -186,7 +186,7 @@
         149
       ],
       "bone": "torso",
-      "z_index": -14,
+      "z_index": -15,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -209,7 +209,7 @@
         110
       ],
       "bone": "torso",
-      "z_index": -13,
+      "z_index": -14,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -253,7 +253,7 @@
         117
       ],
       "bone": "upper_near",
-      "z_index": -17,
+      "z_index": -18,
       "hidden_material": true,
       "logical_part": "upper_near",
       "presentation_anchor": [
@@ -297,7 +297,7 @@
         111
       ],
       "bone": "fore_near",
-      "z_index": -18,
+      "z_index": -19,
       "hidden_material": true,
       "logical_part": "tube",
       "presentation_anchor": [
@@ -377,7 +377,7 @@
         140
       ],
       "bone": "hand_far",
-      "z_index": -15,
+      "z_index": -16,
       "hidden_material": true,
       "logical_part": "claw",
       "presentation_anchor": [
@@ -626,17 +626,17 @@
       "name": "mq7b_continuation_head",
       "file": "pieces/rear/mq7b_continuation_head.png",
       "offset": [
-        135,
+        134,
         47
       ],
       "bbox": [
-        135,
+        134,
         47,
         164,
         68
       ],
       "bone": "head",
-      "z_index": -19,
+      "z_index": -21,
       "hidden_material": true,
       "logical_part": "head",
       "joint_extension": true,
@@ -659,7 +659,7 @@
         130
       ],
       "bone": "torso",
-      "z_index": -12,
+      "z_index": -13,
       "hidden_material": true,
       "logical_part": "torso",
       "joint_extension": true,
@@ -682,7 +682,7 @@
         117
       ],
       "bone": "upper_near",
-      "z_index": -16,
+      "z_index": -17,
       "hidden_material": true,
       "logical_part": "upper_near",
       "joint_extension": true,
@@ -766,6 +766,52 @@
       "hidden_material": true,
       "logical_part": "loincloth",
       "joint_extension": true
+    },
+    {
+      "name": "joint_tuck_head",
+      "file": "pieces/rear/joint_tuck_head.png",
+      "offset": [
+        164,
+        64
+      ],
+      "bbox": [
+        164,
+        64,
+        165,
+        65
+      ],
+      "bone": "head",
+      "logical_part": "head",
+      "hidden_material": true,
+      "joint_extension": true,
+      "z_index": -20,
+      "presentation_anchor": [
+        156.5,
+        48.75
+      ]
+    },
+    {
+      "name": "joint_tuck_torso",
+      "file": "pieces/rear/joint_tuck_torso.png",
+      "offset": [
+        159,
+        66
+      ],
+      "bbox": [
+        159,
+        66,
+        160,
+        67
+      ],
+      "bone": "torso",
+      "logical_part": "torso",
+      "hidden_material": true,
+      "joint_extension": true,
+      "z_index": -12,
+      "presentation_anchor": [
+        129.0,
+        87.75
+      ]
     }
   ],
   "joint_meshes": [
@@ -180465,7 +180511,7 @@
         124,
         45
       ],
-      "z_index": -20,
+      "z_index": -22,
       "source": "pieces/rear/hidden_head.png",
       "rigid": true,
       "source_sha256": "daa33867ecd9ba2f3cacf6564cc9db60f223589262d9bb686a781b90b7bd17bf"
@@ -180476,7 +180522,7 @@
         127,
         29
       ],
-      "z_index": 13,
+      "z_index": 15,
       "source": "pieces/rear/head.png",
       "rigid": true,
       "source_sha256": "836fbd308547746f31b86ebb99aa0ccc32d26bc4adf13a34e7558902e12f0bb9"
@@ -180487,7 +180533,7 @@
         89,
         41
       ],
-      "z_index": -14,
+      "z_index": -15,
       "source": "pieces/rear/hidden_torso.png",
       "rigid": true,
       "source_sha256": "ff1e9327e6040ee81c1bf078c630b927ebd2dd04ad6ef6295b251d4ddc004851"
@@ -180498,7 +180544,7 @@
         80,
         40
       ],
-      "z_index": -13,
+      "z_index": -14,
       "source": "pieces/rear/joint_extension_torso.png",
       "rigid": true,
       "source_sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
@@ -180520,10 +180566,10 @@
         69,
         63
       ],
-      "z_index": -17,
+      "z_index": -18,
       "source": "pieces/rear/hidden_upper_near.png",
       "rigid": true,
-      "source_sha256": "e90225389cd60cb5058a762525797b87dff97d3d3b1534b57c096ee891a24d95"
+      "source_sha256": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223"
     },
     "upper_near": {
       "mask": "checks/rear/upper_near.png",
@@ -180542,7 +180588,7 @@
         71,
         103
       ],
-      "z_index": -18,
+      "z_index": -19,
       "source": "pieces/rear/hidden_tube.png",
       "rigid": true,
       "source_sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
@@ -180586,7 +180632,7 @@
         185,
         129
       ],
-      "z_index": -15,
+      "z_index": -16,
       "source": "pieces/rear/hidden_claw.png",
       "rigid": true,
       "source_sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
@@ -180726,13 +180772,13 @@
     "mq7b_continuation_head": {
       "mask": "checks/rear/mq7b_continuation_head.png",
       "mask_offset": [
-        135,
+        134,
         47
       ],
-      "z_index": -19,
+      "z_index": -21,
       "source": "pieces/rear/mq7b_continuation_head.png",
       "rigid": true,
-      "source_sha256": "2da3d11506f1555e6df3de4281bf787db0cf8bd27f1aa669b45e7f6f377263b3"
+      "source_sha256": "dd657e3359d320603e38c145cce2c9eff8c069ae14b3c09012ad4a410cb85343"
     },
     "mq7b_continuation_torso": {
       "mask": "checks/rear/mq7b_continuation_torso.png",
@@ -180740,7 +180786,7 @@
         104,
         59
       ],
-      "z_index": -12,
+      "z_index": -13,
       "source": "pieces/rear/mq7b_continuation_torso.png",
       "rigid": true,
       "source_sha256": "89f8fc8dda776e100a416785ef47dd9d87238d020227e7bc3f20eacecbbbbb99"
@@ -180751,7 +180797,7 @@
         92,
         110
       ],
-      "z_index": -16,
+      "z_index": -17,
       "source": "pieces/rear/mq7b_continuation_upper_near.png",
       "rigid": true,
       "source_sha256": "9426547e6bea984f75a2f86a4a3aefd7309b68dab17aac7769325fa02e5dd565"
@@ -180799,6 +180845,28 @@
       "source": "pieces/rear/mq7b_continuation_loincloth.png",
       "rigid": false,
       "source_sha256": "ba974ca66e2115de4281236b0e76836459792ea095b4e75b1e4cd81001f40000"
+    },
+    "joint_tuck_head": {
+      "mask": "checks/rear/joint_tuck_head.png",
+      "mask_offset": [
+        164,
+        64
+      ],
+      "z_index": -20,
+      "source": "pieces/rear/joint_tuck_head.png",
+      "rigid": true,
+      "source_sha256": "016ce9ba7b56dc5dce775593fcb595c683aa8eb7b970face9efd1906ff152936"
+    },
+    "joint_tuck_torso": {
+      "mask": "checks/rear/joint_tuck_torso.png",
+      "mask_offset": [
+        159,
+        66
+      ],
+      "z_index": -12,
+      "source": "pieces/rear/joint_tuck_torso.png",
+      "rigid": true,
+      "source_sha256": "74d10a94e08d46922bb1755c6dc5871cff9ebd2813f1998da44fc3a8ee91b773"
     }
   },
   "proof_rest_holes": [],

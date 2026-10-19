@@ -158,6 +158,9 @@ def build_view(view):
         hidden[part['logical_part']][mask] = layer[mask]
     for name, image in hidden.items():
         hidden[name], _ = clean_residue(image, visible[name])
+    # The repaint supersedes mq7 donor colours as well as its visible cut.
+    # Keep the certified shoulder cap's alpha, using current own-arm texels.
+    hidden['upper_near'] = edge_texels(visible['upper_near'],hidden['upper_near'][...,3]>0,rules(CASE,view))
     # Skin uncovered by the new skirt remains on each leg's own skin field.
     # Extend only beneath the approved skirt, using that thigh's own texels.
     for name in ('leg_near', 'leg_far'):
@@ -180,6 +183,17 @@ def build_view(view):
                    & (visible['head'][...,3] > 0))
     continuation = edge_texels(visible['torso'], collar_tuck, rules(CASE,view))
     hidden['torso'][collar_tuck] = continuation[collar_tuck]
+    # Feedback 1's rear nape seam is a covered joint, not permitted skirt air.
+    # Extend its own skin only at the inverse-traced source points, all under
+    # the existing collar paint. No source silhouette or motion changes.
+    for name,recipe in read_json(RECIPE/'joint_continuations.json').get(view,{}).items():
+        domain = np.zeros(paint.shape[:2],dtype=bool)
+        for x,y in recipe['source_points']:
+            if not visible[recipe['cover']][y,x,3]:
+                raise ValueError('Nape continuation must be covered at rest')
+            domain[y,x] = True
+        continuation = edge_texels(visible[name],domain,rules(CASE,view))
+        hidden[name][domain] = continuation[domain]
     reports = []
     for name, recipe in anatomy['tucks']['pieces'].items():
         required = required_tuck(name, visible, layout['joints'], anatomy['tucks'],
@@ -198,6 +212,9 @@ def build_view(view):
     # larger crop for its newly owned neck. Its presentation anchor is fixed.
     parts, meshes = [], []
     depths = {p['name']: p['z_index'] for p in old['parts']}
+    # Feedback 1: bowed heads may contact the band, but painted head pixels
+    # always win head/collar overlap in both views.
+    depths['head'] = max(depths['head'], depths['torso'] + 1)
     depths['loincloth'] = max(depths['loincloth'], depths['leg_near'] + 1, depths['leg_far'] + 1)
     allocated = {n: np.zeros(paint.shape[:2], dtype=bool) for n in PIECES}
     for original in old['parts']:
@@ -251,6 +268,20 @@ def build_view(view):
         else:
             part['presentation_anchor'] = original.get('presentation_anchor', original['offset'])
         parts.append(part)
+    # Covered rigid joint corners use their registered joint anchor rather
+    # than a distant crop's rounding phase. This closes the waist/nape seams
+    # without adding alpha to the approved rest or changing any bone motion.
+    for recipe in read_json(RECIPE/'joint_continuations.json').get('registered_tucks',{}).get(view,[]):
+        garment = recipe['garment']
+        domain = np.zeros(paint.shape[:2],dtype=bool)
+        for x,y in recipe['source_points']:
+            if not paint[y,x,3]: raise ValueError('Registered joint tuck must be covered in approved rest')
+            domain[y,x] = True
+        image = edge_texels(visible[garment],domain,rules(CASE,view))
+        hidden[garment][domain] = image[domain]
+        parts.append(dict(store(image,CASE/'pieces'/view,recipe['name']),
+            bone=BONES.get(garment,garment),logical_part=garment,hidden_material=True,joint_extension=True,
+            z_index=min(depths.values())-1,presentation_anchor=layout['joints'][recipe['anchor_joint']]['position']))
     layout.update(parts=parts, joint_meshes=meshes)
     for mesh in meshes:
         garment = mesh['garment']
@@ -281,6 +312,12 @@ def build_view(view):
 
 
 def main():
+    policy = read_json(CASE/'rr24_policy.json')
+    policy['implementation_sha256'] = {str((Path(__file__).parent/name).relative_to(PROJECT)):
+        digest(Path(__file__).parent/name) for name in
+        ('rr24_seams.py','rr24_check.py','rr24_native_gates.py','rr24_native_proof.py',
+         'rr24_native_capture.gd','rr24_crops.py','rr11_gates.py')}
+    write_json(CASE/'rr24_policy.json',policy)
     layouts, reports = {}, {}
     for view in ('front', 'rear'):
         layouts[view], reports[view] = build_view(view)

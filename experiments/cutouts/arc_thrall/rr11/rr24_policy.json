@@ -1,0 +1,29 @@
+{
+  "head_collar": {
+    "policy": "visible_head_above_collar",
+    "contact_allowed": true
+  },
+  "seams": {
+    "policy": "approved_source_air_between_skirt_and_legs",
+    "skirt_owners": [
+      "loincloth"
+    ],
+    "leg_owners": [
+      "thigh_near",
+      "shin_near",
+      "thigh_far",
+      "shin_far"
+    ],
+    "source": "immutable approved-paint and tuck masks of every piece",
+    "frame_exceptions": false
+  },
+  "implementation_sha256": {
+    "experiments/cutouts/arc_thrall/rr24_seams.py": "dcc1a8b222e4b01e61a1a6d2af2a3c39d60021e3edff737f843fc133a812d267",
+    "experiments/cutouts/arc_thrall/rr24_check.py": "1a275a3917091fd35b587cafa27588450c2fcef131c3559897fbd4f150908188",
+    "experiments/cutouts/arc_thrall/rr24_native_gates.py": "6e22bd00fa202cf7bd42964efc27058d7e49b464164973bbb1e5e3b62ca065ad",
+    "experiments/cutouts/arc_thrall/rr24_native_proof.py": "9b62fa9170a416238e1eb59543d60bcf1cd90253ff85cd7eaccc24d4c1948539",
+    "experiments/cutouts/arc_thrall/rr24_native_capture.gd": "30ef547770caaee9559abf3a7d3348e561c5573e85551417ac5a8a5e2bbd3f8d",
+    "experiments/cutouts/arc_thrall/rr24_crops.py": "95caac6e1aff8e95eff78c26b9fe3d0a31498c7965f2504f6435f89b9a65df63",
+    "experiments/cutouts/arc_thrall/rr11_gates.py": "76dd3cbd253c682016798b7875e8322b79cc0d66ac74c9e5414fb414d8d6475c"
+  }
+}

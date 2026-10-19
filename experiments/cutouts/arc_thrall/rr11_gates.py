@@ -31,7 +31,9 @@ def main():
         errors += knees[view]['errors']
         errors += supports[view]['errors']
     errors += cut_errors
-    if args.native: errors += native_errors(CASE, args.native)
+    if args.native:
+        from rr24_native_gates import errors as thrall_native_errors
+        errors += thrall_native_errors(CASE,args.native)
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
     write_walk_reports(CASE, 'knees', knees)
     write_walk_reports(CASE, 'supports', supports)

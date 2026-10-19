@@ -1,0 +1,2825 @@
+{
+  "authority": {
+    "repaint_commit": "4de3c0dc2d59a83246c6b36abfcada081ff1fdc0",
+    "director_data_commit": "80d5ec39bfa4b79c176835a02c6137044a7de75e",
+    "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
+    "paintings": {
+      "front": {
+        "path": "spec/art_identity/jobs/arc_thrall/mq7b_front/processed.png",
+        "sha256": "0d5599290b76bab0cc3bc3317af5e4e54b74fcef53d411b4ad25dce04610d381"
+      },
+      "rear": {
+        "path": "spec/art_identity/jobs/arc_thrall/mq7b_rear/processed.png",
+        "sha256": "9cdfe676cad158de07b979512f4fa1adcf2d912ef457cfe722e4caa03316f468"
+      }
+    }
+  },
+  "files": {
+    "assets/units/arc_thrall_cutout/front.json": {
+      "reference_path": "assets/units/arc_thrall_cutout/front.json",
+      "canonical_layout_sha256": "69a9b6ba640655d7ad6d7eccd4c9ee1f59e67e7ee116d5511a6a4c5081030d6a"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front.json": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front.json",
+      "canonical_layout_sha256": "00de1eb9e229714a414be219d2238855cf9e8c84395f819d57bd15ab8274c5fe"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png",
+      "sha256": "ee82229c874769006caba79cf9b1d39c3a44e471c6db8ad00dfcddefc56ca0f7"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png",
+      "sha256": "5c25be052f23b5f56f4a4098b2c8a756c860990a688b123c392f3ba807882051"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png",
+      "sha256": "f379b9659480d87268e3b0c97497fe5c5c947aaf1fe375502d64bbf4c7732b51"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/head.png",
+      "sha256": "988d2373996af57d3da9c11f048a9e15e485e3d746c96af089f691ecf84b9afe"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/head.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png",
+      "sha256": "9211bc13ebfa597c8fd82ca9368e9fbdb32b1c576b5e385d5215b79e67447f21"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png",
+      "sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png",
+      "sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png",
+      "sha256": "fefce942682e7c1b02797b7030407192e66b0c621cf1562ad1959cf8f6f94e20"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png",
+      "sha256": "4a426cf9fccd99d21c94050fead97025d1417567345a7536c24379833afa6742"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png",
+      "sha256": "b630f3721ae1d5c7046fc9a3dbeeededdb6dfe496ca62e88c9c8301fdb64d849"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png",
+      "sha256": "9a09756c60fb8a1489dbac0130f8c423af50f00ec3a32736f93d109b8a3bdb33"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png",
+      "sha256": "f8bbbd212c17e4e67c6a1f07679ae0e5ab9c31faaa7078d1ddd9b5ec4cc3460c"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png",
+      "sha256": "6dc4b0176e20ea98c1bd7c67af6c871d682d0b15532c4932a3293463536e48da"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png",
+      "sha256": "52934a8ba243560d4512ca1f6b7b074fd28e6db17dd679ccf8ba721b7aa0b46f"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png",
+      "sha256": "80d58e48c6ddd99aab4e0ebdbe7b599d6f0e4d3449153da23644c45bb7aec221"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_tuck_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_tuck_torso.png",
+      "sha256": "8a50e9ea82735c7dad1f61c93b96f32eaa996ede4c21d6c2d2bf1c8bf6990645"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png",
+      "sha256": "0f7bb9e8b0f4dde58cee052d08a099d15d7abc7a75e3b1d979e2f9101f37c3dd"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png",
+      "sha256": "e63bc20ee07ee197301d7eee472a340e4c0092d49b7ad972194c8c43b481c439"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png",
+      "sha256": "d16a2ac21b33d844bd8951c62aa9cf5daaaff1df63ed17d403712e9427104a9d"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_head.png",
+      "sha256": "0661f76693981c8664ea48b0135901a58227ac46de78c6b90b19d3bd175b2d92"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_far.png",
+      "sha256": "869a861a39554d9a82b22e19164294fd8e0b3c48e2660cc9849d584ac8f8729c"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_near.png",
+      "sha256": "ba99b6b4a3f7c85d71f5d030b9424ca89300abccad0141b8f4beb07b290dc786"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png",
+      "sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png",
+      "sha256": "86ad60b78a227f8b2af8d1a5a3637f8b6a9571888a5faa2e345190120d1fddb3"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png",
+      "sha256": "63ac8f3937f50071e11add4ec4557df21ab63ef34d84e541cba5c6b760cdf127"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png",
+      "sha256": "c0cc720bec0f760044428a47acf96230f7d5594fdfd1d8654ccd4d1ab3aa5897"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png",
+      "sha256": "c09c584b6fa6fccb361099bd78ea0e29fd3df287bf75dad6234e27a7f713057f"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png",
+      "sha256": "490c47d435e4798dc23bf992151fecd28b819318d78aabc45d66f9dc86116c0d"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png",
+      "sha256": "954b465f4460d14f377e1296e83bb8c5c29a1d53e43e02a5857f72c6c02ea06e"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png",
+      "sha256": "f529ec2ef49a948dd3040c28d48ced2c5006718c97d48ed6d86824cdb8a55d07"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png.import": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png.import",
+      "sha256": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/claw.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/claw.png",
+      "sha256": "f82c7da63f8546c0e54a3e53494ae3ae44c5233e4363b6a4e44aef422f9ab072"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png",
+      "sha256": "63cf41e72d3644c57bf3560145f8ec9827f0a34dbd01e1f972a0ed2833848f57"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_near.png",
+      "sha256": "80ff7dd2d36d2fe7a801bb2f3f1bbf501df1e917842aa0552f4fbd65537cda9a"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png",
+      "sha256": "ad836f761f4e8ac3b7a5e38672d43dc0c01ce450ba9ea8469824a2914461033c"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png",
+      "sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png",
+      "sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png",
+      "sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png",
+      "sha256": "daa33867ecd9ba2f3cacf6564cc9db60f223589262d9bb686a781b90b7bd17bf"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_far.png",
+      "sha256": "42cc7edc93c3def5e218b34e725498641d58ff0178fa1c35b252a924e9237cb5"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png",
+      "sha256": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png",
+      "sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png",
+      "sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png",
+      "sha256": "b26f903a6a7a8298985b3b54832a94a2b2554efe084dc15991231cd8b39f6c5d"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png",
+      "sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png",
+      "sha256": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_loincloth.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_loincloth.png",
+      "sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png",
+      "sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png",
+      "sha256": "016ce9ba7b56dc5dce775593fcb595c683aa8eb7b970face9efd1906ff152936"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_torso.png",
+      "sha256": "74d10a94e08d46922bb1755c6dc5871cff9ebd2813f1998da44fc3a8ee91b773"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png",
+      "sha256": "69b9f149a97d96ad6eb9dc00fc4964d9b95bdc0b38095e294ea8cbac31ae362b"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png",
+      "sha256": "e06e70f29c27b3c2d092ce1a4946a3ad6d597fc384fcd820159f0fa0ab885d83"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png",
+      "sha256": "c1ea586f050e1bb9d928389ba6b8d28f9191b5e5777e81ae7b732ccfd0d56cfb"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_head.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_head.png",
+      "sha256": "dd657e3359d320603e38c145cce2c9eff8c069ae14b3c09012ad4a410cb85343"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png",
+      "sha256": "858737421813de577e19fd8301fc70faa4ece9068a6c15827381d9664c4af74e"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_near.png",
+      "sha256": "b91191100a68337b186db4f5ae3532fd2831f0b77794b5fc44a0dd67d26f8a1d"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png",
+      "sha256": "6e642d30140d33151a6b00806b2003896545d1ffd6e38472ee60aba3c1c1a8fe"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png",
+      "sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png",
+      "sha256": "5929259a66d713c76fc237d60db42b9e964f10474e0d7325378245a84ff7613d"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_upper_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_upper_near.png",
+      "sha256": "9426547e6bea984f75a2f86a4a3aefd7309b68dab17aac7769325fa02e5dd565"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png",
+      "sha256": "acf752a8da2f6579f4bf4d7fafc4eadd744047b005fa20c8ecee6bc398962705"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png",
+      "sha256": "8eff3f8b995d202475426e082cf05d74815a2c1aaf6a7a2ff8526a2ba0e70d81"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png",
+      "sha256": "89f877e94201d031016afb27b96764c958ccd0a1da5d006ea38ce02ca105bf65"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png",
+      "sha256": "533abe25131d3f7aaf2136fc2fd76e415ed3155428d10c2f8d5b582af10a35c0"
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png": {
+      "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png",
+      "sha256": "ba537ae2017201eec3868de20eebd6c85067ddd00c32a9cd49f0a7b50723ef8b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/anatomy.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/anatomy.json",
+      "sha256": "500b2164e24edce7cea96611a283ea08f72a023ec4c4a6d0369fa8bd11ed119b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/claw.png",
+      "sha256": "ee990767346eccde8058ac38bbeecfe524ced4d0b3a089092c424ce74efc9495"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/foot_far.png",
+      "sha256": "581214b1a7e46e3ee76be98fe05865029bf2f98f201df2a0048c2999cf15ccfc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/foot_near.png",
+      "sha256": "df8ba5037e9bd09643798eff6a5d07ed91596b96ec7e4dbdde930c130fae5d7e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/head.png",
+      "sha256": "9b6bac6cf76c48e7c7d6abc820c8e5dd19ad9adea6ceb7d8cbf7ad758247eb2f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_claw.png",
+      "sha256": "b4a06aef8c389c48a4d07cd33b7b8603d3e075af9fc62178941e8f949a1dd795"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_foot_far.png",
+      "sha256": "863a61037547a2a782e2f40e43a098a93b4920b3fc89943e371c3b5b8804a26e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_foot_near.png",
+      "sha256": "b37d6cd7c2327fdae91b58a81cf08e714b6647f1cd4cc7d06c996c3a6bd9f872"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_head.png",
+      "sha256": "74de236b646f8d7ad8e3ccd8456dd046efce552dc73fe54077fddc53368d7907"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_leg_far.png",
+      "sha256": "324556d14046719d54e421ea39168872dcb581cb659ec04906adaa5f7e60e931"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_leg_near.png",
+      "sha256": "d37a738e06a52ae76445e5ffa3febadcf7ef3e78a79df8f6ed78aabc93b30330"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_sleeve_far.png",
+      "sha256": "83f0c0b551438c78aba6b3f95f1ea88f43ddf7fae1862b55a706ca03452757c0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_torso.png",
+      "sha256": "9d59babc196ed04207bb044bb916f44a3c9c277c6b4afe62fee09a02993a431b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_tube.png",
+      "sha256": "72684649a2a5a42ee2cc978813b3a72fecad569690d4fea5c25bd23ca27432a5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_upper_near.png",
+      "sha256": "a5c70d8ccad14310abe95378cf80240083fee021b43794fb352a85bb1ca633fc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/joint_extension_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/joint_extension_torso.png",
+      "sha256": "526ed860a7189605df9477aaf9689f86a259fe37f885b9aefce1c5890b375248"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/joint_tuck_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/joint_tuck_torso.png",
+      "sha256": "dccc4ecebeb1137feb0000c76270b59f66c418cfc57dd6618aad2f1e7cf6f37b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/leg_far.png",
+      "sha256": "94509c9a558c747bdeeb34681cbddd6ababcbad2c73a91a079e7be6c9b9887d0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/leg_near.png",
+      "sha256": "94baae6442d85fea6e52259b3bbb42f2371ba9983c0a4a4b813f8469c66d90dc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/loincloth.png",
+      "sha256": "7807b34c035b944b4c64acfff3118ac720ad28230bea76f11397957e647e528e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_head.png",
+      "sha256": "a8df2624da793671b234ba029af72515836ab9307ec910b259804f0c6c934121"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_leg_far.png",
+      "sha256": "e8c4b0b33483bea010c45fe1fe7d8751d2fbf91b10314c87a66e0c7bc1fed08d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_leg_near.png",
+      "sha256": "807e866711945e6e8a602bdc34b46cacb52a011ca9897c1c3bb7debe03ef3c32"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_loincloth.png",
+      "sha256": "fe54d75ca786acf96210eeddc1b1f39af88525932b130ff99ccb2add986d999b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_sleeve_far.png",
+      "sha256": "32e1a01e7f03e419e157e4618ac535ebec87d2c5a18d0184fb629d490b94fd7b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/mq7b_continuation_torso.png",
+      "sha256": "ab316c88b88d75b8acf940859579e673a215ece2718337dc3a649b369734ce8a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/sleeve_far.png",
+      "sha256": "901c40a4f009125111a72a5d8f69ff3dd7bcfc885672955b95cf37669e465114"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/torso.png",
+      "sha256": "6bb7ea7e5a823cb61919243131b9478e81e7034bb54dfc5ea1b9708078c92d8e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/tube.png",
+      "sha256": "a3b90d5b85ac76c27e88f3b6f1d1461e1645bad0738b051b663f77ef3d1025ef"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/front/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/front/upper_near.png",
+      "sha256": "2e37b8d687bd43966012e54452b2f5cf9c82de449204023ee0b1276d330ae2da"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/claw.png",
+      "sha256": "0347116f295fa65e54efffc50d88a694bd18e83ef0fa8243856ebafa9adc086c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/foot_far.png",
+      "sha256": "3cbe7ecd6a6976e3a04a3691b19d588889768472a078771d2f5f451943d5564b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/foot_near.png",
+      "sha256": "43ca15275ee5c5cc4372a97f0f7e1117b29433bf60585d06195224fcb34e9172"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/head.png",
+      "sha256": "5cf0581590d4fc5c7e598c4242c9a20e1dddc8d1ffe52eefe7188d61ed786d25"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_claw.png",
+      "sha256": "2336223c3082fd71364926ce861f0850957a4d210d7e1058de89cbfb5799a57d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_foot_far.png",
+      "sha256": "4f2aa1a9f8a0c462084a181e9cc146f51f5d1ef33b391cd280ed30cff224bbe2"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_foot_near.png",
+      "sha256": "6708f7e02822839b3a8526d56c6e4b966912340d43170646e49255f8edcfc787"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_head.png",
+      "sha256": "3889c6c98f282f8ac29e385b470b475aa50c21d2847444ce724b7287ed1685c5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_leg_far.png",
+      "sha256": "a0e9acd54c4c96d338294635223b77fddc77af866c2f1d34c70f76a0be76a8ac"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_leg_near.png",
+      "sha256": "9fd91e5041c80dca6ffdc63e2e49e8a90323fbb164a9fb9e088d27a9f7475384"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_loincloth.png",
+      "sha256": "f63af87f6fedfa3e8367b118e3bac134db3aefcc1108eaa2b74cd439eafa206c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_sleeve_far.png",
+      "sha256": "c1486eb558ed9ceab33565edb818b2b57a36ac7a17d3e6c9ec99fae3925dbe2c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_torso.png",
+      "sha256": "b723cc866fa2cabfe2395743e5cd6656b00291bef271b97a51614e36bdb6f465"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_tube.png",
+      "sha256": "12b09b0b95ea58bd2fb17dba66e37f5df0ec89ad47c176e2452b50718539a878"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_upper_near.png",
+      "sha256": "32ade0e37d980b4968da586a047e3e01785dcc940edf4089069d45910f7ab34c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_extension_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_extension_loincloth.png",
+      "sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_extension_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_extension_torso.png",
+      "sha256": "3915c42a443800d293243b3fca0edc161bd0d00906a2ca2c6b8409443dba47ac"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_tuck_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_tuck_head.png",
+      "sha256": "ec9fb4341e26d8ad4fa4c6f5742dc40423c6eee5452ac16444e5e8c2b5c7551f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_tuck_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_tuck_torso.png",
+      "sha256": "ec9fb4341e26d8ad4fa4c6f5742dc40423c6eee5452ac16444e5e8c2b5c7551f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/leg_far.png",
+      "sha256": "f95d70540d752eee8b47f004677b47fabc758be59481bb3d08eca9d80b55094e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/leg_near.png",
+      "sha256": "f1ac00f28dbca42bcb718f4adb510a345e155cfebacbf0cf921bc43cc6256ab5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/loincloth.png",
+      "sha256": "19100f331fbd22a2bbf3a006552a380011923a89da0c192abf167fdb161debb0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_head.png",
+      "sha256": "8e7e33c108e8dc455579a99c8d2eca102bb362a1fdcdcf9565ef54a30dce73f9"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_leg_far.png",
+      "sha256": "90f34cf3848432fc256630ceef28d365df6ec3da0d15421cf41690b23abe32ae"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_leg_near.png",
+      "sha256": "03002461fb5cdf2e60919b8ef20199d9840840aa49c2f3ef63c4af150b183d78"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_loincloth.png",
+      "sha256": "68ec8f042b7442b14c727409272e89157feb95cbb4c2250c2b96bf16630a3bff"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_sleeve_far.png",
+      "sha256": "b0b336422915e92f41289ee6b8fe9bb1e1c9b4ea80334408b17841af41b5ea65"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_torso.png",
+      "sha256": "fada267c97b44ace00dccf50ccb46200c4a7ca699f13c8d98fc008797b87afd3"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/mq7b_continuation_upper_near.png",
+      "sha256": "82553444f06f551c25ce6f2e2550e02aa529edb7b4cd2ad84baeb70cf3ab9bdd"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/sleeve_far.png",
+      "sha256": "ed3cc3c955f69ee29ca83f0bc4ce36842099deb2a4b7a814a8ab64eedd81cc69"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/torso.png",
+      "sha256": "5b0c62f11684c09ee96aebb9c487756f328b8cf52878affd8ed2f2ee5ce6db0a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/tube.png",
+      "sha256": "c72bcb0e26174d75ed82a7910d02f4554f3be9ee612ea9ebf92aa7aa28159536"
+    },
+    "experiments/cutouts/arc_thrall/rr11/checks/rear/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/checks/rear/upper_near.png",
+      "sha256": "e0170da973c9fc5ae837fce685766b8fe8f1a6843aa5e8a3ae45f7f1bf74b7c0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/compiled_motion.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/compiled_motion.json",
+      "sha256": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/director_motion.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/director_motion.json",
+      "sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/collar.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/collar.png",
+      "sha256": "e9e240c4a3abaa30058bce75348573bba55372cd059c3d0872635a0c0efa5b83"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/foot_far.png",
+      "sha256": "245461c59a95d70ab25cdf7ea2812e867e9a4d0adba1244dd6f8b749a8fdc175"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/foot_near.png",
+      "sha256": "23989dc911d19720e28882191d9464477ab64467d043778747fe3ffebc09564e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/fore_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/fore_far.png",
+      "sha256": "078699fbff4d77e19bca1cb8106d34851db81ec866da281052cddff41056048e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/fore_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/fore_near.png",
+      "sha256": "f4f4d991c4a82993e935eb1e2dd7d8aac2cde810affb015bc84a534fdaede887"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/hand_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/hand_far.png",
+      "sha256": "eb98c54dcc5f38ac3d3986fdff4672864b9e5be24e788fd77fb98ff8d2b3a493"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/head.png",
+      "sha256": "46ae089364ac18c9c2a89cc8a2d8fb9f12a8b3a1b1ced413bf829948ab42fdee"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/loincloth.png",
+      "sha256": "2be2ffa5075a3e603809bbb2b03e730f4c3c0fc432da7a091bc05a18b6d9f50a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/shin_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/shin_far.png",
+      "sha256": "1a38c10a6f08656d9a0d92a27323464747f9523cde7729bbdf670a7a07a781ce"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/shin_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/shin_near.png",
+      "sha256": "5fe55871ae74ac76d01bc0b82028a4c4133d0ef551864a38ee667c50c241f826"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/thigh_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/thigh_far.png",
+      "sha256": "cee6414d7d56dea31a267492d79452c72a0937ef2fe4c34cb453a15d0f0b3a59"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/thigh_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/thigh_near.png",
+      "sha256": "6c8caa3e8346841f3cb88a646bb94d0e1b57cc232d9e2c28fbd8902b6ae5f887"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/torso.png",
+      "sha256": "3bda4431521d96f014da77f76f7f0827b79ef1b1f4a00e8cfb703ed211071195"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/upper_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/upper_far.png",
+      "sha256": "61c9c4047b74a108bc924666f8ad18f5c4b7dd1c9cc67977ac38732af60ad510"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/pieces/front/upper_near.png",
+      "sha256": "a8734c486608856e6a3c94af10d7975787ec3f21fa5aaa2abcaca5576e28fd02"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_parts.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_parts.png",
+      "sha256": "d6068db46cee270cbd7a4cad132d027f67bc3a3bd188f43f17663879f432d0ed"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_collar.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_collar.png",
+      "sha256": "8a939b02ac8578e548e60c94851f683c44ab28689819c45293e4c92663ca006d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_foot_far.png",
+      "sha256": "78da2ffa9f7c6e59ea3af8da46e2774d812f0f8e2e2b01a7e1bc8d6fdde75a0f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_foot_near.png",
+      "sha256": "824af394c4482e16535084ef92923f5e55cd9d9d13045e8992de5ceaaf331b75"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_fore_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_fore_far.png",
+      "sha256": "f6c743a9070639d2346d5d3dba284f2343695c50281992c82209c29a5729db1e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_fore_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_fore_near.png",
+      "sha256": "d59dd58dd6bbe63ce9dbf6f2bbb99c4822281004519b4d87f279f9fc355e1a98"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_hand_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_hand_far.png",
+      "sha256": "61d0e643ac3fec60d7ef432d97191349fb8a5131c446edde51862ae925c3cbb7"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_head.png",
+      "sha256": "12d4d585e123ddeb2566ab220b040b4a36eac340354952b3f437ea857876cfaa"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_loincloth.png",
+      "sha256": "e724de66689ada2c996910f8a38e303e3aa792daf831d0d7653fdb255e688e47"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_shin_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_shin_far.png",
+      "sha256": "7e35f9de9aee48cb98b0ab7c7a9a33d3c82425d153b250272c1075f76077b3ec"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_shin_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_shin_near.png",
+      "sha256": "1b1eeb3460a566f6b5542b3830fda78585e35ff4076779437e01a0ecc981b41c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_thigh_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_thigh_far.png",
+      "sha256": "e2a4ff8e1507a84c73b092763349336f517e5659d3540bb314e39a9bd58b837f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_thigh_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_thigh_near.png",
+      "sha256": "12c29fa1d455ae20a56413125956c9563e438e06b774a7886343ea02053c80b7"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_torso.png",
+      "sha256": "933ee5eb392995ae40edc2991942f559835c3c4cc16b9e6fb5ded47b176a4f98"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_upper_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_upper_far.png",
+      "sha256": "55ca2365a6bf9c3bc1019cfe053348b0b8f008c4bc75fb4c289f8149defe071c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/registered/front_solo_upper_near.png",
+      "sha256": "1c7749cb2ac3d91100566f71046f562f47bd3bbf4e62ac00a8f80bbf443a29c6"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/source/front/processed.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/source/front/processed.png",
+      "sha256": "09a2e41da86df9b272494f760106140d0df0b8c3022d130d5cd5ae7a437347a0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/front_baseline/source/front/raw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/front_baseline/source/front/raw.png",
+      "sha256": "ecbfaebc36bcda02ceba86c48fcd98ed8e2037b482f9087cce68994962e14447"
+    },
+    "experiments/cutouts/arc_thrall/rr11/inputs.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/inputs.json",
+      "sha256": "4b9bde5f8d882db8d5d94efe2bd9fc508ca0644bcae9f00abbcdaa7ea2035f2e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/layouts/front.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/layouts/front.json",
+      "canonical_layout_sha256": "5f6aadd8657cfeda5f220313d96d2f95e6d2e77ae355effa76ee1e47804fc7ac"
+    },
+    "experiments/cutouts/arc_thrall/rr11/layouts/rear.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/layouts/rear.json",
+      "canonical_layout_sha256": "0fe3945d07742196e711e01df544b335a0121f6fe29256fb0a906252b6e5b05c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/claw.png",
+      "sha256": "a48800f71243228b9528f249bc430fb4ccb204cddc5197a3637494e2d5b9554d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/foot_far.png",
+      "sha256": "b555db27126c8a8e84d78399240005442d99b76d39a02ec41abc704e53f9d49f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/foot_near.png",
+      "sha256": "23989dc911d19720e28882191d9464477ab64467d043778747fe3ffebc09564e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/head.png",
+      "sha256": "bd989c3f2d70228c23aec475982c93eb99487ff77ed1fc89aae3c79601c46af8"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_claw.png",
+      "sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_far.png",
+      "sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_near.png",
+      "sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_head.png",
+      "sha256": "fefce942682e7c1b02797b7030407192e66b0c621cf1562ad1959cf8f6f94e20"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_leg_far.png",
+      "sha256": "4a426cf9fccd99d21c94050fead97025d1417567345a7536c24379833afa6742"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_leg_near.png",
+      "sha256": "b630f3721ae1d5c7046fc9a3dbeeededdb6dfe496ca62e88c9c8301fdb64d849"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_sleeve_far.png",
+      "sha256": "9a09756c60fb8a1489dbac0130f8c423af50f00ec3a32736f93d109b8a3bdb33"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_torso.png",
+      "sha256": "a86c419a9fbf6d235d384bb123b80513165d203c0e876537411d50be10cca911"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_tube.png",
+      "sha256": "436895609c5d37adb99a11bf96b1a9f391c7b9750ad03c7fd4626fbbe56a1f5c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_upper_near.png",
+      "sha256": "52934a8ba243560d4512ca1f6b7b074fd28e6db17dd679ccf8ba721b7aa0b46f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/joint_extension_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/joint_extension_torso.png",
+      "sha256": "80d58e48c6ddd99aab4e0ebdbe7b599d6f0e4d3449153da23644c45bb7aec221"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/joint_tuck_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/joint_tuck_torso.png",
+      "sha256": "8a50e9ea82735c7dad1f61c93b96f32eaa996ede4c21d6c2d2bf1c8bf6990645"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/leg_far.png",
+      "sha256": "6461ca8f9a9f49bd244c5865f9466f1d3d0c67e51b3e15d9a3a559465d2afc64"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/leg_near.png",
+      "sha256": "d148ac151c136885eadc4560f2730770698d0ef41b5a8d85cd8dee89a14b2ce9"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/loincloth.png",
+      "sha256": "b9c266b456e173dad34d802844187f8944a4766b71cc9c1b3e2deab8246c18a9"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_head.png",
+      "sha256": "a3a823c2826f020bd74277b7b4c9add6460857afe6bab1fcabadc9ba7a219777"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_leg_far.png",
+      "sha256": "12eb6a7984b4ff0444a311612ee835a9b6c20f3dc0dd721f4b27d790d88c57fc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_leg_near.png",
+      "sha256": "e13072d638e10035221683bc82ed7d9bac1a0a818f8f2f1337a6672949ee57c6"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_loincloth.png",
+      "sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_sleeve_far.png",
+      "sha256": "191e0866852b82d5d09526c702ed4faaf523d374323204c2364c84c899f0ab55"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_torso.png",
+      "sha256": "d2ce800b9d0bf35325f295ff65c1e3d5c35e28933f7fcadcf7c0a5e45b98365a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/sleeve_far.png",
+      "sha256": "c332a60094b68e8cc82ea4230cadae06d49a164761d21327cd1696b40493ab92"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/torso.png",
+      "sha256": "e9b84c00798fec997cd71863fa197308d36bac28360d212eb07eccbbf5bd8a67"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/tube.png",
+      "sha256": "91f4952da28edade056d50c2d01268578d441ee0b979504b6198b3030fa8e136"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/front/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/upper_near.png",
+      "sha256": "35cd87b678c5d4cba3731e05264c6a52cc05300b8b969fa7e010c35661cf2dfd"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/claw.png",
+      "sha256": "f4f72ae3315e7e835dd5961ac1db8e4b60432b3b709a6db204ef5f8856681c2f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/foot_far.png",
+      "sha256": "87d2bfcbcd102acc0709490d756ac5195469c42a610a1ede8ea0fa3ae58ba935"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/foot_near.png",
+      "sha256": "fe4f6d14424257441a52cf6759691df22ff4b0e1bac360788e1121265e6a8868"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/head.png",
+      "sha256": "836fbd308547746f31b86ebb99aa0ccc32d26bc4adf13a34e7558902e12f0bb9"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_claw.png",
+      "sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_far.png",
+      "sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_near.png",
+      "sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_head.png",
+      "sha256": "daa33867ecd9ba2f3cacf6564cc9db60f223589262d9bb686a781b90b7bd17bf"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_leg_far.png",
+      "sha256": "42cc7edc93c3def5e218b34e725498641d58ff0178fa1c35b252a924e9237cb5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_leg_near.png",
+      "sha256": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_loincloth.png",
+      "sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_sleeve_far.png",
+      "sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_torso.png",
+      "sha256": "ff1e9327e6040ee81c1bf078c630b927ebd2dd04ad6ef6295b251d4ddc004851"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_tube.png",
+      "sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_upper_near.png",
+      "sha256": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_loincloth.png",
+      "sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_torso.png",
+      "sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_tuck_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_tuck_head.png",
+      "sha256": "016ce9ba7b56dc5dce775593fcb595c683aa8eb7b970face9efd1906ff152936"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_tuck_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_tuck_torso.png",
+      "sha256": "74d10a94e08d46922bb1755c6dc5871cff9ebd2813f1998da44fc3a8ee91b773"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/leg_far.png",
+      "sha256": "3a3030b4d8898deb5dd05b895b23e464877d17ca3c1b9ea43b5d80b611d0f5f2"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/leg_near.png",
+      "sha256": "8d8442592a502f4fd9bad4965a9d293004589c1301399fd8e2d4e68cb5a5e62b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/loincloth.png",
+      "sha256": "8739f0caec036e309da2debc707e1e38f2dd479dbb32916913c9c49de66e7d2a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_head.png",
+      "sha256": "dd657e3359d320603e38c145cce2c9eff8c069ae14b3c09012ad4a410cb85343"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_leg_far.png",
+      "sha256": "db586dc91e129bfa9becf550ff158e01a7c79b98aa7f7c2e951555cd27861783"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_leg_near.png",
+      "sha256": "124be76807b48bf1a869c3d228ac97a274889c255c9a7122360b178fbf721862"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_loincloth.png",
+      "sha256": "ba974ca66e2115de4281236b0e76836459792ea095b4e75b1e4cd81001f40000"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_sleeve_far.png",
+      "sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_torso.png",
+      "sha256": "89f8fc8dda776e100a416785ef47dd9d87238d020227e7bc3f20eacecbbbbb99"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_upper_near.png",
+      "sha256": "9426547e6bea984f75a2f86a4a3aefd7309b68dab17aac7769325fa02e5dd565"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/sleeve_far.png",
+      "sha256": "ca7742bcf927892d795927ff4fa2ac1c328969c8eab733ca38626b3ee31daede"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/torso.png",
+      "sha256": "d17074482b06726dc96ea26e56a5eee20c28a3aa49560e13d39f6ef0fbd55cc2"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/tube.png",
+      "sha256": "361e1eccd8a7e68c623f6c4fbef6e43f80d0473b072db845ad87b1eaf7747bf1"
+    },
+    "experiments/cutouts/arc_thrall/rr11/pieces/rear/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/upper_near.png",
+      "sha256": "46706d2ae5df8c2f8691a05ad575f8471cf6379c96c5450e2bda46f7a10e5c78"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/collar.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/collar.png",
+      "sha256": "05a2495e0af32f9b2e1ce47e7a607c24571bebf27f7dbe08f93b05fa42cbbd27"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/foot_far.png",
+      "sha256": "f1fd18632f79cd1e2461af9c45b200d104b0bfdb1c2d33cf34f72dbaffb062b5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/foot_near.png",
+      "sha256": "3ce25a76433e177e3b4ef267da122e726c87917008a65f1793a38153037ac02c"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/fore_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/fore_far.png",
+      "sha256": "413a3fb770bc31fddd064baa0b969892640125d62e65d4a42710bf311eb38154"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/fore_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/fore_near.png",
+      "sha256": "e0b6df357741f4912a884ea8d6ba032c69011e938bffc4b4edb3c3d4060ca770"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/hand_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/hand_far.png",
+      "sha256": "f13593f35403d030ef6ddf0c8d97f9dbf356161bf6fb835b93ba1646f9ac756a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/head.png",
+      "sha256": "306b4c1873fef54c230a4dafc7bbd52b557bd864a32d15d32af8ba6375707edb"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/loincloth.png",
+      "sha256": "4b6f122b86b54eb6f85064d465065f8590487bfe27175f597823cc1d82f0131b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/shin_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/shin_far.png",
+      "sha256": "5c5d5f838ba1a330e29f218934f55e108681db38b7f242c52a59f7bd4e68c584"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/shin_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/shin_near.png",
+      "sha256": "d4c10f1f2b5ce19af77313ccd0ee2ba3d80c831a26c12196b099752e139b97a9"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/thigh_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/thigh_far.png",
+      "sha256": "cbc3ee9d3412cc7a69812e41d0023d722d2fcce0bc5c57081b879a07f81daa43"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/thigh_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/thigh_near.png",
+      "sha256": "b7a1a007c7a8a8b02de4b5316d671f7d6a11a25bb0f9b3d9e737923cbcac303e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/torso.png",
+      "sha256": "8d5aa0b9cad245691c28220b607c78338a422833f54c0794f2ff8e6269814e97"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/upper_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/upper_far.png",
+      "sha256": "d8dc2c726dc04e602ce9268964184e83d8dee599984666a706627feeddc7e304"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/pieces/rear/upper_near.png",
+      "sha256": "e68ed5e76f502c64694efb60cfcf6cd98d49df9cf002f9f76f019aaa77449135"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_parts.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_parts.png",
+      "sha256": "78a28f9ff8a2267e11bcd4fa9c76b0430e87d7303b6e51286232e2d8c7cfad5b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_collar.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_collar.png",
+      "sha256": "a1aba094112c32140849111f07a089e53765f3a579e1e22048a7940ec0ed23ed"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_foot_far.png",
+      "sha256": "ea0d03d0b46c359222334990ed6d05e1aeca0d55d7a58efc906da624fab1635b"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_foot_near.png",
+      "sha256": "2e29eb30861b45fdbf9331fca1fd078e0abe6e9d09ff0b5b661c43515b94ff34"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_fore_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_fore_far.png",
+      "sha256": "bc9e2a2c1c7f97b2dd7f11c29996e28a5224ea998a2820909b43771d4c6b0dd3"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_fore_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_fore_near.png",
+      "sha256": "73d8ba6470a5ecb0f91903a2a4202f821c368aaa757da79b1e601199b78e444f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_hand_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_hand_far.png",
+      "sha256": "d87e5158541a513704f39cf35f178944f12637ae4da6390120563e4d673617ec"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_head.png",
+      "sha256": "9ddbe0bc0e8c5edc35331f39fb22a2c74d93963299078a55b67bcde5367a99d1"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_loincloth.png",
+      "sha256": "0b6dadaff5c16ba2ec3476a2ea591db8a51d8a53cb49d9ae98994a9b614b3b45"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_shin_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_shin_far.png",
+      "sha256": "89886e33c22b5f023e76bffd1efc093fe569a7e1bd26dc9d0a7383c9e201c783"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_shin_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_shin_near.png",
+      "sha256": "c20b6b4971950983a71c500dc67d2bf62875b0561f8d5c3934118e2cf93efa53"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_thigh_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_thigh_far.png",
+      "sha256": "b9f0f36367f5ef4269b090136a3a6605bef5778bbb1e47849079c2b0cbc4b8dc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_thigh_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_thigh_near.png",
+      "sha256": "1b7b6da26ad42c1b8abbfc286f503710c98e4aa67ca1dd0a0ceb6a504d46724e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_torso.png",
+      "sha256": "701e99e1492091bf1444903357326a90f4aaba837e03e6f56d4e7e908869be14"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_upper_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_upper_far.png",
+      "sha256": "2e75ec47e870074dcf9c8dcf0c082c0b604f371395d4847861dd9cfd6cc7eb1a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/registered/rear_solo_upper_near.png",
+      "sha256": "51bad088d9899d114803faf3ea3e897b504001dafb5377e4ff219dbe01f197d7"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/source/rear/processed.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/source/rear/processed.png",
+      "sha256": "85cbe7b84b259a054a9b9753c7481bfa9cba2bf9719f5a2548582ac17755ff0f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rear_baseline/source/rear/raw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rear_baseline/source/rear/raw.png",
+      "sha256": "1198218cd255d5214d237379e423e11f851e964550525179017366bcc7c6af2e"
+    },
+    "experiments/cutouts/arc_thrall/rr11/rr24_policy.json": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/rr24_policy.json",
+      "sha256": "ddc6fe713fbeaa6e2499f5b438b0502d68eb8f101355c825623ba561c0a811ca"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_claw.png",
+      "sha256": "d07be32f1e4559ed0b288b895845c3ede83b8cf5b915d8c0efaae4368fe8eba4"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_foot_far.png",
+      "sha256": "d9a9d96df24589bbcd952917751004c2fa196647266deaa83e7bdc847389a4d8"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_foot_near.png",
+      "sha256": "cd04b5fced868ae4b985903c417d39e5f45748dcfa55a8b5919f8130e6a71fea"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_head.png",
+      "sha256": "5b0e7d742182cc85592351a31595fd32c485d905af751feaf05188b557d939cf"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_leg_far.png",
+      "sha256": "c056fa3a4db14831fd29cb7d02b98e4450056091e5867e60b6b158c018fb1de9"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_leg_near.png",
+      "sha256": "4da5e494ae16e75d816ddeac3b472b80ff0ead3469ea938fc80ae16a933beed2"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_loincloth.png",
+      "sha256": "67c137af24dfea8ba3110854b8b392ce557ac83232aa7b6cd083c76ba65cbdfc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_sleeve_far.png",
+      "sha256": "0a723601df290072f594427afe9d791b3647f18da016e0e4e51a2f4836905085"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_torso.png",
+      "sha256": "248ef8648a0b22da4a2fb2bc58762beb34dd9e9742355020029d35b0ba81e74f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_tube.png",
+      "sha256": "09e27986e0f2b110c9e21c04fb048b10a26194b688030117b6d3e84777d861a2"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/front_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_upper_near.png",
+      "sha256": "d515aeed41a88fd0aba048c9595fe88efdd5df7eeecd85947a0ef3100c09c0b1"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_claw.png",
+      "sha256": "cf81acd869e644d357af3af370bea3e1da5200c4585c4f3360cb958ae27d75e5"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_foot_far.png",
+      "sha256": "c0721ce871ad135c1a11fc2379d0b066de3a07e049088d62ec8f60ec6e0a775d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_foot_near.png",
+      "sha256": "816b93b81d068eee9ddb259c920589bc80b89fccc411eaeafd8de4a5423be181"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_head.png",
+      "sha256": "3ba62036fce4cdb3216acdd2cfeae13d4317ae74daa43d3112fdfa84c252fe6a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_far.png",
+      "sha256": "2696afd3c1a366ff7db256027f4e98d68bb43fa41434d67e6cabae34bb8fc717"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_near.png",
+      "sha256": "78fbcf941ee27fe0c9b53abad1d9baeabb66667b1d17731917b541262a958898"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_loincloth.png",
+      "sha256": "b948058fceee40927f2c02dd642ead04f726321cf9530c869a9338b882aa2893"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_sleeve_far.png",
+      "sha256": "271a3a15db415ae37a3636b2dab938bb1bf13ce1d52f615305bf13ceba8be65f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_torso.png",
+      "sha256": "484cb87131245d5660378e1ee7aaa778897ec289e3db771731ea19208d990348"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_tube.png",
+      "sha256": "07bfafb6f6ea40cc20b92d6ac655472efe5a2bf0099693e81e197e9c19589c13"
+    },
+    "experiments/cutouts/arc_thrall/rr11/seams/rear_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/rear_upper_near.png",
+      "sha256": "a3bf215a70448dbcfd719d84d60cc015d41597e4386cab7c978b9a95ef842793"
+    },
+    "experiments/cutouts/arc_thrall/rr11/source/front/presentation.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/source/front/presentation.png",
+      "sha256": "c0cc720bec0f760044428a47acf96230f7d5594fdfd1d8654ccd4d1ab3aa5897"
+    },
+    "experiments/cutouts/arc_thrall/rr11/source/front/processed.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/source/front/processed.png",
+      "sha256": "0d5599290b76bab0cc3bc3317af5e4e54b74fcef53d411b4ad25dce04610d381"
+    },
+    "experiments/cutouts/arc_thrall/rr11/source/rear/presentation.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/source/rear/presentation.png",
+      "sha256": "acf752a8da2f6579f4bf4d7fafc4eadd744047b005fa20c8ecee6bc398962705"
+    },
+    "experiments/cutouts/arc_thrall/rr11/source/rear/processed.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/source/rear/processed.png",
+      "sha256": "9cdfe676cad158de07b979512f4fa1adcf2d912ef457cfe722e4caa03316f468"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_claw.png",
+      "sha256": "81b0e4440230fcb874b5f1646abf436f1f7327d7157ca8361d7de3c654aa4dcb"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_foot_far.png",
+      "sha256": "28302f72aa29412fb35f637f9a6a785d2ea89c9ea9573e9bb48c0fce78e56382"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_foot_near.png",
+      "sha256": "b81a0c15b673daf6f1a67ddbcc97e659570edb05e143ff23b008df2cb3a8787a"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_head.png",
+      "sha256": "fa7a6da3f54d71f56623f1edd535a793b2859c2ae92b202c94d8837a1c8ee57f"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_leg_far.png",
+      "sha256": "caa91202dd580c1d89fe88e304f3d37ebc4f2c52b65db78f679dd0b9a7fc6e92"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_leg_near.png",
+      "sha256": "5f66613dc6fb799b98c498e458bb2ad8a55167dddf67ee8fd2e773168d1832d6"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_loincloth.png",
+      "sha256": "5c80e5e6991bac8542a02c92fcde1daeec6e34d92c3d487b6eeaecc4d59f7fa8"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_sleeve_far.png",
+      "sha256": "d23438a6f8c9d57d7301229d361a5023d32230341c7555666f7eddce12f27b69"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_torso.png",
+      "sha256": "a8bfc98c17fad3103c7fa3c9738d8f3869f74b69b0391b782f9f05a2fc3fa28d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/front_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/front_upper_near.png",
+      "sha256": "10e6ed2be78163f5407ed0cd261b41c3fe65b9d192848ddf4022924029dc15ef"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_claw.png",
+      "sha256": "993a10b07bb6e1e9a740df35c355145512c183ff1e2463fcfdca1a0ba6911108"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_foot_far.png",
+      "sha256": "5efb372b447ff06ff11b32d95f47fb73ed8ac9f6c546f4dc32577bc586316ce8"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_foot_near.png",
+      "sha256": "b0b1b2d2bd033fbadad1466bf53b51d43191e6a238cdb0683178ab04eda03722"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_head.png",
+      "sha256": "7a91e1982e22a458552092f1091b67b82d3ab7eb6acc0dea5e2dcfadf736ee33"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_leg_far.png",
+      "sha256": "eb6d213ce893d4ca71c842e49a2408865075f454c5e064587176632b59036b8d"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_leg_near.png",
+      "sha256": "43eda11d7276e72a86de7e0f88526fbec3c95f7a7fd4dbc4aa789f2b5206c046"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_loincloth.png",
+      "sha256": "3e090e0226ab6040d3a150e87edeb4ab99b27a7ed73f5f474035e790b729b132"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_sleeve_far.png",
+      "sha256": "ea84f5545080f3a3bd4cd9a6f77767bf57972f9431d9dff60c1f3bb7e7545b06"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_torso.png",
+      "sha256": "46890a986167f39aef14e7a559c086556531c22d80c6b60c290502388d4b3fbc"
+    },
+    "experiments/cutouts/arc_thrall/rr11/tucks/rear_upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr11/tucks/rear_upper_near.png",
+      "sha256": "d6b894a7257ee9104edb268cb1b645bdaffe90d089d201ec0e70700577096e09"
+    },
+    "experiments/cutouts/arc_thrall/rr24/feedback1_shoulder_before.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/feedback1_shoulder_before.png",
+      "sha256": "96a682d6d1e70043985675480fc74d8878e63d7172f49d271d8c78dd84fc1593"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/claw.png",
+      "sha256": "a60d9bc061f95aaf533d0946a31cfd959386487800fa0370669d0ad290205499"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/foot_far.png",
+      "sha256": "b222f3543fc2f6e40044844d5c46f1e1e91896a4a3cff43b69a264a97e0652ac"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/foot_near.png",
+      "sha256": "fd88a13acdf01721778be3473f68d301cdc69b7b6736e202de6a40288b1cc507"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/head.png",
+      "sha256": "86295a1eb55242fc5e277be3acd9bcec07121c2ddaf6e16b31a8cdada7872479"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/leg_far.png",
+      "sha256": "b9841474fb6d1152320cdce1a8f93eecbe56dfea31a0845229686b4e2a935550"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/leg_near.png",
+      "sha256": "756981e003a0604576572d561f3387c768969eb86a5eee0d1ca3eda0a90429dc"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/loincloth.png",
+      "sha256": "c8474d21690c3cd52b0778ca28c85ce3208b56fc79c6601f0afa41dd4cff442e"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/sleeve_far.png",
+      "sha256": "e854f5b14b0119d8c00ffa97e85d791e6d2dc253439c75dd01e515bb45b35278"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/torso.png",
+      "sha256": "bb285938f1d644d41a6587914766df23a078b5e56cc24d29f50a7b1c15252951"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/tube.png",
+      "sha256": "c30d8d60ed7c01a707888dc4442a426a44584e720e9958fbd3f864ad80291ae1"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/front/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/front/upper_near.png",
+      "sha256": "1958ed2cf5ed8b7ec7ee2e50ff8aebbd158ab2c3c65d0cbd9ba5815c684cdf0c"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/claw.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/claw.png",
+      "sha256": "b66423e081128e2456eae2021f384d134622e521dd3da1e526a521dacedfddff"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/foot_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/foot_far.png",
+      "sha256": "96b81603727f585c64c72829ea299e4366854a26570b06e416ae0c7bbd88b7cb"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/foot_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/foot_near.png",
+      "sha256": "ee49cb68741d4f28d528a8e3ed328154d388fa5fff3045a764e801dd64562f42"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/head.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/head.png",
+      "sha256": "1a2a28b007b4d7f5b0b143df0c4932b01fcc5c08d889b9b9cc9493842dd8dc5c"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/leg_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/leg_far.png",
+      "sha256": "bd06bee4ae5a18ff00820958c5cca8de2f9860c1c261ba2c7b5666c623353a6a"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/leg_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/leg_near.png",
+      "sha256": "f73bc30d58451ac6dc1cc043e5dbea2c1ab4fcf66386bfa4f107989591e4bf4e"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/loincloth.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/loincloth.png",
+      "sha256": "e054c045ca11756859f20725d2ebc953b031c4f3274f0526f7b30cdb35ace367"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/sleeve_far.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/sleeve_far.png",
+      "sha256": "c6661ee4ec4544d6565615b95514a29829c827be590bf038ea29f60cb2d9e494"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/torso.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/torso.png",
+      "sha256": "78b4ac9e5a03e08c3b2307b8cf19c08a56437a71abf4d9859829d20ecd0c8532"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/tube.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/tube.png",
+      "sha256": "01f789ce7c66821d898811d5e723cd5c359cec323ba55d27cd399decb2b08aa9"
+    },
+    "experiments/cutouts/arc_thrall/rr24/raw/rear/upper_near.png": {
+      "reference_path": "experiments/cutouts/arc_thrall/rr24/raw/rear/upper_near.png",
+      "sha256": "a3aa37b1c94fc22108d15a9aaade9b60f3e197e73ed58fe2b498e5a2a0f7f8b1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/front/rest.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/front/rest.png",
+      "sha256": "28c716515eab41775ebe9ced51089ee44935fa3053b178ad6cbe31d14bb66c7b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/club.png",
+      "sha256": "ba5b5de4f807729c6f972f5bc991e4d0624f633da482803375e92889c4375e21"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/collar.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/collar.png",
+      "sha256": "6f567363f6f9ec6e0eb25ff76cc8e5cef6c0e8c63fda667ab78114bd608df434"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/foot_far.png",
+      "sha256": "385976f444077b73602b2e386bb4394851423a60744193fef1ecff8de1024c62"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/foot_near.png",
+      "sha256": "2b8cac02c8e41f0d5da521e33af18ac0a5739a90c86013b5c846c8e5bc04b391"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/fore_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/fore_far.png",
+      "sha256": "a560ebaebd8aa3e9b977b68067a115aaf346b15b49a7d715349e58384c98e55a"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/fore_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/fore_near.png",
+      "sha256": "639c6a743d05b93fb7e79f5b4a5a565bca9c8180fca3ca5a480d09b580b4ad2c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/hand_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/hand_far.png",
+      "sha256": "93f8191070f103c980e119749490c8fb89e3e06bbedaf6a11fdf5a4e690e5412"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/hand_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/hand_near.png",
+      "sha256": "88ed1a612e88ec82fccf2efc12f6146126b6257ab837825903fbfe02d45b9a94"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/head.png",
+      "sha256": "af26da9fa74c504b9a6b831d6f0ca76188c96f7cb086d8e52c7ec6d430ae713c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/loincloth.png",
+      "sha256": "c8325c1cb074983d72ded0799b43d57ada2792100145131cfac96af4be37df05"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/shin_far.png",
+      "sha256": "b6f8d227eef3623f860a5725ca1e753e53348cd9eea00ca50b64c39fa57c1859"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/shin_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/shin_near.png",
+      "sha256": "41ae42a1a73fdf3ebc6bb634dd1796829a80f9bd2dea46e721e7060bfbb59ffd"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/thigh_far.png",
+      "sha256": "763b6ddc9d072878430efe91a86a74058bb9fa2cb964baf6cfcfa97c90f2107b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/thigh_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/thigh_near.png",
+      "sha256": "6c43d1674049a47235d5ab72771271780c4e99d525672bfb1886b6dd9166326c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/torso.png",
+      "sha256": "0e748c2359eedf92943c26376a24855ff15f96f7bc934c4b547263f2d0991ded"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/upper_far.png",
+      "sha256": "587b3513d6400050d34a8e7664307fe6d2a54a9ca5918ab1756ee3154f85dbfd"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/front/upper_near.png",
+      "sha256": "458506ab731e9d53de1c304314a176dfbccf8365700e18823613a792b72b7845"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/club.png",
+      "sha256": "8093c016526c4fc0149a38df890a8533bfd8c6ef57aa30f9f135ac8d7fba5398"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/collar.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/collar.png",
+      "sha256": "c1b84d6335216ead93719a848d327f48629ed176164a4b2e47c1fa3dbb3c19e0"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/foot_far.png",
+      "sha256": "2894f7e30c316c77203fb7d7b31ed71e1c5b9bd97356145594838d576aa6db88"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/foot_near.png",
+      "sha256": "3b36e143f3728e2a4692b57e9cc40bec1db5b5464912ce2edc022eb0640099f1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/fore_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/fore_far.png",
+      "sha256": "2760d4145df38299151b00cebab0bc6d5c4653fb45208f794f1f90757b0e4512"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/fore_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/fore_near.png",
+      "sha256": "7b822fa0c71ffa595fa2d532ec94d85b680d94c926c0f21db7bdc76ecb3f7242"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/hand_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/hand_far.png",
+      "sha256": "934bb280cf2277cd9f96d2556b89e65c652dcbf5dbd1b55c36d1f35c7d0b2efb"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/hand_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/hand_near.png",
+      "sha256": "bdb65a86f41563f7efe720516d48cd5f05def843661a5f629a391861c98ee402"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/head.png",
+      "sha256": "a513ae26f6f765c90765179ccd46971cc18dc773374627cbd425e8e9bb32c060"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/loincloth.png",
+      "sha256": "f15e2447dbd9b05a553bf3a719567d62420cd3789810a3e3e96bc45c746babe6"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/shin_far.png",
+      "sha256": "2738274ea8b116b7a4cc4836c29be32b09ddaedbf628135c0b3dcb0b95ca561f"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/shin_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/shin_near.png",
+      "sha256": "62ed4281ad78df58c9bcadd4b49505da18edd21afdea61b1f674f2dd428c9720"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/thigh_far.png",
+      "sha256": "caf4b42ddfcbf5151819174a1f46a951797ec9e5f5711972c56f62dabfd9d5ed"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/thigh_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/thigh_near.png",
+      "sha256": "5d13e309470e7a5f5a991138fd5cb56217bcfe6fd2147fadff0d933843b63484"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/torso.png",
+      "sha256": "469fae3673026604b15e6b1005ee5d937245284ba1601cabf39bbff514850f12"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/upper_far.png",
+      "sha256": "cfb42f310823185f5a5c739c6a821fe92e05a743a31c9edafb68fa727106a69b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/hidden/rear/upper_near.png",
+      "sha256": "18120b263bd74d51850cd6fc8011fbb7b70167bb701080abea1183f2760af6b8"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png",
+      "sha256": "a48800f71243228b9528f249bc430fb4ccb204cddc5197a3637494e2d5b9554d"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png",
+      "sha256": "b555db27126c8a8e84d78399240005442d99b76d39a02ec41abc704e53f9d49f"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png",
+      "sha256": "23989dc911d19720e28882191d9464477ab64467d043778747fe3ffebc09564e"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/head.png",
+      "sha256": "bd989c3f2d70228c23aec475982c93eb99487ff77ed1fc89aae3c79601c46af8"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png",
+      "sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png",
+      "sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png",
+      "sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png",
+      "sha256": "fefce942682e7c1b02797b7030407192e66b0c621cf1562ad1959cf8f6f94e20"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png",
+      "sha256": "4a426cf9fccd99d21c94050fead97025d1417567345a7536c24379833afa6742"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png",
+      "sha256": "b630f3721ae1d5c7046fc9a3dbeeededdb6dfe496ca62e88c9c8301fdb64d849"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png",
+      "sha256": "9a09756c60fb8a1489dbac0130f8c423af50f00ec3a32736f93d109b8a3bdb33"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png",
+      "sha256": "a86c419a9fbf6d235d384bb123b80513165d203c0e876537411d50be10cca911"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png",
+      "sha256": "436895609c5d37adb99a11bf96b1a9f391c7b9750ad03c7fd4626fbbe56a1f5c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png",
+      "sha256": "52934a8ba243560d4512ca1f6b7b074fd28e6db17dd679ccf8ba721b7aa0b46f"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png",
+      "sha256": "80d58e48c6ddd99aab4e0ebdbe7b599d6f0e4d3449153da23644c45bb7aec221"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/joint_tuck_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/joint_tuck_torso.png",
+      "sha256": "8a50e9ea82735c7dad1f61c93b96f32eaa996ede4c21d6c2d2bf1c8bf6990645"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png",
+      "sha256": "6461ca8f9a9f49bd244c5865f9466f1d3d0c67e51b3e15d9a3a559465d2afc64"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png",
+      "sha256": "d148ac151c136885eadc4560f2730770698d0ef41b5a8d85cd8dee89a14b2ce9"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png",
+      "sha256": "b9c266b456e173dad34d802844187f8944a4766b71cc9c1b3e2deab8246c18a9"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_head.png",
+      "sha256": "a3a823c2826f020bd74277b7b4c9add6460857afe6bab1fcabadc9ba7a219777"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_far.png",
+      "sha256": "12eb6a7984b4ff0444a311612ee835a9b6c20f3dc0dd721f4b27d790d88c57fc"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_leg_near.png",
+      "sha256": "e13072d638e10035221683bc82ed7d9bac1a0a818f8f2f1337a6672949ee57c6"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png",
+      "sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png",
+      "sha256": "191e0866852b82d5d09526c702ed4faaf523d374323204c2364c84c899f0ab55"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png",
+      "sha256": "d2ce800b9d0bf35325f295ff65c1e3d5c35e28933f7fcadcf7c0a5e45b98365a"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png",
+      "sha256": "c0cc720bec0f760044428a47acf96230f7d5594fdfd1d8654ccd4d1ab3aa5897"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png",
+      "sha256": "c332a60094b68e8cc82ea4230cadae06d49a164761d21327cd1696b40493ab92"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png",
+      "sha256": "e9b84c00798fec997cd71863fa197308d36bac28360d212eb07eccbbf5bd8a67"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png",
+      "sha256": "91f4952da28edade056d50c2d01268578d441ee0b979504b6198b3030fa8e136"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png",
+      "sha256": "35cd87b678c5d4cba3731e05264c6a52cc05300b8b969fa7e010c35661cf2dfd"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/claw.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/claw.png",
+      "sha256": "f4f72ae3315e7e835dd5961ac1db8e4b60432b3b709a6db204ef5f8856681c2f"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png",
+      "sha256": "87d2bfcbcd102acc0709490d756ac5195469c42a610a1ede8ea0fa3ae58ba935"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_near.png",
+      "sha256": "fe4f6d14424257441a52cf6759691df22ff4b0e1bac360788e1121265e6a8868"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png",
+      "sha256": "836fbd308547746f31b86ebb99aa0ccc32d26bc4adf13a34e7558902e12f0bb9"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png",
+      "sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png",
+      "sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png",
+      "sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png",
+      "sha256": "daa33867ecd9ba2f3cacf6564cc9db60f223589262d9bb686a781b90b7bd17bf"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_far.png",
+      "sha256": "42cc7edc93c3def5e218b34e725498641d58ff0178fa1c35b252a924e9237cb5"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png",
+      "sha256": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png",
+      "sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png",
+      "sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png",
+      "sha256": "ff1e9327e6040ee81c1bf078c630b927ebd2dd04ad6ef6295b251d4ddc004851"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png",
+      "sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png",
+      "sha256": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_loincloth.png",
+      "sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png",
+      "sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png",
+      "sha256": "016ce9ba7b56dc5dce775593fcb595c683aa8eb7b970face9efd1906ff152936"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_torso.png",
+      "sha256": "74d10a94e08d46922bb1755c6dc5871cff9ebd2813f1998da44fc3a8ee91b773"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png",
+      "sha256": "3a3030b4d8898deb5dd05b895b23e464877d17ca3c1b9ea43b5d80b611d0f5f2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png",
+      "sha256": "8d8442592a502f4fd9bad4965a9d293004589c1301399fd8e2d4e68cb5a5e62b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png",
+      "sha256": "8739f0caec036e309da2debc707e1e38f2dd479dbb32916913c9c49de66e7d2a"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_head.png",
+      "sha256": "dd657e3359d320603e38c145cce2c9eff8c069ae14b3c09012ad4a410cb85343"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png",
+      "sha256": "db586dc91e129bfa9becf550ff158e01a7c79b98aa7f7c2e951555cd27861783"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_near.png",
+      "sha256": "124be76807b48bf1a869c3d228ac97a274889c255c9a7122360b178fbf721862"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png",
+      "sha256": "ba974ca66e2115de4281236b0e76836459792ea095b4e75b1e4cd81001f40000"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png",
+      "sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png",
+      "sha256": "89f8fc8dda776e100a416785ef47dd9d87238d020227e7bc3f20eacecbbbbb99"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_upper_near.png",
+      "sha256": "9426547e6bea984f75a2f86a4a3aefd7309b68dab17aac7769325fa02e5dd565"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png",
+      "sha256": "acf752a8da2f6579f4bf4d7fafc4eadd744047b005fa20c8ecee6bc398962705"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png",
+      "sha256": "ca7742bcf927892d795927ff4fa2ac1c328969c8eab733ca38626b3ee31daede"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png",
+      "sha256": "d17074482b06726dc96ea26e56a5eee20c28a3aa49560e13d39f6ef0fbd55cc2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png",
+      "sha256": "361e1eccd8a7e68c623f6c4fbef6e43f80d0473b072db845ad87b1eaf7747bf1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png",
+      "sha256": "46706d2ae5df8c2f8691a05ad575f8471cf6379c96c5450e2bda46f7a10e5c78"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/rear/rest.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/rear/rest.png",
+      "sha256": "4d43a2a5114f70e00c7ed848b4a6bd3ec2eecceaa6cde1c8d2882b2a6daae424"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_collar_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_collar_component_02.png",
+      "sha256": "3121d2806bb0023b5d603213726799a989def90716d9c00c3c739f858daa66a7"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_torso.png",
+      "sha256": "2f49391fdc0e21f7f55dc4fea2b12d75320839e3f762aca0071b0673179754cd"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_torso_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_torso_component_02.png",
+      "sha256": "46db147945b3dbe9a3b59c7b615295631112b87756ab69239fb3340b760a1f52"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_collar_upper_far.png",
+      "sha256": "485831d8bd35c301960267074d90b75a82a6366aa583375908ca81923ad315e8"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_far_hand_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_far_hand_far.png",
+      "sha256": "9ebb796a9203c66b313c17751564027f823cc332d765446e94300a339c83b54c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_near_club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_near_club.png",
+      "sha256": "5b58b417f6168909bdd60f41487949faa4162da8f6e01dd3c18284342baeeae4"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_near_club_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_near_club_component_02.png",
+      "sha256": "5b15fe4701dd30e0fc429e08e34131e3aa7c75c39f60139c5fbf365f0ead6494"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_near_hand_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_fore_near_hand_near.png",
+      "sha256": "f892294e9ff7aeaba83dbe388dbd8c6933f844d9b04fd5920a70de2aa468cdfb"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_hand_near_club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_hand_near_club.png",
+      "sha256": "ee9e1fb0cbea59be111c6675ffc0eefaebbb047f514db5e523e48b4982805b77"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_hand_near_club_component_03.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_hand_near_club_component_03.png",
+      "sha256": "238bf6ad22bc3141174008a13ee61cdd906e78a5490eebf9aab8789604f9f9de"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_head_collar.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_head_collar.png",
+      "sha256": "1923f2fc62e258ee19196e228f8b00f6e02521327cf35a78f3c7a826e2f495ca"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_head_collar_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_head_collar_component_02.png",
+      "sha256": "93dcab32b17851d40f23a8394bb9c75d653aa2aa76045db304cec01742eaa60b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_component_02_thigh_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_component_02_thigh_near.png",
+      "sha256": "809d90bd2e94504ddfaf80eb73cf6a0ad86a0091392096a23e457635316e1178"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_foot_far.png",
+      "sha256": "c80f0f2cc93ecaa33a1f3ebc500ce75329c7285204a48f72908ae54b54934fa4"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_shin_far.png",
+      "sha256": "0aa354d376742e05bc1bf7dee5ca1f275c97d21fe6d8b2571c34515ce0c2500b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_thigh_far.png",
+      "sha256": "2a4c16c2ca8281839ff1e61d9364c94d97130b50f070784a0a953ac33ae5c16d"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_thigh_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_loincloth_thigh_near.png",
+      "sha256": "4bb85140b1d42ae9851e41931a0462d2b364590662bf0dca256d5573e71cbd41"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_shin_far_foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_shin_far_foot_far.png",
+      "sha256": "7187db3347dea853989170609892b258257c545f9455d9d05ca7381ef21b5b56"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_shin_near_foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_shin_near_foot_near.png",
+      "sha256": "a93f55edafcd2515da8f107024f2d30e02454c847acd4382db11df329f378391"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_thigh_far_shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_thigh_far_shin_far.png",
+      "sha256": "ff693976faa0d01b4f37f6f07dd887fcc152b43d1c67ab9af9c44491d17ef43a"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_thigh_near_shin_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_thigh_near_shin_near.png",
+      "sha256": "fb9486e9cd3ca512ddcde22cb0f735561bfca175dbbf0c2397916b03469f6fea"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_loincloth.png",
+      "sha256": "8abc07eab231977b5d3b3d5bb067c7afe58eb77364e6dc68b981d20737a56c9d"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_loincloth_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_loincloth_component_02.png",
+      "sha256": "760ce69096b9a66df1933adea55337c1332a74d780d678318658741aa0a3a963"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_thigh_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_thigh_near.png",
+      "sha256": "f6b8b0c6bfeae805b0bab78c44548f8f9316ae9ab74fe9e3f6bc34eeb6dcead2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_torso_upper_near.png",
+      "sha256": "85324672349ab24c47cf6f079349bb6aba170a1faa43ed448da501d69dcbd6bf"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_upper_far_fore_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_upper_far_fore_far.png",
+      "sha256": "05c5eb192737dd9bbd55ee1a67f8e2443a92e65200c7993d42a7032d0438aec1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_upper_near_fore_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/front/seam_upper_near_fore_near.png",
+      "sha256": "b1441d74caa5106a4037fe44489de69d509b9c503a4784abfe056843e49ee822"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_fore_far_hand_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_fore_far_hand_far.png",
+      "sha256": "450cfcc18d40a48791a07f90323fb1420646c0d8e9d4fa969a057712a61ae5c8"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_fore_near_club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_fore_near_club.png",
+      "sha256": "601d496420129b1caf5ac5299b70a21efcd8b6051fb5196a04e9ac36e630c264"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_fore_near_hand_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_fore_near_hand_near.png",
+      "sha256": "fd6d1771dcb8bb3bcf49899f03f7a1d657a361fccac8fa619d3c020fc95f6398"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_hand_near_club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_hand_near_club.png",
+      "sha256": "63170b66c072b8a93fda140f64d628c99ef47e2a59ca10e4b6b073fa6f4b7a2b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_head_collar.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_head_collar.png",
+      "sha256": "beb8b6ed72f83eb1465e95b81b87cf1a98c6386069d24ef6bf1e9f3087247e95"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_head_torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_head_torso.png",
+      "sha256": "5582178e22f05bc5009734c693b5656d7a09d8247dc43fabd8c8878b22b3fb15"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_head_upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_head_upper_far.png",
+      "sha256": "4908c0802ae840ebb9040cb615666f6f99f0f3063872c70d9fd3b73766190d0d"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_component_02_thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_component_02_thigh_far.png",
+      "sha256": "04279fab04a2768aba8b2b40ed5119fccc0e9f65c94a551f869e8b8fdb620350"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_foot_near.png",
+      "sha256": "5b770d7a12c2c9c67b0f6ded3acb0ee8080e5fc5b1e774561773c44d00463cd3"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_shin_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_shin_near.png",
+      "sha256": "db86962586e3f60c470f4925b1fb15f2ce0155c06e9bdbf4ebee40285fce2e15"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_loincloth_thigh_far.png",
+      "sha256": "c02c6cdbec47c7945d2b36c5d3d906bd62b9a2480962a0b8cb6bc04ac0446fa2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_shin_far_foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_shin_far_foot_far.png",
+      "sha256": "c9cb36d0c4d959ee8b85f8fd670b68bcaa0ac9ae8bd2ad1365cae7cd313724d2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_shin_near_foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_shin_near_foot_near.png",
+      "sha256": "d533597c81e9dda600b727bea2559b93b7ff23e00e1476cd552ce9cdf59e97e3"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_thigh_far_shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_thigh_far_shin_far.png",
+      "sha256": "0f0a80f8bbd2cd03a2045ca23d7452fb5f8bf5967a4a4f39d55a8ccc202f9ca2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_loincloth.png",
+      "sha256": "839a0ad212a8688b6c8e27d86237d260710b73d888506135274281093ce2e05e"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_loincloth_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_loincloth_component_02.png",
+      "sha256": "86c3d07e79115640e723e8abadd66d968d726f2ec2c5c8028472f14b61e292eb"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_thigh_far.png",
+      "sha256": "f09ee54937fe17b14257bb8ed13d70cbff7878b9806531f92bc0d640686f83e1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_upper_far.png",
+      "sha256": "4e2eb1e8d9a3c3759093781a5746988425690e77135d4a1518f571d976b1e0f4"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_torso_upper_near.png",
+      "sha256": "869ed35a2baf47ba597f79262629751fa907d79cda1eaffc826e2fdc8aeacfd0"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_upper_far_fore_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_upper_far_fore_far.png",
+      "sha256": "97102080205441dcc6391d539ba9a86dbe05aa48ccdb74b361a8bd377a931d54"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_upper_near_fore_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/seams/rear/seam_upper_near_fore_near.png",
+      "sha256": "9503608a75049e5f60a61b827b98eaf689f194a1e7be613df4a3420030c9eb74"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club.png",
+      "sha256": "8d82e91c4a865dd3ad8e19cec161df0e024b261d3a958e5ebf8a35d5f25c00d1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club_component_02.png",
+      "sha256": "b0f114f19a65b9e5ac2baa8a527d9e4015a8acb444a375320fca28eb81dd55c9"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club_component_03.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club_component_03.png",
+      "sha256": "0771dc4c061777817b59675632aae21e76e8cdbd837efb43d4268927f4bb405c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club_component_04.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/club_component_04.png",
+      "sha256": "bbe0dd74f05edb78d0e2556a529aa7bcfdce05cc4a49c98e683be0145eb0c8dc"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/collar.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/collar.png",
+      "sha256": "f0c3c30a5fedab66ee2f905ebb07c3e2d33f9f87f24cf0403ec1cc7654075da3"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/collar_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/collar_component_02.png",
+      "sha256": "17dc135295514d1d73e6abd568f69a74326c6225b4f18ec9539851864dd45c42"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/feature_chain_stub.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/feature_chain_stub.png",
+      "sha256": "74e17fc6d8f07019cab6a80cded106d2e006b2cd2e4d25b7cbbbbb88a2f4d18b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/feature_spark_lower.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/feature_spark_lower.png",
+      "sha256": "dfdea793da90c03e46c10e22e676b2cfe443b4886ac6fd10df20130838b6d369"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/feature_spark_upper.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/feature_spark_upper.png",
+      "sha256": "42207de35b486d6958c787a695732f21b2528c15f886d3d1ade1fa2acea5c2b6"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/foot_far.png",
+      "sha256": "ce2ee268a5dd1f310becd4cbf106303719f924138fcf00c72485d853f9203a08"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/foot_near.png",
+      "sha256": "1051970c0dc715aed94441a0a655079fef912fde3035c40ad369514feafffa61"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/fore_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/fore_far.png",
+      "sha256": "d589e98066e91809cf80b5f0dc2f3d5d9d5356f094f7b60b58ab6c885d4e85b2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/fore_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/fore_near.png",
+      "sha256": "11288b579fe8226d97cb4c5719059a55dbb09a307d0e656aab03a1417666b4e6"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/hand_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/hand_far.png",
+      "sha256": "77a9274f5c3f31cd7faeb1cd0683c4f0f012e8aa3419350926513a54ebea4d0b"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/hand_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/hand_near.png",
+      "sha256": "6be6f50bdd2aea606c6d8baec8c771f7fbe54311f89f8521e3a0e9854d09b7e1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/head.png",
+      "sha256": "0f5458e78a3edf48508829b8d34b353997c2ec3439f56a860f7abee32b9c1579"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/loincloth.png",
+      "sha256": "bbaca4340e52941f89e11ea5e3dc6bb87c535919d6f88c7309bf64e219030892"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/loincloth_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/loincloth_component_02.png",
+      "sha256": "8d1192cfce70b8b2813960e5f99215fec02dd943c54719fd2aadb11c61db8115"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/shin_far.png",
+      "sha256": "9c420a55f8db968b45687f9116a8caec52deca19c191bdde7ff768425a868aaf"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/shin_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/shin_near.png",
+      "sha256": "1c485f5342d8b8d639f08096c4479d94666462803f9f76b329af62c8515cc57e"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/thigh_far.png",
+      "sha256": "bd770011e7ef868da1a8b80c7a763268b7bc42deb1a2e17d74c855da03dadbed"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/thigh_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/thigh_near.png",
+      "sha256": "f7bd6bb09331917c9c451fd58854339f88e11fc59971acbbea2f06a3504b654c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/torso.png",
+      "sha256": "38e731ddec8cecff6e50958f863c2c44eb3907228bfaa02b2fbc14605ed668d4"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/torso_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/torso_component_02.png",
+      "sha256": "2069ed56bc7d2fd1ec656e6b8f12439f8697500c637c85a38160bfbe9357cd2e"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/upper_far.png",
+      "sha256": "10b811deddb8698bd5f91bc97a5f5dfed650064c4915b2b11e78caca973412aa"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/front/upper_near.png",
+      "sha256": "79bedcfa47407338839bfdb655ca7bca69f280f055fcfc3be6c18dfe4de92f60"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/club.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/club.png",
+      "sha256": "9adfff82081e0b5e64cc57ed4003216ef7b9d3764f4e36fcd4de06019df2424f"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/collar.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/collar.png",
+      "sha256": "780cdfcfd67953df4f18d92bddf96119ca06a92ab68aa1a7e7d429a0704abf72"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/feature_spark_lower.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/feature_spark_lower.png",
+      "sha256": "50ccff5903d5d86a4e13a728e7a5ba9ab986c33cf22b362df6de78549996b972"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/feature_spark_upper.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/feature_spark_upper.png",
+      "sha256": "00a39376d8b96b6d2c6c2db76d21c35da71a13d848f3da3df374c702bba412e6"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/foot_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/foot_far.png",
+      "sha256": "29ec828b08d2d48326a376aa1f6296e2b6954124a2dbefc664422b4b30bc99dd"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/foot_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/foot_near.png",
+      "sha256": "62c30babf8dd4cdae0a0e65e1f8b62d6a9df4fa080db4ee4504f34d01628e273"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/fore_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/fore_far.png",
+      "sha256": "59a9f48e2038e38b67443c8881b948d78a2d38d215abf7ad3edd72f789b6eb61"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/fore_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/fore_near.png",
+      "sha256": "7cfb2849a31880a7326956d0ee04eecf91d6037d3ae18f3cd346e5f65e390db5"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/hand_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/hand_far.png",
+      "sha256": "b5d363b00dc1fe8d3256ffa88af35ab304249554388551dbf04e6a6692f4ec4a"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/hand_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/hand_near.png",
+      "sha256": "311d55ef6a0b42db8757b233bffb66ac19700cd856fd6a7490a408a6e3b0d80c"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/head.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/head.png",
+      "sha256": "63ebc05e86bb1167a874e8821ca7b25acd1ae8858bf9365b460371faa49a445a"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/loincloth.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/loincloth.png",
+      "sha256": "ca3294353c4bb57616ed8efb3441e894889c023aa315c8289209acac42767799"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/loincloth_component_02.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/loincloth_component_02.png",
+      "sha256": "bece019a4cd8fd0f778f7b44113f366f187c1b1f02bd9c98c2712f534c1455c2"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/shin_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/shin_far.png",
+      "sha256": "3995afcccadfb4dad2d52913066d28262c2e248924eaf9b4035755b703801928"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/shin_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/shin_near.png",
+      "sha256": "4dd6fd138d2d885bac0964b85430d90d5ff5197a747df5a87f42d2facb23a358"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/thigh_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/thigh_far.png",
+      "sha256": "eac1dd159571888d4b0284962f45e2a109e54c12c12b4ece046b92289c6958bc"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/torso.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/torso.png",
+      "sha256": "2daada8c2d9d11802533ddf11fb20c4f4a7730ca6f4e03c7263a2d13d2a76cd7"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/upper_far.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/upper_far.png",
+      "sha256": "ea545113cad9fa538d6fb0bfb8f6561a8e70cfb54af4d4a91abe81bc0c09e8f1"
+    },
+    "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/upper_near.png": {
+      "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/segmented/rear/upper_near.png",
+      "sha256": "662c50e8b687435ac64e56903c804f31295bb4714ee51c8ff0331665b3d58486"
+    }
+  },
+  "geometry": {
+    "front/hidden_sleeve_far": "7750147baa313a4fa958d2464b9153464907426b9a483d669bd9cbe8375dfe79",
+    "front/sleeve_far": "fc37a53e069cb627cd8a57169ae1b14dee46bd0d2bfcf8d4867b6888860221f8",
+    "front/hidden_leg_near": "489667c0e58a19ec4cf8658028aa565fb7d5ea4e899cfb7177d1dd496051f07c",
+    "front/leg_near": "fe650a9a3e6b3cdd2b3c5d7f838d925e2e7deb96a4b3e9c1b3d1022eafb4cb70",
+    "front/hidden_leg_far": "f8d5787af149d2ff97f5b7359848b18d76f0815ce0087d6cb955b641d7127006",
+    "front/leg_far": "d38ad425a2dad76a76bc383f5f53a6a0f161e7a472b4591fdab81653ac03b114",
+    "front/loincloth": "f746be48fc1a57d595c4d01ff501fa33f05b1cec65059786c40944fb8b0bd3e2",
+    "front/mq7b_continuation_sleeve_far": "d4db260b553d26ab866c1b69a24a1ae5107fbb9120670e9370b778e9599f7f4a",
+    "front/mq7b_continuation_leg_near": "ddd7295a690af1cc37c9b0d85cb8f546546c7b551dd122bdc41daeb86041a281",
+    "front/mq7b_continuation_leg_far": "9c09178e0cc429d0b14a855cb9efae0173c8093d9c28675422779e4d004bda69",
+    "front/mq7b_continuation_loincloth": "98b5e3dc77e394a10a5f5a7166f3dc5531f515e9e13d01c5e6eb65fd9f906a1a",
+    "rear/hidden_sleeve_far": "b188dfd8612836cb870b9535b11f743524258de007950b8e590d769765e4dbbb",
+    "rear/sleeve_far": "4ef5f170b3e3c998c003357a388735d6c402083a77d8ad34737e7ea470fda897",
+    "rear/hidden_leg_near": "017ae022a9054b8981e30afead74d8e28d3266f631c662b44a39d75df7099f12",
+    "rear/leg_near": "27cb5231847add0c5f7fdcaa8d309b20014a1995fd92220083517436eace8d25",
+    "rear/hidden_leg_far": "c0f3c3369aa649f0bd8efe1007ff2bf7f5a20c51e315a6a36b5e88779077f7c6",
+    "rear/leg_far": "6d046558b7b7674964210edb888b838fe053f41b365c9ef9dc016d55c7fc8437",
+    "rear/hidden_loincloth": "6e8b167b9b426417a9f30abf550390a3592ee24ec857deecd8a7017fddd57d68",
+    "rear/joint_extension_loincloth": "3e6cc4d5aaaef6b539292354d3d1cd81a872eef2b685c0faab76e5b9f1b17e2d",
+    "rear/loincloth": "408cde6e75cd8fe5a522177dd5568b04f9eea5b31dfdf6f6f82bba0f97b40ec7",
+    "rear/mq7b_continuation_sleeve_far": "00aa5ba68cad245bb944716832b297c1f10258125bcdffd58c2570ee1b7f53e4",
+    "rear/mq7b_continuation_leg_near": "48c97778f02634eb6e280a91277b57e4e45e64070b03e58b7dda7a943796e6c0",
+    "rear/mq7b_continuation_leg_far": "6eb37c44ec3b1029dbe97ef6d4d30b80f1860cf4cb23cc1f623813b23c11e0a0",
+    "rear/mq7b_continuation_loincloth": "784a17941da4ffe1f3b1aae8d57ee71c0ffcfe2f4a0156b456a62fc07af710c1"
+  },
+  "front_render_rows": {
+    "count": 396,
+    "sha256": "7600384fff0bbc9bdc1725c1c9e58fd72de92e453118d8b094edcf26dc870552"
+  },
+  "gait_removal_frames": {
+    "front": [
+      {
+        "frame": 1,
+        "pockets": [
+          {
+            "bbox": [
+              241,
+              304,
+              242,
+              305
+            ],
+            "pixel_count": 1
+          },
+          {
+            "bbox": [
+              242,
+              305,
+              243,
+              306
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 2,
+        "pockets": [
+          {
+            "bbox": [
+              240,
+              303,
+              242,
+              305
+            ],
+            "pixel_count": 3
+          }
+        ]
+      },
+      {
+        "frame": 11,
+        "pockets": [
+          {
+            "bbox": [
+              234,
+              315,
+              235,
+              317
+            ],
+            "pixel_count": 2
+          }
+        ]
+      },
+      {
+        "frame": 12,
+        "pockets": [
+          {
+            "bbox": [
+              208,
+              321,
+              213,
+              328
+            ],
+            "pixel_count": 17
+          },
+          {
+            "bbox": [
+              211,
+              327,
+              215,
+              332
+            ],
+            "pixel_count": 10
+          },
+          {
+            "bbox": [
+              206,
+              318,
+              208,
+              320
+            ],
+            "pixel_count": 3
+          }
+        ]
+      },
+      {
+        "frame": 14,
+        "pockets": [
+          {
+            "bbox": [
+              199,
+              320,
+              208,
+              343
+            ],
+            "pixel_count": 50
+          }
+        ]
+      },
+      {
+        "frame": 16,
+        "pockets": [
+          {
+            "bbox": [
+              201,
+              328,
+              208,
+              333
+            ],
+            "pixel_count": 18
+          },
+          {
+            "bbox": [
+              199,
+              326,
+              201,
+              328
+            ],
+            "pixel_count": 3
+          },
+          {
+            "bbox": [
+              204,
+              334,
+              205,
+              336
+            ],
+            "pixel_count": 2
+          }
+        ]
+      },
+      {
+        "frame": 17,
+        "pockets": [
+          {
+            "bbox": [
+              199,
+              326,
+              208,
+              335
+            ],
+            "pixel_count": 29
+          },
+          {
+            "bbox": [
+              197,
+              325,
+              198,
+              326
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 18,
+        "pockets": [
+          {
+            "bbox": [
+              215,
+              324,
+              218,
+              328
+            ],
+            "pixel_count": 9
+          },
+          {
+            "bbox": [
+              199,
+              326,
+              200,
+              327
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 19,
+        "pockets": [
+          {
+            "bbox": [
+              199,
+              327,
+              205,
+              332
+            ],
+            "pixel_count": 12
+          },
+          {
+            "bbox": [
+              208,
+              332,
+              209,
+              333
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 20,
+        "pockets": [
+          {
+            "bbox": [
+              198,
+              326,
+              199,
+              327
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 31,
+        "pockets": [
+          {
+            "bbox": [
+              184,
+              340,
+              185,
+              342
+            ],
+            "pixel_count": 2
+          }
+        ]
+      },
+      {
+        "frame": 32,
+        "pockets": [
+          {
+            "bbox": [
+              158,
+              344,
+              166,
+              356
+            ],
+            "pixel_count": 31
+          },
+          {
+            "bbox": [
+              157,
+              343,
+              158,
+              344
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 33,
+        "pockets": [
+          {
+            "bbox": [
+              150,
+              343,
+              160,
+              365
+            ],
+            "pixel_count": 57
+          }
+        ]
+      },
+      {
+        "frame": 34,
+        "pockets": [
+          {
+            "bbox": [
+              150,
+              345,
+              159,
+              368
+            ],
+            "pixel_count": 56
+          }
+        ]
+      },
+      {
+        "frame": 36,
+        "pockets": [
+          {
+            "bbox": [
+              149,
+              350,
+              158,
+              358
+            ],
+            "pixel_count": 31
+          },
+          {
+            "bbox": [
+              154,
+              359,
+              155,
+              361
+            ],
+            "pixel_count": 2
+          }
+        ]
+      },
+      {
+        "frame": 37,
+        "pockets": [
+          {
+            "bbox": [
+              150,
+              352,
+              159,
+              358
+            ],
+            "pixel_count": 23
+          }
+        ]
+      },
+      {
+        "frame": 38,
+        "pockets": [
+          {
+            "bbox": [
+              149,
+              350,
+              150,
+              351
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 39,
+        "pockets": [
+          {
+            "bbox": [
+              149,
+              352,
+              155,
+              357
+            ],
+            "pixel_count": 12
+          },
+          {
+            "bbox": [
+              158,
+              355,
+              160,
+              358
+            ],
+            "pixel_count": 4
+          },
+          {
+            "bbox": [
+              164,
+              349,
+              165,
+              351
+            ],
+            "pixel_count": 2
+          }
+        ]
+      },
+      {
+        "frame": 40,
+        "pockets": [
+          {
+            "bbox": [
+              149,
+              351,
+              150,
+              352
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 49,
+        "pockets": [
+          {
+            "bbox": [
+              144,
+              366,
+              146,
+              369
+            ],
+            "pixel_count": 5
+          }
+        ]
+      }
+    ],
+    "rear": [
+      {
+        "frame": 2,
+        "pockets": [
+          {
+            "bbox": [
+              264,
+              294,
+              265,
+              297
+            ],
+            "pixel_count": 3
+          }
+        ]
+      },
+      {
+        "frame": 18,
+        "pockets": [
+          {
+            "bbox": [
+              282,
+              287,
+              284,
+              289
+            ],
+            "pixel_count": 3
+          }
+        ]
+      },
+      {
+        "frame": 31,
+        "pockets": [
+          {
+            "bbox": [
+              334,
+              259,
+              335,
+              260
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 38,
+        "pockets": [
+          {
+            "bbox": [
+              330,
+              262,
+              332,
+              264
+            ],
+            "pixel_count": 3
+          }
+        ]
+      },
+      {
+        "frame": 42,
+        "pockets": [
+          {
+            "bbox": [
+              363,
+              242,
+              364,
+              244
+            ],
+            "pixel_count": 2
+          },
+          {
+            "bbox": [
+              363,
+              240,
+              364,
+              241
+            ],
+            "pixel_count": 1
+          }
+        ]
+      },
+      {
+        "frame": 43,
+        "pockets": [
+          {
+            "bbox": [
+              366,
+              239,
+              367,
+              244
+            ],
+            "pixel_count": 5
+          }
+        ]
+      },
+      {
+        "frame": 49,
+        "pockets": [
+          {
+            "bbox": [
+              369,
+              238,
+              370,
+              239
+            ],
+            "pixel_count": 1
+          }
+        ]
+      }
+    ]
+  },
+  "opaque_fixture": {
+    "part": "leg_far",
+    "opaque_target": [
+      1,
+      37
+    ],
+    "transparent_target": [
+      0,
+      0
+    ]
+  },
+  "nape_removal_frames": [
+    {
+      "frame": 43,
+      "pockets": [
+        {
+          "bbox": [
+            275,
+            187,
+            277,
+            189
+          ],
+          "pixel_count": 3
+        }
+      ]
+    },
+    {
+      "frame": 44,
+      "pockets": [
+        {
+          "bbox": [
+            275,
+            187,
+            277,
+            189
+          ],
+          "pixel_count": 3
+        }
+      ]
+    },
+    {
+      "frame": 45,
+      "pockets": [
+        {
+          "bbox": [
+            275,
+            188,
+            277,
+            190
+          ],
+          "pixel_count": 3
+        }
+      ]
+    },
+    {
+      "frame": 46,
+      "pockets": [
+        {
+          "bbox": [
+            276,
+            189,
+            279,
+            190
+          ],
+          "pixel_count": 3
+        }
+      ]
+    },
+    {
+      "frame": 56,
+      "pockets": [
+        {
+          "bbox": [
+            278,
+            191,
+            281,
+            192
+          ],
+          "pixel_count": 3
+        }
+      ]
+    }
+  ]
+}

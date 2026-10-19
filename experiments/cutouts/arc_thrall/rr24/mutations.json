@@ -23,7 +23,7 @@
       "restored": "in-memory patch only"
     },
     {
-      "guard": "collar_contact",
+      "guard": "own_skin",
       "caught_by_assertion": true,
       "errors": 0,
       "failures": 1,
@@ -37,7 +37,28 @@
       "restored": "in-memory patch only"
     },
     {
-      "guard": "own_skin",
+      "guard": "head_ownership",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "paint_or_tuck",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "native_paint_or_tuck",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "air_scope",
       "caught_by_assertion": true,
       "errors": 0,
       "failures": 1,

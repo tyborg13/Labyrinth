@@ -142,7 +142,7 @@
         85
       ],
       "bone": "head",
-      "z_index": -17,
+      "z_index": -18,
       "hidden_material": true,
       "logical_part": "head",
       "presentation_anchor": [
@@ -186,7 +186,7 @@
         165
       ],
       "bone": "torso",
-      "z_index": -12,
+      "z_index": -13,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -209,7 +209,7 @@
         126
       ],
       "bone": "torso",
-      "z_index": -11,
+      "z_index": -12,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -253,7 +253,7 @@
         134
       ],
       "bone": "upper_near",
-      "z_index": -14,
+      "z_index": -15,
       "hidden_material": true,
       "logical_part": "upper_near",
       "presentation_anchor": [
@@ -297,7 +297,7 @@
         127
       ],
       "bone": "fore_near",
-      "z_index": -15,
+      "z_index": -16,
       "hidden_material": true,
       "logical_part": "tube",
       "presentation_anchor": [
@@ -377,7 +377,7 @@
         157
       ],
       "bone": "hand_far",
-      "z_index": -13,
+      "z_index": -14,
       "hidden_material": true,
       "logical_part": "claw",
       "presentation_anchor": [
@@ -598,7 +598,7 @@
         92
       ],
       "bone": "head",
-      "z_index": -16,
+      "z_index": -17,
       "hidden_material": true,
       "logical_part": "head",
       "joint_extension": true,
@@ -621,7 +621,7 @@
         141
       ],
       "bone": "torso",
-      "z_index": -10,
+      "z_index": -11,
       "hidden_material": true,
       "logical_part": "torso",
       "joint_extension": true,
@@ -705,6 +705,29 @@
       "hidden_material": true,
       "logical_part": "loincloth",
       "joint_extension": true
+    },
+    {
+      "name": "joint_tuck_torso",
+      "file": "pieces/front/joint_tuck_torso.png",
+      "offset": [
+        100,
+        134
+      ],
+      "bbox": [
+        100,
+        134,
+        102,
+        135
+      ],
+      "bone": "torso",
+      "logical_part": "torso",
+      "hidden_material": true,
+      "joint_extension": true,
+      "z_index": -10,
+      "presentation_anchor": [
+        128.0,
+        231.46
+      ]
     }
   ],
   "joint_meshes": [
@@ -193584,7 +193607,7 @@
         93,
         65
       ],
-      "z_index": -17,
+      "z_index": -18,
       "source": "pieces/front/hidden_head.png",
       "rigid": true,
       "source_sha256": "fefce942682e7c1b02797b7030407192e66b0c621cf1562ad1959cf8f6f94e20"
@@ -193606,7 +193629,7 @@
         85,
         67
       ],
-      "z_index": -12,
+      "z_index": -13,
       "source": "pieces/front/hidden_torso.png",
       "rigid": true,
       "source_sha256": "a86c419a9fbf6d235d384bb123b80513165d203c0e876537411d50be10cca911"
@@ -193617,7 +193640,7 @@
         74,
         101
       ],
-      "z_index": -11,
+      "z_index": -12,
       "source": "pieces/front/joint_extension_torso.png",
       "rigid": true,
       "source_sha256": "80d58e48c6ddd99aab4e0ebdbe7b599d6f0e4d3449153da23644c45bb7aec221"
@@ -193639,10 +193662,10 @@
         139,
         75
       ],
-      "z_index": -14,
+      "z_index": -15,
       "source": "pieces/front/hidden_upper_near.png",
       "rigid": true,
-      "source_sha256": "af195e43bba56b9f2b1b7da6d5bb7ce17694ff245618a641a43ffd9ef9d6a896"
+      "source_sha256": "52934a8ba243560d4512ca1f6b7b074fd28e6db17dd679ccf8ba721b7aa0b46f"
     },
     "upper_near": {
       "mask": "checks/front/upper_near.png",
@@ -193661,7 +193684,7 @@
         168,
         116
       ],
-      "z_index": -15,
+      "z_index": -16,
       "source": "pieces/front/hidden_tube.png",
       "rigid": true,
       "source_sha256": "436895609c5d37adb99a11bf96b1a9f391c7b9750ad03c7fd4626fbbe56a1f5c"
@@ -193705,7 +193728,7 @@
         45,
         141
       ],
-      "z_index": -13,
+      "z_index": -14,
       "source": "pieces/front/hidden_claw.png",
       "rigid": true,
       "source_sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e"
@@ -193826,7 +193849,7 @@
         92,
         63
       ],
-      "z_index": -16,
+      "z_index": -17,
       "source": "pieces/front/mq7b_continuation_head.png",
       "rigid": true,
       "source_sha256": "a3a823c2826f020bd74277b7b4c9add6460857afe6bab1fcabadc9ba7a219777"
@@ -193837,7 +193860,7 @@
         92,
         60
       ],
-      "z_index": -10,
+      "z_index": -11,
       "source": "pieces/front/mq7b_continuation_torso.png",
       "rigid": true,
       "source_sha256": "d2ce800b9d0bf35325f295ff65c1e3d5c35e28933f7fcadcf7c0a5e45b98365a"
@@ -193885,6 +193908,17 @@
       "source": "pieces/front/mq7b_continuation_loincloth.png",
       "rigid": false,
       "source_sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+    },
+    "joint_tuck_torso": {
+      "mask": "checks/front/joint_tuck_torso.png",
+      "mask_offset": [
+        100,
+        134
+      ],
+      "z_index": -10,
+      "source": "pieces/front/joint_tuck_torso.png",
+      "rigid": true,
+      "source_sha256": "8a50e9ea82735c7dad1f61c93b96f32eaa996ede4c21d6c2d2bf1c8bf6990645"
     }
   },
   "proof_rest_holes": [],

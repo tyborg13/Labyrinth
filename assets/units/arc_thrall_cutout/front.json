@@ -142,7 +142,7 @@
         85
       ],
       "bone": "head",
-      "z_index": -17,
+      "z_index": -18,
       "hidden_material": true,
       "logical_part": "head",
       "presentation_anchor": [
@@ -186,7 +186,7 @@
         165
       ],
       "bone": "torso",
-      "z_index": -12,
+      "z_index": -13,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -209,7 +209,7 @@
         126
       ],
       "bone": "torso",
-      "z_index": -11,
+      "z_index": -12,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -253,7 +253,7 @@
         134
       ],
       "bone": "upper_near",
-      "z_index": -14,
+      "z_index": -15,
       "hidden_material": true,
       "logical_part": "upper_near",
       "presentation_anchor": [
@@ -297,7 +297,7 @@
         127
       ],
       "bone": "fore_near",
-      "z_index": -15,
+      "z_index": -16,
       "hidden_material": true,
       "logical_part": "tube",
       "presentation_anchor": [
@@ -377,7 +377,7 @@
         157
       ],
       "bone": "hand_far",
-      "z_index": -13,
+      "z_index": -14,
       "hidden_material": true,
       "logical_part": "claw",
       "presentation_anchor": [
@@ -598,7 +598,7 @@
         92
       ],
       "bone": "head",
-      "z_index": -16,
+      "z_index": -17,
       "hidden_material": true,
       "logical_part": "head",
       "joint_extension": true,
@@ -621,7 +621,7 @@
         141
       ],
       "bone": "torso",
-      "z_index": -10,
+      "z_index": -11,
       "hidden_material": true,
       "logical_part": "torso",
       "joint_extension": true,
@@ -705,6 +705,29 @@
       "hidden_material": true,
       "logical_part": "loincloth",
       "joint_extension": true
+    },
+    {
+      "name": "joint_tuck_torso",
+      "file": "humanoid_v2/front/joint_tuck_torso.png",
+      "offset": [
+        100,
+        134
+      ],
+      "bbox": [
+        100,
+        134,
+        102,
+        135
+      ],
+      "bone": "torso",
+      "logical_part": "torso",
+      "hidden_material": true,
+      "joint_extension": true,
+      "z_index": -10,
+      "presentation_anchor": [
+        128.0,
+        231.46
+      ]
     }
   ],
   "joint_meshes": [

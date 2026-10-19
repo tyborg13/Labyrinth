@@ -1,5 +1,10 @@
 # rr-24 implementation handoff
 
+**Historical pre-feedback handoff.** The director resolved both design questions
+and authorized the repaint re-pins. See [the current feedback 1 handoff](feedback1.md)
+for the passing headless results, changed files and exact windowed commands.
+The text below records the superseded initial state.
+
 Changes are uncommitted on `codex/rr-24`. This is **not an accepted/ready rig**:
 literal collar clearance and presented negative-space decisions remain open,
 and the director must perform the native rest/shadow/capture sequence. No

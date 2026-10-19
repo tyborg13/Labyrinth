@@ -14,7 +14,8 @@ from maquette_motion.features import source_pixels
 from maquette_motion.material_palette import interior_donors, rules
 from maquette_motion.pixels import rest_identity
 from rr15_cpu_proof import CASE, frame_state
-from rr15_shoulder_proof import BEFORE
+from rr24_build import RECIPE
+BEFORE = RECIPE/"feedback1_shoulder_before.png"
 
 # Exact canvas pixels retained in the director's native holes sheet.
 NATIVE_HOLES = {('tether', 61): [(234, 192), (235, 192)],

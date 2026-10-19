@@ -15,6 +15,9 @@ from tools.humanoid_cutout.silhouette_gates import detached_metrics, joint_holes
 from maquette_motion.pixels import render
 from maquette_motion.material_palette import interior_donors, rules
 from rr15_cpu_proof import frame_state
+from tools.humanoid_cutout.anatomy import load as load_anatomy
+from rr24_seams import head_ownership, SkirtAirPolicy
+from tools.humanoid_cutout.silhouette_gates import posed_owners
 
 PROOF_PROGRESS_INTERVAL = 50
 FLOAT_TOLERANCE_PX = 0.0001
@@ -37,6 +40,8 @@ def source_errors(view, layout):
     parts = {p['name']: p for p in layout['parts']}
     if parts['torso']['bone'] != 'torso' or any(m['name'] == 'torso' for m in layout['joint_meshes']):
         errors.append('collar must remain rigid torso')
+    if parts['head']['z_index'] <= parts['torso']['z_index']:
+        errors.append('head must draw above collar')
     if parts['loincloth']['bone'] != 'pelvis': errors.append('skirt attachment differs')
     if parts['loincloth']['z_index'] <= max(parts[n]['z_index'] for n in ('leg_near', 'leg_far')):
         errors.append('skirt must cover both thighs')
@@ -60,32 +65,18 @@ def source_errors(view, layout):
 
 
 def collar_report(view, layout, samples):
-    """Report geometric contact even when front draw order occludes the collar.
-
-    Rear paint exposes the nape rather than a jaw. Its traced lower-head
-    boundary is reported separately, without calling it a painted rear mouth.
-    """
-    recipe = read_json(RECIPE / 'ownership.json')[view]
-    masks = []
-    for contour, name in [('jaw', 'head'), ('collar', 'torso')]:
-        part = next(p for p in layout['parts'] if p['name'] == name)
-        image = source_pixels(CASE, part)
-        image[~polygon(recipe[contour])] = 0
-        x, y, right, bottom = part['bbox']
-        masks.append((part, image[y:bottom, x:right]))
-    rows, minimum = [], float('inf')
+    """Gate ownership of rendered surfaces; report allowed head/band contact."""
+    parts = [p for p in layout['parts'] if p['name'] in ('head','torso')]
+    sources = {p['name']:np.asarray(Image.open(CASE/p['file']).convert('RGBA')) for p in parts}
+    rows = []
     for pose in samples['samples']:
         if pose['view'] != view or pose['kind'] != 'presented': continue
-        jaw, collar = [render(im, sprite_transform(layout, pose, p))[..., 3] > 0 for p, im in masks]
-        jy, jx = np.nonzero(jaw); cy, cx = np.nonzero(collar)
-        clearance = float(np.sqrt(((jx[:, None] - cx) ** 2 + (jy[:, None] - cy) ** 2).min()))
-        minimum = min(minimum, clearance)
-        overlaps = int((jaw & collar).sum())
-        rows.append({'clip': pose['clip'], 'frame': pose['frame'], 'phase': pose['phase'],
-                     'clearance_px': clearance, 'overlap_px': overlaps})
-    return {'native_pixels': False, 'scope': 'CPU rigid raster diagnostic, pixel-centre distance',
-        'region': 'visible jaw/mouth' if view == 'front' else 'lower head/nape (rear jaw is not painted)',
-        'minimum_clearance_px': minimum, 'overlap_frames': [r for r in rows if r['overlap_px']], 'rows': rows}
+        layers = [(p,render(sources[p['name']],sprite_transform(layout,pose,p)),None) for p in parts]
+        rows.append(dict(clip=pose['clip'],frame=pose['frame'],phase=pose['phase'],**head_ownership(layers)))
+    return {'ok':all(r['ok'] for r in rows),'native_pixels':False,
+        'scope':'CPU rendered ownership of visible head versus whole torso; contact allowed',
+        'contact_frames':[r for r in rows if r['contact_pixels']],
+        'failures':[r for r in rows if not r['ok']],'rows':rows}
 
 
 def hem_report(view, layout, samples):
@@ -114,11 +105,17 @@ def hem_report(view, layout, samples):
 def raster_report(view, layout, samples):
     model = CpuPose(CASE, deepcopy(layout))
     approved = exceptions(CASE)
-    failures, count = [], 0
+    policy = SkirtAirPolicy(CASE,layout)
+    failures, air, count = [], [], 0
     for pose in samples['samples']:
         if pose['view'] != view or pose['kind'] != 'presented': continue
-        layers, owners, seams, references, _ = frame_state(model, pose)
-        holes = joint_holes(owners > 0, seams, owners, references, pocket_details=True)
+        layers,maps = model.layers(pose)
+        owners = posed_owners(layers,layout['parts'],pose['bones'],128,load_anatomy(CASE)['ownership'])
+        seams = np.logical_or.reduce(model.masks(pose,layout['proof_joint_seams'],maps))
+        references = model.masks(pose,layout['proof_rest_holes'],maps)
+        classified = policy.report(owners>0,owners,seams,references,pose,maps)
+        holes = classified['failures']
+        air.extend(dict(clip=pose['clip'],frame=pose['frame'],**pocket) for pocket in classified['air_pockets'])
         composite = Image.new('RGBA', (512,512))
         for _, image, _ in sorted(layers, key=lambda row: row[0]['z_index']):
             composite.alpha_composite(Image.fromarray(image))
@@ -135,7 +132,7 @@ def raster_report(view, layout, samples):
         if count % PROOF_PROGRESS_INTERVAL == 0:
             print(f'RR24 CPU {view}: {count} frames; {len(failures)} failing frames', flush=True)
             write_json(RECIPE / f'{view}_raster_progress.json', {'frames': count, 'failures': failures})
-    return {'ok': not failures, 'native_pixels': False, 'frames': count, 'failures': failures,
+    return {'ok': not failures, 'native_pixels': False, 'frames': count, 'failures': failures, 'air_pockets':air,
             'scope': 'CPU estimate only; director native gates remain mandatory'}
 
 
@@ -155,14 +152,16 @@ def main():
         hem = hem_report(view, layout, samples)
         reports[view] = {'source_errors': errors, 'collar': collar, 'hem': hem}
         print(f'RR24 {view.upper()} SOURCE/RESIDUE: {"FAIL" if errors else "PASS"} ({len(errors)} errors)')
-        print(f'RR24 {view.upper()} COLLAR: minimum {collar["minimum_clearance_px"]:.6f} px; {len(collar["overlap_frames"])} geometric contact frames (CPU estimate)')
+        print(f'RR24 {view.upper()} COLLAR OWNERSHIP: {"PASS" if collar["ok"] else "FAIL"} ({len(collar["contact_frames"])} contact frames; {len(collar["failures"])} covered-head frames)')
         print(f'RR24 {view.upper()} HEM: {"PASS" if hem["ok"] else "FAIL"} (maximum {hem["maximum_follow_through_px"]:.6f} px; end deltas {hem["end_frame_delta_px"]})')
-        failed |= bool(errors) or not hem['ok'] or bool(collar['overlap_frames'])
+        failed |= bool(errors) or not hem['ok'] or not collar['ok']
         if args.raster:
             reports[view]['raster'] = raster_report(view, layout, samples)
             failed |= not reports[view]['raster']['ok']
             raster = reports[view]['raster']
             print(f'RR24 CPU {view.upper()} SEAMS: {"PASS" if raster["ok"] else "FAIL"} ({raster["frames"]} frames; {len(raster["failures"])} failing frames; native acceptance pending)')
+    if bindings(CASE)!=samples['inputs']:
+        raise ValueError('Inputs changed during Thrall checks; discard this run')
     write_json(RECIPE / 'checks.json', {'ok': not failed, 'native_pixels': False, 'views': reports,
         'inputs': samples['inputs']})
     return int(failed)

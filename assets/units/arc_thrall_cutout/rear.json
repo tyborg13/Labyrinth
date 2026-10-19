@@ -142,7 +142,7 @@
         73
       ],
       "bone": "head",
-      "z_index": -20,
+      "z_index": -22,
       "hidden_material": true,
       "logical_part": "head",
       "presentation_anchor": [
@@ -169,7 +169,7 @@
         29
       ],
       "bone": "head",
-      "z_index": 13,
+      "z_index": 15,
       "logical_part": "head"
     },
     {
@@ -186,7 +186,7 @@
         149
       ],
       "bone": "torso",
-      "z_index": -14,
+      "z_index": -15,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -209,7 +209,7 @@
         110
       ],
       "bone": "torso",
-      "z_index": -13,
+      "z_index": -14,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
@@ -253,7 +253,7 @@
         117
       ],
       "bone": "upper_near",
-      "z_index": -17,
+      "z_index": -18,
       "hidden_material": true,
       "logical_part": "upper_near",
       "presentation_anchor": [
@@ -297,7 +297,7 @@
         111
       ],
       "bone": "fore_near",
-      "z_index": -18,
+      "z_index": -19,
       "hidden_material": true,
       "logical_part": "tube",
       "presentation_anchor": [
@@ -377,7 +377,7 @@
         140
       ],
       "bone": "hand_far",
-      "z_index": -15,
+      "z_index": -16,
       "hidden_material": true,
       "logical_part": "claw",
       "presentation_anchor": [
@@ -626,17 +626,17 @@
       "name": "mq7b_continuation_head",
       "file": "humanoid_v2/rear/mq7b_continuation_head.png",
       "offset": [
-        135,
+        134,
         47
       ],
       "bbox": [
-        135,
+        134,
         47,
         164,
         68
       ],
       "bone": "head",
-      "z_index": -19,
+      "z_index": -21,
       "hidden_material": true,
       "logical_part": "head",
       "joint_extension": true,
@@ -659,7 +659,7 @@
         130
       ],
       "bone": "torso",
-      "z_index": -12,
+      "z_index": -13,
       "hidden_material": true,
       "logical_part": "torso",
       "joint_extension": true,
@@ -682,7 +682,7 @@
         117
       ],
       "bone": "upper_near",
-      "z_index": -16,
+      "z_index": -17,
       "hidden_material": true,
       "logical_part": "upper_near",
       "joint_extension": true,
@@ -766,6 +766,52 @@
       "hidden_material": true,
       "logical_part": "loincloth",
       "joint_extension": true
+    },
+    {
+      "name": "joint_tuck_head",
+      "file": "humanoid_v2/rear/joint_tuck_head.png",
+      "offset": [
+        164,
+        64
+      ],
+      "bbox": [
+        164,
+        64,
+        165,
+        65
+      ],
+      "bone": "head",
+      "logical_part": "head",
+      "hidden_material": true,
+      "joint_extension": true,
+      "z_index": -20,
+      "presentation_anchor": [
+        156.5,
+        48.75
+      ]
+    },
+    {
+      "name": "joint_tuck_torso",
+      "file": "humanoid_v2/rear/joint_tuck_torso.png",
+      "offset": [
+        159,
+        66
+      ],
+      "bbox": [
+        159,
+        66,
+        160,
+        67
+      ],
+      "bone": "torso",
+      "logical_part": "torso",
+      "hidden_material": true,
+      "joint_extension": true,
+      "z_index": -12,
+      "presentation_anchor": [
+        129.0,
+        87.75
+      ]
     }
   ],
   "joint_meshes": [
