@@ -342,3 +342,20 @@
   failed one task-queue test (`test_verified_handoff_file_completes_queue_without_flag_bridge`), which passes on a
   stable branch.
 
+## 2026-10-19 afternoon: rig cut rules and unit splits
+- **Negative space vs holes** (rig spec §1, every humanoid). An enclosed transparent pocket passes when every pixel
+  maps to air in the approved painting. It fails when any pixel maps into paint or tuck.
+- **Strict detached provenance** (rr-26, after the rr-20 review's blocking finding). A detached opaque component passes
+  only when it is detached in the approved painting and moves rigidly with its owner, at any size or darkness. The old
+  "tiny dark outline" exemption no longer applies in the provenance classifier.
+- The strict rule found 1–3 px fragments in the approved Seer (move, death) and the Mimic (mirror); rr-26 fixes them.
+  The old Thrall cut also had one; it is re-checked on rr-24's new cut.
+- **Thrall collar** (rr-24). Wherever the head and the collar overlap, the head draws above it, so no collar pixel
+  covers a head pixel. Contact is allowed: the chin rests on the band in death.
+- **Mortar crucible masks** are director data (hand-authored polygons plus the rim's silhouette outline). They were
+  widened twice to take in rim fragments; all reported fragments are now inside.
+- **Fresh sessions after three fix rounds:** rr-25 continues rr-22 (Mortar) and rr-26 continues rr-20 (Mimic), on the
+  same branches.
+- **Merge order** (keeps integration green under the strict rule): rr-23 Mirror, rr-21 Weaver, rr-24 Thrall, rr-25
+  Mortar, then rr-26 after re-running its census on the merged Thrall.
+
