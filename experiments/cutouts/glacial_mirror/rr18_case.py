@@ -29,10 +29,7 @@ GROUPS = {'upper_body': ['torso', 'head'] + [p + s for s in ('near', 'far') for 
           'lower_body': ['pelvis'] + [p + s for s in ('near', 'far') for p in ('thigh_', 'shin_', 'foot_')]}
 
 
-DESIGN_PLACEHOLDERS = {'TODO_DESIGN_source_gap_calibration':
-    'Strict joint-hole diagnostics reject posed pockets that trace into transparent approved-source gaps '
-    '(front guard frame 20: 19 px; rear refraction frame 32: 9 px). '
-    'Director calibration decision required; protected paint and motion retained, no seam exemption applied.'}
+DESIGN_PLACEHOLDERS = {}
 
 
 def initialize():
@@ -46,6 +43,7 @@ def initialize():
         'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
         'planted_bones': ['foot_near', 'foot_far'], 'planted_tolerance_px': 0.5, 'held_depth_roles': {},
         'ownership': {'names': list(PIECES), 'segments': {}, 'joint_pairs': JOINS, 'free_space_owners': []},
+        'seam_policy': 'air_between_rigid_pieces', 'seam_protected_pieces': ['torso'],
         'seam_joins': JOINS, 'covered_surfaces': {}, 'joint_continuations': {'depth_px': 3, 'bounded_pieces': []},
         'tucks': {'base_px': 3, 'pieces': {n: {'depth_px': 3, 'covers': adjacency[n], 'mode': 'radial'} for n in PIECES}},
         'integration': {'production_root': 'assets/units/glacial_mirror_cutout', 'rig_directory': 'humanoid_v2',

@@ -23,7 +23,7 @@ from maquette_motion.silhouette import components
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.cpu_pose import CpuPose, sprite_transform
-from rr18_seams import frame_state
+from rr18_seams import frame_state, frame_report
 
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID','rr-18')
 PROOF_TIMEOUT_SECONDS = 180
@@ -31,6 +31,7 @@ FIXTURE_SLIDE_PX = 1
 FIXTURE_RGB_XOR_MASK = 1
 FIXTURE_ROTATION_RAD = 0.1
 FIXTURE_FRAME = 5
+AIR_PROOF_FRAMES = (('front','guard',20),('rear','refraction',32),('rear','idle',0))
 
 
 def godot(script,*args):
@@ -135,6 +136,15 @@ class MirrorTests(unittest.TestCase):
             model.images[layout['proof_layers'][part['name']]['mask']]=np.asarray(Image.open(CASE/layout['proof_layers'][part['name']]['mask']).convert('RGBA').crop(part['fixture_crop']))
         self.assertTrue(frame_state(model,row)[1])
 
+    def test_approved_air_pockets_in_both_views_pass_the_case_policy(self):
+        for view,clip,frame in AIR_PROOF_FRAMES:
+            with self.subTest(view=view,clip=clip,frame=frame):
+                model=CpuPose(CASE,copy.deepcopy(self.layouts[view]))
+                row=next(r for r in self.samples['samples'] if r['view']==view and r['clip']==clip and r['frame']==frame and r['kind']=='presented')
+                _,report=frame_report(model,row)
+                self.assertEqual(report['failures'],[])
+                self.assertTrue(report['air_pockets'])
+
     def test_runtime_adapters_and_contact_reduced_motion(self):
         self.assertIn('RR18 RUNTIME: PASS',godot('tests/rr18/runtime_test.gd'))
 
@@ -220,7 +230,8 @@ class MirrorTests(unittest.TestCase):
             'spec/art_identity/maquettes/glacial_mirror/','spec/art_identity/jobs/glacial_mirror/',
             'spec/peer_benchmark/staged/rr-18/')
         changed=subprocess.check_output(['git','diff','--name-only'],cwd=PROJECT,text=True).splitlines()
-        self.assertEqual([p for p in changed if p.startswith(prefixes)],[])
+        extensions={'tools/humanoid_cutout/gates.py','tools/humanoid_cutout/anatomy.schema.json','tools/humanoid_cutout/rigid_air.py'}
+        self.assertEqual([p for p in changed if p.startswith(prefixes) and p not in extensions],[])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

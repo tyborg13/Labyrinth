@@ -48,6 +48,22 @@
       "failures": 1,
       "errors": 0,
       "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "rigid air allowance",
+      "regression": "test_air_between_stones_passes_without_a_frame_exception",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "rigid stone interior",
+      "regression": "test_punched_stone_interior_fails_with_single_owner_boundary",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
     }
   ]
 }

@@ -170,6 +170,10 @@
     ],
     "free_space_owners": []
   },
+  "seam_policy": "air_between_rigid_pieces",
+  "seam_protected_pieces": [
+    "torso"
+  ],
   "seam_joins": [
     [
       "head",

@@ -6,72 +6,74 @@ from cutout_pipeline.cases import read_json, write_json
 from humanoid_cutout.cpu_pose import CpuPose, sprite_transform
 from humanoid_cutout.gates import bindings, clean_metrics
 from humanoid_cutout.silhouette_gates import posed_owners, joint_holes
-from humanoid_cutout.anatomy import load, owner_ids
-from maquette_motion.silhouette import holes as alpha_holes, dilate
+from humanoid_cutout.anatomy import load
+from humanoid_cutout.rigid_air import for_case
 from maquette_motion.pixels import PROOF_DEFAULTS
 
 PROGRESS_INTERVAL_FRAMES = 50  # Existing Thrall diagnostic cadence.
+CROP_PADDING_PX = 8  # Diagnostic context only.
+CROP_ZOOM = 3  # Shared native failure-crop zoom.
+
+
+def frame_report(model, pose):
+    layers,maps = model.layers(pose)
+    owners = posed_owners(layers,model.layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'])
+    if not hasattr(model,'air_policy'):
+        model.air_policy = for_case(model.case,model.layout,load(model.case))
+    if model.air_policy is not None:
+        transforms = {}
+        for part in model.layout['parts']:
+            t = sprite_transform(model.layout,pose,part)
+            transforms[part['name']] = [t[0,0],t[1,0],t[0,1],t[1,1],t[0,2],t[1,2]]
+        return layers,model.air_policy.report(owners>0,owners,transforms)
+    seams = model.masks(pose,model.layout['proof_joint_seams'],maps)
+    references = model.masks(pose,model.layout['proof_rest_holes'],maps)
+    defects = joint_holes(owners>0,np.logical_or.reduce(seams),owners,references,pocket_details=True)
+    return layers,{'failures':defects,'air_pockets':[]}
 
 
 def frame_state(model, pose):
-    layers,maps = model.layers(pose)
-    seams = model.masks(pose,model.layout['proof_joint_seams'],maps)
-    references = model.masks(pose,model.layout['proof_rest_holes'],maps)
-    seam = np.logical_or.reduce(seams)
-    owners = posed_owners(layers,model.layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'])
-    holes = joint_holes(owners>0,seam,owners,references,pocket_details=True)
-    return layers,holes
-
-
-def source_gap_trace(model,pose,layers,defects):
-    """Locate diagnosed gaps in the approved source; never waive a defect."""
-    anatomy=load(CASE);ownership=anatomy['ownership'];ids=owner_ids(ownership)
-    owners=posed_owners(layers,model.layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'])
-    source=np.asarray(Image.open(CASE/model.layout['rest_source']).convert('RGBA'))
-    candidates=alpha_holes(owners>0)
-    result=[]
-    for defect in defects:
-        left,top,right,bottom=defect['bbox']
-        hole=next(h for h in candidates if int(h.sum())==defect['pixel_count'] and int(h[top:bottom,left:right].sum())==defect['pixel_count'])
-        boundary=owners[dilate(hole,1)&(owners>0)]
-        pair=max(ownership['joint_pairs'],key=lambda p:int(np.count_nonzero((boundary==ids[p[0]])|(boundary==ids[p[1]]))))
-        ys,xs=np.nonzero(hole)
-        points=np.column_stack((xs+.5-PROOF_DEFAULTS['source_offset'],ys+.5-PROOF_DEFAULTS['source_offset'],np.ones(len(xs))))
-        traces={}
-        for name in pair:
-            part=next(p for p in model.layout['parts'] if p['name']==name)
-            local=points@np.linalg.inv(sprite_transform(model.layout,pose,part)).T
-            pixels=np.rint(local[:,:2].astype(np.float32)-.5).astype(int)+np.asarray(part['offset'])
-            valid=(pixels[:,0]>=0)&(pixels[:,0]<source.shape[1])&(pixels[:,1]>=0)&(pixels[:,1]<source.shape[0])
-            transparent=np.ones(len(pixels),dtype=bool)
-            transparent[valid]=source[pixels[valid,1],pixels[valid,0],3]==0
-            traces[name]={'source_points':pixels.tolist(),'transparent_source_pixels':int(transparent.sum()),'all_transparent':bool(transparent.all())}
-        result.append(dict(defect,joint_pair=pair,source=traces))
-    return result
+    layers,result = frame_report(model,pose)
+    return layers,result['failures']
 
 
 def report(layout,samples,save_failures=False):
     if layout['joint_meshes']: raise ValueError('Rigid-only diagnostic cannot accept skinned meshes')
     view=layout['facing']; model=CpuPose(CASE,layout)
-    errors,failures=[],[]
+    errors,failures,air=[],[],[]
     rows=[r for r in samples['samples'] if r['view']==view and r['kind']=='presented']
     for index,pose in enumerate(rows):
-        layers,holes=frame_state(model,pose)
+        layers,pockets=frame_report(model,pose)
+        holes=pockets['failures']
+        if pockets['air_pockets']:
+            air.append({'clip':pose['clip'],'frame':pose['frame'],'count':len(pockets['air_pockets']),
+                        'pixels':sum(h['pixel_count'] for h in pockets['air_pockets'])})
         metrics=clean_metrics(layers)
         rejected={k:metrics[k] for k in ('outside_pixels','exposed_outline_pixels','dark_slab_blocks','outline_outside_pixels','stray_components') if metrics[k]}
         if holes or rejected:
             label=f'{view}/{pose["clip"]}/frame {pose["frame"]}'
-            errors.append(f'{label}: seam holes {holes}; clean-piece defects {rejected}')
-            failures.append({'clip':pose['clip'],'frame':pose['frame'],'holes':holes,'metrics':rejected,'source_gap_trace':source_gap_trace(model,pose,layers,holes)})
+            summary=[{k:h[k] for k in ('bbox','pixel_count','stone_pixels') if k in h} for h in holes]
+            errors.append(f'{label}: seam holes {summary}; clean-piece defects {rejected}')
+            failures.append({'clip':pose['clip'],'frame':pose['frame'],'holes':holes,'metrics':rejected})
             if save_failures:
                 composite=Image.new('RGBA',(PROOF_DEFAULTS['canvas_size'],)*2)
                 for part,image,_ in sorted(layers,key=lambda r:r[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
                 path=CASE/f'proof/seam_cpu/{view}_{pose["clip"]}_{pose["frame"]:04d}.png'
                 path.parent.mkdir(parents=True,exist_ok=True);composite.save(path)
+                for pocket_index,hole in enumerate(holes):
+                    bounds=hole['bbox'];padding=CROP_PADDING_PX
+                    crop_bounds=[max(0,bounds[0]-padding),max(0,bounds[1]-padding),
+                                 min(composite.width,bounds[2]+padding),min(composite.height,bounds[3]+padding)]
+                    crop=composite.crop(crop_bounds)
+                    target=path.with_name(path.stem+f'_pocket_{pocket_index:02d}.png')
+                    crop.resize((crop.width*CROP_ZOOM,crop.height*CROP_ZOOM),Image.Resampling.NEAREST).save(target)
+                    hole['crop']=str(target.relative_to(CASE))
+                    hole['crop_bounds']=crop_bounds
         if (index+1)%PROGRESS_INTERVAL_FRAMES==0:
             print(f'RR18 {view.upper()} RIGID SEAMS: {index+1} frames; {len(failures)} failures',flush=True)
     if not rows:errors.append(view+': missing presented rigid seam evidence')
-    return {'ok':not errors,'errors':errors,'frames':len(rows),'failures':failures,'native_pixels':False,
+    return {'ok':not errors,'errors':errors,'frames':len(rows),'failures':failures,'air_pockets':air,'native_pixels':False,
+            'seam_policy':load(CASE).get('seam_policy','strict'),
             'scope':'headless rigid raster and calibrated joint-hole diagnostics; director native capture still required'}
 
 

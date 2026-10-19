@@ -5,9 +5,7 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {
-    "TODO_DESIGN_source_gap_calibration": "Strict joint-hole diagnostics reject posed pockets that trace into transparent approved-source gaps (front guard frame 20: 19 px; rear refraction frame 32: 9 px). Director calibration decision required; protected paint and motion retained, no seam exemption applied."
-  },
+  "design_placeholders": {},
   "clips": {
     "idle": {
       "seconds": 0.84,

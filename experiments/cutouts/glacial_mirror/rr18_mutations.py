@@ -8,6 +8,8 @@ from unittest.mock import patch
 from rr18_case import PROJECT, CASE
 sys.path.insert(0,str(PROJECT))
 from tests import test_rr18_humanoid as tests
+from tests.test_rr18_air_policy import AirPolicyTests
+from humanoid_cutout.rigid_air import RigidAirPolicy
 from cutout_pipeline.cases import write_json
 
 MUTATIONS = (
@@ -38,6 +40,26 @@ def main():
         output=io.StringIO()
         with patch.object(tests,function,mutated):
             result=unittest.TextTestRunner(stream=output,verbosity=2).run(unittest.TestSuite([tests.MirrorTests(regression)]))
+        caught=len(result.failures)==1 and not result.errors
+        records.append({'guard':name,'regression':regression,'caught':caught,'failures':len(result.failures),'errors':len(result.errors),'restored':'in-memory only; source bytes untouched'})
+        print('RR18 MUTATION '+name+': '+('CAUGHT' if caught else 'FAIL'))
+        if not caught: print(output.getvalue())
+    for name,before,after,regression in (
+        ('rigid air allowance', 'blocked = np.zeros(len(xs), dtype=bool)',
+         'blocked = np.ones(len(xs), dtype=bool)', 'test_air_between_stones_passes_without_a_frame_exception'),
+        ('rigid stone interior', 'blocked |= interior | protected',
+         'blocked |= np.zeros(len(xs), dtype=bool)', 'test_punched_stone_interior_fails_with_single_owner_boundary')):
+        original=RigidAirPolicy.report
+        source=inspect.getsource(original)
+        # Methods are indented in their class; compile the isolated method.
+        import textwrap
+        source=textwrap.dedent(source)
+        if before not in source: raise ValueError('Mutation guard moved: '+name)
+        namespace=dict(original.__globals__)
+        exec(compile(source.replace(before,after,1),inspect.getsourcefile(original),'exec'),namespace)
+        output=io.StringIO()
+        with patch.object(RigidAirPolicy,'report',namespace['report']):
+            result=unittest.TextTestRunner(stream=output,verbosity=2).run(unittest.TestSuite([AirPolicyTests(regression)]))
         caught=len(result.failures)==1 and not result.errors
         records.append({'guard':name,'regression':regression,'caught':caught,'failures':len(result.failures),'errors':len(result.errors),'restored':'in-memory only; source bytes untouched'})
         print('RR18 MUTATION '+name+': '+('CAUGHT' if caught else 'FAIL'))

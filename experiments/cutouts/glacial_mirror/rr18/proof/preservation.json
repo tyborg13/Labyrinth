@@ -1,6 +1,11 @@
 {
   "ok": true,
-  "checked_tracked_files": 3616,
-  "unrelated_identity_density_records": "byte-equivalent JSON values",
+  "checked_protected_tracked_files": 3616,
+  "mirror_png_files_unchanged": 313,
+  "declared_generic_extensions": [
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/rigid_air.py"
+  ],
   "errors": []
 }
