@@ -41,8 +41,8 @@
   "spec/art_identity/maquettes/slag_mortar/delivery/rear_solo_upper_far.png": "058384937d17243d1eafec9e4b333cac5865dcc674a907befec558392214e458",
   "spec/art_identity/maquettes/slag_mortar/delivery/rear_solo_upper_near.png": "c1343db2613b47bd8982998e3324e59c0f599f04582e36c30a80a8d8aa9ca96e",
   "spec/art_identity/maquettes/slag_mortar/measurements.json": "4bb28f8cd7691b8a709fa24debbedf68feb721f9afa768bd691c7e05352c77ce",
-  "spec/peer_benchmark/staged/rr-22/crucible_mask_front.png": "354dd6e3c5790a6e1d5e1af97d27fa4ced992d37c55a203d552710611c22de3f",
-  "spec/peer_benchmark/staged/rr-22/crucible_mask_rear.png": "527d612dbb69d440e1058d12b9aa0e855220bbddb0d62c2f9b2264fe61f5d836",
-  "spec/peer_benchmark/staged/rr-22/make_crucible_mask.py": "f55f7c0bc884151ddca51bb3f8201efa7f8a3872c18502af5a5a918a237cfcc8",
+  "spec/peer_benchmark/staged/rr-22/crucible_mask_front.png": "e996b8bb678b74a4d668a267a74db3f181b096c3f61f480ce74eb9de69cf4325",
+  "spec/peer_benchmark/staged/rr-22/crucible_mask_rear.png": "7bd3fd5ea5f09812a3799d3444c4f7d1d288c0596732941c473b229636434182",
+  "spec/peer_benchmark/staged/rr-22/make_crucible_mask.py": "2d24d856f6412014925fd5bcda2b987af69cb19140bf65a0660470fb48d216d8",
   "spec/peer_benchmark/staged/rr-22/motion_tracks.json": "e40520f172897fc0c60c3c219b9d411891ccecca6c1e083472ba6c580e687894"
 }

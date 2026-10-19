@@ -7,14 +7,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.611659611024762,
-      "presented_phase": 0.595238095238095,
+      "phase": 0.444225807842022,
+      "presented_phase": 0.357142857142857,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453024426221
+      "texture_id": -9223371454484044011
     },
     "hit": {
       "active": true,
@@ -22,14 +22,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.0578703703703704,
+      "phase": 0.0617283950617284,
       "presented_phase": 0.0,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453024426221
+      "texture_id": -9223371454484044011
     },
     "land": {
       "active": true,
@@ -37,14 +37,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.468262571468198,
-      "presented_phase": 0.357142857142857,
+      "phase": 0.325513865287222,
+      "presented_phase": 0.238095238095238,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453024426221
+      "texture_id": -9223371454484044011
     },
     "lob": {
       "active": true,
@@ -52,14 +52,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.334224425839577,
-      "presented_phase": 0.238095238095238,
+      "phase": 0.202284934826149,
+      "presented_phase": 0.119047619047619,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453024426221
+      "texture_id": -9223371454484044011
     },
     "move": {
       "active": true,
@@ -67,14 +67,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.163077299817451,
-      "presented_phase": 0.119047619047619,
+      "phase": 0.076490584863942,
+      "presented_phase": 0.0,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453024426221
+      "texture_id": -9223371454484044011
     },
     "scatter": {
       "active": true,
@@ -82,14 +82,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.77356976185277,
-      "presented_phase": 0.714285714285714,
+      "phase": 0.57825940572562,
+      "presented_phase": 0.476190476190476,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453024426221
+      "texture_id": -9223371454484044011
     }
   },
   "errors": [],
@@ -103,7 +103,7 @@
   "type": "slag_mortar",
   "ui_scale": 1.0,
   "full_report": "proof/logs/production_logic/logic_frames.json",
-  "full_sha256": "830c2058f0cf70d5259a3fcc915df33ba8928bbcd105496fbd7a98c6d54172cd",
+  "full_sha256": "62ab92f316e7e929338fe03f0e3c536c2dce4be84886fb8fb940b5a61ee3d35e",
   "frame_count": 1516,
   "stage_counts": {
     "idle": 50,

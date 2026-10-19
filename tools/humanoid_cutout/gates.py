@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from cutout_pipeline.cases import read_json, digest
+from cutout_pipeline.cases import read_json, write_json, digest
 from .gait import evaluate
 from .silhouette_gates import detached_metrics, joint_holes, posed_owners
 from .anatomy import for_layout, load
@@ -310,7 +310,7 @@ def unexplained_holes(occupied, references):
     return unexplained
 
 
-def native_errors(case, capture, failure_output=None, hole_details=None):
+def native_errors(case, capture, failure_output=None, hole_details=None, space_details=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     anatomy = load(case)
@@ -335,6 +335,9 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
     from .rigid_air import for_case as air_policy_for_case
     air_policies = {view: air_policy_for_case(case, layout, anatomy) for view, layout in layouts.items()}
+    from .source_space import PaintedComponents, pocket_report, apply_painted_components
+    painted_components = {view: PaintedComponents(case, layout) for view, layout in layouts.items()}
+    passed_spaces = []
     for layout in layouts.values():
         errors += source_errors(case,layout,read_json(case/'proof/build.json'))
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
@@ -428,9 +431,17 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
             owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
             if air_policy is None:
                 new_holes = joint_holes(occupied, seam, owners, references, pocket_details=True)
+                spaces = pocket_report(layers, new_holes)
+                new_holes = [{'bbox': r['bbox'], 'pixel_count': r['pixel_count']} for r in spaces['failures']]
             else:
                 transforms = {name: part['transform'] for name, part in pose['parts'].items()}
-                new_holes = air_policy.report(occupied, owners, transforms)['failures']
+                spaces = air_policy.report(occupied, owners, transforms)
+                new_holes = spaces['failures']
+            detached = painted_components[view].report(layers, pose)
+            metric = apply_painted_components(metric, detached)
+            if spaces['air_pockets'] or detached:
+                passed_spaces.append({'view': view, 'clip': clip, 'frame': frame,
+                    'air_pockets': spaces['air_pockets'], 'painted_detached_components': detached})
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -458,6 +469,9 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     expected_frames = sum(round(c['seconds'] * 60) for c in data['clips'].values()) * len(data['view_tracks'])
     if len(layer_frames) != expected_frames: errors.append('incomplete clean union/material proof')
     if bindings(case)!=bound_inputs: errors.append('inputs changed during native gate')
+    if space_details is not None:
+        space_details.extend(passed_spaces)
+    write_json(capture / 'source_space_pockets.json', passed_spaces)
     return errors
 
 

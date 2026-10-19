@@ -7,9 +7,16 @@ from maquette_motion.silhouette import components
 from rr22_surfaces import resolve, clean_residue, molten_mask
 
 
-def connectivity_errors(images, label):
+def connectivity_errors(images, label, approved=None, rigid=False):
     union = np.logical_or.reduce([image[..., 3] > 0 for image in images])
-    amount = len(components(union)[1])
+    labelled, groups = components(union)
+    amount = len(groups)
+    if approved is not None and rigid:
+        source_labels, source_groups = components(approved[..., 3] > 0)
+        detached = [n for n, _ in source_groups[1:]]
+        for index, _ in groups[1:]:
+            if np.isin(source_labels[labelled == index], detached).all():
+                amount -= 1
     return [] if amount == 1 else [f'{label}: logical piece has {amount} connected components']
 
 
@@ -48,5 +55,6 @@ def errors(case, layout):
         visible = [p for p in parts if not p.get('hidden_material')]
         if len(visible) != 1 or not np.array_equal(source_pixels(case, visible[0]), image):
             failures.append(view + '/' + name + ': actual source cut differs from director ownership')
-        failures += connectivity_errors([source_pixels(case, p) for p in parts], view + '/' + name)
+        failures += connectivity_errors([source_pixels(case, p) for p in parts], view + '/' + name,
+                                       paint, rigid=not any(m['logical_part'] == name for m in layout['joint_meshes']))
     return failures

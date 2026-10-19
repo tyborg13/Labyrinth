@@ -1,217 +1,219 @@
 {
   "task": "rr-22",
-  "feedback": 2,
-  "base_head": "e4be5b7f8ec7c7830060bbfc2e03e779a34b351e",
+  "feedback": 3,
+  "base_head": "c716a93a6c0c31ed6539953e8d6e294472698bae",
   "committed": false,
   "worker_windowed_attempts": 0,
   "production_ready": false,
   "requirements": {
-    "1_integration_shadows": "PASS: shared gait reused; exactly two unit shadow records restored, every unrelated entry/fingerprint retained",
-    "2_walk": "PASS: protected motion imported byte for byte; leg_roles retired; both views pass shared six-swing walk gates; maximum fit front 0.091893 / rear 0.098218 px, maximum total drop 3.5 px, stance drift zero",
-    "3_crucible": "PARTIAL: both masks byte-identical; visible ownership exactly matches masks; own-edge hidden pot fill; source rests mismatch 0 px. Exact-mask and six-pixel reassignment conflict remains explicit",
-    "4_native_failures": "PARTIAL: zero joint holes in all 862 headless frames, with own-edge neck/waist material and no exceptions/motion edits. Detached rim paint remains; old native capture rejected as stale; fresh native unavailable to worker",
-    "5_compact_records": "PASS: samples/gates/native_gates summaries only; full poses, gate reports and production traces under ignored proof/logs; legacy full-report readers preserved",
-    "6_all_gates": "BLOCKED_DESIGN: source connectivity and detached painted rim still fail; exact windowed sequence supplied; focused tests only"
+    "1_mask_import": "PASS imports/exact ownership/source rest identity; remaining outside fragments explicitly reported without reassignment",
+    "2_negative_space": "PASS shared source-air and rigid painted-component rules, 7 focused mutation tests; every passed pocket bound/count reported; zero joint holes in 862 headless frames; neither approved painting has a detached component",
+    "3_all_gates": "NOT MET: 63 outside-mask source texels remain upper_near/arm_near, rear source connectivity fails, presented detached pixels fail 8 front / 75 rear frames. No exemptions or motion/ownership changes. Exact eight-stage windowed sequence includes walk; focused checks only"
   },
   "tests": {
-    "feedback2-affected.log": {
+    "feedback3-affected.log": {
       "result_lines": [
         "RR22 AFFECTED SUITES: PASS (513 checks)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-affected.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-affected.log"
     },
-    "feedback2-art-identity.log": {
+    "feedback3-art-identity.log": {
       "result_lines": [
-        "Ran 111 tests in 43.865s",
+        "Ran 111 tests in 46.124s",
         "OK"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-art-identity.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-art-identity.log"
     },
-    "feedback2-build.log": {
+    "feedback3-build-initial.log": {
       "result_lines": [
-        "RR22 OUTLINED CUTS: experiments/cutouts/slag_mortar/rr22/proof/contact_sheets/source_cuts_outlined.png",
         "RR22 FRONT BUILD: PASS (rest mismatch: 0 px)",
         "RR22 REAR BUILD: PASS (rest mismatch: 0 px)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-build.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-build-initial.log"
     },
-    "feedback2-cpu-final.log": {
+    "feedback3-build.log": {
       "result_lines": [
-        "RR22 FRONT CPU COVERAGE GATES: FAIL (431 frames; 170 errors)",
-        "RR22 REAR CPU COVERAGE GATES: FAIL (431 frames; 114 errors)"
+        "RR22 FRONT BUILD: PASS (rest mismatch: 0 px)",
+        "RR22 REAR BUILD: PASS (rest mismatch: 0 px)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-cpu-final.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-build.log"
     },
-    "feedback2-cpu-focused.log": {
+    "feedback3-cpu.log": {
       "result_lines": [
-        "RR22 FRONT CPU COVERAGE GATES: FAIL (210 frames; 133 errors)",
-        "RR22 REAR CPU COVERAGE GATES: FAIL (210 frames; 89 errors)"
+        "RR22 FRONT CPU COVERAGE GATES: FAIL (431 frames; 8 errors)",
+        "RR22 REAR CPU COVERAGE GATES: FAIL (431 frames; 75 errors)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-cpu-focused.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-cpu.log"
     },
-    "feedback2-density-check.log": {
+    "feedback3-density-check.log": {
       "result_lines": [
         "rest rebake needed: assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
         "rest rebake needed: assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-density-check.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-density-check.log"
     },
-    "feedback2-density.log": {
+    "feedback3-density.log": {
       "result_lines": [
         "RR22 DENSITY PAINT: PASS (both views adopted/processed; native rests pending director)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-density.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-density.log"
     },
-    "feedback2-focused.log": {
+    "feedback3-focused.log": {
       "result_lines": [
-        "Ran 19 tests in 22.663s",
-        "FAILED (failures=2)",
+        "Ran 26 tests in 16.686s",
+        "FAILED (failures=1)",
         "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-focused.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-focused.log"
     },
-    "feedback2-gait-regression.log": {
+    "feedback3-gates.log": {
       "result_lines": [
-        "Ran 22 tests in 73.586s",
-        "FAILED (failures=1)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-gait-regression.log"
-    },
-    "feedback2-gates.log": {
-      "result_lines": [
-        "RR22 SOURCE/BONE/KNEE GATES: FAIL (4 errors; both views)",
-        "RR22 FRONT: 6 swings; minimum peak 51.387 degrees; support drift 0.000000 px; reach 14 paths, 6 overreach reports",
+        "RR22 SOURCE/BONE/KNEE GATES: FAIL (1 errors; both views)",
         "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
-        "RR22 REAR: 6 swings; minimum peak 50.540 degrees; support drift 0.000000 px; reach 14 paths, 3 overreach reports",
         "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-gates.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-gates.log"
     },
-    "feedback2-native-gates.log": {
+    "feedback3-icon-identity.log": {
       "result_lines": [
-        "RR22 NATIVE GATES: FAIL (5 errors; both views)",
-        "RR22 FRONT: 6 swings; minimum peak 51.387 degrees; support drift 0.000000 px; reach 14 paths, 6 overreach reports",
+        "Ran 7 tests in 0.092s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-icon-identity.log"
+    },
+    "feedback3-native-gates.log": {
+      "result_lines": [
+        "RR22 NATIVE GATES: FAIL (2 errors; both views)",
         "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
-        "RR22 REAR: 6 swings; minimum peak 50.540 degrees; support drift 0.000000 px; reach 14 paths, 3 overreach reports",
         "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-native-gates.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-native-gates.log"
     },
-    "feedback2-native-validate.log": {
+    "feedback3-native-validate.log": {
       "result_lines": [
         "RR22 NATIVE PROBE LOAD: PASS"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-native-validate.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-native-validate.log"
     },
-    "feedback2-pack-build.log": {
+    "feedback3-pack-build.log": {
       "result_lines": [
         "RR22 PRODUCTION PACK BUILD: PASS"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-pack-build.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-pack-build.log"
     },
-    "feedback2-pack-runtime.log": {
+    "feedback3-pack-runtime.log": {
       "result_lines": [
         "RR22 PRODUCTION PACK: PASS (2 views; source-only PNG loading; editor=false)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-pack-runtime.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-pack-runtime.log"
     },
-    "feedback2-production-front.log": {
+    "feedback3-production-front.log": {
       "result_lines": [
         "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-production-front.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-production-front.log"
     },
-    "feedback2-production-rear.log": {
+    "feedback3-production-rear.log": {
       "result_lines": [
         "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-production-rear.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-production-rear.log"
     },
-    "feedback2-reference-runtime.log": {
+    "feedback3-production-records.log": {
       "result_lines": [
-        "Ran 70 tests in 185.765s",
+        "RR22 COMPACT PRODUCTION_LOGIC: PASS (1516 frames)",
+        "RR22 COMPACT PRODUCTION_LOGIC_REAR: PASS (1516 frames)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-production-records.log"
+    },
+    "feedback3-reference.log": {
+      "result_lines": [
+        "Ran 92 tests in 186.107s",
         "OK"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-reference-runtime.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-reference.log"
     },
-    "feedback2-registration.log": {
+    "feedback3-registration.log": {
       "result_lines": [
         "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-registration.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-registration.log"
     },
-    "feedback2-runtime.log": {
+    "feedback3-runtime.log": {
       "result_lines": [
-        "RR22 RUNTIME: PASS (471 checks; headless logic only)"
+        "RR22 RUNTIME: PASS (475 checks; headless logic only)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-runtime.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-runtime.log"
     },
-    "feedback2-sfx-0.log": {
+    "feedback3-sfx-0.log": {
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-sfx-0.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-sfx-0.log"
     },
-    "feedback2-sfx-1.log": {
+    "feedback3-sfx-1.log": {
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-sfx-1.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-sfx-1.log"
     },
-    "feedback2-sfx-2.log": {
+    "feedback3-sfx-2.log": {
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-sfx-2.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-sfx-2.log"
     },
-    "feedback2-shadows.log": {
+    "feedback3-shadows.log": {
       "result_lines": [
         "RR22 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback2-shadows.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-shadows.log"
     }
   },
-  "design_placeholders": {
-    "TODO_DESIGN_crucible_mask_outside_fragments": "Protected masks exclude isolated painted rim fragments (including front 144,33 and the outer near-arm rim). Exact mask ownership forbids assigning them to their surrounding mortar, while the six-pixel cleanup requires that reassignment. Preserve the masks pending director precedence or corrected masks."
+  "design_placeholders": {},
+  "outside_fragments": {
+    "front_pixels": 1,
+    "rear_pixels": 62,
+    "current_owner": "native upper_near; logical arm_near",
+    "exact_pixels_and_owners": "proof/mask_fragments.json",
+    "front_presented_sources": "proof/front_stray_sources.json",
+    "rear_presented_sources": "proof/rear_stray_sources.json",
+    "source_reassignment_performed": false
   },
   "headless_coverage": {
     "front": {
       "frames": 431,
-      "failed_frames": 170,
-      "errors": 170,
+      "failed_frames": 8,
       "joint_hole_frames": 0,
-      "rules": [
+      "air_pockets_passed": 2242,
+      "maximum_air_pocket_pixels": 578,
+      "painted_detached_components_passed": 0,
+      "failure_rules": [
         "detached opaque component outside outline exemption"
       ]
     },
     "rear": {
       "frames": 431,
-      "failed_frames": 114,
-      "errors": 114,
+      "failed_frames": 75,
       "joint_hole_frames": 0,
-      "rules": [
+      "air_pockets_passed": 1317,
+      "maximum_air_pocket_pixels": 1001,
+      "painted_detached_components_passed": 0,
+      "failure_rules": [
         "detached opaque component outside outline exemption"
       ]
     }
   },
-  "stray_provenance": "proof/stray_provenance.json",
-  "mask_conflicts": "proof/mask_conflicts.json",
-  "rear_rim_trace": "proof/rim_trace.json",
-  "protected_inputs": "PASS (46 files byte-identical to director HEAD)",
-  "cached_rebuild": "RR22 CACHED CALIBRATION REBUILD: PASS (all case JSON/PNG bytes unchanged without full pose logs)",
-  "registry_scope": "PASS: 27 owned density output records and 2 owned identity records; zero unrelated records changed",
+  "passed_pocket_bounds": "proof/seams.json (512x512 proof coordinates; source origin +128,+128)",
+  "full_pocket_records": "proof/logs/seams_full.json",
+  "protected_inputs": "PASS: 46 files byte-identical to current director HEAD; regenerated masks copied byte for byte",
   "reference_files_changed": [],
-  "gait_scope_test": "One unchanged gait-01 ownership assertion rejects any PNG diff, including this unit\u2019s required changes. All other 21 tests passed; do not rewrite the assertion for rr-22.",
-  "focused_test_failures": [
-    "test_director_residue_band_boundaries_and_olive: nonempty global design_placeholders assertion",
-    "test_ownership_replays_and_logical_pieces_are_connected: mask-constrained disconnected rim fragments"
-  ],
-  "generic_extensions": [
-    "scripts/maquette_cutout_runtime/humanoid_continuations.gd",
-    "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
-    "tools/humanoid_cutout/bone_evidence.py",
-    "tools/humanoid_cutout/cpu_pose.py",
-    "tools/humanoid_cutout/gait_continuations.py",
+  "reference_regression": "Ran 92 tests in 186.107s; OK (Seer, Thrall, Mirror, Capacitor and gait-01)",
+  "gait_scope_test": "PASS with merged integration scope fix; no assertion changed by rr-22",
+  "registry_scope": "PASS: 13 owned density output records changed, every other record identical; identity registry unchanged",
+  "shadows": "PASS: refreshed both v2 records, every unrelated entry/fingerprint retained; generated cache byte-identical to HEAD",
+  "generic_extensions_this_round": [
+    "tools/humanoid_cutout/source_space.py",
     "tools/humanoid_cutout/gates.py"
   ],
   "density_pending": [
@@ -222,11 +224,10 @@
   "chosen_defaults": "proof/chosen_defaults.json",
   "observed_proof": {
     "source_cuts": "proof/contact_sheets/source_cuts_outlined.png",
-    "rear_head_comparison": "proof/contact_sheets/feedback2_rear_head_compare.png",
-    "cpu_frames": "proof/seam_cpu/",
+    "cpu_failed_frames": "proof/seam_cpu/",
     "full_cpu_report": "proof/logs/seams_full.json",
     "full_samples": "proof/logs/samples_full.json",
-    "old_native_capture": "proof/native/ (stale; director data from prior round)"
+    "old_native_capture": "proof/native/ (stale; cannot certify current cut/gate bindings)"
   },
   "director_commands": [
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
@@ -245,6 +246,21 @@
     "peer review",
     "inspection fixture (design owner assigned)"
   ],
-  "proof_input_consistency": "PASS: restored case, art, runtime and production hashes exactly match the latest full bone samples; both production traces have current bindings",
-  "raw_cpu_raster_parity": "PASS: optimized coverage preserves every paint/check pixel and transported hole/seam mask in the focused actual-pose fixtures"
+  "open_issues": [
+    "Rear arm has 9 connected components; 62 source pixels across 8 islands. Front retains 1 source texel at (200,108); its covered connection also produces detached paint at authored lob/death poses. Exact protected ownership retained as directed.",
+    "Native captures and density rests need director windowed refresh. Sheets/review will continue refusing genuine detached pixels."
+  ],
+  "proof_ignore_audit": "PASS: captures ignored; zero tracked PNG/MP4 under case proof",
+  "proof_input_consistency": "PASS: full samples and both production traces exactly match current case/runtime/production bindings",
+  "source_space_mutation_tests": "PASS: all 7 tests in tests/test_rr22_source_space.py",
+  "diff_check": "PASS: git diff --check",
+  "compact_record_bytes": {
+    "samples": 3697,
+    "gates": 32507,
+    "native_gates": 32601
+  },
+  "inspected_cpu_captures": [
+    "proof/seam_cpu/front_lob_0038.png",
+    "proof/seam_cpu/rear_brace_0024.png"
+  ]
 }

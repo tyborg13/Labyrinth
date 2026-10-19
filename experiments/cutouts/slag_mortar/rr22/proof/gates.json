@@ -1,10 +1,7 @@
 {
   "ok": false,
   "errors": [
-    "unresolved design placeholder: TODO_DESIGN_crucible_mask_outside_fragments",
-    "front/head: logical piece has 2 connected components",
-    "front/arm_near: logical piece has 6 connected components",
-    "rear/arm_near: logical piece has 2 connected components"
+    "rear/arm_near: logical piece has 9 connected components"
   ],
   "native_pixels": false,
   "views": {
@@ -1022,8 +1019,13 @@
       }
     }
   },
-  "design_placeholders": {
-    "TODO_DESIGN_crucible_mask_outside_fragments": "Protected masks exclude isolated painted rim fragments (including front 144,33 and the outer near-arm rim). Exact mask ownership forbids assigning them to their surrounding mortar, while the six-pixel cleanup requires that reassignment. Preserve the masks pending director precedence or corrected masks."
+  "design_placeholders": {},
+  "source_space": {
+    "frames_with_passed_space": 0,
+    "air_pockets_passed": 0,
+    "maximum_air_pocket_pixels": 0,
+    "painted_detached_components_passed": 0,
+    "pocket_bounds": []
   },
   "production_ready": false
 }

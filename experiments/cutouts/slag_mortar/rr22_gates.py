@@ -8,7 +8,7 @@ from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.gait import evaluate
 from humanoid_cutout.walk_gates import report as knee_report, support_report
-from rr22_records import samples as read_samples, summary
+from rr22_records import samples as read_samples, summary, space_summary
 import rr22_residue_gate as residue
 import rr22_surface_gates as surfaces
 EPSILON = 0.0001
@@ -53,17 +53,19 @@ def run(native=None):
         production = read_json(ASSETS / f'humanoid_v2/{view}.json')
         errors += residue.source_errors(ASSETS / 'humanoid_v2', production,
                                       feature_case=CASE, feature_layout=layout)
+    spaces = []
     if native:
         if read_json(native / 'frames.json')['inputs'] != current:
             errors.append('stale native proof inputs; rerun the director windowed capture for the new cut and gait')
         else:
-            errors += native_errors(CASE, native, failure_output=CASE / 'proof/seam_cpu/native_failures')
+            errors += native_errors(CASE, native, failure_output=CASE / 'proof/seam_cpu/native_failures',
+                                    space_details=spaces)
             errors += residue.native_errors(CASE, native)
     result = {'ok': not errors, 'errors': errors, 'native_pixels': bool(native), 'views': {view: {name: summary(report) for name, report in checks.items()} for view, checks in reports.items()},
-              'design_placeholders': placeholders}
+              'design_placeholders': placeholders, 'source_space': space_summary(spaces)}
     result['production_ready'] = not errors and not result['design_placeholders'] and bool(native)
     full_name = 'native_gates_full' if native else 'gates_full'
-    write_json(CASE / ('proof/logs/' + full_name + '.json'), dict(result, views=reports))
+    write_json(CASE / ('proof/logs/' + full_name + '.json'), dict(result, views=reports, passed_spaces=spaces))
     write_json(CASE / ('proof/native_gates.json' if native else 'proof/gates.json'), result)
     print('RR22 %s GATES: %s (%d errors; both views)' % ('NATIVE' if native else 'SOURCE/BONE/KNEE', 'FAIL' if errors else 'PASS', len(errors)))
     for view, checks in reports.items():

@@ -1,9 +1,56 @@
-# rr-22 — Slag Mortar humanoid v2, feedback 2
+# rr-22 — Slag Mortar humanoid v2, feedback 3
 
 Changes are uncommitted. The director owns commits, review, inspection and
 publication. No windowed process or full suite was run by this worker.
 
-## Requirement coverage
+## Feedback 3 coverage
+
+1. The regenerated director masks are imported byte for byte. The added 31
+   front / 100 rear rim pixels belong to the crucible. Visible mortar ownership
+   remains exactly the opaque mask. The resolved design TODO is removed.
+   Both source rests still match at **0 px**. Remaining outside fragments are
+   reported in `rr22/proof/mask_fragments.json`, with every source coordinate
+   and native owner; they have not been reassigned. See the open issue below.
+2. Shared `tools/humanoid_cutout/source_space.py` implements the new source-air
+   rule for rigid and skinned pieces. Transported immutable paint/tuck checks
+   answer the inverse-source occupancy question using the same triangles as
+   each presented piece. Every pocket is reported with bounds. Any missing
+   immutable texel, including one pixel, fails; independently identified joint
+   tears still fail. Originally detached painted components pass only with
+   their single rigid owner and its sampled transform. Cut-induced islands,
+   skinned islands and frozen fragments do not acquire that allowance.
+
+   CPU records put all per-frame passed pockets and failures in ignored
+   `proof/logs/seams_full.json`; `proof/seams.json` holds counts and unique
+   pocket bounds. Native checks write `source_space_pockets.json` into the
+   ignored capture folder, and compact native gate reports include its summary.
+   Focused mutations cover natural air, one-pixel paint/tuck loss, joint tears,
+   detached source paint, wrong transforms, cut-induced islands and unrelated
+   strays. No clip/frame exceptions were added.
+3. Headless checks and exact result lines are recorded in
+   `rr22/proof/results.json`. The rear ownership fragments still fail the
+   strict connectivity/stray gates, so all-gates acceptance is not claimed.
+   The exact windowed sequence below includes `walk`. No full suite, windowed
+   process, peer review or inspection fixture was run by this worker.
+
+   All 862 presented frames were checked: **zero joint holes**, 2,242 front
+   and 1,317 rear air pockets passed (3,559 total). Bounds and occurrence counts
+   are in `proof/seams.json`, in 512×512 proof coordinates with source origin
+   (128,128). Largest passed pockets are 578 px front / 1,001 px rear. The
+   remaining detached-paint failures affect 8 front and 75 rear frames.
+   Source tracing identifies the front texel (200,108), four covered arm
+   continuation texels beside it, and the exact 62 reported rear texels.
+   `proof/{front,rear}_stray_sources.json` contains the unique source pixels;
+   full frame traces are in ignored `proof/logs/feedback3_*_stray_sources.json`.
+
+   Focused rr-22 tests: `Ran 26 tests in 16.686s` / `FAILED (failures=1)`;
+   only `test_ownership_replays_and_logical_pieces_are_connected` fails.
+   Reference/gait tests: `Ran 92 tests in 186.107s` / `OK`. Runtime 475 checks,
+   affected suites 513 checks, production logic 1,516 frames per view, native
+   probe load and exported two-view smoke pass. All three SFX sync programs,
+   registration audit, art identity (111 tests) and icon identity (7 tests) pass.
+
+## Retained implementation
 
 1. **Integration/shadows.** The merged gait-01 implementation is reused.
    `tests/rr22/shadow_refresh.gd` restores exactly the two Slag Mortar v2 rest
@@ -20,7 +67,7 @@ publication. No windowed process or full suite was run by this worker.
    mortar; none outside is mortar. The rear bracer lower-rim rule is retained.
    Logical-piece components smaller than six pixels join their surrounding
    non-mortar piece where compatible with the exact mask. Conflicting rim
-   fragments remain visible in the failing gate; see the design TODO below.
+   fragments remain visible in the failing gate; see the open issue below.
 
    Hidden pot paint comes only from the pot's own visible edge texels. Its
    covered domain includes the shoulders/head as well as the torso. Hidden-only
@@ -65,18 +112,20 @@ publication. No windowed process or full suite was run by this worker.
    `rr22/proof/results.json`. Every gate remains strict. Captures and full
    diagnostics are gitignored. See the unresolved criteria below.
 
-## Unresolved design and native proof
+## Remaining mask fragments and native proof
 
-`TODO_DESIGN_crucible_mask_outside_fragments` is recorded in the case data.
-The exact masks leave seven opaque 1–2 px rim fragments outside the pot:
-front head at (144,33); front near arm at (215,79–80), (213,83–84),
-(209,91), (208,93), (207,95); rear near arm at (39,53). Their surrounding
-piece is mortar. Assigning them there conflicts with “nothing outside [the
-mask] does”; retaining them conflicts with the six-pixel cleanup rule. The
-source-cut sheet also shows the thin unmasked outer rim attached to the rear
-near arm. Exact mask ownership is preserved pending director precedence or
-corrected masks. `proof/mask_conflicts.json` contains bounds/counts. The gate
-continues to report the three disconnected logical pieces.
+There are no unresolved `TODO_DESIGN` fields. The updated masks leave one
+front source texel at (200,108), and 62 rear texels in eight near-arm islands.
+All currently belong to native `upper_near` / logical `arm_near`. Rear island
+bounds (exclusive right/bottom) are (40,76)-(52,91), 49 px;
+(55,102)-(59,104), 5 px; (38,73)-(39,75), 2 px;
+(53,99)-(54,101), 2 px; and single pixels (36,69), (38,69), (40,73),
+(55,99). `proof/mask_fragments.json` lists every exact pixel and owner.
+The front island is connected by covered material; all eight rear islands
+remain separate, producing nine components including the main arm. Neither
+painting has an originally detached opaque component, so the new painted-speck
+rule cannot exempt these cut-induced islands. Ownership remains unchanged,
+as explicitly required by feedback 3.
 
 The source-cut diagnostic is
 `rr22/proof/contact_sheets/source_cuts_outlined.png`: front row = source,
@@ -93,14 +142,14 @@ seam, stray-pixel or appearance acceptance is claimed from CPU diagnostics.
 - `rr22_case.py`, `rr22_build.py`, `rr22_surfaces.py`, `rr22_continuations.py`:
   anatomy, source cuts, covered paint, protected imports and production closure.
 - `rr22_gates.py`, `rr22_surface_gates.py`, `rr22_residue_gate.py`,
-  `rr22_records.py`, `rr22_seams.py`, `rr22_cpu.py`, `rr22_proof.sh`: strict gates, compact
+  `rr22_records.py`, `rr22_seams.py`, `rr22_cpu.py`, `rr22_fragments.py`, `rr22_proof.sh`: strict gates, compact
   records, diagnostics and director proof sequence.
 - `tests/rr22/`, `tests/test_rr22_humanoid.py`, generated `rr22/` data,
   `assets/units/slag_mortar_cutout/`, Slag density/identity/shadow records.
-- Generic changes are limited to `humanoid_continuations.gd` and its existing
-  presentation call; Python continuation/CPU/native selection; and the compact
-  bone-evidence reader. Missing `clips` retains gait-only semantics. Reference
-  production assets and case data are untouched.
+- This round's generic changes are the additive `source_space.py` classifier
+  and its integration in native `gates.py`. Earlier continuation/compact-reader
+  changes are already on the director's merged baseline. Reference production
+  assets and case data remain byte-identical to HEAD.
 
 ## Chosen defaults
 
@@ -140,8 +189,8 @@ python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless 
 
 ## Proof for the design owner
 
-Run from `/Users/borgerding/workspace/Labyrinth.worktrees/rr-22` after resolving
-the ownership conflict. The driver contains the exact visual-runner commands,
+Run from `/Users/borgerding/workspace/Labyrinth.worktrees/rr-22`. Remaining mask
+fragments will keep native sheets/review gated until resolved. The driver contains the exact visual-runner commands,
 semantic proof contracts and manifests at 1920×1080/100%.
 
 ```sh

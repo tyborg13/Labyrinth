@@ -2,18 +2,18 @@
   "basis": {
     "director": "e40520f172897fc0c60c3c219b9d411891ccecca6c1e083472ba6c580e687894",
     "paint": "6391fc7c0852207a3893dff2222fa8c2ef383b9e65051eabe09460de7c641120",
-    "ownership": "ed5e75b2c9aa715ce117375c5e95ad490325eefb9361949908c7ca1cd0c4e9ad",
+    "ownership": "2df666a26e41089bb5d663a55d43dbac3e8f9ba49af4af62f59f7edd1ae2dbd7",
     "joints": "fc20714449d990f91db6309434de7874a7d53b06a524271c74783d6d236624ea"
   },
   "sampled_frames": 431,
   "domains": {
     "head": {
       "file": "continuations/front_head.png",
-      "sha256": "0fd9788a6cfc7d036a37c522c92223a66e52b326aaeb34ca4362aec6b6b49887"
+      "sha256": "fd37b3058bf54c8c3c39b158691b8b9db13d9f3f39300995f0052794417e560b"
     },
     "torso": {
       "file": "continuations/front_torso.png",
-      "sha256": "2b3892239a1fadcd0efc5b5d62690cd186ba3ffcd2e13590cb4c4a6c46589930"
+      "sha256": "476c651ae455be6b5e0a51d33f9ac39da67a850cd666442f7eb71a6de98533e9"
     },
     "pelvis": {
       "file": "continuations/front_pelvis.png",

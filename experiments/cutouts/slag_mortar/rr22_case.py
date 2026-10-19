@@ -9,11 +9,7 @@ from cutout_pipeline.cases import write_json
 CASE = PROJECT / 'experiments/cutouts/slag_mortar/rr22'
 ASSETS = PROJECT / 'assets/units/slag_mortar_cutout'
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-22/motion_tracks.json'
-DESIGN_PLACEHOLDERS = {
-    'TODO_DESIGN_crucible_mask_outside_fragments':
-        'Protected masks exclude isolated painted rim fragments (including front 144,33 and the outer near-arm rim). '
-        'Exact mask ownership forbids assigning them to their surrounding mortar, while the six-pixel cleanup '
-        'requires that reassignment. Preserve the masks pending director precedence or corrected masks.'}
+DESIGN_PLACEHOLDERS = {}
 PIECES = {'head': ['head'], 'torso': ['torso'], 'mortar': ['mortar'], 'pelvis': ['pelvis'],
           'apron': ['apron']}
 BONES = {'apron': 'pelvis'}

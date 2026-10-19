@@ -37,6 +37,17 @@ def summary(report):
     return result
 
 
+def space_summary(rows):
+    """Bounds/counts only; frame-by-frame pocket evidence stays in logs."""
+    pockets = [p for row in rows for p in row['air_pockets']]
+    counts = Counter((tuple(p['bbox']), p['pixel_count']) for p in pockets)
+    return dict(frames_with_passed_space=len(rows), air_pockets_passed=len(pockets),
+                maximum_air_pocket_pixels=max((p['pixel_count'] for p in pockets), default=0),
+                painted_detached_components_passed=sum(len(r['painted_detached_components']) for r in rows),
+                pocket_bounds=[dict(bbox=list(b), pixel_count=p, occurrences=n)
+                               for (b, p), n in sorted(counts.items())])
+
+
 def compact_production():
     for name in ('production_logic', 'production_logic_rear'):
         path = CASE / f'proof/logs/{name}/logic_frames.json'

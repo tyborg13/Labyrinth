@@ -7,14 +7,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.589345177970175,
-      "presented_phase": 0.476190476190476,
+      "phase": 0.433241931216929,
+      "presented_phase": 0.357142857142857,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453158643950
+      "texture_id": -9223371452202342635
     },
     "hit": {
       "active": true,
@@ -29,7 +29,7 @@
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453158643950
+      "texture_id": -9223371452202342635
     },
     "land": {
       "active": true,
@@ -37,14 +37,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.454417626949767,
-      "presented_phase": 0.357142857142857,
+      "phase": 0.314915476190474,
+      "presented_phase": 0.238095238095238,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453158643950
+      "texture_id": -9223371452202342635
     },
     "lob": {
       "active": true,
@@ -52,14 +52,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.315102585377582,
-      "presented_phase": 0.238095238095238,
+      "phase": 0.191871957671955,
+      "presented_phase": 0.119047619047619,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453158643950
+      "texture_id": -9223371452202342635
     },
     "move": {
       "active": true,
@@ -67,14 +67,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.1480714045214,
-      "presented_phase": 0.119047619047619,
+      "phase": 0.0999742630385463,
+      "presented_phase": 0.0,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453158643950
+      "texture_id": -9223371452202342635
     },
     "scatter": {
       "active": true,
@@ -82,14 +82,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.737949064339538,
-      "presented_phase": 0.714285714285714,
+      "phase": 0.565353212396067,
+      "presented_phase": 0.476190476190476,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453158643950
+      "texture_id": -9223371452202342635
     }
   },
   "errors": [],
@@ -103,7 +103,7 @@
   "type": "slag_mortar",
   "ui_scale": 1.0,
   "full_report": "proof/logs/production_logic_rear/logic_frames.json",
-  "full_sha256": "b13cc3feb3341747ae82a94ab06cabb06c2a0227d5fdc2404867b0c8dad897b4",
+  "full_sha256": "caa174bc867670d4379dea6901be216b4838b352807798953842a5cf93dd58f8",
   "frame_count": 1516,
   "stage_counts": {
     "idle": 50,

@@ -13177,8 +13177,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/arm_near.png": {
-    "pixel_sha256": "e87cea19e40c0465d70027d3bda1575a6b9c726abafb589cacffb49de25d2bd9",
-    "source_pixel_sha256": "5bbe910b1efb86ba8b332a68163177059e9ef04c580d506822348a09a9b47286",
+    "pixel_sha256": "de4ed1e4bfdef4a4910ee6a2d6399223db7f529b3d71d430176cfb4190815a50",
+    "source_pixel_sha256": "dfb32e5da0890be95cff9b22d850bed3d3e967ab7502d2c4eaf443f726deab08",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13217,8 +13217,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/head.png": {
-    "pixel_sha256": "966f97de2ec48e5f7bcc06487d5b0bc844c78a0ecd4d3efd13dcc66e39a0a8c6",
-    "source_pixel_sha256": "3c25d3cb1fb16b3f25a01d4bceecec1d7c5ff7119eecef616a85db3efd58bc76",
+    "pixel_sha256": "d84c74a7656bc820699a764830b1ad14fe0b79ffea0e71e41e2fa566cf5dbdfa",
+    "source_pixel_sha256": "8c302ef29f2e33fa7013cce04c3a2550b0b1db1fa7d92abb9108db7a7f21d640",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13241,8 +13241,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_arm_near.png": {
-    "pixel_sha256": "76390770ea43a707255187ed7fc0629e78e3cee9d9c0f23f94c6d694405fa332",
-    "source_pixel_sha256": "76390770ea43a707255187ed7fc0629e78e3cee9d9c0f23f94c6d694405fa332",
+    "pixel_sha256": "b7b4f3706c101f16e1aa8d1efcc06bc8073dc830848e08c10f53bd34816011c8",
+    "source_pixel_sha256": "b7b4f3706c101f16e1aa8d1efcc06bc8073dc830848e08c10f53bd34816011c8",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13281,8 +13281,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_head.png": {
-    "pixel_sha256": "7e1d1e1f28dea5308f6610a245826962c39dfb6f2099be107dc10e18d4dd62e5",
-    "source_pixel_sha256": "7e1d1e1f28dea5308f6610a245826962c39dfb6f2099be107dc10e18d4dd62e5",
+    "pixel_sha256": "d21759bab5bb4bd973ea00a138ffbdcf2184063dd2d25521559a0ff629786925",
+    "source_pixel_sha256": "d21759bab5bb4bd973ea00a138ffbdcf2184063dd2d25521559a0ff629786925",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13305,8 +13305,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_mortar.png": {
-    "pixel_sha256": "39f7adcf7839358e54cd4db96e36bdcc2d24c41be797ba63d94867b58906f53b",
-    "source_pixel_sha256": "b99cd1aa491e603bada39e51d574b280b2d215b7ab8a8fe0f04d7bcd3e7fb732",
+    "pixel_sha256": "3e70903a9d48ed75d5f2c4782b05cbc0b981b91cf118ccc57a712654b64d0390",
+    "source_pixel_sha256": "8c88f3a550ecc608ed055e495f50110e06127409f59a3559e22133a7a6ad7fb8",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13321,8 +13321,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_torso.png": {
-    "pixel_sha256": "46299ee5ac752792f8b89b306770a96f796b85acb3cb80e0060750765981e7d4",
-    "source_pixel_sha256": "ce7698da37dee681bfd341e0e39d776806d625f8ed6b3f6766ae1a9d5555f655",
+    "pixel_sha256": "654349fd56ed0cfbe1ab03ceae2ef0404cdc5494a42b955d9ec5efb874bcc17a",
+    "source_pixel_sha256": "d37bd6e0519feb8a5cb59f67ea9a72ba823db6f6400a20da5ccb18b503305b97",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13345,8 +13345,8 @@
     "facing": "front"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/mortar.png": {
-    "pixel_sha256": "0801aaa6c5a1ae5ee6564312b5dcf0d3454f1acda3dbd4669ca46e9d2be123d2",
-    "source_pixel_sha256": "e740f6fd6c9436de56ee0f496f2b1071eabb1112959e0c8bb7b35f5eaf970e7c",
+    "pixel_sha256": "af71bdcae0a6e52ab4129f2e4d87a3e2f1fd7d57977244fb2d98b85011b6a4d4",
+    "source_pixel_sha256": "3105e763a7622be6801ca9c883245dd56b946e8cd611e3f1c6e730cf39d554a0",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.96,
@@ -13385,8 +13385,8 @@
     "facing": "rear"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/arm_near.png": {
-    "pixel_sha256": "b45f30ff178a45972aedc386545afddb15daf082c6cc18a61042f82d64ef84b3",
-    "source_pixel_sha256": "7354e1b960263fddb3bee25b48795b5dfa0c40c6ac6429dc4eb5956d69fcc740",
+    "pixel_sha256": "17e198aa9d01be191e1741ba87f4bb95bac63dbf927278f2fcd0086af55c208d",
+    "source_pixel_sha256": "a2564d8162247abf2e37492a181248a0bec022aceaa8167469f4986b0750739a",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.98,
@@ -13425,8 +13425,8 @@
     "facing": "rear"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/head.png": {
-    "pixel_sha256": "2dfeec16f953a2b6472a3a7b954a5eacb6e7298a4afd8350abc1a033a2588b63",
-    "source_pixel_sha256": "a581989a75d839ad5d16cc8b692f621ccaa380f03b4fc0c943cace769b548b5f",
+    "pixel_sha256": "35344f20c9df5489f939fcb75ed7dc1faca73eb0f117f0c8d5e770c8a68366e5",
+    "source_pixel_sha256": "8248b89d49e7f4b5d7073379b0d0b6d579c436666c720e58885d7b7e322e2d15",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.98,
@@ -13489,8 +13489,8 @@
     "facing": "rear"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_head.png": {
-    "pixel_sha256": "eca284c821c02a2aa0933ba71e866bad5712405848fc1c36835264cc8ecab1b5",
-    "source_pixel_sha256": "f80d927cce4677e3639246f2febcd12bc72e97e2f729ebe49b48e149b7e1f498",
+    "pixel_sha256": "c4d6a340c3b732eee071ac28c0fc2118dffd3568941f02fae268ba5975898c7e",
+    "source_pixel_sha256": "46143edb10db27f73960d819931bdf8fdf3dc3a3890119b83f118225fb890ef9",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.98,
@@ -13513,8 +13513,8 @@
     "facing": "rear"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_mortar.png": {
-    "pixel_sha256": "2df64844e8df4ade3e1d4ea2c7351d52503188ffa9c19b776a20bc5d83c29dd0",
-    "source_pixel_sha256": "2df64844e8df4ade3e1d4ea2c7351d52503188ffa9c19b776a20bc5d83c29dd0",
+    "pixel_sha256": "01d4c8229cd58698a9dffc0745d34eac461ba07cbe3099b89a37aeae2034b8f2",
+    "source_pixel_sha256": "a5327189aed21ebdb681c259e63d29d27f93db47d4234b4496553d17f432c3e1",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.98,
@@ -13529,8 +13529,8 @@
     "facing": "rear"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_torso.png": {
-    "pixel_sha256": "f1a282b8554a051451bac802e9839cc4705a4b66efb11167ed791f6cfa6c6d40",
-    "source_pixel_sha256": "f58a418f628da5f2a98b006d7a263e24870f95a8f8c6df8ed665156191b1c143",
+    "pixel_sha256": "23525b9668bc111ab3d84006a98890a41f329b9d84db45689f96395fa61be4df",
+    "source_pixel_sha256": "5686736166bb94c7d7405b5e5a06141662c33d41b6406c0324da74190d6cf380",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.98,
@@ -13553,8 +13553,8 @@
     "facing": "rear"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/mortar.png": {
-    "pixel_sha256": "d7b06bb1135cc267cefad12be25102bc2edae6c0deaf392b5367adbc3915a1f8",
-    "source_pixel_sha256": "21eedfe7e97a91bf6695831e542cbf1e9790df5bcb10204d6fde3587573681c8",
+    "pixel_sha256": "dfc887a3f8674821adfc1521413d28f2ae58e70c074f40ba49ca006eb1ddef29",
+    "source_pixel_sha256": "252a685c1cfb6355d3cb5175130dcdb3eb4fbc38328e8b288239e78a0c9efd65",
     "id": "slag_mortar_cutout",
     "mode": "clean",
     "grid": 0.98,

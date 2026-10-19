@@ -5,9 +5,7 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {
-    "TODO_DESIGN_crucible_mask_outside_fragments": "Protected masks exclude isolated painted rim fragments (including front 144,33 and the outer near-arm rim). Exact mask ownership forbids assigning them to their surrounding mortar, while the six-pixel cleanup requires that reassignment. Preserve the masks pending director precedence or corrected masks."
-  },
+  "design_placeholders": {},
   "direction_clips": [
     "scatter"
   ],

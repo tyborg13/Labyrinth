@@ -133,5 +133,75 @@
         255
       ]
     }
+  },
+  "source_space_mutation_fixture": {
+    "canvas_size": 255,
+    "rigid_displacement_px": 8,
+    "body_bbox": [
+      10,
+      10,
+      25,
+      25
+    ],
+    "painted_speck_bbox": [
+      34,
+      10,
+      36,
+      12
+    ],
+    "connected_paint_bridge_bbox": [
+      25,
+      10,
+      34,
+      11
+    ],
+    "pocket_canvas_size": 12,
+    "ring_bbox": [
+      2,
+      2,
+      10,
+      10
+    ],
+    "air_bbox": [
+      4,
+      4,
+      7,
+      7
+    ],
+    "missing_surface_texel": [
+      5,
+      5
+    ],
+    "unrelated_stray_bbox": [
+      170,
+      170,
+      174,
+      174
+    ],
+    "scope": "synthetic tests only; no presentation defaults or production tuning",
+    "outline_speck_bbox": [
+      26,
+      10,
+      27,
+      12
+    ],
+    "paint_rgba": [
+      100,
+      60,
+      40,
+      255
+    ],
+    "outline_rgba": [
+      30,
+      20,
+      10,
+      255
+    ],
+    "unrelated_stray_rgba": [
+      90,
+      50,
+      30,
+      255
+    ]
   }
 }

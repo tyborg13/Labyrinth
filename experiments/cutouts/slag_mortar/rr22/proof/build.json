@@ -62,7 +62,7 @@
     "mortar": 0,
     "pelvis": 0,
     "apron": 3,
-    "arm_near": 0,
+    "arm_near": 4,
     "hand_near": 0,
     "leg_near": 0,
     "foot_near": 0,
@@ -72,19 +72,16 @@
     "foot_far": 0
   },
   "swept_joint_material": {
-    "head": 252,
-    "torso": 378,
+    "head": 258,
+    "torso": 383,
     "pelvis": 15
   },
-  "unresolved_connections": {
-    "head": "Piece cannot connect inside its declared covered tuck",
-    "arm_near": "Piece cannot connect inside its declared covered tuck"
-  },
+  "unresolved_connections": {},
   "ownership": {
     "rule": "protected_crucible_mask_and_native_body",
     "region_pixels": 6503,
-    "retained_pixels": 4708,
-    "transferred_pixels": 1795,
+    "retained_pixels": 4739,
+    "transferred_pixels": 1764,
     "speck_transfers": [
       {
         "from": "leg_near",
@@ -97,7 +94,7 @@
         "pixels": 2
       }
     ],
-    "director_mask_sha256": "354dd6e3c5790a6e1d5e1af97d27fa4ced992d37c55a203d552710611c22de3f",
+    "director_mask_sha256": "e996b8bb678b74a4d668a267a74db3f181b096c3f61f480ce74eb9de69cf4325",
     "names": [
       "head",
       "torso",
@@ -118,7 +115,7 @@
       "apron"
     ],
     "map": "ownership/front.png",
-    "map_sha256": "ed5e75b2c9aa715ce117375c5e95ad490325eefb9361949908c7ca1cd0c4e9ad"
+    "map_sha256": "2df666a26e41089bb5d663a55d43dbac3e8f9ba49af4af62f59f7edd1ae2dbd7"
   },
   "tucks": [
     {
@@ -155,7 +152,7 @@
         "arm_far"
       ],
       "required_mask": "tucks/front_mortar.png",
-      "required_pixels": 355,
+      "required_pixels": 336,
       "missing_pixels": 0
     },
     {
@@ -354,7 +351,7 @@
         "mortar": 0,
         "pelvis": 0,
         "apron": 3,
-        "arm_near": 0,
+        "arm_near": 4,
         "hand_near": 0,
         "leg_near": 0,
         "foot_near": 0,
@@ -364,19 +361,16 @@
         "foot_far": 0
       },
       "swept_joint_material": {
-        "head": 252,
-        "torso": 378,
+        "head": 258,
+        "torso": 383,
         "pelvis": 15
       },
-      "unresolved_connections": {
-        "head": "Piece cannot connect inside its declared covered tuck",
-        "arm_near": "Piece cannot connect inside its declared covered tuck"
-      },
+      "unresolved_connections": {},
       "ownership": {
         "rule": "protected_crucible_mask_and_native_body",
         "region_pixels": 6503,
-        "retained_pixels": 4708,
-        "transferred_pixels": 1795,
+        "retained_pixels": 4739,
+        "transferred_pixels": 1764,
         "speck_transfers": [
           {
             "from": "leg_near",
@@ -389,7 +383,7 @@
             "pixels": 2
           }
         ],
-        "director_mask_sha256": "354dd6e3c5790a6e1d5e1af97d27fa4ced992d37c55a203d552710611c22de3f",
+        "director_mask_sha256": "e996b8bb678b74a4d668a267a74db3f181b096c3f61f480ce74eb9de69cf4325",
         "names": [
           "head",
           "torso",
@@ -410,7 +404,7 @@
           "apron"
         ],
         "map": "ownership/front.png",
-        "map_sha256": "ed5e75b2c9aa715ce117375c5e95ad490325eefb9361949908c7ca1cd0c4e9ad"
+        "map_sha256": "2df666a26e41089bb5d663a55d43dbac3e8f9ba49af4af62f59f7edd1ae2dbd7"
       },
       "tucks": [
         {
@@ -447,7 +441,7 @@
             "arm_far"
           ],
           "required_mask": "tucks/front_mortar.png",
-          "required_pixels": 355,
+          "required_pixels": 336,
           "missing_pixels": 0
         },
         {
@@ -641,7 +635,7 @@
         }
       },
       "covered_connections": {
-        "head": 9,
+        "head": 0,
         "torso": 0,
         "mortar": 0,
         "pelvis": 0,
@@ -656,8 +650,8 @@
         "foot_far": 0
       },
       "swept_joint_material": {
-        "head": 115,
-        "torso": 588,
+        "head": 108,
+        "torso": 589,
         "pelvis": 316
       },
       "unresolved_connections": {
@@ -666,8 +660,8 @@
       "ownership": {
         "rule": "protected_crucible_mask_and_native_body",
         "region_pixels": 7394,
-        "retained_pixels": 6725,
-        "transferred_pixels": 728,
+        "retained_pixels": 6825,
+        "transferred_pixels": 633,
         "rear_fist": {
           "bracer_pixels": 464,
           "fist_pixels": 858,
@@ -763,7 +757,7 @@
             "pixels": 2
           }
         ],
-        "director_mask_sha256": "527d612dbb69d440e1058d12b9aa0e855220bbddb0d62c2f9b2264fe61f5d836",
+        "director_mask_sha256": "7bd3fd5ea5f09812a3799d3444c4f7d1d288c0596732941c473b229636434182",
         "names": [
           "head",
           "torso",
@@ -784,7 +778,7 @@
           "apron"
         ],
         "map": "ownership/rear.png",
-        "map_sha256": "93ed64e8aa70c2617feefc1d410a6597673a67e083e94c25f5a5944a123e286d"
+        "map_sha256": "fc221939467aa346fcd583346f0f42e5c45c987bee69718596efe18517b84c2c"
       },
       "tucks": [
         {
@@ -821,7 +815,7 @@
             "arm_far"
           ],
           "required_mask": "tucks/rear_mortar.png",
-          "required_pixels": 626,
+          "required_pixels": 538,
           "missing_pixels": 0
         },
         {
