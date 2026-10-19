@@ -48,12 +48,11 @@ UNIT_HEAD='4b3f74830209e1b1ddd3be53fbe91061a93def96'
 
 
 def changed_paths():
-    """Cover committed implementation, working changes and untracked sources."""
+    """gait-01's own committed range, pinned at both ends."""
     result=set()
     # The unit's committed range ends at its signed-off head, so later integration commits never count.
-    for command in (['git','diff','--name-only',DIRECTOR_DATA_REVISION,UNIT_HEAD],
-                    ['git','diff','--name-only','HEAD'],
-                    ['git','ls-files','--others','--exclude-standard']):
+    # Later units' working changes are theirs to check, not gait-01's.
+    for command in (['git','diff','--name-only',DIRECTOR_DATA_REVISION,UNIT_HEAD],):
         result.update(subprocess.check_output(command,cwd=ROOT,text=True).splitlines())
     return result
 

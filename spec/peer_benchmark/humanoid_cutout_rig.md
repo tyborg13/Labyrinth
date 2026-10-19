@@ -31,6 +31,15 @@ and the Dust Acolyte (`scripts/acolyte_cutout/`). Non-humanoids (Bloomer, Wisp, 
 - A moving piece never shows pixels outside its own painted silhouette plus its tuck, and the tuck stays covered.
 - When a piece moves away, the area it uncovers shows the covered piece's painted continuation (hidden fill). That fill
   must read as the same surface: never a dark slab, an outline fragment or a sliver.
+- **Negative space vs holes** (director, 2026-10-19; generalises the Mirror's air rule to every humanoid):
+  - An enclosed transparent pocket in a presented frame is natural negative space when every one of its pixels maps
+    (inverse pose) to air in the approved painting: outside every piece's painted area and tuck. Examples: air between
+    a skirt hem and a thigh, or between the hair and the shoulders.
+  - It is a hole, and fails, when any of its pixels maps into a piece's painted area or tuck, so a surface is missing.
+    A joint tearing open is always a hole.
+  - Gates report every pocket they pass, with its bounds.
+  - A detached opaque component fails only when it isn't already detached in the approved painting. A painted speck
+    that is separate at rest (a hair tip) moves rigidly with its owner piece and passes.
 
 ## 2. Idle: the protagonist's cut-out bob
 Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh changes shape.
