@@ -1,85 +1,21 @@
 {
-  "rule": "front_crucible_colour",
+  "rule": "protected_crucible_mask_and_native_body",
   "region_pixels": 6503,
-  "retained_pixels": 2797,
-  "transferred_pixels": 3706,
+  "retained_pixels": 4708,
+  "transferred_pixels": 1795,
   "speck_transfers": [
     {
-      "from": "torso",
-      "to": "mortar",
-      "pixels": 2
+      "from": "leg_near",
+      "to": "apron",
+      "pixels": 4
     },
     {
-      "from": "torso",
-      "to": "mortar",
-      "pixels": 2
-    },
-    {
-      "from": "torso",
-      "to": "mortar",
-      "pixels": 2
-    },
-    {
-      "from": "torso",
-      "to": "mortar",
-      "pixels": 1
-    },
-    {
-      "from": "upper_near",
-      "to": "mortar",
-      "pixels": 2
-    },
-    {
-      "from": "upper_near",
-      "to": "mortar",
-      "pixels": 2
-    },
-    {
-      "from": "fore_near",
-      "to": "upper_near",
-      "pixels": 1
-    },
-    {
-      "from": "thigh_far",
+      "from": "leg_far",
       "to": "apron",
       "pixels": 2
-    },
-    {
-      "from": "mortar",
-      "to": "upper_near",
-      "pixels": 2
-    },
-    {
-      "from": "mortar",
-      "to": "upper_near",
-      "pixels": 1
-    },
-    {
-      "from": "mortar",
-      "to": "upper_near",
-      "pixels": 1
-    },
-    {
-      "from": "mortar",
-      "to": "torso",
-      "pixels": 1
-    },
-    {
-      "from": "mortar",
-      "to": "torso",
-      "pixels": 1
-    },
-    {
-      "from": "mortar",
-      "to": "upper_near",
-      "pixels": 1
-    },
-    {
-      "from": "mortar",
-      "to": "upper_near",
-      "pixels": 1
     }
   ],
+  "director_mask_sha256": "354dd6e3c5790a6e1d5e1af97d27fa4ced992d37c55a203d552710611c22de3f",
   "names": [
     "head",
     "torso",
@@ -100,5 +36,5 @@
     "apron"
   ],
   "map": "ownership/front.png",
-  "map_sha256": "449d3e60f364159d927357e2738e58231200f5c3ce7771de6d15616574683dff"
+  "map_sha256": "ed5e75b2c9aa715ce117375c5e95ad490325eefb9361949908c7ca1cd0c4e9ad"
 }

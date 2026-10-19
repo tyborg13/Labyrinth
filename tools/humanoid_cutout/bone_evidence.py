@@ -5,6 +5,19 @@ import math
 SAMPLE_FPS = 60
 
 
+def read_report(case):
+    """Legacy full inventories or hashed compact summaries with ignored data."""
+    from cutout_pipeline.cases import read_json, digest
+    summary = read_json(case / 'proof/samples.json')
+    if 'full_report' not in summary: return summary
+    path = (case / summary['full_report']).resolve()
+    if not path.is_relative_to((case / 'proof/logs').resolve()):
+        raise ValueError('Full bone evidence must stay in the case proof/logs directory')
+    if digest(path) != summary['full_sha256']:
+        raise ValueError('Full bone evidence changed; regenerate its compact summary')
+    return read_json(path)
+
+
 def evidence_errors(data, report, current_bindings, tolerance):
     errors = []
     if report.get('ok') is not True:

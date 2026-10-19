@@ -9,6 +9,11 @@ from cutout_pipeline.cases import write_json
 CASE = PROJECT / 'experiments/cutouts/slag_mortar/rr22'
 ASSETS = PROJECT / 'assets/units/slag_mortar_cutout'
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-22/motion_tracks.json'
+DESIGN_PLACEHOLDERS = {
+    'TODO_DESIGN_crucible_mask_outside_fragments':
+        'Protected masks exclude isolated painted rim fragments (including front 144,33 and the outer near-arm rim). '
+        'Exact mask ownership forbids assigning them to their surrounding mortar, while the six-pixel cleanup '
+        'requires that reassignment. Preserve the masks pending director precedence or corrected masks.'}
 PIECES = {'head': ['head'], 'torso': ['torso'], 'mortar': ['mortar'], 'pelvis': ['pelvis'],
           'apron': ['apron']}
 BONES = {'apron': 'pelvis'}
@@ -41,6 +46,9 @@ def initialize():
                   [f'leg_{side}', 'pelvis'], [f'foot_{side}', f'leg_{side}']]
     tucks = {name: {'depth_px': 3, 'covers': sorted({other for pair in joins if name in pair
               for other in pair if other != name}), 'mode': 'radial'} for name in PIECES}
+    # The pot's lower surface is occluded by the shoulders/head as well as the
+    # torso. Its covered material must come from its own crucible edge paint.
+    tucks['mortar']['covers'] = ['torso', 'head', 'arm_near', 'arm_far']
     anatomy = {'schema_version': 1, 'required_parents': PARENTS, 'forbidden_joints': [],
         'meshes': MESHES,
         # Both arms are free. The schema's historical weapon_arm slot is the
@@ -52,7 +60,6 @@ def initialize():
                             'shin_near', 'foot_near', 'thigh_far', 'shin_far', 'foot_far'], 'stationary': True}},
         'knee_policy': {'near_straight_deg': 6},
         'legs': {s: {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}} for s in ('near', 'far')},
-        'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
         'planted_bones': ['foot_near', 'foot_far'], 'planted_tolerance_px': 0.5,
         'held_depth_roles': {},
         'ownership': {'names': list(PIECES) + [n for r in MESHES.values() if r['kind'] == 'two_segment' for n in r['bones']],
@@ -64,7 +71,7 @@ def initialize():
         'integration': {'production_root': str(ASSETS.relative_to(PROJECT)), 'rig_directory': 'humanoid_v2',
             'production_files': ['rig.gd', 'renderer.gd', 'actions.gd', 'front.json', 'rear.json'],
             'binding_files': ['rig.gd', 'renderer.gd', 'actions.gd'],
-            'binding_folders': ['tools/humanoid_cutout', 'scripts/maquette_cutout_runtime', 'tests/rr10', 'tests/rr11', 'tests/rr22'],
+            'binding_folders': ['tools/humanoid_cutout', 'scripts/maquette_cutout_runtime', 'tests/rr10', 'tests/rr11', 'tests/rr22', 'tests/gait01'],
             'scale': {'file': 'data/enemies.json', 'key': 'slag_mortar', 'field': 'art_scale', 'default': 1.0},
             'identity_registry': 'spec/art_identity/registry.json', 'identity_id': 'slag_mortar',
             'density_id': 'slag_mortar_cutout', 'owner_approval': 'rr-22 supplied mq9 paintings; native proof pending director.',
@@ -72,7 +79,7 @@ def initialize():
     write_json(CASE / 'anatomy.json', anatomy)
     write_json(CASE / 'inputs.json', {**{v + '_job': 'spec/art_identity/jobs/slag_mortar/mq9_' + v for v in ('front', 'rear')},
         **{v + '_delivery': 'spec/art_identity/maquettes/slag_mortar/delivery' for v in ('front', 'rear')},
-        'fused_occlusion': True, 'design_placeholders': {}})
+        'fused_occlusion': True, 'design_placeholders': DESIGN_PLACEHOLDERS})
 
 
 

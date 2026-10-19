@@ -18,6 +18,7 @@ const IDLE_COMPARISON_LOOPS: int = 5
 var directory: String = "res://experiments/cutouts/slag_mortar/rr22"
 var output: String
 var data: Dictionary
+var proof_geometry: Dictionary = {"step": Samples.PROOF_STEP_PX, "scale": Samples.PROOF_SCALE}
 var anatomy: Dictionary
 var rigs: Array[Node2D]
 var primary: Dictionary = {}
@@ -53,6 +54,8 @@ func _run() -> void:
 	output = args[args.find("--output") + 1]
 	data = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
 	anatomy = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
+	if data["clips"].get("move", {}).has("gait"):
+		proof_geometry = await preload("res://tests/gait01/board_geometry.gd").measure(self, str(data["creature"]))
 	if args.has("--validate-only"):
 		for view: String in data["view_tracks"]:
 			var rig: Node2D = make_rig(view)
@@ -109,6 +112,7 @@ func _run() -> void:
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
 				var checks: Node2D = make_rig(view)
+				checks.set_meta("gait_proof_checks", true)
 				isolate(checks, [str(part["name"])])
 				var node: Node2D = painted_node(checks, str(part["name"]))
 				node.set("texture", checks._texture(checks.layout["proof_layers"][part["name"]]["mask"]))
@@ -239,8 +243,8 @@ func make_rig(view: String) -> Node2D:
 	rig.position = ORIGIN
 	viewport(POSE_SIZE,true).add_child(rig)
 	if not rig.load_rig(): failures.append(str(rig.load_errors))
-	rig.layout["step_distance_px"] = Samples.PROOF_STEP_PX
-	rig.layout["screen_pixel_scale"] = Samples.PROOF_SCALE
+	rig.layout["step_distance_px"] = proof_geometry["step"]
+	rig.layout["screen_pixel_scale"] = proof_geometry["scale"]
 	rigs.append(rig)
 	return rig
 
@@ -279,6 +283,16 @@ func make_feature_rig(view: String, feature: Dictionary) -> Node2D:
 				var value: float = 1.0 if is_feature else 0.0
 				image.set_pixel(x, y, Color(value, value, value, original.get_pixel(x, y).a))
 		node.set("texture", ImageTexture.create_from_image(image))
+	# Continuations carry no molten feature pixels. Keep their opacity while
+	# marking them black, so they still occlude the feature exactly as paint does.
+	for name: String in rig.layout.get("gait_continuations", {}):
+		var node: Node2D = painted_node(rig, name)
+		var original: Texture2D = node.get("texture")
+		var image: Image = original.get_image().duplicate()
+		for texel: Array in rig.layout["gait_continuations"][name]["texels"]:
+			image.set_pixel(int(texel[0]), int(texel[1]), Color.BLACK)
+		node.set_meta("gait_original_texture", original)
+		node.set_meta("gait_texture", ImageTexture.create_from_image(image))
 	return rig
 
 func display(view: SubViewport, x: float, board_scale: float = 1.0) -> void:

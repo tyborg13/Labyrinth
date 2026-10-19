@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from PIL import Image
 
@@ -14,16 +15,17 @@ PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(PROJECT / 'tools'), str(PROJECT / 'experiments/cutouts/slag_mortar')]
 from rr22_case import CASE, ASSETS, DIRECTOR, PIECES
 from rr22_gates import support_report, lob_report
-from rr22_surfaces import residue_mask, clean_residue, resolve, connect_covered
+from rr22_surfaces import residue_mask, clean_residue, resolve, connect_covered, rear_fist
 from rr22_residue_gate import count as residue_pixels, frame_errors as residue_frame_errors, native_errors as residue_native_errors
 from rr22_surface_gates import errors as surface_errors, connectivity_errors
+from humanoid_cutout.gait_continuations import errors as continuation_errors, texture as continuation_texture
 import numpy as np
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, bindings
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.compiler import compile_motion
 from cutout_pipeline.cases import read_json
-from rr11_knees import knee_report
+from humanoid_cutout.walk_gates import report as knee_report
 
 PROOF_TIMEOUT_SECONDS = 180
 FIXTURE_SLIDE_PX = 2
@@ -92,7 +94,8 @@ class SlagMortarTests(unittest.TestCase):
             self.assertEqual(reach['errors'], [])
             self.assertEqual(reach['dense_intervals'], 1000)
             self.assertTrue(reach['overreach'])
-            self.assertEqual(self.data['leg_roles'][view]['stride'], 'near' if view == 'front' else 'far')
+            self.assertNotIn('leg_roles', self.data)
+            self.assertEqual(len(knee_report(layout, self.data, self.samples)['swings']), 6)
         mutant = copy.deepcopy(self.samples)
         row = next(r for r in mutant['samples'] if r['view'] == 'front' and r['clip'] == 'move' and r['kind'] == 'presented' and r['frame'] == 0)
         row['bones']['foot_near']['global'][4] += FIXTURE_SLIDE_PX
@@ -184,25 +187,19 @@ class SlagMortarTests(unittest.TestCase):
         owners[2:10, 3:8] = 1
         owners[9, 4] = 2
         joints = {'fore_near': {'position': [5, 3]}, 'hand_near': {'position': [5, 9]}}
-        result, report = resolve(paint, owners, names, joints, 'rear')
+        result, report = rear_fist(paint, owners, names, joints)
         self.assertTrue(np.all(result[4:6, 3:8] == 1))
         self.assertTrue(np.all(result[6:10, 3:8] == 2))
         self.assertEqual(report['bracer_pixels'], 10)
 
-    def test_front_colour_ownership_retains_neutral_iron_and_molten_seed(self):
-        names = ['mortar', 'torso', 'upper_near']
-        paint = np.zeros((8, 8, 4), dtype=np.uint8)
-        owners = np.full((8, 8), -1)
-        owners[1:6, 1:6] = 0
-        owners[6, 1:6] = 1
-        owners[1:6, 6] = 2
-        paint[owners >= 0] = [100, 50, 20, 255]
-        paint[1:3, 1:6] = [80, 80, 80, 255]
-        paint[1, 2:5] = [255, 160, 60, 255]
-        result, report = resolve(paint, owners, names, {}, 'front')
-        self.assertTrue(np.all(result[1:3, 1:6] == 0))
-        self.assertTrue(np.all(result[5, 1:6] != 0))
-        self.assertGreater(report['transferred_pixels'], 0)
+    def test_protected_mask_owns_every_inside_texel_and_no_outside_texel(self):
+        from maquette_motion.features import source_pixels
+        for view, layout in self.layouts.items():
+            expected = np.asarray(Image.open(DIRECTOR.parent / f'crucible_mask_{view}.png')) > 0
+            part = next(p for p in layout['parts'] if p['name'] == 'mortar')
+            self.assertTrue(np.array_equal(source_pixels(CASE, part)[..., 3] > 0, expected))
+            self.assertEqual((CASE / f'source/{view}/crucible_mask.png').read_bytes(),
+                             (DIRECTOR.parent / f'crucible_mask_{view}.png').read_bytes())
 
     def test_canon_scale_survives_production_path_registration(self):
         from art_identity_gate import coverage
@@ -212,6 +209,57 @@ class SlagMortarTests(unittest.TestCase):
             self.assertEqual(metadata[old]['art_scale'], 1.04)
             self.assertEqual(metadata[f'assets/units/slag_mortar_cutout/humanoid_v2/{view}/rest.png']['art_scale'], 1.04)
 
+    def test_action_continuations_copy_own_paint_and_keep_rest_idle_exact(self):
+        for view, layout in self.layouts.items():
+            self.assertEqual(continuation_errors(CASE, layout), [])
+            for name, recipe in layout.get('gait_continuations', {}).items():
+                part = next(p for p in layout['parts'] if p['name'] == name)
+                original = continuation_texture(CASE, layout, part)
+                self.assertTrue(np.array_equal(continuation_texture(CASE, layout, part, clip='idle'), original))
+                donor = next(p for p in layout['parts'] if p['name'] == recipe['donor'])
+                paint = np.asarray(Image.open(CASE / donor['file']).convert('RGBA'))
+                for clip in recipe['clips']:
+                    action = continuation_texture(CASE, layout, part, clip=clip)
+                    for x, y, u, v in recipe['texels']:
+                        self.assertTrue(np.array_equal(action[y, x], paint[v, u]))
+                mutant = copy.deepcopy(layout)
+                mutant['gait_continuations'][name]['clips'] = ['idle']
+                self.assertTrue(any('excluding rest/idle' in e for e in continuation_errors(CASE, mutant)))
+
+    def test_compact_bone_records_preserve_inventory_and_reject_changed_full_data(self):
+        import rr22_records
+        from humanoid_cutout.bone_evidence import read_report
+        from cutout_pipeline.cases import write_json
+        with tempfile.TemporaryDirectory(prefix='rr22-summary-') as folder:
+            case = Path(folder)
+            write_json(case / rr22_records.FULL_SAMPLES, self.samples)
+            with patch.object(rr22_records, 'CASE', case): compact = rr22_records.compact_samples()
+            self.assertNotIn('samples', compact)
+            self.assertNotIn('inputs', compact)
+            self.assertEqual(compact['sample_count'], len(self.samples['samples']))
+            self.assertEqual(read_report(case), self.samples)
+            (case / rr22_records.FULL_SAMPLES).write_text('{}')
+            with self.assertRaisesRegex(ValueError, 'evidence changed'): read_report(case)
+            write_json(case / 'proof/samples.json', self.samples)
+            self.assertEqual(read_report(case), self.samples)
+
+    def test_sparse_cpu_coverage_keeps_exact_pixels_checks_and_hole_transport(self):
+        from rr22_cpu import CoveragePose
+        from humanoid_cutout.cpu_pose import CpuPose
+        for view, clip, frame in [('front', 'death', 31), ('rear', 'lob', 14)]:
+            pose = next(r for r in self.samples['samples'] if
+                        (r['view'], r['clip'], r['frame'], r['kind']) == (view, clip, frame, 'presented'))
+            full = CpuPose(CASE, copy.deepcopy(self.layouts[view]))
+            sparse = CoveragePose(CASE, copy.deepcopy(self.layouts[view]))
+            original, original_maps = full.layers(pose)
+            optimized, optimized_maps = sparse.layers(pose)
+            for (_, a, ac), (_, b, bc) in zip(original, optimized):
+                self.assertTrue(np.array_equal(a, b))
+                self.assertTrue(np.array_equal(ac, bc))
+            for field in ('proof_rest_holes', 'proof_joint_seams'):
+                a = full.masks(pose, full.layout[field], original_maps)
+                b = sparse.masks(pose, sparse.layout[field], optimized_maps)
+                self.assertTrue(all(np.array_equal(x, y) for x, y in zip(a, b)))
     def test_identity_record_update_preserves_unrelated_raw_entries(self):
         from rr22_density import preserve_identity_entries
         before = '{"entries": [\n    {"path": "other", "id": "first", "id": "second"}\n  ]}\n'

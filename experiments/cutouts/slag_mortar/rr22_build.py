@@ -26,6 +26,8 @@ from humanoid_cutout.underlays import distinct_depths
 from rr22_proof_data import rest_holes
 from rr22_surfaces import resolve, clean_residue, molten_mask, connect_covered
 from rr22_cut_sheet import write_sheet
+from rr22_continuations import extend as extend_joint_material, ACTION_CLIPS
+from humanoid_cutout.gait_continuations import nearest_donors
 
 
 def recipe(spec, view, anatomy):
@@ -44,8 +46,8 @@ def recipe(spec, view, anatomy):
     return {'joints': joints, 'parts': {label: BONES.get(n, n) for n, labels in PIECES.items() for label in labels}}
 
 
-def store(image, view, name):
-    box = Image.fromarray(image).getbbox()
+def store(image, view, name, bounds=None):
+    box = bounds or Image.fromarray(image).getbbox()
     if box is None: raise ValueError('TODO_DESIGN_' + view + '_' + name + '_paint')
     path = CASE / f'pieces/{view}/{name}.png'
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -75,7 +77,11 @@ def build_view(view, inputs, anatomy):
     native_owners = np.full(paint.shape[:2], -1, dtype=int)
     for index, part in enumerate(old['parts']):
         native_owners[source_pixels(base, part)[..., 3] > 0] = index
-    owners, ownership = resolve(paint, native_owners, label_names, old['joints'], view)
+    director_mask = DIRECTOR.parent / f'crucible_mask_{view}.png'
+    shutil.copyfile(director_mask, source / 'crucible_mask.png')
+    crucible = np.asarray(Image.open(director_mask).convert('L')) > 0
+    owners, ownership = resolve(paint, native_owners, label_names, old['joints'], view, crucible, PIECES)
+    ownership['director_mask_sha256'] = digest(director_mask)
     ownership_folder = CASE / 'ownership'
     ownership_folder.mkdir(exist_ok=True)
     owner_path = ownership_folder / (view + '.png')
@@ -120,10 +126,18 @@ def build_view(view, inputs, anatomy):
         reports.append({'piece': name, 'minimum_px': policy['depth_px'], 'cover': policy['covers'],
             'required_mask': str(path.relative_to(CASE)), 'required_pixels': int(required.sum()),
             'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
-    connections = {}
+    swept_material, action_material = extend_joint_material(CASE, view, visible, hidden, paint, joints, anatomy['tucks'], rules(base, view))
+    connections, unresolved_connections = {}, {}
     for name in hidden:
-        hidden[name], bridge = connect_covered(visible[name], hidden[name], paint,
-            anatomy['tucks']['base_px'], rules(base, view))
+        hidden[name][~connected_mask(visible[name][..., 3] > 0, hidden[name][..., 3] > 0)] = 0
+        try:
+            hidden[name], bridge = connect_covered(visible[name], hidden[name], paint,
+                anatomy['tucks']['base_px'], rules(base, view))
+        except ValueError as error:
+            # Retain exact protected ownership so the gate can report the
+            # conflict while the rest of the case still builds for diagnosis.
+            unresolved_connections[name] = str(error)
+            bridge = np.zeros(paint.shape[:2], dtype=bool)
         connections[name] = int(bridge.sum())
         hidden[name], residue[name]['hidden'] = clean_residue(
             hidden[name], feature_mask if name == 'mortar' else None)
@@ -136,8 +150,14 @@ def build_view(view, inputs, anatomy):
         bounds = list(Image.fromarray(full).getbbox())
         for node_name, material, under in materials:
             if not material[..., 3].any(): continue
-            part = dict(store(material, view, node_name), bone=bone, z_index=min(depths.values()) - 1 if under else z,
+            store_bounds = None
+            if under and name in action_material:
+                occupied = (material[..., 3] > 0) | action_material[name]
+                store_bounds = Image.fromarray(occupied).getbbox()
+            part = dict(store(material, view, node_name, store_bounds), bone=bone, z_index=min(depths.values()) - 1 if under else z,
                         logical_part=name, hidden_material=under)
+            if under and name not in anatomy['meshes']:
+                part['presentation_anchor'] = list(Image.fromarray(visible[name]).getbbox()[:2])
             if name in anatomy['meshes']:
                 # Visible and hidden layers share one continuous source field.
                 meshes.append(layer(part, name, bounds, joints, part['z_index'], under, recipe=anatomy['meshes'][name]))
@@ -170,7 +190,7 @@ def build_view(view, inputs, anatomy):
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
         'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
         'held_items': {'mortar': {'hand': 'mortar', 'floor_end': joints['mortar']['position']}},
-        'ik_chains': [], 'planted_bones': anatomy['planted_bones'], 'leg_roles': anatomy['leg_roles'][view],
+        'ik_chains': [], 'planted_bones': anatomy['planted_bones'],
         'source_labels': PIECES, 'features': [], 'proof_layers': checks, 'proof_rest_holes': [],
         'rest_source': f'source/{view}/processed.png',
         'motion_data': 'res://' + str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
@@ -182,6 +202,13 @@ def build_view(view, inputs, anatomy):
     layout['features'] = [{'name': 'molten_slag', 'piece': 'mortar', 'mask': str(feature.relative_to(CASE)), 'bone': 'mortar'}]
     layout['proof_rest_holes'] = rest_holes(layout, paint, visible, anatomy)
     layout['proof_joint_seams'] = build_masks(CASE, layout, visible, anatomy)
+    for name, selected in action_material.items():
+        part = next(p for p in parts if p['name'] == 'hidden_' + name)
+        yy, xx = np.nonzero(selected)
+        targets = {(int(x - part['offset'][0]), int(y - part['offset'][1])) for x, y in zip(xx, yy)}
+        if targets:
+            layout.setdefault('gait_continuations', {})[part['name']] = dict(
+                nearest_donors(CASE, layout, part, targets), clips=ACTION_CLIPS[name])
     distinct_depths(layout)
     write_json(CASE / f'layouts/{view}.json', layout)
     rest = Image.new('RGBA', (255, 255))
@@ -194,7 +221,7 @@ def build_view(view, inputs, anatomy):
     projection = {'forward': (forward / np.linalg.norm(forward)).tolist(),
                   'lean_sign': float(np.sign(up[0] * forward[1] - up[1] * forward[0]))}
     return layout, {'front_rest_mismatch_pixels': mismatch, 'rest_mismatch_pixels': mismatch,
-        'invisible_rgb_normalized_texels': invisible_rgb, 'residue_cleanup': residue, 'covered_connections': connections, 'ownership': ownership, 'tucks': reports, 'delivery': delivery, 'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'),
+        'invisible_rgb_normalized_texels': invisible_rgb, 'residue_cleanup': residue, 'covered_connections': connections, 'swept_joint_material': swept_material, 'unresolved_connections': unresolved_connections, 'ownership': ownership, 'tucks': reports, 'delivery': delivery, 'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'),
         'source_ownership_sha256': digest(base / f'layouts/{view}.json')}, projection
 
 
@@ -207,6 +234,9 @@ def build():
     for view in ('front', 'rear'):
         layouts[view], reports[view], projections[view] = build_view(view, inputs, anatomy)
     data = compile_motion(CASE / 'director_motion.json', 'slag_mortar', layouts, projections)
+    for view, layout in layouts.items():
+        layout['gait_leg_scale_max'] = data['clips']['move']['gait']['leg_scale_max']
+        write_json(CASE / f'layouts/{view}.json', layout)
     write_json(CASE / 'compiled_motion.json', data)
     write_json(CASE / 'cutout.json', {'character_id': 'slag_mortar', 'rig': 'humanoid_v2',
         'layouts': {v: f'layouts/{v}.json' for v in layouts}, 'design_placeholders': inputs['design_placeholders'],

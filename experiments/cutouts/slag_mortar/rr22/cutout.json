@@ -5,7 +5,9 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {},
+  "design_placeholders": {
+    "TODO_DESIGN_crucible_mask_outside_fragments": "Protected masks exclude isolated painted rim fragments (including front 144,33 and the outer near-arm rim). Exact mask ownership forbids assigning them to their surrounding mortar, while the six-pixel cleanup requires that reassignment. Preserve the masks pending director precedence or corrected masks."
+  },
   "direction_clips": [
     "scatter"
   ],
@@ -22,7 +24,33 @@
       "intents": [
         "brace:move_away"
       ],
-      "note": "a heavy plod on the stride/trailing pattern: 5 px stomp lift, the pelvis drops 3 px after each landing and the torso jolts 1 px, the crucible rides the torso, the apron trails 2 px",
+      "note": "a heavy plod on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 3.5 px after each landing and the torso jolts 1 px on the four full-step landings; the crucible rides the torso; the fists swing 2 px; the apron trails 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 5,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 2.0,
+          "down": 3.5,
+          "passing": 1.0,
+          "up": 0.5
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 2
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 2
+          }
+        },
+        "max_fit_px": 6
+      },
       "release_at": {}
     },
     "lob": {

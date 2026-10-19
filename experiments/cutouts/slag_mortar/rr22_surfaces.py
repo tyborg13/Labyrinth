@@ -1,7 +1,7 @@
-"""Director feedback 1: measured paint ownership and chroma-key cleanup.
+"""Protected crucible masks, painted bracer ownership and chroma-key cleanup.
 
-All ownership decisions come from the supplied HSV bands, maquette labels and
-painted bracer edge. This module never changes the protected paintings.
+Ownership comes from the protected masks, maquette labels and painted bracer
+edge. This module never changes the protected paintings or director masks.
 """
 import numpy as np
 from maquette_motion.bleed import edge_texels
@@ -15,7 +15,7 @@ IRON_SATURATION_MAX = 0.25
 MOLTEN_HUE_MIN_DEG = 15
 MOLTEN_HUE_MAX_DEG = 50
 MOLTEN_VALUE_MIN = 0.55
-SPECK_PIXELS_EXCLUSIVE = 4
+SPECK_PIXELS_EXCLUSIVE = 6
 
 
 def hsv(image):
@@ -69,16 +69,20 @@ def nearest_labels(owners, selected, candidates):
     return result[..., 0].astype(int) - 1
 
 
-def absorb_specks(owners, names):
-    """Only isolated components smaller than the director's four-pixel limit."""
+def absorb_specks(owners, names, crucible, groups=None):
+    """Reassign small logical-piece islands without crossing the protected pot."""
     result, transfers = owners.copy(), []
-    for index, name in enumerate(names):
-        labelled, groups = components(result == index)
-        for label, size in groups[1:]:
+    pieces = groups or {name: [name] for name in names}
+    for name, members in pieces.items():
+        indices = [names.index(member) for member in members]
+        labelled, islands = components(np.isin(result, indices))
+        for label, size in islands[1:]:
             if size >= SPECK_PIXELS_EXCLUSIVE: continue
             fragment = labelled == label
+            if (fragment & crucible).any(): continue
             counts = adjacent_counts(fragment, result, len(names))
-            counts[index] = 0
+            counts[indices] = 0
+            counts[names.index('mortar')] = 0
             if counts.max():
                 destination = int(counts.argmax())
                 result[fragment] = destination
@@ -86,14 +90,14 @@ def absorb_specks(owners, names):
     return result, transfers
 
 
-def front_mortar(paint, owners, names):
+def crucible_ownership(paint, owners, names, mask):
     mortar = names.index('mortar')
-    _, saturation, _ = hsv(paint)
     region = owners == mortar
-    retained = region & ((saturation < IRON_SATURATION_MAX) | molten_mask(paint))
-    changed = region & ~retained
-    assigned = nearest_labels(owners, changed, [names.index('torso'), names.index('upper_near')])
+    retained = mask & (paint[..., 3] > 0)
     result = owners.copy()
+    result[retained] = mortar
+    changed = region & ~retained
+    assigned = nearest_labels(result, changed, [i for i in range(len(names)) if i != mortar])
     result[changed] = assigned[changed]
     return result, {'region_pixels': int(region.sum()), 'retained_pixels': int(retained.sum()),
                     'transferred_pixels': int(changed.sum())}
@@ -129,11 +133,13 @@ def rear_fist(paint, owners, names, joints):
         'rim_columns': columns.tolist(), 'rim_along_px': rim.tolist()}
 
 
-def resolve(paint, owners, names, joints, view):
-    if view == 'front': result, details = front_mortar(paint, owners, names)
-    else: result, details = rear_fist(paint, owners, names, joints)
-    result, specks = absorb_specks(result, names)
-    return result, {'rule': 'front_crucible_colour' if view == 'front' else 'rear_bracer_lower_rim',
+def resolve(paint, owners, names, joints, view, crucible, groups=None):
+    result, details = crucible_ownership(paint, owners, names, crucible)
+    if view == 'rear':
+        result, fist = rear_fist(paint, result, names, joints)
+        details['rear_fist'] = fist
+    result, specks = absorb_specks(result, names, crucible, groups)
+    return result, {'rule': 'protected_crucible_mask_and_native_body',
                     **details, 'speck_transfers': specks}
 
 

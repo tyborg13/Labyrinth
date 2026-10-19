@@ -1,197 +1,165 @@
-# rr-22 — Slag Mortar humanoid v2
+# rr-22 — Slag Mortar humanoid v2, feedback 2
 
-Feedback 1 changes are uncommitted. Production registration and headless playback are
-implemented; visual acceptance is pending the director. No windowed process,
-peer review, commit, publication or queue edit was performed.
+Changes are uncommitted. The director owns commits, review, inspection and
+publication. No windowed process or full suite was run by this worker.
 
 ## Requirement coverage
 
-1. **Cut:** the mq-09 categorical projection supplies thirteen logical pieces:
-   head, torso/harness, mortar, pelvis, apron, two arms, two fists, two legs and
-   two feet. Five shared two-pixel skinned fields cover arms, legs and the apron.
-   The apron uses pelvis → apron_mid → apron_tip. The mortar is a torso child at
-   the supplied mortar_pivot; the existing held-item sampler accepts its own
-   bone as the carrier pivot, preserving a world-relative angle without any
-   shared sampler changes. A colour-derived mortar feature mask protects the molten
-   slag surface in each view. Elbows retain rest-side IK; both legs declare the
-   facing knee policy and per-view stride/trailing roles.
+1. **Integration/shadows.** The merged gait-01 implementation is reused.
+   `tests/rr22/shadow_refresh.gd` restores exactly the two Slag Mortar v2 rest
+   records and asserts that every unrelated shadow entry/fingerprint is retained.
+2. **Protected gait.** The new staged motion file is imported byte for byte.
+   `leg_roles` is removed from anatomy, case/production layouts and compiled
+   data. Shared gait compiler, actual board geometry, projected skinned leg
+   scale, pelvis fit and walk gates are used. Both views have six swings, zero
+   stance drift and 3.5 px maximum total pelvis drop. Maximum extra fit is
+   0.091893 px front and 0.098218 px rear. The director's 0.85 s clock, 5 px
+   lift, torso jolt and 2 px apron trail are unchanged.
+3. **Protected crucible ownership.** Both supplied masks are copied unchanged
+   to `rr22/source/<view>/crucible_mask.png`. Every opaque masked texel is
+   mortar; none outside is mortar. The rear bracer lower-rim rule is retained.
+   Logical-piece components smaller than six pixels join their surrounding
+   non-mortar piece where compatible with the exact mask. Conflicting rim
+   fragments remain visible in the failing gate; see the design TODO below.
 
-   Both offline source assemblies have **0 visible mismatched pixels**. The
-   supplied front contains one alpha-zero texel with RGB (3,1,0); only this
-   invisible RGB is zeroed in the derived renderer calibration. The original
-   painting is retained byte-for-byte as `source/front/approved.png` (and the
-   rear likewise). No director painting, maquette or supplied motion was edited.
-   Feedback 1 ownership follows the director's HSV bands and painted bracer rim;
-   see the outlined source-cut sheet and the implementation details below.
+   Hidden pot paint comes only from the pot's own visible edge texels. Its
+   covered domain includes the shoulders/head as well as the torso. Hidden-only
+   unsupported islands are removed. Hidden rigid layers use the visible piece's
+   presentation anchor so changing coverage does not move the sampled carrier.
+   Both offline source rests still have **0 px mismatch**. Original paintings,
+   maquette inputs, protected masks and their generator remain unchanged.
+4. **Native-failure root causes.** The supplied isolated native layers identify
+   the detached front death/scatter paint as near-arm material. The strict pot
+   mask removes the former literal-HSV ownership islands. The remaining mask
+   boundary conflict is not silently assigned to the pot.
 
-2. **Idle:** protected 0.84-second tracks use the shared stepped clock. Torso,
-   head and both free arms bob together. The schema's historical `weapon_arm`
-   slot contains the torso-carried mortar and has the identical bob, without
-   lag. Pelvis/apron/legs/feet stay still. The production declaration seeds each
-   actor by slot. Bone/group rigidity is checked independently of native pixels.
+   The reported tears are at head↔torso and torso↔pelvis joins. Their actual
+   protected Bone2D poses sweep the existing three-pixel seam bands into each
+   other's source frames. Covered rest texels copy the receiving piece's own
+   paint. Waist tears that map into originally transparent rest space require
+   action-only continuation; the existing gait continuation mechanism now
+   optionally accepts a `clips` list. The neck uses lob/death and the pelvis
+   uses death. They copy nearest non-outline paint from their own piece,
+   including density-treated production donors. Rest and idle restore their
+   exact original textures. No motion key, gate threshold or exception changed.
 
-3. **Production:** `lob_slag:lob_mark` → lob, `slag_lands:lob_land` → land,
-   `brace:block` → brace, `brace:move_away` → move, and
-   `scatter_shot:ranged` → scatter. Every movement segment uses move, regardless
-   of intent. A case-owned playback adapter applies marks, landing damage and
-   block at the supplied contacts. Landing reuses the existing arc, splash,
-   sound, damage text and delayed surface/death feedback. Scatter uses the
-   existing ranged feedback/contact mapping. Hit uses the existing recovery;
-   death plays 1.5 seconds, then the existing 28 × .037-second fade.
+   `rr22_continuations.py` retains hashed source-space calibration masks in
+   `rr22/continuations/`, bound to director data, paint, ownership and joints.
+   A fresh checkout can rebuild without ignored full pose data. A new director
+   revision needs the initial build → sample → rebuild sequence below.
 
-   The board, pre-battle portrait and turn-order portrait bind the production
-   renderer. Pre-battle portrait binding is exercised by the production probe.
-   The legacy portrait path catalog remains byte-identical for compatibility;
-   its live portrait is replaced by the existing generic binder. Static-facing
-   and reaction membership exclude registered cutouts through shared data.
-   Mechanics, names, numbers, input paths, saves and analytics are unchanged.
+   `rr22_seams.py` checks every presented frame with the shared CPU skin/rigid,
+   clean-piece and joint-hole diagnostics, without exemptions. This is headless
+   coverage evidence; it is not fresh native renderer proof. The old capture is
+   rejected as stale for the new masks and gait. Native acceptance needs the
+   director's recapture.
+5. **Compact records.** Tracked `proof/samples.json`, `gates.json` and
+   `native_gates.json` contain inventories, extrema and failures only. Full poses
+   and gate reports live in ignored `proof/logs/`. Shared native gates and proof
+   composition accept the hashed compact bone inventory while legacy full
+   records retain their existing behavior. Production logic records are also
+   compacted, with full reports retained under logs. Old failure crops are
+   preserved under ignored `proof/logs/feedback1_native_failures/`.
+6. **Proof.** Focused tests, live runtime/production probes, package smoke,
+   regression checks, shadow scope and identity checks are recorded in
+   `rr22/proof/results.json`. Every gate remains strict. Captures and full
+   diagnostics are gitignored. See the unresolved criteria below.
 
-4. **Gates:** source/cut, signed Bone2D channels, rigid idle groups, positive
-   scatter direction, signed lob mortar direction, every move swing's knees,
-   stationary stride support, and 1000-interval dense reach are implemented.
-   Lob has lift/angle keys and no forward-hand channel; its signed angle/contact
-   check complements the shared forward-hand gate. Overreach is reported only.
-   Native proof uses the reference real-renderer clean-piece, rest-hole, seam,
-   stray-pixel and group-rigidity gates, plus the director's chroma-key residue scan.
-   No native exception was invented. CPU/source checks do not certify native
-   seams, bounds or appearance.
+## Unresolved design and native proof
 
-## Director feedback 1
+`TODO_DESIGN_crucible_mask_outside_fragments` is recorded in the case data.
+The exact masks leave seven opaque 1–2 px rim fragments outside the pot:
+front head at (144,33); front near arm at (215,79–80), (213,83–84),
+(209,91), (208,93), (207,95); rear near arm at (39,53). Their surrounding
+piece is mortar. Assigning them there conflicts with “nothing outside [the
+mask] does”; retaining them conflicts with the six-pixel cleanup rule. The
+source-cut sheet also shows the thin unmasked outer rim attached to the rear
+near arm. Exact mask ownership is preserved pending director precedence or
+corrected masks. `proof/mask_conflicts.json` contains bounds/counts. The gate
+continues to report the three disconnected logical pieces.
 
-Both design TODOs are resolved by the supplied rules; no design placeholders
-remain. No generic runtime or reference-rig files changed for this feedback.
+The source-cut diagnostic is
+`rr22/proof/contact_sheets/source_cuts_outlined.png`: front row = source,
+crucible, torso, near arm; rear row = source, near forearm, fist, whole near arm.
+Its white outlines are diagnostic annotations only.
 
-- Residue means `G >= max(R,B)+12` **and** `2*G >= 3*max(R,B)` on opaque
-  texels. Cleanup preserves alpha and uses the Euclidean-nearest non-residue
-  donor from the same piece. Declared feature texels are exempt. Both approved
-  paintings contain **zero** residue under this rule; the 28 formerly reported
-  green-dominant front texels are retained. The gate checks source pieces,
-  hidden continuations, calibration rests, density-processed production pieces
-  and rests, and every captured native frame. Native feature exemptions use
-  renderer-generated masks with the real skinning, alpha and occlusion; missing,
-  changed, duplicate or incorrectly sized masks fail the gate.
-- Front ownership applies standard HSV literally within the original mortar
-  label: saturation < .25, or hue 15–50 degrees with value > .55, retains mortar;
-  everything else transfers to the Euclidean-nearest torso/upper_near label.
-  This retains **2797 of 6503** region texels before the under-four-pixel speck
-  cleanup. The warm-tinted crucible body consequently transfers substantially to
-  torso/shoulder; bright shoulder/harness paint inside the molten band also
-  remains on mortar. This visible consequence is documented rather than
-  introducing an unapproved colour threshold or surface-growth rule.
-- Rear ownership measures the connected neutral iron bracer's painted lower
-  rim in columns perpendicular to the supplied elbow→wrist axis. Skin beyond
-  that rim becomes hand_near; the bracer remains fore_near. The detected bracer
-  has **464** texels; the fist has **858**; **698** texels transfer.
-- Isolated components under four pixels join their surrounding label. All
-  thirteen logical pieces in both views are connected, including their hidden
-  material. Eight covered connection texels (apron 3, arm_near 5, front only)
-  stay inside the existing three-pixel tuck domain and approved rest silhouette,
-  borrowing only that piece's paint. Ownership and rest pixels do not change.
-- `rr22/proof/contact_sheets/source_cuts_outlined.png` shows white boundary
-  annotations. Front row: assembled source, mortar, torso, near arm. Rear row:
-  assembled source, near forearm, fist, whole near arm. It is a source diagnostic,
-  not native visual proof; it is gitignored with the other captures.
+The old native capture cannot certify the changed cut/gait. The worker has no
+window-server access and has not attempted a windowed run. Density rests must
+be rebaked after the new cut; then refresh the unit shadows again. No native
+seam, stray-pixel or appearance acceptance is claimed from CPU diagnostics.
 
-## Remaining proof
+## Owned files and generic extensions
 
-- Native density rests, rendered idle/seams/actions, native board/portrait
-  captures and independent visual approval remain director-owned.
-  The scoped headless density check exits 1 with exactly two `rest rebake
-  needed` lines: front/rest.png and rear/rest.png have no native rebake record.
-  The first windowed stage below produces these records; source/motion/residue
-  gates do not claim native acceptance.
-- The Glacial Mirror rr-18 case is absent in this checkout. Its requested set
-  could not be run. Seer, Thrall and Capacitor source/production closures are
-  checked for unchanged tracked files after their tests finish.
-- The full Python/Godot suites were not run, per the unit brief's instruction
-  that the director runs them at merge.
-
-## Implementation files
-
-- `rr22_case.py`, `rr22_build.py`, `rr22_proof_data.py`, `rr22_surfaces.py`,
-  `rr22_cut_sheet.py`: anatomy, exact source
-  extraction, reference continuation/skin rules, native reference masks and
-  production promotion; generated closure in `rr22/`.
-- `rr22_density.py`: only this unit's source adoption, treatment, rest/identity
-  metadata and declaration. It preserves unrelated raw identity records,
-  including an existing duplicate-key record in the integrated registry.
+- `rr22_case.py`, `rr22_build.py`, `rr22_surfaces.py`, `rr22_continuations.py`:
+  anatomy, source cuts, covered paint, protected imports and production closure.
 - `rr22_gates.py`, `rr22_surface_gates.py`, `rr22_residue_gate.py`,
-  `rr22_proof.sh`, `tests/rr22/`,
-  `tests/test_rr22_humanoid.py`: gates/mutations, runtime callbacks, pre-battle
-  binding, both production facing setups, native proof and package smoke.
-- `assets/units/slag_mortar_cutout/`: production-only adapter and paint/motion
-  closure. Adopted derived density sources live under the corresponding
-  `spec/assets/board_pixel_density/sources/assets/units/` path.
-- Owned registration records: `data/enemies.json`, Slag Mortar entries in
-  density registry/outputs, identity registry/canon and unit shadow cache.
-- Small additive shared changes: optional `rig_directory`/`action_adapter`
-  declarations and adapter dispatch; local renderer-file discovery; filtering
-  registered cutouts from static reaction/facing membership. The existing
-  humanoid compiler/sampler/mesh modules are unchanged.
-- `tools/art_identity_gate.py` now honors an explicit canonical `art_scale`
-  when a canon source is no longer the live `art_path`. The two Slag Mortar
-  canon entries record their already-approved **1.04** scale. This preserves
-  old reference-sheet sizing after registration moves to the new rest paths.
-- `tests/suites/en04_enemies_suite.gd` retains exact protected mechanics and
-  checks presentation paths/membership against the production registry.
+  `rr22_records.py`, `rr22_seams.py`, `rr22_cpu.py`, `rr22_proof.sh`: strict gates, compact
+  records, diagnostics and director proof sequence.
+- `tests/rr22/`, `tests/test_rr22_humanoid.py`, generated `rr22/` data,
+  `assets/units/slag_mortar_cutout/`, Slag density/identity/shadow records.
+- Generic changes are limited to `humanoid_continuations.gd` and its existing
+  presentation call; Python continuation/CPU/native selection; and the compact
+  bone-evidence reader. Missing `clips` retains gait-only semantics. Reference
+  production assets and case data are untouched.
 
 ## Chosen defaults
 
-All engineer-selected values are test/proof values, recorded as plain named
-fields in `rr22/proof/chosen_defaults.json` and the corresponding probe scripts.
-They include fixture tiles/HP, seed .37, proof phase .6, the inherited 96-pixel
-step / 2× source scale, diagnostic sheet layout and timeouts. Production motion,
-scale and timing come from the supplied data and existing fade constants.
+Only proof/test values are engineer-selected. Existing named values remain in
+`rr22/proof/chosen_defaults.json`: fixture tiles, seed .37, action phase .6,
+source-sheet 4×2 layout at 3× with one-pixel white outlines, and timeouts. Additional source-only diagnostics record a 6×3 failure sheet,
+2× head comparison and 6× padded seam crops.
+CPU progress uses the reference's 50-frame interval. A one-pixel UV support
+guard only culls fully transparent CPU triangles; parity tests compare every
+paint/check pixel and transported hole/seam mask with the original raster. Material extents are
+computed from the protected poses and source texel footprints, not tuned.
+Actual board step/scale are measured at 1920×1080/100%; the old synthetic
+96 px / 2× values are no longer used for this unit's gait evidence.
 
 ## Headless reproduction
 
-Run from this worktree. Build precedes adoption; rerunning it restores untouched
-case paint to production, so rerun the density command immediately afterwards.
-The explicit refresh option replaces only this unit's derived sources after a
-fresh build; protected paintings and maquette inputs remain byte-identical.
+Run from the rr-22 worktree. The initial build imports a new director revision;
+its sample allows deriving the motion coverage on the next build. Subsequent
+builds reuse the hashed calibration if full evidence is unavailable. Building
+promotes raw paint, so density processing follows every build.
 
 ```sh
 python3 experiments/cutouts/slag_mortar/rr22_build.py
+python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/samples.gd -- --case res://experiments/cutouts/slag_mortar/rr22 --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/samples_full.json
+python3 experiments/cutouts/slag_mortar/rr22_build.py
 python3 experiments/cutouts/slag_mortar/rr22_density.py --refresh-sources
-python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/samples.gd -- --case res://experiments/cutouts/slag_mortar/rr22 --output res://experiments/cutouts/slag_mortar/rr22/proof/samples.json
+python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/samples.gd -- --case res://experiments/cutouts/slag_mortar/rr22 --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/samples_full.json
+python3 experiments/cutouts/slag_mortar/rr22_records.py samples
 python3 experiments/cutouts/slag_mortar/rr22_gates.py
+python3 experiments/cutouts/slag_mortar/rr22_seams.py
 python3 -m unittest discover -s tests -p 'test_rr22*.py' -v
 python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/runtime_checks.gd
 python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/affected_suites.gd
 python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/native_capture.gd -- --output res://experiments/cutouts/slag_mortar/rr22/proof/native --validate-only
-python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --type slag_mortar --output res://experiments/cutouts/slag_mortar/rr22/proof/production_logic --logic-only
-python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --type slag_mortar --output res://experiments/cutouts/slag_mortar/rr22/proof/production_logic_rear --logic-only --opposite
+python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/shadow_refresh.gd
 ```
-
-The source/bone/knee gate passes with zero errors in both views.
-`rr22/proof/results.json` records observed result lines and logs. Headless
-production traces are in `proof/production_logic{,_rear}/logic_frames.json`;
-these are transform/outcome evidence, not screenshots.
 
 ## Proof for the design owner
 
-These are the exact requested stages. Each windowed command uses the required
-visual runner, 1920×1080, 100% scale, a semantic contract and a result manifest.
-Inspect the literal front colour-band consequence on the cut sheet. Do not seal native
-acceptance from the headless evidence. No windowed command has been attempted.
+Run from `/Users/borgerding/workspace/Labyrinth.worktrees/rr-22` after resolving
+the ownership conflict. The driver contains the exact visual-runner commands,
+semantic proof contracts and manifests at 1920×1080/100%.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh rest
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh native
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets
+cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh walk
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh idle
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh production
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh review
 ```
 
-`density` runs processing → native rebake → scoped rest recording → metadata
-seal → scoped shadow refresh → density check. It emits
-`rr22_density_pair.png` at 1920×1080 and both 255px calibration rests.
-`rest` writes `proof/native_rest/`; `native` writes every native frame and
-isolated layer/group/seam reference under `proof/native/`; `sheets` writes
-`proof/contact_sheets/`; `idle` writes the protagonist comparison under
-`proof/idle_native/` and an MP4; `production` writes front/rear board and
-pre-battle captures under `proof/production_native/`; `review` writes
-`proof/slag_mortar_review.mp4`. Those capture paths are gitignored.
-The design owner prepares the inspection fixture, commits, reviews and publishes.
+`density` processes the pieces, rebakes/records native rests, seals metadata,
+refreshes scoped shadows and checks density. `native` regenerates full bone
+samples plus a compact inventory before capturing and gating all native frames.
+Capture paths are `proof/native_rest/`, `proof/native/` (including feature masks,
+seams and isolated layers), `proof/contact_sheets/`, `proof/gait_move_native/`,
+`proof/gait_move_sheet.png`, `proof/idle_native/`,
+`proof/production_native/{front,rear}/` and the idle/review MP4s. They are ignored.
+The director owns the inspection fixture; none was created by this worker.

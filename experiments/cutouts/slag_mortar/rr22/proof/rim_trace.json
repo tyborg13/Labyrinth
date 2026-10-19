@@ -1,0 +1,28 @@
+{
+  "view": "rear",
+  "clip": "death",
+  "frame": 70,
+  "detached_head_paint": [
+    {
+      "part": "head",
+      "pixels": 27,
+      "source_bounds": [
+        102,
+        22,
+        131,
+        35
+      ]
+    },
+    {
+      "part": "hidden_head",
+      "pixels": 6,
+      "source_bounds": [
+        120,
+        24,
+        130,
+        36
+      ]
+    }
+  ],
+  "explanation": "Bounds follow the unmasked upper crucible rim, above the skin head; the head itself remains attached."
+}

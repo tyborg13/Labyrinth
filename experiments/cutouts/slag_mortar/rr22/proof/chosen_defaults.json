@@ -8,7 +8,7 @@
       128,
       128
     ],
-    "basis": "existing rr10 sampler"
+    "basis": "legacy proof-only fallback; rr22 gait uses actual board geometry from tests/gait01/board_geometry.gd"
   },
   "runtime_test": {
     "idle_seed": 0.37,
@@ -82,5 +82,56 @@
       0,
       0
     ]
+  },
+  "cpu_coverage": {
+    "uv_guard_px": 1,
+    "progress_interval_frames": 50,
+    "scope": "proof-only conservative UV support; raster, paint and motion unchanged"
+  },
+  "feedback2_source_diagnostics": {
+    "old_failure_sheet": {
+      "columns": 6,
+      "rows": 3,
+      "cell_px": [
+        220,
+        240
+      ],
+      "source_crop": [
+        170,
+        145,
+        380,
+        360
+      ],
+      "image_offset_px": [
+        5,
+        20
+      ],
+      "label_offset_px": [
+        4,
+        4
+      ],
+      "background_rgba": [
+        30,
+        30,
+        36,
+        255
+      ]
+    },
+    "hole_crops": {
+      "padding_source_px": 20,
+      "zoom": 6
+    },
+    "rear_head_comparison": {
+      "columns": 4,
+      "rows": 1,
+      "source_cell_px": 255,
+      "zoom": 2,
+      "background_rgba": [
+        30,
+        30,
+        36,
+        255
+      ]
+    }
   }
 }

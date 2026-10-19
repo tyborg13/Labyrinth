@@ -1,48 +1,17 @@
 """rr-22 source/Bone2D gates and strict native gates; no invented exceptions."""
 import argparse
 import math
-import sys
-import numpy as np
-from PIL import Image
-from rr22_case import PROJECT, CASE, ASSETS, DIRECTOR
+from rr22_case import CASE, ASSETS, DIRECTOR
 from cutout_pipeline.cases import read_json, write_json
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
-from maquette_motion.compiler import evaluate
+from humanoid_cutout.gait import evaluate
+from humanoid_cutout.walk_gates import report as knee_report, support_report
+from rr22_records import samples as read_samples, summary
 import rr22_residue_gate as residue
 import rr22_surface_gates as surfaces
-sys.path.insert(0, str(PROJECT / 'experiments/cutouts/arc_thrall'))
-from rr11_knees import knee_report, lift_track, PRESENTED_TARGET_TOLERANCE_PX
-
 EPSILON = 0.0001
-
-
-def support_report(layout, data, samples):
-    view = layout['facing']
-    foot = 'foot_' + data['leg_roles'][view]['stride']
-    rest = np.asarray(layout['joints'][foot]['position'])
-    tracks = data['view_tracks'][view]['move']
-    progress = next(t for t in tracks if t['bone'] == foot and t['channel'] == 'forward_px')
-    lift = lift_track(layout, data)
-    forward = np.asarray(data['projection'][view]['forward'])
-    step = samples['step_distance_px'] / samples['screen_pixel_scale']
-    rows, errors, previous, maximum = [], [], None, 0.0
-    for row in samples['samples']:
-        if row['view'] != view or row['clip'] != 'move' or row['kind'] != 'presented': continue
-        if evaluate(lift['keys'], row['phase']) > EPSILON: continue
-        target = rest + forward * evaluate(progress['keys'], row['phase']) * step
-        actual = rest + np.rint(np.asarray(row['bones'][foot]['global'][4:]) - rest)
-        distance = float(np.linalg.norm(actual - target))
-        if distance > PRESENTED_TARGET_TOLERANCE_PX: errors.append(f'{view}/move/{row["frame"]}: support target {distance}')
-        if previous is not None and previous['frame'] + 1 == row['frame']:
-            delta = float(np.linalg.norm(actual - previous['actual']))
-            maximum = max(maximum, delta)
-            if delta != 0: errors.append(f'{view}/move/{row["frame"]}: support slid {delta}')
-        previous = {'frame': row['frame'], 'actual': actual}
-        rows.append({'frame': row['frame'], 'target_error_px': distance})
-    if not rows: errors.append(view + ': missing support evidence')
-    return {'ok': not errors, 'errors': errors, 'rows': rows, 'maximum_stance_frame_change_px': maximum}
 
 
 def lob_report(layout, data, samples):
@@ -57,12 +26,17 @@ def lob_report(layout, data, samples):
         rows.append({'phase': row['phase'], 'angle_deg': angle, 'expected_deg': expected})
     if not any(abs(r['phase'] - data['clips']['lob']['contact']) < EPSILON and abs(r['angle_deg']) > 0 for r in rows):
         errors.append(view + ': missing lob contact direction')
-    return {'ok': not errors, 'errors': errors, 'rows': rows}
+    return {'ok': not errors, 'errors': errors, 'rows': rows,
+            'minimum_angle_deg': min((r['angle_deg'] for r in rows), default=0.),
+            'maximum_angle_deg': max((r['angle_deg'] for r in rows), default=0.)}
 
 
 def run(native=None):
-    data, build, samples = [read_json(CASE / p) for p in ('compiled_motion.json', 'proof/build.json', 'proof/samples.json')]
+    data, build = [read_json(CASE / p) for p in ('compiled_motion.json', 'proof/build.json')]
+    samples = read_samples()
     errors, reports = [], {}
+    placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
+    errors += ['unresolved design placeholder: ' + name for name in placeholders]
     current = bindings(CASE)
     if (CASE / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('protected motion import differs')
     for view in data['view_tracks']:
@@ -80,17 +54,23 @@ def run(native=None):
         errors += residue.source_errors(ASSETS / 'humanoid_v2', production,
                                       feature_case=CASE, feature_layout=layout)
     if native:
-        errors += native_errors(CASE, native)
-        errors += residue.native_errors(CASE, native)
-    result = {'ok': not errors, 'errors': errors, 'native_pixels': bool(native), 'views': reports,
-              'design_placeholders': read_json(CASE / 'cutout.json')['design_placeholders']}
+        if read_json(native / 'frames.json')['inputs'] != current:
+            errors.append('stale native proof inputs; rerun the director windowed capture for the new cut and gait')
+        else:
+            errors += native_errors(CASE, native, failure_output=CASE / 'proof/seam_cpu/native_failures')
+            errors += residue.native_errors(CASE, native)
+    result = {'ok': not errors, 'errors': errors, 'native_pixels': bool(native), 'views': {view: {name: summary(report) for name, report in checks.items()} for view, checks in reports.items()},
+              'design_placeholders': placeholders}
     result['production_ready'] = not errors and not result['design_placeholders'] and bool(native)
+    full_name = 'native_gates_full' if native else 'gates_full'
+    write_json(CASE / ('proof/logs/' + full_name + '.json'), dict(result, views=reports))
     write_json(CASE / ('proof/native_gates.json' if native else 'proof/gates.json'), result)
     print('RR22 %s GATES: %s (%d errors; both views)' % ('NATIVE' if native else 'SOURCE/BONE/KNEE', 'FAIL' if errors else 'PASS', len(errors)))
     for view, checks in reports.items():
         print('RR22 %s: %d swings; minimum peak %.3f degrees; support drift %.6f px; reach %d paths, %d overreach reports' %
             (view.upper(), len(checks['knees']['swings']), checks['knees']['minimum_peak_bend_deg'], checks['supports']['maximum_stance_frame_change_px'],
              len(checks['reach']['paths']), len(checks['reach']['overreach'])))
+        print('RR22 %s WALK: %s (maximum fit %.6f px; total drop %.6f px)' % (view.upper(), 'PASS' if checks['knees']['ok'] else 'FAIL', checks['knees']['maximum_fit_px'], checks['knees']['maximum_total_pelvis_drop_px']))
     for error in errors[:20]: print(error)
     return result
 

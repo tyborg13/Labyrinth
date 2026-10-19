@@ -35,6 +35,23 @@ func _run() -> void:
 	for view: String in renderer.rigs:
 		renderer.facing = view
 		var rig: Node2D = renderer.rigs[view]
+		for name: String in rig.layout.get("gait_continuations", {}):
+			var recipe: Dictionary = rig.layout["gait_continuations"][name]
+			var part: Dictionary = rig.layout["parts"].filter(func(p: Dictionary) -> bool: return p["name"] == name)[0]
+			var donor: Dictionary = rig.layout["parts"].filter(func(p: Dictionary) -> bool: return p["name"] == recipe["donor"])[0]
+			var node: Node2D = rig.bones[part["bone"]].get_node(NodePath(name))
+			rig.apply_pose("rest", 0.0)
+			var original: PackedByteArray = (node.get("texture") as Texture2D).get_image().get_data()
+			for clip: String in recipe["clips"]:
+				rig.apply_pose(clip, PROOF_ACTION_PHASE)
+				var image: Image = (node.get("texture") as Texture2D).get_image()
+				var paint: Image = rig._texture(donor["file"]).get_image()
+				for texel: Array in recipe["texels"]:
+					check(image.get_pixel(int(texel[0]), int(texel[1])) == paint.get_pixel(int(texel[2]), int(texel[3])), "own-edge action material " + view + "/" + name)
+			rig.apply_pose("idle", PROOF_ACTION_PHASE)
+			check((node.get("texture") as Texture2D).get_image().get_data() == original, "idle restores exact original texture " + name)
+			rig.apply_pose("rest", 0.0)
+			check((node.get("texture") as Texture2D).get_image().get_data() == original, "rest restores exact original texture " + name)
 		check(rig.layout["joints"]["mortar"]["parent"] == "torso", "torso attachment")
 		check(rig.layout["joints"]["apron_tip"]["parent"] == "apron_mid", "cloth chain")
 		for clip: String in renderer.motion_data()["clips"]:

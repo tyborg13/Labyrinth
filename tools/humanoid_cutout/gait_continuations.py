@@ -9,12 +9,15 @@ from PIL import Image
 from maquette_motion.material_palette import interior_donors, rules
 
 
-def texture(case, layout, part, *, gait=False, checks=False):
+def texture(case, layout, part, *, gait=False, checks=False, clip=None):
     record = layout['proof_layers'][part['name']] if checks else part
     path = record['mask'] if checks else record['file']
     with Image.open(case / path) as image:
         result = np.asarray(image.convert('RGBA')).copy()
-    recipe = layout.get('gait_continuations', {}).get(part['name']) if gait else None
+    recipe = layout.get('gait_continuations', {}).get(part['name'])
+    if recipe:
+        active = (isinstance(recipe['clips'], list) and clip in recipe['clips']) if 'clips' in recipe else gait
+        if not active: recipe = None
     if recipe:
         donor = next(p for p in layout['parts'] if p['name'] == recipe['donor'])
         with Image.open(case / donor['file']) as image:
@@ -54,6 +57,12 @@ def errors(case, layout):
                 x < 0 or y < 0 or x >= source.shape[1] or y >= source.shape[0]
                 or source[y, x, 3] for x, y in targets)):
             result.append('gait continuation: must add only transparent source texels: ' + name)
-        elif recipe != nearest_donors(case, layout, part, targets):
+        elif {k: v for k, v in recipe.items() if k != 'clips'} != nearest_donors(case, layout, part, targets):
             result.append('gait continuation: differs from own non-outline edge texels: ' + name)
+        if 'clips' in recipe:
+            from cutout_pipeline.cases import read_json
+            data = read_json(case / 'compiled_motion.json')
+            if (not isinstance(recipe['clips'], list) or not recipe['clips'] or
+                    set(recipe['clips']) - (set(data['clips']) - {'idle', 'rest'})):
+                result.append('action continuation: expected declared action clips, excluding rest/idle: ' + name)
     return result
