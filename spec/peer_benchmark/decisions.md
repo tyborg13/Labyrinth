@@ -257,3 +257,7 @@
   merged into integration and the full suites pass at that exact HEAD, publish with `tools/parallel_task.py
   authorize-publish` and `push` (lands on origin/master). The Thrall (rr-15) joins a later checkpoint after owner review,
   unless it has landed by then.
+- 2026-10-19 sidecar noise (owner: "handle it permanently"): the director committed the 10,664 missing `.import`/`.uid`
+  sidecars of tracked assets (bf68dc2ce) and removed a stale `.uid`; qa-14 adds a guard test and a workflow note. When an
+  in-flight worktree syncs integration, first delete its untracked copies of the newly tracked sidecars, then merge and
+  run a headless import.
