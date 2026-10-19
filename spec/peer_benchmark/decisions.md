@@ -358,4 +358,7 @@
   same branches.
 - **Merge order** (keeps integration green under the strict rule): rr-23 Mirror, rr-21 Weaver, rr-24 Thrall, rr-25
   Mortar, then rr-26 after re-running its census on the merged Thrall.
+- Proof capture speed (owner agreed): crop production capture frames to the actor's bounds plus a margin and use fast
+  PNG compression. The gates check the same pixels. A tooling unit runs after the current rig merges, so no in-flight
+  proof is invalidated.
 
