@@ -307,3 +307,38 @@
   torso or the near upper arm. The bracer belongs to the forearm, and the fist starts at the bracer's lower rim.
 - Weaver gait: a hunched rest bends the stance knee, so the stride lift is 7 px and the pelvis sits at rest height at
   each swing apex.
+
+## 2026-10-19 Humanoid walk on the protagonist's model (owner: the shuffle reads as a limp)
+- Owner, Mirror: "One leg is kind of shimmying and the other is mostly still like he's limping along." The stride +
+  trailing shuffle is retired for every v2 humanoid (supersedes the rr-18 gait answer above).
+- 2D reach analysis (director sim, legs and steps measured from the five rigs' layouts; one tile = 138.4 canvas px,
+  2.6 to 4 leg lengths). A step-to walk (two half-tile steps per foot) plants a foot up to 0.28 tile ahead of the hips,
+  far beyond any 2D leg. A rest-to-rest walk at 5 steps per tile needs 10 to 12 px pelvis drops on the Thrall and Mirror
+  front views. At 6 steps the drop is 1.3 to 2.4 px with the hero's projected leg scale, and at most 4.9 px for the
+  Mirror's rigid legs capped at 1.14.
+- Decision: every humanoid walks on the protagonist's model (`scripts/protagonist_cutout/motion.gd`):
+  - 6 steps per tile, rest to rest: an opening half step, four full steps, a closing half step; the near foot leads;
+  - 60% stance, world-planted; the hero's Hermite swing and lift;
+  - lanes narrowed 70% toward the thigh, changing only in swing;
+  - the hero's projected leg scale, 0.78 to 1.22 (skinned) or 1.14 (rigid pieces: the joints space out and the pieces
+    stay rigid);
+  - an authored per-step settle, then the hero's pelvis fit (at most 6 px);
+  - the arm opposite the swinging leg swings forward.
+- Gates: planted stances on both legs; the knee peak and apex on every swing; no overreach; rigid air ≤ 3 px per joint.
+- Cadence: 6 steps in 0.85 to 0.9 s is about 6.7 steps/s, the hero's own cadence. The Mimic's move lengthens from
+  0.7 s to 0.8 s so that its 6 steps don't scurry.
+- Format: a `gait` block in `move` (rig spec §4) generates root, feet, pelvis and arm swing; the director keys the
+  rest. Shared code is gait-01 (Thrall, Mirror). The Mimic, Weaver and Mortar adopt it in their next round.
+- Glacial Mirror repaint for the owner's fixes (mq8b, identity gate PASS): both hands are matching knuckled boulder
+  fists, and the loose foot is a heel-and-toe boulder under its ankle; nothing else changed. In the 3/4 front view the
+  near arm is the camera-side arm, so `fore_near` and `fist_near` draw above the torso and head (the guard bug).
+- Arc Thrall repaint for the owner's fixes (mq7b, identity gate PASS): a broad iron collar low on the shoulders,
+  below the jaw (rear: an even band, no upturn), and a ragged hide skirt wrapped around the hips with a rope belt,
+  centred, to mid-thigh. Both match the original art's costume placement. The re-cut is rr-24.
+- Post-merge oracle fixes for rr-18 (director, a few lines): the pre-battle oracle (38 cutouts / 5 stills), en05
+  (the promoted Mirror owns its cutout feedback), the travel-pace protected-duration list (Mirror → staged rr-18),
+  and the supplemental program count (125: rr-17 and rr-18).
+- Process: never commit to integration while its merge suites run. A director commit moved the branch mid-suite and
+  failed one task-queue test (`test_verified_handoff_file_completes_queue_without_flag_bridge`), which passes on a
+  stable branch.
+

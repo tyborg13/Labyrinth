@@ -198,4 +198,18 @@
   Let's see if we can fix his walk a bit too. One leg is kind of shimmying and the other is mostly still like he's
   limping along."
   - Fixes: repaint both fists and the two odd feet (image revisions); draw the near fore/fist in front of the torso;
-    an alternating 4-step walk (director data); fresh unit rr-23.
+    the walk on the protagonist's model, 6 alternating steps per tile (gait-01; the 4-step plan was unreachable in
+    2D); fresh unit rr-23 re-cuts from the mq8b repaint.
+- thrall-rig-v2: NEEDS CHANGES. Owner, verbatim: "This is generally better. The loin cloth is not positioned correctly
+  though and the collar positioning is suspicious in both views. It is over his mouth seemingly from the front and on
+  the rear it has a slight upturn around the corner of the neck that doesn't make sense I don't think from this
+  perspective."
+  - Diagnosis (against the original art): the paint-over has a thin ring high on the neck (it crosses the mouth in front
+    and curls up in the rear) and a flat panel off one hip (rear flap past the hip). The original has a heavy collar low
+    on the shoulders and a ragged skirt wrapped evenly around the hips.
+  - Fixes: repaint the collar (broad iron collar low on the shoulders, behind the jaw) and the loincloth (torn hide
+    skirt wrapped round, rope belt, centred, mid-thigh) in both views; the gait-01 walk; then a Thrall re-cut unit.
+- purge-polish: APPROVED (already on master, 209cbc67c).
+- enemy-pacing-2: APPROVED for now. Owner: "I may slow this down a bit more later, but I'd like to feel it over a more
+  extended play session first." The lever is the 0.80× enemy action speed.
+
