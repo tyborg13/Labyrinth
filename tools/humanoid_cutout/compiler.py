@@ -9,6 +9,18 @@ from .leg_roles import roles_for, resolve_bone
 CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg'}
 
 
+def keys_for_view(definition, view, views):
+    """A view replaces complete channels before roles/signs are resolved."""
+    overrides = definition.get('view_keys', {})
+    if not isinstance(overrides, dict) or set(overrides) - set(views):
+        raise ValueError('view_keys: expected maps for declared views')
+    if any(not isinstance(keys, dict) for keys in overrides.values()):
+        raise ValueError('view_keys: each view must contain a channel map')
+    keys = dict(definition['keys'])
+    keys.update(overrides.get(view, {}))
+    return keys
+
+
 def compile_motion(source, creature, layouts, projection):
     author = json.loads(source.read_bytes())[creature]
     if author['rig'] != 'humanoid_v2' or author['units'] != 'source_px':
@@ -32,10 +44,11 @@ def compile_motion(source, creature, layouts, projection):
                 result.setdefault('legs', {}).setdefault(side, {})[view] = dict(policy)
         result['view_tracks'][view] = {}
         for clip, definition in author['clips'].items():
-            result['clips'][clip] = {k: v for k, v in definition.items() if k != 'keys'}
+            result['clips'][clip] = {k: v for k, v in definition.items() if k not in ('keys', 'view_keys')}
+            effective_keys = keys_for_view(definition, view, projection)
             tracks, release = [], {}
             modes = {}
-            for name, keys in definition['keys'].items():
+            for name, keys in effective_keys.items():
                 source_bone, channel = name.rsplit('.', 1)
                 bone = resolve_bone(source_bone, anatomy, view)
                 if bone not in layout['joints']:
@@ -63,8 +76,19 @@ def compile_motion(source, creature, layouts, projection):
                         a['at'] >= b['at'] for a, b in zip(rows, rows[1:])):
                     raise ValueError('Invalid keys: ' + name)
                 tracks.append({'source': name, 'bone': bone, 'channel': channel, 'keys': rows,
-                               'forward_mode': definition['keys'].get(source_bone + '.forward_mode', 'pixels')})
-            if roles: result['view_forward_modes'][view][clip] = modes
+                               'forward_mode': effective_keys.get(source_bone + '.forward_mode', 'pixels')})
+            if roles or (definition.get('view_keys') and modes):
+                result.setdefault('view_forward_modes', {}).setdefault(view, {})[clip] = modes
             result['view_tracks'][view][clip] = tracks
-            result['clips'][clip]['release_at'] = release
+            view_release = any(name.endswith('.release_at') for keys in definition.get('view_keys', {}).values()
+                               for name in keys)
+            if view_release:
+                # Preserve the base clip's metadata for the other view. Emit
+                # resolved grip policies only when this extension needs them.
+                result.setdefault('view_release_at', {}).setdefault(view, {})[clip] = release
+                result['clips'][clip]['release_at'] = {
+                    resolve_bone(name.rsplit('.', 1)[0], anatomy, view): value
+                    for name, value in definition['keys'].items() if name.endswith('.release_at')}
+            else:
+                result['clips'][clip]['release_at'] = release
     return result

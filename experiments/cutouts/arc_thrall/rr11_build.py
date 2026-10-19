@@ -34,6 +34,10 @@ from tools.humanoid_cutout.seams import build_masks
 from tools.humanoid_cutout.compiler import compile_motion
 from tools.humanoid_cutout.promotion import promote
 from tools.humanoid_cutout.leg_roles import resolve_bone
+from tools.humanoid_cutout.underlays import distinct_depths
+from tools.humanoid_cutout.joint_continuations import domains as joint_domains
+from rr15_edges import transfer as transfer_edges
+from rr15_layers import split_hidden
 
 ASSETS = PROJECT / 'assets/units/arc_thrall_cutout/humanoid_v2'
 DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-11/motion_tracks.json'
@@ -70,10 +74,11 @@ def recipe_for(_creature, spec, view):
     return {'joints': joints, 'parts': parts}
 
 
-def store(image, folder, name, empty_bounds=None):
+def store(image, folder, name, empty_bounds=None, bounds=None):
     ys, xs = np.nonzero(image[..., 3])
-    bounds = ([int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
-              if len(xs) else empty_bounds)
+    if bounds is None:
+        bounds = ([int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1]
+                  if len(xs) else empty_bounds)
     if bounds is None: raise ValueError('Empty piece: ' + name)
     path = folder / (name + '.png')
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -96,7 +101,7 @@ def proof_masks(layout, paint, visible, hidden, material_rules, anatomy):
         if not part.get('hidden_material') and name not in meshes: continuation[:] = False
         checks[continuation, 1] = 255
         checks[allowed & outline_class(image, material_rules), 2] = 255
-        mask = store(checks, CASE / 'checks' / view, name, part['bbox'])
+        mask = store(checks, CASE / 'checks' / view, name, bounds=part['bbox'])
         layers[name] = {'mask': mask['file'], 'mask_offset': mask['offset'],
                         'z_index': part['z_index'], 'source': part['file'],
                         'rigid': name not in meshes, 'source_sha256': digest(CASE / part['file'])}
@@ -126,6 +131,7 @@ def proof_masks(layout, paint, visible, hidden, material_rules, anatomy):
 
 
 def build_view(view, inputs, anatomy):
+    registration = read_json(CASE / 'mesh_registration.json')[view]
     base, old, seeds, delivery = prepare(PROJECT, CASE, inputs, view, PIECES,
         registered_transform, label_palette, native_depths,
         lambda creature, spec: recipe_for(creature, spec, view), bind_layout)
@@ -134,7 +140,7 @@ def build_view(view, inputs, anatomy):
     for name in ('processed.png', 'processed.json'):
         shutil.copyfile(PROJECT / inputs[view + '_job'] / name, source / name)
     paint = np.asarray(Image.open(source / 'processed.png').convert('RGBA'))
-    visible, hidden = {}, {}
+    visible, hidden, seed_fills = {}, {}, {}
     for name, labels in PIECES.items():
         image, fill = np.zeros_like(paint), np.zeros_like(paint)
         for part in old['parts']:
@@ -143,8 +149,14 @@ def build_view(view, inputs, anatomy):
                 image[material[..., 3] > 0] = material[material[..., 3] > 0]
         for label in labels:
             fill[seeds[label][..., 3] > 0] = seeds[label][seeds[label][..., 3] > 0]
-        fill[(paint[..., 3] == 0) | (image[..., 3] > 0)] = 0
         visible[name] = image
+        seed_fills[name] = fill
+    # Nearest categorical labels put tube/claw outline islands on cloth and
+    # the rear boot. Move those exact original texels to the adjoining piece.
+    transfer_edges(visible, read_json(CASE / 'edge_transfers.json')[view])
+    for name, labels in PIECES.items():
+        image, fill = visible[name], seed_fills[name]
+        fill[(paint[..., 3] == 0) | (image[..., 3] > 0)] = 0
         hidden[name] = clean_continuation(image, fill, rules(base, view))
         # Fused limbs can have one entirely covered source label. Continue
         # the shared painted surface inside its native union silhouette.
@@ -175,30 +187,61 @@ def build_view(view, inputs, anatomy):
         reports.append({'piece': name, 'minimum_px': recipe['depth_px'], 'cover': recipe['covers'],
                         'required_mask': str(path.relative_to(CASE)), 'required_pixels': int(required.sum()),
                         'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
+    baseline_hidden = {name: fill.copy() for name, fill in hidden.items()}
+    joins = {}
+    source_points = read_json(CASE / 'joint_continuations.json')[view]
+    for name, points in source_points.items():
+        covers = [other for pair in anatomy['seam_joins'] if name in pair for other in pair if other != name]
+        joins[name] = {'covers': covers, 'source_points': points}
+    for name, required in joint_domains(visible, hidden, joins, **anatomy['joint_continuations']).items():
+        missing = required & (hidden[name][..., 3] == 0)
+        continuation = edge_texels(visible[name], missing, material_rules)
+        hidden[name][missing] = continuation[missing]
+    allocation = {name: fill.copy() for name, fill in hidden.items()}
+    # Remove the two native-traced seed specks and open new-only alpha loops.
+    # Preserve the rest of the approved underlay and every required tuck.
+    for name, points in read_json(CASE / 'continuation_alpha_cleanup.json')[view].items():
+        for x, y in points:
+            if name in tuck_masks and tuck_masks[name][y, x]:
+                raise ValueError('Edge cleanup cannot erase a required tuck: ' + name)
+            hidden[name][y, x] = 0
     parts, meshes = [], []
     for name, image in visible.items():
         bone, z = BONES.get(name, name), depths[name]
         fill = hidden[name]
         if name in anatomy['meshes']:
             higher = np.logical_or.reduce([other[..., 3] > 0 for n, other in visible.items() if depths[n] > z]) if any(depths[n] > z for n in visible) else np.zeros(paint.shape[:2], dtype=bool)
-            allowed = connected_mask(image[..., 3] > 0, (fill[..., 3] > 0) & higher)
+            original = baseline_hidden[name][..., 3] > 0
+            original_allowed = connected_mask(image[..., 3] > 0, original & higher)
+            original_lower = original & ~original_allowed
+            allowed = original_allowed | (connected_mask(image[..., 3] > 0, (allocation[name][..., 3] > 0) & higher) & ~original_lower)
+            # Preserve every original visible triangle and weight. Continuation
+            # beyond this registered grid belongs to the lower hidden layer.
+            bounds = registration['meshes'][name]['bbox']
+            registered = np.zeros(paint.shape[:2], dtype=bool)
+            registered[bounds[1]:bounds[3], bounds[0]:bounds[2]] = True
+            allowed &= registered
             combined = image.copy()
             combined[allowed] = fill[allowed]
-            part = store(combined, CASE / 'pieces' / view, name)
+            part = store(combined, CASE / 'pieces' / view, name, bounds=bounds)
             meshes.append(skin_layer(part, name, part['bbox'], joints, z, recipe=anatomy['meshes'][name]))
             lower = fill.copy()
             lower[allowed] = 0
-            if lower[..., 3].any():
-                under = store(lower, CASE / 'pieces' / view, 'hidden_' + name)
+            lower_allocation = allocation[name].copy()
+            lower_allocation[allowed] = 0
+            for under_name, material, crop, extension in split_hidden(lower, lower_allocation, name, registration, mesh=True):
+                under = store(material, CASE / 'pieces' / view, under_name, bounds=crop)
                 hidden_depth = min(depths.values()) - 1
                 meshes.append(skin_layer(under, name, part['bbox'], joints, hidden_depth, True, recipe=anatomy['meshes'][name]))
-                parts.append(dict(under, bone=bone, z_index=hidden_depth, hidden_material=True, logical_part=name))
+                parts.append(dict(under, bone=bone, z_index=hidden_depth, hidden_material=True, logical_part=name, joint_extension=extension))
         else:
             part = store(image, CASE / 'pieces' / view, name)
-            if fill[..., 3].any():
-                under = store(fill, CASE / 'pieces' / view, 'hidden_' + name)
+            anchor = registration['parts'][name].get('presentation_anchor', registration['parts'][name]['offset'])
+            part['presentation_anchor'] = anchor
+            for under_name, material, crop, extension in split_hidden(fill, allocation[name], name, registration):
+                under = store(material, CASE / 'pieces' / view, under_name, bounds=crop)
                 parts.append(dict(under, bone=bone, z_index=min(depths.values()) - 1, hidden_material=True,
-                                  logical_part=name, presentation_anchor=part['offset']))
+                                  logical_part=name, presentation_anchor=anchor, joint_extension=extension))
         parts.append(dict(part, bone=bone, z_index=z, logical_part=name))
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
               'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
@@ -207,6 +250,7 @@ def build_view(view, inputs, anatomy):
               'leg_roles': anatomy['leg_roles'][view], 'source_labels': PIECES, 'features': [],
               'rest_source': f'source/{view}/processed.png',
               'motion_data': 'res://' + str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
+    distinct_depths(layout)
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
     write_json(CASE / f'layouts/{view}.json', layout)
     reconstructed = Image.new('RGBA', (255, 255))

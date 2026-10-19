@@ -1,0 +1,14 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "positive_checks": 458,
+    "minimum_forward_channel_dot": 0.0006470860793003232
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "positive_checks": 458,
+    "minimum_forward_channel_dot": 0.001525832518658371
+  }
+}

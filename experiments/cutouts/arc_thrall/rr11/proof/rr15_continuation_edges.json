@@ -1,0 +1,91 @@
+{
+  "native_pixels": false,
+  "scope": "CPU-diagnosed new continuation edge loops; all original source alpha and covered-source continuation seeds protected",
+  "regions": [
+    {
+      "key": [
+        "front",
+        "jab",
+        22
+      ],
+      "pixels": 2,
+      "source_removals": {},
+      "reason": "No new-only alpha path; original material and diagnosed continuation seeds protected"
+    },
+    {
+      "key": [
+        "front",
+        "death",
+        31
+      ],
+      "pixels": 7,
+      "source_removals": {},
+      "reason": "No new-only alpha path; original material and diagnosed continuation seeds protected"
+    },
+    {
+      "key": [
+        "rear",
+        "move",
+        6
+      ],
+      "pixels": 4,
+      "source_removals": {
+        "upper_near": [
+          [
+            97,
+            101
+          ],
+          [
+            97,
+            102
+          ],
+          [
+            97,
+            103
+          ]
+        ]
+      }
+    },
+    {
+      "key": [
+        "rear",
+        "death",
+        5
+      ],
+      "pixels": 4,
+      "source_removals": {
+        "upper_near": [
+          [
+            102,
+            101
+          ]
+        ]
+      }
+    }
+  ],
+  "final_no_seed_protection_audit": {
+    "scope": "repeat residual CPU edge-path search protecting original alpha and required tucks, without protecting new continuation source seeds",
+    "regions": [
+      {
+        "key": [
+          "front",
+          "jab",
+          22
+        ],
+        "pixels": 2,
+        "source_removals": {},
+        "reason": "No new-only alpha path; original alpha and required tucks protected"
+      },
+      {
+        "key": [
+          "front",
+          "death",
+          31
+        ],
+        "pixels": 7,
+        "source_removals": {},
+        "reason": "No new-only alpha path; original alpha and required tucks protected"
+      }
+    ]
+  }
+}

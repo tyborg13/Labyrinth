@@ -4,6 +4,8 @@ from pathlib import Path
 from rr11_build import CASE, DIRECTOR, read_json, write_json
 from rr11_knees import knee_report, support_report
 from tools.humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
+from tools.humanoid_cutout.action_direction import report as action_direction_report
+from tools.humanoid_cutout.reach import report as reach_report
 
 
 def main():
@@ -11,13 +13,18 @@ def main():
     parser.add_argument('--native', type=Path)
     args = parser.parse_args()
     data, build, samples = [read_json(CASE / p) for p in ('compiled_motion.json', 'proof/build.json', 'proof/samples.json')]
-    errors, cut_errors, knees, supports = [], [], {}, {}
+    errors, cut_errors, knees, supports, directions, reaches = [], [], {}, {}, {}, {}
     current = bindings(CASE)
     if (CASE / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('protected director tracks changed')
     for view in data['view_tracks']:
         layout = read_json(CASE / f'layouts/{view}.json')
         cut_errors += structure_errors(layout, build) + source_errors(CASE, layout, build)
         errors += bone_errors(layout, data, samples, current)
+        directions[view] = action_direction_report(layout, data, samples, current, require_presented=True)
+        errors += directions[view]['errors']
+        reaches[view] = reach_report(layout, data, step_distance_px=samples['step_distance_px'],
+                                    screen_pixel_scale=samples['screen_pixel_scale'])
+        errors += reaches[view]['errors']
         knees[view] = knee_report(layout, data, samples)
         supports[view] = support_report(layout, data, samples)
         errors += knees[view]['errors']
@@ -27,12 +34,22 @@ def main():
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
     write_json(CASE / 'proof/knees.json', knees)
     write_json(CASE / 'proof/supports.json', supports)
+    write_json(CASE / 'proof/directions.json', {v: {k: value for k, value in r.items() if k != 'rows'}
+                                               for v, r in directions.items()})
+    write_json(CASE / 'proof/reach.json', reaches)
     write_json(CASE / ('proof/native_gates.json' if args.native else 'proof/gates.json'),
         {'ok': not errors, 'errors': errors, 'production_ready': not errors and not placeholders and bool(args.native),
          'design_placeholders': placeholders, 'scope': 'headless source and real Bone2D evidence' if not args.native else 'native windowed proof'})
     print('RR11 SOURCE/CUT GATES: %s (%d errors; both views)' % ('FAIL' if cut_errors else 'PASS', len(cut_errors)))
     print('RR11 %s GATES: %s (%d errors)' % ('NATIVE' if args.native else 'BONE/CUT/KNEE', 'FAIL' if errors else 'PASS', len(errors)))
     for view, report in knees.items():
+        direction = directions[view]
+        print('RR15 %s ACTION DIRECTION: %s (%d positive checks)' %
+              (view.upper(), 'PASS' if direction['ok'] else 'FAIL', direction['positive_checks']))
+        reach = reaches[view]
+        print('RR15 %s REACH: %s (%d keyed paths; %d intervals; %d errors)' %
+              (view.upper(), 'PASS' if reach['ok'] else 'FAIL', len(reach['paths']),
+               reach['dense_intervals'], len(reach['errors'])))
         print('RR11 %s SWING KNEES: %s (%d swings; minimum peak %.3f degrees)' %
               (view.upper(), 'PASS' if report['ok'] else 'FAIL', len(report['swings']), report['minimum_peak_bend_deg']))
         support = supports[view]

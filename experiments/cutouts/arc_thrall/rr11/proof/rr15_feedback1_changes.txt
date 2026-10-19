@@ -1,0 +1,15 @@
+experiments/cutouts/arc_thrall/rr11/README.md
+experiments/cutouts/arc_thrall/rr11/feedback1.md
+experiments/cutouts/arc_thrall/rr11/proof/directions.json
+experiments/cutouts/arc_thrall/rr11/proof/rr15_feedback1.json
+experiments/cutouts/arc_thrall/rr11/proof/rr15_feedback1_changes.txt
+experiments/cutouts/arc_thrall/rr11/proof/samples.json
+experiments/cutouts/arc_thrall/rr11_gates.py
+experiments/cutouts/arc_thrall/rr11_proof.sh
+experiments/cutouts/arc_thrall/rr15_direction_proof.py
+tests/rr11/action_direction.gd
+tests/rr11/rr15/feedback1_front_before.json
+tests/test_rr11_humanoid.py
+tests/test_rr15_action_direction.py
+tools/humanoid_cutout/action_direction.py
+tools/humanoid_cutout/gates.py

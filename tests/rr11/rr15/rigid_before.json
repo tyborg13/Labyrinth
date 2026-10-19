@@ -1,0 +1,40 @@
+[
+  {
+    "checks": "pieces/tether/0015/rear/hidden_tube_checks.png",
+    "clip": "tether",
+    "file": "pieces/tether/0015/rear/hidden_tube.png",
+    "frame": 15,
+    "name": "hidden_tube",
+    "rigid": true,
+    "source": "pieces/rear/hidden_tube.png",
+    "transform": [
+      0.707106709480286,
+      -0.707106709480286,
+      0.707106709480286,
+      0.707106709480286,
+      71.2131958007812,
+      34.5441589355469
+    ],
+    "view": "rear",
+    "z_index": -1.0
+  },
+  {
+    "checks": "pieces/jab/0024/rear/hidden_tube_checks.png",
+    "clip": "jab",
+    "file": "pieces/jab/0024/rear/hidden_tube.png",
+    "frame": 24,
+    "name": "hidden_tube",
+    "rigid": true,
+    "source": "pieces/rear/hidden_tube.png",
+    "transform": [
+      0.707106649875641,
+      -0.707106709480286,
+      0.707106709480286,
+      0.707106649875641,
+      79.2131805419922,
+      31.5441589355469
+    ],
+    "view": "rear",
+    "z_index": -1.0
+  }
+]

@@ -9,10 +9,14 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 	var values: Dictionary = {}
 	var step: float = float(layout.get("step_distance_px", 0.0)) / maxf(float(layout.get("screen_pixel_scale", 1.0)), SOLVE_EPSILON)
 	var root_progress: float = 0.0
-	for track: Dictionary in data["view_tracks"][facing][clip]:
+	# The compiler merges complete view_keys channels before projection/roles.
+	# Sample this facing's effective tracks without falling back to base keys.
+	var tracks: Array[Dictionary]
+	tracks.assign(data["view_tracks"][facing][clip])
+	for track: Dictionary in tracks:
 		if track["bone"] == "root" and track["channel"] == "forward_px":
 			root_progress = Tracks.value_at(track["keys"], phase)
-	for track: Dictionary in data["view_tracks"][facing][clip]:
+	for track: Dictionary in tracks:
 		var bone: String = str(track["bone"])
 		if not values.has(bone): values[bone] = {}
 		var value: float = Tracks.value_at(track["keys"], phase)
@@ -117,7 +121,9 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		var hand: String = str(attachment["hand"])
 		var angle: float = deg_to_rad(float(values.get(item, {}).get("angle_deg", 0.0)))
 		var pivot: Vector2 = (result[hand] as Transform2D).origin
-		var release: float = float(data["clips"][clip].get("release_at", {}).get(item, INF))
+		var releases: Dictionary = data.get("view_release_at", {}).get(facing, {}).get(
+			clip, data["clips"][clip].get("release_at", {}))
+		var release: float = float(releases.get(item, INF))
 		if released and phase >= release:
 			var at_release: Dictionary = world_transforms(data, clip, release, layout, facing, false)
 			var before: Transform2D = at_release[item]

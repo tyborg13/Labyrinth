@@ -1,5 +1,12 @@
 # rr-11 feedback 2: headless support gate passes
 
+Current rr-15 rear shoulder pinhole fix and headless proof:
+[feedback3.md](feedback3.md). The director resolved the earlier reach conflict
+by reporting overreach; those edits are retained. Per-view implementation is
+recorded in [feedback2.md](feedback2.md). The prior direction investigation is
+[feedback1.md](feedback1.md). The original rr-15 cleanup handoff is
+[rr15.md](rr15.md). The feedback-2 record below is historical.
+
 The director's stance correction is implemented. Changes remain uncommitted.
 The motion, anatomy, case layouts, production assets and generic runtime/gates
 are unchanged by feedback 2. No full suite, windowed run, peer review or

@@ -1,5 +1,5 @@
 {
- "_doc": "Director motion data (rr-11), humanoid rig v2 for the Arc Thrall. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels, two-bone hand/foot targets, world_step feet, inward_px). The idle weapon-arm lag is pre-computed: upper_near.lift_px = torso bob minus the protagonist's sword lag, sampled every 0.05. Clip durations, contacts and intents are unchanged from rr-07. 'root' is the body bone.",
+ "_doc": "Director motion data (rr-11), humanoid rig v2 for the Arc Thrall. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels, two-bone hand/foot targets, world_step feet, inward_px). The idle weapon-arm lag is pre-computed: upper_near.lift_px = torso bob minus the protagonist's sword lag, sampled every 0.05. Clip durations, contacts and intents are unchanged from rr-07. 'root' is the body bone. Per-view key overrides (`view_keys.<view>`) replace those channels in that view only: the rear tube is foreshortened differently, so the shared jab/tether tube targets fell inside the arm's minimum reach in the rear (director, rr-15, 2026-10-19).",
  "arc_thrall": {
   "rig": "humanoid_v2",
   "units": "source_px",
@@ -626,6 +626,46 @@
        0
       ]
      ]
+    },
+    "view_keys": {
+     "rear": {
+      "tube_tip.forward_px": [
+       [
+        0,
+        0
+       ],
+       [
+        0.35,
+        206
+       ],
+       [
+        0.8,
+        206
+       ],
+       [
+        1,
+        0
+       ]
+      ],
+      "tube_tip.lift_px": [
+       [
+        0,
+        0
+       ],
+       [
+        0.35,
+        63
+       ],
+       [
+        0.8,
+        63
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     }
     }
    },
    "jab": {
@@ -809,6 +849,54 @@
       ]
      ],
      "foot_trailing.forward_mode": "body"
+    },
+    "view_keys": {
+     "rear": {
+      "tube_tip.forward_px": [
+       [
+        0,
+        0
+       ],
+       [
+        0.3,
+        -10
+       ],
+       [
+        0.45,
+        209
+       ],
+       [
+        0.65,
+        178
+       ],
+       [
+        1,
+        0
+       ]
+      ],
+      "tube_tip.lift_px": [
+       [
+        0,
+        0
+       ],
+       [
+        0.3,
+        8
+       ],
+       [
+        0.45,
+        50
+       ],
+       [
+        0.65,
+        43
+       ],
+       [
+        1,
+        0
+       ]
+      ]
+     }
     }
    },
    "hit": {

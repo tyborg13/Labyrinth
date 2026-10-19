@@ -27,7 +27,7 @@
       "minimum_px": 5,
       "cover": "tube",
       "required_mask": "tucks/front_upper_near.png",
-      "required_pixels": 144,
+      "required_pixels": 154,
       "missing_pixels": 0
     },
     {
@@ -152,7 +152,7 @@
           "minimum_px": 5,
           "cover": "tube",
           "required_mask": "tucks/front_upper_near.png",
-          "required_pixels": 144,
+          "required_pixels": 154,
           "missing_pixels": 0
         },
         {
@@ -374,7 +374,7 @@
       "source_ownership_sha256": "3666f508f0ced232b4fd7274bf8a59bc4765947f990af43bcbdd6cda06b604ce"
     }
   },
-  "director_sha256": "40d56d3ee924efde5d1ad032848d710a1f20a99e8339a387ba32da5a59ec13d1",
+  "director_sha256": "1576888b210425a42ae17c33741f9bbe7870c577d1d36b7ba1fee6de0af38d15",
   "production_promoted": true,
-  "native_proof": "pending director windowed captures"
+  "native_proof": "pending director feedback-3 shoulder recapture"
 }

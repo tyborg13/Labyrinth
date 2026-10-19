@@ -1,0 +1,9397 @@
+{
+  "native_pixels": false,
+  "scope": "supplemental covered-source projection of CPU estimated residual joint regions; no native acceptance",
+  "regions": [
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 6,
+      "size": 2,
+      "bbox": [
+        171,
+        115,
+        172,
+        117
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            171,
+            115
+          ],
+          [
+            171,
+            116
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 12,
+      "size": 2,
+      "bbox": [
+        77,
+        116,
+        79,
+        117
+      ],
+      "boundary": [
+        "upper_far",
+        "fore_far"
+      ],
+      "candidates": {}
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 21,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 22,
+      "size": 4,
+      "bbox": [
+        79,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            111
+          ],
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 23,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 24,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 25,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 26,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 27,
+      "size": 4,
+      "bbox": [
+        79,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            111
+          ],
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 28,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 29,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 38,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 39,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 40,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 45,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 46,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 47,
+      "size": 4,
+      "bbox": [
+        79,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            111
+          ],
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 52,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 53,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 54,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 55,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 56,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 57,
+      "size": 2,
+      "bbox": [
+        80,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 58,
+      "size": 4,
+      "bbox": [
+        79,
+        109,
+        81,
+        111
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            111
+          ],
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            111
+          ],
+          [
+            79,
+            112
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "tether",
+      "frame": 59,
+      "size": 3,
+      "bbox": [
+        79,
+        110,
+        81,
+        112
+      ],
+      "boundary": [
+        "torso",
+        "upper_far"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            78,
+            112
+          ],
+          [
+            79,
+            112
+          ],
+          [
+            79,
+            113
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 22,
+      "size": 2,
+      "bbox": [
+        154,
+        120,
+        155,
+        122
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {}
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 33,
+      "size": 2,
+      "bbox": [
+        169,
+        117,
+        170,
+        119
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            171,
+            116
+          ],
+          [
+            171,
+            117
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 34,
+      "size": 2,
+      "bbox": [
+        169,
+        117,
+        170,
+        119
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            171,
+            115
+          ],
+          [
+            171,
+            116
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 35,
+      "size": 2,
+      "bbox": [
+        169,
+        116,
+        170,
+        118
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            171,
+            115
+          ],
+          [
+            171,
+            116
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 31,
+      "size": 7,
+      "bbox": [
+        152,
+        124,
+        154,
+        128
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {}
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "size": 9,
+      "bbox": [
+        100,
+        96,
+        104,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 7,
+      "size": 4,
+      "bbox": [
+        102,
+        96,
+        104,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 8,
+      "size": 5,
+      "bbox": [
+        102,
+        95,
+        105,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 9,
+      "size": 4,
+      "bbox": [
+        104,
+        94,
+        106,
+        96
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 10,
+      "size": 4,
+      "bbox": [
+        105,
+        93,
+        107,
+        95
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 11,
+      "size": 6,
+      "bbox": [
+        105,
+        93,
+        108,
+        95
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 12,
+      "size": 5,
+      "bbox": [
+        107,
+        92,
+        110,
+        94
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 13,
+      "size": 5,
+      "bbox": [
+        108,
+        92,
+        111,
+        94
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "size": 5,
+      "bbox": [
+        109,
+        91,
+        112,
+        93
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 15,
+      "size": 5,
+      "bbox": [
+        110,
+        91,
+        113,
+        93
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 16,
+      "size": 5,
+      "bbox": [
+        112,
+        91,
+        115,
+        93
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 17,
+      "size": 4,
+      "bbox": [
+        114,
+        90,
+        116,
+        92
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 18,
+      "size": 7,
+      "bbox": [
+        114,
+        90,
+        118,
+        92
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 19,
+      "size": 5,
+      "bbox": [
+        116,
+        90,
+        119,
+        92
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 20,
+      "size": 7,
+      "bbox": [
+        117,
+        89,
+        121,
+        91
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 21,
+      "size": 6,
+      "bbox": [
+        120,
+        88,
+        123,
+        91
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 22,
+      "size": 7,
+      "bbox": [
+        121,
+        87,
+        125,
+        90
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "size": 6,
+      "bbox": [
+        123,
+        86,
+        126,
+        89
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "size": 6,
+      "bbox": [
+        124,
+        85,
+        127,
+        88
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 25,
+      "size": 7,
+      "bbox": [
+        125,
+        85,
+        129,
+        88
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "size": 6,
+      "bbox": [
+        126,
+        84,
+        129,
+        87
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 27,
+      "size": 5,
+      "bbox": [
+        127,
+        83,
+        130,
+        85
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 28,
+      "size": 5,
+      "bbox": [
+        128,
+        82,
+        131,
+        84
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 29,
+      "size": 6,
+      "bbox": [
+        129,
+        82,
+        132,
+        84
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 30,
+      "size": 6,
+      "bbox": [
+        131,
+        81,
+        134,
+        83
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 31,
+      "size": 6,
+      "bbox": [
+        132,
+        80,
+        135,
+        82
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 32,
+      "size": 6,
+      "bbox": [
+        133,
+        79,
+        136,
+        81
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 33,
+      "size": 4,
+      "bbox": [
+        135,
+        78,
+        137,
+        80
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 34,
+      "size": 4,
+      "bbox": [
+        137,
+        77,
+        139,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 35,
+      "size": 5,
+      "bbox": [
+        137,
+        77,
+        140,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 36,
+      "size": 5,
+      "bbox": [
+        138,
+        77,
+        141,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 37,
+      "size": 4,
+      "bbox": [
+        140,
+        77,
+        142,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 38,
+      "size": 5,
+      "bbox": [
+        140,
+        77,
+        143,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 39,
+      "size": 5,
+      "bbox": [
+        140,
+        77,
+        143,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 40,
+      "size": 5,
+      "bbox": [
+        141,
+        77,
+        144,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 41,
+      "size": 7,
+      "bbox": [
+        141,
+        77,
+        145,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 42,
+      "size": 5,
+      "bbox": [
+        142,
+        77,
+        145,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 43,
+      "size": 5,
+      "bbox": [
+        143,
+        77,
+        146,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 44,
+      "size": 7,
+      "bbox": [
+        143,
+        76,
+        147,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 45,
+      "size": 7,
+      "bbox": [
+        143,
+        76,
+        147,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 46,
+      "size": 8,
+      "bbox": [
+        143,
+        76,
+        147,
+        79
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 3,
+      "size": 9,
+      "bbox": [
+        87,
+        94,
+        91,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 4,
+      "size": 4,
+      "bbox": [
+        84,
+        91,
+        86,
+        94
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            84,
+            92
+          ],
+          [
+            85,
+            91
+          ],
+          [
+            85,
+            92
+          ],
+          [
+            85,
+            93
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 69,
+      "size": 11,
+      "bbox": [
+        86,
+        94,
+        91,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 13,
+      "size": 8,
+      "bbox": [
+        86,
+        99,
+        90,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 38,
+      "size": 4,
+      "bbox": [
+        85,
+        91,
+        87,
+        94
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            84,
+            92
+          ],
+          [
+            85,
+            91
+          ],
+          [
+            85,
+            92
+          ],
+          [
+            85,
+            93
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 39,
+      "size": 7,
+      "bbox": [
+        88,
+        94,
+        91,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 8,
+      "size": 3,
+      "bbox": [
+        90,
+        95,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 9,
+      "size": 6,
+      "bbox": [
+        89,
+        95,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 10,
+      "size": 6,
+      "bbox": [
+        89,
+        95,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 11,
+      "size": 5,
+      "bbox": [
+        89,
+        94,
+        92,
+        96
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 12,
+      "size": 7,
+      "bbox": [
+        89,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 13,
+      "size": 9,
+      "bbox": [
+        88,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 14,
+      "size": 9,
+      "bbox": [
+        88,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 15,
+      "size": 8,
+      "bbox": [
+        88,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 16,
+      "size": 8,
+      "bbox": [
+        88,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 17,
+      "size": 6,
+      "bbox": [
+        88,
+        94,
+        92,
+        96
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 18,
+      "size": 11,
+      "bbox": [
+        87,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 19,
+      "size": 9,
+      "bbox": [
+        88,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 20,
+      "size": 15,
+      "bbox": [
+        87,
+        93,
+        93,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            85,
+            94
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 21,
+      "size": 14,
+      "bbox": [
+        87,
+        94,
+        93,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            94
+          ],
+          [
+            85,
+            95
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 22,
+      "size": 11,
+      "bbox": [
+        87,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 23,
+      "size": 9,
+      "bbox": [
+        88,
+        94,
+        92,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 24,
+      "size": 9,
+      "bbox": [
+        88,
+        95,
+        92,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 25,
+      "size": 11,
+      "bbox": [
+        88,
+        94,
+        93,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 26,
+      "size": 11,
+      "bbox": [
+        88,
+        95,
+        93,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 27,
+      "size": 11,
+      "bbox": [
+        88,
+        95,
+        93,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 28,
+      "size": 8,
+      "bbox": [
+        89,
+        95,
+        93,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 29,
+      "size": 11,
+      "bbox": [
+        89,
+        95,
+        94,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 29,
+      "size": 2,
+      "bbox": [
+        88,
+        101,
+        89,
+        103
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            85,
+            100
+          ],
+          [
+            85,
+            101
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 30,
+      "size": 8,
+      "bbox": [
+        89,
+        95,
+        93,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 31,
+      "size": 8,
+      "bbox": [
+        89,
+        95,
+        93,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 32,
+      "size": 8,
+      "bbox": [
+        90,
+        96,
+        93,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 33,
+      "size": 10,
+      "bbox": [
+        89,
+        94,
+        94,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 34,
+      "size": 10,
+      "bbox": [
+        89,
+        95,
+        94,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 36,
+      "size": 10,
+      "bbox": [
+        90,
+        95,
+        95,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 37,
+      "size": 10,
+      "bbox": [
+        91,
+        96,
+        96,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 38,
+      "size": 9,
+      "bbox": [
+        90,
+        96,
+        95,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            94
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 39,
+      "size": 10,
+      "bbox": [
+        91,
+        97,
+        96,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 40,
+      "size": 7,
+      "bbox": [
+        91,
+        97,
+        95,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 41,
+      "size": 10,
+      "bbox": [
+        92,
+        98,
+        97,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 42,
+      "size": 12,
+      "bbox": [
+        91,
+        96,
+        96,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 43,
+      "size": 9,
+      "bbox": [
+        92,
+        97,
+        96,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 44,
+      "size": 9,
+      "bbox": [
+        92,
+        97,
+        96,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 47,
+      "size": 9,
+      "bbox": [
+        93,
+        98,
+        97,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 48,
+      "size": 10,
+      "bbox": [
+        93,
+        98,
+        97,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 49,
+      "size": 10,
+      "bbox": [
+        93,
+        98,
+        97,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 50,
+      "size": 10,
+      "bbox": [
+        93,
+        98,
+        97,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 51,
+      "size": 9,
+      "bbox": [
+        93,
+        99,
+        97,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 52,
+      "size": 10,
+      "bbox": [
+        93,
+        98,
+        97,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 53,
+      "size": 6,
+      "bbox": [
+        94,
+        98,
+        97,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 54,
+      "size": 5,
+      "bbox": [
+        94,
+        98,
+        97,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 55,
+      "size": 5,
+      "bbox": [
+        94,
+        98,
+        97,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 56,
+      "size": 10,
+      "bbox": [
+        93,
+        98,
+        98,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 57,
+      "size": 8,
+      "bbox": [
+        94,
+        97,
+        98,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 58,
+      "size": 11,
+      "bbox": [
+        94,
+        97,
+        98,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 59,
+      "size": 6,
+      "bbox": [
+        95,
+        97,
+        98,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 60,
+      "size": 10,
+      "bbox": [
+        94,
+        97,
+        98,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 61,
+      "size": 10,
+      "bbox": [
+        95,
+        96,
+        99,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 62,
+      "size": 10,
+      "bbox": [
+        95,
+        96,
+        99,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 63,
+      "size": 8,
+      "bbox": [
+        96,
+        96,
+        100,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 64,
+      "size": 7,
+      "bbox": [
+        95,
+        95,
+        99,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 65,
+      "size": 5,
+      "bbox": [
+        96,
+        95,
+        99,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 66,
+      "size": 8,
+      "bbox": [
+        97,
+        95,
+        101,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 67,
+      "size": 12,
+      "bbox": [
+        96,
+        94,
+        101,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            94
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 68,
+      "size": 9,
+      "bbox": [
+        97,
+        94,
+        101,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            98,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            87,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 69,
+      "size": 9,
+      "bbox": [
+        97,
+        94,
+        102,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 70,
+      "size": 4,
+      "bbox": [
+        98,
+        95,
+        101,
+        97
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            96,
+            98
+          ],
+          [
+            97,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            96
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 71,
+      "size": 7,
+      "bbox": [
+        99,
+        94,
+        103,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 72,
+      "size": 7,
+      "bbox": [
+        99,
+        94,
+        103,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 73,
+      "size": 7,
+      "bbox": [
+        99,
+        94,
+        103,
+        98
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            86,
+            95
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            87,
+            96
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 74,
+      "size": 7,
+      "bbox": [
+        101,
+        96,
+        104,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 75,
+      "size": 7,
+      "bbox": [
+        100,
+        95,
+        104,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 76,
+      "size": 7,
+      "bbox": [
+        100,
+        95,
+        104,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 77,
+      "size": 7,
+      "bbox": [
+        100,
+        95,
+        104,
+        99
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 78,
+      "size": 7,
+      "bbox": [
+        101,
+        97,
+        104,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 79,
+      "size": 7,
+      "bbox": [
+        101,
+        97,
+        104,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            88,
+            94
+          ],
+          [
+            89,
+            94
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            94
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 80,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 81,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 82,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 83,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 84,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 85,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 86,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 87,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 88,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 89,
+      "size": 11,
+      "bbox": [
+        100,
+        95,
+        105,
+        100
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "upper_near": [
+          [
+            95,
+            97
+          ],
+          [
+            95,
+            98
+          ],
+          [
+            96,
+            97
+          ],
+          [
+            97,
+            97
+          ],
+          [
+            97,
+            98
+          ],
+          [
+            99,
+            97
+          ]
+        ],
+        "torso": [
+          [
+            85,
+            93
+          ],
+          [
+            86,
+            94
+          ],
+          [
+            87,
+            95
+          ],
+          [
+            88,
+            94
+          ],
+          [
+            88,
+            95
+          ],
+          [
+            88,
+            96
+          ],
+          [
+            89,
+            95
+          ],
+          [
+            89,
+            96
+          ],
+          [
+            90,
+            95
+          ],
+          [
+            90,
+            96
+          ]
+        ]
+      }
+    }
+  ],
+  "refinement_regions": [
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 14,
+      "size": 5,
+      "bbox": [
+        172,
+        110,
+        175,
+        113
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            171,
+            108
+          ],
+          [
+            171,
+            109
+          ],
+          [
+            171,
+            110
+          ],
+          [
+            172,
+            110
+          ],
+          [
+            173,
+            110
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 15,
+      "size": 2,
+      "bbox": [
+        170,
+        112,
+        172,
+        113
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {
+        "torso": [
+          [
+            171,
+            110
+          ],
+          [
+            172,
+            110
+          ]
+        ]
+      }
+    },
+    {
+      "view": "front",
+      "clip": "jab",
+      "frame": 22,
+      "size": 2,
+      "bbox": [
+        154,
+        120,
+        155,
+        122
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {}
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 31,
+      "size": 7,
+      "bbox": [
+        152,
+        124,
+        154,
+        128
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {}
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "size": 4,
+      "bbox": [
+        103,
+        97,
+        104,
+        101
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {}
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 5,
+      "size": 4,
+      "bbox": [
+        98,
+        98,
+        99,
+        102
+      ],
+      "boundary": [
+        "torso",
+        "upper_near"
+      ],
+      "candidates": {}
+    }
+  ]
+}

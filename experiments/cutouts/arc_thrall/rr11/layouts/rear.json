@@ -142,13 +142,14 @@
         73
       ],
       "bone": "head",
-      "z_index": -1,
+      "z_index": -13,
       "hidden_material": true,
       "logical_part": "head",
       "presentation_anchor": [
         127,
         29
-      ]
+      ],
+      "joint_extension": false
     },
     {
       "name": "head",
@@ -162,6 +163,10 @@
         29,
         179,
         71
+      ],
+      "presentation_anchor": [
+        127,
+        29
       ],
       "bone": "head",
       "z_index": 13,
@@ -181,13 +186,37 @@
         149
       ],
       "bone": "torso",
-      "z_index": -1,
+      "z_index": -9,
       "hidden_material": true,
       "logical_part": "torso",
       "presentation_anchor": [
         93,
         45
-      ]
+      ],
+      "joint_extension": false
+    },
+    {
+      "name": "joint_extension_torso",
+      "file": "pieces/rear/joint_extension_torso.png",
+      "offset": [
+        80,
+        40
+      ],
+      "bbox": [
+        80,
+        40,
+        145,
+        110
+      ],
+      "bone": "torso",
+      "z_index": -8,
+      "hidden_material": true,
+      "logical_part": "torso",
+      "presentation_anchor": [
+        93,
+        45
+      ],
+      "joint_extension": true
     },
     {
       "name": "torso",
@@ -201,6 +230,10 @@
         45,
         162,
         145
+      ],
+      "presentation_anchor": [
+        93,
+        45
       ],
       "bone": "torso",
       "z_index": 14,
@@ -220,13 +253,14 @@
         117
       ],
       "bone": "upper_near",
-      "z_index": -1,
+      "z_index": -11,
       "hidden_material": true,
       "logical_part": "upper_near",
       "presentation_anchor": [
         71,
         63
-      ]
+      ],
+      "joint_extension": false
     },
     {
       "name": "upper_near",
@@ -240,6 +274,10 @@
         63,
         109,
         112
+      ],
+      "presentation_anchor": [
+        71,
+        63
       ],
       "bone": "upper_near",
       "z_index": 10,
@@ -259,13 +297,14 @@
         111
       ],
       "bone": "fore_near",
-      "z_index": -1,
+      "z_index": -12,
       "hidden_material": true,
       "logical_part": "tube",
       "presentation_anchor": [
         38,
         106
-      ]
+      ],
+      "joint_extension": false
     },
     {
       "name": "tube",
@@ -279,6 +318,10 @@
         106,
         93,
         213
+      ],
+      "presentation_anchor": [
+        38,
+        106
       ],
       "bone": "fore_near",
       "z_index": 11,
@@ -298,9 +341,10 @@
         141
       ],
       "bone": "upper_far",
-      "z_index": -1,
+      "z_index": -5,
       "hidden_material": true,
-      "logical_part": "sleeve_far"
+      "logical_part": "sleeve_far",
+      "joint_extension": false
     },
     {
       "name": "sleeve_far",
@@ -333,13 +377,14 @@
         140
       ],
       "bone": "hand_far",
-      "z_index": -1,
+      "z_index": -10,
       "hidden_material": true,
       "logical_part": "claw",
       "presentation_anchor": [
         183,
         134
-      ]
+      ],
+      "joint_extension": false
     },
     {
       "name": "claw",
@@ -353,6 +398,10 @@
         134,
         218,
         181
+      ],
+      "presentation_anchor": [
+        183,
+        134
       ],
       "bone": "hand_far",
       "z_index": 3,
@@ -372,9 +421,10 @@
         189
       ],
       "bone": "thigh_near",
-      "z_index": -1,
+      "z_index": -4,
       "hidden_material": true,
-      "logical_part": "leg_near"
+      "logical_part": "leg_near",
+      "joint_extension": false
     },
     {
       "name": "leg_near",
@@ -392,6 +442,25 @@
       "bone": "thigh_near",
       "z_index": 2,
       "logical_part": "leg_near"
+    },
+    {
+      "name": "hidden_leg_far",
+      "file": "pieces/rear/hidden_leg_far.png",
+      "offset": [
+        117,
+        147
+      ],
+      "bbox": [
+        117,
+        147,
+        122,
+        163
+      ],
+      "bone": "thigh_far",
+      "z_index": -3,
+      "hidden_material": true,
+      "logical_part": "leg_far",
+      "joint_extension": false
     },
     {
       "name": "leg_far",
@@ -424,26 +493,31 @@
         186
       ],
       "bone": "foot_near",
-      "z_index": -1,
+      "z_index": -7,
       "hidden_material": true,
       "logical_part": "foot_near",
       "presentation_anchor": [
         64,
         182
-      ]
+      ],
+      "joint_extension": false
     },
     {
       "name": "foot_near",
       "file": "pieces/rear/foot_near.png",
       "offset": [
-        64,
+        77,
         182
       ],
       "bbox": [
-        64,
+        77,
         182,
         117,
         196
+      ],
+      "presentation_anchor": [
+        64,
+        182
       ],
       "bone": "foot_near",
       "z_index": 0,
@@ -463,13 +537,14 @@
         220
       ],
       "bone": "foot_far",
-      "z_index": -1,
+      "z_index": -6,
       "hidden_material": true,
       "logical_part": "foot_far",
       "presentation_anchor": [
         134,
         215
-      ]
+      ],
+      "joint_extension": false
     },
     {
       "name": "foot_far",
@@ -483,6 +558,10 @@
         215,
         189,
         246
+      ],
+      "presentation_anchor": [
+        134,
+        215
       ],
       "bone": "foot_far",
       "z_index": 6,
@@ -502,9 +581,29 @@
         156
       ],
       "bone": "pelvis",
+      "z_index": -2,
+      "hidden_material": true,
+      "logical_part": "loincloth",
+      "joint_extension": false
+    },
+    {
+      "name": "joint_extension_loincloth",
+      "file": "pieces/rear/joint_extension_loincloth.png",
+      "offset": [
+        126,
+        152
+      ],
+      "bbox": [
+        126,
+        152,
+        134,
+        162
+      ],
+      "bone": "pelvis",
       "z_index": -1,
       "hidden_material": true,
-      "logical_part": "loincloth"
+      "logical_part": "loincloth",
+      "joint_extension": true
     },
     {
       "name": "loincloth",
@@ -25084,7 +25183,7 @@
         140
       ],
       "hidden_material": true,
-      "z_index": -1,
+      "z_index": -5,
       "vertices": [
         [
           193,
@@ -45458,7 +45557,7 @@
         186
       ],
       "hidden_material": true,
-      "z_index": -1,
+      "z_index": -4,
       "vertices": [
         [
           77,
@@ -73616,6 +73715,643 @@
           1.0,
           1.0,
           1.0
+        ]
+      },
+      "grid_px": 2
+    },
+    {
+      "name": "hidden_leg_far",
+      "file": "pieces/rear/hidden_leg_far.png",
+      "offset": [
+        117,
+        147
+      ],
+      "bbox": [
+        117,
+        147,
+        122,
+        163
+      ],
+      "replaces_part": "hidden_leg_far",
+      "garment": "leg_far",
+      "weight_bounds": [
+        122,
+        121,
+        174,
+        223
+      ],
+      "hidden_material": true,
+      "z_index": -3,
+      "vertices": [
+        [
+          117,
+          147
+        ],
+        [
+          119,
+          147
+        ],
+        [
+          121,
+          147
+        ],
+        [
+          122,
+          147
+        ],
+        [
+          117,
+          149
+        ],
+        [
+          119,
+          149
+        ],
+        [
+          121,
+          149
+        ],
+        [
+          122,
+          149
+        ],
+        [
+          117,
+          151
+        ],
+        [
+          119,
+          151
+        ],
+        [
+          121,
+          151
+        ],
+        [
+          122,
+          151
+        ],
+        [
+          117,
+          153
+        ],
+        [
+          119,
+          153
+        ],
+        [
+          121,
+          153
+        ],
+        [
+          122,
+          153
+        ],
+        [
+          117,
+          155
+        ],
+        [
+          119,
+          155
+        ],
+        [
+          121,
+          155
+        ],
+        [
+          122,
+          155
+        ],
+        [
+          117,
+          157
+        ],
+        [
+          119,
+          157
+        ],
+        [
+          121,
+          157
+        ],
+        [
+          122,
+          157
+        ],
+        [
+          117,
+          159
+        ],
+        [
+          119,
+          159
+        ],
+        [
+          121,
+          159
+        ],
+        [
+          122,
+          159
+        ],
+        [
+          117,
+          161
+        ],
+        [
+          119,
+          161
+        ],
+        [
+          121,
+          161
+        ],
+        [
+          122,
+          161
+        ],
+        [
+          117,
+          163
+        ],
+        [
+          119,
+          163
+        ],
+        [
+          121,
+          163
+        ],
+        [
+          122,
+          163
+        ]
+      ],
+      "uvs": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          5,
+          2
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          5,
+          4
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          5,
+          10
+        ],
+        [
+          0,
+          12
+        ],
+        [
+          2,
+          12
+        ],
+        [
+          4,
+          12
+        ],
+        [
+          5,
+          12
+        ],
+        [
+          0,
+          14
+        ],
+        [
+          2,
+          14
+        ],
+        [
+          4,
+          14
+        ],
+        [
+          5,
+          14
+        ],
+        [
+          0,
+          16
+        ],
+        [
+          2,
+          16
+        ],
+        [
+          4,
+          16
+        ],
+        [
+          5,
+          16
+        ]
+      ],
+      "triangles": [
+        [
+          0,
+          1,
+          4
+        ],
+        [
+          1,
+          5,
+          4
+        ],
+        [
+          1,
+          2,
+          5
+        ],
+        [
+          2,
+          6,
+          5
+        ],
+        [
+          2,
+          3,
+          6
+        ],
+        [
+          3,
+          7,
+          6
+        ],
+        [
+          4,
+          5,
+          8
+        ],
+        [
+          5,
+          9,
+          8
+        ],
+        [
+          5,
+          6,
+          9
+        ],
+        [
+          6,
+          10,
+          9
+        ],
+        [
+          6,
+          7,
+          10
+        ],
+        [
+          7,
+          11,
+          10
+        ],
+        [
+          8,
+          9,
+          12
+        ],
+        [
+          9,
+          13,
+          12
+        ],
+        [
+          9,
+          10,
+          13
+        ],
+        [
+          10,
+          14,
+          13
+        ],
+        [
+          10,
+          11,
+          14
+        ],
+        [
+          11,
+          15,
+          14
+        ],
+        [
+          12,
+          13,
+          16
+        ],
+        [
+          13,
+          17,
+          16
+        ],
+        [
+          13,
+          14,
+          17
+        ],
+        [
+          14,
+          18,
+          17
+        ],
+        [
+          14,
+          15,
+          18
+        ],
+        [
+          15,
+          19,
+          18
+        ],
+        [
+          16,
+          17,
+          20
+        ],
+        [
+          17,
+          21,
+          20
+        ],
+        [
+          17,
+          18,
+          21
+        ],
+        [
+          18,
+          22,
+          21
+        ],
+        [
+          18,
+          19,
+          22
+        ],
+        [
+          19,
+          23,
+          22
+        ],
+        [
+          20,
+          21,
+          24
+        ],
+        [
+          21,
+          25,
+          24
+        ],
+        [
+          21,
+          22,
+          25
+        ],
+        [
+          22,
+          26,
+          25
+        ],
+        [
+          22,
+          23,
+          26
+        ],
+        [
+          23,
+          27,
+          26
+        ],
+        [
+          24,
+          25,
+          28
+        ],
+        [
+          25,
+          29,
+          28
+        ],
+        [
+          25,
+          26,
+          29
+        ],
+        [
+          26,
+          30,
+          29
+        ],
+        [
+          26,
+          27,
+          30
+        ],
+        [
+          27,
+          31,
+          30
+        ],
+        [
+          28,
+          29,
+          32
+        ],
+        [
+          29,
+          33,
+          32
+        ],
+        [
+          29,
+          30,
+          33
+        ],
+        [
+          30,
+          34,
+          33
+        ],
+        [
+          30,
+          31,
+          34
+        ],
+        [
+          31,
+          35,
+          34
+        ]
+      ],
+      "weights": {
+        "thigh_far": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "shin_far": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
         ]
       },
       "grid_px": 2
@@ -114769,7 +115505,7 @@
         183
       ],
       "hidden_material": true,
-      "z_index": -1,
+      "z_index": -2,
       "vertices": [
         [
           130,
@@ -120563,6 +121299,543 @@
         ]
       },
       "grid_px": 2
+    },
+    {
+      "name": "joint_extension_loincloth",
+      "file": "pieces/rear/joint_extension_loincloth.png",
+      "offset": [
+        126,
+        152
+      ],
+      "bbox": [
+        126,
+        152,
+        134,
+        162
+      ],
+      "replaces_part": "joint_extension_loincloth",
+      "garment": "loincloth",
+      "weight_bounds": [
+        74,
+        102,
+        172,
+        183
+      ],
+      "hidden_material": true,
+      "z_index": -1,
+      "vertices": [
+        [
+          126,
+          152
+        ],
+        [
+          128,
+          152
+        ],
+        [
+          130,
+          152
+        ],
+        [
+          132,
+          152
+        ],
+        [
+          134,
+          152
+        ],
+        [
+          126,
+          154
+        ],
+        [
+          128,
+          154
+        ],
+        [
+          130,
+          154
+        ],
+        [
+          132,
+          154
+        ],
+        [
+          134,
+          154
+        ],
+        [
+          126,
+          156
+        ],
+        [
+          128,
+          156
+        ],
+        [
+          130,
+          156
+        ],
+        [
+          132,
+          156
+        ],
+        [
+          134,
+          156
+        ],
+        [
+          126,
+          158
+        ],
+        [
+          128,
+          158
+        ],
+        [
+          130,
+          158
+        ],
+        [
+          132,
+          158
+        ],
+        [
+          134,
+          158
+        ],
+        [
+          126,
+          160
+        ],
+        [
+          128,
+          160
+        ],
+        [
+          130,
+          160
+        ],
+        [
+          132,
+          160
+        ],
+        [
+          134,
+          160
+        ],
+        [
+          126,
+          162
+        ],
+        [
+          128,
+          162
+        ],
+        [
+          130,
+          162
+        ],
+        [
+          132,
+          162
+        ],
+        [
+          134,
+          162
+        ]
+      ],
+      "uvs": [
+        [
+          0,
+          0
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          8,
+          0
+        ],
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          4,
+          2
+        ],
+        [
+          6,
+          2
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          0,
+          4
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          4,
+          4
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          8,
+          4
+        ],
+        [
+          0,
+          6
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          6,
+          6
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          0,
+          8
+        ],
+        [
+          2,
+          8
+        ],
+        [
+          4,
+          8
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          0,
+          10
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          4,
+          10
+        ],
+        [
+          6,
+          10
+        ],
+        [
+          8,
+          10
+        ]
+      ],
+      "triangles": [
+        [
+          0,
+          1,
+          5
+        ],
+        [
+          1,
+          6,
+          5
+        ],
+        [
+          1,
+          2,
+          6
+        ],
+        [
+          2,
+          7,
+          6
+        ],
+        [
+          2,
+          3,
+          7
+        ],
+        [
+          3,
+          8,
+          7
+        ],
+        [
+          3,
+          4,
+          8
+        ],
+        [
+          4,
+          9,
+          8
+        ],
+        [
+          5,
+          6,
+          10
+        ],
+        [
+          6,
+          11,
+          10
+        ],
+        [
+          6,
+          7,
+          11
+        ],
+        [
+          7,
+          12,
+          11
+        ],
+        [
+          7,
+          8,
+          12
+        ],
+        [
+          8,
+          13,
+          12
+        ],
+        [
+          8,
+          9,
+          13
+        ],
+        [
+          9,
+          14,
+          13
+        ],
+        [
+          10,
+          11,
+          15
+        ],
+        [
+          11,
+          16,
+          15
+        ],
+        [
+          11,
+          12,
+          16
+        ],
+        [
+          12,
+          17,
+          16
+        ],
+        [
+          12,
+          13,
+          17
+        ],
+        [
+          13,
+          18,
+          17
+        ],
+        [
+          13,
+          14,
+          18
+        ],
+        [
+          14,
+          19,
+          18
+        ],
+        [
+          15,
+          16,
+          20
+        ],
+        [
+          16,
+          21,
+          20
+        ],
+        [
+          16,
+          17,
+          21
+        ],
+        [
+          17,
+          22,
+          21
+        ],
+        [
+          17,
+          18,
+          22
+        ],
+        [
+          18,
+          23,
+          22
+        ],
+        [
+          18,
+          19,
+          23
+        ],
+        [
+          19,
+          24,
+          23
+        ],
+        [
+          20,
+          21,
+          25
+        ],
+        [
+          21,
+          26,
+          25
+        ],
+        [
+          21,
+          22,
+          26
+        ],
+        [
+          22,
+          27,
+          26
+        ],
+        [
+          22,
+          23,
+          27
+        ],
+        [
+          23,
+          28,
+          27
+        ],
+        [
+          23,
+          24,
+          28
+        ],
+        [
+          24,
+          29,
+          28
+        ]
+      ],
+      "weights": {
+        "pelvis": [
+          0.44774876235437866,
+          0.44997706590842435,
+          0.4522053694624699,
+          0.4544336730165155,
+          0.45666197657056107,
+          0.3983585728529796,
+          0.4005868764070253,
+          0.40281517996107086,
+          0.40504348351511654,
+          0.407271787069162,
+          0.34896838335158065,
+          0.3511966869056262,
+          0.3534249904596718,
+          0.35565329401371737,
+          0.35788159756776305,
+          0.2995781938501817,
+          0.30180649740422716,
+          0.30403480095827273,
+          0.3062631045123183,
+          0.3084914080663641,
+          0.25018800434878263,
+          0.2524163079028282,
+          0.2546446114568738,
+          0.25687291501091936,
+          0.25910121856496504,
+          0.20079781484738357,
+          0.20302611840142915,
+          0.20525442195547472,
+          0.2074827255095203,
+          0.20971102906356598
+        ],
+        "loincloth_tip": [
+          0.5522512376456213,
+          0.5500229340915757,
+          0.5477946305375301,
+          0.5455663269834845,
+          0.5433380234294389,
+          0.6016414271470204,
+          0.5994131235929747,
+          0.5971848200389291,
+          0.5949565164848835,
+          0.592728212930838,
+          0.6510316166484194,
+          0.6488033130943738,
+          0.6465750095403282,
+          0.6443467059862826,
+          0.642118402432237,
+          0.7004218061498183,
+          0.6981935025957728,
+          0.6959651990417273,
+          0.6937368954876817,
+          0.6915085919336359,
+          0.7498119956512174,
+          0.7475836920971718,
+          0.7453553885431262,
+          0.7431270849890806,
+          0.740898781435035,
+          0.7992021851526164,
+          0.7969738815985709,
+          0.7947455780445253,
+          0.7925172744904797,
+          0.790288970936434
+        ]
+      },
+      "grid_px": 2
     }
   ],
   "idle_groups": {
@@ -120648,10 +121921,10 @@
         124,
         45
       ],
-      "z_index": -1,
+      "z_index": -13,
       "source": "pieces/rear/hidden_head.png",
       "rigid": true,
-      "source_sha256": "1f164687735bbd213b8585d3e330623a4a8dc2e910f8c10c6b591c1975ce72f2"
+      "source_sha256": "dd7606bd40d0091f05a6888607465b11d8215df0117c32431c684900ae47c68c"
     },
     "head": {
       "mask": "checks/rear/head.png",
@@ -120670,10 +121943,21 @@
         89,
         41
       ],
-      "z_index": -1,
+      "z_index": -9,
       "source": "pieces/rear/hidden_torso.png",
       "rigid": true,
-      "source_sha256": "4651f26a1a7dfec313e7a669be012884d9e5611f0f8f34cf3362b43ecab46076"
+      "source_sha256": "7d3711cc5679942dc83cdb55db1db526bfe1454bf056f6f5e971c4b04131c6f0"
+    },
+    "joint_extension_torso": {
+      "mask": "checks/rear/joint_extension_torso.png",
+      "mask_offset": [
+        80,
+        40
+      ],
+      "z_index": -8,
+      "source": "pieces/rear/joint_extension_torso.png",
+      "rigid": true,
+      "source_sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
     },
     "torso": {
       "mask": "checks/rear/torso.png",
@@ -120692,10 +121976,10 @@
         69,
         63
       ],
-      "z_index": -1,
+      "z_index": -11,
       "source": "pieces/rear/hidden_upper_near.png",
       "rigid": true,
-      "source_sha256": "63b7a865c37d53e2a6efb1d49370bc0a25023d35014e2e3286b7a5394faefa18"
+      "source_sha256": "e90225389cd60cb5058a762525797b87dff97d3d3b1534b57c096ee891a24d95"
     },
     "upper_near": {
       "mask": "checks/rear/upper_near.png",
@@ -120714,7 +121998,7 @@
         71,
         103
       ],
-      "z_index": -1,
+      "z_index": -12,
       "source": "pieces/rear/hidden_tube.png",
       "rigid": true,
       "source_sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
@@ -120728,7 +122012,7 @@
       "z_index": 11,
       "source": "pieces/rear/tube.png",
       "rigid": true,
-      "source_sha256": "e0b6df357741f4912a884ea8d6ba032c69011e938bffc4b4edb3c3d4060ca770"
+      "source_sha256": "a80a2803b9b2b5c5eb96957868339136bc8baed06d93efc88963eb6ab5e080c2"
     },
     "hidden_sleeve_far": {
       "mask": "checks/rear/hidden_sleeve_far.png",
@@ -120736,7 +122020,7 @@
         193,
         136
       ],
-      "z_index": -1,
+      "z_index": -5,
       "source": "pieces/rear/hidden_sleeve_far.png",
       "rigid": false,
       "source_sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
@@ -120758,7 +122042,7 @@
         185,
         129
       ],
-      "z_index": -1,
+      "z_index": -10,
       "source": "pieces/rear/hidden_claw.png",
       "rigid": true,
       "source_sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
@@ -120780,7 +122064,7 @@
         77,
         183
       ],
-      "z_index": -1,
+      "z_index": -4,
       "source": "pieces/rear/hidden_leg_near.png",
       "rigid": false,
       "source_sha256": "81eb062886c1603c9f472dce501e2bdb8d743fcda63bf508fad06375e3693264"
@@ -120794,7 +122078,18 @@
       "z_index": 2,
       "source": "pieces/rear/leg_near.png",
       "rigid": false,
-      "source_sha256": "0d3cfb94f89540d16b89d93c9c80f71e1b146988f3ce8bc246e2e364664b7473"
+      "source_sha256": "53db2d213944087dec02ea656379f3672ae4128c828153b615c4c1c84917a616"
+    },
+    "hidden_leg_far": {
+      "mask": "checks/rear/hidden_leg_far.png",
+      "mask_offset": [
+        117,
+        147
+      ],
+      "z_index": -3,
+      "source": "pieces/rear/hidden_leg_far.png",
+      "rigid": false,
+      "source_sha256": "640e9dae4420ee97adc42e6cef189ca43383b588e17f28cad978c23a0fc71dcd"
     },
     "leg_far": {
       "mask": "checks/rear/leg_far.png",
@@ -120805,7 +122100,7 @@
       "z_index": 4,
       "source": "pieces/rear/leg_far.png",
       "rigid": false,
-      "source_sha256": "a021ac245e1aef491c7c957e18bf03afcc7c993b7eb5c787d399a698850fd62b"
+      "source_sha256": "005c7de1014052a644e3492733040711165d4bc273b3d81e29090d41379a5151"
     },
     "hidden_foot_near": {
       "mask": "checks/rear/hidden_foot_near.png",
@@ -120813,7 +122108,7 @@
         78,
         175
       ],
-      "z_index": -1,
+      "z_index": -7,
       "source": "pieces/rear/hidden_foot_near.png",
       "rigid": true,
       "source_sha256": "e850ffe855a92dc5ad0ad1decadec8a902488d569284594335d12994bce276c0"
@@ -120821,13 +122116,13 @@
     "foot_near": {
       "mask": "checks/rear/foot_near.png",
       "mask_offset": [
-        64,
+        77,
         182
       ],
       "z_index": 0,
       "source": "pieces/rear/foot_near.png",
       "rigid": true,
-      "source_sha256": "3ce25a76433e177e3b4ef267da122e726c87917008a65f1793a38153037ac02c"
+      "source_sha256": "ec645e87700aeb5028b35724426bf65b7d4fa5cb24e4d5e1053045a6434ce68b"
     },
     "hidden_foot_far": {
       "mask": "checks/rear/hidden_foot_far.png",
@@ -120835,7 +122130,7 @@
         142,
         208
       ],
-      "z_index": -1,
+      "z_index": -6,
       "source": "pieces/rear/hidden_foot_far.png",
       "rigid": true,
       "source_sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
@@ -120857,10 +122152,21 @@
         130,
         124
       ],
-      "z_index": -1,
+      "z_index": -2,
       "source": "pieces/rear/hidden_loincloth.png",
       "rigid": false,
-      "source_sha256": "568c112266895fc5dc6c5118043e01659658e9f69e69dcab039d63012ce7a395"
+      "source_sha256": "f3a64518fd81cd0bdb5fdebbb491669ac1305da949a43f613ae8fe12296b3dc7"
+    },
+    "joint_extension_loincloth": {
+      "mask": "checks/rear/joint_extension_loincloth.png",
+      "mask_offset": [
+        126,
+        152
+      ],
+      "z_index": -1,
+      "source": "pieces/rear/joint_extension_loincloth.png",
+      "rigid": false,
+      "source_sha256": "619fe0c423f8c51623b7bfb795146dafa9cc7b86e31b1c00fa3eb5ceba6bd998"
     },
     "loincloth": {
       "mask": "checks/rear/loincloth.png",
@@ -120871,7 +122177,7 @@
       "z_index": 11,
       "source": "pieces/rear/loincloth.png",
       "rigid": false,
-      "source_sha256": "5c14d516cbbdcb00ca8494a6a7e28066db0320cf3e44a1224b4d82e978ff55b4"
+      "source_sha256": "e64cf1cc18b13e8cc775d0603ed1b4740d5b0e12c5cd9e9d06aa22d4110a215f"
     }
   },
   "proof_rest_holes": [],

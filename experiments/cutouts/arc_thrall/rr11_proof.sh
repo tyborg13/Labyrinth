@@ -18,7 +18,7 @@ rest)
 python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/rr11/rest_contract.json tests/rr11/native_capture.gd -- --case "$rig_case" --output "$proof/native_rest" --rest-only
 ;;
 native)
-python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script tests/rr10/samples.gd -- --case "$rig_case" --output "$proof/samples.json"
+python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case "$rig_case" --output "$proof/samples.json"
 # Parallel isolated GPU piece/mask renders: intentionally longer than a UI shot.
 python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 3600 --expect-size 1920x1080 --proof-contract tests/rr11/render_contract.json tests/rr11/native_capture.gd -- --case "$rig_case" --output "$proof/native"
 python3 -B experiments/cutouts/arc_thrall/rr11_gates.py --native "$proof/native"

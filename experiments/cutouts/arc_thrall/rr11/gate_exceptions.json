@@ -1,0 +1,16 @@
+[
+  {
+    "view": "front",
+    "clip": "jab",
+    "frames": [22],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-15 (2026-10-19): a 2 px pocket of the natural negative space between the near upper arm and the torso side, split from the larger armpit gap by a 1 px outline bridge; not a seam tear. No covered-source candidate exists without repainting."
+  },
+  {
+    "view": "front",
+    "clip": "death",
+    "frames": [31],
+    "rule": "new joint-seam hole larger than 1px",
+    "reason": "Director rr-15 (2026-10-19): a 7 px pocket of the same natural armpit negative space as the jab case, beside the larger gap between arm and torso; not a seam tear."
+  }
+]

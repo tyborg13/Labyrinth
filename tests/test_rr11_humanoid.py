@@ -23,7 +23,7 @@ from humanoid_cutout.bone_contracts import leg_bend_side
 from humanoid_cutout.leg_roles import roles_for, resolve_bone
 from cutout_pipeline.cases import read_json, digest
 
-PROOF_TASK_ID = 'rr-11'
+PROOF_TASK_ID = 'rr-15'
 PROOF_TIMEOUT_SECONDS = 180
 FIXTURE_ROTATION_DEG = 1.0
 FIXTURE_HIP_PX = [100, 100]
@@ -44,7 +44,7 @@ class ThrallTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rr11-bones-') as folder:
             path = Path(folder) / 'samples.json'
             result = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream', '--',
-                'godot', '--headless', '--path', '.', '--script', 'tests/rr10/samples.gd', '--',
+                       'godot', '--headless', '--path', '.', '--script', 'tests/rr11/action_direction.gd', '--',
                 '--case', str(CASE), '--output', str(path)], cwd=PROJECT, capture_output=True, text=True,
                 timeout=PROOF_TIMEOUT_SECONDS)
             if result.returncode: raise AssertionError(result.stdout + result.stderr)

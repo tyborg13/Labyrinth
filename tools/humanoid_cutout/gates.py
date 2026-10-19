@@ -226,6 +226,8 @@ def bone_errors(layout, data, report, current_bindings):
         for item in layout.get('held_items', {}):
             if clip != 'death' and abs(angle(bones[item]['global'])) > 35 + EPSILON:
                 errors.append(tag + ': ' + item + ' angle limit')
+    from .action_direction import report as action_direction_report
+    errors += action_direction_report(layout, data, report, current_bindings)['errors']
     return sorted(set(errors))
 
 
@@ -386,8 +388,11 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
                 source=Image.open(case / row['source']).convert('RGBA')
-                expected=render(source,unpack(row['transform']),(0,0,512,512))
-                if not native_frame_matches(image,expected): errors.append(row['file']+': rigid native agreement')
+                # Use the established real-source UV tie candidates, just as
+                # the rigid shimmer gate does. A default tie direction alone
+                # falsely rejects rear Thrall hidden_tube at a 45-degree pose.
+                expected=render(source,unpack(row['transform']),(0,0,512,512),with_ties=True)
+                if not native_frame_matches(image,expected.default,expected): errors.append(row['file']+': rigid native agreement')
             part = next(p for p in layout['parts'] if p['name'] == row['name'])
             layers.append((dict(row, occluded_surface=part.get('occluded_surface', False)),image,checks))
         if len(layers)!=len(layout['parts']) or {r['name'] for r,_,_ in layers} != {p['name'] for p in layout['parts']}:
