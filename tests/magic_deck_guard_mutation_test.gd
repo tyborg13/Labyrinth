@@ -9,6 +9,9 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const SERVICE_TEST_SIZE := Vector2(300.0, 52.0)
 const SERVICE_LAYOUT_FRAMES: int = 2
 const GUARD: String = "\tif not magic.has(card_id): return run_state.duplicate(true)"
+const DISC_ALPHA_GUARD: String = "const COPY_BADGE_DISC_ALPHA: float = 0.92"
+const DISC_DRAW_GUARD: String = "\t\tpaint_disc(Callable(self, \"draw_circle\"))"
+const MUTATED_DISC_ALPHA: float = 0.5
 var _caught: Array[String]
 
 func _initialize() -> void:
@@ -78,4 +81,58 @@ func _initialize() -> void:
 		service_passed = service_passed and service_killed and Presentation.text_fit_failures(service).is_empty()
 		print("SERVICE TEXT FIT GUARD MUTATION (%s): %s" % ["disabled" if disabled else "enabled", "KILLED" if service_killed else "SURVIVED"])
 	controls.free()
-	quit(0 if killed and text_killed and service_passed else 1)
+	var disc_killed: bool = _disc_alpha_mutation()
+	var draw_killed: bool = _disc_draw_mutation()
+	var focus_killed: bool = await preload("res://tests/helpers/magic_purge_focus_mutations.gd").run(self)
+	var passed: bool = killed and text_killed and service_passed and disc_killed and draw_killed and focus_killed
+	print("MAGIC DECK GUARD MUTATIONS: %s" % ("PASS" if passed else "FAIL"))
+	print("TEST RESULT: %s" % ("PASS" if passed else "FAIL"))
+	quit(0 if passed else 1)
+
+func _disc_draw_mutation() -> bool:
+	var source: String = FileAccess.get_file_as_string("res://scripts/pile_dialog_view.gd")
+	if source.count(DISC_DRAW_GUARD) != 1:
+		push_error("Disc draw mutation must remove exactly one painter call")
+		return false
+	var checks = preload("res://tests/helpers/pile_copy_badge_checks.gd")
+	var baseline: Array[String]
+	checks.assert_disc_draw(source, func(ok: bool, message: String) -> void:
+		if not ok: baseline.append(message)
+	)
+	var caught: Array[String]
+	checks.assert_disc_draw(source.replace(DISC_DRAW_GUARD, "\t\tpass"), func(ok: bool, message: String) -> void:
+		if not ok: caught.append(message)
+	)
+	for failure: String in baseline: push_error(failure)
+	var killed: bool = baseline.is_empty() and caught.has("Medallion _draw delegates once to the checked disc painter")
+	print("BADGE DISC DRAW MUTATION: %s" % ("KILLED" if killed else "SURVIVED"))
+	return killed
+
+func _disc_alpha_mutation() -> bool:
+	var source: String = FileAccess.get_file_as_string("res://scripts/pile_dialog_view.gd")
+	if source.count(DISC_ALPHA_GUARD) != 1:
+		push_error("Disc alpha mutation must replace exactly one paint alpha")
+		return false
+	var mutant: GDScript = Sources.compile_script("scripts/pile_dialog_view.gd", source.replace(DISC_ALPHA_GUARD, "const COPY_BADGE_DISC_ALPHA: float = %s" % MUTATED_DISC_ALPHA))
+	if mutant == null: return false
+	var checks = preload("res://tests/helpers/pile_copy_badge_checks.gd")
+	var healthy: Control = preload("res://scripts/pile_dialog_view.gd").CopyCountFace.new()
+	healthy.size = Vector2(52, 52)
+	healthy.call("_layout")
+	var baseline: Array[String]
+	checks.assert_disc_paint(healthy, func(ok: bool, message: String) -> void:
+		if not ok: baseline.append(message)
+	)
+	healthy.free()
+	var face_script: GDScript = mutant.get_script_constant_map()["CopyCountFace"]
+	var changed: Control = face_script.new()
+	changed.size = Vector2(52, 52)
+	changed.call("_layout")
+	var caught: Array[String]
+	checks.assert_disc_paint(changed, func(ok: bool, message: String) -> void:
+		if not ok: caught.append(message)
+	)
+	changed.free()
+	var killed: bool = baseline.is_empty() and caught.has("Medallion centre disc paints INK_0 at alpha 0.92")
+	print("BADGE DISC ALPHA MUTATION: %s" % ("KILLED" if killed else "SURVIVED"))
+	return killed

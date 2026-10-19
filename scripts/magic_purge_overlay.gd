@@ -14,10 +14,12 @@ const Section = preload("res://scripts/ui_section_header.gd")
 const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
+const RowScroll = preload("res://scripts/magic_purge_row_scroll.gd")
 const MAX_COLUMNS: int = 7
 const CARD_GAP := Vector2(16.0, 20.0)
 const CROWN_HEADROOM: float = 18.0
-const HEADER_HEIGHT: float = 64.0
+const BADGE_OVERFLOW_PADDING := Vector2(24.0, 24.0)
+const HEADER_HEIGHT: float = 72.0
 const HEADER_GAP: float = 16.0
 const SIDE_MARGIN: float = 32.0
 const TOP_MARGIN: float = 24.0
@@ -41,13 +43,33 @@ var _price: int = 0
 var _held: int = 0
 var _panel: PanelContainer
 var _grid: Control
-var _scroll: ScrollContainer
+var _scroll: RowScroll
 var _header: HBoxContainer
 var _grid_panel_style: StyleBoxFlat
 var _confirm_panel_style: StyleBoxFlat
 var _columns: int = 1
 var _return_card_id: String = ""
 var _committing: bool = false
+
+# Purge owns this larger treatment; other section eyebrows keep their sizing.
+class PurgeHeading extends Section:
+	func _get_minimum_size() -> Vector2:
+		var minimum: Vector2 = super._get_minimum_size()
+		minimum.y = maxf(minimum.y, _title.get_minimum_size().y)
+		return minimum
+
+	func _layout() -> void:
+		Typography.apply_eyebrow(_title, Typography.SIZE_SECTION_LARGE, Palette.GOLD_BRIGHT)
+		_title.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
+		_title.add_theme_constant_override("outline_size", 3)
+		_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		preload("res://scripts/ui_component_surface.gd").label_style(_count, Typography.SIZE_BODY_LARGE, Palette.TEXT_2)
+		_title.position = Vector2.ZERO
+		_title.size = Vector2(_title.get_minimum_size().x, size.y)
+		_count.position = Vector2(_title.size.x + Typography.scaled_value(self, 10.0), 0.0)
+		_count.size = Vector2(_count.get_minimum_size().x, size.y)
+		queue_redraw()
 
 func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size: Vector2) -> void:
 	_host = host
@@ -88,7 +110,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	header.add_theme_constant_override("separation", int(CARD_GAP.x))
 	content.add_child(header)
 	var entries: Array[Dictionary] = List.entries(state.get("attuned_magic_cards", []) as Array)
-	var heading := Section.new()
+	var heading := PurgeHeading.new()
 	heading.name = "MagicPurgeHeading"
 	heading.setup("PURGE A SPELL", "%d spells" % (state.get("attuned_magic_cards", []) as Array).size())
 	heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -109,16 +131,24 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	_list_cancel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_list_cancel.pressed.connect(cancel)
 	header.add_child(_list_cancel)
-	_scroll = ScrollContainer.new()
+	# Let the viewport use the existing right inset for the badge overhang.
+	# Its matching content padding keeps the card columns and header unchanged.
+	var scroll_host := Control.new()
+	scroll_host.name = "MagicPurgeScrollHost"
+	scroll_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(scroll_host)
+	_scroll = RowScroll.new()
 	_scroll.name = "MagicPurgeScroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if entries.size() > 14 else ScrollContainer.SCROLL_MODE_DISABLED
-	_scroll.follow_focus = true
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var padding := StyleBoxEmpty.new()
 	padding.content_margin_top = CROWN_HEADROOM
 	_scroll.add_theme_stylebox_override("panel", padding)
-	content.add_child(_scroll)
+	scroll_host.add_child(_scroll)
+	_scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_scroll.offset_right = BADGE_OVERFLOW_PADDING.x
 	_grid = Control.new()
 	_grid.name = "MagicPurgeRows"
 	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -134,6 +164,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 		_grid.add_child(empty)
 		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_columns = maxi(1, mini(entries.size(), MAX_COLUMNS))
+	if not entries.is_empty(): _scroll.configure(_grid, _columns, int(PileView.CARD_SIZE.y + CARD_GAP.y))
 	_grid.resized.connect(_layout_grid)
 	_panel.custom_minimum_size = dialog_size_for(entries.size()) if not entries.is_empty() else _dialog_size
 	# Reserve the scrollbar in the existing right margin, keeping seven 196px
@@ -163,18 +194,19 @@ static func dialog_size_for(identities: int) -> Vector2:
 	var cols: int = maxi(1, mini(identities, MAX_COLUMNS))
 	var rows: int = maxi(1, mini(ceili(float(identities) / MAX_COLUMNS), 2))
 	var width: float = maxf(MIN_WIDTH, cols * PileView.CARD_SIZE.x + (cols - 1) * CARD_GAP.x + SIDE_MARGIN * 2.0)
-	var viewport_height: float = rows * PileView.CARD_SIZE.y + (rows - 1) * CARD_GAP.y + CROWN_HEADROOM
+	var viewport_height: float = rows * PileView.CARD_SIZE.y + (rows - 1) * CARD_GAP.y + CROWN_HEADROOM + BADGE_OVERFLOW_PADDING.y
 	return Vector2(width, minf(1080.0 - SCREEN_MARGIN * 2.0, TOP_MARGIN + HEADER_HEIGHT + HEADER_GAP + viewport_height + BOTTOM_MARGIN))
 
 func _layout_grid() -> void:
 	var rows: int = ceili(float(_rows.size()) / _columns)
-	_grid.custom_minimum_size.y = rows * PileView.CARD_SIZE.y + maxi(0, rows - 1) * CARD_GAP.y
+	_grid.custom_minimum_size.y = rows * PileView.CARD_SIZE.y + maxi(0, rows - 1) * CARD_GAP.y + BADGE_OVERFLOW_PADDING.y
+	var card_width: float = _grid.size.x - BADGE_OVERFLOW_PADDING.x
 	for index: int in range(_rows.size()):
 		var row: int = index / _columns
 		var row_count: int = mini(_columns, _rows.size() - row * _columns)
 		var row_width: float = row_count * PileView.CARD_SIZE.x + (row_count - 1) * CARD_GAP.x
 		var cell: Control = _rows[index]
-		cell.position = Vector2((_grid.size.x - row_width) * 0.5 + (index % _columns) * (PileView.CARD_SIZE.x + CARD_GAP.x), row * (PileView.CARD_SIZE.y + CARD_GAP.y))
+		cell.position = Vector2((card_width - row_width) * 0.5 + (index % _columns) * (PileView.CARD_SIZE.x + CARD_GAP.x), row * (PileView.CARD_SIZE.y + CARD_GAP.y))
 
 func select_card(card_id: String) -> void:
 	if _committing: return

@@ -16,9 +16,17 @@ func _initialize() -> void:
 	Analytics.set_storage_dir(TEST_ANALYTICS_DIR)
 	Analytics.clear_storage()
 	_native = DisplayServer.get_name().to_lower() != "headless"
-	_output_dir = "user://probes/purge_01_%d/1920x1080_ui100" % int(Time.get_unix_time_from_system())
+	_output_dir = "user://probes/purge_02_%d/1920x1080_ui100" % int(Time.get_unix_time_from_system())
 	var profile: Dictionary = preload("res://scripts/contextual_combat_tutorial.gd").complete_tutorial(ProgressionStore.default_data())
 	ProgressionStore.save_data(profile)
+	if _pile_viewer_only():
+		await preload("res://tests/helpers/pile_viewer_duplicate_fixture.gd").run(self, _expect, _native)
+		_viewport.queue_free()
+		for _frame: int in range(Presentation.TEARDOWN_FRAMES): await process_frame
+		print("PILE VIEWER DUPLICATE PROBE: %s" % ("FAIL" if _failed else "PASS"))
+		print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
+		quit(1 if _failed else 0)
+		return
 	var engine := RunEngine.new()
 	var state: Dictionary = MagicSuite.shop_fixture(engine)
 	for id: String in Presentation.EXTRA_SPELLS: state = engine.grant_magic_to_deck(state, id)
@@ -48,6 +56,7 @@ func _initialize() -> void:
 	await _settle()
 	var modal: Control = instance.get("_magic_purge_overlay")
 	Presentation.assert_grid(modal, state["attuned_magic_cards"], _expect)
+	Presentation.assert_polish_text_fit_mutations(modal, _expect)
 	await _check_and_capture(modal, "scavenger_grid_14")
 	# Real keyboard focus is visible through the CardWidget's existing lift/gold.
 	await _key(KEY_RIGHT)
@@ -220,3 +229,8 @@ func _test_text_fit_mutation(modal: Control) -> void:
 
 func _proof_capture(stem: String) -> void:
 	if _native: await _capture("%s/%s.png" % [_output_dir, stem])
+
+func _pile_viewer_only() -> bool:
+	# The visual runner forwards no script arguments, so use an explicit
+	# environment switch for the director's separate combat capture contract.
+	return OS.get_environment("LABYRINTH_PURGE_02_PILE_PROOF") == "1"

@@ -9,10 +9,14 @@ func _initialize() -> void:
 	_setup()
 	var profile: Dictionary = preload("res://scripts/contextual_combat_tutorial.gd").complete_tutorial(ProgressionStore.default_data())
 	ProgressionStore.save_data(profile)
+	await preload("res://tests/helpers/pile_viewer_duplicate_fixture.gd").run(self, _expect)
 	var engine := RunEngine.new()
 	var state: Dictionary = Fixture.shop_fixture(engine)
 	for id: String in Presentation.EXTRA_SPELLS: state = engine.grant_magic_to_deck(state, id)
 	var instance: Node = await _instance(state)
+	await preload("res://tests/helpers/pile_copy_badge_checks.gd").assert_count_cases(instance, _viewport, _expect)
+	await preload("res://tests/helpers/magic_purge_scroll_checks.gd").run(self, instance, engine, _expect)
+	await preload("res://tests/helpers/magic_purge_focus_checks.gd").run(self, instance, engine, _expect)
 	for source: String in ["scavenger", "campfire"]:
 		state["mode"] = "campfire" if source == "campfire" else "room"
 		instance.call("_load_run_state", state)
@@ -24,6 +28,8 @@ func _initialize() -> void:
 		var modal: Control = instance.get("_magic_purge_overlay")
 		_expect(modal != null, source + " Purge opens")
 		if modal == null: continue
+		Presentation.assert_grid(modal, state["attuned_magic_cards"], _expect)
+		Presentation.assert_polish_text_fit_mutations(modal, _expect)
 		await _list_navigation(modal, source)
 		await _blocked_toolbar(instance, modal, source)
 		await _confirmation_navigation(instance, modal, source)
