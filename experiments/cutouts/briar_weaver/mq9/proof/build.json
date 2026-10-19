@@ -159,6 +159,56 @@
   },
   "source_ownership": "experiments/cutouts/briar_weaver/mq9/front_baseline/layouts/front.json",
   "source_ownership_sha256": "e693c58b568be22f62d2eb7a76c347a158f61fbe06cf7c00797904fa3be564dc",
+  "residue_cleanup": {
+    "head": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "torso": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "pelvis": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "tatters": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "arm_near": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "hand_near": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "leg_near": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "foot_near": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "arm_far": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "hand_far": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "leg_far": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    },
+    "foot_far": {
+      "visible_replaced": 0,
+      "continuation_replaced": 0
+    }
+  },
   "views": {
     "front": {
       "front_rest_mismatch_pixels": 0,
@@ -320,7 +370,57 @@
         "front_solo_foot_far.png": "142fb64d3f408f0bbab1344deaceb3046c46950c8723af7633612a3aced724ea"
       },
       "source_ownership": "experiments/cutouts/briar_weaver/mq9/front_baseline/layouts/front.json",
-      "source_ownership_sha256": "e693c58b568be22f62d2eb7a76c347a158f61fbe06cf7c00797904fa3be564dc"
+      "source_ownership_sha256": "e693c58b568be22f62d2eb7a76c347a158f61fbe06cf7c00797904fa3be564dc",
+      "residue_cleanup": {
+        "head": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "torso": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "pelvis": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "tatters": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "arm_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "hand_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "leg_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "foot_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "arm_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "hand_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "leg_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "foot_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        }
+      }
     },
     "rear": {
       "front_rest_mismatch_pixels": 0,
@@ -482,10 +582,60 @@
         "rear_solo_foot_far.png": "69ff50a1dd18745f59e4b5335d392514c1280b2151c68a4618487ee6af78bf84"
       },
       "source_ownership": "experiments/cutouts/briar_weaver/mq9/rear_baseline/layouts/rear.json",
-      "source_ownership_sha256": "ca88f239cc6cd15240137d3ddac9b384768de99522d5c0f191fb852dc453ce12"
+      "source_ownership_sha256": "ca88f239cc6cd15240137d3ddac9b384768de99522d5c0f191fb852dc453ce12",
+      "residue_cleanup": {
+        "head": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "torso": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "pelvis": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "tatters": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "arm_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "hand_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "leg_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "foot_near": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "arm_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "hand_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "leg_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        },
+        "foot_far": {
+          "visible_replaced": 0,
+          "continuation_replaced": 0
+        }
+      }
     }
   },
-  "director_sha256": "7a7704ac614740132a0a1344151cd88a0e04b1a33def5ce0dc2655c7318ac711",
+  "director_sha256": "947ed701639c51d948647225b10d46df30888a3bb3254275caab8051fc5410ca",
   "production_promoted": true,
   "native_proof": "pending director windowed captures"
 }

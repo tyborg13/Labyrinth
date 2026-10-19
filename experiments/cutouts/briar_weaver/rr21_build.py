@@ -28,6 +28,7 @@ from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.promotion import promote
 from humanoid_cutout.leg_roles import resolve_bone
 from humanoid_cutout.underlays import distinct_depths
+from rr21_residue import clean_piece, feature_mask, feature_definitions
 
 
 def native_depths(spec, view):
@@ -161,6 +162,11 @@ def build_view(view, inputs, anatomy):
         reports.append({'piece': name, 'minimum_px': recipe['depth_px'], 'cover': recipe['covers'],
             'required_mask': str(path.relative_to(CASE)), 'required_pixels': int(required.sum()),
             'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
+    residue_cleanup = {}
+    for name in PIECES:
+        cleaned, counts = clean_piece([visible[name], hidden[name]], feature_mask(CASE, view, name))
+        visible[name], hidden[name] = cleaned
+        residue_cleanup[name] = {'visible_replaced': counts[0], 'continuation_replaced': counts[1]}
     parts, meshes = [], []
     for name, image in visible.items():
         bone, z = BONES.get(name, name), depths[name]
@@ -173,14 +179,11 @@ def build_view(view, inputs, anatomy):
             if name in anatomy['meshes']:
                 meshes.append(layer(under, name, part['bbox'], joints, hidden_depth, True, recipe=anatomy['meshes'][name]))
             parts.append(dict(under, bone=bone, z_index=hidden_depth, hidden_material=True, logical_part=name))
-    features = []
-    if view == 'front':
-        rgb = paint[..., :3].astype(int)
-        eye = (paint[..., 3] > 0) & (rgb[..., 1] > rgb[..., 0]) & (rgb[..., 1] > rgb[..., 2])
-        if np.any(eye & (visible['head'][..., 3] == 0)): raise ValueError('Front eye not owned by head')
-        path = CASE / 'features/front_eye.png'; path.parent.mkdir(exist_ok=True)
-        Image.fromarray(eye.astype('uint8') * 255).save(path)
-        features = [{'name': 'green_eye', 'piece': 'head', 'mask': str(path.relative_to(CASE))}]
+    features = feature_definitions(CASE, view)
+    for feature in features:
+        mask = feature_mask(CASE, view, feature['piece'])
+        if np.any(mask & (visible[feature['piece']][..., 3] == 0)):
+            raise ValueError('Feature is not owned by its declared piece: ' + feature['name'])
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
         'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
         'held_items': {}, 'ik_chains': [], 'planted_bones': [resolve_bone(n, anatomy, view) for n in anatomy['planted_bones']],
@@ -199,14 +202,14 @@ def build_view(view, inputs, anatomy):
     forward = np.asarray(projected(spec, [1, 0, 0], view)) - origin
     projection = {'forward': (forward / np.linalg.norm(forward)).tolist(), 'lean_sign': float(np.sign(up[0] * forward[1] - up[1] * forward[0]))}
     report = {'front_rest_mismatch_pixels': mismatch, 'rest_mismatch_pixels': mismatch, 'tucks': reports, 'delivery': delivery,
-        'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'), 'source_ownership_sha256': digest(base / f'layouts/{view}.json')}
+        'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'), 'source_ownership_sha256': digest(base / f'layouts/{view}.json'), 'residue_cleanup': residue_cleanup}
     return layout, report, projection
 
 
-def build():
+def build(import_director=False):
     inputs, anatomy = read_json(CASE / 'inputs.json'), load(CASE)
     copied = CASE / 'director_motion.json'
-    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes(): raise ValueError('Protected director import differs')
+    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes() and not import_director: raise ValueError('Protected director import differs')
     shutil.copyfile(DIRECTOR, copied)
     layouts, reports, projections = {}, {}, {}
     for view in ('front', 'rear'): layouts[view], reports[view], projections[view] = build_view(view, inputs, anatomy)
@@ -227,4 +230,8 @@ def build():
             (view.upper(), 'FAIL' if report['rest_mismatch_pixels'] else 'PASS', report['rest_mismatch_pixels']))
 
 
-if __name__ == '__main__': build()
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--import-director', action='store_true', help='Explicitly import the director-approved replacement file byte for byte')
+    build(parser.parse_args().import_director)

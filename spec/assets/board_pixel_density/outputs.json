@@ -2972,6 +2972,12 @@
     "grid": 1.0,
     "facing": "front"
   },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png": {
+    "kind": "rest",
+    "id": "briar_weaver_cutout",
+    "pixel_sha256": "546d87b2384617061ab7964523389b65d296516a6308ab37b97d431a3c40fe43",
+    "parts_pixel_sha256": "ee9dbc8a5f3e4cca6b4cff201b36b6e625f75427e66f6f6b4cc441e78b52ab7d"
+  },
   "assets/units/briar_weaver_cutout/humanoid_v2/front/tatters.png": {
     "pixel_sha256": "231bb2c99dbbbfc58c7576cd58393908d3952b2c5cff83c84fd31a8f25971de4",
     "source_pixel_sha256": "e586431866ef42913142e1ee5f9f970516ece4256ca16907bef45108efd9cbeb",
@@ -3163,6 +3169,12 @@
     "mode": "clean",
     "grid": 1.0,
     "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/rest.png": {
+    "kind": "rest",
+    "id": "briar_weaver_cutout",
+    "pixel_sha256": "c2fdd3a29174a546c15981e9a585974aea4dad61a62ae82b70f8293b4460f3c0",
+    "parts_pixel_sha256": "ee9dbc8a5f3e4cca6b4cff201b36b6e625f75427e66f6f6b4cc441e78b52ab7d"
   },
   "assets/units/briar_weaver_cutout/humanoid_v2/rear/tatters.png": {
     "pixel_sha256": "16810dab240f94dbc7de997efbfd2c4072ddb73bd5f005a9512df0f940156db1",

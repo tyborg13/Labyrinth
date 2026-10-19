@@ -50,11 +50,6 @@ def errors(report, data):
             if not contacts or contacts[0]['terrain_count'] != 3: result.append('thornwall: existing three brambles missing at contact')
     return sorted(set(result))
 
-# The protected world-step path at the real board scale requests a front
-# stance target outside the native chain. Do not stretch it or weaken support
-# rounding to conceal the defect. This is director data, not live tuning.
-TODO_DESIGN_front_move_supports = 'Front planted stride target misses the inherited 0.7072 px presentation radius at the real board step. Native joints and protected world-step channels require director resolution.'
-
 
 def motion_gates(report, data):
     """Apply the same knee/support gates at the measured production step size."""
@@ -74,9 +69,12 @@ def motion_gates(report, data):
     knees = knee_report(layout, data, samples)
     supports = support_report(layout, data, samples)
     findings = knees['errors'] + supports['errors']
+    design = {}
+    if knees['errors']: design['TODO_DESIGN_' + view + '_move_knee_apex'] = knees['errors']
+    if supports['errors']: design['TODO_DESIGN_' + view + '_move_supports'] = supports['errors']
     return {'ok': not findings, 'errors': findings, 'view': view, 'knees': knees, 'supports': supports,
         'measured_step_distance_px': samples['step_distance_px'], 'measured_screen_pixel_scale': samples['screen_pixel_scale'],
-        'design_placeholders': {'TODO_DESIGN_front_move_supports': TODO_DESIGN_front_move_supports} if supports['errors'] else {}}
+        'design_placeholders': design}
 
 
 if __name__ == '__main__':

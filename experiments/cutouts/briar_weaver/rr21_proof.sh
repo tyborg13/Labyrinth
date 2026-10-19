@@ -22,6 +22,7 @@ python3 tools/visual_probe_runner.py --task-id rr-21 --no-headless --display-dri
 python3 -B experiments/cutouts/briar_weaver/rr21_gates.py --native "$proof/native"
 ;;
 sheets)
+python3 -B experiments/cutouts/briar_weaver/rr21_gates.py --native "$proof/native"
 PYTHONPATH=tools python3 -m humanoid_cutout.proof sheets --case "$rig_case" --capture "$proof/native" --output "$proof/contact_sheets"
 ;;
 idle)
@@ -35,6 +36,7 @@ python3 -B experiments/cutouts/briar_weaver/rr21_production.py --input "$proof/p
 python3 -B experiments/cutouts/briar_weaver/rr21_production.py --input "$proof/production_native/rear/frames.json"
 ;;
 review)
+python3 -B experiments/cutouts/briar_weaver/rr21_gates.py --native "$proof/native"
 PYTHONPATH=tools python3 -m humanoid_cutout.proof review --case "$rig_case" --capture "$proof/native" --output "$proof/briar_weaver_review.mp4"
 ;;
 *) exit 2 ;;

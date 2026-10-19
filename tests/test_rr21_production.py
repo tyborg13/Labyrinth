@@ -34,13 +34,13 @@ class ProductionTests(unittest.TestCase):
                     rows = [r for r in report['frames'] if r['stage'] == clip]
                     self.assertTrue(all(r['snapshot']['facing'] == view for r in rows))
 
-    def test_actual_board_move_exposes_protected_front_constraints(self):
-        front = motion_gates(self.reports['front'], self.data)
-        rear = motion_gates(self.reports['rear'], self.data)
-        self.assertEqual(rear['errors'], [])
-        self.assertEqual(len(front['knees']['errors']), 2)
-        self.assertGreater(front['supports']['maximum_stance_target_error_px'], front['supports']['presented_target_tolerance_px'])
-        self.assertIn('TODO_DESIGN_front_move_supports', front['design_placeholders'])
+    def test_revised_actual_board_move_knees_and_supports_pass(self):
+        for view, report in self.reports.items():
+            result = motion_gates(report, self.data)
+            self.assertEqual(result['errors'], [], view)
+            self.assertEqual(len(result['knees']['swings']), 2)
+            self.assertEqual(result['supports']['maximum_stance_frame_change_px'], 0)
+            self.assertEqual(result['design_placeholders'], {})
 
     def test_mutations_reject_late_contact_stale_binding_and_missing_pose(self):
         original = self.reports['front']

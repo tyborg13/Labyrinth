@@ -16,7 +16,7 @@ sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'experiments/cutouts/briar_weave
                 str(ROOT / 'experiments/cutouts/arc_thrall')]
 from rr21_case import CASE, ASSETS, DIRECTOR, PIECES
 from rr21_density import scoped_identity
-from rr21_gates import green_count
+from rr21_residue import residue, clean_piece, feature_mask, feature_definitions, outside_count, source_report, presented_feature_mask
 from cutout_pipeline.cases import read_json, digest
 from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, bindings, idle_pixel_errors, clean_metrics
@@ -83,16 +83,17 @@ class CutoutTests(unittest.TestCase):
             self.assertEqual(report['errors'], [])
             for clip in ('lash', 'thornwall'): self.assertGreater(report['clip_positive_checks'][clip], 0)
 
-    def test_native_knee_contract_exposes_protected_front_defect(self):
-        # Do not weaken the acceptance gate or author replacement motion.
-        front = knee_report(self.layouts['front'], self.data, self.samples)
-        rear = knee_report(self.layouts['rear'], self.data, self.samples)
-        self.assertEqual(len(front['swings']), 2)
-        self.assertTrue(all(s['peak_bend_deg'] >= 15 for s in front['swings']))
-        self.assertEqual(len(front['errors']), 2)
-        self.assertTrue(all('apex stride knee' in e for e in front['errors']))
-        self.assertEqual(rear['errors'], [])
-        self.assertIn('TODO_DESIGN_front_move_knee_apex', read_json(CASE / 'inputs.json')['design_placeholders'])
+    def test_revised_move_knees_pass_without_runtime_tuning(self):
+        author = read_json(DIRECTOR)['briar_weaver']['clips']['move']['keys']
+        self.assertEqual([v for _, v in author['foot_stride.lift_px'] if v > 0], [7, 7])
+        pelvis = dict(author['pelvis.lift_px'])
+        self.assertEqual([pelvis[.2], pelvis[.65]], [0, 0])
+        self.assertEqual([pelvis[.4], pelvis[.85]], [-2, -2])
+        for layout in self.layouts.values():
+            report = knee_report(layout, self.data, self.samples)
+            self.assertEqual(len(report['swings']), 2)
+            self.assertEqual(report['errors'], [])
+        self.assertEqual(read_json(CASE / 'inputs.json')['design_placeholders'], {})
 
     def test_reach_reports_1000_intervals_and_no_hidden_clamp(self):
         for layout in self.layouts.values():
@@ -101,12 +102,18 @@ class CutoutTests(unittest.TestCase):
             self.assertEqual(len(report['paths']), 14)
             self.assertEqual(report['errors'], [])
 
-    def test_green_eye_is_front_head_and_contradiction_remains_visible(self):
-        self.assertEqual(green_count(Image.open(CASE / 'source/front/processed.png')), 23)
-        self.assertEqual(green_count(Image.open(CASE / 'source/rear/processed.png')), 0)
+    def test_declared_eye_is_preserved_and_all_derived_surfaces_are_clean(self):
+        mask = feature_mask(CASE, 'front', 'head')
+        self.assertEqual(int(mask.sum()), 23)
+        self.assertEqual(len(feature_definitions(CASE, 'rear')), 0)
         self.assertEqual(self.layouts['front']['features'][0]['piece'], 'head')
-        self.assertEqual(self.layouts['rear']['features'], [])
-        self.assertIn('TODO_DESIGN_green_eye_gate', read_json(CASE / 'inputs.json')['design_placeholders'])
+        for view in ('front', 'rear'):
+            image = Image.open(CASE / f'source/{view}/processed.png').convert('RGBA')
+            self.assertEqual(outside_count(image, feature_mask(CASE, view)), 0)
+            self.assertEqual((CASE / f'source/{view}/processed.png').read_bytes(),
+                (ROOT / f'spec/art_identity/jobs/briar_weaver/mq9_{view}/processed.png').read_bytes())
+        self.assertEqual(source_report(CASE, ASSETS)['errors'], [])
+        self.assertEqual(read_json(CASE / 'inputs.json')['design_placeholders'], {})
 
     def test_production_data_and_density_closure(self):
         policy = read_json(ASSETS / 'integration.json')

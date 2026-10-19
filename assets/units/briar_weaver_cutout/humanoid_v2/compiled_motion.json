@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "briar_weaver",
-  "director_sha256": "7a7704ac614740132a0a1344151cd88a0e04b1a33def5ce0dc2655c7318ac711",
+  "director_sha256": "947ed701639c51d948647225b10d46df30888a3bb3254275caab8051fc5410ca",
   "projection": {
     "front": {
       "forward": [
@@ -30,7 +30,7 @@
     "move": {
       "seconds": 0.9,
       "intents": [],
-      "note": "a hunched shuffle on the stride/trailing pattern: 4 px lift, the pelvis dips 3 px after each landing, the claws sway, the leaf tatters trail 2 px",
+      "note": "a hunched shuffle on the stride/trailing pattern: the stride foot lifts 7 px (the hunch already bends the stance knee, so the swing must bend more), the pelvis is at rest height at each swing apex and dips 2 px after each landing, the claws sway, the leaf tatters trail 2 px",
       "release_at": {}
     },
     "thornwall": {
@@ -190,7 +190,7 @@
             },
             {
               "at": 0.2,
-              "value": 4,
+              "value": 7,
               "interpolation": "smoothstep"
             },
             {
@@ -205,7 +205,7 @@
             },
             {
               "at": 0.65,
-              "value": 4,
+              "value": 7,
               "interpolation": "smoothstep"
             },
             {
@@ -329,32 +329,32 @@
             },
             {
               "at": 0.05,
-              "value": -2,
+              "value": -1,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.2,
-              "value": -1,
+              "value": 0,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.4,
-              "value": -3,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.5,
               "value": -2,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.65,
+              "at": 0.5,
               "value": -1,
               "interpolation": "smoothstep"
             },
             {
+              "at": 0.65,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
               "at": 0.85,
-              "value": -3,
+              "value": -2,
               "interpolation": "smoothstep"
             },
             {
@@ -1791,7 +1791,7 @@
             },
             {
               "at": 0.2,
-              "value": 4,
+              "value": 7,
               "interpolation": "smoothstep"
             },
             {
@@ -1806,7 +1806,7 @@
             },
             {
               "at": 0.65,
-              "value": 4,
+              "value": 7,
               "interpolation": "smoothstep"
             },
             {
@@ -1930,32 +1930,32 @@
             },
             {
               "at": 0.05,
-              "value": -2,
+              "value": -1,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.2,
-              "value": -1,
+              "value": 0,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.4,
-              "value": -3,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.5,
               "value": -2,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.65,
+              "at": 0.5,
               "value": -1,
               "interpolation": "smoothstep"
             },
             {
+              "at": 0.65,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
               "at": 0.85,
-              "value": -3,
+              "value": -2,
               "interpolation": "smoothstep"
             },
             {

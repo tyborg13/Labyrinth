@@ -1,0 +1,233 @@
+{
+  "task": "rr-21",
+  "round": "feedback 1",
+  "base_head": "a97ac17adf9df20e109d84de779130d5215b748d",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_runs": false,
+  "peer_review_run": false,
+  "director_sha256": "947ed701639c51d948647225b10d46df30888a3bb3254275caab8051fc5410ca",
+  "protected_art_changed": false,
+  "png_changes": [],
+  "residue": {
+    "policy": "G >= max(R,B)+12 AND 2*G >= 3*max(R,B); declared features exempt",
+    "derived_surfaces": 100,
+    "residue_outside_features": 0,
+    "front_eye_mask_texels": 23,
+    "native_pending": true
+  },
+  "motion_import": "byte-identical case and production; recompiled; no tuning",
+  "final_bindings": "source and both production captures match current files",
+  "reference_assets": "Seer, Thrall, Capacitor unchanged; Mirror absent in task checkout",
+  "source_gate": [
+    "front/move/swing 0/frame 11: apex stride knee 54.507593 <= stance 55.491477 degrees"
+  ],
+  "production": {
+    "front": {
+      "implementation_errors": [],
+      "motion_errors": [
+        "front/move/swing 0/frame 28: apex stride knee 37.966924 <= stance 55.491477 degrees",
+        "front/move/presented/frame 56/phase 0.388888888888889: stride target error 1.949545 px > 0.7072",
+        "front/move/presented/frame 57/phase 0.388888888888889: stride target error 1.949545 px > 0.7072",
+        "front/move/presented/frame 58/phase 0.388888888888889: stride target error 1.949545 px > 0.7072",
+        "front/move/presented/frame 59/phase 0.407407407407407: stride target error 0.952621 px > 0.7072",
+        "front/move/presented/frame 60/phase 0.407407407407407: stride target error 0.952621 px > 0.7072",
+        "front/move/presented/frame 61/phase 0.407407407407407: stride target error 0.952621 px > 0.7072",
+        "front/move/presented/frame 59/phase 0.407407407407407: stride stance moved 1.000000 px from frame 58; required 0",
+        "front/move/presented/frame 62/phase 0.425925925925926: stride stance moved 1.000000 px from frame 61; required 0"
+      ],
+      "swings": [
+        {
+          "swing": 0,
+          "start": 0.05,
+          "end": 0.38,
+          "peak_frame": 23,
+          "peak_phase": 0.166666666666667,
+          "peak_bend_deg": 46.27105203490574,
+          "apex_frame": 28,
+          "apex_phase": 0.203703703703704,
+          "apex_stride_bend_deg": 37.96692448335209,
+          "apex_stance_bend_deg": 55.4914770123316
+        },
+        {
+          "swing": 1,
+          "start": 0.5,
+          "end": 0.83,
+          "peak_frame": 95,
+          "peak_phase": 0.648148148148148,
+          "peak_bend_deg": 61.84652829959552,
+          "apex_frame": 95,
+          "apex_phase": 0.648148148148148,
+          "apex_stride_bend_deg": 61.84652829959552,
+          "apex_stance_bend_deg": 55.4914770123316
+        }
+      ],
+      "maximum_stance_target_error_px": 1.9495453387537265,
+      "maximum_stance_frame_change_px": 1.0,
+      "target_tolerance_px": 0.7072,
+      "step_source_px": 138.3974918662437,
+      "design_placeholders": {
+        "TODO_DESIGN_front_move_knee_apex": [
+          "front/move/swing 0/frame 28: apex stride knee 37.966924 <= stance 55.491477 degrees"
+        ],
+        "TODO_DESIGN_front_move_supports": [
+          "front/move/presented/frame 56/phase 0.388888888888889: stride target error 1.949545 px > 0.7072",
+          "front/move/presented/frame 57/phase 0.388888888888889: stride target error 1.949545 px > 0.7072",
+          "front/move/presented/frame 58/phase 0.388888888888889: stride target error 1.949545 px > 0.7072",
+          "front/move/presented/frame 59/phase 0.407407407407407: stride target error 0.952621 px > 0.7072",
+          "front/move/presented/frame 60/phase 0.407407407407407: stride target error 0.952621 px > 0.7072",
+          "front/move/presented/frame 61/phase 0.407407407407407: stride target error 0.952621 px > 0.7072",
+          "front/move/presented/frame 59/phase 0.407407407407407: stride stance moved 1.000000 px from frame 58; required 0",
+          "front/move/presented/frame 62/phase 0.425925925925926: stride stance moved 1.000000 px from frame 61; required 0"
+        ]
+      },
+      "capture": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json"
+    },
+    "rear": {
+      "implementation_errors": [],
+      "motion_errors": [
+        "rear/move/presented/frame 73/phase 0.5: stride target error 1.058803 px > 0.7072",
+        "rear/move/presented/frame 74/phase 0.5: stride target error 1.058803 px > 0.7072",
+        "rear/move/presented/frame 75/phase 0.5: stride target error 1.058803 px > 0.7072",
+        "rear/move/presented/frame 73/phase 0.5: stride stance moved 1.000000 px from frame 72; required 0"
+      ],
+      "swings": [
+        {
+          "swing": 0,
+          "start": 0.05,
+          "end": 0.38,
+          "peak_frame": 31,
+          "peak_phase": 0.222222222222222,
+          "peak_bend_deg": 85.03820928980913,
+          "apex_frame": 28,
+          "apex_phase": 0.203703703703704,
+          "apex_stride_bend_deg": 83.59933646143719,
+          "apex_stance_bend_deg": 5.640549432156823
+        },
+        {
+          "swing": 1,
+          "start": 0.5,
+          "end": 0.83,
+          "peak_frame": 106,
+          "peak_phase": 0.722222222222222,
+          "peak_bend_deg": 60.4992983080171,
+          "apex_frame": 95,
+          "apex_phase": 0.648148148148148,
+          "apex_stride_bend_deg": 43.75960130250233,
+          "apex_stance_bend_deg": 5.640549432156823
+        }
+      ],
+      "maximum_stance_target_error_px": 1.0588033305122009,
+      "maximum_stance_frame_change_px": 1.0,
+      "target_tolerance_px": 0.7072,
+      "step_source_px": 138.39739073341735,
+      "design_placeholders": {
+        "TODO_DESIGN_rear_move_supports": [
+          "rear/move/presented/frame 73/phase 0.5: stride target error 1.058803 px > 0.7072",
+          "rear/move/presented/frame 74/phase 0.5: stride target error 1.058803 px > 0.7072",
+          "rear/move/presented/frame 75/phase 0.5: stride target error 1.058803 px > 0.7072",
+          "rear/move/presented/frame 73/phase 0.5: stride stance moved 1.000000 px from frame 72; required 0"
+        ]
+      },
+      "capture": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json"
+    }
+  },
+  "results": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr21_cutout tests.test_rr21_residue tests.test_rr21_production -q",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_focused.txt",
+      "result_lines": [
+        "Ran 24 tests in 105.287s",
+        "FAILED (failures=2)"
+      ]
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr14_anatomy tests.test_rr15_view_keys tests.test_rr15_reach tests.test_rr17_cutout tests.test_rr17_integration -q",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_references.txt",
+      "result_lines": [
+        "Ran 32 tests in 38.157s",
+        "OK"
+      ]
+    },
+    {
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_art_identity.txt",
+      "result_lines": [
+        "Ran 111 tests in 53.822s",
+        "OK"
+      ]
+    },
+    {
+      "command": "python3 -B tools/test_registration_audit.py",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_audit.txt",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/briar_weaver/rr21_gates.py",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_source_gates.txt",
+      "result_lines": [
+        "RR21 FRONT CUT: PASS (0 errors)",
+        "RR21 FRONT DIRECTION: PASS (569 positive checks; lash/thornwall required)",
+        "RR21 FRONT KNEES: FAIL (2 swings; minimum peak 57.262 degrees)",
+        "RR21 REAR CUT: PASS (0 errors)",
+        "RR21 REAR DIRECTION: PASS (569 positive checks; lash/thornwall required)",
+        "RR21 REAR KNEES: PASS (2 swings; minimum peak 67.472 degrees)",
+        "RR21 RESIDUE: PASS (100 derived surfaces; zero outside declared features)",
+        "RR21 HEADLESS GATES: FAIL (1 errors)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/briar_weaver/rr21_production.py --input experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_front_gates.txt",
+      "result_lines": [
+        "RR21 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+        "RR21 PRODUCTION FRONT MOVE GATES: FAIL (9 errors)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/briar_weaver/rr21_production.py --input experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_rear_gates.txt",
+      "result_lines": [
+        "RR21 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+        "RR21 PRODUCTION REAR MOVE GATES: FAIL (4 errors)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_sfx_0.txt",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_sfx_1.txt",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback1_sfx_2.txt",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ]
+    }
+  ],
+  "proof_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh review"
+  ],
+  "additional_observed_results": [
+    "RR21 FEEDBACK1 PYTHON SYNTAX: PASS",
+    "RR21 FEEDBACK1 SIDECARS: PASS (tracked plus deliverable inventory)",
+    "MAQUETTE PRODUCTION LOGIC: PASS (1263 frames) [observed separately in both views]"
+  ]
+}

@@ -26,9 +26,7 @@ for side in ('near', 'far'):
                         'cuff_rows_px': 4, 'blend_half_width_px': 4}
 GROUPS = {'upper_body': ['torso', 'head', 'arm_near', 'hand_near', 'arm_far', 'hand_far'],
           'weapon_arm': [], 'lower_body': ['pelvis', 'tatters', 'leg_near', 'leg_far', 'foot_near', 'foot_far']}
-PLACEHOLDERS = {
-    'TODO_DESIGN_front_move_knee_apex': 'Protected front move lifts the stride foot 4 px; in the certified anatomy both swing apex knees bend less than the trailing knee. Preserve keys/joints; strict knee gate remains failing.',
-    'TODO_DESIGN_green_eye_gate': 'Brief requires the protected green eye and also forbids every green-dominant presented texel. Preserve the head eye; strict green gate remains failing.'}
+PLACEHOLDERS = {}
 
 
 def write(path, value):

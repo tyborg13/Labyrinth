@@ -4,8 +4,5 @@
   "front_delivery": "spec/art_identity/maquettes/briar_weaver/delivery",
   "rear_delivery": "spec/art_identity/maquettes/briar_weaver/delivery",
   "fused_occlusion": true,
-  "design_placeholders": {
-    "TODO_DESIGN_front_move_knee_apex": "Protected front move lifts the stride foot 4 px; in the certified anatomy both swing apex knees bend less than the trailing knee. Preserve keys/joints; strict knee gate remains failing.",
-    "TODO_DESIGN_green_eye_gate": "Brief requires the protected green eye and also forbids every green-dominant presented texel. Preserve the head eye; strict green gate remains failing."
-  }
+  "design_placeholders": {}
 }
