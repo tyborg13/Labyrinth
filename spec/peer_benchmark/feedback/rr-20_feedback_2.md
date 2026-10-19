@@ -8,6 +8,8 @@ native gates refused sheets and review. Do this round, then hand back:
    reports.
    - Conflicts were resolved toward integration's shared code. Check that your case code still builds on it.
    - Rig spec §3 and §4 are binding.
+   - `assets/generated/unit_shadow_cache.res` now holds integration's version. Re-run your unit's shadow refresh so
+     your records return, and leave every other unit's records untouched.
 2. **New protected director data** (`spec/peer_benchmark/staged/rr-20/motion_tracks.json`; import byte for byte).
    - `move` is now a gait block, 6 steps per tile, 0.8 s. Retire the Mimic's `leg_roles` as gait-01 did for the
      Thrall. The shared walk gates must pass in both views.
