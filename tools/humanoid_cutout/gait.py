@@ -109,7 +109,6 @@ def fit_state(layout, values, forward, step, fk):
     """Independent pre-IK targets/scale/fit from authored FK (numpy oracle)."""
     import numpy as np
     joints = layout['joints']
-    root = np.asarray(joints['root']['position'])
     progress = values['root']['forward_px']
     result = {'fit_px': 0., 'legs': {}}
     for side in SIDES:

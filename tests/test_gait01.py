@@ -7,8 +7,10 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
+from PIL import Image
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
@@ -16,9 +18,11 @@ from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.gait import evaluate, expand, schedule
 from humanoid_cutout.walk_gates import report, rigid_air_errors
 from humanoid_cutout.rigid_joint_gap import gap
+from humanoid_cutout import walk_gates
 from cutout_pipeline.cases import read_json
 
 CASES={'arc_thrall':'rr11','glacial_mirror':'rr18'}
+DIRECTOR_DATA_REVISION='80d5ec39b'
 FIXTURE_SLIDE_PX=1.
 FIXTURE_AIR_PX=4.
 PROOF_TIMEOUT_SECONDS=180
@@ -30,6 +34,16 @@ def run_godot(script,*args):
         'godot','--headless','--path','.','--script',script,'--',*map(str,args)],cwd=ROOT,capture_output=True,text=True,timeout=PROOF_TIMEOUT_SECONDS)
     if result.returncode:raise AssertionError(result.stdout+result.stderr)
     return result.stdout+result.stderr
+
+
+def changed_paths():
+    """Cover committed implementation, working changes and untracked sources."""
+    result=set()
+    for command in (['git','diff','--name-only',DIRECTOR_DATA_REVISION,'HEAD'],
+                    ['git','diff','--name-only','HEAD'],
+                    ['git','ls-files','--others','--exclude-standard']):
+        result.update(subprocess.check_output(command,cwd=ROOT,text=True).splitlines())
+    return result
 
 
 class GaitTests(unittest.TestCase):
@@ -114,6 +128,82 @@ class GaitTests(unittest.TestCase):
         self.assertEqual(air,FIXTURE_AIR_PX)
         self.assertTrue(rigid_air_errors([{'joint':'fixture/knee','air_px':air}]))
 
+    def rigid_gap_fixture(self, side='near', skinned_side=None):
+        """Translate approved painted pieces into an exact four-pixel gap."""
+        case,data,layouts,samples=self.cases['glacial_mirror']
+        layout=copy.deepcopy(layouts['front'])
+        row=copy.deepcopy(next(r for r in samples['samples'] if r['view']=='front' and
+                              r['clip']=='move' and r['kind']=='presented' and r['frame']==0))
+        bones={name+'_'+leg for leg in ('near','far') for name in ('thigh','shin','foot')}
+        layout['parts']=[p for p in layout['parts'] if p['bone'] in bones and not p.get('hidden_material')]
+        self.assertEqual(len(layout['parts']),6)
+        pixels={}
+        for part in layout['parts']:
+            with Image.open(case/part['file']) as image:
+                y,x=np.nonzero(np.asarray(image.convert('RGBA'))[...,3])
+            points=np.column_stack((x,y)).astype(float)
+            pixels[part['bone']]=(part['name'],points)
+            # Give each pair an overlapping opaque pixel at rest.
+            row['parts'][part['name']]['transform']=[1.,0.,0.,1.,*(-points[0]).tolist()]
+        _,shin=pixels['shin_'+side]
+        foot_name,foot=pixels['foot_'+side]
+        shin_edge=shin[np.argmax(shin[:,0])]-shin[0]
+        foot_edge=foot[np.argmin(foot[:,0])]
+        offset=shin_edge+np.array([1.+FIXTURE_AIR_PX,0.])-foot_edge
+        row['parts'][foot_name]['transform']=[1.,0.,0.,1.,*offset.tolist()]
+        layout['joint_meshes']=[{'name':'unrelated_arm', 'weights':{'upper_near':[1.], 'fore_near':[0.]}}]
+        if skinned_side:
+            layout['joint_meshes'].append({'name':'leg_skin',
+                'weights':{'thigh_'+skinned_side:[1.], 'shin_'+skinned_side:[0.]}})
+        return layout,data,{**samples,'samples':[row]}
+
+    def assert_rigid_gap_rejected(self, fixture):
+        result=report(*fixture)
+        self.assertTrue(any('rigid air 4.000000 px > 3' in error for error in result['errors']))
+        self.assertAlmostEqual(result['maximum_rigid_air_px'],FIXTURE_AIR_PX)
+        return result
+
+    def test_four_pixel_gap_with_unrelated_arm_mesh_is_caught(self):
+        self.assert_rigid_gap_rejected(self.rigid_gap_fixture())
+
+    def test_each_rigid_leg_is_checked_beside_a_skinned_leg(self):
+        for side,other in (('near','far'),('far','near')):
+            with self.subTest(rigid_side=side):
+                fixture=self.rigid_gap_fixture(side,other)
+                result=self.assert_rigid_gap_rejected(fixture)
+                self.assertFalse(walk_gates.skinned(fixture[0],side))
+                self.assertTrue(walk_gates.skinned(fixture[0],other))
+                self.assertTrue(all(record['joint'].endswith(('_'+side)) for record in result['rigid_air']))
+
+    def test_removing_rigid_air_integration_is_caught(self):
+        fixture=self.rigid_gap_fixture()
+        self.assert_rigid_gap_rejected(fixture)
+        # Removing measurement from the integrated report must fail the same
+        # assertion as the shipped four-pixel arm-mesh regression test.
+        with patch.object(walk_gates,'joint_air',return_value=[]):
+            with self.assertRaises(AssertionError):
+                self.assert_rigid_gap_rejected(fixture)
+
+    def test_shared_walk_writer_separates_summary_and_full_diagnostics(self):
+        result=self.assert_rigid_gap_rejected(self.rigid_gap_fixture())
+        reports={'front':result}
+        with tempfile.TemporaryDirectory(prefix='gait01-summary-') as folder:
+            case=Path(folder)
+            for name in ('knees','supports'):
+                walk_gates.write_reports(case,name,reports)
+                compact=read_json(case/f'proof/{name}.json')['front']
+                full=read_json(case/f'proof/logs/walk_gates/{name}.json')['front']
+                self.assertEqual(full,result)
+                for field in ('frames','stance','rigid_air','jab'):
+                    self.assertNotIn(field,compact)
+                for field in ('ok','errors','swings','maximum_fit_px','maximum_total_pelvis_drop_px','maximum_rigid_air_px'):
+                    self.assertEqual(compact[field],result[field])
+                self.assertEqual(compact['sample_counts']['frames'],len(result['frames']))
+                failures=[r for r in result['rigid_air']
+                          if r['air_px']>walk_gates.MAX_RIGID_AIR_PX+walk_gates.EPSILON]
+                self.assertEqual(compact['rigid_air_failures'],failures)
+                self.assertLess(len(json.dumps(compact)),len(json.dumps(full)))
+
     def test_projected_skin_preserves_width_and_rigid_pieces_keep_unit_basis(self):
         for creature,(_,data,layouts,samples) in self.cases.items():
             for row in samples['samples']:
@@ -139,16 +229,22 @@ class GaitTests(unittest.TestCase):
                 self.assertIn('GAIT MOVE PROBE LOAD: PASS (24 frames; 12 per view)',
                     run_godot('tests/gait01/move_capture.gd','--case',case,'--output',folder,'--validate-only'))
 
+    def test_thrall_runtime_diagnostic_uses_declared_supports(self):
+        self.assertIn('RR11 RUNTIME: PASS',run_godot('tests/rr11/runtime_checks.gd'))
+
+    def test_preservation_scope_includes_the_committed_implementation(self):
+        self.assertIn('scripts/maquette_cutout_runtime/humanoid_gait.gd',changed_paths())
+
     def test_non_move_tracks_and_out_of_scope_assets_remain_identical(self):
         for case,data,_,_ in self.cases.values():
             relative=str((case/'compiled_motion.json').relative_to(ROOT))
-            old=json.loads(subprocess.check_output(['git','show','HEAD:'+relative],cwd=ROOT))
+            old=json.loads(subprocess.check_output(['git','show',DIRECTOR_DATA_REVISION+':'+relative],cwd=ROOT))
             for view in data['view_tracks']:
                 for clip in data['clips']:
                     if clip=='move':continue
                     self.assertEqual(data['view_tracks'][view][clip],old['view_tracks'][view][clip])
                     self.assertEqual(data['clips'][clip],old['clips'][clip])
-        changed=subprocess.check_output(['git','diff','--name-only'],cwd=ROOT,text=True).splitlines()
+        changed=changed_paths()
         protected=('assets/units/protagonist_cutout/','scripts/protagonist_cutout/',
                    'assets/units/hoarfrost_seer_cutout/','experiments/cutouts/hoarfrost_seer/',
                    'assets/units/storm_capacitor_cutout/','experiments/cutouts/storm_capacitor/',

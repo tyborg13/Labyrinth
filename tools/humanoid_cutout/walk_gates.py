@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .gait import evaluate, schedule, SIDES, fit_state
+from .gait import schedule, SIDES
 from .bone_contracts import fk_world, leg_bend_side
 from .anatomy import for_layout
 from .action_direction import pose_values
@@ -29,6 +29,17 @@ def knee(row, side):
 
 def rigid_air_errors(records):
     return [f'{r["joint"]}: rigid air {r["air_px"]:.6f} px > 3' for r in records if r['air_px'] > MAX_RIGID_AIR_PX + EPSILON]
+
+
+def skinned(layout, side):
+    """Match humanoid_gait.gd: classify a leg by its two mesh-weight keys."""
+    return any('thigh_'+side in mesh.get('weights', {}) and
+               'shin_'+side in mesh.get('weights', {})
+               for mesh in layout.get('joint_meshes', []))
+
+
+def rigid_sides(layout):
+    return tuple(side for side in SIDES if not skinned(layout, side))
 
 
 def report(layout, data, samples):
@@ -111,9 +122,8 @@ def report(layout, data, samples):
         if swing['peak_bend_deg']+EPSILON < MINIMUM_SWING_PEAK_DEG: errors.append(f'{view}/{side}: peak knee below 15 degrees')
         if swing['apex_swing_bend_deg']<=swing['apex_stance_bend_deg']+EPSILON: errors.append(f'{view}/{side}: apex swing knee does not exceed stance knee')
     if not rows: errors.append(view+': missing walk evidence')
-    if not layout.get('joint_meshes'):
-        air = joint_air(layout, rows)
-        errors += rigid_air_errors(air)
+    air = joint_air(layout, rows)
+    errors += rigid_air_errors(air)
     return {'ok':not errors,'errors':sorted(set(errors)),'frames':frames,'stance':stances,'swings':swings,
             'minimum_peak_bend_deg':min((s['peak_bend_deg'] for s in swings),default=0.),
             'maximum_fit_px':max((r['fit_px'] for r in frames),default=0.),
@@ -124,11 +134,13 @@ def report(layout, data, samples):
 
 
 def joint_air(layout, rows):
+    bones={name+'_'+side for side in rigid_sides(layout) for name in ('thigh','shin','foot')}
+    if not bones: return []
     path=layout['motion_data']
     project=Path(__file__).resolve().parents[2]
     case=(project/path[6:] if path.startswith('res://') else Path(path)).parent
     fingerprints=tuple((p['file'],(case/p['file']).stat().st_mtime_ns,(case/p['file']).stat().st_size)
-                       for p in layout['parts'] if p['bone'].startswith(('thigh_','shin_','foot_')))
+                       for p in layout['parts'] if p['bone'] in bones)
     presented=[{k:r[k] for k in ('kind','frame','parts')} for r in rows if r['kind']=='presented']
     return _joint_air(json.dumps(layout,sort_keys=True),json.dumps(presented,sort_keys=True),fingerprints)
 
@@ -147,10 +159,12 @@ def _joint_air(layout_json, rows_json, fingerprints):
     project = Path(__file__).resolve().parents[2]
     case = (project / path[6:] if path.startswith('res://') else Path(path)).parent
     from .rigid_joint_gap import gap
+    sides=rigid_sides(layout)
+    bones={name+'_'+side for side in sides for name in ('thigh','shin','foot')}
     parts = {}
     for part in layout['parts']:
         bone=part['bone']
-        if not bone.startswith(('thigh_','shin_','foot_')): continue
+        if bone not in bones: continue
         image=np.asarray(Image.open(case/part['file']).convert('RGBA'))[...,3]>0
         y,x=np.nonzero(image)
         parts[part['name']] = (bone, np.column_stack((x+.5,y+.5)))
@@ -161,7 +175,7 @@ def _joint_air(layout_json, rows_json, fingerprints):
         for name,(bone,xy) in parts.items():
             t=matrix(row['parts'][name]['transform'])
             posed.setdefault(bone,[]).append((xy[:,0,None]*t[None,:2,0]+xy[:,1,None]*t[None,:2,1]+t[None,:2,2],t[:2,:2]))
-        for side in SIDES:
+        for side in sides:
             for first,second in (('thigh_','shin_'),('shin_','foot_')):
                 distance=min(gap(a,ab,b,bb) for a,ab in posed[first+side] for b,bb in posed[second+side])
                 records.append({'joint':view_tag(layout,row,second+side),'air_px':distance})
@@ -204,3 +218,21 @@ def support_report(layout,data,samples):
     result['maximum_frame_change_px']=max(result['maximum_stance_frame_change_px'],result['maximum_jab_frame_change_px'])
     result['ok']=not result['errors']
     return result
+
+
+def summary(report):
+    """Retain results, extrema, swings and failures, without overlapping frames."""
+    frame_fields=('frames','stance','rigid_air','jab')
+    result={key:value for key,value in report.items() if key not in frame_fields}
+    result['sample_counts']={key:len(report[key]) for key in frame_fields if key in report}
+    result['rigid_air_failures']=[row for row in report.get('rigid_air', [])
+                                  if row['air_px'] > MAX_RIGID_AIR_PX + EPSILON]
+    return result
+
+
+def write_reports(case, name, reports):
+    """Shared writer: tracked summaries; full frames in gitignored proof logs."""
+    from cutout_pipeline.cases import write_json
+    proof=Path(case)/'proof'
+    write_json(proof/(name+'.json'),{view:summary(report) for view,report in reports.items()})
+    write_json(proof/'logs/walk_gates'/(name+'.json'),reports)

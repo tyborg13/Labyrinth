@@ -6,6 +6,7 @@ from rr11_knees import knee_report, support_report
 from tools.humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
 from tools.humanoid_cutout.action_direction import report as action_direction_report
 from tools.humanoid_cutout.reach import report as reach_report
+from tools.humanoid_cutout.walk_gates import write_reports as write_walk_reports
 
 
 def main():
@@ -32,8 +33,8 @@ def main():
     errors += cut_errors
     if args.native: errors += native_errors(CASE, args.native)
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
-    write_json(CASE / 'proof/knees.json', knees)
-    write_json(CASE / 'proof/supports.json', supports)
+    write_walk_reports(CASE, 'knees', knees)
+    write_walk_reports(CASE, 'supports', supports)
     write_json(CASE / 'proof/directions.json', {v: {k: value for k, value in r.items() if k != 'rows'}
                                                for v, r in directions.items()})
     write_json(CASE / 'proof/reach.json', reaches)

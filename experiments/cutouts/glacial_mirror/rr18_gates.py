@@ -13,6 +13,7 @@ from maquette_motion.features import source_pixels
 from maquette_motion.material_palette import rules
 from humanoid_cutout.anatomy import load
 from rr18_source_stage import raw_identity, visible_errors
+from humanoid_cutout.walk_gates import write_reports as write_walk_reports
 
 
 def run(native=None):
@@ -48,6 +49,9 @@ def run(native=None):
     errors+=source
     if native: errors+=native_errors(CASE,native)
     for name,report in reports.items():
+        if name in ('knees','supports'):
+            write_walk_reports(CASE,name,report)
+            continue
         if name=='directions': report={v:{k:x for k,x in r.items() if k!='rows'} for v,r in report.items()}
         write_json(CASE/f'proof/{name}.json',report)
     placeholders=read_json(CASE/'inputs.json')['design_placeholders']
