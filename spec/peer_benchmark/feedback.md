@@ -183,3 +183,7 @@
 - 2026-10-19 purge-redesign NEEDS CHANGES (owner, minor): "sooo much better. I think the "x2" for multiple copies
   should be more pronounced. The "purge a spell" header maybe a bit bigger. Otherwise, looking very good." → purge-02
   (medallion badge, shared with the pile viewer; 24 px header).
+- 2026-10-19 enemy-pacing NEEDS CHANGES (owner): "This is better but still a bit fast. Are the attack animations and
+  number pop ups still sped up? It may be worth slowing those down a little rather than keeping them sped up and just
+  holding after." Answer: at Normal they already play at authored speed; feel-01 cut the gaps. → pace-02: enemy
+  actions at 0.80× presentation speed; movement, lead and settle unchanged.
