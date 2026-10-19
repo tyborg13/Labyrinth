@@ -45,13 +45,13 @@
     "intents": [
      "recede:move_away"
     ],
-    "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 2 px after each landing; a 3 degree lean; the arms swing 4 px opposite the stepping leg",
+    "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; the arms swing 4 px opposite the stepping leg",
     "gait": {
      "model": "protagonist_walk",
      "steps_per_tile": 6,
      "lead": "near",
      "stance_fraction": 0.6,
-     "lift_px": 5,
+     "lift_px": 7,
      "lane_narrowing": 0.7,
      "leg_scale_max": 1.22,
      "settle_px": {
