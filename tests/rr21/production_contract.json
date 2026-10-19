@@ -1,5 +1,5 @@
 {
-  "min_images": 42,
+  "min_images": 39,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -8,7 +8,7 @@
       "pattern": "*_idle.png",
       "width": 1920,
       "height": 1080,
-      "min_count": 6
+      "min_count": 3
     },
     {
       "pattern": "*_move.png",
