@@ -10,7 +10,6 @@ from PIL import Image
 
 from maquette_motion import pixels
 from maquette_motion.silhouette import components, holes
-from .silhouette_gates import detached_metrics
 
 
 def bounds(mask):
@@ -81,7 +80,7 @@ class DetachedSource:
             visible[mask] = image[mask]
             owner[mask] = row['name']
         labels, groups = components(visible[..., 3] > 0, 8)
-        passed, references = [], []
+        passed, references, unmatched = [], [], []
         if len(groups) > 1:
             for record in self.references:
                 name = record['piece']
@@ -100,6 +99,15 @@ class DetachedSource:
                     if matching[component].all():
                         passed.append({key: value for key, value in record.items() if key != 'texture'} |
                                       {'bbox': bounds(component), 'pixel_count': size})
-                        visible[component] = 0
                         break
-        return {'metrics': detached_metrics(visible), 'source_components': passed}
+                else:
+                    y, x = np.nonzero(component)
+                    unmatched.append({'bbox': bounds(component), 'pixel_count': size,
+                                      'pixels': np.column_stack((x, y)).tolist()})
+        # §1 requires source provenance for every detached component. The
+        # legacy silhouette heuristic's tiny/dark outline allowance cannot
+        # authorize paint that was connected in the approved painting.
+        return {'metrics': {'stray_components': len(unmatched),
+                            'stray_pixels': sum(row['pixel_count'] for row in unmatched),
+                            'exempt_outline_components': 0},
+                'source_components': passed, 'unmatched_components': unmatched}

@@ -10,12 +10,15 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from humanoid_cutout.rest_space import DetachedSource, pockets
+from humanoid_cutout.gates import clean_metrics
+from humanoid_cutout.native_exceptions import DETACHED_RULE, frame_errors
 from maquette_motion import pixels
 
 FIXTURE_SIZE_PX = 32
 FIXTURE_COLOR = [70, 60, 90, 255]
 FIXTURE_SHIFT_PX = 4
 FIXTURE_TURN_RADIANS = .3
+FIXTURE_DARK_COLOR = [5, 5, 5, 255]
 
 
 class RestSpaceTests(unittest.TestCase):
@@ -60,6 +63,39 @@ class RestSpaceTests(unittest.TestCase):
         mutant = self.paint.copy(); mutant[3, 25] = FIXTURE_COLOR
         report = self.detached(self.layer(mutant))
         self.assertEqual(report['metrics']['stray_components'], 1)
+
+    def test_connected_skinned_sleeve_tip_losing_bridge_fails_native_rule(self):
+        # Review repro: removing the bridge leaves a dark one-pixel tip
+        # inside the immutable paint mask and within the old outline radius.
+        paint = np.zeros_like(self.paint)
+        paint[10:24, 10:24] = FIXTURE_COLOR
+        paint[8:10, 15] = FIXTURE_DARK_COLOR
+        checks = np.zeros_like(paint)
+        checks[paint[..., 3] > 0] = [255, 0, 0, 255]
+        Image.fromarray(paint).save(self.case / 'rest.png')
+        Image.fromarray(checks).save(self.case / 'checks.png')
+        part = dict(self.part, name='sleeve', logical_part='sleeve')
+        layout = {'rest_source': 'rest.png', 'parts': [part],
+                  'joint_meshes': [{'name': 'sleeve'}],
+                  'proof_layers': {'sleeve': {'mask': 'checks.png', 'mask_offset': [0, 0]}}}
+        approved = DetachedSource(self.case, layout)
+        self.assertEqual(approved.references, [])
+        self.assertEqual(approved.report([(part, paint, checks)], {})['metrics']['stray_components'], 0)
+        damaged = paint.copy(); damaged[9, 15] = 0
+        layers = [(part, damaged, checks)]
+        source = approved.report(layers, {})
+        self.assertEqual(source['source_components'], [])
+        self.assertEqual(source['metrics'], {'stray_components': 1, 'stray_pixels': 1,
+                                              'exempt_outline_components': 0})
+        self.assertEqual(source['unmatched_components'], [
+            {'bbox': [15, 8, 16, 9], 'pixel_count': 1, 'pixels': [[15, 8]]}])
+        space = pockets(layers)
+        self.assertEqual(space['failures'], [])
+        metrics = clean_metrics(layers)
+        self.assertEqual(metrics['outside_pixels'], 0)
+        metrics.update(source['metrics'])
+        key = ('front', 'bolt', 1)
+        self.assertEqual(frame_errors(key, metrics, []), [str(key) + ': ' + DETACHED_RULE])
 
     def test_shifted_or_stretched_source_speck_fails(self):
         for extra in (False, True):

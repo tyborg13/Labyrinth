@@ -1,3 +1,9 @@
+# rr-26 strict provenance follow-up
+
+See [the rr-26 implementation handoff](rr26_implementation.md) for the strict
+census failures, current tests and owner windowed sequence. The rr-20 record
+below is historical; its tiny-outline passes are superseded by rr-26.
+
 # rr-20 — Hollow Mimic humanoid v2
 
 Feedback 3 is implemented on `codex/rr-20`, based on the director's merge

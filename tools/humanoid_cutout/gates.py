@@ -430,7 +430,9 @@ def native_errors(case, capture, failure_output=None, hole_details=None, samples
             detached = detached_sources[view].report(layers, transforms)
             metric.update(detached['metrics'])
             space['source_components'] = detached['source_components']
-        if space_details is not None and (space['air_pockets'] or new_holes or space.get('source_components')):
+            space['unmatched_components'] = detached['unmatched_components']
+        if space_details is not None and (space['air_pockets'] or new_holes or
+                                         space.get('source_components') or space.get('unmatched_components')):
             space_details.append({'view': view, 'clip': clip, 'frame': frame,
                                   **space, 'failures': new_holes})
         elif space_details is None:

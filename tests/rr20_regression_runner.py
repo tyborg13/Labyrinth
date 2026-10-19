@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-TASK_ID = 'rr-20'
+TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-26')
 MODULES = ('tests.test_rr14_anatomy', 'tests.test_rr14_bone_guards', 'tests.test_rr14_foundations')
 original_run = subprocess.run
 runner_invocations = 0
@@ -28,6 +28,6 @@ if __name__ == '__main__':
     suite = unittest.defaultTestLoader.loadTestsFromNames(sys.argv[1:] or MODULES)
     with patch('subprocess.run', task_run):
         result = unittest.TextTestRunner().run(suite)
-    print('RR20 INHERITED RUNNERS: %s (%d Godot invocations forced to rr-20)' %
-          ('PASS' if result.wasSuccessful() else 'FAIL', runner_invocations))
+    print('RR20 INHERITED RUNNERS: %s (%d Godot invocations forced to %s)' %
+          ('PASS' if result.wasSuccessful() else 'FAIL', runner_invocations, TASK_ID))
     raise SystemExit(int(not result.wasSuccessful()))
