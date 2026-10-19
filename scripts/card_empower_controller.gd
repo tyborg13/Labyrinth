@@ -3,7 +3,6 @@ extends RefCounted
 const Keywords = preload("res://scripts/card_keyword_rules.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Defense = preload("res://scripts/defense_relic_rules.gd")
-const Router = preload("res://scripts/input_router.gd")
 
 static func index_for_input(scene: Node, controller: bool = false) -> int:
 	if scene._drag_card_index >= 0: return scene._drag_card_index

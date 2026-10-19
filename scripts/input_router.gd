@@ -38,6 +38,8 @@ var _forced_family_for_test: String = ""
 var _forced_modality_for_test: String = ""
 var _last_controller_activity_msec: int = -10000
 var _steam_input_initialized: bool = false
+# Available only while a synchronous modality change is being delivered.
+var _modality_change_event: InputEvent
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -58,12 +60,12 @@ func record_input_activity(event: InputEvent) -> void:
 	if event is InputEventJoypadButton:
 		var button_event := event as InputEventJoypadButton
 		if button_event.pressed:
-			mark_controller_device(button_event.device)
+			mark_controller_device(button_event.device, button_event)
 		return
 	if event is InputEventJoypadMotion:
 		var motion_event := event as InputEventJoypadMotion
 		if absf(motion_event.axis_value) >= JOYSTICK_ACTIVITY_THRESHOLD:
-			mark_controller_device(motion_event.device)
+			mark_controller_device(motion_event.device, motion_event)
 		return
 	if event is InputEventMouseButton:
 		if (event as InputEventMouseButton).pressed:
@@ -98,7 +100,12 @@ func set_modality(next_modality: String) -> void:
 	_modality = normalized
 	modality_changed.emit(_modality)
 
-func mark_controller_device(device_id: int) -> void:
+func modality_change_action_pressed(action_name: StringName) -> bool:
+	return _modality_change_event != null and _modality_change_event.is_action_pressed(action_name)
+
+func mark_controller_device(device_id: int, event: InputEvent = null) -> void:
+	var previous_event: InputEvent = _modality_change_event
+	_modality_change_event = event
 	_last_controller_activity_msec = Time.get_ticks_msec()
 	_active_device_id = device_id
 	var next_family: String = family_for_device(device_id)
@@ -106,6 +113,7 @@ func mark_controller_device(device_id: int) -> void:
 		_controller_family = next_family
 		controller_family_changed.emit(controller_family())
 	set_modality(MODALITY_CONTROLLER)
+	_modality_change_event = previous_event
 
 func family_for_device(device_id: int) -> String:
 	var steam_input_family: String = _family_from_steam_input(device_id)

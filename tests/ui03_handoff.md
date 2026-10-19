@@ -5,6 +5,43 @@ branch change, peer review, publication, queue update or windowed launch was run
 Renderer inspection, peer review, the inspection fixture and publication belong
 to the design owner under this unit's workflow split.
 
+## Director feedback 1 (review of 75fc0bdcc)
+
+Fixed with focused checks only; this follow-up remains uncommitted.
+
+1. Right-stick Empower retains the mouse drag during modality handoff. InputRouter
+   exposes the originating event only during synchronous modality notification;
+   RunScene preserves the held gesture for Empower and routes it before normal
+   controller navigation. Other controller actions still cancel the drag,
+   including after an Empower handoff; neutral stick noise does not cancel it.
+   The regression routes a mouse press/motion, a real right-stick event and the
+   mouse release through `Input.parse_input_event`, then checks the empowered play.
+2. A separate targetless test starts uncharged, charges mid-drag and commits the
+   bonus and Time cost. Six live Quick Wits cases cover identical charged and
+   uncharged survivors, fresh identical draws, immediate redraw and immediate
+   reshuffle/redraw. They activate the skill through its hand-selection path and
+   inspect committed hand order, skill use, deck cycles and each real seal.
+   Guard-removal checks now detect both reported gaps: deleting the options
+   refresh yields `CARD KEYWORDS TEST RESULT: FAIL (2 failures)`; deleting Quick
+   Wits' charge clear yields `CARD KEYWORDS TEST RESULT: FAIL (10 failures)`.
+   Each temporary mutation was restored in a `finally` block.
+3. Removed the unused command text/cost/tooltip helpers and unused Router preload.
+   Targetless and Crown tests assert actual seal tooltip text and charged state.
+4. Renderer stills and movie remain queued for the director. Both windowed
+   commands below are unchanged; neither was launched in this follow-up.
+
+Feedback changes: `scripts/input_router.gd`, `scripts/run_scene.gd`,
+`scripts/card_empower_controller.gd`, the keyword/Empower/Crown test suites, new
+`tests/suites/empower_charge_departure_suite.gd`, and this handoff.
+
+New debug-only defaults: `FIXTURE_SEED = 60307`, six named departure fixtures,
+`ACTION_TIMEOUT_MSEC = 10000`, `ROUTED_DRAG_OFFSET = (20, 0)` and
+`NEUTRAL_STICK_VALUE = 0.1`. No design values or approved assets changed.
+
+Current focused logs and guard-removal evidence: `output/ui03/feedback-1/`.
+The original implementation checks below are retained as historical evidence;
+feedback checks are listed in `output/ui03/feedback-1/RESULTS.md`.
+
 ## Files changed
 
 - `scripts/run_scene.gd`: Empower input, preview/commit integration, hand and

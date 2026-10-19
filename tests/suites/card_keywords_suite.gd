@@ -584,7 +584,7 @@ static func _test_live_targetless_empower_confirmation(tree: SceneTree, expect: 
 	expect.call(tracker.is_empty(), "Targetless Empower uses the card seal without a tracker grid slot")
 	instance.call("_refresh_action_step_tracker")
 	var button: BaseButton = _command_button(instance, "ActionContextEmpower")
-	expect.call(button == null and str(instance.call("_empower_command_tooltip")).begins_with("Empower: +1 Time"), "The seal tooltip names the cost and the old command is absent")
+	expect.call(button == null and str((instance.call("_hand_card_control", 0) as Node).get_node("EmpowerSeal").tooltip_text).begins_with("Empower: +1 Time"), "The seal tooltip names the cost and the old command is absent")
 	expect.call(int((instance.call("_turn_order_card_time_preview") as Dictionary).get("time", 0)) == 2, "The Time preview starts at the printed Time")
 	await instance.call("_toggle_pending_empower")
 	await tree.process_frame

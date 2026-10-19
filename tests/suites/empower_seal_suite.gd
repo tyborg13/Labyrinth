@@ -5,6 +5,9 @@ const Charge = preload("res://scripts/card_empower_charge.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const Router = preload("res://scripts/input_router.gd")
+const Departures = preload("res://tests/suites/empower_charge_departure_suite.gd")
+const ROUTED_DRAG_OFFSET := Vector2(20, 0)
+const NEUTRAL_STICK_VALUE: float = 0.1
 const PROOF_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 5
 const FIXTURE_SEEDS := {"mouse": 60301, "drag": 60302, "blocked": 60303, "multi": 60304, "rotation": 60305, "survivor": 60306}
@@ -16,6 +19,11 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	_test_instances(expect)
 	await _mouse_and_persistence(tree, expect, fixtures)
 	await _drag(tree, expect, fixtures)
+	await _uncharged_drag(tree, expect, fixtures)
+	await _routed_right_stick_drag(tree, expect, fixtures)
+	await _other_controller_drag_handoffs(tree, expect, fixtures)
+	await Departures.run_live(tree, expect, fixtures)
+	await _crown_seal(tree, expect, fixtures)
 	await _surviving_copy(tree, expect, fixtures)
 	await _blocked_and_lock(tree, expect, fixtures)
 	await _rotation_and_precedence(tree, expect, fixtures)
@@ -242,3 +250,115 @@ static func _toggle_event_count() -> int:
 	for event: Dictionary in Analytics.load_all_events():
 		if str(event.get("event_type", "")) == "empower_toggled": count += 1
 	return count
+
+static func _uncharged_drag(tree: SceneTree, expect: Callable, fixtures: Script) -> void:
+	var scene: Node = await fixtures._live_instance(tree, expect, ["kwtest_empower_block"], FIXTURE_SEEDS["drag"])
+	await scene.call("_on_card_drag_started", 0)
+	expect.call(not bool(scene.call("_hand_card_empowered", 0)), "The held targetless card starts uncharged")
+	await _key(scene)
+	var point: Vector2 = scene.call("_controller_board_point", fixtures.NEAR_TILE)
+	await scene.call("_commit_drag_drop", "play", point)
+	var committed: Dictionary = scene.get("_combat_state")
+	expect.call(int(committed.get("player_turn_time_spent", 0)) == 3 and int((committed.get("player", {}) as Dictionary).get("block", 0)) == 7, "A card charged mid-drag commits the refreshed Empower bonus and payment")
+	scene.queue_free()
+	await _settle(tree)
+
+static func _routed_right_stick_drag(tree: SceneTree, expect: Callable, fixtures: Script) -> void:
+	var scene: Node = await fixtures._live_instance(tree, expect, ["kwtest_empower_time"], FIXTURE_SEEDS["drag"])
+	var router: Node = tree.root.get_node("InputRouter")
+	router.call("clear_forced_state_for_test")
+	router.call("set_modality", "pointer")
+	await _settle(tree)
+	var card: Control = scene.call("_hand_card_control", 0)
+	await _mouse(tree, card.get_global_transform_with_canvas() * (card.size * 0.5))
+	var start: Vector2 = card.get_global_transform_with_canvas() * (card.size * 0.5)
+	var press := InputEventMouseButton.new()
+	press.position = start
+	press.global_position = start
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	Input.parse_input_event(press)
+	await _settle(tree)
+	var move := InputEventMouseMotion.new()
+	move.position = start + ROUTED_DRAG_OFFSET
+	move.global_position = move.position
+	move.relative = ROUTED_DRAG_OFFSET
+	move.button_mask = MOUSE_BUTTON_MASK_LEFT
+	Input.parse_input_event(move)
+	await _settle(tree)
+	expect.call(int(scene.get("_drag_card_index")) == 0 and not bool(scene.call("_hand_card_empowered", 0)) and not bool(router.call("using_controller")), "Routed pointer input begins an uncharged mouse-owned drag")
+	var stick := InputEventJoypadButton.new()
+	stick.button_index = JOY_BUTTON_RIGHT_STICK
+	stick.pressed = true
+	Input.parse_input_event(stick)
+	await _settle(tree)
+	expect.call(int(scene.get("_drag_card_index")) == 0 and bool(scene.call("_hand_card_empowered", 0)) and bool(router.call("using_controller")), "Routed right-stick Empower survives the pointer-to-controller handoff and charges the held card")
+	expect.call(not bool(router.call("modality_change_action_pressed", Router.ACTION_EMPOWER)), "The right-stick handoff exception does not persist beyond its routed event")
+	stick = stick.duplicate() as InputEventJoypadButton
+	stick.pressed = false
+	Input.parse_input_event(stick)
+	var point: Vector2 = scene.call("_controller_board_point", fixtures.NEAR_TILE)
+	var release := InputEventMouseButton.new()
+	release.position = point
+	release.global_position = point
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.pressed = false
+	Input.parse_input_event(release)
+	await Departures.wait_for_idle(tree, scene, expect)
+	var committed: Dictionary = scene.get("_combat_state")
+	expect.call(int(committed.get("player_turn_time_spent", 0)) == 6 and ((committed.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "The mouse release after routed right-stick charging commits an empowered drag play")
+	router.call("set_modality", "pointer")
+	scene.queue_free()
+	await _settle(tree)
+
+static func _crown_seal(tree: SceneTree, expect: Callable, fixtures: Script) -> void:
+	var scene: Node = await fixtures._live_instance(tree, expect, ["kwtest_stagger_strike"], FIXTURE_SEEDS["mouse"])
+	var state: Dictionary = scene.get("_combat_state")
+	state["relics"] = ["crown_of_surplus"]
+	scene.call("_mark_combat_preview_state_changed")
+	scene.call("_refresh_ui")
+	scene.call("_on_card_hover_started", 0)
+	var seal: Button = _seal(scene)
+	expect.call(seal.visible and not bool(seal.get("charged")) and seal.tooltip_text == "Empower: +3 Time · repeat this card's first action\nClick the seal or press E", "Crown's real seal offers its granted Empower and exact cost/bonus tooltip")
+	await _key(scene)
+	expect.call(bool(seal.get("charged")) and seal.tooltip_text == "Empower: +3 Time · repeat this card's first action\nCharged. Click to cancel.", "Crown's real seal and tooltip reflect charge")
+	scene.queue_free()
+	await _settle(tree)
+
+static func _other_controller_drag_handoffs(tree: SceneTree, expect: Callable, fixtures: Script) -> void:
+	for empower_first: bool in [false, true]:
+		var scene: Node = await fixtures._live_instance(tree, expect, ["kwtest_empower_time"], FIXTURE_SEEDS["drag"])
+		var router: Node = tree.root.get_node("InputRouter")
+		router.call("clear_forced_state_for_test")
+		router.call("set_modality", "pointer")
+		await _settle(tree)
+		await scene.call("_on_card_drag_started", 0)
+		var neutral := InputEventJoypadMotion.new()
+		neutral.axis = JOY_AXIS_LEFT_X
+		neutral.axis_value = NEUTRAL_STICK_VALUE
+		Input.parse_input_event(neutral)
+		await _settle(tree)
+		expect.call(int(scene.get("_drag_card_index")) == 0 and not bool(router.call("using_controller")), "Neutral controller noise preserves the mouse drag without a modality change")
+		if empower_first:
+			var stick := InputEventJoypadButton.new()
+			stick.button_index = JOY_BUTTON_RIGHT_STICK
+			stick.pressed = true
+			Input.parse_input_event(stick)
+			await _settle(tree)
+			stick = stick.duplicate() as InputEventJoypadButton
+			stick.pressed = false
+			Input.parse_input_event(stick)
+			expect.call(int(scene.get("_drag_card_index")) == 0 and bool(scene.call("_hand_card_empowered", 0)), "Only right-stick Empower retains the drag through its controller handoff")
+		var navigation := InputEventJoypadButton.new()
+		navigation.button_index = JOY_BUTTON_DPAD_LEFT
+		navigation.pressed = true
+		Input.parse_input_event(navigation)
+		await _settle(tree)
+		expect.call(int(scene.get("_drag_card_index")) == -1 and bool(router.call("using_controller")), "Other routed controller navigation cancels a mouse drag, including after right-stick Empower")
+		expect.call(bool(scene.call("_hand_card_empowered", 0)) == empower_first, "Cancelling the drag preserves the hand copy's current charge")
+		navigation = navigation.duplicate() as InputEventJoypadButton
+		navigation.pressed = false
+		Input.parse_input_event(navigation)
+		router.call("set_modality", "pointer")
+		scene.queue_free()
+		await _settle(tree)

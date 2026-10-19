@@ -2357,6 +2357,12 @@ func _build_controller_interface() -> void:
 	_refresh_controller_prompts()
 
 func _on_input_modality_changed(modality: String) -> void:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if modality == InputRouterScript.MODALITY_CONTROLLER and _drag_card_index >= 0 and router != null and router.modality_change_action_pressed(InputRouterScript.ACTION_EMPOWER):
+		# Right-stick Empower edits the held card; it does not transfer the drag
+		# gesture to controller navigation or rebuild its pointer-owned layout.
+		_refresh_controller_prompts()
+		return
 	_move_attack_approach.clear()
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_focused(true)
@@ -2427,7 +2433,15 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		return false
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if controller_activity and router != null and router.has_method("mark_controller_device"):
-		router.call("mark_controller_device", event.device)
+		router.call("mark_controller_device", event.device, event)
+	if _drag_card_index >= 0 and event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
+		if _empower_toggle_available():
+			await _toggle_pending_empower("controller")
+		_refresh_controller_prompts()
+		return true
+	# Other controller actions resume normal cancellation after an Empower handoff.
+	if _drag_card_index >= 0 and controller_activity:
+		_cancel_drag_play()
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
 		if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
 			_controller_switch_character_tab(-1)
@@ -34055,17 +34069,8 @@ func _selected_card_empowered() -> bool:
 	var modifiers: Dictionary = _preview_combat_state.get(CardKeywordRules.PLAY_MODIFIERS_KEY, {}) as Dictionary
 	return _selected_card_index >= 0 and bool(modifiers.get("empowered", false)) and str(modifiers.get("card_id", "")) == _card_id_for_hand_index(_selected_card_index)
 
-func _selected_card_empower_cost() -> Dictionary:
-	return CardKeywordRules.empower_cost(_card_def(_card_id_for_hand_index(_selected_card_index), _combat_state))
-
 func _empower_toggle_available() -> bool:
 	return EmpowerUi.available(self, EmpowerUi.index_for_input(self, _controller_is_active()))
-
-func _empower_command_text(active: bool) -> String:
-	return ("Unempower" if active else "Empower") + " " + CardKeywordRules.empower_cost_label(_selected_card_empower_cost())
-
-func _empower_command_tooltip() -> String:
-	return EmpowerUi.tooltip(self, _selected_card_index)
 
 func _on_hand_empower_toggled(widget: CardWidget) -> void:
 	await EmpowerUi.toggle(self, _hand_card_index_for_widget(widget), "mouse")
