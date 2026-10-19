@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "slag_mortar",
+  "job_id": "mq-slag_mortar-front-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "31f88c3557781db16090038fbb7ee46e6729a86025baba1877788aeeda858e1e",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/slag_mortar/front/kit.json",
+    "pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a"
+  },
+  "method": "maquette paint-over r1 from the mq-09 maquette (squat banded crucible, brute, harness, bracers) + one apron revision; palette matched to the approved art-02 front; peer ref = owner-approved Frostglass Lancer mq4",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "e12b932b6243b042521faaa67b5e7e9a9f7ca8788ddbceb174b243d41d1fd0b2",
+  "prompt_source": "spec/peer_benchmark/staged/paintovers/slag_mortar_front_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq09",
+      "file": "refs/01_maquette_front_parts_mq09.png",
+      "pixel_sha256": "7b1a88ad6400681372b4e1152511fee1b290bd82e294bc3ef82f0ed1279ddcc8",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-slag_mortar-front-r1/refs/01_maquette_front_parts.png"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq09",
+      "file": "refs/02_maquette_front_clay_mq09.png",
+      "pixel_sha256": "da92834aa6b6f8ae273be7b2cb06538b1686df176734bfd31f7c78f1dee8436b",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-slag_mortar-front-r1/refs/02_maquette_front_clay.png"
+    },
+    {
+      "canon_id": "identity_slag_mortar_current",
+      "file": "refs/03_identity_slag_mortar_current.png",
+      "pixel_sha256": "eee08bc05cfba6952052b853d4b540f76df99b5d45d833c66bc100ce462bd0d0",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-slag_mortar-front-r1/refs/03_identity_slag_mortar_front.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_front",
+      "file": "refs/04_approved_frostglass_lancer_mq4_front.png",
+      "pixel_sha256": "5ae6ac1f259665257abf87af1e79a90f68421e52af16ab7941cc45d01ac90a26",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-slag_mortar-front-r1/refs/04_peer.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-slag_mortar-front-r1/refs/05_hero_front.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "view": "creature_front"
+}

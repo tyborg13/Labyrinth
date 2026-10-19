@@ -1,0 +1,60 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hollow_mimic",
+  "job_id": "mq-hollow_mimic-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "6fdbcd3b75d95aac6e3f6bc2e624dcc4dcf8fd75424e797c7dbee2b47652c95a",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/hollow_mimic/mq9_front/kit.json",
+    "pixel_sha256": "5048e8a6c7fbf8bff2fc707000b4f7ea7d208a8f9e7979e57cccb59990238687"
+  },
+  "method": "maquette paint-over r1 (rear) from the mq-09 maquette (true 180 turn); palette matched to the approved mq9 front job",
+  "peers": [
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "28fc663ce38ab0988234af28d4896efdf45f7411b9758f22ef45687812049e2e",
+  "prompt_source": "spec/peer_benchmark/staged/paintovers/hollow_mimic_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts_mq09",
+      "file": "refs/01_maquette_rear_parts_mq09.png",
+      "pixel_sha256": "0dd2e4503152a731a45f006eef2d4672130698220d8da3c9a6d601ad6adb815d",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-hollow_mimic-rear-r1/refs/01_maquette_rear_parts.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay_mq09",
+      "file": "refs/02_maquette_rear_clay_mq09.png",
+      "pixel_sha256": "7f64ed70337b1aa8096e4d35287f12e178983bcba0e9505eff6ef894de088cec",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-hollow_mimic-rear-r1/refs/02_maquette_rear_clay.png"
+    },
+    {
+      "canon_id": "hollow_mimic_front_mq9",
+      "file": "refs/03_hollow_mimic_front_mq9.png",
+      "pixel_sha256": "d6b55a23423b37c818a26c9ee3c93422942c27857c34923884bf85bba20d6fcd",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-hollow_mimic-rear-r1/refs/03_hollow_mimic_front_approved.png"
+    },
+    {
+      "canon_id": "approved_frostglass_lancer_mq4_rear",
+      "file": "refs/04_approved_frostglass_lancer_mq4_rear.png",
+      "pixel_sha256": "8936a3ed4156a5c7962658fd31ddcfaf67b3d063b960117e99e17436aea4c2fa",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-hollow_mimic-rear-r1/refs/04_peer_rear.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-hollow_mimic-rear-r1/refs/05_hero_rear.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 203,
+  "view": "creature_rear"
+}
