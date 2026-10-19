@@ -3720,7 +3720,7 @@
       },
       "source_path": "assets/art/enemies/storm_capacitor.png",
       "source_pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
-      "owner_approval": "rr-17 brief: exact partition of existing approved Storm Capacitor painting. Derived offline rest equals approved painting; native rebake pending director."
+      "owner_approval": "rr-17 brief: exact partition of existing approved Storm Capacitor painting. Real native rest equals the approved painting byte for byte in decoded RGBA."
     },
     {
       "id": "storm_capacitor",
@@ -3751,7 +3751,7 @@
       },
       "source_path": "assets/art/enemies/storm_capacitor.png",
       "source_pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
-      "owner_approval": "rr-17 brief: exact partition of existing approved Storm Capacitor painting. Derived offline rest equals approved painting; native rebake pending director."
+      "owner_approval": "rr-17 brief: exact partition of existing approved Storm Capacitor painting. Real native rest equals the approved painting byte for byte in decoded RGBA."
     }
   ],
   "version": 1

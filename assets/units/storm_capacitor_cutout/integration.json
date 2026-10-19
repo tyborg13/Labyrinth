@@ -14,8 +14,25 @@
     "spec/peer_benchmark/staged/rr-17/cap_mask.png": "1c45fa05db6f1c908e0153710e0d132155c2a90b56f1d3f04d6b126107d4517a",
     "spec/peer_benchmark/staged/rr-17/vent_fill.png": "f5be297e5ddb5c8189f85a25ac369dce6cdb9697cda5e58d0b773c8fba767043"
   },
-  "native_proof": "pending director windowed proof",
-  "density": "exact partition of existing treated painting; prescribed glow; protected vent fill",
+  "native_proof": "native rest and every sequential rig frame verified; production capture remains separate",
+  "density": {
+    "entry": "storm_capacitor_cutout",
+    "parts_pixel_sha256": "e8e4eee47d91c23170c2c1c32f0fc8cc7fb06c86170e82916f3dd745a4f5c1b7",
+    "native_rests": {
+      "assets/units/storm_capacitor_cutout/front/rest.png": {
+        "kind": "rest",
+        "id": "storm_capacitor_cutout",
+        "pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
+        "parts_pixel_sha256": "e8e4eee47d91c23170c2c1c32f0fc8cc7fb06c86170e82916f3dd745a4f5c1b7"
+      },
+      "assets/units/storm_capacitor_cutout/rear/rest.png": {
+        "kind": "rest",
+        "id": "storm_capacitor_cutout",
+        "pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
+        "parts_pixel_sha256": "e8e4eee47d91c23170c2c1c32f0fc8cc7fb06c86170e82916f3dd745a4f5c1b7"
+      }
+    }
+  },
   "files": {
     "actions.gd": "d81299bf84c5109d19368ee1e2385895d72a2914d80c94041e6a8f45513af390",
     "compiled_motion.json": "679e7b0f557ea3d2c7258802a03830de118e8f4079c6865960822c28638a4b84",

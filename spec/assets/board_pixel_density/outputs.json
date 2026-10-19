@@ -12556,6 +12556,74 @@
     "grid": 1.27,
     "facing": "rear"
   },
+  "assets/units/storm_capacitor_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "storm_capacitor_cutout",
+    "pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
+    "parts_pixel_sha256": "e8e4eee47d91c23170c2c1c32f0fc8cc7fb06c86170e82916f3dd745a4f5c1b7"
+  },
+  "assets/units/storm_capacitor_cutout/paint/cap.png": {
+    "pixel_sha256": "312d62b19fa82972805d312a606e1332a4a929147590bcae0c3a9fe918bc19c1",
+    "source_pixel_sha256": "312d62b19fa82972805d312a606e1332a4a929147590bcae0c3a9fe918bc19c1",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column.png": {
+    "pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "source_pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png": {
+    "pixel_sha256": "d1acada2ca7e1af2736549cb1d05642c98659601df3d0c1c11eba9caaa34eada",
+    "source_pixel_sha256": "d1acada2ca7e1af2736549cb1d05642c98659601df3d0c1c11eba9caaa34eada",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png": {
+    "pixel_sha256": "cdd5ba6ebee0445f5fe731975a4082ac5eb0ee7e4f54ef78ec158b9f1d46e94b",
+    "source_pixel_sha256": "cdd5ba6ebee0445f5fe731975a4082ac5eb0ee7e4f54ef78ec158b9f1d46e94b",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_0.png": {
+    "pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "source_pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_1.png": {
+    "pixel_sha256": "155d5b1e35bfa2b0b701e6f0dbae82dc86d1c5c9bafbd372ccc26de12ea8c5c2",
+    "source_pixel_sha256": "155d5b1e35bfa2b0b701e6f0dbae82dc86d1c5c9bafbd372ccc26de12ea8c5c2",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/paint/column_glow_2.png": {
+    "pixel_sha256": "91616276060e6c2c75f25ba262178560d665c98ff3f41d772c487a17b09b339e",
+    "source_pixel_sha256": "91616276060e6c2c75f25ba262178560d665c98ff3f41d772c487a17b09b339e",
+    "id": "storm_capacitor_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/storm_capacitor_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "storm_capacitor_cutout",
+    "pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
+    "parts_pixel_sha256": "e8e4eee47d91c23170c2c1c32f0fc8cc7fb06c86170e82916f3dd745a4f5c1b7"
+  },
   "assets/units/tharokh_cutout/front/body_under_fore_far.png": {
     "pixel_sha256": "5aecc6450c7e419a5fbb504c5a9bdd19b80f0fbd3531a4d088653d1ebbd83751",
     "source_pixel_sha256": "7d4254c2c844172c3bb061c408e39607d586e40a3c90d37565433a653a5e8c38",
@@ -14111,61 +14179,5 @@
     "mode": "clean",
     "grid": 0.78,
     "facing": "rear"
-  },
-  "assets/units/storm_capacitor_cutout/paint/cap.png": {
-    "pixel_sha256": "312d62b19fa82972805d312a606e1332a4a929147590bcae0c3a9fe918bc19c1",
-    "source_pixel_sha256": "312d62b19fa82972805d312a606e1332a4a929147590bcae0c3a9fe918bc19c1",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
-  },
-  "assets/units/storm_capacitor_cutout/paint/column.png": {
-    "pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
-    "source_pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
-  },
-  "assets/units/storm_capacitor_cutout/paint/column_glow_-1.png": {
-    "pixel_sha256": "d1acada2ca7e1af2736549cb1d05642c98659601df3d0c1c11eba9caaa34eada",
-    "source_pixel_sha256": "d1acada2ca7e1af2736549cb1d05642c98659601df3d0c1c11eba9caaa34eada",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
-  },
-  "assets/units/storm_capacitor_cutout/paint/column_glow_-2.png": {
-    "pixel_sha256": "cdd5ba6ebee0445f5fe731975a4082ac5eb0ee7e4f54ef78ec158b9f1d46e94b",
-    "source_pixel_sha256": "cdd5ba6ebee0445f5fe731975a4082ac5eb0ee7e4f54ef78ec158b9f1d46e94b",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
-  },
-  "assets/units/storm_capacitor_cutout/paint/column_glow_0.png": {
-    "pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
-    "source_pixel_sha256": "997a1f38b4f3de835e18da2689cda669526a27e3a32d6547a84e66cb8099df2a",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
-  },
-  "assets/units/storm_capacitor_cutout/paint/column_glow_1.png": {
-    "pixel_sha256": "155d5b1e35bfa2b0b701e6f0dbae82dc86d1c5c9bafbd372ccc26de12ea8c5c2",
-    "source_pixel_sha256": "155d5b1e35bfa2b0b701e6f0dbae82dc86d1c5c9bafbd372ccc26de12ea8c5c2",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
-  },
-  "assets/units/storm_capacitor_cutout/paint/column_glow_2.png": {
-    "pixel_sha256": "91616276060e6c2c75f25ba262178560d665c98ff3f41d772c487a17b09b339e",
-    "source_pixel_sha256": "91616276060e6c2c75f25ba262178560d665c98ff3f41d772c487a17b09b339e",
-    "id": "storm_capacitor_cutout",
-    "mode": "clean",
-    "grid": 1.0,
-    "facing": "front"
   }
 }

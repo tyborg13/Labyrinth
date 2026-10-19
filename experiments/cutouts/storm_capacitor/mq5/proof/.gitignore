@@ -1,0 +1,6 @@
+native/
+native_rest/
+production_native/
+contact_sheets/
+logs/
+*.mp4

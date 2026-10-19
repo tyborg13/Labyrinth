@@ -202,9 +202,10 @@ func print_proof_images() -> void:
 			if row["stage"] == clip: unique[str(row["pixels_sha256"])] = row
 		var selected: Array = unique.values()
 		selected.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a["snapshot"]["phase"]) < float(b["snapshot"]["phase"]))
-		if selected.size() < 6: continue
-		for sample: int in range(6):
-			var index: int = roundi(float(sample) * (selected.size() - 1) / 5.0)
+		# The idle buzz has only two distinct states by design; print every state when there are fewer than six.
+		var count: int = mini(6, selected.size())
+		for sample: int in range(count):
+			var index: int = roundi(float(sample) * (selected.size() - 1) / maxf(1.0, float(count - 1)))
 			print(ProjectSettings.globalize_path(_output.path_join(str(selected[index]["file"]))))
 		if _data["clips"][clip].has("contact"):
 			for row: Dictionary in _frames:
