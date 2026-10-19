@@ -72,7 +72,8 @@ def initialize():
     write_json(CASE / 'anatomy.json', anatomy)
     write_json(CASE / 'inputs.json', {**{v + '_job': 'spec/art_identity/jobs/slag_mortar/mq9_' + v for v in ('front', 'rear')},
         **{v + '_delivery': 'spec/art_identity/maquettes/slag_mortar/delivery' for v in ('front', 'rear')},
-        'fused_occlusion': True, 'design_placeholders': {'TODO_DESIGN_surface_ownership_masks': 'Native categorical projection places part of the front near shoulder/harness on mortar and rear near fist on the arm. Exact painted boundaries need director ownership masks; current source partition is provisional, not visual acceptance.', 'TODO_DESIGN_front_green_dominant_texels': 'Approved mq9 front contains 28 opaque texels with G > R and G > B. Strict zero-green gate conflicts with immutable painting; owner must supply corrected paint or clarify the gate.'}})
+        'fused_occlusion': True, 'design_placeholders': {}})
+
 
 
 if __name__ == '__main__': initialize()

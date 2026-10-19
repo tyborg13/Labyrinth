@@ -1,0 +1,104 @@
+{
+  "rule": "front_crucible_colour",
+  "region_pixels": 6503,
+  "retained_pixels": 2797,
+  "transferred_pixels": 3706,
+  "speck_transfers": [
+    {
+      "from": "torso",
+      "to": "mortar",
+      "pixels": 2
+    },
+    {
+      "from": "torso",
+      "to": "mortar",
+      "pixels": 2
+    },
+    {
+      "from": "torso",
+      "to": "mortar",
+      "pixels": 2
+    },
+    {
+      "from": "torso",
+      "to": "mortar",
+      "pixels": 1
+    },
+    {
+      "from": "upper_near",
+      "to": "mortar",
+      "pixels": 2
+    },
+    {
+      "from": "upper_near",
+      "to": "mortar",
+      "pixels": 2
+    },
+    {
+      "from": "fore_near",
+      "to": "upper_near",
+      "pixels": 1
+    },
+    {
+      "from": "thigh_far",
+      "to": "apron",
+      "pixels": 2
+    },
+    {
+      "from": "mortar",
+      "to": "upper_near",
+      "pixels": 2
+    },
+    {
+      "from": "mortar",
+      "to": "upper_near",
+      "pixels": 1
+    },
+    {
+      "from": "mortar",
+      "to": "upper_near",
+      "pixels": 1
+    },
+    {
+      "from": "mortar",
+      "to": "torso",
+      "pixels": 1
+    },
+    {
+      "from": "mortar",
+      "to": "torso",
+      "pixels": 1
+    },
+    {
+      "from": "mortar",
+      "to": "upper_near",
+      "pixels": 1
+    },
+    {
+      "from": "mortar",
+      "to": "upper_near",
+      "pixels": 1
+    }
+  ],
+  "names": [
+    "head",
+    "torso",
+    "pelvis",
+    "upper_near",
+    "fore_near",
+    "hand_near",
+    "upper_far",
+    "fore_far",
+    "hand_far",
+    "thigh_near",
+    "shin_near",
+    "foot_near",
+    "thigh_far",
+    "shin_far",
+    "foot_far",
+    "mortar",
+    "apron"
+  ],
+  "map": "ownership/front.png",
+  "map_sha256": "449d3e60f364159d927357e2738e58231200f5c3ce7771de6d15616574683dff"
+}

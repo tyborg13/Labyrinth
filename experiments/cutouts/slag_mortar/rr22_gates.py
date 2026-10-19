@@ -4,12 +4,14 @@ import math
 import sys
 import numpy as np
 from PIL import Image
-from rr22_case import PROJECT, CASE, DIRECTOR
+from rr22_case import PROJECT, CASE, ASSETS, DIRECTOR
 from cutout_pipeline.cases import read_json, write_json
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from maquette_motion.compiler import evaluate
+import rr22_residue_gate as residue
+import rr22_surface_gates as surfaces
 sys.path.insert(0, str(PROJECT / 'experiments/cutouts/arc_thrall'))
 from rr11_knees import knee_report, lift_track, PRESENTED_TARGET_TOLERANCE_PX
 
@@ -58,11 +60,6 @@ def lob_report(layout, data, samples):
     return {'ok': not errors, 'errors': errors, 'rows': rows}
 
 
-def green_pixels(image):
-    rgba = np.asarray(image.convert('RGBA')).astype(np.int16)
-    return int(((rgba[..., 3] > 0) & (rgba[..., 1] > rgba[..., 0]) & (rgba[..., 1] > rgba[..., 2])).sum())
-
-
 def run(native=None):
     data, build, samples = [read_json(CASE / p) for p in ('compiled_motion.json', 'proof/build.json', 'proof/samples.json')]
     errors, reports = [], {}
@@ -77,16 +74,14 @@ def run(native=None):
             'supports': support_report(layout, data, samples),
             'reach': reach_report(layout, data, step_distance_px=samples['step_distance_px'], screen_pixel_scale=samples['screen_pixel_scale'])}
         for value in reports[view].values(): errors += value['errors']
-        # R >= G for every source paint texel is closed under the runtime's
-        # nearest/linear texture sampling and alpha composition. Native frames
-        # are still scanned independently below, never inferred from this.
-        green = sum(green_pixels(Image.open(CASE / p['file'])) for p in layout['parts'])
-        if green: errors.append(f'{view}: green-dominant source texels: {green}')
+        errors += residue.source_errors(CASE, layout)
+        errors += surfaces.errors(CASE, layout)
+        production = read_json(ASSETS / f'humanoid_v2/{view}.json')
+        errors += residue.source_errors(ASSETS / 'humanoid_v2', production,
+                                      feature_case=CASE, feature_layout=layout)
     if native:
         errors += native_errors(CASE, native)
-        for row in read_json(native / 'frames.json')['frames']:
-            count = green_pixels(Image.open(native / row['file']))
-            if count: errors.append(f'{row["file"]}: {count} green-dominant presented texels')
+        errors += residue.native_errors(CASE, native)
     result = {'ok': not errors, 'errors': errors, 'native_pixels': bool(native), 'views': reports,
               'design_placeholders': read_json(CASE / 'cutout.json')['design_placeholders']}
     result['production_ready'] = not errors and not result['design_placeholders'] and bool(native)

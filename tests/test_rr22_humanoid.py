@@ -13,7 +13,11 @@ from PIL import Image
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(PROJECT / 'tools'), str(PROJECT / 'experiments/cutouts/slag_mortar')]
 from rr22_case import CASE, ASSETS, DIRECTOR, PIECES
-from rr22_gates import support_report, lob_report, green_pixels
+from rr22_gates import support_report, lob_report
+from rr22_surfaces import residue_mask, clean_residue, resolve, connect_covered
+from rr22_residue_gate import count as residue_pixels, frame_errors as residue_frame_errors, native_errors as residue_native_errors
+from rr22_surface_gates import errors as surface_errors, connectivity_errors
+import numpy as np
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, bindings
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
@@ -102,12 +106,103 @@ class SlagMortarTests(unittest.TestCase):
         build['tucks'][0]['minimum_px'] = 2
         self.assertTrue(any('tuck' in e for e in structure_errors(self.layouts['front'], build)))
 
-    def test_green_gate_does_not_silently_approve_director_conflict(self):
-        source = Image.open(CASE / 'source/front/approved.png')
-        self.assertEqual(green_pixels(source), 28)
-        self.assertIn('TODO_DESIGN_front_green_dominant_texels', read_json(CASE / 'cutout.json')['design_placeholders'])
-        self.assertEqual(green_pixels(Image.new('RGBA', (1, 1), (0, 255, 0, 255))), 1)
-        self.assertEqual(green_pixels(Image.new('RGBA', (1, 1), (0, 255, 0, 0))), 0)
+    def test_director_residue_band_boundaries_and_olive(self):
+        rgba = np.array([[[100, 149, 100, 255], [100, 150, 100, 255],
+                          [0, 11, 0, 255], [0, 12, 0, 255],
+                          [14, 22, 5, 255], [0, 255, 0, 0]]], dtype=np.uint8)
+        self.assertEqual(residue_mask(rgba).tolist(), [[False, True, False, True, False, False]])
+        self.assertEqual(residue_pixels(Image.open(CASE / 'source/front/approved.png')), 0)
+        self.assertEqual(read_json(CASE / 'cutout.json')['design_placeholders'], {})
+
+    def test_residue_cleanup_uses_same_piece_nearest_donor_and_keeps_alpha(self):
+        rgba = np.array([[[40, 20, 10, 255], [0, 255, 0, 255], [0, 255, 0, 128],
+                          [70, 60, 50, 255]]], dtype=np.uint8)
+        feature = np.array([[False, True, False, False]])
+        original = rgba.copy()
+        cleaned, amount = clean_residue(rgba, feature)
+        self.assertEqual(amount, 1)
+        self.assertEqual(cleaned[0, 1].tolist(), rgba[0, 1].tolist())
+        self.assertEqual(cleaned[0, 2].tolist(), [70, 60, 50, 128])
+        self.assertTrue(np.array_equal(rgba, original))
+        self.assertTrue(np.array_equal(cleaned[..., 3], rgba[..., 3]))
+        self.assertEqual(residue_pixels(Image.fromarray(cleaned), feature), 0)
+
+    def test_presented_residue_outside_feature_is_rejected(self):
+        image = Image.new('RGBA', (512, 512))
+        image.putpixel((200, 200), (0, 255, 0, 255))
+        mask = np.zeros((512, 512), dtype=bool)
+        self.assertTrue(residue_frame_errors(image, mask))
+        mask[200, 200] = True
+        self.assertEqual(residue_frame_errors(image, mask), [])
+        image.putpixel((201, 200), (0, 255, 0, 255))
+        self.assertTrue(residue_frame_errors(image, mask))
+
+    def test_native_feature_sidecars_require_complete_unchanged_sized_masks(self):
+        with tempfile.TemporaryDirectory(prefix='rr22-residue-') as folder:
+            capture = Path(folder)
+            for view in self.layouts:
+                feature = self.layouts[view]['features'][0]['name']
+                Image.new('RGBA', (512, 512)).save(capture / 'frame.png')
+                manifest = {'frames': [{'view': view, 'clip': 'idle', 'frame': 0, 'file': 'frame.png'}]}
+                (capture / 'frames.json').write_text(json.dumps(manifest))
+                self.assertIn('incomplete native feature-mask coverage', residue_native_errors(CASE, capture))
+                Image.new('RGBA', (512, 512)).save(capture / 'mask.png')
+                from cutout_pipeline.cases import digest
+                row = {'view': view, 'clip': 'idle', 'frame': 0, 'name': feature,
+                       'file': 'mask.png', 'sha256': digest(capture / 'mask.png')}
+                manifest['feature_masks'] = [row]
+                (capture / 'frames.json').write_text(json.dumps(manifest))
+                self.assertEqual(residue_native_errors(CASE, capture), [])
+                Image.new('RGBA', (8, 8)).save(capture / 'mask.png')
+                self.assertTrue(any('changed/missing' in e for e in residue_native_errors(CASE, capture)))
+                row['sha256'] = digest(capture / 'mask.png')
+                (capture / 'frames.json').write_text(json.dumps(manifest))
+                self.assertTrue(any('dimensions differ' in e for e in residue_native_errors(CASE, capture)))
+
+    def test_ownership_replays_and_logical_pieces_are_connected(self):
+        for layout in self.layouts.values():
+            self.assertEqual(surface_errors(CASE, layout), [])
+        mutant = copy.deepcopy(self.layouts['front'])
+        mutant['features'][0]['piece'] = 'torso'
+        self.assertTrue(any('feature must belong' in e for e in surface_errors(CASE, mutant)))
+        image = np.zeros((7, 7, 4), dtype=np.uint8)
+        image[3, 1] = image[3, 5] = [90, 50, 30, 255]
+        self.assertTrue(connectivity_errors([image], 'mutation'))
+        paint = np.zeros_like(image)
+        paint[3, 1:6] = [0, 255, 0, 255]
+        hidden, added = connect_covered(image, np.zeros_like(image), paint, 3, None)
+        self.assertEqual(int(added.sum()), 3)
+        self.assertEqual(connectivity_errors([image, hidden], 'fixture'), [])
+        self.assertTrue(np.all(hidden[added] == [90, 50, 30, 255]))
+
+    def test_rear_fist_is_beyond_iron_rim_and_bracer_stays_forearm(self):
+        names = ['upper_near', 'fore_near', 'hand_near']
+        paint = np.zeros((12, 12, 4), dtype=np.uint8)
+        paint[2:10, 3:8] = [110, 60, 30, 255]
+        paint[4:6, 3:8] = [80, 80, 80, 255]
+        owners = np.full((12, 12), -1)
+        owners[2:10, 3:8] = 1
+        owners[9, 4] = 2
+        joints = {'fore_near': {'position': [5, 3]}, 'hand_near': {'position': [5, 9]}}
+        result, report = resolve(paint, owners, names, joints, 'rear')
+        self.assertTrue(np.all(result[4:6, 3:8] == 1))
+        self.assertTrue(np.all(result[6:10, 3:8] == 2))
+        self.assertEqual(report['bracer_pixels'], 10)
+
+    def test_front_colour_ownership_retains_neutral_iron_and_molten_seed(self):
+        names = ['mortar', 'torso', 'upper_near']
+        paint = np.zeros((8, 8, 4), dtype=np.uint8)
+        owners = np.full((8, 8), -1)
+        owners[1:6, 1:6] = 0
+        owners[6, 1:6] = 1
+        owners[1:6, 6] = 2
+        paint[owners >= 0] = [100, 50, 20, 255]
+        paint[1:3, 1:6] = [80, 80, 80, 255]
+        paint[1, 2:5] = [255, 160, 60, 255]
+        result, report = resolve(paint, owners, names, {}, 'front')
+        self.assertTrue(np.all(result[1:3, 1:6] == 0))
+        self.assertTrue(np.all(result[5, 1:6] != 0))
+        self.assertGreater(report['transferred_pixels'], 0)
 
     def test_canon_scale_survives_production_path_registration(self):
         from art_identity_gate import coverage

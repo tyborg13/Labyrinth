@@ -5,10 +5,7 @@
     "front": "layouts/front.json",
     "rear": "layouts/rear.json"
   },
-  "design_placeholders": {
-    "TODO_DESIGN_surface_ownership_masks": "Native categorical projection places part of the front near shoulder/harness on mortar and rear near fist on the arm. Exact painted boundaries need director ownership masks; current source partition is provisional, not visual acceptance.",
-    "TODO_DESIGN_front_green_dominant_texels": "Approved mq9 front contains 28 opaque texels with G > R and G > B. Strict zero-green gate conflicts with immutable painting; owner must supply corrected paint or clarify the gate."
-  },
+  "design_placeholders": {},
   "direction_clips": [
     "scatter"
   ],

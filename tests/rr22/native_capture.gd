@@ -31,6 +31,8 @@ var hole_rigs: Dictionary = {}
 var rest_holes: Array[Dictionary]
 var seam_rigs: Dictionary = {}
 var joint_seams: Array[Dictionary]
+var feature_rigs: Dictionary = {}
+var feature_masks: Array[Dictionary]
 var failures: Array[String]
 var canvas: SubViewport
 var label: Label
@@ -64,6 +66,9 @@ func _run() -> void:
 			for seam: Dictionary in rig.layout.get("proof_joint_seams", []):
 				var reference: Node2D = make_hole_rig(view,seam)
 				reference.apply_pose("death",1.0)
+			for feature: Dictionary in rig.layout.get("features", []):
+				var reference: Node2D = make_feature_rig(view, feature)
+				reference.apply_pose("death", 1.0)
 		print("RR22 NATIVE PROBE LOAD: " + ("PASS" if failures.is_empty() else "FAIL"))
 		quit(0 if failures.is_empty() else 1)
 		return
@@ -98,6 +103,8 @@ func _run() -> void:
 				hole_rigs[view+"/"+str(hole["name"])] = make_hole_rig(view,hole)
 			for seam: Dictionary in rig.layout.get("proof_joint_seams", []):
 				seam_rigs[view+"/"+str(seam["name"])] = make_hole_rig(view,seam)
+			for feature: Dictionary in rig.layout.get("features", []):
+				feature_rigs[view + "/" + str(feature["name"])] = make_feature_rig(view, feature)
 			for part: Dictionary in rig.layout["parts"]:
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
@@ -177,6 +184,11 @@ func _run() -> void:
 					picture(seam_rigs[key]).save_png(path(seam_file))
 					joint_seams.append({"view":key.get_slice("/",0),"clip":clip,"frame":frame,"file":seam_file,
 						"sha256":FileAccess.get_sha256(path(seam_file))})
+				for key: String in feature_rigs:
+					var feature_file: String = "features/" + clip + "/%04d/" % frame + key + ".png"
+					picture(feature_rigs[key]).save_png(path(feature_file))
+					feature_masks.append({"view": key.get_slice("/", 0), "name": key.get_slice("/", 1),
+						"clip": clip, "frame": frame, "file": feature_file, "sha256": FileAccess.get_sha256(path(feature_file))})
 				if clip == "idle":
 					for key: String in groups:
 						var group_rig: Node2D = groups[key]
@@ -190,7 +202,7 @@ func _run() -> void:
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"native_pixels": true, "size": [1920,1080], "ui_scale": 1.0, "fps": FPS,
 		"inputs": _binding_script.for_case(directory), "frames": records, "pairs": pairs, "pieces": pieces,
-		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams,
+		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams, "feature_masks": feature_masks,
 		"errors": failures, "ok": failures.is_empty()}))
 	print("RR22 NATIVE CAPTURE: " + ("PASS" if failures.is_empty() else "FAIL"))
 	print(ProjectSettings.globalize_path(output.path_join("rest_pair.png")))
@@ -247,6 +259,26 @@ func make_hole_rig(view: String, hole: Dictionary) -> Node2D:
 		sprite.centered = false
 		(rig.bones[hole["bone"]] as Bone2D).add_child(sprite)
 		rig.layout["parts"].append({"name":hole["name"],"bone":hole["bone"],"offset":[0,0]})
+	return rig
+
+## Render feature identity with the same pieces, alpha, skin and occlusion as
+## the real image. White is visible feature; black is all other painted alpha.
+func make_feature_rig(view: String, feature: Dictionary) -> Node2D:
+	var rig: Node2D = make_rig(view)
+	var mask: Image = Image.load_from_file(directory.path_join(str(feature["mask"])))
+	for part: Dictionary in rig.layout["parts"]:
+		var node: Node2D = painted_node(rig, str(part["name"]))
+		var texture: Texture2D = node.get("texture")
+		var original: Image = texture.get_image()
+		var image := Image.create(original.get_width(), original.get_height(), false, Image.FORMAT_RGBA8)
+		var offset := Vector2i(int(part["offset"][0]), int(part["offset"][1]))
+		for y: int in range(image.get_height()):
+			for x: int in range(image.get_width()):
+				var at := Vector2i(x, y) + offset
+				var is_feature: bool = str(part["logical_part"]) == str(feature["piece"]) and mask.get_pixelv(at).r > 0.0
+				var value: float = 1.0 if is_feature else 0.0
+				image.set_pixel(x, y, Color(value, value, value, original.get_pixel(x, y).a))
+		node.set("texture", ImageTexture.create_from_image(image))
 	return rig
 
 func display(view: SubViewport, x: float, board_scale: float = 1.0) -> void:

@@ -1,6 +1,6 @@
 # rr-22 — Slag Mortar humanoid v2
 
-Implementation is uncommitted. Production registration and headless playback are
+Feedback 1 changes are uncommitted. Production registration and headless playback are
 implemented; visual acceptance is pending the director. No windowed process,
 peer review, commit, publication or queue edit was performed.
 
@@ -12,7 +12,7 @@ peer review, commit, publication or queue edit was performed.
    The apron uses pelvis → apron_mid → apron_tip. The mortar is a torso child at
    the supplied mortar_pivot; the existing held-item sampler accepts its own
    bone as the carrier pivot, preserving a world-relative angle without any
-   shared sampler changes. The complete mortar source mask protects the molten
+   shared sampler changes. A colour-derived mortar feature mask protects the molten
    slag surface in each view. Elbows retain rest-side IK; both legs declare the
    facing knee policy and per-view stride/trailing roles.
 
@@ -21,7 +21,8 @@ peer review, commit, publication or queue edit was performed.
    invisible RGB is zeroed in the derived renderer calibration. The original
    painting is retained byte-for-byte as `source/front/approved.png` (and the
    rear likewise). No director painting, maquette or supplied motion was edited.
-   **Exact surface ownership is provisional:** see the design TODO below.
+   Feedback 1 ownership follows the director's HSV bands and painted bracer rim;
+   see the outlined source-cut sheet and the implementation details below.
 
 2. **Idle:** protected 0.84-second tracks use the shared stepped clock. Torso,
    head and both free arms bob together. The schema's historical `weapon_arm`
@@ -51,25 +52,54 @@ peer review, commit, publication or queue edit was performed.
    Lob has lift/angle keys and no forward-hand channel; its signed angle/contact
    check complements the shared forward-hand gate. Overreach is reported only.
    Native proof uses the reference real-renderer clean-piece, rest-hole, seam,
-   stray-pixel and group-rigidity gates, plus a strict green-dominant frame scan.
+   stray-pixel and group-rigidity gates, plus the director's chroma-key residue scan.
    No native exception was invented. CPU/source checks do not certify native
    seams, bounds or appearance.
 
-## Design TODOs and remaining proof
+## Director feedback 1
 
-- `TODO_DESIGN_front_green_dominant_texels`: the immutable front painting has
-  **28 opaque texels where G > R and G > B**. Its exact cut plus copied hidden
-  continuations contains 73 such texels (45 are replicated hidden texels).
-  The zero-green gate deliberately fails. Corrected approved paint or explicit
-  gate semantics must come from the director; no colors were silently changed.
-- `TODO_DESIGN_surface_ownership_masks`: the native categorical projection puts
-  part of the front near shoulder/harness on the mortar and part of the rear
-  near fist on the arm. The source-cut diagnostic was inspected at
-  `rr22/proof/contact_sheets/source_cuts.png`. Exact director masks are required
-  to separate these painted surfaces without choosing new visible boundaries.
-  The current rest partition is lossless, but this is not final cut fidelity.
+Both design TODOs are resolved by the supplied rules; no design placeholders
+remain. No generic runtime or reference-rig files changed for this feedback.
+
+- Residue means `G >= max(R,B)+12` **and** `2*G >= 3*max(R,B)` on opaque
+  texels. Cleanup preserves alpha and uses the Euclidean-nearest non-residue
+  donor from the same piece. Declared feature texels are exempt. Both approved
+  paintings contain **zero** residue under this rule; the 28 formerly reported
+  green-dominant front texels are retained. The gate checks source pieces,
+  hidden continuations, calibration rests, density-processed production pieces
+  and rests, and every captured native frame. Native feature exemptions use
+  renderer-generated masks with the real skinning, alpha and occlusion; missing,
+  changed, duplicate or incorrectly sized masks fail the gate.
+- Front ownership applies standard HSV literally within the original mortar
+  label: saturation < .25, or hue 15–50 degrees with value > .55, retains mortar;
+  everything else transfers to the Euclidean-nearest torso/upper_near label.
+  This retains **2797 of 6503** region texels before the under-four-pixel speck
+  cleanup. The warm-tinted crucible body consequently transfers substantially to
+  torso/shoulder; bright shoulder/harness paint inside the molten band also
+  remains on mortar. This visible consequence is documented rather than
+  introducing an unapproved colour threshold or surface-growth rule.
+- Rear ownership measures the connected neutral iron bracer's painted lower
+  rim in columns perpendicular to the supplied elbow→wrist axis. Skin beyond
+  that rim becomes hand_near; the bracer remains fore_near. The detected bracer
+  has **464** texels; the fist has **858**; **698** texels transfer.
+- Isolated components under four pixels join their surrounding label. All
+  thirteen logical pieces in both views are connected, including their hidden
+  material. Eight covered connection texels (apron 3, arm_near 5, front only)
+  stay inside the existing three-pixel tuck domain and approved rest silhouette,
+  borrowing only that piece's paint. Ownership and rest pixels do not change.
+- `rr22/proof/contact_sheets/source_cuts_outlined.png` shows white boundary
+  annotations. Front row: assembled source, mortar, torso, near arm. Rear row:
+  assembled source, near forearm, fist, whole near arm. It is a source diagnostic,
+  not native visual proof; it is gitignored with the other captures.
+
+## Remaining proof
+
 - Native density rests, rendered idle/seams/actions, native board/portrait
   captures and independent visual approval remain director-owned.
+  The scoped headless density check exits 1 with exactly two `rest rebake
+  needed` lines: front/rest.png and rear/rest.png have no native rebake record.
+  The first windowed stage below produces these records; source/motion/residue
+  gates do not claim native acceptance.
 - The Glacial Mirror rr-18 case is absent in this checkout. Its requested set
   could not be run. Seer, Thrall and Capacitor source/production closures are
   checked for unchanged tracked files after their tests finish.
@@ -78,17 +108,19 @@ peer review, commit, publication or queue edit was performed.
 
 ## Implementation files
 
-- `rr22_case.py`, `rr22_build.py`, `rr22_proof_data.py`: anatomy, exact source
+- `rr22_case.py`, `rr22_build.py`, `rr22_proof_data.py`, `rr22_surfaces.py`,
+  `rr22_cut_sheet.py`: anatomy, exact source
   extraction, reference continuation/skin rules, native reference masks and
   production promotion; generated closure in `rr22/`.
 - `rr22_density.py`: only this unit's source adoption, treatment, rest/identity
   metadata and declaration. It preserves unrelated raw identity records,
   including an existing duplicate-key record in the integrated registry.
-- `rr22_gates.py`, `rr22_proof.sh`, `tests/rr22/`,
+- `rr22_gates.py`, `rr22_surface_gates.py`, `rr22_residue_gate.py`,
+  `rr22_proof.sh`, `tests/rr22/`,
   `tests/test_rr22_humanoid.py`: gates/mutations, runtime callbacks, pre-battle
   binding, both production facing setups, native proof and package smoke.
 - `assets/units/slag_mortar_cutout/`: production-only adapter and paint/motion
-  closure. Untouched density sources live under the corresponding
+  closure. Adopted derived density sources live under the corresponding
   `spec/assets/board_pixel_density/sources/assets/units/` path.
 - Owned registration records: `data/enemies.json`, Slag Mortar entries in
   density registry/outputs, identity registry/canon and unit shadow cache.
@@ -115,11 +147,12 @@ scale and timing come from the supplied data and existing fade constants.
 
 Run from this worktree. Build precedes adoption; rerunning it restores untouched
 case paint to production, so rerun the density command immediately afterwards.
-Existing adopted source bytes must not be force-replaced without inspection.
+The explicit refresh option replaces only this unit's derived sources after a
+fresh build; protected paintings and maquette inputs remain byte-identical.
 
 ```sh
 python3 experiments/cutouts/slag_mortar/rr22_build.py
-python3 experiments/cutouts/slag_mortar/rr22_density.py
+python3 experiments/cutouts/slag_mortar/rr22_density.py --refresh-sources
 python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/samples.gd -- --case res://experiments/cutouts/slag_mortar/rr22 --output res://experiments/cutouts/slag_mortar/rr22/proof/samples.json
 python3 experiments/cutouts/slag_mortar/rr22_gates.py
 python3 -m unittest discover -s tests -p 'test_rr22*.py' -v
@@ -130,7 +163,7 @@ python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless 
 python3 tools/godot_task_runner.py --task-id rr-22 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --type slag_mortar --output res://experiments/cutouts/slag_mortar/rr22/proof/production_logic_rear --logic-only --opposite
 ```
 
-The gate command currently exits 1 for the documented green source conflict.
+The source/bone/knee gate passes with zero errors in both views.
 `rr22/proof/results.json` records observed result lines and logs. Headless
 production traces are in `proof/production_logic{,_rear}/logic_frames.json`;
 these are transform/outcome evidence, not screenshots.
@@ -139,7 +172,7 @@ these are transform/outcome evidence, not screenshots.
 
 These are the exact requested stages. Each windowed command uses the required
 visual runner, 1920×1080, 100% scale, a semantic contract and a result manifest.
-Read the TODOs before judging the provisional source cut. Do not seal native
+Inspect the literal front colour-band consequence on the cut sheet. Do not seal native
 acceptance from the headless evidence. No windowed command has been attempted.
 
 ```sh

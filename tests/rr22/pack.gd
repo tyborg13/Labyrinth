@@ -17,7 +17,16 @@ func _initialize() -> void:
 	check(script_packer.add_tree(pack, "res://assets/units/slag_mortar_cutout/renderer.gd", scripts) == OK, "Packs renderer closure")
 	check(script_packer.add_tree(pack, "res://assets/units/slag_mortar_cutout/rig.gd", scripts) == OK, "Packs rig closure")
 	check(script_packer.add_tree(pack, "res://assets/units/hoarfrost_seer_cutout/precision.gd", scripts) == OK, "Packs shared legacy precision dependency")
-	check(script_packer.add_tree(pack, "res://scripts/maquette_cutout_runtime/presentation.gd", scripts) == OK, "Packs registry closure")
+	# The registry also contains a formatted runtime renderer path. Pack its
+	# literal preloads; the selected concrete renderer is already packed above.
+	var registry: String = "res://scripts/maquette_cutout_runtime/presentation.gd"
+	check(pack.add_file(registry, registry) == OK, "Packs registry")
+	var preloads := RegEx.new()
+	preloads.compile('preload\\("([^"\\n]+\\.gd)"\\)')
+	for reference: RegExMatch in preloads.search_all(FileAccess.get_file_as_string(registry)):
+		var dependency: String = reference.get_string(1)
+		if not dependency.begins_with("res://"): dependency = registry.get_base_dir().path_join(dependency)
+		check(script_packer.add_tree(pack, dependency, scripts) == OK, "Packs registry preload closure")
 	paint(pack, "res://assets/units/slag_mortar_cutout")
 	check(pack.add_file("res://runtime.gd", "res://tests/rr22/export_smoke.gd") == OK, "Packs smoke entry")
 	var scene: String = "[gd_scene load_steps=2 format=3]\n[ext_resource type=\"Script\" path=\"res://runtime.gd\" id=\"1\"]\n[node name=\"RR22ExportSmoke\" type=\"Node\"]\nscript = ExtResource(\"1\")\n"

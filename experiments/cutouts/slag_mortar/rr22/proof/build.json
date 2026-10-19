@@ -2,6 +2,179 @@
   "front_rest_mismatch_pixels": 0,
   "rest_mismatch_pixels": 0,
   "invisible_rgb_normalized_texels": 1,
+  "residue_cleanup": {
+    "head": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "torso": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "mortar": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "pelvis": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "apron": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "arm_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "hand_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "leg_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "foot_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "arm_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "hand_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "leg_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "foot_far": {
+      "visible": 0,
+      "hidden": 0
+    }
+  },
+  "covered_connections": {
+    "head": 0,
+    "torso": 0,
+    "mortar": 0,
+    "pelvis": 0,
+    "apron": 3,
+    "arm_near": 5,
+    "hand_near": 0,
+    "leg_near": 0,
+    "foot_near": 0,
+    "arm_far": 0,
+    "hand_far": 0,
+    "leg_far": 0,
+    "foot_far": 0
+  },
+  "ownership": {
+    "rule": "front_crucible_colour",
+    "region_pixels": 6503,
+    "retained_pixels": 2797,
+    "transferred_pixels": 3706,
+    "speck_transfers": [
+      {
+        "from": "torso",
+        "to": "mortar",
+        "pixels": 2
+      },
+      {
+        "from": "torso",
+        "to": "mortar",
+        "pixels": 2
+      },
+      {
+        "from": "torso",
+        "to": "mortar",
+        "pixels": 2
+      },
+      {
+        "from": "torso",
+        "to": "mortar",
+        "pixels": 1
+      },
+      {
+        "from": "upper_near",
+        "to": "mortar",
+        "pixels": 2
+      },
+      {
+        "from": "upper_near",
+        "to": "mortar",
+        "pixels": 2
+      },
+      {
+        "from": "fore_near",
+        "to": "upper_near",
+        "pixels": 1
+      },
+      {
+        "from": "thigh_far",
+        "to": "apron",
+        "pixels": 2
+      },
+      {
+        "from": "mortar",
+        "to": "upper_near",
+        "pixels": 2
+      },
+      {
+        "from": "mortar",
+        "to": "upper_near",
+        "pixels": 1
+      },
+      {
+        "from": "mortar",
+        "to": "upper_near",
+        "pixels": 1
+      },
+      {
+        "from": "mortar",
+        "to": "torso",
+        "pixels": 1
+      },
+      {
+        "from": "mortar",
+        "to": "torso",
+        "pixels": 1
+      },
+      {
+        "from": "mortar",
+        "to": "upper_near",
+        "pixels": 1
+      },
+      {
+        "from": "mortar",
+        "to": "upper_near",
+        "pixels": 1
+      }
+    ],
+    "names": [
+      "head",
+      "torso",
+      "pelvis",
+      "upper_near",
+      "fore_near",
+      "hand_near",
+      "upper_far",
+      "fore_far",
+      "hand_far",
+      "thigh_near",
+      "shin_near",
+      "foot_near",
+      "thigh_far",
+      "shin_far",
+      "foot_far",
+      "mortar",
+      "apron"
+    ],
+    "map": "ownership/front.png",
+    "map_sha256": "449d3e60f364159d927357e2738e58231200f5c3ce7771de6d15616574683dff"
+  },
   "tucks": [
     {
       "piece": "head",
@@ -10,7 +183,7 @@
         "torso"
       ],
       "required_mask": "tucks/front_head.png",
-      "required_pixels": 114,
+      "required_pixels": 236,
       "missing_pixels": 0
     },
     {
@@ -24,7 +197,7 @@
         "pelvis"
       ],
       "required_mask": "tucks/front_torso.png",
-      "required_pixels": 626,
+      "required_pixels": 1774,
       "missing_pixels": 0
     },
     {
@@ -34,7 +207,7 @@
         "torso"
       ],
       "required_mask": "tucks/front_mortar.png",
-      "required_pixels": 76,
+      "required_pixels": 983,
       "missing_pixels": 0
     },
     {
@@ -68,7 +241,7 @@
         "torso"
       ],
       "required_mask": "tucks/front_arm_near.png",
-      "required_pixels": 261,
+      "required_pixels": 359,
       "missing_pixels": 0
     },
     {
@@ -173,6 +346,179 @@
       "front_rest_mismatch_pixels": 0,
       "rest_mismatch_pixels": 0,
       "invisible_rgb_normalized_texels": 1,
+      "residue_cleanup": {
+        "head": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "torso": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "mortar": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "pelvis": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "apron": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "arm_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "leg_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "arm_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "leg_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_far": {
+          "visible": 0,
+          "hidden": 0
+        }
+      },
+      "covered_connections": {
+        "head": 0,
+        "torso": 0,
+        "mortar": 0,
+        "pelvis": 0,
+        "apron": 3,
+        "arm_near": 5,
+        "hand_near": 0,
+        "leg_near": 0,
+        "foot_near": 0,
+        "arm_far": 0,
+        "hand_far": 0,
+        "leg_far": 0,
+        "foot_far": 0
+      },
+      "ownership": {
+        "rule": "front_crucible_colour",
+        "region_pixels": 6503,
+        "retained_pixels": 2797,
+        "transferred_pixels": 3706,
+        "speck_transfers": [
+          {
+            "from": "torso",
+            "to": "mortar",
+            "pixels": 2
+          },
+          {
+            "from": "torso",
+            "to": "mortar",
+            "pixels": 2
+          },
+          {
+            "from": "torso",
+            "to": "mortar",
+            "pixels": 2
+          },
+          {
+            "from": "torso",
+            "to": "mortar",
+            "pixels": 1
+          },
+          {
+            "from": "upper_near",
+            "to": "mortar",
+            "pixels": 2
+          },
+          {
+            "from": "upper_near",
+            "to": "mortar",
+            "pixels": 2
+          },
+          {
+            "from": "fore_near",
+            "to": "upper_near",
+            "pixels": 1
+          },
+          {
+            "from": "thigh_far",
+            "to": "apron",
+            "pixels": 2
+          },
+          {
+            "from": "mortar",
+            "to": "upper_near",
+            "pixels": 2
+          },
+          {
+            "from": "mortar",
+            "to": "upper_near",
+            "pixels": 1
+          },
+          {
+            "from": "mortar",
+            "to": "upper_near",
+            "pixels": 1
+          },
+          {
+            "from": "mortar",
+            "to": "torso",
+            "pixels": 1
+          },
+          {
+            "from": "mortar",
+            "to": "torso",
+            "pixels": 1
+          },
+          {
+            "from": "mortar",
+            "to": "upper_near",
+            "pixels": 1
+          },
+          {
+            "from": "mortar",
+            "to": "upper_near",
+            "pixels": 1
+          }
+        ],
+        "names": [
+          "head",
+          "torso",
+          "pelvis",
+          "upper_near",
+          "fore_near",
+          "hand_near",
+          "upper_far",
+          "fore_far",
+          "hand_far",
+          "thigh_near",
+          "shin_near",
+          "foot_near",
+          "thigh_far",
+          "shin_far",
+          "foot_far",
+          "mortar",
+          "apron"
+        ],
+        "map": "ownership/front.png",
+        "map_sha256": "449d3e60f364159d927357e2738e58231200f5c3ce7771de6d15616574683dff"
+      },
       "tucks": [
         {
           "piece": "head",
@@ -181,7 +527,7 @@
             "torso"
           ],
           "required_mask": "tucks/front_head.png",
-          "required_pixels": 114,
+          "required_pixels": 236,
           "missing_pixels": 0
         },
         {
@@ -195,7 +541,7 @@
             "pelvis"
           ],
           "required_mask": "tucks/front_torso.png",
-          "required_pixels": 626,
+          "required_pixels": 1774,
           "missing_pixels": 0
         },
         {
@@ -205,7 +551,7 @@
             "torso"
           ],
           "required_mask": "tucks/front_mortar.png",
-          "required_pixels": 76,
+          "required_pixels": 983,
           "missing_pixels": 0
         },
         {
@@ -239,7 +585,7 @@
             "torso"
           ],
           "required_mask": "tucks/front_arm_near.png",
-          "required_pixels": 261,
+          "required_pixels": 359,
           "missing_pixels": 0
         },
         {
@@ -344,6 +690,187 @@
       "front_rest_mismatch_pixels": 0,
       "rest_mismatch_pixels": 0,
       "invisible_rgb_normalized_texels": 0,
+      "residue_cleanup": {
+        "head": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "torso": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "mortar": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "pelvis": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "apron": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "arm_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "leg_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "arm_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "leg_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_far": {
+          "visible": 0,
+          "hidden": 0
+        }
+      },
+      "covered_connections": {
+        "head": 0,
+        "torso": 0,
+        "mortar": 0,
+        "pelvis": 0,
+        "apron": 0,
+        "arm_near": 0,
+        "hand_near": 0,
+        "leg_near": 0,
+        "foot_near": 0,
+        "arm_far": 0,
+        "hand_far": 0,
+        "leg_far": 0,
+        "foot_far": 0
+      },
+      "ownership": {
+        "rule": "rear_bracer_lower_rim",
+        "bracer_pixels": 464,
+        "fist_pixels": 858,
+        "transferred_pixels": 698,
+        "axis": [
+          -0.08724184534171374,
+          0.9961871613413678
+        ],
+        "rim_columns": [
+          -15,
+          -14,
+          -13,
+          -12,
+          -11,
+          -10,
+          -9,
+          -8,
+          -7,
+          -6,
+          -5,
+          -4,
+          -3,
+          -2,
+          -1,
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "rim_along_px": [
+          3.7229083968793266,
+          7.8821407329282245,
+          9.961756900952674,
+          12.041373068977123,
+          14.120989237001572,
+          15.204418243684653,
+          15.291660089026369,
+          16.37508909570945,
+          16.462330941051164,
+          16.549572786392876,
+          15.640627470393223,
+          17.72024363841767,
+          17.807485483759386,
+          17.894727329101098,
+          17.981969174442813,
+          19.15264002646761,
+          19.239881871809324,
+          19.327123717151036,
+          19.41436556249275,
+          19.501607407834463,
+          18.59266209183481,
+          18.679903937176523,
+          18.767145782518238,
+          18.85438762785995,
+          18.941629473201665,
+          19.028871318543377,
+          19.116113163885093,
+          18.119926002543725,
+          18.207167847885437,
+          18.294409693227152,
+          17.385464377227496,
+          16.476519061227844,
+          16.563760906569556,
+          15.654815590569903,
+          14.74587027457025
+        ],
+        "speck_transfers": [
+          {
+            "from": "foot_near",
+            "to": "shin_near",
+            "pixels": 2
+          }
+        ],
+        "names": [
+          "head",
+          "torso",
+          "pelvis",
+          "upper_near",
+          "fore_near",
+          "hand_near",
+          "upper_far",
+          "fore_far",
+          "hand_far",
+          "thigh_near",
+          "shin_near",
+          "foot_near",
+          "thigh_far",
+          "shin_far",
+          "foot_far",
+          "mortar",
+          "apron"
+        ],
+        "map": "ownership/rear.png",
+        "map_sha256": "ef4b10c5597d3aeba2f0a5665482cd0ff1c111043898afb8e9a8303b13ed87ea"
+      },
       "tucks": [
         {
           "piece": "head",
@@ -410,7 +937,7 @@
             "torso"
           ],
           "required_mask": "tucks/rear_arm_near.png",
-          "required_pixels": 118,
+          "required_pixels": 184,
           "missing_pixels": 0
         },
         {
@@ -420,7 +947,7 @@
             "arm_near"
           ],
           "required_mask": "tucks/rear_hand_near.png",
-          "required_pixels": 109,
+          "required_pixels": 186,
           "missing_pixels": 0
         },
         {
@@ -431,7 +958,7 @@
             "pelvis"
           ],
           "required_mask": "tucks/rear_leg_near.png",
-          "required_pixels": 100,
+          "required_pixels": 98,
           "missing_pixels": 0
         },
         {
@@ -441,7 +968,7 @@
             "leg_near"
           ],
           "required_mask": "tucks/rear_foot_near.png",
-          "required_pixels": 92,
+          "required_pixels": 77,
           "missing_pixels": 0
         },
         {

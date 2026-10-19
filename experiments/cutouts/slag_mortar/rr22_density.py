@@ -51,7 +51,7 @@ def seal():
     return pending
 
 
-def register():
+def register(refresh_sources=False):
     registry = read_json(DENSITY / 'registry.json')
     entry = next((e for e in registry['entries'] if e['id'] == ID), None)
     if entry is None:
@@ -80,6 +80,14 @@ def register():
         write_json(ASSETS / (view + '.json'), layout)
     write_json(DENSITY / 'registry.json', registry)
     missing = [p for p in adopt if not (DENSITY / 'sources' / p).exists()]
+    changed = [p for p in adopt if (DENSITY / 'sources' / p).exists()
+               and (PROJECT / p).read_bytes() != (DENSITY / 'sources' / p).read_bytes()]
+    if changed and not refresh_sources:
+        raise ValueError('Changed derived source; explicitly use --refresh-sources for director revisions: ' + str(changed))
+    if changed:
+        if any(not p.startswith('assets/units/slag_mortar_cutout/') for p in changed):
+            raise ValueError('Refusing to replace another unit source')
+        subprocess.run([sys.executable, 'tools/process_board_density.py', '--adopt', *changed, '--force-adopt'], cwd=PROJECT, check=True)
     if missing: subprocess.run([sys.executable, 'tools/process_board_density.py', '--adopt', *missing], cwd=PROJECT, check=True)
     subprocess.run([sys.executable, 'tools/process_board_density.py', '--only', ID], cwd=PROJECT, check=True)
     seal()
@@ -91,4 +99,4 @@ if __name__ == '__main__':
         pending = seal()
         if pending: raise ValueError('Native rest rebake pending: ' + str(pending))
         print('RR22 DENSITY REST RECORDS: PASS')
-    else: register()
+    else: register('--refresh-sources' in sys.argv)

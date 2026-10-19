@@ -24,6 +24,8 @@ from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.promotion import promote
 from humanoid_cutout.underlays import distinct_depths
 from rr22_proof_data import rest_holes
+from rr22_surfaces import resolve, clean_residue, molten_mask, connect_covered
+from rr22_cut_sheet import write_sheet
 
 
 def recipe(spec, view, anatomy):
@@ -67,17 +69,34 @@ def build_view(view, inputs, anatomy):
     invisible_rgb = int(((paint[..., 3] == 0) & np.any(paint[..., :3] != 0, axis=-1)).sum())
     paint[paint[..., 3] == 0] = 0
     Image.fromarray(paint).save(source / 'processed.png')
-    visible, hidden = {}, {}
+    # Resolve director colour rules on the original individual native labels,
+    # before upper/fore textures become one skinned arm.
+    label_names = [p['logical_part'] for p in old['parts']]
+    native_owners = np.full(paint.shape[:2], -1, dtype=int)
+    for index, part in enumerate(old['parts']):
+        native_owners[source_pixels(base, part)[..., 3] > 0] = index
+    owners, ownership = resolve(paint, native_owners, label_names, old['joints'], view)
+    ownership_folder = CASE / 'ownership'
+    ownership_folder.mkdir(exist_ok=True)
+    owner_path = ownership_folder / (view + '.png')
+    Image.fromarray((owners + 1).astype('uint8')).save(owner_path)
+    ownership.update(names=label_names, map=str(owner_path.relative_to(CASE)),
+                     map_sha256=digest(owner_path))
+    write_json(ownership_folder / (view + '.json'), ownership)
+    visible, hidden, residue = {}, {}, {}
+    feature_mask = molten_mask(paint) & (owners == label_names.index('mortar'))
     for name, labels in PIECES.items():
-        image, fill = np.zeros_like(paint), np.zeros_like(paint)
-        for part in old['parts']:
-            if part['logical_part'] in labels:
-                pixels = source_pixels(base, part)
-                image[pixels[..., 3] > 0] = pixels[pixels[..., 3] > 0]
-        for label in labels:
-            fill[seeds[label][..., 3] > 0] = seeds[label][seeds[label][..., 3] > 0]
-        fill[(paint[..., 3] == 0) | (image[..., 3] > 0)] = 0
+        image = np.zeros_like(paint)
+        selected = np.isin(owners, [label_names.index(label) for label in labels])
+        image[selected] = paint[selected]
+        image, cleaned = clean_residue(image, feature_mask if name == 'mortar' else None)
         visible[name] = image
+        residue[name] = {'visible': cleaned, 'hidden': 0}
+        # Retain certified coverage domains, but take continuation colours
+        # from the newly assigned piece, never from its former owner.
+        domain = np.logical_or.reduce([seeds[label][..., 3] > 0 for label in labels])
+        domain &= (paint[..., 3] > 0) & ~selected
+        fill = edge_texels(image, domain, rules(base, view))
         hidden[name] = clean_continuation(image, fill, rules(base, view))
         solo = np.logical_or.reduce([np.asarray(Image.open(base / f'registered/{view}_solo_{label}.png'))[..., 3] > 128 for label in labels])
         covered = connected_mask(image[..., 3] > 0, solo & (paint[..., 3] > 0) & (image[..., 3] == 0))
@@ -101,6 +120,13 @@ def build_view(view, inputs, anatomy):
         reports.append({'piece': name, 'minimum_px': policy['depth_px'], 'cover': policy['covers'],
             'required_mask': str(path.relative_to(CASE)), 'required_pixels': int(required.sum()),
             'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
+    connections = {}
+    for name in hidden:
+        hidden[name], bridge = connect_covered(visible[name], hidden[name], paint,
+            anatomy['tucks']['base_px'], rules(base, view))
+        connections[name] = int(bridge.sum())
+        hidden[name], residue[name]['hidden'] = clean_residue(
+            hidden[name], feature_mask if name == 'mortar' else None)
     parts, meshes, checks = [], [], {}
     for name, image in visible.items():
         bone, z = BONES.get(name, name), depths[name]
@@ -152,8 +178,8 @@ def build_view(view, inputs, anatomy):
     # its complete visible source also protects the molten surface within it.
     feature = CASE / f'features/{view}_molten_slag.png'
     feature.parent.mkdir(exist_ok=True)
-    Image.fromarray((visible['mortar'][..., 3] > 0).astype('uint8') * 255).save(feature)
-    layout['features'] = [{'name': 'molten_slag', 'piece': 'mortar', 'mask': str(feature.relative_to(CASE))}]
+    Image.fromarray(feature_mask.astype('uint8') * 255).save(feature)
+    layout['features'] = [{'name': 'molten_slag', 'piece': 'mortar', 'mask': str(feature.relative_to(CASE)), 'bone': 'mortar'}]
     layout['proof_rest_holes'] = rest_holes(layout, paint, visible, anatomy)
     layout['proof_joint_seams'] = build_masks(CASE, layout, visible, anatomy)
     distinct_depths(layout)
@@ -168,7 +194,7 @@ def build_view(view, inputs, anatomy):
     projection = {'forward': (forward / np.linalg.norm(forward)).tolist(),
                   'lean_sign': float(np.sign(up[0] * forward[1] - up[1] * forward[0]))}
     return layout, {'front_rest_mismatch_pixels': mismatch, 'rest_mismatch_pixels': mismatch,
-        'invisible_rgb_normalized_texels': invisible_rgb, 'tucks': reports, 'delivery': delivery, 'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'),
+        'invisible_rgb_normalized_texels': invisible_rgb, 'residue_cleanup': residue, 'covered_connections': connections, 'ownership': ownership, 'tucks': reports, 'delivery': delivery, 'source_ownership': str(base.relative_to(PROJECT) / f'layouts/{view}.json'),
         'source_ownership_sha256': digest(base / f'layouts/{view}.json')}, projection
 
 
@@ -194,6 +220,10 @@ def build():
         for path in root.rglob('*.png'):
             if 'proof' not in path.relative_to(root).parts:
                 Path(str(path) + '.import').write_text('[remap]\n\nimporter="keep"\n')
+    sheet = write_sheet(CASE, {view: {'paint': np.asarray(Image.open(CASE / f'source/{view}/approved.png')),
+        'owners': np.asarray(Image.open(CASE / reports[view]['ownership']['map'])).astype(int) - 1,
+        'names': reports[view]['ownership']['names']} for view in layouts})
+    print('RR22 OUTLINED CUTS: ' + str(sheet.relative_to(PROJECT)))
     for view, report in reports.items(): print(f'RR22 {view.upper()} BUILD: {"FAIL" if report["rest_mismatch_pixels"] else "PASS"} (rest mismatch: {report["rest_mismatch_pixels"]} px)')
 
 

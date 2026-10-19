@@ -48,9 +48,17 @@
     "background": "#1e1e24"
   },
   "source_cut_sheet": {
-    "columns": 7,
-    "rows": 4,
-    "source_cell_px": 255
+    "columns": 4,
+    "rows": 2,
+    "source_cell_px": 255,
+    "zoom": 3,
+    "boundary_rgba": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "boundary_width_source_px": 1
   },
   "timeouts_seconds": {
     "python_bone_subprocess": 180,
