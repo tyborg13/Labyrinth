@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "glacial_mirror",
-  "director_sha256": "13a341463c26cecc0ad693bcc34067336dcc06aa3547528ad999fd8c002bc438",
+  "director_sha256": "91322088b5a9ca199e15c725967a79bf1999137eb61af44e462026eca42360e7",
   "projection": {
     "front": {
       "forward": [
@@ -50,7 +50,7 @@
       "intents": [
         "crystal_guard:guard_ally"
       ],
-      "note": "raises both fists to a boxer's guard either side of the ice mirror (elbows folding), sinks 2 px into its knees and leans back 2 degrees; at the contact the fists clash 4 px inward toward each other as the ward lands; holds; lowers",
+      "note": "raises the near fist to a boxer's guard in front of the ice mirror (elbow folding) while the far fist comes up to the hip, sinks 2 px into its knees and leans back 2 degrees; at the contact the near fist punches 4 px inward as the ward lands; holds; lowers",
       "release_at": {}
     },
     "hit": {
@@ -1056,12 +1056,12 @@
             },
             {
               "at": 0.35,
-              "value": 45,
+              "value": 14,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.75,
-              "value": 45,
+              "value": 14,
               "interpolation": "smoothstep"
             },
             {
@@ -1084,22 +1084,22 @@
             },
             {
               "at": 0.35,
-              "value": 40,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.45,
-              "value": 44,
+              "value": 14,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.55,
-              "value": 40,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.75,
-              "value": 40,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {
@@ -1122,12 +1122,12 @@
             },
             {
               "at": 0.35,
-              "value": 10,
+              "value": 6,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.75,
-              "value": 10,
+              "value": 6,
               "interpolation": "smoothstep"
             },
             {
@@ -2651,12 +2651,12 @@
             },
             {
               "at": 0.35,
-              "value": 45,
+              "value": 14,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.75,
-              "value": 45,
+              "value": 14,
               "interpolation": "smoothstep"
             },
             {
@@ -2679,22 +2679,22 @@
             },
             {
               "at": 0.35,
-              "value": 40,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.45,
-              "value": 44,
+              "value": 14,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.55,
-              "value": 40,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.75,
-              "value": 40,
+              "value": 12,
               "interpolation": "smoothstep"
             },
             {
@@ -2717,12 +2717,12 @@
             },
             {
               "at": 0.35,
-              "value": 10,
+              "value": 6,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.75,
-              "value": 10,
+              "value": 6,
               "interpolation": "smoothstep"
             },
             {

@@ -849,5 +849,5 @@
   },
   "rest_source": "rear/rest.png",
   "motion_data": "res://assets/units/glacial_mirror_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "f25d49aad074d4157d3cb74cfc28f30fa13c422f32787642ea20ba452968a7f3"
+  "rest_source_sha256": "5139c71d2e7107e129d3145748e1f7986a14019100996a1961e1d30f06143604"
 }
