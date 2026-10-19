@@ -115,11 +115,11 @@ class CpuPose:
             name = part['name']
             source = self.image(part['file']) if source_overrides is None else source_overrides[name]
             check = self.image(self.layout['proof_layers'][name]['mask'])
-            if pose['clip'] == 'move' and name in self.layout.get('gait_continuations', {}):
+            if name in self.layout.get('gait_continuations', {}):
                 from .gait_continuations import texture
                 if source_overrides is None:
-                    source = texture(self.case, self.layout, part, gait=True)
-                check = texture(self.case, self.layout, part, gait=True, checks=True)
+                    source = texture(self.case, self.layout, part, gait=pose['clip'] == 'move', clip=pose['clip'])
+                check = texture(self.case, self.layout, part, gait=pose['clip'] == 'move', clip=pose['clip'], checks=True)
             if name in self.meshes:
                 mapping = mesh_map(self.layout, pose, self.meshes[name])
                 maps[name] = mapping

@@ -602,6 +602,14 @@
       "category": "other",
       "reason": "Derived exact rest, separately registered in rest_paths; native rebake pending director."
     },
+    "assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png": {
+      "category": "other",
+      "reason": "rr-22 derived rest; native rebake pending director; not live paint."
+    },
+    "assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png": {
+      "category": "other",
+      "reason": "rr-22 derived rest; native rebake pending director; not live paint."
+    },
     "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png": {
       "category": "other",
       "reason": "Derived Mirror assembly snapshot; separately bound in rest_paths, never live paint."
@@ -5497,6 +5505,98 @@
           "assets/units/storm_capacitor_cutout/rear/rest.png"
         ]
       }
+    },
+    {
+      "id": "slag_mortar_cutout",
+      "kind": "rig",
+      "unit_type": "slag_mortar",
+      "paths": [
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/apron.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/arm_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/arm_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/foot_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/foot_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hand_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hand_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/head.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_apron.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_arm_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_arm_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_foot_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_foot_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_hand_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_hand_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_head.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_leg_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_leg_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_mortar.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_pelvis.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_torso.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/leg_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/leg_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/mortar.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/pelvis.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/front/torso.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/apron.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/arm_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/arm_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/foot_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/foot_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hand_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hand_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/head.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_apron.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_arm_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_arm_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_foot_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_foot_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_hand_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_hand_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_head.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_leg_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_leg_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_mortar.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_pelvis.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_torso.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/leg_far.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/leg_near.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/mortar.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/pelvis.png",
+        "assets/units/slag_mortar_cutout/humanoid_v2/rear/torso.png"
+      ],
+      "frames": null,
+      "r": 1.04,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "slag_mortar.art_scale",
+        "expression": "art_scale / hero reference"
+      },
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png",
+          "orphan_share": 0.011977361470626946,
+          "t": 1.0,
+          "grid": 0.96,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png",
+          "orphan_share": 0.05318644870883677,
+          "t": 1.0159322435441838,
+          "grid": 0.98,
+          "mode": "clean"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png"
+        ]
+      },
+      "dir": "assets/units/slag_mortar_cutout",
+      "rig_script": "assets/units/slag_mortar_cutout/rig.gd"
     },
     {
       "id": "glacial_mirror_cutout",

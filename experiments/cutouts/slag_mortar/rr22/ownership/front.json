@@ -1,0 +1,40 @@
+{
+  "rule": "protected_crucible_mask_and_native_body",
+  "region_pixels": 6503,
+  "retained_pixels": 4745,
+  "transferred_pixels": 1758,
+  "speck_transfers": [
+    {
+      "from": "leg_near",
+      "to": "apron",
+      "pixels": 4
+    },
+    {
+      "from": "leg_far",
+      "to": "apron",
+      "pixels": 2
+    }
+  ],
+  "director_mask_sha256": "a506bc823d6c0dcf76ee4942525c315b46cc65fdc98ed9717dda930d94042992",
+  "names": [
+    "head",
+    "torso",
+    "pelvis",
+    "upper_near",
+    "fore_near",
+    "hand_near",
+    "upper_far",
+    "fore_far",
+    "hand_far",
+    "thigh_near",
+    "shin_near",
+    "foot_near",
+    "thigh_far",
+    "shin_far",
+    "foot_far",
+    "mortar",
+    "apron"
+  ],
+  "map": "ownership/front.png",
+  "map_sha256": "45412c926cce87305cdbbc7a24ea50a58181a040fca6a4f15380554f6373ea78"
+}

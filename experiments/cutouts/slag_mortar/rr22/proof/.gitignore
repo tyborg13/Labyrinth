@@ -1,0 +1,12 @@
+native/
+native_rest/
+production_native/
+idle_native/
+contact_sheets/
+seam_cpu/
+logs/
+*.mp4
+native_failures/
+gait_move_native/
+gait_move_sheet.png
+gait_move_sheet.json

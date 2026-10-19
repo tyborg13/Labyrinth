@@ -181,7 +181,12 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 	var staged: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/enemies/wave_e2.json"))
 	var production: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
 	for type: String in ["briar_weaver", "slag_mortar"]:
-		expect.call(production[type] == staged[type], "%s protected data copied verbatim" % type)
+		var expected: Dictionary = staged[type].duplicate(true)
+		var presentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+		if presentation.handles(type):
+			expected["art_path"] = presentation.asset_directory(type).path_join("front/rest.png")
+			expected["art_rear_path"] = presentation.asset_directory(type).path_join("rear/rest.png")
+		expect.call(production[type] == expected, "%s protected mechanics retained with registered production art" % type)
 		var definition: Dictionary = Data.enemy_def(type)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]: expect.call(definition.has(field), "%s schema: %s" % [type, field])
 		var ids: Dictionary = {}
@@ -192,7 +197,7 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 		expect.call(Assets.load_texture(definition["art_path"]) != null, "%s static art loads" % type)
 		var portrait: String = Scene.TURN_ORDER_PORTRAITS.get(type, "")
 		expect.call(portrait == "res://assets/art/portraits/%s.png" % type and Assets.load_texture(portrait) != null, "%s registered portrait loads" % type)
-		expect.call(type in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES, "%s explicitly retains static hit feedback" % type)
+		expect.call((type in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES) != presentation.handles(type), "%s feedback follows the production registration" % type)
 		var found: bool = false
 		for actor: Dictionary in engine.current_turn_order(fixture(engine, type)):
 			if str(actor.get("key", actor.get("actor_key", ""))) == "enemy_1" or str(actor.get("type", actor.get("enemy_type", ""))) == type: found = true

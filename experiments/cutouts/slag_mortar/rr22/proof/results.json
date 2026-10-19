@@ -1,0 +1,280 @@
+{
+  "task": "rr-25",
+  "round": "feedback_1",
+  "branch": "codex/rr-25",
+  "head": "5369d4cb61c2bacac63c4813421908df66921e1d",
+  "uncommitted": true,
+  "status": "PASS focused/headless; owner windowed proof pending",
+  "feedback_1": {
+    "reviewed_commit": "5369d4cb6",
+    "status": "PASS focused/headless; owner windowed proof pending",
+    "fixes": {
+      "1": "Strict component counts feed native and CPU gates; source classifier removes only certified original detached rigid-owned paint, independent of colour/size; pre-exempted metrics fail explicitly. Director reproduction catches all four rigid/skinned bright/dark cases. All 862 Mortar frames pass; no texture changes required.",
+      "2": "walk_segment_frames calls Action.frames_for(\"slag_mortar\", \"move\"). WALK_CYCLE_SECONDS removed. Required WALK_FRAME_SECONDS API retained as 1.0 / Action.FPS. Process-local duration mutation verifies cadence follows compiled data.",
+      "3": "Focused results and exact windowed sequence recorded."
+    },
+    "tests": {
+      "focused": {
+        "command": "LABYRINTH_TASK_ID=rr-25 python3 -m unittest discover -s tests -p 'test_rr2[25]*.py' -v",
+        "exit_code": 0,
+        "result_lines": [
+          "Ran 30 tests in 15.112s",
+          "OK",
+          "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-focused.log"
+      },
+      "source_regression": {
+        "command": "PYTHONPATH=tests python3 -m unittest test_rr22_source_space -v",
+        "exit_code": 0,
+        "result_lines": [
+          "Ran 8 tests in 0.193s",
+          "OK"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-source-regression.log"
+      },
+      "director_repro": {
+        "command": "python3 /private/tmp/rr25-review-detached-repro.py",
+        "exit_code": 0,
+        "result_lines": [
+          "{\"skinned\": false, \"fragment\": \"bright\", \"certified\": [], \"stray_components\": 1, \"exempt_outline_components\": 0, \"errors\": [\"('front', 'death', 0): detached opaque component outside outline exemption\"], \"result\": \"CAUGHT\"}",
+          "{\"skinned\": false, \"fragment\": \"dark\", \"certified\": [], \"stray_components\": 1, \"exempt_outline_components\": 0, \"errors\": [\"('front', 'death', 0): detached opaque component outside outline exemption\"], \"result\": \"CAUGHT\"}",
+          "{\"skinned\": true, \"fragment\": \"bright\", \"certified\": [], \"stray_components\": 1, \"exempt_outline_components\": 0, \"errors\": [\"('front', 'death', 0): detached opaque component outside outline exemption\"], \"result\": \"CAUGHT\"}",
+          "{\"skinned\": true, \"fragment\": \"dark\", \"certified\": [], \"stray_components\": 1, \"exempt_outline_components\": 0, \"errors\": [\"('front', 'death', 0): detached opaque component outside outline exemption\"], \"result\": \"CAUGHT\"}"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-director-repro.log"
+      },
+      "references": {
+        "command": "LABYRINTH_TASK_ID=rr-25 PYTHONPATH=tests python3 -m unittest test_rr10_humanoid test_rr10_silhouette_gates test_rr11_humanoid test_rr17_cutout test_rr18_humanoid test_rr19_overlap test_gait01 -v",
+        "exit_code": 0,
+        "result_lines": [
+          "Ran 99 tests in 188.553s",
+          "OK"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-reference.log"
+      },
+      "coverage": {
+        "command": "python3 experiments/cutouts/slag_mortar/rr22_seams.py",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 FRONT CPU COVERAGE: checking 431 frames",
+          "RR22 FRONT CPU COVERAGE: 50 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 100 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 150 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 200 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 250 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 300 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 350 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE: 400 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: checking 431 frames",
+          "RR22 REAR CPU COVERAGE: 50 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 100 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 150 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 200 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 250 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 300 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 350 frames; 0 failures",
+          "RR22 REAR CPU COVERAGE: 400 frames; 0 failures",
+          "RR22 FRONT CPU COVERAGE GATES: PASS (431 frames; 0 errors)",
+          "RR22 REAR CPU COVERAGE GATES: PASS (431 frames; 0 errors)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-cpu.log"
+      },
+      "gates": {
+        "command": "python3 experiments/cutouts/slag_mortar/rr22_gates.py",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 SOURCE/BONE/KNEE GATES: PASS (0 errors; both views)",
+          "RR22 FRONT: 6 swings; minimum peak 51.387 degrees; support drift 0.000000 px; reach 14 paths, 6 overreach reports",
+          "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
+          "RR22 REAR: 6 swings; minimum peak 50.540 degrees; support drift 0.000000 px; reach 14 paths, 3 overreach reports",
+          "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-gates-current.log"
+      },
+      "production_records": {
+        "command": "python3 experiments/cutouts/slag_mortar/rr22_records.py production",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 COMPACT PRODUCTION_LOGIC: PASS (1516 frames)",
+          "RR22 COMPACT PRODUCTION_LOGIC_REAR: PASS (1516 frames)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-production-records-final.log"
+      },
+      "scope": {
+        "command": "Read-only Git scope and protected-input audit",
+        "exit_code": 0,
+        "result_lines": [
+          "RR25 FEEDBACK1 SCOPE: PASS (three generic gate files; Mortar renderer/tests/proof; every figure texture byte-identical to HEAD)",
+          "RR25 FEEDBACK1 DIRECTOR INPUTS: PASS (masks, generator, paint and motion unchanged)",
+          "RR25 FEEDBACK1 DIFF CHECK: PASS"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-scope.log"
+      },
+      "bindings": {
+        "command": "Verify samples and both passing production traces against current bindings",
+        "exit_code": 0,
+        "result_lines": [
+          "RR25 FEEDBACK1 BINDINGS: PASS (current samples and both passing 1516-frame production traces)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-bindings-final.log"
+      },
+      "pose_parity": {
+        "command": "Compare all pose data before/after package and renderer API fixes, excluding binding hashes",
+        "exit_code": 0,
+        "result_lines": [
+          "RR25 FEEDBACK1 POSE PARITY: PASS (all 1214 poses unchanged after package binding and renderer API fixes)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-pose-parity-final.log"
+      },
+      "runtime": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/runtime_checks.gd",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 RUNTIME: PASS (478 checks; headless logic only)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-runtime-final.log"
+      },
+      "affected": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/affected_suites.gd",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 AFFECTED SUITES: PASS (513 checks)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-affected.log"
+      },
+      "native_validate": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/native_capture.gd -- --output res://experiments/cutouts/slag_mortar/rr22/proof/native --validate-only",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 NATIVE PROBE LOAD: PASS"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-native-validate.log"
+      },
+      "production_front": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --logic-only --type slag_mortar --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic",
+        "exit_code": 0,
+        "result_lines": [
+          "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-production-front-fixed.log"
+      },
+      "production_rear": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --logic-only --type slag_mortar --opposite --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic_rear",
+        "exit_code": 0,
+        "result_lines": [
+          "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-production-rear-fixed.log"
+      },
+      "pack_build": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/pack.gd -- /private/tmp/rr25.pck",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 PRODUCTION PACK BUILD: PASS"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-pack-build-final.log"
+      },
+      "pack_runtime": {
+        "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- /private/tmp/rr25-runtime/godot --headless",
+        "exit_code": 0,
+        "result_lines": [
+          "RR22 PRODUCTION PACK: PASS (2 views; source-only PNG loading; editor=false)"
+        ],
+        "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-feedback1-pack-runtime-final.log"
+      }
+    },
+    "resolved_intermediate_failures": [
+      {
+        "logs": [
+          "proof/logs/rr25-feedback1-pack-build.log"
+        ],
+        "issue": "Action dependency exposed formatted registry path in recursive test packer",
+        "fix": "Owned pack fixture handles registry explicitly before traversing renderer closure; final build and editor=false runtime pass"
+      },
+      {
+        "logs": [
+          "proof/logs/rr25-feedback1-production-front-final.log",
+          "proof/logs/rr25-feedback1-production-rear-final.log"
+        ],
+        "issue": "Removing the frame-period API broke movement playback",
+        "fix": "Restored WALK_FRAME_SECONDS derived from Action.FPS; both final production traces pass all 1516 frames"
+      }
+    ],
+    "generic_gate_changes": [
+      "tools/humanoid_cutout/source_space.py",
+      "tools/humanoid_cutout/gates.py",
+      "tools/humanoid_cutout/silhouette_gates.py"
+    ],
+    "rest_space_changed": false,
+    "chosen_defaults": "proof/chosen_defaults.json: feedback1_review_fixture (synthetic tip geometry/colours; process-local 1.25 s duration mutation)",
+    "capture_status": "No windowed runs or new images; all figure textures unchanged. Current CPU poses match all 1214 sampled poses before package/API binding changes.",
+    "director_commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh rest",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh native",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh walk",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh idle",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh production",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh review"
+    ]
+  },
+  "acceptance_criteria": [
+    {
+      "criterion": "Director masks own every pot pixel; near arm one connected piece; rest identity 0 px",
+      "status": "PASS headless; native GPU proof remains owner-assigned"
+    },
+    {
+      "criterion": "Every Mortar gate passes headless in both views, including gait-01 and negative space",
+      "status": "PASS headless; native GPU proof remains owner-assigned"
+    }
+  ],
+  "headless_coverage": {
+    "front": {
+      "frames": 431,
+      "failed_frames": 0,
+      "errors": [],
+      "air_pockets_passed": 2198,
+      "maximum_air_pocket_pixels": 578
+    },
+    "rear": {
+      "frames": 431,
+      "failed_frames": 0,
+      "errors": [],
+      "air_pockets_passed": 878,
+      "maximum_air_pocket_pixels": 1001
+    }
+  },
+  "design_placeholders": {},
+  "chosen_defaults": "proof/chosen_defaults.json",
+  "protected_inputs": "PASS: director masks, generator, painting and motion unchanged from reviewed HEAD",
+  "reference_files_changed": [],
+  "figure_texture_changes": [],
+  "generic_extensions_this_round": [
+    "tools/humanoid_cutout/source_space.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/silhouette_gates.py"
+  ],
+  "previous_round_results": "proof/logs/rr25_results_before_feedback1.json",
+  "director_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh walk",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh review"
+  ],
+  "changed_files": "proof/changed_files.json",
+  "open_issues": [
+    "Fresh native GPU proof and native rest rebake/record remain assigned to the design owner; integration ready remains false"
+  ],
+  "not_run": [
+    "full suites (focused-only direction)",
+    "windowed stages (no window server)",
+    "peer review",
+    "commits/push/publication"
+  ]
+}

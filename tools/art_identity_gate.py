@@ -1169,7 +1169,7 @@ def coverage(root: Path) -> dict:
                                "boss": bool(enemies[rig["id"]].get("boss_bar", False))}
     # Canon protects hero references as well as all standing props.
     for path, entry in by_path.items():
-        paths.setdefault(path, {"id": entry["id"], "art_scale": 1.0, "boss": False})
+        paths.setdefault(path, {"id": entry["id"], "art_scale": entry.get("art_scale", 1.0), "boss": False})
         paths[path].update({k: entry[k] for k in ("kind", "anatomy", "size_class")})
     return paths
 

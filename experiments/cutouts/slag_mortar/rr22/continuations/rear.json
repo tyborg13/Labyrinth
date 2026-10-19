@@ -1,0 +1,25 @@
+{
+  "basis": {
+    "director": "e40520f172897fc0c60c3c219b9d411891ccecca6c1e083472ba6c580e687894",
+    "paint": "3c6be965c3d12eca2e528e1d2a4a148bda84e53a5ed0ea525c6282793cc9e8b7",
+    "ownership": "347238584567d724cdeed6c92f7780f8cc65b9687e4984823226236fdeefcbca",
+    "joints": "bc1c976ae2fc87821775c995af4c76e0df6b8a6c792140f0ca8f7173b4044655"
+  },
+  "sampled_frames": 431,
+  "domains": {
+    "head": {
+      "file": "continuations/rear_head.png",
+      "sha256": "3e9395eae88f687d199be2e804641121739cd5dd1cee23d02f0c56a621d0f4b0"
+    },
+    "torso": {
+      "file": "continuations/rear_torso.png",
+      "sha256": "35a40a2b0449dfe2a1f254688f7e2557ba330da5c5e9997a2c48bfc5696b6a1f"
+    },
+    "pelvis": {
+      "file": "continuations/rear_pelvis.png",
+      "sha256": "e906a578fa2e0ba29bb4b25c50e7e25f05309e1290341ed863d518890460b6c9"
+    }
+  },
+  "step_distance_px": 83.5248641967773,
+  "screen_pixel_scale": 0.627655328488817
+}

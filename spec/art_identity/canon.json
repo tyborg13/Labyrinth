@@ -121,6 +121,7 @@
   },
   {
    "id": "slag_mortar_front",
+   "art_scale": 1.04,
    "path": "assets/art/enemies/slag_mortar.png",
    "kind": "creature",
    "anatomy": "biped",
@@ -130,6 +131,7 @@
   },
   {
    "id": "slag_mortar_rear",
+   "art_scale": 1.04,
    "path": "assets/art/enemies/slag_mortar_rear.png",
    "kind": "creature",
    "anatomy": "biped",

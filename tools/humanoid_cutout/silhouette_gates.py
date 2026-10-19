@@ -21,8 +21,8 @@ class OwnedPixels(np.ndarray):
         self.ownership = getattr(source, 'ownership', None)
 
 
-def detached_metrics(image):
-    """Exempt only tiny dark outlines within 2 px of the main body."""
+def detached_metrics(image, *, allow_outline=True):
+    """Legacy outline tolerance, or strict counts for source provenance checks."""
     labels, groups = components(image[..., 3] > 0, 8)
     result = {'stray_components': 0, 'stray_pixels': 0,
               'exempt_outline_components': 0}
@@ -32,7 +32,7 @@ def detached_metrics(image):
     dark = luma(image) / 255 < OUTLINE_COMPONENT_MAX_LUMA
     for label, size in groups[1:]:
         component = labels == label
-        if (size <= OUTLINE_COMPONENT_MAX_PIXELS and dark[component].all()
+        if (allow_outline and size <= OUTLINE_COMPONENT_MAX_PIXELS and dark[component].all()
                 and nearby[component].any()):
             result['exempt_outline_components'] += 1
         else:

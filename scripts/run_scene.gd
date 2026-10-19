@@ -24518,6 +24518,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			else: await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_beam(self, animated_state, step)
 			await _combat_pacing.after_step(step)
 			continue
+		var cutout_adapter: Script = MaquetteAction.playback_adapter(step, MaquetteAction.actor_for(animated_state, str(step.get("actor_key", ""))))
+		if cutout_adapter != null:
+			await cutout_adapter.animate(self, animated_state, step, MaquetteAction.actor_for(animated_state, str(step.get("actor_key", ""))))
+			await _combat_pacing.after_step(step)
+			continue
 		if step.has("en04_mechanic"):
 			if str(step["en04_mechanic"]).begins_with("lob"): await preload("res://scripts/enemy_mechanics/lob_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/bramble_view.gd").animate(self, animated_state, step)
