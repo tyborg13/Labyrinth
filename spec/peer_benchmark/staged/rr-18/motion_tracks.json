@@ -41,11 +41,11 @@
     }
    },
    "move": {
-    "seconds": 0.85,
+    "seconds": 0.9,
     "intents": [
      "advance:move_toward"
     ],
-    "note": "a heavy plod on the Thrall's proven pattern: the long camera-side leg (stride) plants two half-tile world steps with a 5 px stomp lift and a bent knee; the foreshortened leg (trailing) follows the body with a 2 px shuffle between strides; the pelvis never rises above rest and drops 3 px after each landing, the torso jolts 1 px on each plant; the fists sway",
+    "note": "a heavy plod with both legs stepping in turn (owner: no limp): four short planted stomps per tile, each foot stepping twice by half a tile (near at 0.02-0.22 and 0.52-0.72, far at 0.27-0.47 and 0.77-0.97), 4 px lift with a bent knee; the body advances steadily; the pelvis is at rest at each swing apex and drops 2 px after each landing with a 1 px torso jolt; the fists swing opposite the stepping leg",
     "keys": {
      "root.forward_px": [
       [
@@ -53,12 +53,9 @@
        0
       ],
       [
-       0.9,
-       1.0
-      ],
-      [
        1,
-       1.0
+       1.0,
+       "linear"
       ]
      ],
      "root.forward_mode": "fraction_of_step",
@@ -68,19 +65,19 @@
        0
       ],
       [
-       0.05,
+       0.02,
        0
       ],
       [
-       0.38,
+       0.22,
        0.5
       ],
       [
-       0.5,
+       0.52,
        0.5
       ],
       [
-       0.83,
+       0.72,
        1.0
       ],
       [
@@ -95,27 +92,27 @@
        0
       ],
       [
-       0.05,
+       0.02,
        0
       ],
       [
-       0.2,
-       5
+       0.12,
+       4
       ],
       [
-       0.38,
+       0.22,
        0
       ],
       [
-       0.5,
+       0.52,
        0
       ],
       [
-       0.65,
-       5
+       0.62,
+       4
       ],
       [
-       0.83,
+       0.72,
        0
       ],
       [
@@ -129,62 +126,54 @@
        0
       ],
       [
-       0.38,
+       0.27,
        0
       ],
       [
-       0.44,
-       2
+       0.47,
+       0.5
       ],
       [
-       0.5,
-       0
+       0.77,
+       0.5
       ],
       [
-       0.83,
-       0
-      ],
-      [
-       0.89,
-       2
-      ],
-      [
-       0.95,
-       0
+       0.97,
+       1.0
       ],
       [
        1,
-       0
+       1.0
       ]
      ],
-     "foot_trailing.forward_mode": "body",
+     "foot_trailing.forward_mode": "world_step",
      "foot_trailing.lift_px": [
       [
        0,
        0
       ],
       [
-       0.38,
+       0.27,
        0
       ],
       [
-       0.44,
-       3
+       0.37,
+       4
       ],
       [
-       0.5,
+       0.47,
        0
       ],
       [
-       0.83,
+       0.77,
        0
       ],
       [
-       0.89,
-       3
+       0.87,
+       4
       ],
       [
-       0.95,
+       0.97,
        0
       ],
       [
@@ -198,28 +187,36 @@
        0
       ],
       [
-       0.05,
+       0.12,
+       0
+      ],
+      [
+       0.24,
        -2
       ],
       [
-       0.2,
-       -1
+       0.37,
+       0
       ],
       [
-       0.4,
-       -3
-      ],
-      [
-       0.5,
+       0.49,
        -2
       ],
       [
-       0.65,
-       -1
+       0.62,
+       0
       ],
       [
-       0.85,
-       -3
+       0.74,
+       -2
+      ],
+      [
+       0.87,
+       0
+      ],
+      [
+       0.98,
+       -1
       ],
       [
        1,
@@ -232,29 +229,42 @@
        0
       ],
       [
-       0.38,
+       0.23,
        0
       ],
       [
-       0.42,
+       0.26,
        -1,
        "linear"
       ],
       [
-       0.5,
+       0.31,
        0
       ],
       [
-       0.83,
+       0.48,
        0
       ],
       [
-       0.87,
+       0.51,
        -1,
        "linear"
       ],
       [
-       0.95,
+       0.56,
+       0
+      ],
+      [
+       0.73,
+       0
+      ],
+      [
+       0.76,
+       -1,
+       "linear"
+      ],
+      [
+       0.81,
        0
       ],
       [
@@ -268,20 +278,12 @@
        0
       ],
       [
-       0.2,
-       2
-      ],
-      [
-       0.4,
-       1
-      ],
-      [
-       0.65,
+       0.15,
        2
       ],
       [
        0.85,
-       1
+       2
       ],
       [
        1,
@@ -294,46 +296,20 @@
        0
       ],
       [
-       0.2,
+       0.12,
        -3
       ],
       [
-       0.4,
-       0
+       0.37,
+       3
       ],
       [
-       0.65,
+       0.62,
        -3
       ],
       [
-       0.85,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "hand_near.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.2,
-       1
-      ],
-      [
-       0.4,
-       0
-      ],
-      [
-       0.65,
-       1
-      ],
-      [
-       0.85,
-       0
+       0.87,
+       3
       ],
       [
        1,
@@ -346,46 +322,20 @@
        0
       ],
       [
-       0.2,
+       0.12,
        3
       ],
       [
-       0.4,
-       0
+       0.37,
+       -3
       ],
       [
-       0.65,
+       0.62,
        3
       ],
       [
-       0.85,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "hand_far.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.2,
-       1
-      ],
-      [
-       0.4,
-       0
-      ],
-      [
-       0.65,
-       1
-      ],
-      [
-       0.85,
-       0
+       0.87,
+       -3
       ],
       [
        1,
