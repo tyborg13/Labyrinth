@@ -1,8 +1,6 @@
 {
-  "ok": false,
-  "errors": [
-    "rear/head: green-dominant source texel"
-  ],
+  "ok": true,
+  "errors": [],
   "native_pixels": false,
   "native_pending": "director must run density/rest/native/idle/production/review",
   "views": {
@@ -6656,13 +6654,15 @@
             "excess_px": 0.20785898897888444
           }
         ],
+        "death_boot_clamp": {
+          "director_accepted": true,
+          "maximum_presented_shift_px": 1.0
+        },
         "maximum_target_error_px": 0.5372271848175552
       }
     },
     "rear": {
-      "source_errors": [
-        "rear/head: green-dominant source texel"
-      ],
+      "source_errors": [],
       "bone_errors": [],
       "direction": {
         "ok": true,
@@ -13335,6 +13335,10 @@
             "excess_px": 0.1911733670312401
           }
         ],
+        "death_boot_clamp": {
+          "director_accepted": true,
+          "maximum_presented_shift_px": 1.0
+        },
         "maximum_target_error_px": 0.5432299438199057
       }
     }

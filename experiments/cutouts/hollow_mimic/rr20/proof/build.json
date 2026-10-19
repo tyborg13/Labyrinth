@@ -122,6 +122,41 @@
       "missing_pixels": 0
     }
   ],
+  "residue_cleanup": {
+    "head": [
+      {
+        "at": [
+          107,
+          84
+        ],
+        "donor": [
+          107,
+          83
+        ]
+      },
+      {
+        "at": [
+          107,
+          85
+        ],
+        "donor": [
+          106,
+          85
+        ]
+      }
+    ],
+    "torso": [],
+    "pelvis": [],
+    "sleeve_near": [],
+    "hand_near": [],
+    "leg_near": [],
+    "foot_near": [],
+    "sleeve_far": [],
+    "hand_far": [],
+    "leg_far": [],
+    "foot_far": []
+  },
+  "presentation_changed_pixels": 2,
   "delivery": {
     "joints_px.json": "a93a864bd917243d5058e97bde5e4a8095555a19e65b3b5af72928f230a760a0",
     "front_parts.png": "2fb1f0c9802de0b7f87d07766e9626210ae33896e4528fc3f2865ff8f27aba3c",
@@ -268,6 +303,41 @@
           "missing_pixels": 0
         }
       ],
+      "residue_cleanup": {
+        "head": [
+          {
+            "at": [
+              107,
+              84
+            ],
+            "donor": [
+              107,
+              83
+            ]
+          },
+          {
+            "at": [
+              107,
+              85
+            ],
+            "donor": [
+              106,
+              85
+            ]
+          }
+        ],
+        "torso": [],
+        "pelvis": [],
+        "sleeve_near": [],
+        "hand_near": [],
+        "leg_near": [],
+        "foot_near": [],
+        "sleeve_far": [],
+        "hand_far": [],
+        "leg_far": [],
+        "foot_far": []
+      },
+      "presentation_changed_pixels": 2,
       "delivery": {
         "joints_px.json": "a93a864bd917243d5058e97bde5e4a8095555a19e65b3b5af72928f230a760a0",
         "front_parts.png": "2fb1f0c9802de0b7f87d07766e9626210ae33896e4528fc3f2865ff8f27aba3c",
@@ -414,6 +484,31 @@
           "missing_pixels": 0
         }
       ],
+      "residue_cleanup": {
+        "head": [
+          {
+            "at": [
+              125,
+              54
+            ],
+            "donor": [
+              125,
+              53
+            ]
+          }
+        ],
+        "torso": [],
+        "pelvis": [],
+        "sleeve_near": [],
+        "hand_near": [],
+        "leg_near": [],
+        "foot_near": [],
+        "sleeve_far": [],
+        "hand_far": [],
+        "leg_far": [],
+        "foot_far": []
+      },
+      "presentation_changed_pixels": 1,
       "delivery": {
         "joints_px.json": "a93a864bd917243d5058e97bde5e4a8095555a19e65b3b5af72928f230a760a0",
         "rear_parts.png": "b99f9c87397caf441a80669be687680d1eae9bdd49e2ebec8c5ad902ad9c425c",

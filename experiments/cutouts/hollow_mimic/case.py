@@ -28,8 +28,7 @@ for side in ('near', 'far'):
 BONES = {name: labels[0] for name, labels in PIECES.items()}
 GROUPS = {'upper_body': ['head', 'torso', 'sleeve_near', 'hand_near', 'sleeve_far', 'hand_far'],
           'weapon_arm': [], 'lower_body': ['pelvis', 'leg_near', 'foot_near', 'leg_far', 'foot_far']}
-DESIGN_PLACEHOLDERS = {
-    'TODO_DESIGN_rear_green_texel': 'Protected mq9_rear/processed.png source (125,54) exceeds the inherited Mirror G>R+12 and G>B+12 gate. A source correction or explicit gate decision belongs to the director; source rest remains exact.'}
+DESIGN_PLACEHOLDERS = {}
 
 
 def initialize():

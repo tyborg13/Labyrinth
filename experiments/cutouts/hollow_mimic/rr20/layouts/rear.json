@@ -148017,7 +148017,7 @@
     ]
   },
   "features": [],
-  "rest_source": "source/rear/processed.png",
+  "rest_source": "presentation/rear/rest.png",
   "motion_data": "res://experiments/cutouts/hollow_mimic/rr20/compiled_motion.json",
   "proof_layers": {
     "head": {
@@ -148029,7 +148029,7 @@
       "z_index": 14,
       "source": "pieces/rear/head.png",
       "rigid": true,
-      "source_sha256": "73adf3d80496fb3c38accd45e3005f2ea773d32282e2a75fb6875efa0f39c0c7"
+      "source_sha256": "9f0aa0c3181b2123f8bcad568e8587baccc70f7da6e4c396e4122ff9a7bd1ab2"
     },
     "head_hidden": {
       "mask": "checks/rear/head_hidden.png",

@@ -31,6 +31,8 @@ var hole_rigs: Dictionary = {}
 var rest_holes: Array[Dictionary]
 var seam_rigs: Dictionary = {}
 var joint_seams: Array[Dictionary]
+var feature_rigs: Dictionary = {}
+var feature_masks: Array[Dictionary]
 var failures: Array[String]
 var canvas: SubViewport
 var label: Label
@@ -64,6 +66,17 @@ func _run() -> void:
 			for seam: Dictionary in rig.layout.get("proof_joint_seams", []):
 				var reference: Node2D = make_hole_rig(view,seam)
 				reference.apply_pose("death",1.0)
+			for feature: Dictionary in rig.layout.get("features", []):
+				var reference: Node2D = make_hole_rig(view, feature["native_mask"])
+				for clip: String in data["clips"]:
+					for phase: float in [0.0, 0.5, 1.0]:
+						reference.apply_pose(clip, phase)
+						rig.apply_pose(clip, phase)
+						var mask_node: Node2D = painted_node(reference, feature["native_mask"]["name"])
+						var owner_node: Node2D = painted_node(rig, feature["piece"])
+						var owner: Dictionary = rig.layout["parts"].filter(func(p: Dictionary) -> bool: return p["name"] == feature["piece"])[0]
+						var expected: Transform2D = owner_node.global_transform * Transform2D(0.0, -Motion.point(owner["offset"]))
+						if not mask_node.global_transform.is_equal_approx(expected): failures.append("Feature mask presentation differs: " + str(feature["name"]))
 		print("RR20 NATIVE PROBE LOAD: " + ("PASS" if failures.is_empty() else "FAIL"))
 		quit(0 if failures.is_empty() else 1)
 		return
@@ -98,6 +111,8 @@ func _run() -> void:
 				hole_rigs[view+"/"+str(hole["name"])] = make_hole_rig(view,hole)
 			for seam: Dictionary in rig.layout.get("proof_joint_seams", []):
 				seam_rigs[view+"/"+str(seam["name"])] = make_hole_rig(view,seam)
+			for feature: Dictionary in rig.layout.get("features", []):
+				feature_rigs[view+"/"+str(feature["name"])] = make_hole_rig(view, feature["native_mask"])
 			for part: Dictionary in rig.layout["parts"]:
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
@@ -118,7 +133,7 @@ func _run() -> void:
 	for view: String in primary:
 		var image: Image = picture(primary[view]).get_region(Rect2i(128,128,255,255))
 		image.save_png(output.path_join(view + "_rest.png"))
-		var source: Image = Image.load_from_file(directory.path_join("source/" + view + "/processed.png"))
+		var source: Image = Image.load_from_file(directory.path_join(primary[view].layout["rest_source"]))
 		source.convert(Image.FORMAT_RGBA8)
 		if image.get_data() != source.get_data(): failures.append(view + ": native rest mismatch")
 	for key: String in groups: picture(groups[key]).save_png(path("groups/" + key + "_rest.png"))
@@ -177,6 +192,11 @@ func _run() -> void:
 					picture(seam_rigs[key]).save_png(path(seam_file))
 					joint_seams.append({"view":key.get_slice("/",0),"clip":clip,"frame":frame,"file":seam_file,
 						"sha256":FileAccess.get_sha256(path(seam_file))})
+				for key: String in feature_rigs:
+					var feature_file: String = "features/"+clip+"/%04d/" % frame+key+".png"
+					picture(feature_rigs[key]).save_png(path(feature_file))
+					feature_masks.append({"view":key.get_slice("/",0),"name":key.get_slice("/",1),"clip":clip,"frame":frame,"file":feature_file,
+						"sha256":FileAccess.get_sha256(path(feature_file))})
 				if clip == "idle":
 					for key: String in groups:
 						var group_rig: Node2D = groups[key]
@@ -190,7 +210,7 @@ func _run() -> void:
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"native_pixels": true, "size": [1920,1080], "ui_scale": 1.0, "fps": FPS,
 		"inputs": _binding_script.for_case(directory), "frames": records, "pairs": pairs, "pieces": pieces,
-		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams,
+		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams, "feature_masks":feature_masks,
 		"errors": failures, "ok": failures.is_empty()}))
 	print("RR20 NATIVE CAPTURE: " + ("PASS" if failures.is_empty() else "FAIL"))
 	print(ProjectSettings.globalize_path(output.path_join("rest_pair.png")))
@@ -246,7 +266,8 @@ func make_hole_rig(view: String, hole: Dictionary) -> Node2D:
 		sprite.texture = rig._texture(str(hole["file"]))
 		sprite.centered = false
 		(rig.bones[hole["bone"]] as Bone2D).add_child(sprite)
-		rig.layout["parts"].append({"name":hole["name"],"bone":hole["bone"],"offset":[0,0]})
+		rig.layout["parts"].append({"name":hole["name"],"bone":hole["bone"],"offset":[0,0],
+			"presentation_anchor":hole.get("presentation_anchor",[0,0])})
 	return rig
 
 func display(view: SubViewport, x: float, board_scale: float = 1.0) -> void:

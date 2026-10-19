@@ -1,6 +1,7 @@
 """Lossless mq-09 ownership, covered continuations, shared v2 skin and promotion.
 
-All visible texels come unchanged from the two approved paintings. The
+Visible ownership comes from the two unchanged approved paintings. Director
+feedback 1 cleans chroma-key residue only in the derived presentation. The
 maquette's categorical parts, solos and joints determine ownership and pivots.
 """
 from pathlib import Path
@@ -29,6 +30,7 @@ from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.promotion import promote
 from humanoid_cutout.mesh import grid, weights_for
 from humanoid_cutout.underlays import distinct_depths
+from residue import clean_piece, feature_mask
 
 PROOF_FEATURE_CHROMA_MARGIN = 20  # Proof mask extraction only; never changes paint.
 
@@ -132,6 +134,35 @@ def build_view(view, inputs, anatomy):
             'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
     depths = {name: max(p['z_index'] for p in original['parts'] if p['logical_part'] in labels)
               for name, labels in PIECES.items()}
+    # Preserve exact ownership evidence before the director-authorized RGB
+    # derivation. Protected source snapshots and baseline pieces never change.
+    source_rest = Image.new('RGBA', (255, 255))
+    for name in sorted(visible, key=lambda n: depths[n]):
+        source_rest.alpha_composite(Image.fromarray(visible[name]))
+    source_mismatch = int(np.any(np.asarray(source_rest) != paint, axis=-1).sum())
+    features = []
+    if view == 'front':
+        rgb = paint[..., :3].astype(int)
+        crack = (paint[..., 3] > 0) & (rgb[..., 0] > rgb[..., 1] + PROOF_FEATURE_CHROMA_MARGIN) & (rgb[..., 2] > rgb[..., 1] + PROOF_FEATURE_CHROMA_MARGIN)
+        if np.any(crack & (visible['head'][..., 3] == 0)):
+            raise ValueError('Violet crack ownership escapes head')
+        path = CASE / 'features/front_violet_crack.png'
+        path.parent.mkdir(exist_ok=True)
+        Image.fromarray(crack.astype('uint8') * 255).save(path)
+        native_path = CASE / 'features/front_violet_crack_native.png'
+        native_mask = np.zeros_like(paint)
+        native_mask[crack] = 255
+        Image.fromarray(native_mask).save(native_path)
+        features.append({'name': 'violet_crack', 'piece': 'head', 'mask': str(path.relative_to(CASE)),
+            'native_mask': {'name': 'FeatureVioletCrack', 'bone': 'head', 'file': str(native_path.relative_to(CASE))}})
+    cleanup = {}
+    for name in visible:
+        source_folder = CASE / 'residue_source' / view
+        source_folder.mkdir(parents=True, exist_ok=True)
+        for kind, image in (('visible', visible[name]), ('hidden', hidden[name])):
+            Image.fromarray(image).save(source_folder / f'{name}_{kind}.png')
+        exemption = feature_mask(CASE, {'canvas_size': [255, 255], 'features': features}, name)
+        visible[name], hidden[name], cleanup[name] = clean_piece(visible[name], hidden[name], exemption)
     parts, meshes = [], []
     for name, image in visible.items():
         part = store(image, CASE / 'pieces' / view, name)
@@ -148,34 +179,31 @@ def build_view(view, inputs, anatomy):
                 # Visible and continuation use one presentation anchor.
                 under['presentation_anchor'] = part['offset']
             parts.append(under)
-    features = []
-    if view == 'front':
-        rgb = paint[..., :3].astype(int)
-        crack = (paint[..., 3] > 0) & (rgb[..., 0] > rgb[..., 1] + PROOF_FEATURE_CHROMA_MARGIN) & (rgb[..., 2] > rgb[..., 1] + PROOF_FEATURE_CHROMA_MARGIN)
-        if np.any(crack & (visible['head'][..., 3] == 0)):
-            raise ValueError('Violet crack ownership escapes head')
-        path = CASE / 'features/front_violet_crack.png'
-        path.parent.mkdir(exist_ok=True)
-        Image.fromarray(crack.astype('uint8') * 255).save(path)
-        features.append({'name': 'violet_crack', 'piece': 'head', 'mask': str(path.relative_to(CASE))})
+    for feature in features:
+        owner = next(p for p in parts if p['name'] == feature['piece'])
+        feature['native_mask']['presentation_anchor'] = owner.get('presentation_anchor', owner['offset'])
     layout = {'version': 2, 'rig': 'humanoid_v2', 'facing': view, 'canvas_size': [255, 255],
         'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
         'held_items': {}, 'planted_bones': anatomy['planted_bones'], 'planted_during_death': True, 'leg_roles': anatomy['leg_roles'][view],
-        'source_labels': PIECES, 'features': features, 'rest_source': f'source/{view}/processed.png',
+        'source_labels': PIECES, 'features': features, 'rest_source': f'presentation/{view}/rest.png',
         'motion_data': 'res://' + str(CASE.relative_to(ROOT) / 'compiled_motion.json')}
     distinct_depths(layout)
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
-    write_json(CASE / f'layouts/{view}.json', layout)
     rest = Image.new('RGBA', (255, 255))
     for part in sorted(parts, key=lambda p: p['z_index']): rest.alpha_composite(Image.fromarray(source_pixels(CASE, part)))
-    mismatch = int(np.any(np.asarray(rest) != paint, axis=-1).sum())
+    rest_path = CASE / layout['rest_source']
+    rest_path.parent.mkdir(parents=True, exist_ok=True)
+    rest.save(rest_path)
+    write_json(CASE / f'layouts/{view}.json', layout)
+    presentation_changes = int(np.any(np.asarray(rest) != paint, axis=-1).sum())
     spec = read_json(base / 'source/spec_native.json')
     origin = np.asarray(projected(spec, [0, 0, 0], view))
     up = np.asarray(projected(spec, [0, 0, 1], view)) - origin
     forward = np.asarray(projected(spec, [1, 0, 0], view)) - origin
     projection = {'forward': (forward / np.linalg.norm(forward)).tolist(),
                   'lean_sign': float(np.sign(up[0] * forward[1] - up[1] * forward[0]))}
-    report = {'front_rest_mismatch_pixels': mismatch, 'rest_mismatch_pixels': mismatch, 'tucks': reports,
+    report = {'front_rest_mismatch_pixels': source_mismatch, 'rest_mismatch_pixels': source_mismatch, 'tucks': reports,
+        'residue_cleanup': cleanup, 'presentation_changed_pixels': presentation_changes,
         'delivery': delivery, 'source_ownership': str(base.relative_to(ROOT) / f'layouts/{view}.json'),
         'source_ownership_sha256': digest(base / f'layouts/{view}.json')}
     return layout, report, projection
@@ -203,7 +231,7 @@ def build():
         for path in root.rglob('*.png'):
             if 'proof' not in path.relative_to(root).parts:
                 Path(str(path) + '.import').write_text('[remap]\n\nimporter="keep"\n')
-    for view in VIEWS: print(f'RR20 {view.upper()} BUILD: ' + ('PASS' if not reports[view]['rest_mismatch_pixels'] else 'FAIL') + f' (rest mismatch: {reports[view]["rest_mismatch_pixels"]} px; 4 skinned limbs)')
+    for view in VIEWS: print(f'RR20 {view.upper()} BUILD: ' + ('PASS' if not reports[view]['rest_mismatch_pixels'] else 'FAIL') + f' (source identity mismatch: {reports[view]["rest_mismatch_pixels"]} px; presentation residue cleanup: {reports[view]["presentation_changed_pixels"]} px; 4 skinned limbs)')
 
 
 if __name__ == '__main__': build()

@@ -3818,7 +3818,7 @@
       "boss": false,
       "art_scale": 1.0,
       "size_class": "medium",
-      "pixel_sha256": "5048e8a6c7fbf8bff2fc707000b4f7ea7d208a8f9e7979e57cccb59990238687",
+      "pixel_sha256": "48bf6ea474b5e7b561c90b0044e55c6e09b2de37966046e1cda07c4248115a84",
       "metrics": {
         "height": 209,
         "width": 117,
@@ -3828,11 +3828,11 @@
         "thin_rel": 0.04897182025894897,
         "feature_px": 6.178074510004131,
         "regions": 344,
-        "chroma": 0.02269581709302152,
-        "value": 0.16677756163851679,
+        "chroma": 0.02255454504726491,
+        "value": 0.16674639308274716,
         "edge_light_share": 0.0,
-        "orphan_share": 0.056892612338156894,
-        "run_length": 3.128425065522993
+        "orphan_share": 0.02559025133282559,
+        "run_length": 3.3883870967741934
       },
       "source_path": "spec/art_identity/jobs/hollow_mimic/mq9_front/processed.png",
       "source_pixel_sha256": "5048e8a6c7fbf8bff2fc707000b4f7ea7d208a8f9e7979e57cccb59990238687",
@@ -3847,7 +3847,7 @@
       "boss": false,
       "art_scale": 1.0,
       "size_class": "medium",
-      "pixel_sha256": "bc4182a98b7c5265a93a0072db8aa972ecc126aacbc2cf7d89cb1397c3b3b5b0",
+      "pixel_sha256": "6c3042ac1a4d5bed756ab24ae184cf239dea3498d3e22ec33af110eea01d1d3d",
       "metrics": {
         "height": 203,
         "width": 114,
@@ -3855,13 +3855,13 @@
         "symmetry": 0.6628902647872481,
         "thin_abs": 0.014144606874753052,
         "thin_rel": 0.060766495456341385,
-        "feature_px": 6.230491024382266,
-        "regions": 326,
-        "chroma": 0.018791301585825954,
-        "value": 0.16402288733430948,
+        "feature_px": 6.240069033148715,
+        "regions": 325,
+        "chroma": 0.018789442288175643,
+        "value": 0.16393022458766202,
         "edge_light_share": 0.0,
-        "orphan_share": 0.0321612011062821,
-        "run_length": 3.120838471023428
+        "orphan_share": 0.015250888976689055,
+        "run_length": 3.26159793814433
       },
       "source_path": "spec/art_identity/jobs/hollow_mimic/mq9_rear/processed.png",
       "source_pixel_sha256": "bc4182a98b7c5265a93a0072db8aa972ecc126aacbc2cf7d89cb1397c3b3b5b0",

@@ -84,17 +84,25 @@ class HollowMimicTests(unittest.TestCase):
             self.assertTrue(report['overreach'])
             self.assertTrue(all(p['samples'] >= 1001 for p in report['paths']))
 
-    def test_green_gate_exposes_protected_source_conflict_and_design_placeholder(self):
+    def test_director_residue_cleanup_preserves_sources_and_resolves_placeholder(self):
         self.assertEqual(read_json(CASE/'inputs.json')['design_placeholders'], DESIGN_PLACEHOLDERS)
+        self.assertEqual(DESIGN_PLACEHOLDERS, {})
         for view in VIEWS:
             painting = Image.open(ROOT/f'spec/art_identity/jobs/hollow_mimic/mq9_{view}/processed.png').convert('RGBA')
-            self.assertEqual(rr20.green_pixels(painting), 1 if view == 'rear' else 0)
+            self.assertEqual(rr20.green_pixels(painting), 1 if view == 'rear' else 2)
+            rest = Image.open(CASE/self.layouts[view]['rest_source']).convert('RGBA')
+            self.assertEqual(rr20.green_pixels(rest), 0)
+            self.assertTrue(np.array_equal(np.asarray(rest)[...,3], np.asarray(painting)[...,3]))
+            changed = np.any(np.asarray(rest) != np.asarray(painting), axis=-1)
+            self.assertEqual(int(changed.sum()), 1 if view == 'rear' else 2)
+            from residue import residue_mask
+            self.assertTrue(np.array_equal(changed, residue_mask(painting)))
+            self.assertEqual((CASE/f'source/{view}/processed.png').read_bytes(),
+                             (ROOT/f'spec/art_identity/jobs/hollow_mimic/mq9_{view}/processed.png').read_bytes())
         self.assertEqual(Image.open(ROOT/'spec/art_identity/jobs/hollow_mimic/mq9_rear/processed.png').getpixel((125,54)), (0,26,7,255))
-        # No exemption: the gate must stay failed until the director resolves
-        # the supplied pixel. Do not treat a test receipt as art acceptance.
         report = rr20.headless(self.samples)
-        self.assertFalse(report['ok'])
-        self.assertEqual(report['errors'], ['rear/head: green-dominant source texel'])
+        self.assertTrue(report['ok'], report['errors'])
+        self.assertEqual(report['errors'], [])
 
     def test_missing_pose_and_changed_idle_basis_mutations_fail(self):
         mutant = copy.deepcopy(self.samples)

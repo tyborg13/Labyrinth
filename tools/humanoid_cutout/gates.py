@@ -332,7 +332,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
     for view in data['view_tracks']:
         rest = np.asarray(Image.open(capture / (view + '_rest.png')).convert('RGBA'))
-        source = np.asarray(Image.open(case / f'source/{view}/processed.png').convert('RGBA'))
+        source = np.asarray(Image.open(case / layouts[view]['rest_source']).convert('RGBA'))
         if not np.array_equal(rest, source): errors.append(view + ': native rest mismatch')
         for clip, definition in data['clips'].items():
             rows = [r for r in manifest['frames'] if r['view'] == view and r['clip'] == clip]

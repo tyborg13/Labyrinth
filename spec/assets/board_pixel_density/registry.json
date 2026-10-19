@@ -5563,7 +5563,7 @@
         },
         "rear": {
           "measurement_path": "assets/units/hollow_mimic_cutout/rear/rest.png",
-          "orphan_share": 0.0321612011062821,
+          "orphan_share": 0.03208218095614382,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"
@@ -5577,7 +5577,7 @@
           "assets/units/hollow_mimic_cutout/rear/rest.png"
         ]
       },
-      "derivation_note": "rr-20 approved mq9 source partition; hidden same-surface continuations; native rest rebake pending director.",
+      "derivation_note": "rr-20 approved mq9 source partition; feedback-1 chroma-key residue cleanup in derived pieces only; native rest rebake pending director.",
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "hollow_mimic.art_scale",

@@ -10641,8 +10641,8 @@
     "facing": "front"
   },
   "assets/units/hollow_mimic_cutout/front/head.png": {
-    "pixel_sha256": "574c5b1e1bb8c1b83417239fda395bca2e6a86955eb10336b398041038326821",
-    "source_pixel_sha256": "e90bbd58f5a788a919bd44fed864e14cdcf9ef410abbf60c1dfcc6ec310ae133",
+    "pixel_sha256": "d51f9e802522402eb08b58424f28eed929fbded9cb688cd2d21f4065d6e1b6fc",
+    "source_pixel_sha256": "05004bcea1c814dad04b54b881492b7a370fa000dfbdcd56dfcd5917c8ef9c36",
     "id": "hollow_mimic_cutout",
     "mode": "clean",
     "grid": 1.03,
@@ -10703,6 +10703,12 @@
     "mode": "clean",
     "grid": 1.03,
     "facing": "front"
+  },
+  "assets/units/hollow_mimic_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "hollow_mimic_cutout",
+    "pixel_sha256": "48bf6ea474b5e7b561c90b0044e55c6e09b2de37966046e1cda07c4248115a84",
+    "parts_pixel_sha256": "fcb13071a387f23d271b42c3da6dd99c7ce6e449833f10958aa748eb2a0a8237"
   },
   "assets/units/hollow_mimic_cutout/front/sleeve_far.png": {
     "pixel_sha256": "bec34250739888b43e2ab57814dba7a067c590384812f71ace1a0b0da6f95a49",
@@ -10817,8 +10823,8 @@
     "facing": "rear"
   },
   "assets/units/hollow_mimic_cutout/rear/head.png": {
-    "pixel_sha256": "55a5cf6f438a8d7be2597c572e61363ccf839c01b4af66eeafb438a328f91b90",
-    "source_pixel_sha256": "0e90fcbe97cfb489350662a57d8cca94b951bf8cb0dcd5e8aedc6cf6f4743140",
+    "pixel_sha256": "c34dd4e41c928960792c0e5c15b13407c39758ecc462f2cfcf57c1f5e003bc68",
+    "source_pixel_sha256": "2252b4ed054d1815486d9c37d2741c592a6484391c817f175ed570ccce259536",
     "id": "hollow_mimic_cutout",
     "mode": "clean",
     "grid": 1.0,
@@ -10879,6 +10885,12 @@
     "mode": "clean",
     "grid": 1.0,
     "facing": "rear"
+  },
+  "assets/units/hollow_mimic_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "hollow_mimic_cutout",
+    "pixel_sha256": "6c3042ac1a4d5bed756ab24ae184cf239dea3498d3e22ec33af110eea01d1d3d",
+    "parts_pixel_sha256": "fcb13071a387f23d271b42c3da6dd99c7ce6e449833f10958aa748eb2a0a8237"
   },
   "assets/units/hollow_mimic_cutout/rear/sleeve_far.png": {
     "pixel_sha256": "78b30a105b614cb31a7e8b03a4b12dc028bab17662f3052ade401d28bd69b364",

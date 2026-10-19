@@ -12,15 +12,10 @@ from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.compiler import compile_motion
 from maquette_motion.compiler import evaluate
+from maquette_motion.features import source_pixels
+from residue import count as green_pixels, feature_mask, clean_piece
 
 EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
-GREEN_DOMINANCE_MARGIN = 12  # Mirror set: rr-18 feedback 3, requirement 2.
-
-
-def green_pixels(image):
-    rgba = np.asarray(image).astype(int)
-    margin = GREEN_DOMINANCE_MARGIN
-    return int(((rgba[..., 3] > 0) & (rgba[..., 1] > rgba[..., 0] + margin) & (rgba[..., 1] > rgba[..., 2] + margin)).sum())
 
 
 def protected_errors():
@@ -35,6 +30,24 @@ def protected_errors():
     return errors
 
 
+def residue_derivation_errors(layout):
+    """Reproduce only the authorized RGB changes from retained piece donors."""
+    errors = []
+    for name in layout['source_labels']:
+        source = CASE / 'residue_source' / layout['facing']
+        visible, hidden = [np.asarray(Image.open(source / f'{name}_{kind}.png').convert('RGBA')) for kind in ('visible', 'hidden')]
+        expected = clean_piece(visible, hidden, feature_mask(CASE, layout, name))[:2]
+        for is_hidden, pixels in zip((False, True), expected):
+            actual = np.zeros_like(pixels)
+            for part in layout['parts']:
+                if part['logical_part'] == name and bool(part.get('hidden_material')) == is_hidden:
+                    image = source_pixels(CASE, part)
+                    actual[image[..., 3] > 0] = image[image[..., 3] > 0]
+            if not np.array_equal(actual, pixels):
+                errors.append(f'{layout["facing"]}/{name}: residue derivation differs ({"hidden" if is_hidden else "visible"})')
+    return errors
+
+
 def supports(layout, data, samples):
     """Stride stance is world planted; both boots plant during body actions."""
     from humanoid_cutout.anatomy import for_layout
@@ -45,7 +58,7 @@ def supports(layout, data, samples):
     step = samples['step_distance_px'] / samples['screen_pixel_scale']
     lift = lift_track(layout, data)
     progress = next(t for t in data['view_tracks'][view]['move'] if t['bone'] == stride and t['channel'] == 'forward_px')
-    errors, rows, previous, overreach = [], [], {}, []
+    errors, rows, previous, overreach, boot_shifts = [], [], {}, [], []
     for sample in samples['samples']:
         if sample['view'] != view: continue
         clip, phase = sample['clip'], sample['phase']
@@ -74,6 +87,8 @@ def supports(layout, data, samples):
                     clamped = True
             actual = np.asarray(sample['bones'][foot]['global'][4:])
             presented = rest + np.rint(actual - rest) if sample['kind'] == 'presented' else actual
+            if clip == 'death' and sample['kind'] == 'presented':
+                boot_shifts.append(float(np.linalg.norm(presented - rest)))
             distance = float(np.linalg.norm(presented - target))
             limit = PRESENTED_TARGET_TOLERANCE_PX if sample['kind'] == 'presented' else anatomy['planted_tolerance_px'] + EPSILON
             if distance > limit: errors.append(f'{view}/{clip}/{foot}/{sample["kind"]}/{phase}: support target error {distance:.6f}')
@@ -87,6 +102,7 @@ def supports(layout, data, samples):
     for clip in data['clips']:
         if not any(r['clip'] == clip and r['kind'] == 'presented' for r in rows): errors.append(view + '/' + clip + ': missing support evidence')
     return {'ok': not errors, 'errors': errors, 'rows': rows, 'overreach': overreach,
+            'death_boot_clamp': {'director_accepted': True, 'maximum_presented_shift_px': max(boot_shifts, default=0.)},
             'maximum_target_error_px': max((r['target_error_px'] for r in rows), default=None)}
 
 
@@ -96,9 +112,18 @@ def headless(samples):
     reports = {}
     for view in VIEWS:
         layout = read_json(CASE / f'layouts/{view}.json')
-        cut = structure_errors(layout, build) + source_errors(CASE, layout, build)
+        cut = structure_errors(layout, build) + source_errors(CASE, layout, build) + residue_derivation_errors(layout)
         for part in layout['parts']:
-            if green_pixels(Image.open(CASE / part['file']).convert('RGBA')): cut.append(view + '/' + part['name'] + ': green-dominant source texel')
+            if green_pixels(source_pixels(CASE, part), feature_mask(CASE, layout, part['logical_part'])):
+                cut.append(view + '/' + part['name'] + ': chroma-key residue')
+        if green_pixels(Image.open(CASE / layout['rest_source']).convert('RGBA'), feature_mask(CASE, layout)):
+            cut.append(view + ': chroma-key residue in presentation rest')
+        prod = read_json(ASSETS / (view + '.json'))
+        for part in prod['parts']:
+            if green_pixels(source_pixels(ASSETS, part), feature_mask(CASE, layout, part['logical_part'])):
+                cut.append(view + '/' + part['name'] + ': production chroma-key residue')
+        if green_pixels(Image.open(ASSETS / prod['rest_source']).convert('RGBA'), feature_mask(CASE, layout)):
+            cut.append(view + ': chroma-key residue in production rest')
         bones = bone_errors(layout, data, samples, current)
         direction = direction_report(layout, data, samples, current, require_presented=True)
         reach = reach_report(layout, data, step_distance_px=samples['step_distance_px'], screen_pixel_scale=samples['screen_pixel_scale'])
@@ -110,12 +135,42 @@ def headless(samples):
             'native_pending': 'director must run density/rest/native/idle/production/review', 'views': reports}
 
 
+def native_residue_errors(capture, manifest, layouts):
+    errors, used = [], set()
+    masks = {}
+    for row in manifest.get('feature_masks', []):
+        key = (row['view'], row['clip'], row['frame'], row['name'])
+        if key in masks: errors.append(str(key) + ': duplicate feature mask')
+        masks[key] = row
+    for row in manifest['frames']:
+        image = Image.open(capture / row['file']).convert('RGBA')
+        exempt = np.zeros((image.height, image.width), dtype=bool)
+        for feature in layouts[row['view']].get('features', []):
+            key = (row['view'], row['clip'], row['frame'], feature['name'])
+            record = masks.get(key)
+            if record is None:
+                errors.append(str(key) + ': missing native feature mask')
+                continue
+            used.add(key)
+            if digest(capture / record['file']) != record['sha256']:
+                errors.append(str(key) + ': changed native feature mask')
+                continue
+            mask = Image.open(capture / record['file']).convert('RGBA')
+            if mask.size != image.size:
+                errors.append(str(key) + ': feature mask dimensions differ')
+                continue
+            exempt |= np.asarray(mask)[..., 3] > 0
+        if green_pixels(image, exempt):
+            errors.append(f'{row["view"]}/{row["clip"]}/{row["frame"]}: presented chroma-key residue')
+    if set(masks) - used: errors.append('Unexpected native feature masks')
+    return errors
+
+
 def native(capture):
     errors = native_errors(CASE, capture)
     manifest = read_json(capture / 'frames.json')
-    for row in manifest['frames']:
-        if green_pixels(Image.open(capture / row['file']).convert('RGBA')):
-            errors.append(f'{row["view"]}/{row["clip"]}/{row["frame"]}: green-dominant presented texel')
+    layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}
+    errors += native_residue_errors(capture, manifest, layouts)
     return {'ok': not errors, 'errors': errors, 'native_pixels': True}
 
 
@@ -129,6 +184,7 @@ def main():
     for view, report in result.get('views', {}).items():
         print('RR20 %s SWING KNEES: %s (%d swings; minimum peak %.3f degrees)' % (view.upper(), 'PASS' if report['knees']['ok'] else 'FAIL', len(report['knees']['swings']), report['knees']['minimum_peak_bend_deg']))
         print('RR20 %s REACH: %s (%d paths; 1000 intervals; %d overreach reports)' % (view.upper(), 'PASS' if report['reach']['ok'] else 'FAIL', len(report['reach']['paths']), len(report['reach']['overreach'])))
+        print('RR20 %s DEATH BOOT CLAMP: ACCEPTED (maximum presented shift %.0f px; motion unchanged)' % (view.upper(), report['supports']['death_boot_clamp']['maximum_presented_shift_px']))
     for error in result['errors'][:25]: print(error)
     return int(not result['ok'])
 

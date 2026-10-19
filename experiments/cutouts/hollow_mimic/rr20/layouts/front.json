@@ -141200,10 +141200,19 @@
     {
       "name": "violet_crack",
       "piece": "head",
-      "mask": "features/front_violet_crack.png"
+      "mask": "features/front_violet_crack.png",
+      "native_mask": {
+        "name": "FeatureVioletCrack",
+        "bone": "head",
+        "file": "features/front_violet_crack_native.png",
+        "presentation_anchor": [
+          98,
+          37
+        ]
+      }
     }
   ],
-  "rest_source": "source/front/processed.png",
+  "rest_source": "presentation/front/rest.png",
   "motion_data": "res://experiments/cutouts/hollow_mimic/rr20/compiled_motion.json",
   "proof_layers": {
     "head": {
@@ -141215,7 +141224,7 @@
       "z_index": 14,
       "source": "pieces/front/head.png",
       "rigid": true,
-      "source_sha256": "f81d154e0a3c204a4aa58bac8c62537dd9895746e1afd27afc19bf86aa42e46b"
+      "source_sha256": "112b63fa204091804300610d53a78976216c42351f059681f5ebf23e937f5661"
     },
     "head_hidden": {
       "mask": "checks/front/head_hidden.png",

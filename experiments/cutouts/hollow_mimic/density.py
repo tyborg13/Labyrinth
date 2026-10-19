@@ -76,7 +76,7 @@ def record():
     return pending
 
 
-def register():
+def register(refresh_sources=False):
     registry = read_json(density.REGISTRY)
     paths = sorted(str(p.relative_to(ROOT)) for view in VIEWS for p in (ASSETS / view).glob('*.png') if p.name != 'rest.png')
     scale = read_json(ROOT/'data/enemies.json')['hollow_mimic']['art_scale']
@@ -98,7 +98,7 @@ def register():
         'r': ratio, 'r_derivation': {'path': 'data/enemies.json', 'key': 'hollow_mimic.art_scale',
             'expression': 'unit width 1.03 / 255 * art_scale / hero reference (1.03 / 255)'},
         'facings': facings, 'rest_paths': rests,
-        'derivation_note': 'rr-20 approved mq9 source partition; hidden same-surface continuations; native rest rebake pending director.'}
+        'derivation_note': 'rr-20 approved mq9 source partition; feedback-1 chroma-key residue cleanup in derived pieces only; native rest rebake pending director.'}
     existing = next((e for e in registry['entries'] if e['id'] == ID), None)
     if existing is None: registry['entries'].append(entry)
     else: existing.update(entry)
@@ -108,7 +108,11 @@ def register():
     # A rebuild must never silently replace the untouched baseline.
     changed = [p for p in adopted if (density.SOURCES/p).exists() and
                (ROOT/p).read_bytes() != (density.SOURCES/p).read_bytes()]
-    if changed: raise ValueError('Inspect changed source adoption before rebuilding density: ' + str(changed))
+    if changed and not refresh_sources: raise ValueError('Inspect changed source adoption before rebuilding density: ' + str(changed))
+    if changed:
+        prefix = str(ASSETS.relative_to(ROOT)) + '/'
+        if any(not p.startswith(prefix) for p in changed): raise ValueError('Refusing to adopt outside rr-20')
+        subprocess.run([sys.executable, 'tools/process_board_density.py', '--adopt', *changed, '--force-adopt'], cwd=ROOT, check=True)
     if missing: subprocess.run([sys.executable, 'tools/process_board_density.py', '--adopt', *missing], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'tools/process_board_density.py', '--only', ID], cwd=ROOT, check=True)
     record()
@@ -120,4 +124,4 @@ if __name__ == '__main__':
         pending = record()
         if pending: raise ValueError('Native rest rebake still pending: ' + str(pending))
         print('RR20 DENSITY REST RECORDS: PASS (2 director-rendered views)')
-    else: register()
+    else: register('--refresh-sources' in sys.argv)
