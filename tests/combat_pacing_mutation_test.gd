@@ -12,7 +12,11 @@ func _initialize() -> void:
 		["restore_0.20_cap", "\n\treturn authored\n", "\n\treturn minf(authored,maxf(_initial_elapsed,0.20)) if enemies_active else authored\n", "Full authored feedback"],
 		["drop_lead_in", "if not debug_baseline and activation_has_action(actor, activation_steps):", "if false:", "0.25 s lead"],
 		["wait_on_move_only", "if not debug_baseline and activation_has_action(actor, activation_steps):", "if not debug_baseline:", "Move-only turn adds no lead"],
-		["remove_heal_action", "\"heal\", ", "", "Ally support receives one caption lead"]
+		["remove_heal_action", "\"heal\", ", "", "Ally support receives one caption lead"],
+		["restore_action_scale_1.0", "ENEMY_ACTION_SPEED_SCALE: float = 0.80", "ENEMY_ACTION_SPEED_SCALE: float = 1.0", "Enemy action uses 0.80"],
+		["slow_movement", "_scope == \"enemies\" and _enemy_action_active", "_scope == \"enemies\"", "Movement uses combat speed"],
+		["stretch_lead", "if kind == \"intent\":", "if kind == \"intent\":\n\t\t_set_enemy_action_active(true)", "Caption lead uses combat speed"],
+		["stretch_settle", "\n\t\t_set_enemy_action_active(false)\n", "\n\t\t_set_enemy_action_active(true)\n", "Settle uses combat speed"]
 	]
 	for mutation: Array in mutations:
 		_caught.clear()
@@ -26,6 +30,7 @@ func _initialize() -> void:
 			continue
 		if str(mutation[0]) == "restore_0.20_cap": Regressions._test_feedback_duration(Callable(self,"_expect_mutant"),script)
 		elif str(mutation[0]) == "remove_heal_action": await ActionPacing.ally_support(self,Callable(self,"_expect_mutant"),script)
+		elif str(mutation[0]) == "slow_movement": await preload("res://tests/suites/combat_enemy_action_clock_suite.gd").action_clocks(self,Callable(self,"_expect_mutant"),script)
 		else: await Regressions._action_waits(self,Callable(self,"_expect_mutant"),script)
 		var rejected: bool = false
 		for message: String in _caught:

@@ -8,10 +8,20 @@ import capture_pace_round as capture
 
 
 class PaceRoundCaptureTests(unittest.TestCase):
+    def test_round_probe_selects_pace_02_and_the_merged_pace_01_baseline(self):
+        for before in (False, True):
+            args = capture.probe_arguments(Path("/tmp/pace-02-manifest.json"), before=before)
+            self.assertEqual(args[args.index("--task-id")+1], "pace-02")
+            self.assertEqual(args[args.index("--expect-size")+1], "1920x1080")
+            self.assertEqual(args[-2:] if before else args[-1:], ["--round-only", "--baseline"] if before else ["--round-only"])
+            self.assertIn("--proof-contract", args)
+        source = (Path(__file__).parent / "combat_feel_probe.gd").read_text()
+        self.assertIn('const BASELINE_COMMIT: String = "4e874c34f"', source)
+
     def test_movie_command_keeps_visual_runner_configuration(self):
         args = capture.visual.build_parser().parse_args([
             "tests/combat_feel_probe.gd", "--no-headless", "--display-driver", "macos",
-            "--audio-driver", "Dummy", "--task-id", "pace-01"])
+            "--audio-driver", "Dummy", "--task-id", "pace-02"])
         args.probe_args = ["--round-only", "--baseline"]
         command = capture.movie_command(args, "opengl3_angle", Path("/tmp/pace.log"), Path("/tmp/round.avi"))
         self.assertNotIn("--headless", command)

@@ -7,6 +7,7 @@ const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const OutcomeFeedback = preload("res://scripts/combat_outcome_feedback.gd")
 const BANNER_LEAD_SECONDS: float = 0.35
 const ENEMY_TILE_SECONDS: float = 0.20
+const ENEMY_ACTION_SPEED_SCALE: float = 0.80
 const ENEMY_ACTION_SETTLE_SECONDS: float = 0.15
 const ENEMY_ACTION_LEAD_SECONDS: float = 0.25
 const ENEMY_ACTION_KINDS: Array = ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "heal", "stoneskin", "status", "status_damage", "surface", "summon", "burrow", "erupt"]
@@ -24,6 +25,7 @@ var debug_timeline: bool = false
 var debug_baseline: bool = false
 var timeline: Array[Dictionary]
 var enemies_active: bool = false
+var _enemy_action_active: bool = false
 var _scope: String = ""
 var _base_scale: float = 1.0
 var _applied_scale: float = 1.0
@@ -123,13 +125,22 @@ func _begin_scope(scope: String) -> void:
 	if _scope.is_empty():
 		_base_scale = hit_stop.previous_scale() if hit_stop != null and hit_stop.active else Engine.time_scale
 	_scope = scope
+	_enemy_action_active = false
 	_scale_restored = false
 	_apply_speed()
 
 func current_scale() -> float:
 	if _scope.is_empty() or _scale_restored or not _presentation_allowed():
 		return _base_scale
-	return _base_scale * Settings.combat_speed_scale(scene.get("_settings") as Dictionary)
+	var action_scale: float = ENEMY_ACTION_SPEED_SCALE if _scope == "enemies" and _enemy_action_active else 1.0
+	return _base_scale * Settings.combat_speed_scale(scene.get("_settings") as Dictionary) * action_scale
+
+func _set_enemy_action_active(active: bool) -> void:
+	# Integrate the old clock before changing it. Movement, caption leads and
+	# settles retain combat speed; only wind-up through complete feedback slows.
+	_sync_clock()
+	_enemy_action_active = active
+	_apply_speed()
 
 func _apply_speed() -> void:
 	if _base_scale <= 0.0: _base_scale = 1.0
@@ -201,6 +212,7 @@ func end_scope() -> void:
 	restore_time_scale()
 	_scope = ""
 	enemies_active = false
+	_enemy_action_active = false
 	_scale_restored = false
 	_close_phase()
 	_flashes.clear()
@@ -276,6 +288,7 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 	var kind: String = str(step.get("kind", ""))
 	if kind == "commit":
 		return
+	if enemies_active: _set_enemy_action_active(false)
 	var actor: String = action_actor_key(step)
 	_caption_target_prefix = str(step.get("actor_name", "")) if step.has("source_actor_key") else ""
 	if actor != _actor:
@@ -303,6 +316,7 @@ func before_step(step: Dictionary, activation_steps: Array = []) -> void:
 	elif kind == "move":
 		_change_phase("walk")
 	elif is_action_step(step):
+		if enemies_active: _set_enemy_action_active(true)
 		_change_phase("wind-up")
 
 func caption_text(text: String) -> String:
@@ -317,6 +331,7 @@ func after_step(step: Dictionary) -> void:
 		# staggered popup or hit-stop release). Settle starts after that deadline.
 		await _wait_until(_overlay_deadline(presentation_usec()))
 		_mark("feedback complete")
+		_set_enemy_action_active(false)
 		_change_phase("post-action settle")
 		await _wait_until(presentation_usec() + int(ENEMY_ACTION_SETTLE_SECONDS * 1000000.0))
 		_change_phase("hand-off gap")
@@ -328,6 +343,18 @@ func walk_frame_seconds(actor_key: String, counts: Array[int], authored: float) 
 	for count: int in counts:
 		longest = maxi(longest, count)
 	return minf(authored, (ENEMY_TILE_SECONDS - FloatingText.TARGET_FRAME_SECONDS) / float(longest))
+
+func begin_movement(actor_key: String) -> bool:
+	# Some mechanic views embed an approach walk inside their action coroutine.
+	# Save/restore the action clock around travel, including nested move helpers.
+	var resume_action: bool = enemies_active and _enemy_action_active and actor_key != "player"
+	if enemies_active and actor_key != "player": _set_enemy_action_active(false)
+	return resume_action
+
+func end_movement(resume_action: bool) -> void:
+	if enemies_active:
+		_set_enemy_action_active(resume_action)
+		if resume_action: _change_phase("wind-up")
 
 func walk_tile(index: int) -> void:
 	var phase: String = "walk (tile %d)" % (index + 1)
