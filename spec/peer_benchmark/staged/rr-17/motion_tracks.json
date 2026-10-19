@@ -38,11 +38,11 @@
    "hit": {
     "seconds": 0.5,
     "intents": [],
-    "note": "the whole capacitor jolts 1 px back, the cap rattles twice and the arcs flash one step",
+    "note": "a rattling jolt, one change every 40 ms: the whole capacitor knocks 1 px back as the arcs flash one step, the cap rattles up, the arcs settle, the cap drops, rattles again, the body returns, the cap settles",
     "keys": {
-     "body.forward_px": [[0, 0], [0.1, -1, "hold"], [0.3, 0, "hold"], [1, 0, "hold"]],
-     "cap.lift_px": [[0, 0], [0.1, 1, "hold"], [0.2, 0, "hold"], [0.3, 1, "hold"], [0.4, 0, "hold"], [1, 0, "hold"]],
-     "column.glow": [[0, 0], [0.1, 1, "hold"], [0.2, 0, "hold"], [1, 0, "hold"]]
+     "body.forward_px": [[0, 0], [0.06, -1, "hold"], [0.46, 0, "hold"], [1, 0, "hold"]],
+     "cap.lift_px": [[0, 0], [0.14, 1, "hold"], [0.3, 0, "hold"], [0.38, 1, "hold"], [0.54, 0, "hold"], [1, 0, "hold"]],
+     "column.glow": [[0, 0], [0.06, 1, "hold"], [0.22, 0, "hold"], [1, 0, "hold"]]
     }
    },
    "death": {
