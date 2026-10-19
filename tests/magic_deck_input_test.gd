@@ -4,15 +4,19 @@ const Fixture = preload("res://tests/suites/magic_deck_suite.gd")
 const Presentation = preload("res://tests/suites/magic_purge_presentation.gd")
 const NAVIGATION_CYCLES: int = 2
 const POOR_WALLET: int = 49
+const BADGE_VIEWPORT_IDENTITIES: int = 14
 
 func _initialize() -> void:
 	_setup()
 	var profile: Dictionary = preload("res://scripts/contextual_combat_tutorial.gd").complete_tutorial(ProgressionStore.default_data())
 	ProgressionStore.save_data(profile)
+	await preload("res://tests/helpers/pile_viewer_duplicate_fixture.gd").run(self, _expect)
 	var engine := RunEngine.new()
 	var state: Dictionary = Fixture.shop_fixture(engine)
 	for id: String in Presentation.EXTRA_SPELLS: state = engine.grant_magic_to_deck(state, id)
 	var instance: Node = await _instance(state)
+	await preload("res://tests/helpers/pile_copy_badge_checks.gd").assert_count_cases(instance, _viewport, _expect)
+	await _badge_viewport_checks(instance, engine)
 	for source: String in ["scavenger", "campfire"]:
 		state["mode"] = "campfire" if source == "campfire" else "room"
 		instance.call("_load_run_state", state)
@@ -24,6 +28,8 @@ func _initialize() -> void:
 		var modal: Control = instance.get("_magic_purge_overlay")
 		_expect(modal != null, source + " Purge opens")
 		if modal == null: continue
+		Presentation.assert_grid(modal, state["attuned_magic_cards"], _expect)
+		Presentation.assert_polish_text_fit_mutations(modal, _expect)
 		await _list_navigation(modal, source)
 		await _blocked_toolbar(instance, modal, source)
 		await _confirmation_navigation(instance, modal, source)
@@ -102,6 +108,26 @@ func _initialize() -> void:
 	print("MAGIC DECK INPUT TEST: %s" % ("FAIL" if _failed else "PASS"))
 	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _badge_viewport_checks(instance: Node, engine: RunEngine) -> void:
+	# Two complete rows put duplicate badges on both the rightmost column and
+	# the bottom row, unlike the main fixture's centred partial second row.
+	var state: Dictionary = Fixture.shop_fixture(engine)
+	var cards: Array = Presentation.unique_cards(BADGE_VIEWPORT_IDENTITIES)
+	cards.append_array(cards.duplicate())
+	state["attuned_magic_cards"] = cards
+	state = engine.repair_loaded_run_state(state)
+	instance.call("_load_run_state", state)
+	instance.call("_close_dialogue")
+	await _settle()
+	instance.set("_animation_lock", false)
+	instance.call("_open_magic_purge", "scavenger")
+	await _settle()
+	var modal: Control = instance.get("_magic_purge_overlay")
+	Presentation.assert_grid(modal, state["attuned_magic_cards"], _expect)
+	preload("res://tests/helpers/pile_copy_badge_checks.gd").assert_viewport_mutations(modal, _expect)
+	instance.call("_close_magic_purge")
+	await _settle()
 
 func _list_navigation(modal: Control, source: String) -> void:
 	var controls: Array[Control]
