@@ -1,6 +1,7 @@
 """Review regressions: capture provenance, weighted labels, curves and facing."""
 from copy import deepcopy
 import json
+import os
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -18,6 +19,57 @@ from spec.art_identity.maquettes.blender.curve_projection import project_spline
 from spec.art_identity.maquettes.blender.facing import axis_report
 from spec.art_identity.maquettes.blender.ownership import assign_materials, materials_match, weights_match, cloak_owners, require_solos
 from spec.art_identity.maquettes.blender.torso_reflection import asymmetry, passes_asymmetry
+
+BRIDGE_TEST_DEFAULTS = {'identifier': 'job-unchanged', 'other_identifier': 'other-unit',
+                        'job_budget_s': 1800, 'idle_times_s': [0, 0, 119, 120],
+                        'busy_times_s': [0, 0, 121, 1199, 1200],
+                        'idle_reset_times_s': [0, 0, 119, 121, 240, 241]}
+
+
+class BridgeWaitingTests(unittest.TestCase):
+    def check_deadline(self, busy, lease=False):
+        from spec.art_identity.maquettes.blender import bridge_client as bridge
+        times = BRIDGE_TEST_DEFAULTS['busy_times_s' if busy else 'idle_times_s']
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            if busy:
+                (root / 'bridge.log').write_text('00:00:00 RUN ' + BRIDGE_TEST_DEFAULTS['other_identifier'] + ': build\n')
+            with patch.object(bridge.time, 'monotonic', side_effect=times), \
+                    patch.object(bridge.time, 'sleep') as sleep:
+                if lease:
+                    with patch.object(bridge.fcntl, 'flock', side_effect=BlockingIOError), \
+                            patch.object(bridge, 'submit') as submit:
+                        with self.assertRaisesRegex(TimeoutError, '20 minutes' if busy else 'idle for 120 s'):
+                            bridge.run_job(__file__, [], BRIDGE_TEST_DEFAULTS['job_budget_s'], root)
+                        submit.assert_not_called()
+                else:
+                    with self.assertRaisesRegex(TimeoutError, '20 minutes' if busy else 'idle for 120 s'):
+                        bridge.wait(BRIDGE_TEST_DEFAULTS['identifier'], BRIDGE_TEST_DEFAULTS['job_budget_s'], root)
+                # Both boundaries are exercised: the last pre-deadline poll
+                # sleeps, and the exact deadline fails without another sleep.
+                self.assertEqual(sleep.call_count, len(times) - 2)
+
+    def test_bridge_waits_while_another_unit_runs_up_to_20_minutes(self):
+        self.check_deadline(busy=True)
+
+    def test_running_job_resets_the_idle_timer(self):
+        from spec.art_identity.maquettes.blender import bridge_client as bridge
+        states = [set(), {BRIDGE_TEST_DEFAULTS['other_identifier']}, set(), set(), set()]
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(bridge.time, 'monotonic', side_effect=BRIDGE_TEST_DEFAULTS['idle_reset_times_s']), \
+                patch.object(bridge.time, 'sleep') as sleep, \
+                patch.object(bridge, 'running_jobs', side_effect=states):
+            with self.assertRaisesRegex(TimeoutError, 'idle for 120 s'):
+                bridge.wait(BRIDGE_TEST_DEFAULTS['identifier'], BRIDGE_TEST_DEFAULTS['job_budget_s'], tmp)
+            self.assertEqual(sleep.call_count, len(states) - 1)
+
+    @unittest.skipUnless(os.name == 'posix', 'Director bridge uses a POSIX lease')
+    def test_serial_lease_stops_after_120_idle_seconds(self):
+        self.check_deadline(busy=False, lease=True)
+
+    @unittest.skipUnless(os.name == 'posix', 'Director bridge uses a POSIX lease')
+    def test_serial_lease_waits_while_another_unit_runs_up_to_20_minutes(self):
+        self.check_deadline(busy=True, lease=True)
 
 
 class OwnershipTests(unittest.TestCase):
@@ -60,10 +112,13 @@ class OwnershipTests(unittest.TestCase):
 
 class CaptureTests(unittest.TestCase):
     def test_bridge_stops_after_120_seconds_even_for_long_job_budget(self):
-        from spec.art_identity.maquettes.blender.bridge_client import wait
-        with tempfile.TemporaryDirectory() as tmp, patch('time.monotonic', side_effect=[0, 121]):
-            with self.assertRaisesRegex(TimeoutError, 'job-unchanged'):
-                wait('job-unchanged', timeout_s=1800, root=tmp)
+        from spec.art_identity.maquettes.blender import bridge_client as bridge
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(bridge.time, 'monotonic', side_effect=BRIDGE_TEST_DEFAULTS['idle_times_s']), \
+                patch.object(bridge.time, 'sleep') as sleep:
+            with self.assertRaisesRegex(TimeoutError, 'service idle for 120 s'):
+                bridge.wait(BRIDGE_TEST_DEFAULTS['identifier'], BRIDGE_TEST_DEFAULTS['job_budget_s'], tmp)
+            self.assertEqual(sleep.call_count, len(BRIDGE_TEST_DEFAULTS['idle_times_s']) - 2)
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
