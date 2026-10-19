@@ -44,10 +44,14 @@ def run_godot(script,*args):
     return result.stdout+result.stderr
 
 
+UNIT_HEAD='4b3f74830209e1b1ddd3be53fbe91061a93def96'
+
+
 def changed_paths():
     """Cover committed implementation, working changes and untracked sources."""
     result=set()
-    for command in (['git','diff','--name-only',DIRECTOR_DATA_REVISION,'HEAD'],
+    # The unit's committed range ends at its signed-off head, so later integration commits never count.
+    for command in (['git','diff','--name-only',DIRECTOR_DATA_REVISION,UNIT_HEAD],
                     ['git','diff','--name-only','HEAD'],
                     ['git','ls-files','--others','--exclude-standard']):
         result.update(subprocess.check_output(command,cwd=ROOT,text=True).splitlines())

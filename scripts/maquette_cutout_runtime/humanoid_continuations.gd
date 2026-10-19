@@ -19,7 +19,7 @@ static func apply(rig: Node2D, gait: bool) -> void:
 			var image: Image = original.get_image().duplicate()
 			var paint: Image = rig._texture(donor["file"]).get_image()
 			for texel: Array in recipe["texels"]:
-				var colour: Color = Color(1, 1, 0, 1) if rig.get_meta("gait_proof_checks", false) else paint.get_pixel(int(texel[2]), int(texel[3]))
+				var colour: Color = Color.YELLOW if rig.get_meta("gait_proof_checks", false) else paint.get_pixel(int(texel[2]), int(texel[3]))
 				image.set_pixel(int(texel[0]), int(texel[1]), colour)
 			node.set_meta("gait_original_texture", original)
 			node.set_meta("gait_texture", ImageTexture.create_from_image(image))

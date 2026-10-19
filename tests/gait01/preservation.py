@@ -34,6 +34,7 @@ def assert_preserved(test, project, path, expected):
     else:
         test.assertIn('joints',old,path)
         old.pop('leg_roles',None)
+        new.pop('leg_roles',None)  # Legacy top-level layouts keep the retired field; v2 layouts drop it.
         new.pop('gait_leg_scale_max',None)
         new.pop('gait_continuations',None)  # Gait-only edge-coordinate recipes; original paint remains frozen.
         test.assertEqual(old,new,path)
