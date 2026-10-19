@@ -1,0 +1,35 @@
+{
+  "director_unchanged": {
+    "path": "spec/peer_benchmark/staged/rr-11/motion_tracks.json",
+    "sha256": "1576888b210425a42ae17c33741f9bbe7870c577d1d36b7ba1fee6de0af38d15",
+    "equal_HEAD": true
+  },
+  "compiled": {
+    "arc_thrall": {
+      "equal_HEAD": true,
+      "compiler_equal": true,
+      "sha256": "488e5cddc6fcafeb28715e08901ed548985e84e874c0dd952b4146bd1a74239c"
+    },
+    "hoarfrost_seer": {
+      "equal_HEAD": true,
+      "compiler_equal": true,
+      "sha256": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736"
+    }
+  },
+  "pose_rows": {
+    "arc_thrall": {
+      "count": 990,
+      "retained_rows_equal_HEAD": true,
+      "changed_frames": [],
+      "fresh_rows_verified_by": "tests.test_rr15_action_direction.ActionDirectionTests.test_all_fresh_thrall_and_seer_pose_rows_match_retained_renderer_inputs"
+    },
+    "hoarfrost_seer": {
+      "count": 1258,
+      "retained_rows_equal_HEAD": true,
+      "changed_frames": [],
+      "fresh_rows_verified_by": "tests.test_rr15_action_direction.ActionDirectionTests.test_all_fresh_thrall_and_seer_pose_rows_match_retained_renderer_inputs"
+    }
+  },
+  "pixel_comparison": "Not run: no window-server access. Compiled data, renderer inputs and production paint are unchanged.",
+  "production_render_inputs_diff": []
+}

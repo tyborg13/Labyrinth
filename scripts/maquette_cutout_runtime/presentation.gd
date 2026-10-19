@@ -7,7 +7,7 @@ const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightnin
 
 static func asset_directory(type: String) -> String:
 	var directory: String = "res://assets/units/" + str(CREATURES[type]) + "_cutout"
-	return directory.path_join("humanoid_v2") if type == "hoarfrost_seer" else directory
+	return directory.path_join("humanoid_v2") if type in ["hoarfrost_seer", "arc_thrall"] else directory
 
 static func handles(type: String) -> bool:
 	return CREATURES.has(type)

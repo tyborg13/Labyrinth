@@ -162,7 +162,8 @@ def bone_errors(layout, data, report, current_bindings):
         clip, phase, bones = row['clip'], row['phase'], row['bones']
         tag = '%s/%s/%s' % (row['view'], clip, phase)
         if row['kind'] == 'authored':
-            values, modes = {}, {}
+            values = {}
+            modes = dict(data.get('view_forward_modes', {}).get(row['view'], {}).get(clip, {}))
             for track in data['view_tracks'][row['view']][clip]:
                 values.setdefault(track['bone'], {})[track['channel']] = evaluate(track['keys'], phase)
                 modes[track['bone']] = track['forward_mode']
@@ -208,8 +209,15 @@ def bone_errors(layout, data, report, current_bindings):
                 if row['kind'] == 'presented' and not np.allclose(offsets, np.round(offsets), atol=EPSILON, rtol=0):
                     errors.append(tag + ': fractional idle group')
         if clip not in ('move', 'death'):
-            for name in anatomy['planted_bones']:
-                if not np.allclose(bones[name]['global'][4:], joints[name]['position'], atol=EPSILON, rtol=0):
+            from .leg_roles import resolve_bone
+            for source_name in anatomy['planted_bones']:
+                name = resolve_bone(source_name, anatomy, layout['facing'])
+                tolerance = anatomy.get('planted_tolerance_px')
+                actual = np.asarray(bones[name]['global'][4:])
+                expected = np.asarray(joints[name]['position'])
+                failed = (np.linalg.norm(actual - expected) > tolerance + EPSILON if tolerance is not None else
+                          not np.allclose(actual, expected, atol=EPSILON, rtol=0))
+                if failed:
                     errors.append(tag + ': planted anchor moved: ' + name)
         if abs(angle(bones['torso']['local'])) > (25 if clip == 'death' else 4) + EPSILON:
             errors.append(tag + ': torso lean limit')
@@ -218,6 +226,8 @@ def bone_errors(layout, data, report, current_bindings):
         for item in layout.get('held_items', {}):
             if clip != 'death' and abs(angle(bones[item]['global'])) > 35 + EPSILON:
                 errors.append(tag + ': ' + item + ' angle limit')
+    from .action_direction import report as action_direction_report
+    errors += action_direction_report(layout, data, report, current_bindings)['errors']
     return sorted(set(errors))
 
 
@@ -378,8 +388,11 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
                 source=Image.open(case / row['source']).convert('RGBA')
-                expected=render(source,unpack(row['transform']),(0,0,512,512))
-                if not native_frame_matches(image,expected): errors.append(row['file']+': rigid native agreement')
+                # Use the established real-source UV tie candidates, just as
+                # the rigid shimmer gate does. A default tie direction alone
+                # falsely rejects rear Thrall hidden_tube at a 45-degree pose.
+                expected=render(source,unpack(row['transform']),(0,0,512,512),with_ties=True)
+                if not native_frame_matches(image,expected.default,expected): errors.append(row['file']+': rigid native agreement')
             part = next(p for p in layout['parts'] if p['name'] == row['name'])
             layers.append((dict(row, occluded_surface=part.get('occluded_surface', False)),image,checks))
         if len(layers)!=len(layout['parts']) or {r['name'] for r,_,_ in layers} != {p['name'] for p in layout['parts']}:
@@ -401,7 +414,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         else:
             from maquette_motion.pixels import PROOF_DEFAULTS
             owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
-            new_holes = joint_holes(occupied, seam, owners, references)
+            new_holes = joint_holes(occupied, seam, owners, references, pocket_details=True)
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -412,7 +425,9 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         rejected = frame_errors(key, metric, new_holes, approved)
         errors += rejected
         if hole_details is not None and new_holes and str(key) + ': new joint-seam hole larger than 1px' in rejected:
-            hole_details.append({'view': view, 'clip': clip, 'frame': frame, 'pixel_counts': new_holes})
+            hole_details.append({'view': view, 'clip': clip, 'frame': frame,
+                                 'pixel_counts': [hole['pixel_count'] for hole in new_holes],
+                                 'pockets': new_holes})
         if rejected:
             # Save renderer crops for the director's weight/coverage diagnosis.
             folder = failure_output if failure_output is not None else case / 'proof/native_failures'

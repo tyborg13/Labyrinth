@@ -1,0 +1,104 @@
+{
+  "TODO_DESIGN_JOINT_CONTINUATION_COVER": {
+    "value": null,
+    "status": "unresolved; do not exempt or modify paint/motion",
+    "reason": "No opaque adjoining cover projects into these retained native holes under the existing rest registration. Classify the intended negative space or supply the approved continuation coverage.",
+    "regions": [
+      {
+        "key": [
+          "front",
+          "death",
+          31
+        ],
+        "size": 7,
+        "bbox": [
+          280,
+          252,
+          282,
+          256
+        ],
+        "boundary": [
+          "torso",
+          "upper_near"
+        ],
+        "candidates": {}
+      },
+      {
+        "key": [
+          "front",
+          "death",
+          32
+        ],
+        "size": 2,
+        "bbox": [
+          279,
+          261,
+          280,
+          263
+        ],
+        "boundary": [
+          "torso",
+          "upper_near"
+        ],
+        "candidates": {}
+      },
+      {
+        "key": [
+          "front",
+          "death",
+          32
+        ],
+        "size": 2,
+        "bbox": [
+          280,
+          263,
+          281,
+          265
+        ],
+        "boundary": [
+          "torso",
+          "upper_near"
+        ],
+        "candidates": {}
+      },
+      {
+        "key": [
+          "front",
+          "death",
+          32
+        ],
+        "size": 2,
+        "bbox": [
+          282,
+          264,
+          283,
+          266
+        ],
+        "boundary": [
+          "torso",
+          "upper_near"
+        ],
+        "candidates": {}
+      },
+      {
+        "key": [
+          "front",
+          "tether",
+          12
+        ],
+        "size": 2,
+        "bbox": [
+          205,
+          244,
+          207,
+          245
+        ],
+        "boundary": [
+          "fore_far",
+          "upper_far"
+        ],
+        "candidates": {}
+      }
+    ]
+  }
+}

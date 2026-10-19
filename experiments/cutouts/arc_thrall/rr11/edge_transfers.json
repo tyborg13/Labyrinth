@@ -1,0 +1,81 @@
+{
+  "front": [
+    {
+      "source": "loincloth",
+      "owner": "tube",
+      "seed": [
+        166,
+        132
+      ],
+      "pixels": 87,
+      "bbox": [
+        166,
+        132,
+        179,
+        167
+      ]
+    },
+    {
+      "source": "loincloth",
+      "owner": "tube",
+      "seed": [
+        161,
+        127
+      ],
+      "pixels": 9,
+      "bbox": [
+        161,
+        127,
+        165,
+        131
+      ]
+    },
+    {
+      "source": "loincloth",
+      "owner": "claw",
+      "seed": [
+        77,
+        150
+      ],
+      "pixels": 9,
+      "bbox": [
+        76,
+        150,
+        78,
+        157
+      ]
+    }
+  ],
+  "rear": [
+    {
+      "source": "loincloth",
+      "owner": "tube",
+      "seed": [
+        88,
+        123
+      ],
+      "pixels": 124,
+      "bbox": [
+        74,
+        123,
+        89,
+        166
+      ]
+    },
+    {
+      "source": "foot_near",
+      "owner": "tube",
+      "seed": [
+        68,
+        182
+      ],
+      "pixels": 16,
+      "bbox": [
+        64,
+        182,
+        69,
+        192
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "feedback": "rr-11 feedback 1",
+  "checkpoint": "3037f03e3",
+  "stopped_at_director_gate": true,
+  "acceptance_complete": false,
+  "protected_director_sha256": "40d56d3ee924efde5d1ad032848d710a1f20a99e8339a387ba32da5a59ec13d1",
+  "protected_case_and_production_copies_byte_identical": true,
+  "native_pixels": false,
+  "windowed_commands_run": 0,
+  "full_suites_run": false,
+  "result_lines": [
+    "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+    "RR11 BONE/CUT/KNEE GATES: FAIL (14 errors)",
+    "RR11 FRONT SWING KNEES: PASS (2 swings; minimum peak 40.601 degrees)",
+    "RR11 FRONT SUPPORTS: FAIL (stance drift 0.537254 px; jab drift 0.000061 px)",
+    "RR11 REAR SWING KNEES: PASS (2 swings; minimum peak 36.919 degrees)",
+    "RR11 REAR SUPPORTS: FAIL (stance drift 0.537254 px; jab drift 0.000061 px)",
+    "front/move/presented/frame 19/phase 0.38: stride stance drift 0.537227 px > 0.5",
+    "front/move/presented/frame 20/phase 0.4: stride stance drift 0.537254 px > 0.5",
+    "front/move/presented/frame 21/phase 0.42: stride stance drift 0.537227 px > 0.5",
+    "front/move/presented/frame 22/phase 0.44: stride stance drift 0.537212 px > 0.5",
+    "front/move/presented/frame 23/phase 0.46: stride stance drift 0.537227 px > 0.5",
+    "front/move/presented/frame 24/phase 0.48: stride stance drift 0.537242 px > 0.5",
+    "front/move/presented/frame 25/phase 0.5: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 19/phase 0.38: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 20/phase 0.4: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 21/phase 0.42: stride stance drift 0.537212 px > 0.5",
+    "rear/move/presented/frame 22/phase 0.44: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 23/phase 0.46: stride stance drift 0.537254 px > 0.5",
+    "rear/move/presented/frame 24/phase 0.48: stride stance drift 0.537197 px > 0.5",
+    "rear/move/presented/frame 25/phase 0.5: stride stance drift 0.537212 px > 0.5"
+  ],
+  "test_results": {
+    "thrall_focused_and_mutations": "Ran 11 tests in 2.186s\nOK",
+    "seer_rr10": "Ran 63 tests in 50.068s\nOK",
+    "seer_byte_identity": "Ran 1 test in 0.037s\nOK"
+  },
+  "test_scope_note": "11-test run preceded the final support-distance calculation; acceptance afterward reports the 14 failing presented frames. No further implementation or test runs after that gate failure.",
+  "runtime": "RR11 RUNTIME: PASS (5722 checks; headless logic only)",
+  "samples": "RR10 BONE SAMPLES: PASS (990 poses; headless transforms only)",
+  "seer_identity": "777 pinned files and 1258 fresh pose payloads unchanged",
+  "gate_error_count": 14,
+  "gate_errors": [
+    "front/move/presented/frame 19/phase 0.38: stride stance drift 0.537227 px > 0.5",
+    "front/move/presented/frame 20/phase 0.4: stride stance drift 0.537254 px > 0.5",
+    "front/move/presented/frame 21/phase 0.42: stride stance drift 0.537227 px > 0.5",
+    "front/move/presented/frame 22/phase 0.44: stride stance drift 0.537212 px > 0.5",
+    "front/move/presented/frame 23/phase 0.46: stride stance drift 0.537227 px > 0.5",
+    "front/move/presented/frame 24/phase 0.48: stride stance drift 0.537242 px > 0.5",
+    "front/move/presented/frame 25/phase 0.5: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 19/phase 0.38: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 20/phase 0.4: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 21/phase 0.42: stride stance drift 0.537212 px > 0.5",
+    "rear/move/presented/frame 22/phase 0.44: stride stance drift 0.537227 px > 0.5",
+    "rear/move/presented/frame 23/phase 0.46: stride stance drift 0.537254 px > 0.5",
+    "rear/move/presented/frame 24/phase 0.48: stride stance drift 0.537197 px > 0.5",
+    "rear/move/presented/frame 25/phase 0.5: stride stance drift 0.537212 px > 0.5"
+  ],
+  "swing_peaks_deg": {
+    "front": [
+      40.60129464500447,
+      46.29815830429518
+    ],
+    "rear": [
+      46.83996874251427,
+      36.918968577923685
+    ]
+  },
+  "maximum_stance_target_error_px": {
+    "front": 0.5372536708460245,
+    "rear": 0.5372536708460245
+  },
+  "maximum_jab_target_error_px": {
+    "front": 6.1035155994204615e-05,
+    "rear": 6.1035155994204615e-05
+  },
+  "remaining_issue": "Presented move frames 19-25 (phases 0.38-0.50) in both views exceed 0.5 px Euclidean target error at the half-step. Authored targets pass; whole-source-pixel presentation causes about 0.53723 px error. Data and gate limits were not adjusted.",
+  "design_placeholders": {},
+  "production_logic": "r0 callback capture retained as historical evidence; not rerun for revised data after stop.",
+  "density": "Derived paint processed; native rest certification remains pending director.",
+  "worktree": "Changes after checkpoint remain uncommitted; no review or publication."
+}

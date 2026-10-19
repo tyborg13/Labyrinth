@@ -1,0 +1,707 @@
+{
+  "task": "rr-15 feedback1",
+  "base_head": "0f5ddc618",
+  "status": "direction trace and gate complete; visual change withheld at design/data boundary",
+  "runtime_or_motion_changed": false,
+  "native_pixels_captured": false,
+  "acceptance": [
+    {
+      "requirement": 1,
+      "status": "traced; no target/solve/painted-cap direction flip found; minimum reach and occlusion quantified"
+    },
+    {
+      "requirement": 2,
+      "status": "no visual fix applied; current closed cap moves along rear forward; new aiming pose/endpoint interpretation requires owner design"
+    },
+    {
+      "requirement": 3,
+      "status": "rear mark/bolt grip and apex forward; ward grip forward but apex backward from authored angle; Seer untouched"
+    },
+    {
+      "requirement": 4,
+      "status": "strict positive forward-channel direction gate wired into humanoid/Thrall gates and native proof; reversal mutation rejected in both views"
+    }
+  ],
+  "front_pose_sha256_before": "d4db893bb9c386313d844a1102dc05128f8f468c4471cdbb47b4a8b48b1bf805",
+  "front_pose_sha256_after": "d4db893bb9c386313d844a1102dc05128f8f468c4471cdbb47b4a8b48b1bf805",
+  "front_pose_rows": 495,
+  "thrall_action_peaks": {
+    "front": {
+      "jab": {
+        "view": "front",
+        "clip": "jab",
+        "kind": "authored",
+        "frame": -1,
+        "phase": 0.45,
+        "direction_phase": 0.45,
+        "target": "tube_tip",
+        "forward_px": 100.0,
+        "channels": {
+          "forward_px": 100.0,
+          "lift_px": 59.0
+        },
+        "forward": [
+          -0.8944271909999157,
+          0.44721359549995787
+        ],
+        "authored_target": [
+          122.3904291824386,
+          202.49842876850278
+        ],
+        "solved_tip": [
+          122.390472412109,
+          202.498443603516
+        ],
+        "shoulder": [
+          147.170135498047,
+          91.7788238525391
+        ],
+        "elbow": [
+          174.440124511719,
+          125.369750976562
+        ],
+        "rest_tip": [
+          211.0,
+          211.0
+        ],
+        "segment_lengths": [
+          43.266615305567875,
+          93.04837451562494
+        ],
+        "authored_reach": 113.45864778779487,
+        "clamped_reach": 113.45864778779487,
+        "neutral_requested_reach": 85.70294742790554,
+        "neutral_clamped_reach": 85.70294742790554,
+        "neutral_solved_tip": [
+          208.49566597082708,
+          151.64679951618137
+        ],
+        "forward_channel_dot": 99.75637299460934,
+        "authored_forward_from_rest": 75.45279128422268,
+        "solved_forward_from_rest": 75.4527592528496,
+        "fore_world_angle_deg": 54.78536527624361,
+        "axis_world_angle_deg": 124.01311554791306,
+        "held_world_angles_deg": {},
+        "painted_cap": [
+          122.39046931266762,
+          202.49844759702665
+        ],
+        "painted_cap_forward_from_rest": 75.45276381102651
+      },
+      "tether": {
+        "view": "front",
+        "clip": "tether",
+        "kind": "authored",
+        "frame": -1,
+        "phase": 0.35,
+        "direction_phase": 0.35,
+        "target": "tube_tip",
+        "forward_px": 125.0,
+        "channels": {
+          "forward_px": 125.0,
+          "lift_px": 92.0
+        },
+        "forward": [
+          -0.8944271909999157,
+          0.44721359549995787
+        ],
+        "authored_target": [
+          96.6263970282886,
+          173.9600178773721
+        ],
+        "solved_tip": [
+          96.6263427734375,
+          173.960052490234
+        ],
+        "shoulder": [
+          155.902740478516,
+          90.0456237792969
+        ],
+        "elbow": [
+          177.324401855469,
+          127.636993408203
+        ],
+        "rest_tip": [
+          211.0,
+          211.0
+        ],
+        "segment_lengths": [
+          43.266615305567875,
+          93.04837451562494
+        ],
+        "authored_reach": 102.73904043583624,
+        "clamped_reach": 102.73904043583624,
+        "neutral_requested_reach": 64.884529614277,
+        "neutral_clamped_reach": 64.884529614277,
+        "neutral_solved_tip": [
+          211.20224212646627,
+          123.98626756745057
+        ],
+        "forward_channel_dot": 124.82875585067815,
+        "authored_forward_from_rest": 85.73407684821288,
+        "solved_forward_from_rest": 85.73414085456935,
+        "fore_world_angle_deg": 80.91517802247094,
+        "axis_world_angle_deg": 150.14290870088232,
+        "held_world_angles_deg": {},
+        "painted_cap": [
+          96.6263343095777,
+          173.96002873778326
+        ],
+        "painted_cap_forward_from_rest": 85.73413780245679
+      }
+    },
+    "rear": {
+      "jab": {
+        "view": "rear",
+        "clip": "jab",
+        "kind": "authored",
+        "frame": -1,
+        "phase": 0.45,
+        "direction_phase": 0.45,
+        "target": "tube_tip",
+        "forward_px": 100.0,
+        "channels": {
+          "forward_px": 100.0,
+          "lift_px": 59.0
+        },
+        "forward": [
+          0.8944271909999161,
+          -0.4472135954999577
+        ],
+        "authored_target": [
+          137.8721886633743,
+          101.62292417291691
+        ],
+        "solved_tip": [
+          147.355102539062,
+          111.131378173828
+        ],
+        "shoulder": [
+          107.481140136719,
+          71.1501007080078
+        ],
+        "elbow": [
+          76.3292541503906,
+          39.9321441650391
+        ],
+        "rest_tip": [
+          44.0,
+          204.7500029856884
+        ],
+        "segment_lengths": [
+          44.10215414239989,
+          100.56838751457045
+        ],
+        "authored_reach": 43.03729545955498,
+        "clamped_reach": 56.466234372170554,
+        "neutral_requested_reach": 92.61749281881973,
+        "neutral_clamped_reach": 92.61749281881973,
+        "neutral_solved_tip": [
+          45.52774318848406,
+          139.99613605223482
+        ],
+        "forward_channel_dot": 103.9858711449145,
+        "authored_forward_from_rest": 130.08166972846308,
+        "solved_forward_from_rest": 134.31113584739515,
+        "fore_world_angle_deg": -64.08575830341836,
+        "axis_world_angle_deg": 45.06984885627866,
+        "held_world_angles_deg": {},
+        "painted_cap": [
+          147.35508945910908,
+          111.13139015533179
+        ],
+        "painted_cap_forward_from_rest": 134.31111879003822
+      },
+      "tether": {
+        "view": "rear",
+        "clip": "tether",
+        "kind": "authored",
+        "frame": -1,
+        "phase": 0.35,
+        "direction_phase": 0.35,
+        "target": "tube_tip",
+        "forward_px": 125.0,
+        "channels": {
+          "forward_px": 125.0,
+          "lift_px": 92.0
+        },
+        "forward": [
+          0.8944271909999161,
+          -0.4472135954999577
+        ],
+        "authored_target": [
+          153.25496872403767,
+          56.93508533402196
+        ],
+        "solved_tip": [
+          153.254974365234,
+          56.9350738525391
+        ],
+        "shoulder": [
+          99.3589172363281,
+          75.6831665039062
+        ],
+        "elbow": [
+          61.8548126220703,
+          98.8875122070312
+        ],
+        "rest_tip": [
+          44.0,
+          204.7500029856884
+        ],
+        "segment_lengths": [
+          44.10215414239989,
+          100.56838751457045
+        ],
+        "authored_reach": 57.063779348360804,
+        "clamped_reach": 57.063779348360804,
+        "neutral_requested_reach": 69.63477829462916,
+        "neutral_clamped_reach": 69.63477829462916,
+        "neutral_solved_tip": [
+          44.53046141719377,
+          118.61151122661116
+        ],
+        "forward_channel_dot": 124.82870202463637,
+        "authored_forward_from_rest": 163.82545557015663,
+        "solved_forward_from_rest": 163.82546575047124,
+        "fore_world_angle_deg": -133.81061958552326,
+        "axis_world_angle_deg": -24.655000787988765,
+        "held_world_angles_deg": {},
+        "painted_cap": [
+          153.25498084113903,
+          56.93506050543695
+        ],
+        "painted_cap_forward_from_rest": 163.82547751170233
+      }
+    }
+  },
+  "seer_rear_action_peaks": {
+    "mark": {
+      "view": "rear",
+      "clip": "mark",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.72,
+      "direction_phase": 0.72,
+      "target": "hand_far",
+      "forward_px": 8.0,
+      "channels": {
+        "lift_px": 8.0,
+        "forward_px": 8.0
+      },
+      "forward": [
+        0.8944271909999161,
+        -0.4472135954999577
+      ],
+      "authored_target": [
+        183.64148471600615,
+        116.14959242663323
+      ],
+      "solved_tip": [
+        183.641479492188,
+        116.149612426758
+      ],
+      "shoulder": [
+        148.590667724609,
+        106.258209228516
+      ],
+      "elbow": [
+        170.090789794922,
+        127.132705688477
+      ],
+      "rest_tip": [
+        173.5,
+        122.75
+      ],
+      "segment_lengths": [
+        29.966648127543394,
+        17.44276354251241
+      ],
+      "authored_reach": 36.419764322911405,
+      "clamped_reach": 36.419764322911405,
+      "neutral_requested_reach": 30.54913705643686,
+      "neutral_clamped_reach": 30.54913705643686,
+      "neutral_solved_tip": [
+        176.25392907801495,
+        119.21944937697867
+      ],
+      "forward_channel_dot": 7.980498785425892,
+      "authored_forward_from_rest": 12.022611689756463,
+      "solved_forward_from_rest": 12.022598073103774,
+      "fore_world_angle_deg": -11.725863431558732,
+      "axis_world_angle_deg": -39.025428330626525,
+      "held_world_angles_deg": {
+        "staff": 30.00000169530331
+      }
+    },
+    "bolt": {
+      "view": "rear",
+      "clip": "bolt",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.5,
+      "direction_phase": 0.5,
+      "target": "hand_far",
+      "forward_px": 5.0,
+      "channels": {
+        "forward_px": 5.0,
+        "lift_px": 3.0
+      },
+      "forward": [
+        0.8944271909999161,
+        -0.4472135954999577
+      ],
+      "authored_target": [
+        180.36261485938292,
+        120.11652720136541
+      ],
+      "solved_tip": [
+        180.362609863281,
+        120.116500854492
+      ],
+      "shoulder": [
+        148.156005859375,
+        104.64582824707
+      ],
+      "elbow": [
+        165.430603027344,
+        129.13232421875
+      ],
+      "rest_tip": [
+        173.5,
+        122.75
+      ],
+      "segment_lengths": [
+        29.966648127543394,
+        17.44276354251241
+      ],
+      "authored_reach": 35.72965420227053,
+      "clamped_reach": 35.72965420227053,
+      "neutral_requested_reach": 32.6841022766877,
+      "neutral_clamped_reach": 32.6841022766877,
+      "neutral_solved_tip": [
+        175.7795810554558,
+        122.11547721376228
+      ],
+      "forward_channel_dot": 4.993154987803463,
+      "authored_forward_from_rest": 7.315834170520855,
+      "solved_forward_from_rest": 7.315841484551436,
+      "fore_world_angle_deg": -3.823663143603651,
+      "axis_world_angle_deg": -31.12323524689867,
+      "held_world_angles_deg": {
+        "staff": 27.9999983162498
+      }
+    },
+    "ward": {
+      "view": "rear",
+      "clip": "ward",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.3,
+      "direction_phase": 0.3,
+      "target": "hand_far",
+      "forward_px": 6.0,
+      "channels": {
+        "forward_px": 6.0,
+        "lift_px": 3.0
+      },
+      "forward": [
+        0.8944271909999161,
+        -0.4472135954999577
+      ],
+      "authored_target": [
+        177.70151285616865,
+        123.50559158088589
+      ],
+      "solved_tip": [
+        177.701477050781,
+        123.505554199219
+      ],
+      "shoulder": [
+        144.578308105469,
+        108.434661865234
+      ],
+      "elbow": [
+        162.657501220703,
+        132.333251953125
+      ],
+      "rest_tip": [
+        173.5,
+        122.75
+      ],
+      "segment_lengths": [
+        29.966648127543394,
+        17.44276354251241
+      ],
+      "authored_reach": 36.390652858266925,
+      "clamped_reach": 36.390652858266925,
+      "neutral_requested_reach": 32.684104069579135,
+      "neutral_clamped_reach": 32.684104069579135,
+      "neutral_solved_tip": [
+        172.2018722914561,
+        125.90433159576212
+      ],
+      "forward_channel_dot": 5.9917619008047955,
+      "authored_forward_from_rest": 3.420036514275482,
+      "solved_forward_from_rest": 3.4200212065528337,
+      "fore_world_angle_deg": -3.1044849275847075,
+      "axis_world_angle_deg": -30.40410685491433,
+      "held_world_angles_deg": {
+        "staff": -7.999999540620802
+      }
+    }
+  },
+  "seer_staff_apex": {
+    "front": {
+      "diagnostic_apex": [
+        61.5,
+        40.0
+      ],
+      "clips": {
+        "mark": {
+          "phase": 0.72,
+          "staff_apex": [
+            5.235319674015045,
+            66.59231215715423
+          ],
+          "staff_apex_forward_from_rest": 62.21710350893713,
+          "hand_forward_from_rest": 9.728274137583922,
+          "staff_world_angle_deg": -29.999997487733264
+        },
+        "bolt": {
+          "phase": 0.5,
+          "staff_apex": [
+            10.916594684123979,
+            65.53930026292824
+          ],
+          "staff_apex_forward_from_rest": 56.66469542502635,
+          "hand_forward_from_rest": 7.595698002573094,
+          "staff_world_angle_deg": -27.999996712960098
+        },
+        "ward": {
+          "phase": 0.3,
+          "staff_apex": [
+            71.51926197111608,
+            42.228992670774744
+          ],
+          "staff_apex_forward_from_rest": -7.964664514077407,
+          "hand_forward_from_rest": 5.48877987413992,
+          "staff_world_angle_deg": 7.999999170445283
+        }
+      }
+    },
+    "rear": {
+      "diagnostic_apex": [
+        196.5,
+        11.0
+      ],
+      "clips": {
+        "mark": {
+          "phase": 0.72,
+          "staff_apex": [
+            259.4350714534527,
+            30.871270000934786
+          ],
+          "staff_apex_forward_from_rest": 47.40413707122219,
+          "hand_forward_from_rest": 12.022598073103774,
+          "staff_world_angle_deg": 30.00000169530331
+        },
+        "bolt": {
+          "phase": 0.5,
+          "staff_apex": [
+            253.1338455528018,
+            32.24495539069157
+          ],
+          "staff_apex_forward_from_rest": 41.153818506808214,
+          "hand_forward_from_rest": 7.315841484551436,
+          "staff_world_angle_deg": 27.9999983162498
+        },
+        "ward": {
+          "phase": 0.3,
+          "staff_apex": [
+            184.92504937946774,
+            9.642118349671634
+          ],
+          "staff_apex_forward_from_rest": -9.745687434378643,
+          "hand_forward_from_rest": 3.4200212065528337,
+          "staff_world_angle_deg": -7.999999540620802
+        }
+      }
+    }
+  },
+  "retained_native_occlusion": [
+    {
+      "view": "rear",
+      "clip": "jab",
+      "frame": 18,
+      "cap_canvas": [
+        274,
+        241
+      ],
+      "opaque_layers_back_to_front": [
+        [
+          "tube",
+          11
+        ],
+        [
+          "loincloth",
+          11
+        ],
+        [
+          "torso",
+          14
+        ]
+      ],
+      "top_owner": "torso"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "frame": 35,
+      "cap_canvas": [
+        283,
+        186
+      ],
+      "opaque_layers_back_to_front": [
+        [
+          "hidden_torso",
+          -9
+        ],
+        [
+          "tube",
+          11
+        ],
+        [
+          "head",
+          13
+        ]
+      ],
+      "top_owner": "head"
+    }
+  ],
+  "traces": {
+    "thrall": {
+      "path": "/private/tmp/labyrinth_codex/rr-15/feedback1/thrall_direction.json",
+      "sha256": "8009378db594ee3e84b51ac981222b12c57d64fed83e406a0368559f977064a4",
+      "samples_path": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-15/experiments/cutouts/arc_thrall/rr11/proof/samples.json"
+    },
+    "seer": {
+      "path": "/private/tmp/labyrinth_codex/rr-15/feedback1/seer_direction.json",
+      "sha256": "c1b9ca36fbe9e3efeb535e2e54d0bbd1064dc85d5a2fe86002e1b07b2c2031d3",
+      "samples_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/seer_direction_samples.json"
+    }
+  },
+  "TODO_DESIGN_REAR_TUBE_AIM_INTERPRETATION": null,
+  "design_question": "Keep the current closed-cap landmark/trajectory, or supply the approved revised rear aiming target/landmark. No target, depth, bend side, stretch or attachment change selected.",
+  "gate_semantics": "Strict dot > 0 for the solved displacement contributed by a positive forward key, against the same body/lift pose with that one forward channel zeroed. Independent rest-length reach clamp retained. Combined body/lift/recovery movement is separately logged, not reinterpreted as a sign error.",
+  "checks": [
+    {
+      "command": "python3 -B -m unittest tests.test_rr11_humanoid tests.test_rr15_native_cleanup tests.test_rr15_action_direction tests.test_test_registration_audit",
+      "result_lines": [
+        "Ran 57 tests in 14.060s",
+        "OK"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_rr10_humanoid tests.test_rr10_rear tests.test_rr10_bone_evidence",
+      "result_lines": [
+        "Ran 29 tests in 47.517s",
+        "OK"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr11_gates.py",
+      "result_lines": [
+        "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)",
+        "RR15 FRONT ACTION DIRECTION: PASS (458 positive checks)",
+        "RR15 REAR ACTION DIRECTION: PASS (458 positive checks)"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B tools/program_suite_runner.py --task-id rr-15 --suite suites/sfx_sync_0_program --suite suites/sfx_sync_1_program --suite suites/sfx_sync_2_program --result-file /private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.json",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1970 observations, 0 failures)",
+        "SFX SYNC HARNESS RESULT: PASS (1647 observations, 0 failures)",
+        "SFX SYNC HARNESS RESULT: PASS (791 observations, 0 failures)"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B tools/godot_task_runner.py --task-id rr-15 --stream -- godot --headless --path . --script tests/rr11/native_capture.gd -- --output /private/tmp/labyrinth_codex/rr-15/feedback1/probe_load --validate-only",
+      "result_lines": [
+        "RR11 NATIVE PROBE LOAD: PASS"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr15_direction_proof.py --case experiments/cutouts/arc_thrall/rr11 --samples experiments/cutouts/arc_thrall/rr11/proof/samples.json --output /private/tmp/labyrinth_codex/rr-15/feedback1/thrall_direction.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR15 ARC_THRALL FRONT DIRECTION: PASS (458 positive checks; minimum dot 0.000647086)",
+        "RR15 ARC_THRALL REAR DIRECTION: PASS (458 positive checks; minimum dot 0.001525833)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr15_direction_proof.py --case experiments/cutouts/hoarfrost_seer/rr10 --samples /private/tmp/labyrinth_codex/rr-15/feedback1/seer_direction_samples.json --output /private/tmp/labyrinth_codex/rr-15/feedback1/seer_direction.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR15 HOARFROST_SEER FRONT DIRECTION: PASS (467 positive checks; minimum dot 0.001569506)",
+        "RR15 HOARFROST_SEER REAR DIRECTION: PASS (467 positive checks; minimum dot 0.001569506)"
+      ]
+    }
+  ],
+  "sfx_result": {
+    "complete": true,
+    "results": [
+      {
+        "name": "suites/sfx_sync_0_program",
+        "returncode": 0,
+        "seconds": 28.449,
+        "log_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.logs/00-suites-sfx_sync_0_program.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.logs/00/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "suites/sfx_sync_1_program",
+        "returncode": 0,
+        "seconds": 28.526,
+        "log_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.logs/01-suites-sfx_sync_1_program.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.logs/01/godot.log",
+        "reason": ""
+      },
+      {
+        "name": "suites/sfx_sync_2_program",
+        "returncode": 0,
+        "seconds": 17.351,
+        "log_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.logs/02-suites-sfx_sync_2_program.log",
+        "timed_out": false,
+        "engine_log_path": "/private/tmp/labyrinth_codex/rr-15/feedback1/sfx_results.logs/02/godot.log",
+        "reason": ""
+      }
+    ],
+    "seconds": 28.551,
+    "failed": false
+  },
+  "chosen_defaults": {
+    "PROOF_TIMEOUT_SECONDS": 180,
+    "DEBUG_LANDMARK_RADIUS_PX": 2,
+    "DEBUG_LANDMARK_ZOOM": 3,
+    "DEBUG_LANDMARK_COLORS": {
+      "tube_tip": "red",
+      "fore_near": "cyan"
+    }
+  },
+  "environment_notes": [
+    "Godot macOS CA-store messages; every listed headless engine command exited 0.",
+    "An initial py_compile invocation could not write the system Python cache; executed checks use python3 -B."
+  ],
+  "full_suites_run": false,
+  "peer_review_run": false,
+  "committed": false
+}

@@ -1,0 +1,65 @@
+{
+  "base_head": "f0eff8a40f02f59ff52afaf9e1f1e841a14cb530",
+  "compiled": {
+    "arc_thrall": {
+      "bytes_equal_HEAD": true,
+      "compiler_equal": true,
+      "sha256": "488e5cddc6fcafeb28715e08901ed548985e84e874c0dd952b4146bd1a74239c"
+    },
+    "hoarfrost_seer": {
+      "bytes_equal_HEAD": true,
+      "compiler_equal": true,
+      "sha256": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736"
+    }
+  },
+  "pose_rows": {
+    "arc_thrall": {
+      "count": 990,
+      "retained_rows_equal_HEAD": true,
+      "changed_frames": []
+    },
+    "hoarfrost_seer": {
+      "count": 1258,
+      "retained_rows_equal_HEAD": true,
+      "changed_frames": []
+    }
+  },
+  "protected_director_sha256": "1576888b210425a42ae17c33741f9bbe7870c577d1d36b7ba1fee6de0af38d15",
+  "production_render_input_changes": [],
+  "curved_regression": {
+    "ok": false,
+    "errors": [
+      "front/jab/hand_near: minimum reach 23.113249 px < 24.000000 px at 0.500730859"
+    ],
+    "overreach": [],
+    "paths": [
+      {
+        "clip": "jab",
+        "target": "hand_near",
+        "chain": {
+          "first": "upper_near",
+          "second": "fore_near",
+          "target": "hand_near"
+        },
+        "segment_lengths": [
+          40.0,
+          20.0
+        ],
+        "samples": 1190,
+        "allowed_minimum_px": 24.0,
+        "allowed_maximum_px": 61.2,
+        "minimum_px": 23.11324918316678,
+        "maximum_px": 28.812500000000135,
+        "minimum_phase": 0.5007308593749998,
+        "maximum_phase": 0.5003
+      }
+    ],
+    "dense_intervals": 1000,
+    "minimum_margin_px": 4.0,
+    "minimum_phase_resolution": 1e-06,
+    "maximum_overshoot": 0.02,
+    "step_distance_px": 96,
+    "screen_pixel_scale": 2
+  },
+  "rendering": "No windowed runs; production rendering inputs and compiled bytes unchanged."
+}

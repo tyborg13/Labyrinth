@@ -92,7 +92,7 @@ def joined_boundary(hole, occupied, owners, ownership=None):
     return False
 
 
-def joint_holes(occupied, seam, owners, references=(), ownership=None):
+def joint_holes(occupied, seam, owners, references=(), ownership=None, *, pocket_details=False):
     """Only new, joint-local holes bounded >=80% by one actual joint pair.
 
     Held-item openings and unjoined free space are unrestricted. Existing
@@ -111,5 +111,10 @@ def joint_holes(occupied, seam, owners, references=(), ownership=None):
         if overlaps and max(overlaps):
             remaining.pop(int(np.argmax(overlaps)))
         else:
-            defects.append(size)
+            if pocket_details:
+                ys, xs = np.nonzero(hole)
+                defects.append({'bbox': [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1],
+                                'pixel_count': size})
+            else:
+                defects.append(size)
     return defects

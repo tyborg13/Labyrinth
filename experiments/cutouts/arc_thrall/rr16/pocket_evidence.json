@@ -1,0 +1,40 @@
+[
+  {
+    "key": [
+      "front",
+      "jab",
+      22
+    ],
+    "pocket": {
+      "bbox": [
+        282,
+        248,
+        283,
+        250
+      ],
+      "pixel_count": 2
+    },
+    "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-15/experiments/cutouts/arc_thrall/rr11/proof/native/front_jab/pose_0022.png",
+    "sha256": "397700770919d5838f742caaaf06d19da27a70a5ac515f3ee23f520fd23505ec",
+    "manifest_sha256": "e0d111ba7dc8707bcaddca941770d09d3a854db9b998eb4aa0be1c294925dace"
+  },
+  {
+    "key": [
+      "front",
+      "death",
+      31
+    ],
+    "pocket": {
+      "bbox": [
+        280,
+        252,
+        282,
+        256
+      ],
+      "pixel_count": 7
+    },
+    "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-15/experiments/cutouts/arc_thrall/rr11/proof/native/front_death/pose_0031.png",
+    "sha256": "756838ba4c3180321aa6889ea9692f028ed3194636239de70833f2daa155da75",
+    "manifest_sha256": "e0d111ba7dc8707bcaddca941770d09d3a854db9b998eb4aa0be1c294925dace"
+  }
+]

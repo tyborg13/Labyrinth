@@ -9,10 +9,14 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 	var values: Dictionary = {}
 	var step: float = float(layout.get("step_distance_px", 0.0)) / maxf(float(layout.get("screen_pixel_scale", 1.0)), SOLVE_EPSILON)
 	var root_progress: float = 0.0
-	for track: Dictionary in data["view_tracks"][facing][clip]:
+	# The compiler merges complete view_keys channels before projection/roles.
+	# Sample this facing's effective tracks without falling back to base keys.
+	var tracks: Array[Dictionary]
+	tracks.assign(data["view_tracks"][facing][clip])
+	for track: Dictionary in tracks:
 		if track["bone"] == "root" and track["channel"] == "forward_px":
 			root_progress = Tracks.value_at(track["keys"], phase)
-	for track: Dictionary in data["view_tracks"][facing][clip]:
+	for track: Dictionary in tracks:
 		var bone: String = str(track["bone"])
 		if not values.has(bone): values[bone] = {}
 		var value: float = Tracks.value_at(track["keys"], phase)
@@ -80,11 +84,26 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		# Hem-parented feet retain their existing FK behaviour. A visible leg
 		# is identified by its actual hierarchy, never by the creature's name.
 		if joints.has(foot) and parent_name(joints[foot]) == "shin_" + side and joints.has("thigh_" + side) and parent_name(joints["shin_" + side]) == "thigh_" + side:
-			var policy: Dictionary = Anatomy.leg_policy(joints, data.get("legs", {}), side, facing)
+			var policy: Dictionary = Anatomy.leg_policy(joints, data.get("legs", {}), side, facing, data.get("knee_policy", {}))
 			if policy.has("error"):
 				push_error("Invalid humanoid leg IK: " + str(policy["error"]))
 				return {}
-			if value.has("forward_px") or value.has("lift_px") or value.has("inward_px"):
+			var keyed: bool = value.has("forward_px") or value.has("lift_px") or value.has("inward_px")
+			var mode: String = str(data.get("view_forward_modes", {}).get(facing, {}).get(clip, {}).get(foot, "pixels"))
+			if mode == "world_step" and data.get("leg_roles", {}).has(facing):
+				var target: Transform2D = result[foot]
+				target.origin = (result["root"] as Transform2D) * (Tracks.point(joints[foot]["position"]) - root + offset(value, forward, Tracks.point(joints[foot]["position"]), root))
+				result[foot] = target
+			# Case-owned unkeyed supports stay on their rest floor while the
+			# pelvis acts. Existing rigs opt in explicitly through their layout.
+			var planted: bool = not keyed and mode != "body" and clip not in ["move", "death"] and foot in layout.get("planted_bones", [])
+			var support_moved: bool = false
+			if planted:
+				var support: Transform2D = result[foot]
+				support_moved = support.origin.distance_to(Tracks.point(joints[foot]["position"])) > SOLVE_EPSILON
+				support.origin = Tracks.point(joints[foot]["position"])
+				result[foot] = support
+			if keyed or (planted and support_moved):
 				_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
 				for name: String in ["thigh_" + side, "shin_" + side, foot]: solved[name] = true
 				_propagate_descendants(result, joints, authored, order, solved)
@@ -102,7 +121,9 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 		var hand: String = str(attachment["hand"])
 		var angle: float = deg_to_rad(float(values.get(item, {}).get("angle_deg", 0.0)))
 		var pivot: Vector2 = (result[hand] as Transform2D).origin
-		var release: float = float(data["clips"][clip].get("release_at", {}).get(item, INF))
+		var releases: Dictionary = data.get("view_release_at", {}).get(facing, {}).get(
+			clip, data["clips"][clip].get("release_at", {}))
+		var release: float = float(releases.get(item, INF))
 		if released and phase >= release:
 			var at_release: Dictionary = world_transforms(data, clip, release, layout, facing, false)
 			var before: Transform2D = at_release[item]

@@ -120,6 +120,46 @@ relative to its parent's animated frame.
 - Hands with `forward_px`, `lift_px` or `inward_px` keys are two-bone targets, and so are feet (thigh, shin). Arms without hand keys follow forward
   kinematics: their `upper_<side>` translation moves the whole arm rigidly. The idle weapon-arm group uses this.
 
+### Per-view channel overrides
+
+An authored clip may add `view_keys`, a map from a declared view (`front` or
+`rear`) to a partial channel map with the same syntax as `keys`. The effective
+map is `keys` with that view's entries replaced. Replacement applies to the
+whole channel, including its phases/interpolation; it does not append keys or
+add values. Unlisted channels and every other view retain the base data.
+`forward_mode` and `release_at` entries follow the same replacement rule.
+Role names and projected angle signs resolve **after** this merge.
+
+The compiler emits the resulting complete `view_tracks[view][clip]`; runtime
+sampling uses only that facing's effective tracks. Raw `view_keys` does not
+leak into shared clip metadata. A view-specific release policy is emitted in
+`view_release_at[view][clip]`; other clips retain the existing shared
+`clips[clip].release_at` representation. Rigs without overrides keep their
+compiled bytes and arithmetic. Author files and their imported copies remain
+byte-identical; the compiler never rewrites director keys.
+
+For example, rr-15 rear jab replaces only `tube_tip.forward_px` and
+`tube_tip.lift_px` through `clips.jab.view_keys.rear`. The front uses the base
+channels. The supplied rear contact values are 209/50 at .45 and hold values
+178/43 at .65; the wind-up remains the base sequence.
+
+### Dense target reach gate
+
+Every keyed two-bone target, including hands, custom terminals and visible-leg
+feet, is checked in both views before the runtime reach clamp. Sample 1000
+equal phase intervals including both endpoints, plus every authored key phase.
+With rest segment lengths `L1` and `L2`, require:
+
+- target distance ≥ `abs(L1 - L2) + 4` source px;
+- target distance ≤ `(L1 + L2) × 1.02`.
+
+Measure the unclamped FK target in its animated parent frame, including the
+effective per-view channels and the existing step/scale modes. A solve that
+clamps successfully does not make an unreachable authored path pass. The gate
+reports each path's extrema and phases; it does not change keys, stretch a
+chain, or infer a per-figure exception. The positive forward-direction gate
+remains separate and retains its strict dot-product requirement.
+
 ## 5. Per-figure assignment (initial; each unit confirms it)
 | Figure | Robe / cloth pieces | Held item and weapon arm | Idle weapon arm |
 |---|---|---|---|

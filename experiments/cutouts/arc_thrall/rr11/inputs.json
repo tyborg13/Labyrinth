@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/arc_thrall/mq7_front",
+  "rear_job": "spec/art_identity/jobs/arc_thrall/mq7_rear",
+  "front_delivery": "spec/art_identity/maquettes/arc_thrall/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/arc_thrall/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

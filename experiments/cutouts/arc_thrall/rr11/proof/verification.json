@@ -1,0 +1,52 @@
+{
+  "feedback": "rr-11 feedback 2",
+  "headless_acceptance_complete": true,
+  "acceptance_complete": false,
+  "native_pixels": false,
+  "windowed_commands_run": 0,
+  "full_suites_run": false,
+  "data_and_generic_runtime_unchanged": true,
+  "protected_files_verified": 414,
+  "result_lines": [
+    "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+    "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)",
+    "RR11 FRONT SWING KNEES: PASS (2 swings; minimum peak 40.601 degrees)",
+    "RR11 FRONT SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.537227/0.000061 px)",
+    "RR11 REAR SWING KNEES: PASS (2 swings; minimum peak 36.919 degrees)",
+    "RR11 REAR SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.537227/0.000043 px)"
+  ],
+  "test_results": {
+    "thrall": "Ran 14 tests in 2.522s\nOK",
+    "seer_rr10": "Ran 63 tests in 49.982s\nOK"
+  },
+  "mutation_results": "One-frame 1 px stride slides fail stationarity in move and jab, both views. A constant shift fails target error while remaining stationary.",
+  "presented_target_tolerance_px": 0.7072,
+  "support_metrics": {
+    "front": {
+      "maximum_stance_frame_change_px": 0.0,
+      "maximum_jab_frame_change_px": 0.0,
+      "maximum_stance_target_error_px": 0.5372271848175552,
+      "maximum_jab_target_error_px": 6.1035155994204615e-05
+    },
+    "rear": {
+      "maximum_stance_frame_change_px": 0.0,
+      "maximum_jab_frame_change_px": 0.0,
+      "maximum_stance_target_error_px": 0.5372271848175552,
+      "maximum_jab_target_error_px": 4.315837271437802e-05
+    }
+  },
+  "samples": "RR10 BONE SAMPLES: PASS (990 poses; headless transforms only)",
+  "sample_bindings_current": true,
+  "design_placeholders": {},
+  "chosen_debug_defaults": {
+    "mutation_frame": 20,
+    "move_slide_direction": {
+      "front": -1,
+      "rear": 1
+    }
+  },
+  "open_issues": [
+    "Director windowed proof and native/rest certification pending; production callback capture is historical r0 evidence."
+  ],
+  "worktree": "Uncommitted; no peer review or publication."
+}

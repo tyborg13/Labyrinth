@@ -19,6 +19,10 @@ def leg_bend_side(layout, anatomy, side, view):
     if min(first, second) <= 0: raise ValueError('leg ' + side + ': zero-length rest segment')
     cross = (c-a)[0] * (b-a)[1] - (c-a)[1] * (b-a)[0]
     rest_side = float(np.sign(cross)) if abs(cross) > COLLINEAR_EPSILON * first * second else 0.
+    threshold = anatomy.get('knee_policy', {}).get('near_straight_deg', 0.)
+    if threshold > 0:
+        cosine = np.clip(np.sum((b-a) * (c-b)) / (first * second), -1., 1.)
+        if math.degrees(math.acos(float(cosine))) <= threshold: rest_side = 0.
     authored = anatomy.get('legs', {}).get(side, {}).get(view, {}).get('bend_side')
     tag = 'legs.%s.%s.bend_side' % (side, view)
     if rest_side == 0 and authored is None:
@@ -61,7 +65,14 @@ def fk_world(layout, values, modes, forward, step):
         angle = math.radians(channels.get('lean_deg', 0.))
         c, s = math.cos(angle), math.sin(angle)
         local = np.array([[c, -s, origin[0]], [s, c, origin[1]], [0., 0., 1.]])
-        result[name] = visit(parent) @ local if parent else local
+        if layout.get('leg_roles') and mode == 'world_step' and name.startswith('foot_'):
+            # A world-step foot has its floor anchor in the root frame. The
+            # pelvis can dip beneath that target without carrying the floor.
+            local[:2, 2] = position - joints['root']['position'] + origin - (
+                position - np.asarray(joints[parent]['position']))
+            result[name] = visit('root') @ local
+        else:
+            result[name] = visit(parent) @ local if parent else local
         return result[name]
     for name in joints: visit(name)
     return result
@@ -79,7 +90,9 @@ def ik_errors(layout, bones, chain, fk, epsilon, anatomy):
     expected_side = np.sign(cross(rc-ra, rb-ra))
     if names[-1].startswith('foot_'):
         expected_side = leg_bend_side(layout, anatomy, names[-1].split('_')[-1], layout['facing'])
-    if cross(c-a, b-a) * expected_side < -epsilon:
+    # Cross products have squared-pixel units. Scale the serialized position
+    # tolerance by chain length at full extension (where the side is zero).
+    if cross(c-a, b-a) * expected_side < -epsilon * (first + second):
         errors.append('IK changed rest bend side: ' + names[-1])
     ray = fk[names[-1]][:2, 2] - a
     distance = np.clip(np.linalg.norm(ray), abs(first-second) + 1e-6, first+second)

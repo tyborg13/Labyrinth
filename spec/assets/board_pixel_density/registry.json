@@ -475,12 +475,12 @@
       "reason": "Feature ownership mask; metadata, never drawn"
     },
     "assets/units/arc_thrall_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+      "category": "never_drawn",
+      "reason": "Retained rr-07 Thrall rest; humanoid_v2 replaces its production board and UI registration."
     },
     "assets/units/arc_thrall_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived rest snapshot, separately bound in rest_paths; never live paint"
+      "category": "never_drawn",
+      "reason": "Retained rr-07 Thrall rest; humanoid_v2 replaces its production board and UI registration."
     },
     "assets/units/hoarfrost_seer_cutout/features/front_ice_crystal.png": {
       "category": "never_drawn",
@@ -583,6 +583,14 @@
       "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
     },
     "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png": {
+      "category": "other",
+      "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
+    },
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png": {
       "category": "other",
       "reason": "Derived humanoid_v2 rest snapshot, separately bound in rest_paths; never live paint."
     }
@@ -4757,6 +4765,52 @@
         "assets/units/arc_thrall_cutout/hidden/rear/torso.png",
         "assets/units/arc_thrall_cutout/hidden/rear/upper_far.png",
         "assets/units/arc_thrall_cutout/hidden/rear/upper_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/head.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_sleeve_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/joint_extension_torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/tube.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/claw.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png",
+        "assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png",
         "assets/units/arc_thrall_cutout/seams/front/seam_collar_collar_component_02.png",
         "assets/units/arc_thrall_cutout/seams/front/seam_collar_torso.png",
         "assets/units/arc_thrall_cutout/seams/front/seam_collar_torso_component_02.png",
@@ -4860,15 +4914,15 @@
       },
       "facings": {
         "front": {
-          "measurement_path": "assets/units/arc_thrall_cutout/front/rest.png",
-          "orphan_share": 0.014253692740962125,
+          "measurement_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png",
+          "orphan_share": 0.028353257808099143,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"
         },
         "rear": {
-          "measurement_path": "assets/units/arc_thrall_cutout/rear/rest.png",
-          "orphan_share": 0.04572178777327473,
+          "measurement_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png",
+          "orphan_share": 0.016700492896491736,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"
@@ -4876,12 +4930,16 @@
       },
       "rest_paths": {
         "front": [
-          "assets/units/arc_thrall_cutout/front/rest.png"
+          "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png"
         ],
         "rear": [
-          "assets/units/arc_thrall_cutout/rear/rest.png"
+          "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png"
         ]
-      }
+      },
+      "preserved_rest_paths": [
+        "assets/units/arc_thrall_cutout/front/rest.png",
+        "assets/units/arc_thrall_cutout/rear/rest.png"
+      ]
     },
     {
       "id": "hoarfrost_seer_cutout",

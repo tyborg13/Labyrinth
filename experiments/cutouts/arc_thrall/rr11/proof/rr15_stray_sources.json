@@ -1,0 +1,322 @@
+{
+  "points": [
+    [
+      100,
+      138
+    ],
+    [
+      104,
+      142
+    ]
+  ],
+  "nonmandatory": [
+    [
+      100,
+      138
+    ],
+    [
+      104,
+      142
+    ]
+  ],
+  "mandatory": [],
+  "frames": [
+    {
+      "clip": "death",
+      "frame": 54,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 55,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 56,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 59,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 60,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 64,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 65,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 66,
+      "source_pixels": [
+        [
+          104,
+          142
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 67,
+      "source_pixels": [
+        [
+          104,
+          142
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 70,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 71,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 72,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 73,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 74,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 75,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 76,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 77,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 78,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 79,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 80,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 81,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 82,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 83,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 84,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 85,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 86,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 87,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 88,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 89,
+      "source_pixels": [
+        [
+          100,
+          138
+        ]
+      ]
+    }
+  ],
+  "unmapped": [],
+  "piece": "hidden_torso",
+  "view": "rear",
+  "fresh_capture": false,
+  "native_pixels": true,
+  "scope": "exact RGBA-matched source pixels from retained director-native detached components",
+  "manifest_sha256": "aaa0120d9d1d92a717941005d37db70620356e54569add824a42207145db90af"
+}

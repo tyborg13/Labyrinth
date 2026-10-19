@@ -1,0 +1,16 @@
+{
+  "front/sleeve_far": "383d3b4edf82fe6a49a9135a5a35fdee67de7b374ee359ba26192c8ecaf01e6e",
+  "front/hidden_sleeve_far": "305be4ce655ea3f609005c3bb966dc3cfa8f0f2481f8c58fe9570855cf19318c",
+  "front/leg_near": "7d9b3332494182610853218e99ee50461b1b5bddfab7ed155143a9cfbe1b4a02",
+  "front/hidden_leg_near": "dac31e6c1428b7b16fabe9873492ca03b4db85a679aeba0a1e1b1af07d552f92",
+  "front/leg_far": "a2c368873232404009fad8233ce524952aa293ef5373819ee86b2c9711defa76",
+  "front/hidden_leg_far": "e7c59a4e6fbd9102b6ac2e60832bc153b1575d26a9155a5f31d988f78452c9a4",
+  "front/loincloth": "3f553f26120e4c5c8329ff4ba38d076402b1e23ac5d0c86a4daddc7d42cddae7",
+  "rear/sleeve_far": "adcec8e5b365339eefb7fcb38329961ae13d7786c1fda15fa1543ee37f55076b",
+  "rear/hidden_sleeve_far": "396d96aa2ea2c2774fa6c1e26f213d13416c481a7f98cfc22e1d11498dfb4777",
+  "rear/leg_near": "bf8316014bb39b6994ae761e100fbd6b5655a34c356aa085c0eef4e4b219577e",
+  "rear/hidden_leg_near": "3aa7a14f249421ef7f815d0486d876401001199175a8ef7257ee332e8a8ae720",
+  "rear/leg_far": "e2c7f1f8652ba94878a587014042754f38bc476acf89633e81673d3dcd25d2a6",
+  "rear/loincloth": "c140cd24f8be68296b6bf4beedf6712ff85fb7eb8d7289e2c04c771fceae7723",
+  "rear/hidden_loincloth": "7d04f0cefec864c7aff33bb17e7d55e5c1fd1b0cb94711a82e8ef6845e241252"
+}

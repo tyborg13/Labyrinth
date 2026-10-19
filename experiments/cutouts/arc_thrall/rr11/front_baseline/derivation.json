@@ -1,0 +1,142 @@
+{
+  "painting_sha256": "09a2e41da86df9b272494f760106140d0df0b8c3022d130d5cd5ae7a437347a0",
+  "delivery": {
+    "joints_px.json": "57dabbc7568e724c1c935506a3edb1fba8190d7780e9c31d3904476e4b1f3265",
+    "front_parts.png": "f438fc494a0136a8ee6b527fdf54a7f6ed0319990d1fe665d4d5f975faeb15a7",
+    "front_solo_head.png": "f901055103dc087915caa7fc68dcf783447831e3716652dd9d1302742bcbf9ee",
+    "front_solo_torso.png": "79520bdae8984ddfb0299febf4a152d49c1286ac577e03a8ab87c9acc3138fb9",
+    "front_solo_collar.png": "5791d119b6c1c150e6ea186c4aa3acb7dacf557c70cc9047648d869dfc71f457",
+    "front_solo_upper_near.png": "d82512ccfb1165acfb5a2f88681c1a9feb8ed609e3660eadc6f033c348db50d0",
+    "front_solo_fore_near.png": "6df3d8c5b9d16f451907ff63d6216c753a9e891a817fa311062f3b98f37c9b70",
+    "front_solo_upper_far.png": "51e75c6ae5eb194a763d08a2a61cb9ee3a02601f6ae265c4322add9348d5933a",
+    "front_solo_fore_far.png": "7f883c34728c3622579c73f8688ef83ec973763a288efb379923e6c4e709b725",
+    "front_solo_hand_far.png": "51370738e79ad6d9d2bc0ece55790bf87729f9b586c2de36c76323e5515f8e94",
+    "front_solo_thigh_near.png": "6712d66d5bba13514da19332b0f2ded5c690e1faebf78bd58b86b06ba3325161",
+    "front_solo_shin_near.png": "ebd981cea473fa8e22e1e9bfeb248c4a6fe9706806cde24b115f0495e8ea98d6",
+    "front_solo_thigh_far.png": "2345820d65a6c1cca86d9eda7124aa95c44ad3b746eca7be5bb3236018f21f7e",
+    "front_solo_shin_far.png": "f77f6f428ba64bdb3ed824188582bbd54c2d3ae3cd33a1cfc8a8e4c061f92523",
+    "front_solo_foot_near.png": "558353687bd7eaed257558809def61797c7ed56b607ecb97de8ecec29249a003",
+    "front_solo_foot_far.png": "24952c0148c35362739ddc2ae8361b7bbca4b34ed415973c7251cb792e72b844",
+    "front_solo_loincloth.png": "3e0be7d0b8a3fd2bc5e0d6d5e6dff64c2071e3a532175d484afc2350c7598e46"
+  },
+  "policy": "rr07 genuine categorical seeds / nearest ownership; rr05 non-outline same-surface edge texels",
+  "nearest_assignment": {
+    "head": {
+      "painted_pixels": 1184,
+      "reassigned_pixels": 189,
+      "reassigned_share": 0.15962837837837837,
+      "above_15_percent": true
+    },
+    "collar": {
+      "painted_pixels": 228,
+      "reassigned_pixels": 83,
+      "reassigned_share": 0.36403508771929827,
+      "above_15_percent": true
+    },
+    "torso": {
+      "painted_pixels": 3512,
+      "reassigned_pixels": 324,
+      "reassigned_share": 0.09225512528473805,
+      "above_15_percent": false
+    },
+    "loincloth": {
+      "painted_pixels": 1851,
+      "reassigned_pixels": 223,
+      "reassigned_share": 0.12047541869259859,
+      "above_15_percent": false
+    },
+    "upper_near": {
+      "painted_pixels": 1207,
+      "reassigned_pixels": 134,
+      "reassigned_share": 0.11101905550952776,
+      "above_15_percent": false
+    },
+    "fore_near": {
+      "painted_pixels": 2080,
+      "reassigned_pixels": 727,
+      "reassigned_share": 0.34951923076923075,
+      "above_15_percent": true
+    },
+    "upper_far": {
+      "painted_pixels": 632,
+      "reassigned_pixels": 180,
+      "reassigned_share": 0.2848101265822785,
+      "above_15_percent": true
+    },
+    "fore_far": {
+      "painted_pixels": 783,
+      "reassigned_pixels": 252,
+      "reassigned_share": 0.3218390804597701,
+      "above_15_percent": true
+    },
+    "hand_far": {
+      "painted_pixels": 607,
+      "reassigned_pixels": 444,
+      "reassigned_share": 0.7314662273476112,
+      "above_15_percent": true
+    },
+    "thigh_near": {
+      "painted_pixels": 1587,
+      "reassigned_pixels": 165,
+      "reassigned_share": 0.10396975425330812,
+      "above_15_percent": false
+    },
+    "shin_near": {
+      "painted_pixels": 698,
+      "reassigned_pixels": 85,
+      "reassigned_share": 0.12177650429799428,
+      "above_15_percent": false
+    },
+    "foot_near": {
+      "painted_pixels": 896,
+      "reassigned_pixels": 185,
+      "reassigned_share": 0.20647321428571427,
+      "above_15_percent": true
+    },
+    "thigh_far": {
+      "painted_pixels": 48,
+      "reassigned_pixels": 6,
+      "reassigned_share": 0.125,
+      "above_15_percent": false
+    },
+    "shin_far": {
+      "painted_pixels": 51,
+      "reassigned_pixels": 0,
+      "reassigned_share": 0.0,
+      "above_15_percent": false
+    },
+    "foot_far": {
+      "painted_pixels": 613,
+      "reassigned_pixels": 80,
+      "reassigned_share": 0.13050570962479607,
+      "above_15_percent": false
+    }
+  },
+  "connected_neighbour_transfers": [
+    {
+      "from": "torso",
+      "to": "upper_near",
+      "pixels": 3
+    },
+    {
+      "from": "torso",
+      "to": "upper_far",
+      "pixels": 1
+    },
+    {
+      "from": "loincloth",
+      "to": "fore_far",
+      "pixels": 1
+    },
+    {
+      "from": "thigh_far",
+      "to": "hand_far",
+      "pixels": 1
+    },
+    {
+      "from": "foot_far",
+      "to": "loincloth",
+      "pixels": 2
+    }
+  ]
+}
