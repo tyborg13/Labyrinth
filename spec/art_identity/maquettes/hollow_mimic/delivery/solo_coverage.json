@@ -1,0 +1,36 @@
+{
+  "front": {
+    "head": 31714,
+    "torso": 20770,
+    "pelvis": 28540,
+    "upper_near": 11471,
+    "fore_near": 8669,
+    "hand_near": 4431,
+    "upper_far": 10226,
+    "fore_far": 6373,
+    "hand_far": 4208,
+    "thigh_near": 12204,
+    "shin_near": 9324,
+    "foot_near": 8725,
+    "thigh_far": 12488,
+    "shin_far": 7358,
+    "foot_far": 7094
+  },
+  "rear": {
+    "head": 27539,
+    "torso": 17570,
+    "pelvis": 30252,
+    "upper_near": 10368,
+    "fore_near": 7732,
+    "hand_near": 3832,
+    "upper_far": 11532,
+    "fore_far": 8914,
+    "hand_far": 4196,
+    "thigh_near": 11750,
+    "shin_near": 7778,
+    "foot_near": 6281,
+    "thigh_far": 11430,
+    "shin_far": 10638,
+    "foot_far": 9974
+  }
+}

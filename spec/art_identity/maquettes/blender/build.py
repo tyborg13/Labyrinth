@@ -57,6 +57,8 @@ def build(spec, output, bundle, cache):
             fitting_spec = deepcopy(spec)
             fitting_spec['joints'] = spec['source_fit_joints']
         rig, posed, owners = bind_and_pose(fitting_spec, body)
+        from spec.art_identity.maquettes.blender.hand_pose import apply as pose_hands
+        pose_hands(fitting_spec, body, rig, posed, owners)
         from spec.art_identity.maquettes.blender.source_cage import fit_body
         source_fit = fit_body(fitting_spec, body, rig, posed)
         from spec.art_identity.maquettes.blender.pose_adjustment import repose
@@ -98,6 +100,9 @@ def build(spec, output, bundle, cache):
         else:
             result = [getattr(pieces, kind)(piece, spec)]
         for obj in result:
+            if piece.get('rig_pivot_joint'):
+                from spec.art_identity.maquettes.blender.rigid_pivot import apply as set_pivot
+                set_pivot(obj, spec['joints'][piece['rig_pivot_joint']])
             if piece.get('rig_bone'):
                 bpy.context.view_layer.update()
                 obj['rig_bone'] = piece['rig_bone']
@@ -131,11 +136,15 @@ def build(spec, output, bundle, cache):
     for region in sorted(set(owners)):
         if region in spec['base'].get('covered_regions', []):
             continue
-        faces = [list(p.vertices) for p, owner in zip(posed.data.polygons, owners) if owner == region
+        skin = [p for p, owner in zip(posed.data.polygons, owners) if owner == region
                  and not ('covered_above_z' in spec['base'] and
                           min((posed.matrix_world @ posed.data.vertices[i].co).z for i in p.vertices)
                           > spec['base']['covered_above_z'])]
-        obj = pieces.mesh_object('body_' + region, [list(v.co) for v in posed.data.vertices], faces)
+        obj = pieces.mesh_object('body_' + region, [list(v.co) for v in posed.data.vertices],
+                                 [list(p.vertices) for p in skin])
+        if spec['base'].get('preserve_native_skin_shading'):
+            for polygon, original in zip(obj.data.polygons, skin):
+                polygon.use_smooth = original.use_smooth
         obj.matrix_world = posed.matrix_world.copy()
         obj['part'] = region
         obj['owner_index'] = list(spec['labels']).index(region)

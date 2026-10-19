@@ -190,6 +190,9 @@ def curve(piece, spec):
     data.use_fill_caps = True
     spline = data.splines.new(piece['spline'])
     points = piece['path']
+    if piece.get('root_on'):
+        from .curve_root import fit
+        points = fit(piece)
     if piece['spline'] == 'BEZIER':
         spline.bezier_points.add(len(points) - 1)
         for p, xyz, radius in zip(spline.bezier_points, points, piece['taper']):
@@ -207,7 +210,13 @@ def curve(piece, spec):
     place(obj, piece, spec)
     if piece.get('conforming'):
         from .conformance import conform_curve
-        conform_curve(obj, piece, bpy.data.objects['posed_body'])
+        body = bpy.data.objects['posed_body']
+        if piece.get('conform_regions'):
+            from .conformance import regional_body
+            body = regional_body(body, {'id': piece['id'] + '_curve_support', 'body_regions': piece['conform_regions']})
+        conform_curve(obj, piece, body)
+        if piece.get('conform_regions'):
+            obj['contact_target'] = body.name
     return obj
 
 
@@ -241,6 +250,9 @@ def rigid_shell(piece, spec):
     topology.to_mesh(obj.data)
     topology.free()
     obj['rig_joint'] = piece['rig_joint']
+    if piece.get('support_side'):
+        from .support_shell import seat
+        seat(obj, piece, spec)
     if piece.get('clearance_parts'):
         from .rigid_clearance import fit
         fit(obj, piece, spec)

@@ -1,0 +1,13 @@
+..BLENDER_BRIDGE_STARTED: long
+.....................................................ss..........DELIVERY_STAGE: PASS; staged
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 4451742, "figure": "hollow_mimic", "files": 85}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3230129, "figure": "briar_weaver", "files": 74}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3845405, "figure": "slag_mortar", "files": 81}
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.748841419; rear_iou=0.668356378
+MQ09_FIT: PASS; briar_weaver; front_iou=0.716258381; rear_iou=0.720184800
+MQ09_FIT: PASS; slag_mortar; front_iou=0.807755131; rear_iou=0.657356636
+...............
+----------------------------------------------------------------------
+Ran 82 tests in 8.992s
+
+OK (skipped=2)

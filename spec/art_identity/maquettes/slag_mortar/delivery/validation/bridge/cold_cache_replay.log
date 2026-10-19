@@ -1,0 +1,72 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: leather_apron
+CLOTH_PATTERN: leather_apron; vertices=304; pins=16
+CLOTH_FRAME: leather_apron; 8/24
+CLOTH_FRAME: leather_apron; 16/24
+CLOTH_FRAME: leather_apron; 24/24
+BUILD_STAGE: rear_leather_apron
+CLOTH_PATTERN: rear_leather_apron; vertices=304; pins=16
+CLOTH_FRAME: rear_leather_apron; 8/24
+CLOTH_FRAME: rear_leather_apron; 16/24
+CLOTH_FRAME: rear_leather_apron; 24/24
+BUILD_STAGE: crucible
+BUILD_STAGE: crucible_band_0
+BUILD_STAGE: crucible_band_1
+BUILD_STAGE: crucible_band_2
+BUILD_STAGE: slag_surface
+BUILD_STAGE: harness_strap_0
+BUILD_STAGE: harness_strap_1
+BUILD_STAGE: iron_bracer_near
+BUILD_STAGE: iron_bracer_near_band_0
+BUILD_STAGE: iron_bracer_near_band_1
+BUILD_STAGE: iron_bracer_far
+BUILD_STAGE: iron_bracer_far_band_0
+BUILD_STAGE: iron_bracer_far_band_1
+Info: Saved as "maquette.blend"
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: leather_apron
+BUILD_STAGE: rear_leather_apron
+BUILD_STAGE: crucible
+BUILD_STAGE: crucible_band_0
+BUILD_STAGE: crucible_band_1
+BUILD_STAGE: crucible_band_2
+BUILD_STAGE: slag_surface
+BUILD_STAGE: harness_strap_0
+BUILD_STAGE: harness_strap_1
+BUILD_STAGE: iron_bracer_near
+BUILD_STAGE: iron_bracer_near_band_0
+BUILD_STAGE: iron_bracer_near_band_1
+BUILD_STAGE: iron_bracer_far
+BUILD_STAGE: iron_bracer_far_band_0
+BUILD_STAGE: iron_bracer_far_band_1
+Info: Saved as "maquette.blend"
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: leather_apron
+CLOTH_PATTERN: leather_apron; vertices=304; pins=16
+CLOTH_FRAME: leather_apron; 8/24
+CLOTH_FRAME: leather_apron; 16/24
+CLOTH_FRAME: leather_apron; 24/24
+BUILD_STAGE: rear_leather_apron
+CLOTH_PATTERN: rear_leather_apron; vertices=304; pins=16
+CLOTH_FRAME: rear_leather_apron; 8/24
+CLOTH_FRAME: rear_leather_apron; 16/24
+CLOTH_FRAME: rear_leather_apron; 24/24
+BUILD_STAGE: crucible
+BUILD_STAGE: crucible_band_0
+BUILD_STAGE: crucible_band_1
+BUILD_STAGE: crucible_band_2
+BUILD_STAGE: slag_surface
+BUILD_STAGE: harness_strap_0
+BUILD_STAGE: harness_strap_1
+BUILD_STAGE: iron_bracer_near
+BUILD_STAGE: iron_bracer_near_band_0
+BUILD_STAGE: iron_bracer_near_band_1
+BUILD_STAGE: iron_bracer_far
+BUILD_STAGE: iron_bracer_far_band_0
+BUILD_STAGE: iron_bracer_far_band_1
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+FITTED_RECIPE_PROOF: PASS; raw_hashes_identical=true; max_joint_error=1.628595347478771e-06

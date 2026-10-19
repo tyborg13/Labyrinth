@@ -1,0 +1,493 @@
+{
+  "schema": 2,
+  "spec_hash": "5732f754891d43ff5043f874dff0317604c908d97b409df982236663ad305a4d",
+  "board_frame": {
+    "yaw_radians": -0.0,
+    "pivot": [
+      -0.016572815184059765,
+      -0.009943689110435904,
+      0.8601923788646685
+    ],
+    "matrix": [
+      [
+        1.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        -0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        1.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "forward": [
+      1,
+      0,
+      0
+    ]
+  },
+  "context_key": "01d5eaf0b5ec54e70c7aa329ce4ad9152790b6be695cbe551953f1dff6414737",
+  "blender": "5.2.1 LTS",
+  "mesh_hashes": {
+    "hair_spike_0_render": "4357210a41ac269a03d9ec3e5f29cab0f3f99cf58a9556532046106390f9e1ea",
+    "hair_spike_1_render": "68f070d9ead7191a4924222b26e12d895f9be7d137b2929e48cf9141d1f61d70",
+    "hair_spike_2_render": "c21d46d4c60c5f1b5330ad64cad362c480aec15f4ab7270153a473ae964a8638",
+    "hair_spike_3_render": "4a863378ddfa7291e1c86f8c3c81c68f08fe2503bf0d8fe38839d14bbd3a84cc",
+    "hair_spike_4_render": "95adb0e597aece2c655a6cfce28348dece52a8a5bc5360a032fd359f306c71ff",
+    "hair_spike_5_render": "4e27c7d8412a9e5eb36f7e3416f34c41333d311d655bf7422eff7db71aeb82a9",
+    "hair_spike_6_render": "442e5d88b9b1667a9cdad22da447459070e8224a58ab8205e23a5a4f352bbf55",
+    "hair_spike_7_render": "0d1ec5104f1d252463826c08c6053e38e4cfff90df5261c44d82697b5ead1212",
+    "hair_crown_render": "0e16a01ba64cea1c9d5559421e5839e46d62764e110fe740c552e91fc11b5195",
+    "cracked_mask_render": "eb21f4694eadb8b09d413a4625c6fa9bb62bcf663c50f401a747691a66551931",
+    "body_foot_far": "e78ac6357d952cf2ff2862770b302f1996c427ea7fbc4b465cdf83e74ba63104",
+    "body_foot_near": "2fae24e9aa4e39d2992a71a34ac43f47b99ac105e960657c286ea008b87800d1",
+    "body_fore_far": "85f54e4f72477e343477154b37ecf55cf79e68f0849eef438b289a591f4dde5e",
+    "body_fore_near": "8fbeafcb0855da11274306c911cd7aee5f3822b93e78356bd6f9a9231bbc13a4",
+    "body_hand_far": "80d64c72f1ba1346c2f8cfc4d06294954603e4f0405622bf397a96cddcbf0e91",
+    "body_hand_near": "2de3afdb08fc2910d6d59001a9c64ae54a0b22319e4ade62d38ab49ad8cc2007",
+    "body_head": "ffc94832bf2b2ae2bdcbc1e2121aff619adddbe1e906ca5014b00b3ba1d61560",
+    "body_pelvis": "dd073c89ce8f269d5d9943eef78ec854e79d36ead386a257358da3b3208b2f07",
+    "body_shin_far": "33b2640f1a52064a21b3644f387db6cb683545360ef3c674700b42592e10fd9d",
+    "body_shin_near": "6db6671573fb8f746c77c8e440f7cf3b6d10c67b672fefb11a7f35ba92147f8c",
+    "body_thigh_far": "d0748cda991412ba710a96cbfdf7b5b68fd82d1b6772a67a76c735168d2b0d9b",
+    "body_thigh_near": "b313cfaa0f2be5f463cab0f1fb6ddc111601cc3550c033d5eb78a17d2aab2c5c",
+    "body_torso": "c50196a53ee49476ee4cd4d16093cb48c26fd4000d3e84611f866ed1b5a9310b",
+    "body_upper_far": "28cf111e324b9f396d599b7d2f6dd76437266a2d3b88f292ceea873a951ac3a3",
+    "body_upper_near": "1b90304b1c307a712f45f7df2fd19173377ae5a8353229f95e65147cb823302e"
+  },
+  "combined_mesh_hash": "518db6c40fa6477444aaede0aeae51b2756f4a082133f83b0cde3c7b2235d358",
+  "checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "floor_contact_correction": true,
+    "native_rigid_bindings": true,
+    "native_sculpted_surfaces": true,
+    "sculpted_blade_roots_attached": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "cloth": {},
+  "geometry_details": {
+    "metric_accessories": {},
+    "rounded_hoods": {},
+    "sewn_rest": {},
+    "floor_contact": {
+      "floor_m": 0.18902269093172863,
+      "maximum_lift_m": 0.02,
+      "points": {
+        "ankle_near": {
+          "height_m": 0.18902269093172863,
+          "above_floor_m": 0.0,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        },
+        "ankle_far": {
+          "height_m": 0.18902269093172858,
+          "above_floor_m": -5.551115123125783e-17,
+          "within_floor_limit": true,
+          "exception": null,
+          "passed": true
+        }
+      },
+      "offenders": [],
+      "excepted_offenders": [],
+      "passed": true,
+      "pose": {
+        "method": "real hip/knee/ankle pose on fitted skin, before native cloth",
+        "joints_before": {
+          "root": [
+            0,
+            0,
+            0
+          ],
+          "pelvis": [
+            -0.016572815184059765,
+            -0.009943689110435904,
+            0.8601923788646685
+          ],
+          "torso": [
+            0.009943689110435982,
+            -0.009943689110435576,
+            1.2174278579257491
+          ],
+          "head": [
+            0.03314563036811949,
+            -0.019887378220871582,
+            1.3852202799089846
+          ],
+          "head_tip": [
+            0.05303300858899086,
+            -0.026516504294495865,
+            1.845296275669467
+          ],
+          "shoulder_near": [
+            -0.15246989969334954,
+            0.1922446561350923,
+            1.3635696448143733
+          ],
+          "shoulder_far": [
+            0.070268736380413,
+            -0.22141281085903786,
+            1.363569644814373
+          ],
+          "elbow_near": [
+            -0.24527766472408358,
+            0.285052421165827,
+            1.017159483300598
+          ],
+          "elbow_far": [
+            0.12595339539885375,
+            -0.3248271776075703,
+            1.038810118395209
+          ],
+          "hand_near": [
+            -0.2519067907977076,
+            0.3181980515339465,
+            0.7573518621652663
+          ],
+          "hand_far": [
+            0.14252621058291337,
+            -0.47398251426410765,
+            0.7681771797125718
+          ],
+          "hand_tip_near": [
+            -0.23533397561364766,
+            0.32814174064438234,
+            0.6274480515976005
+          ],
+          "hand_tip_far": [
+            0.15909902576697302,
+            -0.4640388251536717,
+            0.638273369144906
+          ],
+          "hip_near": [
+            -0.1590990257669733,
+            0.03977475644174321,
+            0.7790024972598772
+          ],
+          "hip_far": [
+            -0.009943689110435826,
+            -0.17567184095103291,
+            0.7627645209389191
+          ],
+          "knee_near": [
+            -0.17898640398784488,
+            0.13921164754610157,
+            0.44341765329340743
+          ],
+          "knee_far": [
+            -0.009943689110435906,
+            -0.2684796059817673,
+            0.4758936059353238
+          ],
+          "ankle_near": [
+            -0.12263883236204179,
+            0.33477086671800615,
+            0.18902269093172863
+          ],
+          "ankle_far": [
+            -0.11600970628841803,
+            -0.3347708667180061,
+            0.18902269093172858
+          ],
+          "foot_tip_near": [
+            0.019887378220871832,
+            0.24527766472408385,
+            0.06994419791136827
+          ],
+          "foot_tip_far": [
+            0.02651650429449543,
+            -0.43752232085917636,
+            0.09700749177963196
+          ],
+          "neck_seam": [
+            1.416395786990123e-17,
+            -0.03977475644174331,
+            1.3635696448143733
+          ]
+        },
+        "joints_after": {
+          "root": [
+            0,
+            0,
+            0
+          ],
+          "pelvis": [
+            -0.016572815184059765,
+            -0.009943689110435904,
+            0.8601923788646685
+          ],
+          "torso": [
+            0.009943689110435982,
+            -0.009943689110435576,
+            1.2174278579257491
+          ],
+          "head": [
+            0.03314563036811949,
+            -0.019887378220871582,
+            1.3852202799089846
+          ],
+          "head_tip": [
+            0.05303300858899086,
+            -0.026516504294495865,
+            1.845296275669467
+          ],
+          "shoulder_near": [
+            -0.15246989969334954,
+            0.1922446561350923,
+            1.3635696448143733
+          ],
+          "shoulder_far": [
+            0.070268736380413,
+            -0.22141281085903786,
+            1.363569644814373
+          ],
+          "elbow_near": [
+            -0.24527766472408358,
+            0.285052421165827,
+            1.017159483300598
+          ],
+          "elbow_far": [
+            0.12595339539885375,
+            -0.3248271776075703,
+            1.038810118395209
+          ],
+          "hand_near": [
+            -0.2519067907977076,
+            0.3181980515339465,
+            0.7573518621652663
+          ],
+          "hand_far": [
+            0.14252621058291337,
+            -0.47398251426410765,
+            0.7681771797125718
+          ],
+          "hand_tip_near": [
+            -0.23533397561364766,
+            0.32814174064438234,
+            0.6274480515976005
+          ],
+          "hand_tip_far": [
+            0.15909902576697302,
+            -0.4640388251536717,
+            0.638273369144906
+          ],
+          "hip_near": [
+            -0.1590990257669733,
+            0.03977475644174321,
+            0.7790024972598772
+          ],
+          "hip_far": [
+            -0.009943689110435826,
+            -0.17567184095103291,
+            0.7627645209389191
+          ],
+          "knee_near": [
+            -0.17898640398784488,
+            0.13921164754610157,
+            0.44341765329340743
+          ],
+          "knee_far": [
+            -0.009943689110435906,
+            -0.2684796059817673,
+            0.4758936059353238
+          ],
+          "ankle_near": [
+            -0.12263883236204179,
+            0.33477086671800615,
+            0.18902269093172863
+          ],
+          "ankle_far": [
+            -0.11600970628841803,
+            -0.3347708667180061,
+            0.18902269093172858
+          ],
+          "foot_tip_near": [
+            0.019887378220871832,
+            0.24527766472408385,
+            0.06994419791136827
+          ],
+          "foot_tip_far": [
+            0.02651650429449543,
+            -0.43752232085917636,
+            0.09700749177963196
+          ],
+          "neck_seam": [
+            1.416395786990123e-17,
+            -0.03977475644174331,
+            1.3635696448143733
+          ]
+        },
+        "bones": {
+          "ankle_far": {
+            "head": [
+              -0.11600969731807709,
+              -0.3347708582878113,
+              0.18902269005775452
+            ],
+            "tail": [
+              0.026516661047935486,
+              -0.4375220537185669,
+              0.09700731188058853
+            ]
+          },
+          "hip_far": {
+            "head": [
+              -0.009943697601556778,
+              -0.17567184567451477,
+              0.7627645134925842
+            ],
+            "tail": [
+              -0.009943591430783272,
+              -0.2684813141822815,
+              0.4758942127227783
+            ]
+          },
+          "knee_far": {
+            "head": [
+              -0.009943688288331032,
+              -0.268479585647583,
+              0.47589361667633057
+            ],
+            "tail": [
+              -0.11600975692272186,
+              -0.33477023243904114,
+              0.18902257084846497
+            ]
+          }
+        },
+        "maximum_bone_endpoint_error_m": 1.7082005142055046e-06,
+        "corrective_shapes": [
+          "CC0_original",
+          "source_outline_fit"
+        ]
+      }
+    },
+    "collar_widths": {},
+    "corner_errors": {},
+    "conformance": {},
+    "blade_attachments": {},
+    "source_outline_fit": {
+      "regions": [
+        "foot_far",
+        "foot_near",
+        "fore_far",
+        "fore_near",
+        "hand_far",
+        "hand_near",
+        "head",
+        "shin_far",
+        "shin_near",
+        "thigh_far",
+        "thigh_near",
+        "upper_far",
+        "upper_near"
+      ],
+      "vertices": 40084,
+      "profile_views": {
+        "upper_near": [
+          "front",
+          "rear"
+        ],
+        "fore_near": [
+          "front",
+          "rear"
+        ],
+        "hand_near": [
+          "front",
+          "rear"
+        ],
+        "upper_far": [
+          "front",
+          "rear"
+        ],
+        "fore_far": [
+          "front",
+          "rear"
+        ],
+        "hand_far": [
+          "front",
+          "rear"
+        ],
+        "thigh_near": [
+          "front",
+          "rear"
+        ],
+        "shin_near": [
+          "front",
+          "rear"
+        ],
+        "foot_near": [
+          "front"
+        ],
+        "thigh_far": [
+          "front",
+          "rear"
+        ],
+        "shin_far": [
+          "front",
+          "rear"
+        ],
+        "foot_far": [
+          "rear"
+        ],
+        "head": [
+          "front",
+          "rear"
+        ]
+      },
+      "maximum_skinning_error": 8.98915218651522e-07,
+      "maximum_displacement": 0.1719630146140644,
+      "native_corrective_shape": "source_outline_fit"
+    },
+    "facing": {
+      "forward_world": [
+        0.9999901652336121,
+        0.00026194375823251903,
+        0.0
+      ],
+      "anatomical_forward_world": [
+        0.9999901652336121,
+        0.00026194375823251903,
+        -0.004418844822794199
+      ],
+      "front_forward_screen": [
+        -0.7069146047488074,
+        0.35364252458213946
+      ],
+      "rear_forward_screen": [
+        0.7069146047488074,
+        -0.35364252458213946
+      ],
+      "board_axis_cosine": 0.9999999780360148,
+      "passed": true
+    },
+    "front_chest_attachment_axes": {}
+  },
+  "passed": true
+}

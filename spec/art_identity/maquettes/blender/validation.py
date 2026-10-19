@@ -75,15 +75,20 @@ def geometry_report(spec, objects, cloth_reports, details=None):
         # Compare in the designed plate plane: corner erosion must remain within
         # the explicit bevel width. Native sharp miter is also set in pieces.py.
         outline = piece['outline']
+        vertex_points = [v.co for v in obj.data.vertices]
+        if piece.get('rig_pivot_joint'):
+            from mathutils import Matrix
+            design = Matrix(json.loads(obj['pivot_design_matrix'])).inverted()
+            vertex_points = [design @ obj.matrix_world @ point for point in vertex_points]
         conformed = json.loads(obj['conformed_corners']) if 'conformed_corners' in obj else None
         for index, (x, z) in enumerate(outline):
-            error = (min((v.co - Vector(conformed[index])).length for v in obj.data.vertices) if conformed else
-                     min(((v.co.x - x * scale[0]) ** 2 + (v.co.z - z * scale[1]) ** 2) ** 0.5 for v in obj.data.vertices))
+            error = (min((point - Vector(conformed[index])).length for point in vertex_points) if conformed else
+                     min(((point.x - x * scale[0]) ** 2 + (point.z - z * scale[1]) ** 2) ** 0.5 for point in vertex_points))
             a = Vector((outline[index - 1][0] - x, outline[index - 1][1] - z)).normalized()
             b = Vector((outline[(index + 1) % len(outline)][0] - x, outline[(index + 1) % len(outline)][1] - z)).normalized()
             if 'outline_3d' in piece:
                 spatial = [Vector(p) for p in (conformed or piece['outline_3d'])]
-                error = min((v.co - spatial[index]).length for v in obj.data.vertices)
+                error = min((point - spatial[index]).length for point in vertex_points)
                 a = (spatial[index - 1] - spatial[index]).normalized()
                 b = (spatial[(index + 1) % len(spatial)] - spatial[index]).normalized()
             if conformed:
@@ -106,13 +111,40 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             'collar_front_no_wider_than_back': bool(collar_ok),
             'plate_corners_preserved': bool(corners_ok),
             'armour_conforms_to_body': bool(conform_ok)}
+    if spec.get('planted_leg'):
+        from .floor_contact import spec_contacts
+        from .rear_body import REAR_POSE_DEFAULTS
+        floor = spec_contacts(spec)
+        rig = bpy.data.objects['maquette_armature']
+        errors = [(Vector(spec['joints'][bone[end]]) - rig.pose.bones[bone['name']].matrix.translation).length
+                  if end == 'head' else
+                  (Vector(spec['joints'][bone[end]]) - rig.pose.bones[bone['name']].tail).length
+                  for bone in spec['armature']['bones']
+                  if bone['name'] in spec['planted_leg']['leg_bones'] for end in ('head', 'tail')]
+        floor['native_endpoint_error_m'] = max(errors)
+        floor['passed'] &= max(errors) <= REAR_POSE_DEFAULTS['bone_endpoint_error_max_m']
+        details.setdefault('floor_contact', floor)
+        result['floor_contact_correction'] = floor['passed']
     bound = [p for p in spec['pieces'] if p.get('rig_bone')]
+    if any(p.get('root_on') for p in spec['pieces']):
+        from .curve_root import validate as roots
+        details['curve_roots'] = roots(spec)
+        result['native_curve_roots'] = all(row['passed'] for row in details['curve_roots'].values())
+    if spec['base'].get('closed_hands'):
+        hands = json.loads(bpy.data.objects['posed_body'].get('native_hand_pose', '{}'))
+        details['native_hand_pose'] = hands
+        result['native_hand_pose'] = (set(hands) == {'hand_' + side for side in spec['base']['closed_hands']} and
+                                      all(row.get('passed') and row['curled_vertices'] > 0 for row in hands.values()))
     if bound:
         # The editable source, not the immutable render copy, owns the binding.
         # A material-correct but unrigged boulder is not a finished native rig.
         from .creature_rig import bindings_match
         result['native_rigid_bindings'] = bindings_match(bound, bpy.data.objects,
                                                         bpy.data.objects['maquette_armature'])
+    if any(p.get('rig_pivot_joint') for p in spec['pieces']):
+        from .rigid_pivot import report as pivots
+        details['rigid_pivots'] = pivots(spec)
+        result['native_rigid_pivots'] = all(row['passed'] for row in details['rigid_pivots'].values())
     masses = [p for p in spec['pieces'] if p['type'] == 'sculpted_mass']
     if masses:
         from .sculpted_mass import native_stack_matches, frozen_differs_from_base

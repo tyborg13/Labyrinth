@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "spec_hash": "5732f754891d43ff5043f874dff0317604c908d97b409df982236663ad305a4d",
+  "geometry_unchanged": true,
+  "geometry_checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "floor_contact_correction": true,
+    "native_rigid_bindings": true,
+    "native_sculpted_surfaces": true,
+    "sculpted_blade_roots_attached": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "facing": {
+    "forward_world": [
+      0.9999901652336121,
+      0.00026194375823251903,
+      0.0
+    ],
+    "anatomical_forward_world": [
+      0.9999901652336121,
+      0.00026194375823251903,
+      -0.004418844822794199
+    ],
+    "front_forward_screen": [
+      -0.7069146047488074,
+      0.35364252458213946
+    ],
+    "rear_forward_screen": [
+      0.7069146047488074,
+      -0.35364252458213946
+    ],
+    "board_axis_cosine": 0.9999999780360148,
+    "passed": true,
+    "torso_three_quarter": {
+      "left_area_px": 9591,
+      "right_area_px": 11179,
+      "area_imbalance": 0.07645642753972075,
+      "mirror_difference": 0.24939946900417212
+    },
+    "torso_frontal_control": {
+      "left_area_px": 7746,
+      "right_area_px": 10463,
+      "area_imbalance": 0.14921192816738976,
+      "mirror_difference": 0.35488096851425216
+    },
+    "torso_asymmetry_passed": true,
+    "frontal_axis_rejected": true
+  }
+}

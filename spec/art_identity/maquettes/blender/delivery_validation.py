@@ -23,6 +23,12 @@ def geometry_checks(spec):
     required = GEOMETRY_CHECKS
     if spec.get('base', {}).get('socket_tucks'):
         required += ('native_socket_tucks',)
+    if spec.get('base', {}).get('closed_hands'):
+        required += ('native_hand_pose',)
+    if any(p.get('root_on') for p in spec['pieces']):
+        required += ('native_curve_roots',)
+    if any(p.get('rig_pivot_joint') for p in spec['pieces']):
+        required += ('native_rigid_pivots',)
     if spec.get('planted_leg'):
         required += ('floor_contact_correction',)
     if any(p.get('rig_bone') for p in spec['pieces']):

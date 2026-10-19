@@ -1,0 +1,73 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: leather_apron
+CLOTH_PATTERN: leather_apron; vertices=304; pins=16
+CLOTH_FRAME: leather_apron; 8/24
+CLOTH_FRAME: leather_apron; 16/24
+CLOTH_FRAME: leather_apron; 24/24
+BUILD_STAGE: rear_leather_apron
+CLOTH_PATTERN: rear_leather_apron; vertices=304; pins=16
+CLOTH_FRAME: rear_leather_apron; 8/24
+CLOTH_FRAME: rear_leather_apron; 16/24
+CLOTH_FRAME: rear_leather_apron; 24/24
+BUILD_STAGE: crucible
+BUILD_STAGE: crucible_band_0
+BUILD_STAGE: crucible_band_1
+BUILD_STAGE: crucible_band_2
+BUILD_STAGE: slag_surface
+BUILD_STAGE: harness_strap_0
+BUILD_STAGE: harness_strap_1
+BUILD_STAGE: iron_bracer_near
+BUILD_STAGE: iron_bracer_near_band_0
+BUILD_STAGE: iron_bracer_near_band_1
+BUILD_STAGE: iron_bracer_far
+BUILD_STAGE: iron_bracer_far_band_0
+BUILD_STAGE: iron_bracer_far_band_1
+00:11.775  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:13.969  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:16.280  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_parts.png'
+00:26.702  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_clay.png'
+00:28.878  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:30.921  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:32.954  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:34.972  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:37.007  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:39.051  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:41.117  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:43.154  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:45.189  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:47.235  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:49.292  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:51.335  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:53.420  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:55.469  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:57.518  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+00:59.722  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+01:02.015  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+01:04.243  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+01:07.026  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/front_silhouette.png'
+01:09.350  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_parts.png'
+01:19.750  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_clay.png'
+01:22.043  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:24.324  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:26.513  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:28.604  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:30.686  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:33.260  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:36.003  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:38.474  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:40.749  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:43.000  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:45.258  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:47.579  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:49.638  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:51.699  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:53.824  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:55.882  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:57.928  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+01:59.979  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+02:02.585  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

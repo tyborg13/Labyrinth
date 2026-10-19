@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "figures": {
+    "hollow_mimic": {
+      "passed": true,
+      "spec_hash": "5732f754891d43ff5043f874dff0317604c908d97b409df982236663ad305a4d",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true,
+        "required_native_checks_present": true,
+        "disabled_modifiers_rejected": true,
+        "frozen_base_mesh_rejected": true
+      },
+      "details": {
+        "disabled_modifier_mutations": {
+          "hair_crown/rounded_mass_subdivision/show_viewport": true,
+          "hair_crown/rounded_mass_subdivision/show_render": true,
+          "hair_crown/modelled_surface_relief/show_viewport": true,
+          "hair_crown/modelled_surface_relief/show_render": true
+        }
+      }
+    }
+  }
+}

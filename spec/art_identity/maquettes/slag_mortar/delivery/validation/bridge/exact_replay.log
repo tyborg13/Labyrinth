@@ -1,0 +1,5 @@
+00:00.252  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/determinism/cold/maquette.blend"
+00:00.432  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/determinism/replay/maquette.blend"
+00:00.604  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/slag_mortar/proof/occlusion_complete/determinism/independent_cold/maquette.blend"
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+EXACT_NATIVE_REPLAY: PASS; unrounded_float32=true; mesh_count=30

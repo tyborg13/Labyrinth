@@ -1,0 +1,76 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: bark_leaf_hood
+CLOTH_PATTERN: bark_leaf_hood; vertices=1177; pins=415
+CLOTH_FRAME: bark_leaf_hood; 8/24
+CLOTH_FRAME: bark_leaf_hood; 16/24
+CLOTH_FRAME: bark_leaf_hood; 24/24
+BUILD_STAGE: leaf_mantle
+CLOTH_PATTERN: leaf_mantle; vertices=608; pins=32
+CLOTH_FRAME: leaf_mantle; 8/24
+CLOTH_FRAME: leaf_mantle; 16/24
+CLOTH_FRAME: leaf_mantle; 24/24
+BUILD_STAGE: mantle_thorn_0
+BUILD_STAGE: mantle_thorn_1
+BUILD_STAGE: mantle_thorn_2
+BUILD_STAGE: fore_thorn_near_0
+BUILD_STAGE: fore_thorn_near_1
+BUILD_STAGE: fore_thorn_far_0
+BUILD_STAGE: fore_thorn_far_1
+BUILD_STAGE: twisted_root_near
+BUILD_STAGE: twisted_root_far
+BUILD_STAGE: sculpted_leaf_tatters
+BUILD_STAGE: hooked_claw_near_0
+BUILD_STAGE: hooked_claw_near_1
+BUILD_STAGE: hooked_claw_near_2
+BUILD_STAGE: hooked_claw_far_0
+BUILD_STAGE: hooked_claw_far_1
+BUILD_STAGE: hooked_claw_far_2
+BUILD_STAGE: sculpted_leaf_tatters_back
+BUILD_STAGE: layered_bark_leaf_mantle
+00:14.327  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:16.668  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:20.178  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_parts.png'
+00:30.485  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_clay.png'
+00:33.241  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:35.987  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:39.081  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:42.156  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:44.764  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:47.398  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:50.144  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:52.858  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:55.637  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+00:58.519  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:01.380  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:04.187  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:07.004  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:09.761  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:12.600  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:15.543  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:18.566  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:22.059  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/front_silhouette.png'
+01:24.876  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_parts.png'
+01:35.104  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_clay.png'
+01:37.970  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:40.789  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:43.630  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:46.692  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:50.052  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:53.261  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:56.370  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+01:59.370  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:02.444  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:05.427  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:08.179  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:10.879  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:13.781  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:16.659  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:19.546  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:22.486  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:25.394  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+02:29.230  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/verified/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

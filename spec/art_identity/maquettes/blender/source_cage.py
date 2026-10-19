@@ -12,6 +12,31 @@ CAGE_DEFAULTS = {'source_size': 256, 'profile_bins': 32, 'epsilon': 1e-8,
                  'support_weight_min': .25}
 
 
+def relax_offsets(offsets, faces, selected, iterations, factor):
+    """Regularize only the corrective field, preserving native skin detail.
+
+    Coordinates are never Laplacian-smoothed: doing so would shrink anatomy.
+    Unfitted vertices remain fixed and disconnected components cannot mix.
+    """
+    if type(iterations) is not int or not 0 <= iterations <= 64 or not 0 <= factor <= 1:
+        raise ValueError('Source relaxation requires bounded iterations and factor')
+    values = np.asarray(offsets, float).copy()
+    edges = sorted({tuple(sorted((int(a), int(b)))) for face in faces
+                    for a, b in zip(face, [*face[1:], face[0]])})
+    if not edges or not iterations:
+        return values
+    pairs = np.asarray(edges)
+    source, target = np.r_[pairs[:, 0], pairs[:, 1]], np.r_[pairs[:, 1], pairs[:, 0]]
+    degree = np.bincount(source, minlength=len(values))
+    active = np.asarray(selected, bool) & (degree > 0)
+    for _ in range(iterations):
+        average = np.column_stack([np.bincount(source, weights=values[target, axis],
+                                               minlength=len(values)) for axis in range(3)])
+        average[active] /= degree[active, None]
+        values[active] = (1 - factor) * values[active] + factor * average[active]
+    return values
+
+
 def polygon_bounds(polygon, y):
     polygon = np.asarray(polygon, float)
     y = np.clip(y, polygon[:, 1].min() + CAGE_DEFAULTS['epsilon'],
@@ -104,7 +129,15 @@ def fit_body(spec, body, rig, posed):
             offsets[index] += (destination - source[index]) * weight
             normalization[index] += weight
     selected = normalization > CAGE_DEFAULTS['epsilon']
-    desired[selected] += offsets[selected] / normalization[selected, None]
+    offsets[selected] /= normalization[selected, None]
+    relaxation = spec['base'].get('source_fit_relaxation')
+    if relaxation:
+        relaxed = selected.copy()
+        for region in relaxation.get('preserve_regions', []):
+            relaxed &= np.array([vertex.get(region, 0) <= CAGE_DEFAULTS['support_weight_min'] for vertex in totals])
+        offsets = relax_offsets(offsets, [list(p.vertices) for p in posed.data.polygons], relaxed,
+                                relaxation['iterations'], relaxation['factor'])
+    desired[selected] += offsets[selected]
     transforms = {name: np.asarray(rig.pose.bones[name].matrix @ rig.data.bones[name].matrix_local.inverted())
                   for name in regions}
     body.shape_key_add(name='CC0_original')

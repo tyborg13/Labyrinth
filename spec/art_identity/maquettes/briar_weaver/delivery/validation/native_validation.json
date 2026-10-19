@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "figures": {
+    "briar_weaver": {
+      "passed": true,
+      "spec_hash": "269ff1f855205e604280affa032bbea0d1110059c4e6e9508a0f3da855cab463",
+      "checks": {
+        "current_spec": true,
+        "native_geometry": true,
+        "material_mutation_caught": true,
+        "required_native_checks_present": true
+      },
+      "details": {}
+    }
+  }
+}

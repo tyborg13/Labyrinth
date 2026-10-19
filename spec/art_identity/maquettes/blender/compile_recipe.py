@@ -39,6 +39,21 @@ def compile_recipe(recipe):
             'simulation': deepcopy(baseline['simulation']), 'pieces': [], 'joints': {'root': [0, 0, 0]},
             'source_recipe': recipe['id'] + '/measurements.json'}
     spec['base']['covered_regions'] = recipe.get('covered_body_regions', [])
+    if recipe.get('closed_hands'):
+        if len(set(recipe['closed_hands'])) != len(recipe['closed_hands']) or not set(recipe['closed_hands']) <= {'near', 'far'}:
+            raise ValueError('Closed hands must name distinct near/far body sides')
+        spec['base']['closed_hands'] = deepcopy(recipe['closed_hands'])
+        from spec.art_identity.maquettes.blender.hand_pose import HAND_DEFAULTS
+        spec['base']['hand_pose_revision'] = HAND_DEFAULTS['implementation_revision']
+    # Native mesh sampling is opt-in; older measured recipes compile exactly
+    # as before. Keep geometry controls separate from source measurements.
+    if 'anatomy_subdivision_level' in recipe:
+        level = recipe['anatomy_subdivision_level']
+        if type(level) is not int or not 0 <= level <= 2:
+            raise ValueError('Anatomy subdivision level must be an integer in [0, 2]')
+        spec['base']['subdivision_level'] = level
+    if recipe.get('preserve_native_skin_shading'):
+        spec['base']['preserve_native_skin_shading'] = True
     if recipe.get('socket_tucks'):
         spec['base']['socket_tucks'] = deepcopy(recipe['socket_tucks'])
     spec['base'].pop('covered_above_z', None)
@@ -53,10 +68,18 @@ def compile_recipe(recipe):
                 'azimuth_deg': 45, 'elevation_deg': 30, 'ortho_scale': scale}
     if recipe.get('body_source_profiles'):
         spec['base']['source_profiles'] = deepcopy(recipe['body_source_profiles'])
+    if recipe.get('source_fit_relaxation'):
+        spec['base']['source_fit_relaxation'] = deepcopy(recipe['source_fit_relaxation'])
     spec['armature'].pop('proposed', None)
+    for name, point in recipe.get('rest_joint_overrides', {}).items():
+        if name not in spec['armature']['rest_joints']:
+            raise ValueError('Unknown native rest joint: ' + name)
+        spec['armature']['rest_joints'][name] = deepcopy(point)
     spec['simulation'].pop('proposed', None)
     for name, pixels in recipe['joints_px'].items():
         spec['joints'][name] = paired_point(spec, *pixels)
+    if recipe.get('covered_body_above_joint'):
+        spec['base']['covered_above_z'] = spec['joints'][recipe['covered_body_above_joint']][2]
     if recipe.get('head_face_axis_px'):
         a, b = np.array(recipe['head_face_axis_px'], float)
         matrix, _, basis, _ = camera(spec, 'front')
@@ -181,6 +204,16 @@ def compile_recipe(recipe):
             piece.update(outline=[[0,0],[1,0],[0,1]], body_shell=True, body_regions=item['regions'], contact_hull=True,
                          smooth_shell=True, thick=item['thick'], bevel=deepcopy(item['bevel']), offset_surface=item['offset_surface'])
             spec['pieces'].append(piece)
+        elif kind == 'mass':
+            # The same native sculpt stack used by the solid figures can
+            # supply a rounded accessory (hair, padding) on a real humanoid.
+            piece = common(item['id'], 'sculpted_mass', item['part'])
+            piece.update(centre=paired_point(spec, *item['centre_px']),
+                         radii=(np.array(item['radii_px']) * spec['ortho_scale'] / 256).tolist())
+            for key in ('surface', 'relief', 'subdivision_levels', 'profile', 'cutouts'):
+                if key in item:
+                    piece[key] = deepcopy(item[key])
+            spec['pieces'].append(piece)
         elif kind == 'neck_collar':
             piece = common(item['id'], 'neck_collar', item['part'])
             piece.update(centre=paired_point(spec, *item['centre_px']), neck_region=item['neck_region'],
@@ -243,6 +276,8 @@ def compile_recipe(recipe):
                     spec['pieces'][-1]['smooth_surface'] = True
                 if 'radial_profile' in item:
                     spec['pieces'][-1]['radial_profile'] = deepcopy(item['radial_profile'])
+            if item.get('sculpt'):
+                spec['pieces'][-1]['sculpt'] = deepcopy(item['sculpt'])
         elif kind == 'crystal':
             piece = common(item['id'], 'crystal', item['part'])
             path = path_points(spec, item)
@@ -270,7 +305,7 @@ def compile_recipe(recipe):
                 piece['wind'] = {**deepcopy(item['wind']), 'direction': direction.tolist(), 'location': root.tolist()}
         if 'side_parts' in item:
             spec['pieces'][-1]['side_parts'] = item['side_parts']
-        for key in ('contact_regions', 'collision_refine_levels', 'symmetry_origin', 'symmetry_front', 'symmetry_lateral', 'ownership_mode', 'joint_parts', 'joint_chain', 'seat_on', 'sewn_parts', 'face_plane', 'native_mask', 'closed_cover'):
+        for key in ('contact_regions', 'collision_refine_levels', 'symmetry_origin', 'symmetry_front', 'symmetry_lateral', 'ownership_mode', 'joint_parts', 'joint_chain', 'seat_on', 'sewn_parts', 'face_plane', 'native_mask', 'closed_cover', 'conforming', 'conform_direction', 'offset_surface', 'root_on', 'conform_regions', 'support_side', 'support_regions'):
             if key in item:
                 spec['pieces'][-1][key] = deepcopy(item[key])
         if item.get('symmetry_joint'):
@@ -298,6 +333,14 @@ def compile_recipe(recipe):
                      for band in item['bands']]
             spec['pieces'].extend(path_bands(item['id'], item['part'], piece['path'],
                 [piece['radius'] * t for t in piece['taper']], bands, COMPILE_DEFAULTS['ring_samples']))
+        if item.get('rig_bone'):
+            # A loft and its generated iron bands are one rigid attachment.
+            for piece in spec['pieces'][first_piece:]:
+                piece['rig_bone'] = item['rig_bone']
+                if item.get('rig_pivot_joint'):
+                    if item['rig_pivot_joint'] not in spec['joints']:
+                        raise ValueError('Rigid pivot must name an existing joint')
+                    piece['rig_pivot_joint'] = item['rig_pivot_joint']
         # Both cloth states use the same collision policy and ownership. The
         # body, rig, joints and every other piece have no view-specific state.
         if 'rear_rows_px' in item:
@@ -316,6 +359,8 @@ def compile_recipe(recipe):
         spec['per_view_cloth_pose'] = deepcopy(recipe['per_view_cloth_pose'])
     if recipe.get('cloth_obstacles'):
         spec['cloth_obstacles'] = deepcopy(recipe['cloth_obstacles'])
+    if recipe.get('native_features'):
+        spec['native_features'] = deepcopy(recipe['native_features'])
     fit = deepcopy(recipe['fit']['front'])
     fit.update(source=recipe['sources']['front'], head_part='head', weapon_parts=recipe['weapon_parts'])
     spec['fit'] = fit

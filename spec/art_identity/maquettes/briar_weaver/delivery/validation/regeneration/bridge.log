@@ -1,0 +1,76 @@
+BUILD_STAGE: append anatomy
+BUILD_STAGE: bind 42342 anatomy vertices
+BUILD_STAGE: bark_leaf_hood
+CLOTH_PATTERN: bark_leaf_hood; vertices=1177; pins=415
+CLOTH_FRAME: bark_leaf_hood; 8/24
+CLOTH_FRAME: bark_leaf_hood; 16/24
+CLOTH_FRAME: bark_leaf_hood; 24/24
+BUILD_STAGE: leaf_mantle
+CLOTH_PATTERN: leaf_mantle; vertices=608; pins=32
+CLOTH_FRAME: leaf_mantle; 8/24
+CLOTH_FRAME: leaf_mantle; 16/24
+CLOTH_FRAME: leaf_mantle; 24/24
+BUILD_STAGE: mantle_thorn_0
+BUILD_STAGE: mantle_thorn_1
+BUILD_STAGE: mantle_thorn_2
+BUILD_STAGE: fore_thorn_near_0
+BUILD_STAGE: fore_thorn_near_1
+BUILD_STAGE: fore_thorn_far_0
+BUILD_STAGE: fore_thorn_far_1
+BUILD_STAGE: twisted_root_near
+BUILD_STAGE: twisted_root_far
+BUILD_STAGE: sculpted_leaf_tatters
+BUILD_STAGE: hooked_claw_near_0
+BUILD_STAGE: hooked_claw_near_1
+BUILD_STAGE: hooked_claw_near_2
+BUILD_STAGE: hooked_claw_far_0
+BUILD_STAGE: hooked_claw_far_1
+BUILD_STAGE: hooked_claw_far_2
+BUILD_STAGE: sculpted_leaf_tatters_back
+BUILD_STAGE: layered_bark_leaf_mantle
+00:18.177  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:21.517  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:24.981  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_parts.png'
+00:35.495  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_clay.png'
+00:38.224  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:41.030  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:43.971  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:47.101  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:50.199  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:53.275  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:56.175  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+00:59.084  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:01.981  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:04.678  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:07.100  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:09.435  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:11.648  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:14.175  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:16.665  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:18.913  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:21.063  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:23.706  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/front_silhouette.png'
+01:26.013  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_parts.png'
+01:34.543  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_clay.png'
+01:36.788  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:38.989  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:41.195  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:43.390  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:45.587  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:47.741  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:50.075  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:52.246  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:54.453  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:56.637  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+01:59.014  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:01.753  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:04.635  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:07.351  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:10.102  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:12.850  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:15.608  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+02:18.391  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-09/spec/art_identity/maquettes/briar_weaver/proof/regeneration_verified/clean_project/spec/art_identity/maquettes/briar_weaver/capture/rear_silhouette.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+Info: Saved as "maquette.blend"
+BLENDER_FACING: PASS
+BLENDER_MAQUETTE: PASS

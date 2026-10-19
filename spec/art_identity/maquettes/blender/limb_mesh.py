@@ -62,11 +62,17 @@ def section_mesh(points, radii, sculpt, closed=False):
 
 def build(piece, spec):
     from .pieces import mesh_object, place
-    vertices, faces = section_mesh(piece['path'],[piece['radius']*r for r in piece['taper']],piece['sculpt'],piece['closed'])
+    path = piece['path']
+    if piece.get('root_on'):
+        from .curve_root import fit
+        path = fit(piece)
+    vertices, faces = section_mesh(path,[piece['radius']*r for r in piece['taper']],piece['sculpt'],piece['closed'])
     obj = place(mesh_object(piece['id'],vertices,faces),piece,spec)
     for polygon in obj.data.polygons:polygon.use_smooth=True
     obj['sculpted_section'] = True
     obj['integral_spine_count'] = len(piece['sculpt'].get('spines',[]))
+    if piece.get('root_on'):
+        obj['seated_root'] = path[0]
     return obj
 
 

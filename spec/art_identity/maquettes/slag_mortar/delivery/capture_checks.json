@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "spec_hash": "74fe94d65f9c6284a93e604b483a230b5be547fc21e213547eba90cac1a41b54",
+  "geometry_unchanged": true,
+  "geometry_checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "floor_contact_correction": true,
+    "native_hand_pose": true,
+    "native_rigid_bindings": true,
+    "native_rigid_pivots": true,
+    "whole_native_features": true,
+    "sculpted_blade_roots_attached": true,
+    "native_cloth_drape": true,
+    "native_cloth_stability": true,
+    "native_cloth_contact_stability": true,
+    "source_fit_native_skinning": true,
+    "board_facing_axis": true,
+    "front_chest_attachment_axes": true,
+    "required_solo_coverage": true,
+    "rendered_torso_asymmetry": true,
+    "capture_geometry_unchanged": true
+  },
+  "facing": {
+    "forward_world": [
+      0.9737987518310547,
+      -0.10203655809164047,
+      0.0
+    ],
+    "anatomical_forward_world": [
+      0.9737987518310547,
+      -0.10203655809164047,
+      -0.2032347172498703
+    ],
+    "front_forward_screen": [
+      -0.7607304430862687,
+      0.30821447938760027
+    ],
+    "rear_forward_screen": [
+      0.7607304430862687,
+      -0.30821447938760027
+    ],
+    "board_axis_cosine": 0.9969044111476264,
+    "passed": true,
+    "torso_three_quarter": {
+      "left_area_px": 40590,
+      "right_area_px": 25204,
+      "area_imbalance": 0.2338511110435602,
+      "mirror_difference": 0.3978668744597178
+    },
+    "torso_frontal_control": {
+      "left_area_px": 29354,
+      "right_area_px": 22149,
+      "area_imbalance": 0.1398947634118401,
+      "mirror_difference": 0.7025644901249496
+    },
+    "torso_asymmetry_passed": true,
+    "frontal_axis_rejected": true
+  }
+}
