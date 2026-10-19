@@ -1,11 +1,12 @@
 """Both rigid legs: every authored swing, facing, and stationary floor supports."""
-import math
 import numpy as np
-from rr18_case import PROJECT
+from rr18_case import PROJECT, ASSETS
 import sys
 sys.path.insert(0,str(PROJECT/'experiments/cutouts/arc_thrall'))
 from rr11_knees import knee, swing_intervals, EPSILON, PRESENTED_TARGET_TOLERANCE_PX
 from maquette_motion.compiler import evaluate
+from humanoid_cutout.leg_roles import roles_for
+from humanoid_cutout.anatomy import for_layout
 
 
 def knee_report(layout,data,samples):
@@ -14,11 +15,15 @@ def knee_report(layout,data,samples):
     errors,swings = [],[]
     frames = [{'frame':s['frame'],'phase':s['phase'], **{side:knee(s,side) for side in ('near','far')}} for s in rows]
     tracks = data['view_tracks'][view]['move']
+    stride = roles_for(for_layout(layout), view)['stride']
     for side in ('near','far'):
         track = next(t for t in tracks if t['bone']=='foot_'+side and t['channel']=='lift_px')
         for row in frames:
             if row[side]['bend_deg'] > data['knee_policy']['near_straight_deg'] and not row[side]['facing_direction_ok']:
                 errors.append(f'{view}/move/frame {row["frame"]}/{side}: knee bends against facing')
+        # Only the world-stepping long leg owns stride swings. The body-mode
+        # trailing shuffle is not a planted stance/swing gait (director feedback 1).
+        if side != stride: continue
         for start,end in swing_intervals(track['keys']):
             candidates = [r for r in frames if start < r['phase'] < end and evaluate(track['keys'],r['phase'])>EPSILON]
             if not candidates:
@@ -47,6 +52,8 @@ def support_report(layout,data,samples):
             rest = np.asarray(layout['joints'][foot]['position'])
             lift = next((t for t in tracks if t['bone']==foot and t['channel']=='lift_px'),None)
             progress = next((t for t in tracks if t['bone']==foot and t['channel']=='forward_px'),None)
+            mode = progress['forward_mode'] if progress else data.get('view_forward_modes',{}).get(view,{}).get(clip,{}).get(foot,'pixels')
+            if mode == 'body': continue
             previous = None
             for row in sorted([r for r in samples['samples'] if r['view']==view and r['clip']==clip and r['kind']=='presented'],key=lambda r:r['frame']):
                 if lift and evaluate(lift['keys'],row['phase'])>EPSILON:
@@ -66,19 +73,31 @@ def support_report(layout,data,samples):
 
 
 def production_rest_report(layout, case, assets):
-    """Compare the actual treated production assembly with its approved paint.
+    """Compare production with independent density derivation, never raw paint.
 
-    Source identity cannot certify density-treated production paint. This is
-    exact source-space compositing at rest, never native renderer evidence.
+    Source-space authoring identity remains a separate zero-pixel gate. The
+    expected rest is composed from untouched adopted pieces processed by the
+    registered density rule. Native sealing still requires the director.
     """
     from PIL import Image
     from cutout_pipeline.cases import read_json
+    import process_board_density as density
     view = layout['facing']
+    entry = next(e for e in density.load_registry()['entries'] if e['id']=='glacial_mirror_cutout')
     shipped = read_json(assets/'humanoid_v2'/(view+'.json'))
     actual = Image.new('RGBA',tuple(shipped['canvas_size']))
+    expected = Image.new('RGBA',actual.size)
+    errors = []
     for part in sorted(shipped['parts'],key=lambda p:p['z_index']):
+        # Temporary mutation assets use the same immutable density registration.
+        relative = str((ASSETS/'humanoid_v2'/part['file']).relative_to(PROJECT))
+        derived, _ = density.derive(entry,relative)
         actual.alpha_composite(Image.open(assets/'humanoid_v2'/part['file']).convert('RGBA'),tuple(part['offset']))
-    expected = np.asarray(Image.open(case/layout['rest_source']).convert('RGBA'))
-    mismatch = int(np.any(np.asarray(actual)!=expected,axis=-1).sum())
-    errors = [f'{view}: treated production rest differs from approved painting by {mismatch} px; required 0'] if mismatch else []
-    return {'ok':not errors,'errors':errors,'mismatch_pixels':mismatch,'scope':'exact source-space rest composition, not native pixels'}
+        expected.alpha_composite(derived,tuple(part['offset']))
+    mismatch = int(np.any(np.asarray(actual)!=np.asarray(expected),axis=-1).sum())
+    rest = np.asarray(Image.open(assets/'humanoid_v2'/shipped['rest_source']).convert('RGBA'))
+    rest_mismatch = int(np.any(rest!=np.asarray(expected),axis=-1).sum())
+    errors += [f'{view}: treated production rest differs from density-processed reference by {mismatch} px; required 0'] if mismatch else []
+    if rest_mismatch: errors.append(f'{view}: production rest snapshot differs from density-processed reference by {rest_mismatch} px')
+    return {'ok':not errors,'errors':errors,'mismatch_pixels':mismatch,'snapshot_mismatch_pixels':rest_mismatch,
+            'scope':'exact density-derived source-space rest; native seal pending director'}

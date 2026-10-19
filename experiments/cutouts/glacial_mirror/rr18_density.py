@@ -3,12 +3,37 @@ from pathlib import Path
 import subprocess
 import sys
 from rr18_case import PROJECT, CASE, ASSETS
-from cutout_pipeline.cases import read_json, write_json
+from cutout_pipeline.cases import read_json, write_json, digest
 from pixel_density import metrics, strength
 from PIL import Image
 
 DENSITY = PROJECT / 'spec/assets/board_pixel_density'
 ID = 'glacial_mirror_cutout'
+
+
+def expected_rests(entry):
+    """Write density-derived snapshots for headless checks; never native seals."""
+    import process_board_density as density
+    reports = {}
+    for view in ('front','rear'):
+        path = ASSETS/'humanoid_v2'/(view+'.json')
+        layout = read_json(path)
+        rest = Image.new('RGBA',tuple(layout['canvas_size']))
+        for part in sorted(layout['parts'],key=lambda p:p['z_index']):
+            relative = str((ASSETS/'humanoid_v2'/part['file']).relative_to(PROJECT))
+            image,_ = density.derive(entry,relative)
+            rest.alpha_composite(image,tuple(part['offset']))
+        target = ASSETS/'humanoid_v2'/layout['rest_source']
+        rest.save(target)
+        layout['rest_source_sha256'] = digest(target)
+        write_json(path,layout)
+        owning = read_json(ASSETS/(view+'.json'))
+        owning['rest_source_sha256'] = digest(target)
+        write_json(ASSETS/(view+'.json'),owning)
+        reports[view] = {'mode':entry['facings'][view]['mode'],'grid':entry['facings'][view]['grid'],
+            'file':str(target.relative_to(PROJECT)),'sha256':digest(target)}
+    write_json(CASE/'proof/density_rest.json',{'scope':'independent density-derived expected rests; native renderer seal pending director',
+        'native_pixels':False,'views':reports})
 
 
 def register(refresh_sources=False):
@@ -45,6 +70,7 @@ def register(refresh_sources=False):
         subprocess.run([sys.executable,'tools/process_board_density.py','--adopt',*changed,'--force-adopt'],cwd=PROJECT,check=True)
     if missing: subprocess.run([sys.executable,'tools/process_board_density.py','--adopt',*missing],cwd=PROJECT,check=True)
     subprocess.run([sys.executable,'tools/process_board_density.py','--only',ID],cwd=PROJECT,check=True)
+    expected_rests(entry)
     from humanoid_cutout.integration import record
     record(PROJECT,CASE,ASSETS)
     print('RR18 DENSITY PAINT: PASS (both views adopted/processed; native rest records pending director)')

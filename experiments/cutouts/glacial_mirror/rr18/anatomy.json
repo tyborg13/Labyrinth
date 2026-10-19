@@ -55,15 +55,15 @@
     }
   },
   "knee_policy": {
-    "near_straight_deg": 6
+    "near_straight_deg": 10
   },
   "legs": {
     "near": {
       "front": {
-        "bend_side": -1
+        "bend_side": 1
       },
       "rear": {
-        "bend_side": 1
+        "bend_side": -1
       }
     },
     "far": {

@@ -1,0 +1,18 @@
+{
+  "scope": "independent density-derived expected rests; native renderer seal pending director",
+  "native_pixels": false,
+  "views": {
+    "front": {
+      "mode": "clean",
+      "grid": 1.04,
+      "file": "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png",
+      "sha256": "5bba16e5b9e4a0d12071813d6c928b3436994058314b23781923ef2829283d75"
+    },
+    "rear": {
+      "mode": "regrid",
+      "grid": 1.22,
+      "file": "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png",
+      "sha256": "08fc976c90a192dc2e655b282db1067aabae128205d97494ebfb6417a11f6cdf"
+    }
+  }
+}

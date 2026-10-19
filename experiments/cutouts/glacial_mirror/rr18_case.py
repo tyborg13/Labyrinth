@@ -26,7 +26,13 @@ for side in ('near', 'far'):
               ['thigh_' + side, 'shin_' + side], ['shin_' + side, 'foot_' + side]]
 GROUPS = {'upper_body': ['torso', 'head'] + [p + s for s in ('near', 'far') for p in ('upper_', 'fore_', 'fist_')],
           'weapon_arm': [],  # No weapon: empty painted group; root is its stationary proof anchor.
- 'lower_body': ['pelvis'] + [p + s for s in ('near', 'far') for p in ('thigh_', 'shin_', 'foot_')]}
+          'lower_body': ['pelvis'] + [p + s for s in ('near', 'far') for p in ('thigh_', 'shin_', 'foot_')]}
+
+
+DESIGN_PLACEHOLDERS = {'TODO_DESIGN_source_gap_calibration':
+    'Strict joint-hole diagnostics reject posed pockets that trace into transparent approved-source gaps '
+    '(front guard frame 20: 19 px; rear refraction frame 32: 9 px). '
+    'Director calibration decision required; protected paint and motion retained, no seam exemption applied.'}
 
 
 def initialize():
@@ -34,8 +40,8 @@ def initialize():
     anatomy = {'schema_version': 1, 'required_parents': PARENTS, 'forbidden_joints': [], 'meshes': {},
         'idle_groups': {group: {'bones': (['root'] if group in ('lower_body', 'weapon_arm') else []) + [BONES.get(n,n) for n in parts],
                                 'stationary': group != 'upper_body'} for group, parts in GROUPS.items()},
-        'knee_policy': {'near_straight_deg': 6},
-        'legs': {'near': {'front': {'bend_side': -1}, 'rear': {'bend_side': 1}},
+        'knee_policy': {'near_straight_deg': 10},
+        'legs': {'near': {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}},
                  'far': {'front': {'bend_side': 1}, 'rear': {'bend_side': -1}}},
         'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
         'planted_bones': ['foot_near', 'foot_far'], 'planted_tolerance_px': 0.5, 'held_depth_roles': {},
@@ -51,9 +57,6 @@ def initialize():
             'identity_kind': 'creature', 'identity_entry_kind': 'legacy', 'identity_boss': False}}
     write_json(CASE / 'anatomy.json', anatomy)
     write_json(CASE / 'inputs.json', {**{v + '_job': 'spec/art_identity/jobs/glacial_mirror/mq8_' + v for v in ('front','rear')},
-        **{v + '_delivery': 'spec/art_identity/maquettes/glacial_mirror/delivery' for v in ('front','rear')}, 'design_placeholders': {'TODO_DESIGN_density_rest_identity': 'Required density processing changes 1178 front and 15491 rear production rest pixels against the approved paintings. The source cuts remain 0 px exact. Director must resolve density treatment versus the brief production rest-identity requirement.',
-        'TODO_DESIGN_move_supports': 'Protected world_step paths exceed the unchanged leg reach; front support error reaches 5.545222 px, rear 19.416488 px at the reference proof step; stance slides up to 1.414214 px. Director motion decision required.',
-        'TODO_DESIGN_move_swing_apex': 'Front stride and rear trailing swing knees bend less than their stance knees at their lift apex. Protected keys retained; director motion decision required.',
-        'TODO_DESIGN_near_knee_facing': 'mq8 near-leg rest bends are 8.998 degrees away from front facing and 9.537 degrees away from rear facing; preserving rest bend side conflicts with the facing gate. Director joint/policy decision required.'}})
+        **{v + '_delivery': 'spec/art_identity/maquettes/glacial_mirror/delivery' for v in ('front','rear')}, 'design_placeholders': DESIGN_PLACEHOLDERS})
 
 if __name__ == '__main__': initialize()

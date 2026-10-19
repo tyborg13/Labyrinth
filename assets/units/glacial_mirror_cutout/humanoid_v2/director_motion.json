@@ -45,7 +45,7 @@
     "intents": [
      "advance:move_toward"
     ],
-    "note": "a plodding step-to: the camera-side leg (stride) takes one full-tile step with a 6 px stomp lift and a bent knee, the other leg (trailing) steps up to meet it; the pelvis drops 3 px as each foot lands and the torso jolts 1 px after it; the arms swing opposite the legs like heavy pendulums",
+    "note": "a heavy plod on the Thrall's proven pattern: the long camera-side leg (stride) plants two half-tile world steps with a 5 px stomp lift and a bent knee; the foreshortened leg (trailing) follows the body with a 2 px shuffle between strides; the pelvis never rises above rest and drops 3 px after each landing, the torso jolts 1 px on each plant; the fists sway",
     "keys": {
      "root.forward_px": [
       [
@@ -72,7 +72,15 @@
        0
       ],
       [
-       0.45,
+       0.38,
+       0.5
+      ],
+      [
+       0.5,
+       0.5
+      ],
+      [
+       0.83,
        1.0
       ],
       [
@@ -91,11 +99,23 @@
        0
       ],
       [
-       0.25,
-       6
+       0.2,
+       5
       ],
       [
-       0.45,
+       0.38,
+       0
+      ],
+      [
+       0.5,
+       0
+      ],
+      [
+       0.65,
+       5
+      ],
+      [
+       0.83,
        0
       ],
       [
@@ -109,34 +129,62 @@
        0
       ],
       [
+       0.38,
+       0
+      ],
+      [
+       0.44,
+       2
+      ],
+      [
        0.5,
        0
       ],
       [
-       0.9,
-       1.0
+       0.83,
+       0
+      ],
+      [
+       0.89,
+       2
+      ],
+      [
+       0.95,
+       0
       ],
       [
        1,
-       1.0
+       0
       ]
      ],
-     "foot_trailing.forward_mode": "world_step",
+     "foot_trailing.forward_mode": "body",
      "foot_trailing.lift_px": [
       [
        0,
        0
       ],
       [
+       0.38,
+       0
+      ],
+      [
+       0.44,
+       3
+      ],
+      [
        0.5,
        0
       ],
       [
-       0.7,
-       5
+       0.83,
+       0
       ],
       [
-       0.9,
+       0.89,
+       3
+      ],
+      [
+       0.95,
        0
       ],
       [
@@ -150,27 +198,27 @@
        0
       ],
       [
-       0.1,
+       0.05,
+       -2
+      ],
+      [
+       0.2,
        -1
       ],
       [
-       0.3,
-       0
-      ],
-      [
-       0.47,
+       0.4,
        -3
       ],
       [
-       0.6,
+       0.5,
+       -2
+      ],
+      [
+       0.65,
        -1
       ],
       [
-       0.75,
-       0
-      ],
-      [
-       0.92,
+       0.85,
        -3
       ],
       [
@@ -184,26 +232,30 @@
        0
       ],
       [
-       0.47,
+       0.38,
        0
+      ],
+      [
+       0.42,
+       -1,
+       "linear"
       ],
       [
        0.5,
+       0
+      ],
+      [
+       0.83,
+       0
+      ],
+      [
+       0.87,
        -1,
        "linear"
-      ],
-      [
-       0.58,
-       0
-      ],
-      [
-       0.92,
-       0
       ],
       [
        0.95,
-       -1,
-       "linear"
+       0
       ],
       [
        1,
@@ -216,19 +268,19 @@
        0
       ],
       [
-       0.25,
+       0.2,
        2
       ],
       [
-       0.47,
+       0.4,
        1
       ],
       [
-       0.7,
+       0.65,
        2
       ],
       [
-       0.92,
+       0.85,
        1
       ],
       [
@@ -242,19 +294,19 @@
        0
       ],
       [
-       0.25,
-       -4
+       0.2,
+       -3
       ],
       [
-       0.5,
+       0.4,
        0
       ],
       [
-       0.7,
-       4
+       0.65,
+       -3
       ],
       [
-       0.95,
+       0.85,
        0
       ],
       [
@@ -268,19 +320,19 @@
        0
       ],
       [
-       0.25,
+       0.2,
        1
       ],
       [
-       0.5,
+       0.4,
        0
       ],
       [
-       0.7,
+       0.65,
        1
       ],
       [
-       0.95,
+       0.85,
        0
       ],
       [
@@ -294,19 +346,19 @@
        0
       ],
       [
-       0.25,
-       4
+       0.2,
+       3
       ],
       [
-       0.5,
+       0.4,
        0
       ],
       [
-       0.7,
-       -4
+       0.65,
+       3
       ],
       [
-       0.95,
+       0.85,
        0
       ],
       [
@@ -320,19 +372,19 @@
        0
       ],
       [
-       0.25,
+       0.2,
        1
       ],
       [
-       0.5,
+       0.4,
        0
       ],
       [
-       0.7,
+       0.65,
        1
       ],
       [
-       0.95,
+       0.85,
        0
       ],
       [

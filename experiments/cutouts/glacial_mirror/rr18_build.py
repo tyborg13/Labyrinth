@@ -102,10 +102,19 @@ def build_view(view,inputs,anatomy):
     parts = []
     for name,image in visible.items():
         bone = BONES.get(name,name)
+        # Both alpha partitions of one boulder use an identical source quad.
+        # A shared anchor alone cannot prevent native subpixel UV differences
+        # when independently cropped quads quantize their corners differently.
+        visible_y,visible_x = np.nonzero(image[...,3])
+        anchor = [int(visible_x.min()),int(visible_y.min())]
+        union = (image[...,3]>0) | (hidden[name][...,3]>0)
+        ys,xs = np.nonzero(union)
+        bounds = [int(xs.min()),int(ys.min()),int(xs.max())+1,int(ys.max())+1]
+        main = store(image,CASE/'pieces'/view,name,bounds)
         if hidden[name][...,3].any():
-            part = store(hidden[name],CASE/'pieces'/view,'hidden_'+name)
-            parts.append(dict(part,bone=bone,z_index=min(depths.values())-1,hidden_material=True,logical_part=name))
-        parts.append(dict(store(image,CASE/'pieces'/view,name),bone=bone,z_index=depths[name],logical_part=name))
+            part = store(hidden[name],CASE/'pieces'/view,'hidden_'+name,bounds)
+            parts.append(dict(part,bone=bone,z_index=min(depths.values())-1,hidden_material=True,logical_part=name,presentation_anchor=anchor))
+        parts.append(dict(main,bone=bone,z_index=depths[name],logical_part=name,presentation_anchor=anchor))
     layout = {'version':2,'rig':'humanoid_v2','facing':view,'canvas_size':[255,255], 'joints':joints,'parts':parts,
         'joint_meshes':[],'idle_groups':GROUPS,'held_items':{}, 'ik_chains':[],
         'planted_bones':anatomy['planted_bones'], 'leg_roles':anatomy['leg_roles'][view], 'source_labels':PIECES,'features':[],
@@ -135,10 +144,10 @@ def build_view(view,inputs,anatomy):
         'source_ownership_sha256':digest(base/f'layouts/{view}.json')},projection
 
 
-def build():
+def build(import_director=False):
     inputs,anatomy = read_json(CASE/'inputs.json'),load(CASE)
     copied = CASE/'director_motion.json'
-    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes(): raise ValueError('Protected director import differs')
+    if copied.exists() and copied.read_bytes() != DIRECTOR.read_bytes() and not import_director: raise ValueError('Protected director import differs')
     shutil.copyfile(DIRECTOR,copied)
     layouts,reports,projections = {},{},{}
     for view in ('front','rear'): layouts[view],reports[view],projections[view] = build_view(view,inputs,anatomy)
@@ -157,4 +166,8 @@ def build():
     for view,report in reports.items():
         print(f'RR18 {view.upper()} BUILD: {"PASS" if not report["rest_mismatch_pixels"] else "FAIL"} (rest mismatch: {report["rest_mismatch_pixels"]} px; all rigid; protected tracks byte-identical)')
 
-if __name__ == '__main__': build()
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--import-director', action='store_true', help='Adopt the director-approved replacement byte for byte')
+    build(parser.parse_args().import_director)

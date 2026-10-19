@@ -126,35 +126,43 @@
       "file": "pieces/rear/hidden_head.png",
       "offset": [
         114,
-        26
+        14
       ],
       "bbox": [
         114,
-        26,
+        14,
         147,
         53
       ],
       "bone": "head",
       "z_index": -15,
       "hidden_material": true,
-      "logical_part": "head"
+      "logical_part": "head",
+      "presentation_anchor": [
+        117,
+        14
+      ]
     },
     {
       "name": "head",
       "file": "pieces/rear/head.png",
       "offset": [
-        117,
+        114,
         14
       ],
       "bbox": [
-        117,
+        114,
         14,
-        144,
-        46
+        147,
+        53
       ],
       "bone": "head",
       "z_index": 14,
-      "logical_part": "head"
+      "logical_part": "head",
+      "presentation_anchor": [
+        117,
+        14
+      ]
     },
     {
       "name": "hidden_torso",
@@ -172,24 +180,32 @@
       "bone": "torso",
       "z_index": -8,
       "hidden_material": true,
-      "logical_part": "torso"
+      "logical_part": "torso",
+      "presentation_anchor": [
+        96,
+        26
+      ]
     },
     {
       "name": "torso",
       "file": "pieces/rear/torso.png",
       "offset": [
-        96,
-        26
+        94,
+        23
       ],
       "bbox": [
-        96,
-        26,
-        169,
-        133
+        94,
+        23,
+        172,
+        136
       ],
       "bone": "torso",
       "z_index": 11,
-      "logical_part": "torso"
+      "logical_part": "torso",
+      "presentation_anchor": [
+        96,
+        26
+      ]
     },
     {
       "name": "hidden_pelvis",
@@ -207,69 +223,85 @@
       "bone": "pelvis",
       "z_index": -1,
       "hidden_material": true,
-      "logical_part": "pelvis"
+      "logical_part": "pelvis",
+      "presentation_anchor": [
+        109,
+        122
+      ]
     },
     {
       "name": "pelvis",
       "file": "pieces/rear/pelvis.png",
       "offset": [
-        109,
-        122
+        105,
+        111
       ],
       "bbox": [
-        109,
-        122,
-        160,
-        155
+        105,
+        111,
+        163,
+        158
       ],
       "bone": "pelvis",
       "z_index": 8,
-      "logical_part": "pelvis"
+      "logical_part": "pelvis",
+      "presentation_anchor": [
+        109,
+        122
+      ]
     },
     {
       "name": "hidden_upper_near",
       "file": "pieces/rear/hidden_upper_near.png",
       "offset": [
         41,
-        30
+        8
       ],
       "bbox": [
         41,
-        30,
+        8,
         119,
         115
       ],
       "bone": "upper_near",
       "z_index": -12,
       "hidden_material": true,
-      "logical_part": "upper_near"
+      "logical_part": "upper_near",
+      "presentation_anchor": [
+        43,
+        8
+      ]
     },
     {
       "name": "upper_near",
       "file": "pieces/rear/upper_near.png",
       "offset": [
-        43,
+        41,
         8
       ],
       "bbox": [
-        43,
+        41,
         8,
-        117,
-        112
+        119,
+        115
       ],
       "bone": "upper_near",
       "z_index": 9,
-      "logical_part": "upper_near"
+      "logical_part": "upper_near",
+      "presentation_anchor": [
+        43,
+        8
+      ]
     },
     {
       "name": "hidden_fore_near",
       "file": "pieces/rear/hidden_fore_near.png",
       "offset": [
-        28,
+        24,
         80
       ],
       "bbox": [
-        28,
+        24,
         80,
         72,
         139
@@ -277,77 +309,97 @@
       "bone": "fore_near",
       "z_index": -13,
       "hidden_material": true,
-      "logical_part": "fore_near"
+      "logical_part": "fore_near",
+      "presentation_anchor": [
+        24,
+        83
+      ]
     },
     {
       "name": "fore_near",
       "file": "pieces/rear/fore_near.png",
       "offset": [
         24,
-        83
+        80
       ],
       "bbox": [
         24,
-        83,
-        71,
-        136
+        80,
+        72,
+        139
       ],
       "bone": "fore_near",
       "z_index": 4,
-      "logical_part": "fore_near"
+      "logical_part": "fore_near",
+      "presentation_anchor": [
+        24,
+        83
+      ]
     },
     {
       "name": "hidden_fist_near",
       "file": "pieces/rear/hidden_fist_near.png",
       "offset": [
-        30,
+        23,
         113
       ],
       "bbox": [
-        30,
+        23,
         113,
-        68,
-        136
+        71,
+        168
       ],
       "bone": "hand_near",
       "z_index": -14,
       "hidden_material": true,
-      "logical_part": "fist_near"
+      "logical_part": "fist_near",
+      "presentation_anchor": [
+        23,
+        122
+      ]
     },
     {
       "name": "fist_near",
       "file": "pieces/rear/fist_near.png",
       "offset": [
         23,
-        122
+        113
       ],
       "bbox": [
         23,
-        122,
+        113,
         71,
         168
       ],
       "bone": "hand_near",
       "z_index": 2,
-      "logical_part": "fist_near"
+      "logical_part": "fist_near",
+      "presentation_anchor": [
+        23,
+        122
+      ]
     },
     {
       "name": "hidden_thigh_near",
       "file": "pieces/rear/hidden_thigh_near.png",
       "offset": [
         79,
-        120
+        119
       ],
       "bbox": [
         79,
-        120,
+        119,
         129,
         176
       ],
       "bone": "thigh_near",
       "z_index": -5,
       "hidden_material": true,
-      "logical_part": "thigh_near"
+      "logical_part": "thigh_near",
+      "presentation_anchor": [
+        79,
+        119
+      ]
     },
     {
       "name": "thigh_near",
@@ -359,22 +411,26 @@
       "bbox": [
         79,
         119,
-        126,
-        173
+        129,
+        176
       ],
       "bone": "thigh_near",
       "z_index": 3,
-      "logical_part": "thigh_near"
+      "logical_part": "thigh_near",
+      "presentation_anchor": [
+        79,
+        119
+      ]
     },
     {
       "name": "hidden_shin_near",
       "file": "pieces/rear/hidden_shin_near.png",
       "offset": [
-        74,
+        73,
         151
       ],
       "bbox": [
-        74,
+        73,
         151,
         116,
         206
@@ -382,94 +438,118 @@
       "bone": "shin_near",
       "z_index": -6,
       "hidden_material": true,
-      "logical_part": "shin_near"
+      "logical_part": "shin_near",
+      "presentation_anchor": [
+        73,
+        155
+      ]
     },
     {
       "name": "shin_near",
       "file": "pieces/rear/shin_near.png",
       "offset": [
         73,
-        155
+        151
       ],
       "bbox": [
         73,
-        155,
-        114,
-        203
+        151,
+        116,
+        206
       ],
       "bone": "shin_near",
       "z_index": 1,
-      "logical_part": "shin_near"
+      "logical_part": "shin_near",
+      "presentation_anchor": [
+        73,
+        155
+      ]
     },
     {
       "name": "hidden_foot_near",
       "file": "pieces/rear/hidden_foot_near.png",
       "offset": [
-        75,
+        73,
         167
       ],
       "bbox": [
-        75,
+        73,
         167,
-        114,
-        203
+        121,
+        210
       ],
       "bone": "foot_near",
       "z_index": -7,
       "hidden_material": true,
-      "logical_part": "foot_near"
+      "logical_part": "foot_near",
+      "presentation_anchor": [
+        73,
+        178
+      ]
     },
     {
       "name": "foot_near",
       "file": "pieces/rear/foot_near.png",
       "offset": [
         73,
-        178
+        167
       ],
       "bbox": [
         73,
-        178,
+        167,
         121,
         210
       ],
       "bone": "foot_near",
       "z_index": 0,
-      "logical_part": "foot_near"
+      "logical_part": "foot_near",
+      "presentation_anchor": [
+        73,
+        178
+      ]
     },
     {
       "name": "hidden_upper_far",
       "file": "pieces/rear/hidden_upper_far.png",
       "offset": [
         147,
-        44
+        24
       ],
       "bbox": [
         147,
-        44,
-        207,
+        24,
+        215,
         120
       ],
       "bone": "upper_far",
       "z_index": -9,
       "hidden_material": true,
-      "logical_part": "upper_far"
+      "logical_part": "upper_far",
+      "presentation_anchor": [
+        150,
+        24
+      ]
     },
     {
       "name": "upper_far",
       "file": "pieces/rear/upper_far.png",
       "offset": [
-        150,
+        147,
         24
       ],
       "bbox": [
-        150,
+        147,
         24,
         215,
-        117
+        120
       ],
       "bone": "upper_far",
       "z_index": 13,
-      "logical_part": "upper_far"
+      "logical_part": "upper_far",
+      "presentation_anchor": [
+        150,
+        24
+      ]
     },
     {
       "name": "hidden_fore_far",
@@ -481,65 +561,81 @@
       "bbox": [
         181,
         104,
-        225,
+        229,
         159
       ],
       "bone": "fore_far",
       "z_index": -10,
       "hidden_material": true,
-      "logical_part": "fore_far"
+      "logical_part": "fore_far",
+      "presentation_anchor": [
+        184,
+        109
+      ]
     },
     {
       "name": "fore_far",
       "file": "pieces/rear/fore_far.png",
       "offset": [
-        184,
-        109
+        181,
+        104
       ],
       "bbox": [
-        184,
-        109,
+        181,
+        104,
         229,
-        156
+        159
       ],
       "bone": "fore_far",
       "z_index": 12,
-      "logical_part": "fore_far"
+      "logical_part": "fore_far",
+      "presentation_anchor": [
+        184,
+        109
+      ]
     },
     {
       "name": "hidden_fist_far",
       "file": "pieces/rear/hidden_fist_far.png",
       "offset": [
-        196,
+        190,
         150
       ],
       "bbox": [
-        196,
+        190,
         150,
-        223,
-        156
+        234,
+        196
       ],
       "bone": "hand_far",
       "z_index": -11,
       "hidden_material": true,
-      "logical_part": "fist_far"
+      "logical_part": "fist_far",
+      "presentation_anchor": [
+        190,
+        153
+      ]
     },
     {
       "name": "fist_far",
       "file": "pieces/rear/fist_far.png",
       "offset": [
         190,
-        153
+        150
       ],
       "bbox": [
         190,
-        153,
+        150,
         234,
         196
       ],
       "bone": "hand_far",
       "z_index": 10,
-      "logical_part": "fist_far"
+      "logical_part": "fist_far",
+      "presentation_anchor": [
+        190,
+        153
+      ]
     },
     {
       "name": "hidden_thigh_far",
@@ -551,40 +647,48 @@
       "bbox": [
         135,
         131,
-        170,
+        180,
         182
       ],
       "bone": "thigh_far",
       "z_index": -2,
       "hidden_material": true,
-      "logical_part": "thigh_far"
+      "logical_part": "thigh_far",
+      "presentation_anchor": [
+        138,
+        134
+      ]
     },
     {
       "name": "thigh_far",
       "file": "pieces/rear/thigh_far.png",
       "offset": [
-        138,
-        134
+        135,
+        131
       ],
       "bbox": [
-        138,
-        134,
+        135,
+        131,
         180,
-        179
+        182
       ],
       "bone": "thigh_far",
       "z_index": 6,
-      "logical_part": "thigh_far"
+      "logical_part": "thigh_far",
+      "presentation_anchor": [
+        138,
+        134
+      ]
     },
     {
       "name": "hidden_shin_far",
       "file": "pieces/rear/hidden_shin_far.png",
       "offset": [
-        149,
+        142,
         174
       ],
       "bbox": [
-        149,
+        142,
         174,
         182,
         217
@@ -592,59 +696,75 @@
       "bone": "shin_far",
       "z_index": -3,
       "hidden_material": true,
-      "logical_part": "shin_far"
+      "logical_part": "shin_far",
+      "presentation_anchor": [
+        142,
+        177
+      ]
     },
     {
       "name": "shin_far",
       "file": "pieces/rear/shin_far.png",
       "offset": [
         142,
-        177
+        174
       ],
       "bbox": [
         142,
-        177,
-        181,
-        212
+        174,
+        182,
+        217
       ],
       "bone": "shin_far",
       "z_index": 5,
-      "logical_part": "shin_far"
+      "logical_part": "shin_far",
+      "presentation_anchor": [
+        142,
+        177
+      ]
     },
     {
       "name": "hidden_foot_far",
       "file": "pieces/rear/hidden_foot_far.png",
       "offset": [
-        148,
+        136,
         200
       ],
       "bbox": [
-        148,
+        136,
         200,
-        180,
-        212
+        188,
+        246
       ],
       "bone": "foot_far",
       "z_index": -4,
       "hidden_material": true,
-      "logical_part": "foot_far"
+      "logical_part": "foot_far",
+      "presentation_anchor": [
+        136,
+        207
+      ]
     },
     {
       "name": "foot_far",
       "file": "pieces/rear/foot_far.png",
       "offset": [
         136,
-        207
+        200
       ],
       "bbox": [
         136,
-        207,
+        200,
         188,
         246
       ],
       "bone": "foot_far",
       "z_index": 7,
-      "logical_part": "foot_far"
+      "logical_part": "foot_far",
+      "presentation_anchor": [
+        136,
+        207
+      ]
     }
   ],
   "joint_meshes": [],
@@ -735,23 +855,23 @@
       "mask": "checks/rear/hidden_head.png",
       "mask_offset": [
         114,
-        26
+        14
       ],
       "z_index": -15,
       "source": "pieces/rear/hidden_head.png",
       "rigid": true,
-      "source_sha256": "30a1261386065682aee0e8a3ceed781d86691d3033404ae033022fca5b6f0fb0"
+      "source_sha256": "3cf0eedac3b9df369a6199afa3dad37cf1737a36a35058c9a053108390732373"
     },
     "head": {
       "mask": "checks/rear/head.png",
       "mask_offset": [
-        117,
+        114,
         14
       ],
       "z_index": 14,
       "source": "pieces/rear/head.png",
       "rigid": true,
-      "source_sha256": "09e1f805c5034b9962d17a3aaeb31d8b40742c3ab430020450db4c80c33877bb"
+      "source_sha256": "64a58d8d5b768eec3389483ac75d6187497dd14226d88c41938471017e72dc2c"
     },
     "hidden_torso": {
       "mask": "checks/rear/hidden_torso.png",
@@ -767,13 +887,13 @@
     "torso": {
       "mask": "checks/rear/torso.png",
       "mask_offset": [
-        96,
-        26
+        94,
+        23
       ],
       "z_index": 11,
       "source": "pieces/rear/torso.png",
       "rigid": true,
-      "source_sha256": "15d9d6c9626a7475e634477529e5159c71fe7b8ba31d7301079b17ad5bceb7f7"
+      "source_sha256": "b9f0cf48220a2507ecbcad7c52911a9a4987d0ca4575b988180ed08d62f5f0f0"
     },
     "hidden_pelvis": {
       "mask": "checks/rear/hidden_pelvis.png",
@@ -789,90 +909,90 @@
     "pelvis": {
       "mask": "checks/rear/pelvis.png",
       "mask_offset": [
-        109,
-        122
+        105,
+        111
       ],
       "z_index": 8,
       "source": "pieces/rear/pelvis.png",
       "rigid": true,
-      "source_sha256": "29dd9742ccfa44e7f3282d03186855c1eba003d95a015f4e6a64b2e8c08729ec"
+      "source_sha256": "cfa848b543e428e673a9277e8c77b4669a4b6da6107c40d89386e792d8a34e0f"
     },
     "hidden_upper_near": {
       "mask": "checks/rear/hidden_upper_near.png",
       "mask_offset": [
         41,
-        30
+        8
       ],
       "z_index": -12,
       "source": "pieces/rear/hidden_upper_near.png",
       "rigid": true,
-      "source_sha256": "fe9635de34302e0c54bea45d74270bb0dfd679f65cfc145c5329c1fd1cf3edf0"
+      "source_sha256": "1c2b68f276d7b548c48f3222fbca2678999f232e0f711e9fd76e59c7d339fb7a"
     },
     "upper_near": {
       "mask": "checks/rear/upper_near.png",
       "mask_offset": [
-        43,
+        41,
         8
       ],
       "z_index": 9,
       "source": "pieces/rear/upper_near.png",
       "rigid": true,
-      "source_sha256": "c89dea2b3aad1b9c048c321b69fb763e384e32368511f7dcd58ea703a565f605"
+      "source_sha256": "54a4c0b9533eb9eb853784e93b20bdd7971527eef690788187d16b2fcba1ec7a"
     },
     "hidden_fore_near": {
       "mask": "checks/rear/hidden_fore_near.png",
       "mask_offset": [
-        28,
+        24,
         80
       ],
       "z_index": -13,
       "source": "pieces/rear/hidden_fore_near.png",
       "rigid": true,
-      "source_sha256": "b08bf8e5413eeeef19db666c1d66bc0cc5486211cedacefbbecd7b85652a55f7"
+      "source_sha256": "bba041a8f5b7930b9c800ff82c35842c8fe9b9c732ac5b25d61b5560144afd85"
     },
     "fore_near": {
       "mask": "checks/rear/fore_near.png",
       "mask_offset": [
         24,
-        83
+        80
       ],
       "z_index": 4,
       "source": "pieces/rear/fore_near.png",
       "rigid": true,
-      "source_sha256": "468883e3db2323716662da926e2023607d0e333969d56176b5cea742f9b3c882"
+      "source_sha256": "e6811b8e1b72495ee9a4a24448e38c6a30f617f181371a23523e2f9dfb2dae39"
     },
     "hidden_fist_near": {
       "mask": "checks/rear/hidden_fist_near.png",
       "mask_offset": [
-        30,
+        23,
         113
       ],
       "z_index": -14,
       "source": "pieces/rear/hidden_fist_near.png",
       "rigid": true,
-      "source_sha256": "b128c0fd5a4f003fdce71631e405661e92a5d62fe1df05150062f873916cc148"
+      "source_sha256": "f3ad4bedbfcc8d32e686198118fbbdb1f2df883e01961d0c33016564b2f3e955"
     },
     "fist_near": {
       "mask": "checks/rear/fist_near.png",
       "mask_offset": [
         23,
-        122
+        113
       ],
       "z_index": 2,
       "source": "pieces/rear/fist_near.png",
       "rigid": true,
-      "source_sha256": "964227f748ac995471f544b597ca306053d9ef86045839300f0b52b9a5c8650a"
+      "source_sha256": "a463ff755a4dd0bb9493c41a2526897571c5ce66437e8fd8e30e4a37e8181187"
     },
     "hidden_thigh_near": {
       "mask": "checks/rear/hidden_thigh_near.png",
       "mask_offset": [
         79,
-        120
+        119
       ],
       "z_index": -5,
       "source": "pieces/rear/hidden_thigh_near.png",
       "rigid": true,
-      "source_sha256": "e5dc30bd050e1570b64a5298fd7c6e8e866e4eedfbfefb8b209a390c5d23b7f1"
+      "source_sha256": "bc08073cdb289617595b9e873d7cfeb09a373d6faf0300d4bf8a393c453cdd71"
     },
     "thigh_near": {
       "mask": "checks/rear/thigh_near.png",
@@ -883,73 +1003,73 @@
       "z_index": 3,
       "source": "pieces/rear/thigh_near.png",
       "rigid": true,
-      "source_sha256": "cc2d21b94268ceb33ba6d03aee3585a86d3f8f05e7334c89ac5bbc54f5eb1a11"
+      "source_sha256": "85e6e883d29779788304dcdef27bece53aadc938db52bf61900931a0d6c660fe"
     },
     "hidden_shin_near": {
       "mask": "checks/rear/hidden_shin_near.png",
       "mask_offset": [
-        74,
+        73,
         151
       ],
       "z_index": -6,
       "source": "pieces/rear/hidden_shin_near.png",
       "rigid": true,
-      "source_sha256": "bb3a002c76e0496eb1a53ade5a2670e7a1e22816766d752e444cbade177c4ddb"
+      "source_sha256": "eab47cd89586f315118c9494ae0493cfc76644cea17ce717200458ce15bad862"
     },
     "shin_near": {
       "mask": "checks/rear/shin_near.png",
       "mask_offset": [
         73,
-        155
+        151
       ],
       "z_index": 1,
       "source": "pieces/rear/shin_near.png",
       "rigid": true,
-      "source_sha256": "038765ed71256ecf204a8cc4ecc09f7abc71396588f473c0e3dc84b9062f5b45"
+      "source_sha256": "df0b0f2dcf119db3d012605e76bd45402eab54682aaee45fe009478732a8c4fc"
     },
     "hidden_foot_near": {
       "mask": "checks/rear/hidden_foot_near.png",
       "mask_offset": [
-        75,
+        73,
         167
       ],
       "z_index": -7,
       "source": "pieces/rear/hidden_foot_near.png",
       "rigid": true,
-      "source_sha256": "ae0e5a5e7c1ee8ff88a42f74edf6e902c3edc183e5f52e00b3bd8b5bf576cb49"
+      "source_sha256": "866271a17f8db2505645cb0160eccfb3396b72e363d7ea1f112859459a587b67"
     },
     "foot_near": {
       "mask": "checks/rear/foot_near.png",
       "mask_offset": [
         73,
-        178
+        167
       ],
       "z_index": 0,
       "source": "pieces/rear/foot_near.png",
       "rigid": true,
-      "source_sha256": "f343e41b7691ab87a2997a911c1fb7faeae0df2dd032fcb3227169edd6107e1b"
+      "source_sha256": "dedbe55c2b4a7ebc53bcc4e374ab79a8ced777aee04fb3773471543e8df41ca0"
     },
     "hidden_upper_far": {
       "mask": "checks/rear/hidden_upper_far.png",
       "mask_offset": [
         147,
-        44
+        24
       ],
       "z_index": -9,
       "source": "pieces/rear/hidden_upper_far.png",
       "rigid": true,
-      "source_sha256": "fd7822c84ca90355d3ebadac0dd2950c2c5ad51cfacc263540353415f050e266"
+      "source_sha256": "92b2e19cbf094fb94b49a0219624f40e7ae7cfbd2485ee761674b38de6a7ae34"
     },
     "upper_far": {
       "mask": "checks/rear/upper_far.png",
       "mask_offset": [
-        150,
+        147,
         24
       ],
       "z_index": 13,
       "source": "pieces/rear/upper_far.png",
       "rigid": true,
-      "source_sha256": "571a6ab5202a501d4ffee2df0599af1aa2ba69c8ed261ab6b42d930bca77b85d"
+      "source_sha256": "898dfea0d7271bf279c52cb73bb19327af121686d841f23f597c9ff77b77e282"
     },
     "hidden_fore_far": {
       "mask": "checks/rear/hidden_fore_far.png",
@@ -960,40 +1080,40 @@
       "z_index": -10,
       "source": "pieces/rear/hidden_fore_far.png",
       "rigid": true,
-      "source_sha256": "d483d1644e7877b2fdfdb1773d90147bd90a33c37879c987c863a2ea4186d88f"
+      "source_sha256": "13fa0dd98e521966158964e4bd9fe35f61e7196d1b7978fd6eac402b3a2263e5"
     },
     "fore_far": {
       "mask": "checks/rear/fore_far.png",
       "mask_offset": [
-        184,
-        109
+        181,
+        104
       ],
       "z_index": 12,
       "source": "pieces/rear/fore_far.png",
       "rigid": true,
-      "source_sha256": "d4223550e83b864e38bb78b0d77a65284a7b820d91acd4b818628dd94d4e335b"
+      "source_sha256": "c24380781f73d76b33530c31eb4ae18a77fe5a97b877bd52d7dab7c562df638e"
     },
     "hidden_fist_far": {
       "mask": "checks/rear/hidden_fist_far.png",
       "mask_offset": [
-        196,
+        190,
         150
       ],
       "z_index": -11,
       "source": "pieces/rear/hidden_fist_far.png",
       "rigid": true,
-      "source_sha256": "931f928e4961d6e1bee3a298badab2d91417fe3399313d30bfd438ddfba1208b"
+      "source_sha256": "ccadea0fb9839d1bdcd2ead60c16e8b32de99cf2d90f2e754088b04339c5404c"
     },
     "fist_far": {
       "mask": "checks/rear/fist_far.png",
       "mask_offset": [
         190,
-        153
+        150
       ],
       "z_index": 10,
       "source": "pieces/rear/fist_far.png",
       "rigid": true,
-      "source_sha256": "13380085cdcb46a72d56ac9d806a30d55654ad12d66bc0af1c496067772f92b5"
+      "source_sha256": "179b4b1b8a6b0d787e48fa885b4ea2e5388b09003e4bf33ca7fcbdc323b7c23c"
     },
     "hidden_thigh_far": {
       "mask": "checks/rear/hidden_thigh_far.png",
@@ -1004,62 +1124,62 @@
       "z_index": -2,
       "source": "pieces/rear/hidden_thigh_far.png",
       "rigid": true,
-      "source_sha256": "ddfb6ed3b7891101d12c65d3b76e4a428499814da65600dba6f00b2207b70322"
+      "source_sha256": "88678f598109780ea265038a19356d5e7c79cb7fa5c9aa360ddb363e1c302d14"
     },
     "thigh_far": {
       "mask": "checks/rear/thigh_far.png",
       "mask_offset": [
-        138,
-        134
+        135,
+        131
       ],
       "z_index": 6,
       "source": "pieces/rear/thigh_far.png",
       "rigid": true,
-      "source_sha256": "18ad0c1d70dcef1a0ce8df4f96ab9bd3ffc8fdb9860c26a34a9d7d95cfe6c444"
+      "source_sha256": "0f3a79baf67872f74eee8c5f5e77ace357a3f75ff80c8b8ff44e002fc2335399"
     },
     "hidden_shin_far": {
       "mask": "checks/rear/hidden_shin_far.png",
       "mask_offset": [
-        149,
+        142,
         174
       ],
       "z_index": -3,
       "source": "pieces/rear/hidden_shin_far.png",
       "rigid": true,
-      "source_sha256": "85b57109d8d5ef6a4ae263d6ba51f86447e2b78f57b9cca679aec8c11a83270d"
+      "source_sha256": "75a5e50a963308d4c176350e2201c8a231ee393076d5c4d74f70ed7a693faa11"
     },
     "shin_far": {
       "mask": "checks/rear/shin_far.png",
       "mask_offset": [
         142,
-        177
+        174
       ],
       "z_index": 5,
       "source": "pieces/rear/shin_far.png",
       "rigid": true,
-      "source_sha256": "2c2dd8525867858601d2754e04f6faec8db2b59a6e14ed560cb5a2a35a85b615"
+      "source_sha256": "d6724c701e7f3ad464d23e8e2ef5ca2758582da94b55d756645b7301d6e7520a"
     },
     "hidden_foot_far": {
       "mask": "checks/rear/hidden_foot_far.png",
       "mask_offset": [
-        148,
+        136,
         200
       ],
       "z_index": -4,
       "source": "pieces/rear/hidden_foot_far.png",
       "rigid": true,
-      "source_sha256": "3cfba7d55e597dd4b55e5c727f7e61492c0f8b96508c1fac0807ddc47fd241d2"
+      "source_sha256": "1dfbaa0f1600f1f376b73867018b3fc2c097d91e0cacdb5dff69e4a8b4b314e4"
     },
     "foot_far": {
       "mask": "checks/rear/foot_far.png",
       "mask_offset": [
         136,
-        207
+        200
       ],
       "z_index": 7,
       "source": "pieces/rear/foot_far.png",
       "rigid": true,
-      "source_sha256": "cf4fa41866cb864ed33a39049481fb5f7db2c65a4e01505ccdda70c6481c69a7"
+      "source_sha256": "27285b434be7d7a7b4805abafa7a5fa73a7395bae4c06a07f291a53b399b181c"
     }
   },
   "proof_rest_holes": [

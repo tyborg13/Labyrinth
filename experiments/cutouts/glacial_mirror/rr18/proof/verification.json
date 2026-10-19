@@ -1,713 +1,72 @@
 {
-  "implementation_state": "uncommitted implementation; acceptance blocked by director input conflicts",
+  "implementation_state": "uncommitted feedback 1 implementation; strict seam acceptance unresolved",
   "acceptance_complete": false,
-  "full_suites": "not run per unit brief; director at merge",
+  "resolved_feedback": [
+    "replacement motion imported byte for byte; recompiled",
+    "10 degree near-straight knee policy in both legs/views",
+    "source rest versus raw paint; production rest versus density-derived output",
+    "focused proof rerun; strict headless seam gate added; no native renderer claim"
+  ],
+  "full_suites": "not run per unit brief and director feedback; director at merge",
   "windowed": "not attempted; sandbox has no window-server access",
   "peer_review": "not run per explicit unit rules",
   "git_publication": "none; all edits uncommitted",
   "design_placeholders": {
-    "TODO_DESIGN_density_rest_identity": "Required density processing changes 1178 front and 15491 rear production rest pixels against the approved paintings. The source cuts remain 0 px exact. Director must resolve density treatment versus the brief production rest-identity requirement.",
-    "TODO_DESIGN_move_supports": "Protected world_step paths exceed the unchanged leg reach; front support error reaches 5.545222 px, rear 19.416488 px at the reference proof step; stance slides up to 1.414214 px. Director motion decision required.",
-    "TODO_DESIGN_move_swing_apex": "Front stride and rear trailing swing knees bend less than their stance knees at their lift apex. Protected keys retained; director motion decision required.",
-    "TODO_DESIGN_near_knee_facing": "mq8 near-leg rest bends are 8.998 degrees away from front facing and 9.537 degrees away from rear facing; preserving rest bend side conflicts with the facing gate. Director joint/policy decision required."
+    "TODO_DESIGN_source_gap_calibration": "Strict joint-hole diagnostics reject posed pockets that trace into transparent approved-source gaps (front guard frame 20: 19 px; rear refraction frame 32: 9 px). Director calibration decision required; protected paint and motion retained, no seam exemption applied."
   },
   "strict_gates": {
     "ok": false,
-    "errors": [
-      "front/move/frame 0/near: knee bends against facing",
-      "front/move/frame 1/near: knee bends against facing",
-      "front/move/frame 10/near: knee bends against facing",
-      "front/move/frame 11/near: knee bends against facing",
-      "front/move/frame 12/near: knee bends against facing",
-      "front/move/frame 13/near: knee bends against facing",
-      "front/move/frame 2/near: knee bends against facing",
-      "front/move/frame 3/near: knee bends against facing",
-      "front/move/frame 4/near: knee bends against facing",
-      "front/move/frame 40/near: knee bends against facing",
-      "front/move/frame 41/near: knee bends against facing",
-      "front/move/frame 42/near: knee bends against facing",
-      "front/move/frame 43/near: knee bends against facing",
-      "front/move/frame 44/near: knee bends against facing",
-      "front/move/frame 45/near: knee bends against facing",
-      "front/move/frame 46/near: knee bends against facing",
-      "front/move/frame 47/near: knee bends against facing",
-      "front/move/frame 48/near: knee bends against facing",
-      "front/move/frame 49/near: knee bends against facing",
-      "front/move/frame 5/near: knee bends against facing",
-      "front/move/frame 50/near: knee bends against facing",
-      "front/move/frame 6/near: knee bends against facing",
-      "front/move/frame 7/near: knee bends against facing",
-      "front/move/frame 8/near: knee bends against facing",
-      "front/move/frame 9/near: knee bends against facing",
-      "front/move/near/frame 23: support target error 5.545222 px",
-      "front/move/near/frame 24: stance moved 1.414214 px",
-      "front/move/near/frame 24: support target error 4.466763 px",
-      "front/move/near/frame 25: support target error 4.466763 px",
-      "front/move/near/frame 26: stance moved 1.000000 px",
-      "front/move/near/frame 26: support target error 3.466910 px",
-      "front/move/near/frame 27: support target error 3.466910 px",
-      "front/move/near/frame 28: support target error 3.466910 px",
-      "front/move/near/frame 29: support target error 3.466910 px",
-      "front/move/near/frame 30: stance moved 1.000000 px",
-      "front/move/near/frame 30: support target error 2.467176 px",
-      "front/move/near/frame 31: support target error 2.467176 px",
-      "front/move/near/frame 32: stance moved 1.000000 px",
-      "front/move/near/frame 32: support target error 1.467805 px",
-      "front/move/near/frame 33: support target error 1.467805 px",
-      "front/move/near/frame 34: support target error 1.467805 px",
-      "front/move/near/frame 35: support target error 1.467805 px",
-      "front/move/near/frame 36: support target error 1.467805 px",
-      "front/move/near/frame 37: stance moved 1.000000 px",
-      "front/near: swing knee does not exceed stance knee at apex",
-      "front: treated production rest differs from approved painting by 1178 px; required 0",
-      "rear/move/frame 0/near: knee bends against facing",
-      "rear/move/frame 1/near: knee bends against facing",
-      "rear/move/frame 2/near: knee bends against facing",
-      "rear/move/frame 3/near: knee bends against facing",
-      "rear/move/frame 4/near: knee bends against facing",
-      "rear/move/frame 42/near: knee bends against facing",
-      "rear/move/frame 43/near: knee bends against facing",
-      "rear/move/frame 44/near: knee bends against facing",
-      "rear/move/frame 45/near: knee bends against facing",
-      "rear/move/frame 46/near: knee bends against facing",
-      "rear/move/frame 47/near: knee bends against facing",
-      "rear/move/frame 48/near: knee bends against facing",
-      "rear/move/frame 49/near: knee bends against facing",
-      "rear/move/frame 50/near: knee bends against facing",
-      "rear/move/near/frame 10: support target error 3.162278 px",
-      "rear/move/near/frame 11: stance moved 1.414214 px",
-      "rear/move/near/frame 11: support target error 4.472136 px",
-      "rear/move/near/frame 12: stance moved 1.000000 px",
-      "rear/move/near/frame 12: support target error 5.385165 px",
-      "rear/move/near/frame 13: stance moved 1.414214 px",
-      "rear/move/near/frame 13: support target error 6.708204 px",
-      "rear/move/near/frame 14: stance moved 1.000000 px",
-      "rear/move/near/frame 14: support target error 7.615773 px",
-      "rear/move/near/frame 15: stance moved 1.414214 px",
-      "rear/move/near/frame 15: support target error 8.944272 px",
-      "rear/move/near/frame 16: stance moved 1.414214 px",
-      "rear/move/near/frame 16: support target error 10.295630 px",
-      "rear/move/near/frame 17: stance moved 1.000000 px",
-      "rear/move/near/frame 17: support target error 11.180340 px",
-      "rear/move/near/frame 18: stance moved 1.000000 px",
-      "rear/move/near/frame 18: support target error 11.661904 px",
-      "rear/move/near/frame 19: stance moved 1.000000 px",
-      "rear/move/near/frame 19: support target error 12.529964 px",
-      "rear/move/near/frame 20: stance moved 1.414214 px",
-      "rear/move/near/frame 20: support target error 13.892444 px",
-      "rear/move/near/frame 21: stance moved 1.000000 px",
-      "rear/move/near/frame 21: support target error 14.422205 px",
-      "rear/move/near/frame 22: stance moved 1.000000 px",
-      "rear/move/near/frame 22: support target error 15.264338 px",
-      "rear/move/near/frame 23: stance moved 1.414214 px",
-      "rear/move/near/frame 23: support target error 16.643317 px",
-      "rear/move/near/frame 24: stance moved 1.414214 px",
-      "rear/move/near/frame 24: support target error 18.027756 px",
-      "rear/move/near/frame 25: stance moved 1.414214 px",
-      "rear/move/near/frame 25: support target error 19.416488 px",
-      "rear/move/near/frame 6: stance moved 1.000000 px",
-      "rear/move/near/frame 6: support target error 1.000000 px",
-      "rear/move/near/frame 7: support target error 1.000000 px",
-      "rear/move/near/frame 8: stance moved 1.414214 px",
-      "rear/move/near/frame 8: support target error 2.236068 px",
-      "rear/move/near/frame 9: stance moved 1.000000 px",
-      "rear/move/near/frame 9: support target error 3.162278 px",
-      "rear/near: swing knee does not exceed stance knee at apex",
-      "rear: treated production rest differs from approved painting by 15491 px; required 0"
-    ],
+    "error_count": 142,
+    "report": "proof/gates.json",
     "production_ready": false,
-    "design_placeholders": {
-      "TODO_DESIGN_density_rest_identity": "Required density processing changes 1178 front and 15491 rear production rest pixels against the approved paintings. The source cuts remain 0 px exact. Director must resolve density treatment versus the brief production rest-identity requirement.",
-      "TODO_DESIGN_move_supports": "Protected world_step paths exceed the unchanged leg reach; front support error reaches 5.545222 px, rear 19.416488 px at the reference proof step; stance slides up to 1.414214 px. Director motion decision required.",
-      "TODO_DESIGN_move_swing_apex": "Front stride and rear trailing swing knees bend less than their stance knees at their lift apex. Protected keys retained; director motion decision required.",
-      "TODO_DESIGN_near_knee_facing": "mq8 near-leg rest bends are 8.998 degrees away from front facing and 9.537 degrees away from rear facing; preserving rest bend side conflicts with the facing gate. Director joint/policy decision required."
+    "remaining_failure": "142 posed frames with seam pockets; zero other clean-piece defects"
+  },
+  "seam_scan": {
+    "front": {
+      "frames": 341,
+      "failed_frames": 20,
+      "pockets": 20,
+      "clean_piece_defect_frames": 0
     },
-    "scope": "headless source/Bone2D evidence; native pixels pending"
+    "rear": {
+      "frames": 341,
+      "failed_frames": 122,
+      "pockets": 190,
+      "clean_piece_defect_frames": 0
+    }
   },
   "source_build": {
-    "front_rest_mismatch_pixels": 0,
-    "rest_mismatch_pixels": 0,
-    "tucks": [
-      {
-        "piece": "head",
-        "minimum_px": 3,
-        "cover": [
-          "torso"
-        ],
-        "required_mask": "tucks/front_head.png",
-        "required_pixels": 148,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "torso",
-        "minimum_px": 3,
-        "cover": [
-          "head",
-          "pelvis",
-          "upper_near",
-          "upper_far"
-        ],
-        "required_mask": "tucks/front_torso.png",
-        "required_pixels": 729,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "pelvis",
-        "minimum_px": 3,
-        "cover": [
-          "torso",
-          "thigh_near",
-          "thigh_far"
-        ],
-        "required_mask": "tucks/front_pelvis.png",
-        "required_pixels": 513,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "upper_near",
-        "minimum_px": 3,
-        "cover": [
-          "torso",
-          "fore_near"
-        ],
-        "required_mask": "tucks/front_upper_near.png",
-        "required_pixels": 398,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "fore_near",
-        "minimum_px": 3,
-        "cover": [
-          "upper_near",
-          "fist_near"
-        ],
-        "required_mask": "tucks/front_fore_near.png",
-        "required_pixels": 231,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "fist_near",
-        "minimum_px": 3,
-        "cover": [
-          "fore_near"
-        ],
-        "required_mask": "tucks/front_fist_near.png",
-        "required_pixels": 102,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "thigh_near",
-        "minimum_px": 3,
-        "cover": [
-          "pelvis",
-          "shin_near"
-        ],
-        "required_mask": "tucks/front_thigh_near.png",
-        "required_pixels": 271,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "shin_near",
-        "minimum_px": 3,
-        "cover": [
-          "thigh_near",
-          "foot_near"
-        ],
-        "required_mask": "tucks/front_shin_near.png",
-        "required_pixels": 286,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "foot_near",
-        "minimum_px": 3,
-        "cover": [
-          "shin_near"
-        ],
-        "required_mask": "tucks/front_foot_near.png",
-        "required_pixels": 150,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "upper_far",
-        "minimum_px": 3,
-        "cover": [
-          "torso",
-          "fore_far"
-        ],
-        "required_mask": "tucks/front_upper_far.png",
-        "required_pixels": 301,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "fore_far",
-        "minimum_px": 3,
-        "cover": [
-          "upper_far",
-          "fist_far"
-        ],
-        "required_mask": "tucks/front_fore_far.png",
-        "required_pixels": 309,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "fist_far",
-        "minimum_px": 3,
-        "cover": [
-          "fore_far"
-        ],
-        "required_mask": "tucks/front_fist_far.png",
-        "required_pixels": 170,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "thigh_far",
-        "minimum_px": 3,
-        "cover": [
-          "pelvis",
-          "shin_far"
-        ],
-        "required_mask": "tucks/front_thigh_far.png",
-        "required_pixels": 324,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "shin_far",
-        "minimum_px": 3,
-        "cover": [
-          "thigh_far",
-          "foot_far"
-        ],
-        "required_mask": "tucks/front_shin_far.png",
-        "required_pixels": 412,
-        "missing_pixels": 0
-      },
-      {
-        "piece": "foot_far",
-        "minimum_px": 3,
-        "cover": [
-          "shin_far"
-        ],
-        "required_mask": "tucks/front_foot_far.png",
-        "required_pixels": 216,
-        "missing_pixels": 0
-      }
-    ],
-    "delivery": {
-      "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
-      "front_parts.png": "6f899df117f3c3579a619ecd5bb624c58c7fefb543a3f7dedc729ea82251e23e",
-      "front_solo_head.png": "0c56b7b2d18aad99e244decfc422f3bfb8be8a2deffac9b1df6db28343faf9fc",
-      "front_solo_torso.png": "0c43e6dddbe12948b03e0aab99de688f2f38f86f4c6915fc57d4b672d789f828",
-      "front_solo_pelvis.png": "b04365509fcdbf6bda4adfed58c1a8b372f755ae800e90a88bb205ef359ce7b6",
-      "front_solo_upper_near.png": "cfb255f0fdc97a8545345e375cdf93356cccb2329d4e459edd4ee71416f21060",
-      "front_solo_fore_near.png": "2fd1269db8bd2b21df8ac9e5a76bbca01b837f12346573f5554c5d275ab5dba2",
-      "front_solo_hand_near.png": "a813b19c2af13ce485b796074d50288fc57572f942384f89137905a407b9b08f",
-      "front_solo_thigh_near.png": "7493fd37580c1a55d3e639515e013003649f03e1aa5568d4a7d556db6aef3227",
-      "front_solo_shin_near.png": "9fa51c5e4e6392f33f41847cf016901fa87dfec56d8e29617055d78dc3f7b601",
-      "front_solo_foot_near.png": "fcdfa626e5d7abcd33fe7704ec19e74cffba66d107fce558d29055293a1d7288",
-      "front_solo_upper_far.png": "c309d8c3fe21c5693bf12f1df87b366f3d6e2ba60269fe802ad0605f138b31f5",
-      "front_solo_fore_far.png": "41da15476276ca307f1ea1f899c8b4cd43ad02881728f898fee199c3ea463c8d",
-      "front_solo_hand_far.png": "c4c47f0b31a579598f2a3544b927cc573a7ad98966ef4b0ed8d983283156aa24",
-      "front_solo_thigh_far.png": "2e77c2c60758f9794b16c34878881fd6b9d44fe685f4e66bc919bf9242b9b462",
-      "front_solo_shin_far.png": "5b5fb088e849df3387287927a3d27db92a876d50790249c4159557d8817624ae",
-      "front_solo_foot_far.png": "3a7886435e84303753c58810108142093aee4ee0f18ffcff4e67f967f69c9106"
+    "report": "proof/build.json",
+    "rest_mismatch_pixels": {
+      "front": 0,
+      "rear": 0
+    }
+  },
+  "production_rest": {
+    "front": {
+      "ok": true,
+      "errors": [],
+      "mismatch_pixels": 0,
+      "snapshot_mismatch_pixels": 0,
+      "scope": "exact density-derived source-space rest; native seal pending director"
     },
-    "source_ownership": "experiments/cutouts/glacial_mirror/rr18/front_baseline/layouts/front.json",
-    "source_ownership_sha256": "ab43a584931d4339005dbf9c6cab2ba1bdbbc07597e27d8a5365d4ba77441913",
-    "views": {
-      "front": {
-        "front_rest_mismatch_pixels": 0,
-        "rest_mismatch_pixels": 0,
-        "tucks": [
-          {
-            "piece": "head",
-            "minimum_px": 3,
-            "cover": [
-              "torso"
-            ],
-            "required_mask": "tucks/front_head.png",
-            "required_pixels": 148,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "torso",
-            "minimum_px": 3,
-            "cover": [
-              "head",
-              "pelvis",
-              "upper_near",
-              "upper_far"
-            ],
-            "required_mask": "tucks/front_torso.png",
-            "required_pixels": 729,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "pelvis",
-            "minimum_px": 3,
-            "cover": [
-              "torso",
-              "thigh_near",
-              "thigh_far"
-            ],
-            "required_mask": "tucks/front_pelvis.png",
-            "required_pixels": 513,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "upper_near",
-            "minimum_px": 3,
-            "cover": [
-              "torso",
-              "fore_near"
-            ],
-            "required_mask": "tucks/front_upper_near.png",
-            "required_pixels": 398,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fore_near",
-            "minimum_px": 3,
-            "cover": [
-              "upper_near",
-              "fist_near"
-            ],
-            "required_mask": "tucks/front_fore_near.png",
-            "required_pixels": 231,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fist_near",
-            "minimum_px": 3,
-            "cover": [
-              "fore_near"
-            ],
-            "required_mask": "tucks/front_fist_near.png",
-            "required_pixels": 102,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "thigh_near",
-            "minimum_px": 3,
-            "cover": [
-              "pelvis",
-              "shin_near"
-            ],
-            "required_mask": "tucks/front_thigh_near.png",
-            "required_pixels": 271,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "shin_near",
-            "minimum_px": 3,
-            "cover": [
-              "thigh_near",
-              "foot_near"
-            ],
-            "required_mask": "tucks/front_shin_near.png",
-            "required_pixels": 286,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "foot_near",
-            "minimum_px": 3,
-            "cover": [
-              "shin_near"
-            ],
-            "required_mask": "tucks/front_foot_near.png",
-            "required_pixels": 150,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "upper_far",
-            "minimum_px": 3,
-            "cover": [
-              "torso",
-              "fore_far"
-            ],
-            "required_mask": "tucks/front_upper_far.png",
-            "required_pixels": 301,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fore_far",
-            "minimum_px": 3,
-            "cover": [
-              "upper_far",
-              "fist_far"
-            ],
-            "required_mask": "tucks/front_fore_far.png",
-            "required_pixels": 309,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fist_far",
-            "minimum_px": 3,
-            "cover": [
-              "fore_far"
-            ],
-            "required_mask": "tucks/front_fist_far.png",
-            "required_pixels": 170,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "thigh_far",
-            "minimum_px": 3,
-            "cover": [
-              "pelvis",
-              "shin_far"
-            ],
-            "required_mask": "tucks/front_thigh_far.png",
-            "required_pixels": 324,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "shin_far",
-            "minimum_px": 3,
-            "cover": [
-              "thigh_far",
-              "foot_far"
-            ],
-            "required_mask": "tucks/front_shin_far.png",
-            "required_pixels": 412,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "foot_far",
-            "minimum_px": 3,
-            "cover": [
-              "shin_far"
-            ],
-            "required_mask": "tucks/front_foot_far.png",
-            "required_pixels": 216,
-            "missing_pixels": 0
-          }
-        ],
-        "delivery": {
-          "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
-          "front_parts.png": "6f899df117f3c3579a619ecd5bb624c58c7fefb543a3f7dedc729ea82251e23e",
-          "front_solo_head.png": "0c56b7b2d18aad99e244decfc422f3bfb8be8a2deffac9b1df6db28343faf9fc",
-          "front_solo_torso.png": "0c43e6dddbe12948b03e0aab99de688f2f38f86f4c6915fc57d4b672d789f828",
-          "front_solo_pelvis.png": "b04365509fcdbf6bda4adfed58c1a8b372f755ae800e90a88bb205ef359ce7b6",
-          "front_solo_upper_near.png": "cfb255f0fdc97a8545345e375cdf93356cccb2329d4e459edd4ee71416f21060",
-          "front_solo_fore_near.png": "2fd1269db8bd2b21df8ac9e5a76bbca01b837f12346573f5554c5d275ab5dba2",
-          "front_solo_hand_near.png": "a813b19c2af13ce485b796074d50288fc57572f942384f89137905a407b9b08f",
-          "front_solo_thigh_near.png": "7493fd37580c1a55d3e639515e013003649f03e1aa5568d4a7d556db6aef3227",
-          "front_solo_shin_near.png": "9fa51c5e4e6392f33f41847cf016901fa87dfec56d8e29617055d78dc3f7b601",
-          "front_solo_foot_near.png": "fcdfa626e5d7abcd33fe7704ec19e74cffba66d107fce558d29055293a1d7288",
-          "front_solo_upper_far.png": "c309d8c3fe21c5693bf12f1df87b366f3d6e2ba60269fe802ad0605f138b31f5",
-          "front_solo_fore_far.png": "41da15476276ca307f1ea1f899c8b4cd43ad02881728f898fee199c3ea463c8d",
-          "front_solo_hand_far.png": "c4c47f0b31a579598f2a3544b927cc573a7ad98966ef4b0ed8d983283156aa24",
-          "front_solo_thigh_far.png": "2e77c2c60758f9794b16c34878881fd6b9d44fe685f4e66bc919bf9242b9b462",
-          "front_solo_shin_far.png": "5b5fb088e849df3387287927a3d27db92a876d50790249c4159557d8817624ae",
-          "front_solo_foot_far.png": "3a7886435e84303753c58810108142093aee4ee0f18ffcff4e67f967f69c9106"
-        },
-        "source_ownership": "experiments/cutouts/glacial_mirror/rr18/front_baseline/layouts/front.json",
-        "source_ownership_sha256": "ab43a584931d4339005dbf9c6cab2ba1bdbbc07597e27d8a5365d4ba77441913"
-      },
-      "rear": {
-        "front_rest_mismatch_pixels": 0,
-        "rest_mismatch_pixels": 0,
-        "tucks": [
-          {
-            "piece": "head",
-            "minimum_px": 3,
-            "cover": [
-              "torso"
-            ],
-            "required_mask": "tucks/rear_head.png",
-            "required_pixels": 206,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "torso",
-            "minimum_px": 3,
-            "cover": [
-              "head",
-              "pelvis",
-              "upper_near",
-              "upper_far"
-            ],
-            "required_mask": "tucks/rear_torso.png",
-            "required_pixels": 851,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "pelvis",
-            "minimum_px": 3,
-            "cover": [
-              "torso",
-              "thigh_near",
-              "thigh_far"
-            ],
-            "required_mask": "tucks/rear_pelvis.png",
-            "required_pixels": 472,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "upper_near",
-            "minimum_px": 3,
-            "cover": [
-              "torso",
-              "fore_near"
-            ],
-            "required_mask": "tucks/rear_upper_near.png",
-            "required_pixels": 429,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fore_near",
-            "minimum_px": 3,
-            "cover": [
-              "upper_near",
-              "fist_near"
-            ],
-            "required_mask": "tucks/rear_fore_near.png",
-            "required_pixels": 385,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fist_near",
-            "minimum_px": 3,
-            "cover": [
-              "fore_near"
-            ],
-            "required_mask": "tucks/rear_fist_near.png",
-            "required_pixels": 182,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "thigh_near",
-            "minimum_px": 3,
-            "cover": [
-              "pelvis",
-              "shin_near"
-            ],
-            "required_mask": "tucks/rear_thigh_near.png",
-            "required_pixels": 282,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "shin_near",
-            "minimum_px": 3,
-            "cover": [
-              "thigh_near",
-              "foot_near"
-            ],
-            "required_mask": "tucks/rear_shin_near.png",
-            "required_pixels": 403,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "foot_near",
-            "minimum_px": 3,
-            "cover": [
-              "shin_near"
-            ],
-            "required_mask": "tucks/rear_foot_near.png",
-            "required_pixels": 236,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "upper_far",
-            "minimum_px": 3,
-            "cover": [
-              "torso",
-              "fore_far"
-            ],
-            "required_mask": "tucks/rear_upper_far.png",
-            "required_pixels": 352,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fore_far",
-            "minimum_px": 3,
-            "cover": [
-              "upper_far",
-              "fist_far"
-            ],
-            "required_mask": "tucks/rear_fore_far.png",
-            "required_pixels": 194,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "fist_far",
-            "minimum_px": 3,
-            "cover": [
-              "fore_far"
-            ],
-            "required_mask": "tucks/rear_fist_far.png",
-            "required_pixels": 91,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "thigh_far",
-            "minimum_px": 3,
-            "cover": [
-              "pelvis",
-              "shin_far"
-            ],
-            "required_mask": "tucks/rear_thigh_far.png",
-            "required_pixels": 204,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "shin_far",
-            "minimum_px": 3,
-            "cover": [
-              "thigh_far",
-              "foot_far"
-            ],
-            "required_mask": "tucks/rear_shin_far.png",
-            "required_pixels": 182,
-            "missing_pixels": 0
-          },
-          {
-            "piece": "foot_far",
-            "minimum_px": 3,
-            "cover": [
-              "shin_far"
-            ],
-            "required_mask": "tucks/rear_foot_far.png",
-            "required_pixels": 120,
-            "missing_pixels": 0
-          }
-        ],
-        "delivery": {
-          "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
-          "rear_parts.png": "a92e4058384d505feb6698c6327504a277aa5265395243c29d26d89f972e02fe",
-          "rear_solo_head.png": "a333ef503924ee64a28fee5337caad2ee1c71231e832b6b4c5ab2423a158629a",
-          "rear_solo_torso.png": "3a87b0ba3a34d9dfd28c40877023fa24e8ba6b00685d04be6e347189c8d643c6",
-          "rear_solo_pelvis.png": "5bda497917314914020a344c7aec3f4e937e81c6d6a838bb6c963d8e3e595597",
-          "rear_solo_upper_near.png": "ee5dfbe706381d3f435bd13cdf86303bb5ce3deb71d4bb3ebe475a1b4e31434f",
-          "rear_solo_fore_near.png": "25babfdbb4cbf36c414c1fdc8c130f871099ceecf3cec8fde3a341a9354f8a24",
-          "rear_solo_hand_near.png": "8fa32e8f71b062d300264014bdcfeae704423b692120f17d98e11a5825023ea8",
-          "rear_solo_thigh_near.png": "7adb8934e840776353f2c8ac7c4b1c5977b5534a7a3cf1946493704a07b7c0b4",
-          "rear_solo_shin_near.png": "f16c3ed7078745361fea59a49cedf5160aeb89686c47085c5ae40b1c896cfb5b",
-          "rear_solo_foot_near.png": "9ec73b9bf59baedd68417e393f966197a7f09ea5cfdddbd22be4afe18c3a3142",
-          "rear_solo_upper_far.png": "fe276a22855c76774d4e2bdc2909e9eeac3dde6fc25caf8f13494d9dbbbff099",
-          "rear_solo_fore_far.png": "bec9e8755d6c0959e7f9b0110a0190cd67c7d52b8c7652e1a158363d83fc9791",
-          "rear_solo_hand_far.png": "e5059d18962c0437c5fba8010ee27feadf44e6de27be543a2101b2952c936e70",
-          "rear_solo_thigh_far.png": "d7341f86d9099762652068532f856dad60d82f17b7d886a99af26734401b73cc",
-          "rear_solo_shin_far.png": "0f9234bdd2a895e0ed303f0d8877bf683f871377278d87e8b03fe1b41e33c4b2",
-          "rear_solo_foot_far.png": "44c27b33a3d8044416c844937af0c45871fde10798d9d182246d717625101c8b"
-        },
-        "source_ownership": "experiments/cutouts/glacial_mirror/rr18/rear_baseline/layouts/rear.json",
-        "source_ownership_sha256": "b6f07157b529a96c853d6c62337abc1435bbe52c1b23065b996ee767abce97c1"
-      }
-    },
-    "director_sha256": "337accb0aba49c60f0e9848ab10987a3431bdfc20986a9bf86c3a42be56bff3f",
-    "production_promoted": true,
-    "native_proof": "pending director windowed captures"
+    "rear": {
+      "ok": true,
+      "errors": [],
+      "mismatch_pixels": 0,
+      "snapshot_mismatch_pixels": 0,
+      "scope": "exact density-derived source-space rest; native seal pending director"
+    }
   },
   "production_logic": {
     "front": {
-      "report": "/private/tmp/labyrinth_codex/rr18-production-front-final/logic_frames.json",
+      "report": "/private/tmp/labyrinth_codex/rr18-feedback1-production-front/logic_frames.json",
       "frames": 940,
       "current_bindings": true,
       "native_pixels": false
     },
     "rear": {
-      "report": "/private/tmp/labyrinth_codex/rr18-production-rear-final/logic_frames.json",
+      "report": "/private/tmp/labyrinth_codex/rr18-feedback1-production-rear/logic_frames.json",
       "frames": 940,
       "current_bindings": true,
       "native_pixels": false
@@ -715,50 +74,60 @@
   },
   "results": {
     "focused-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-focused-final.log",
-      "log_sha256": "9fabe15e25c65ab9dfef510d494d0154fd418a07145ab4b7de8f5b8c0bd5e981",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-focused-final.log",
+      "log_sha256": "731b5b0feb4aff3f6e244a8b125fbae2cd15146e73532ce2dff48c645207bbc1",
       "result_lines": [
-        "Ran 184 tests in 155.104s",
+        "Ran 188 tests in 168.799s",
         "OK",
         "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
         "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
         "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)"
       ]
     },
-    "runtime-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-runtime-final.log",
-      "log_sha256": "ff62b985b4c65fca222e81d4fd77d8e67c3cf59e039d300e69b9c4839830017f",
+    "unit-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-unit-final.log",
+      "log_sha256": "1d4b5a77c8e09a11525b513e76414e281c2673f957e40199f6f4d1dd76d9e2bd",
+      "result_lines": [
+        "Ran 18 tests in 12.794s",
+        "OK"
+      ]
+    },
+    "runtime": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-runtime.log",
+      "log_sha256": "c604598b4cae46de3e4c0522e8e5783ab2103ef13809cf7b4538f9a0c3ff36c1",
       "result_lines": [
         "RR18 RUNTIME: PASS (5964 checks; headless logic only)"
       ]
     },
     "samples": {
-      "log": "/private/tmp/labyrinth_codex/rr18-samples.log",
-      "log_sha256": "7dff3e6db6e3d9c62f6e363785c58273f0273d9c46c76eb9ab6bede9dedd11f5",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-samples.log",
+      "log_sha256": "e42fb28ad48113715af4f1271ff845abdcceef34e17e750bd622ce70a6877b50",
       "result_lines": [
         "RR10 BONE SAMPLES: PASS (896 poses; headless transforms only)"
       ]
     },
-    "gates": {
-      "log": "/private/tmp/labyrinth_codex/rr18-gates.log",
-      "log_sha256": "332fb7f3d480b7b4ef722babab98cd75b86aba0eec1b888a46729ae71c74585e",
+    "gates-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-gates-final.log",
+      "log_sha256": "5f4c0acf0c0954149edf34a04b1e07ae894237e61ed9e1fa1a0e2b4123761753",
       "result_lines": [
-        "RR18 FRONT KNEES: FAIL (26 errors)",
-        "RR18 FRONT SUPPORTS: FAIL (19 errors)",
+        "RR18 FRONT KNEES: PASS (0 errors)",
+        "RR18 FRONT SUPPORTS: PASS (0 errors)",
         "RR18 FRONT DIRECTIONS: PASS (0 errors)",
         "RR18 FRONT REACH: PASS (0 errors)",
-        "RR18 FRONT PRODUCTION_REST: FAIL (1 errors)",
-        "RR18 REAR KNEES: FAIL (15 errors)",
-        "RR18 REAR SUPPORTS: FAIL (38 errors)",
+        "RR18 FRONT PRODUCTION_REST: PASS (0 errors)",
+        "RR18 FRONT SEAMS: FAIL (20 errors)",
+        "RR18 REAR KNEES: PASS (0 errors)",
+        "RR18 REAR SUPPORTS: PASS (0 errors)",
         "RR18 REAR DIRECTIONS: PASS (0 errors)",
         "RR18 REAR REACH: PASS (0 errors)",
-        "RR18 REAR PRODUCTION_REST: FAIL (1 errors)",
+        "RR18 REAR PRODUCTION_REST: PASS (0 errors)",
+        "RR18 REAR SEAMS: FAIL (122 errors)",
         "RR18 SOURCE/CUT GATES: PASS (0 errors; both views)",
-        "RR18 ALL GATES: FAIL (100 unique errors)"
+        "RR18 ALL GATES: FAIL (142 unique errors)"
       ]
     },
     "mutations": {
-      "log": "/private/tmp/labyrinth_codex/rr18-mutations.log",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-mutations.log",
       "log_sha256": "3fd67716b07a4cb6df63de21b6d733af2d10a6fa313e5c71fdedc92fe73e0e8e",
       "result_lines": [
         "RR18 MUTATION production rest identity: CAUGHT",
@@ -769,122 +138,139 @@
         "RR18 MUTATION support stationarity: CAUGHT"
       ]
     },
-    "production-front-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-production-front-final.log",
-      "log_sha256": "40d18a0dac2582a5fdda56a5f21c0f64c55896cafad99e1338be47b21ad182ef",
+    "production-front": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-production-front.log",
+      "log_sha256": "d23b40a915c5883bef25ff31743931202201f90902c55d534d40102d715108b5",
       "result_lines": [
         "MAQUETTE PRODUCTION LOGIC: PASS (940 frames)"
       ]
     },
-    "production-rear-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-production-rear-final.log",
-      "log_sha256": "799f924aa02e5595273fd0e2512b114e090e15e66cdcbb87edecf3d081488da4",
+    "production-rear": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-production-rear.log",
+      "log_sha256": "0a5f1ce4daa215360391290dc8a12135e88875be6c8d620e0e9bfc785ca0f92c",
       "result_lines": [
         "MAQUETTE PRODUCTION LOGIC: PASS (940 frames)"
       ]
     },
-    "seer-runtime": {
-      "log": "/private/tmp/labyrinth_codex/rr18-seer-runtime.log",
-      "log_sha256": "7493ad2adcdb786033e11b8e52652069902e21c429210469dbabee7767e8af87",
-      "result_lines": [
-        "RR10 RUNTIME: PASS (10 checks; headless logic only)"
-      ]
-    },
-    "thrall-runtime": {
-      "log": "/private/tmp/labyrinth_codex/rr18-thrall-runtime.log",
-      "log_sha256": "06c9024abff823b573501959995a8ca670af935e39109740450b923a96501fbe",
-      "result_lines": [
-        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
-      ]
-    },
-    "native-validate": {
-      "log": "/private/tmp/labyrinth_codex/rr18-native-validate.log",
-      "log_sha256": "4fec87db844bb0c8c979db35e5aba628817e8b79f4fdf9d093c6b56453f5f886",
+    "native-load": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-native-load.log",
+      "log_sha256": "587cbaa35f2f95063458eae8e4359d7752ff0bf925d8c05ce176412311e7b354",
       "result_lines": [
         "RR18 NATIVE PROBE LOAD: PASS"
       ]
     },
     "sfx0": {
-      "log": "/private/tmp/labyrinth_codex/rr18-sfx0.log",
-      "log_sha256": "e7833ae65a68abe3d95182210e37ad44d63e9930b27124f3f03956f30430533f",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-sfx0.log",
+      "log_sha256": "f0d797da393622216d4242ecf791a12ba742c9ff8f1b92ebdc7893ce50fef303",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
       ]
     },
     "sfx1": {
-      "log": "/private/tmp/labyrinth_codex/rr18-sfx1.log",
-      "log_sha256": "dad77f3cf70f2213f7b3327ba8759590ebf692c1a051b47e5e5d336b98c12f1c",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-sfx1.log",
+      "log_sha256": "9d5b0cb028a5b7a4a6b3a89c1921c85101eb8d570eec727b9c46157589346b9d",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
       ]
     },
     "sfx2": {
-      "log": "/private/tmp/labyrinth_codex/rr18-sfx2.log",
-      "log_sha256": "ba42a1f81fdcf1d3e803eb6da8f519a6e2e4290b1e8f8aeb2534b99248c57908",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-sfx2.log",
+      "log_sha256": "81ae8ee49400a7c801a4dbc3182142023b4afa1ddc1dcad32d7efdda9587babe",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
       ]
     },
-    "registration-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-registration-final.log",
+    "registration": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-registration.log",
       "log_sha256": "9b1822beb8111c258af1be73ca53c76f39197de60e2db812f36009be230bea37",
       "result_lines": [
         "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
       ]
     },
     "art-identity": {
-      "log": "/private/tmp/labyrinth_codex/rr18-art-identity.log",
-      "log_sha256": "c8df9b6354f3fa2f862d8dd29a2f629a175bcfbdf9af7e65e80b947381b5dca0",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-art-identity.log",
+      "log_sha256": "2fe454f602704745b5eec2e869fe51d3b683c90fddabb7c9ee3c869c8f5a50c9",
       "result_lines": [
-        "Ran 111 tests in 46.484s",
+        "Ran 111 tests in 38.484s",
         "OK"
       ]
     },
     "icon-identity": {
-      "log": "/private/tmp/labyrinth_codex/rr18-icon-identity.log",
-      "log_sha256": "43fe7cd1a706ff555316f9643ea869284f7a5bdd5550ff21e6be0f410d3834c9",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-icon-identity.log",
+      "log_sha256": "bee1deaeee8a500be7b285bf332ca87c31cd4a45337eff4bd8ff3032b84d90a2",
       "result_lines": [
-        "Ran 7 tests in 0.086s",
+        "Ran 7 tests in 0.075s",
         "OK"
       ]
     },
     "sidecars": {
-      "log": "/private/tmp/labyrinth_codex/rr18-sidecars.log",
-      "log_sha256": "ff6877c31a764ed65c2ee9571aa42611f3eb5cdd8f57c30ce752eecb878c073b",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-sidecars.log",
+      "log_sha256": "ea98e56c04f612513a2f1604bfa85a2f10a27a92727d70a37f681e855c0eb23c",
       "result_lines": [
-        "Ran 19 tests in 1.019s",
+        "Ran 19 tests in 1.541s",
         "OK",
         "GODOT SIDECARS: gitignored exemptions = 1724"
       ]
     },
     "density": {
-      "log": "/private/tmp/labyrinth_codex/rr18-density.log",
-      "log_sha256": "6fe41d61052cb36a4f9245ee1b080ffe736ce350b0ad9e89559df9d876d474d4",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-density.log",
+      "log_sha256": "5a36b6bb88f1720b18379c748167a89ed173bd3f93686e79eaf57f92666f8af5",
       "result_lines": [
-        "ADOPTED 6 source file(s)",
-        "PROCESSED 60 file(s)",
         "RR18 DENSITY PAINT: PASS (both views adopted/processed; native rest records pending director)"
       ]
     },
+    "build": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-build.log",
+      "log_sha256": "97f910703a5bf357038beebb3a96d7e30193d1e1895fc0bec36e192330902fc8",
+      "result_lines": [
+        "RR18 FRONT BUILD: PASS (rest mismatch: 0 px; all rigid; protected tracks byte-identical)",
+        "RR18 REAR BUILD: PASS (rest mismatch: 0 px; all rigid; protected tracks byte-identical)"
+      ]
+    },
     "shadow": {
-      "log": "/private/tmp/labyrinth_codex/rr18-shadow.log",
-      "log_sha256": "cafcffc56accaf42eeb6262834564e92ee160cd562343db39bc924c185c4cc40",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback1-shadow.log",
+      "log_sha256": "50d95506bdc2703568f8869e8133e66d47f25a131645cd38dacedb2e1d349147",
       "result_lines": [
         "RR18 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
       ]
     }
   },
-  "director_proof_command_prefix": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh",
-  "director_proof_stages": [
-    "density",
-    "rest",
-    "native",
-    "sheets",
-    "idle",
-    "production",
-    "review"
+  "director_proof_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh review"
   ],
   "inspection_fixture": "none requested in brief; design owner prepares fixture",
-  "capture_paths": "experiments/cutouts/glacial_mirror/rr18/proof/{native_rest,native,contact_sheets,idle_native,production_native}; none captured here",
-  "diff_check": "git diff --check exited 0"
+  "capture_paths": "proof/{native_rest,native,contact_sheets,idle_native,production_native}; no native captures made; ignored CPU diagnostics at proof/seam_cpu",
+  "preservation": {
+    "ok": true,
+    "checked_tracked_files": 3616,
+    "unrelated_identity_density_records": "byte-equivalent JSON values",
+    "errors": []
+  },
+  "chosen_defaults": [
+    "PROGRESS_INTERVAL_FRAMES=50 (inherited diagnostic cadence)",
+    "proof-only production rest caption; existing proof cameras, fixtures and timeouts retained"
+  ],
+  "diff_check": "git diff --check exited 0",
+  "source_layer_identity": {
+    "ok": true,
+    "visible_hidden_layers": 60,
+    "comparison": "Git HEAD source-coordinate RGBA equality; crop bounds only changed"
+  },
+  "director_import": {
+    "ok": true,
+    "scope": "authoring and production byte-identical to protected staged director file"
+  },
+  "ownership": {
+    "ok": true,
+    "branch": "codex/rr-18",
+    "staged_files": 0,
+    "tracked_changed_files": 250
+  },
+  "captures_gitignored": true
 }

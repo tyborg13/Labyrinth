@@ -2,9 +2,9 @@
   "front": {
     "ok": true,
     "errors": [],
-    "positive_checks": 568,
+    "positive_checks": 555,
     "clip_positive_checks": {
-      "move": 78,
+      "move": 65,
       "refraction": 100,
       "guard": 122,
       "hit": 60,
@@ -15,9 +15,9 @@
   "rear": {
     "ok": true,
     "errors": [],
-    "positive_checks": 568,
+    "positive_checks": 555,
     "clip_positive_checks": {
-      "move": 78,
+      "move": 65,
       "refraction": 100,
       "guard": 122,
       "hit": 60,

@@ -3,6 +3,7 @@ extends SceneTree
 ## Windowed renderer only. All pieces/check masks use the real joint_meshes
 ## path. Clones isolate layers in parallel; none are CPU-skinned or rasterized.
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
+const ProductionRig = preload("res://assets/units/glacial_mirror_cutout/rig.gd")
 const Hero = preload("res://scripts/protagonist_cutout/rig.gd")
 const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
 const Samples = preload("res://tests/rr10/samples.gd")
@@ -21,6 +22,9 @@ var data: Dictionary
 var anatomy: Dictionary
 var rigs: Array[Node2D]
 var primary: Dictionary = {}
+var production: Dictionary = {}
+var production_rests: Dictionary = {}
+var production_canvas: SubViewport
 var groups: Dictionary = {}
 var isolated: Dictionary = {}
 var records: Array[Dictionary]
@@ -53,6 +57,8 @@ func _run() -> void:
 	anatomy = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
 	if args.has("--validate-only"):
 		for view: String in data["view_tracks"]:
+			var production_rig: Node2D = make_production_rig(view)
+			if production_rig.layout["joint_meshes"].size() != 0: failures.append("Production rest must use rigid sprites")
 			var rig: Node2D = make_rig(view)
 			for part: Dictionary in rig.layout["parts"]:
 				var node: Node2D = painted_node(rig,str(part["name"]))
@@ -113,6 +119,19 @@ func _run() -> void:
 				if part["logical_part"] in rig.layout["idle_groups"][group]: selected.append(str(part["name"]))
 			isolate(group_rig, selected)
 			groups[view + "/" + group] = group_rig
+	if args.has("--rest-only"):
+		var source_canvas: SubViewport = canvas
+		production_canvas = viewport(SIZE, false)
+		production_canvas.add_child(background.duplicate())
+		var production_label: Label = label.duplicate() as Label
+		production_label.text = "Density-processed production rest"
+		production_canvas.add_child(production_label)
+		canvas = production_canvas
+		for view: String in data["view_tracks"]:
+			var rig: Node2D = make_production_rig(view)
+			production[view] = rig
+			display(rig.get_parent(), SIZE.x * (0.25 if view == "front" else 0.75))
+		canvas = source_canvas
 	for rig: Node2D in rigs: rig.apply_pose("rest", 0.0)
 	await draw_frame()
 	for view: String in primary:
@@ -121,6 +140,20 @@ func _run() -> void:
 		var source: Image = Image.load_from_file(directory.path_join("source/" + view + "/processed.png"))
 		source.convert(Image.FORMAT_RGBA8)
 		if image.get_data() != source.get_data(): failures.append(view + ": native rest mismatch")
+	for view: String in production:
+		var rig: Node2D = production[view]
+		var image: Image = picture(rig).get_region(Rect2i(128,128,255,255))
+		var relative: String = "production_" + view + "_rest.png"
+		image.save_png(output.path_join(relative))
+		var reference: String = rig.base_path().path_join(str(rig.layout["rest_source"]))
+		var expected: Image = Image.load_from_file(reference)
+		expected.convert(Image.FORMAT_RGBA8)
+		var equal: bool = image.get_data() == expected.get_data()
+		if not equal: failures.append(view + ": native production rest differs from density-processed reference")
+		production_rests[view] = {"file": relative, "sha256": FileAccess.get_sha256(output.path_join(relative)),
+			"reference": reference, "reference_sha256": FileAccess.get_sha256(reference), "equal": equal}
+	if production_canvas != null:
+		production_canvas.get_texture().get_image().save_png(output.path_join("production_rest_pair.png"))
 	for key: String in groups: picture(groups[key]).save_png(path("groups/" + key + "_rest.png"))
 	canvas.get_texture().get_image().save_png(output.path_join("rest_pair.png"))
 	if args.has("--idle-comparison"):
@@ -190,10 +223,11 @@ func _run() -> void:
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify({"native_pixels": true, "size": [1920,1080], "ui_scale": 1.0, "fps": FPS,
 		"inputs": _binding_script.for_case(directory), "frames": records, "pairs": pairs, "pieces": pieces,
-		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams,
+		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams, "production_rests": production_rests,
 		"errors": failures, "ok": failures.is_empty()}))
 	print("RR18 NATIVE CAPTURE: " + ("PASS" if failures.is_empty() else "FAIL"))
 	print(ProjectSettings.globalize_path(output.path_join("rest_pair.png")))
+	if production_canvas != null: print(ProjectSettings.globalize_path(output.path_join("production_rest_pair.png")))
 	if args.has("--idle-comparison"):
 		var count: int = roundi(0.84 * FPS * IDLE_COMPARISON_LOOPS)
 		for sample: int in range(PROOF_REPRESENTATIVES):
@@ -219,6 +253,15 @@ func viewport(size: Vector2i, transparent: bool) -> SubViewport:
 	result.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(result)
 	return result
+
+func make_production_rig(view: String) -> Node2D:
+	var rig := ProductionRig.new()
+	rig.facing = view
+	rig.position = ORIGIN
+	viewport(POSE_SIZE,true).add_child(rig)
+	if not rig.load_rig(): failures.append(str(rig.load_errors))
+	rig.apply_pose("rest", 0.0)
+	return rig
 
 func make_rig(view: String) -> Node2D:
 	var rig := Rig.new()

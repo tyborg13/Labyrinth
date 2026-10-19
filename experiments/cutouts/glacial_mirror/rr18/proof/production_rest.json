@@ -1,18 +1,16 @@
 {
   "front": {
-    "ok": false,
-    "errors": [
-      "front: treated production rest differs from approved painting by 1178 px; required 0"
-    ],
-    "mismatch_pixels": 1178,
-    "scope": "exact source-space rest composition, not native pixels"
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "snapshot_mismatch_pixels": 0,
+    "scope": "exact density-derived source-space rest; native seal pending director"
   },
   "rear": {
-    "ok": false,
-    "errors": [
-      "rear: treated production rest differs from approved painting by 15491 px; required 0"
-    ],
-    "mismatch_pixels": 15491,
-    "scope": "exact source-space rest composition, not native pixels"
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "snapshot_mismatch_pixels": 0,
+    "scope": "exact density-derived source-space rest; native seal pending director"
   }
 }

@@ -1,17 +1,6 @@
 {
   "ok": true,
   "checked_tracked_files": 3616,
-  "errors": [],
-  "registries": {
-    "spec/art_identity/registry.json": {
-      "other_unit_records_unchanged": true
-    },
-    "spec/assets/board_pixel_density/registry.json": {
-      "other_unit_records_unchanged": true
-    },
-    "spec/assets/board_pixel_density/outputs.json": {
-      "other_unit_records_unchanged": true
-    }
-  },
-  "native_pixel_comparison": "not run: director windowed proof pending; unchanged render inputs and fresh Seer/Thrall pose tests are the headless preservation evidence"
+  "unrelated_identity_density_records": "byte-equivalent JSON values",
+  "errors": []
 }

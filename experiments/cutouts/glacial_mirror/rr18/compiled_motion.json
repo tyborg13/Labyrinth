@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "glacial_mirror",
-  "director_sha256": "337accb0aba49c60f0e9848ab10987a3431bdfc20986a9bf86c3a42be56bff3f",
+  "director_sha256": "13a341463c26cecc0ad693bcc34067336dcc06aa3547528ad999fd8c002bc438",
   "projection": {
     "front": {
       "forward": [
@@ -32,7 +32,7 @@
       "intents": [
         "advance:move_toward"
       ],
-      "note": "a plodding step-to: the camera-side leg (stride) takes one full-tile step with a 6 px stomp lift and a bent knee, the other leg (trailing) steps up to meet it; the pelvis drops 3 px as each foot lands and the torso jolts 1 px after it; the arms swing opposite the legs like heavy pendulums",
+      "note": "a heavy plod on the Thrall's proven pattern: the long camera-side leg (stride) plants two half-tile world steps with a 5 px stomp lift and a bent knee; the foreshortened leg (trailing) follows the body with a 2 px shuffle between strides; the pelvis never rises above rest and drops 3 px after each landing, the torso jolts 1 px on each plant; the fists sway",
       "release_at": {}
     },
     "refraction": {
@@ -144,7 +144,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.45,
+              "at": 0.38,
+              "value": 0.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 0.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.83,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
@@ -172,12 +182,27 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
-              "value": 6,
+              "at": 0.2,
+              "value": 5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.45,
+              "at": 0.38,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.83,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -200,22 +225,42 @@
               "interpolation": "smoothstep"
             },
             {
+              "at": 0.38,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.44,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
               "at": 0.5,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.9,
-              "value": 1.0,
+              "at": 0.83,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.89,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 0,
               "interpolation": "smoothstep"
             },
             {
               "at": 1,
-              "value": 1.0,
+              "value": 0,
               "interpolation": "smoothstep"
             }
           ],
-          "forward_mode": "world_step"
+          "forward_mode": "body"
         },
         {
           "source": "foot_trailing.lift_px",
@@ -228,17 +273,32 @@
               "interpolation": "smoothstep"
             },
             {
+              "at": 0.38,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.44,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
               "at": 0.5,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
-              "value": 5,
+              "at": 0.83,
+              "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.9,
+              "at": 0.89,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -248,7 +308,7 @@
               "interpolation": "smoothstep"
             }
           ],
-          "forward_mode": "world_step"
+          "forward_mode": "body"
         },
         {
           "source": "pelvis.lift_px",
@@ -261,32 +321,32 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.05,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
               "value": -1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.3,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.47,
+              "at": 0.4,
               "value": -3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.6,
+              "at": 0.5,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
               "value": -1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.75,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
+              "at": 0.85,
               "value": -3,
               "interpolation": "smoothstep"
             },
@@ -309,29 +369,34 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.47,
+              "at": 0.38,
               "value": 0,
               "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.42,
+              "value": -1,
+              "interpolation": "linear"
             },
             {
               "at": 0.5,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.83,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.87,
               "value": -1,
               "interpolation": "linear"
-            },
-            {
-              "at": 0.58,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
-              "value": 0,
-              "interpolation": "smoothstep"
             },
             {
               "at": 0.95,
-              "value": -1,
-              "interpolation": "linear"
+              "value": 0,
+              "interpolation": "smoothstep"
             },
             {
               "at": 1,
@@ -352,22 +417,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
+              "at": 0.2,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.47,
+              "at": 0.4,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
+              "at": 0.65,
               "value": -2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.92,
+              "at": 0.85,
               "value": -1.0,
               "interpolation": "smoothstep"
             },
@@ -390,22 +455,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
-              "value": -4,
+              "at": 0.2,
+              "value": -3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
-              "value": 4,
+              "at": 0.65,
+              "value": -3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -428,22 +493,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
+              "at": 0.2,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
+              "at": 0.65,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -466,22 +531,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
-              "value": 4,
+              "at": 0.2,
+              "value": 3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
-              "value": -4,
+              "at": 0.65,
+              "value": 3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -504,22 +569,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
+              "at": 0.2,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
+              "at": 0.65,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -1674,7 +1739,17 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.45,
+              "at": 0.38,
+              "value": 0.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 0.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.83,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
@@ -1702,12 +1777,27 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
-              "value": 6,
+              "at": 0.2,
+              "value": 5,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.45,
+              "at": 0.38,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
+              "value": 5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.83,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -1730,22 +1820,42 @@
               "interpolation": "smoothstep"
             },
             {
+              "at": 0.38,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.44,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
               "at": 0.5,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.9,
-              "value": 1.0,
+              "at": 0.83,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.89,
+              "value": 2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
+              "value": 0,
               "interpolation": "smoothstep"
             },
             {
               "at": 1,
-              "value": 1.0,
+              "value": 0,
               "interpolation": "smoothstep"
             }
           ],
-          "forward_mode": "world_step"
+          "forward_mode": "body"
         },
         {
           "source": "foot_trailing.lift_px",
@@ -1758,17 +1868,32 @@
               "interpolation": "smoothstep"
             },
             {
+              "at": 0.38,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.44,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
               "at": 0.5,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
-              "value": 5,
+              "at": 0.83,
+              "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.9,
+              "at": 0.89,
+              "value": 3,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.95,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -1778,7 +1903,7 @@
               "interpolation": "smoothstep"
             }
           ],
-          "forward_mode": "world_step"
+          "forward_mode": "body"
         },
         {
           "source": "pelvis.lift_px",
@@ -1791,32 +1916,32 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.1,
+              "at": 0.05,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
               "value": -1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.3,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.47,
+              "at": 0.4,
               "value": -3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.6,
+              "at": 0.5,
+              "value": -2,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
               "value": -1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.75,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
+              "at": 0.85,
               "value": -3,
               "interpolation": "smoothstep"
             },
@@ -1839,29 +1964,34 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.47,
+              "at": 0.38,
               "value": 0,
               "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.42,
+              "value": -1,
+              "interpolation": "linear"
             },
             {
               "at": 0.5,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.83,
+              "value": 0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.87,
               "value": -1,
               "interpolation": "linear"
-            },
-            {
-              "at": 0.58,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.92,
-              "value": 0,
-              "interpolation": "smoothstep"
             },
             {
               "at": 0.95,
-              "value": -1,
-              "interpolation": "linear"
+              "value": 0,
+              "interpolation": "smoothstep"
             },
             {
               "at": 1,
@@ -1882,22 +2012,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
+              "at": 0.2,
               "value": 2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.47,
+              "at": 0.4,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
+              "at": 0.65,
               "value": 2.0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.92,
+              "at": 0.85,
               "value": 1.0,
               "interpolation": "smoothstep"
             },
@@ -1920,22 +2050,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
-              "value": -4,
+              "at": 0.2,
+              "value": -3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
-              "value": 4,
+              "at": 0.65,
+              "value": -3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -1958,22 +2088,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
+              "at": 0.2,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
+              "at": 0.65,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -1996,22 +2126,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
-              "value": 4,
+              "at": 0.2,
+              "value": 3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
-              "value": -4,
+              "at": 0.65,
+              "value": 3,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -2034,22 +2164,22 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.25,
+              "at": 0.2,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.5,
+              "at": 0.4,
               "value": 0,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.7,
+              "at": 0.65,
               "value": 1,
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.95,
+              "at": 0.85,
               "value": 0,
               "interpolation": "smoothstep"
             },
@@ -3146,7 +3276,7 @@
       "move": {
         "root": "fraction_of_step",
         "foot_near": "world_step",
-        "foot_far": "world_step"
+        "foot_far": "body"
       },
       "refraction": {},
       "guard": {},
@@ -3158,7 +3288,7 @@
       "move": {
         "root": "fraction_of_step",
         "foot_far": "world_step",
-        "foot_near": "world_step"
+        "foot_near": "body"
       },
       "refraction": {},
       "guard": {},
@@ -3167,15 +3297,15 @@
     }
   },
   "knee_policy": {
-    "near_straight_deg": 6
+    "near_straight_deg": 10
   },
   "legs": {
     "near": {
       "front": {
-        "bend_side": -1
+        "bend_side": 1
       },
       "rear": {
-        "bend_side": 1
+        "bend_side": -1
       }
     },
     "far": {

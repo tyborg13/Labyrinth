@@ -22,6 +22,8 @@ from humanoid_cutout.compiler import compile_motion
 from maquette_motion.silhouette import components
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
+from humanoid_cutout.cpu_pose import CpuPose, sprite_transform
+from rr18_seams import frame_state
 
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID','rr-18')
 PROOF_TIMEOUT_SECONDS = 180
@@ -90,6 +92,49 @@ class MirrorTests(unittest.TestCase):
             self.assertEqual(report['dense_intervals'],1000)
             self.assertTrue(report['overreach'])
 
+    def test_revised_stride_gait_and_density_rests_pass(self):
+        for view,layout in self.layouts.items():
+            self.assertEqual(read_json(CASE/'anatomy.json')['knee_policy']['near_straight_deg'],10)
+            self.assertEqual(knee_report(layout,self.data,self.samples)['errors'],[])
+            self.assertEqual(support_report(layout,self.data,self.samples)['errors'],[])
+            report=production_rest_report(layout,CASE,ASSETS)
+            self.assertEqual(report['errors'],[])
+            self.assertEqual(report['snapshot_mismatch_pixels'],0)
+            self.assertEqual(len(knee_report(layout,self.data,self.samples)['swings']),2)
+            trailing='foot_'+layout['leg_roles']['trailing']
+            track=next(t for t in self.data['view_tracks'][view]['move'] if t['bone']==trailing and t['channel']=='forward_px')
+            self.assertEqual(track['forward_mode'],'body')
+
+    def test_boulder_layers_share_registered_anchor_in_real_runtime(self):
+        for view,layout in self.layouts.items():
+            for part in layout['parts']:
+                main=next(p for p in layout['parts'] if not p.get('hidden_material') and p['logical_part']==part['logical_part'])
+                self.assertEqual(part['presentation_anchor'],main['presentation_anchor'])
+                self.assertEqual(part['bbox'],main['bbox'])
+            for row in self.samples['samples']:
+                if row['view']!=view or row['kind']!='presented':continue
+                for part in layout['parts']:
+                    t=sprite_transform(layout,row,part)
+                    packed=[t[0,0],t[1,0],t[0,1],t[1,1],t[0,2],t[1,2]]
+                    np.testing.assert_allclose(row['parts'][part['name']]['transform'],packed,atol=.0001,rtol=0)
+
+    def test_independent_crop_snap_mutation_reopens_internal_seams(self):
+        layout=copy.deepcopy(self.layouts['front'])
+        row=next(r for r in self.samples['samples'] if r['view']=='front' and r['clip']=='move' and r['kind']=='presented' and r['frame']==22)
+        self.assertEqual(frame_state(CpuPose(CASE,layout),row)[1],[])
+        for part in layout['parts']:
+            part.pop('presentation_anchor',None)
+            image=Image.open(CASE/part['file']).convert('RGBA');box=image.getbbox()
+            # Store each old independent crop only in the temporary fixture.
+            part['offset']=[part['offset'][0]+box[0],part['offset'][1]+box[1]]
+            part['bbox']=[*part['offset'],part['offset'][0]+box[2]-box[0],part['offset'][1]+box[3]-box[1]]
+            part['fixture_crop']=box
+        model=CpuPose(CASE,layout)
+        for part in layout['parts']:
+            model.images[part['file']]=np.asarray(Image.open(CASE/part['file']).convert('RGBA').crop(part['fixture_crop']))
+            model.images[layout['proof_layers'][part['name']]['mask']]=np.asarray(Image.open(CASE/layout['proof_layers'][part['name']]['mask']).convert('RGBA').crop(part['fixture_crop']))
+        self.assertTrue(frame_state(model,row)[1])
+
     def test_runtime_adapters_and_contact_reduced_motion(self):
         self.assertIn('RR18 RUNTIME: PASS',godot('tests/rr18/runtime_test.gd'))
 
@@ -121,11 +166,11 @@ class MirrorTests(unittest.TestCase):
     def test_mutation_second_swing_no_knee_is_caught(self):
         samples=copy.deepcopy(self.samples)
         for row in samples['samples']:
-            if row['view']=='front' and row['clip']=='move' and row['kind']=='presented' and .5<row['phase']<.9:
-                a,c=[np.array(row['bones'][p+'_far']['global'][4:]) for p in ('thigh','foot')]
-                row['bones']['shin_far']['global'][4:]=((a+c)/2).tolist()
+            if row['view']=='front' and row['clip']=='move' and row['kind']=='presented' and .5<row['phase']<.83:
+                a,c=[np.array(row['bones'][p+'_near']['global'][4:]) for p in ('thigh','foot')]
+                row['bones']['shin_near']['global'][4:]=((a+c)/2).tolist()
         errors=knee_report(self.layouts['front'],self.data,samples)['errors']
-        self.assertIn('front/far: swing peak below 15 degrees',errors)
+        self.assertIn('front/near: swing peak below 15 degrees',errors)
 
     def test_mutation_action_support_slide_is_caught(self):
         samples=copy.deepcopy(self.samples)
@@ -146,8 +191,6 @@ class MirrorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rr18-production-rest-') as folder:
             assets=Path(folder)/'assets';shutil.copytree(ASSETS,assets)
             for view,layout in self.layouts.items():
-                for part in layout['parts']:
-                    shutil.copyfile(CASE/part['file'],assets/'humanoid_v2'/view/Path(part['file']).name)
                 self.assertEqual(production_rest_report(layout,CASE,assets)['mismatch_pixels'],0)
                 path=assets/'humanoid_v2'/view/'torso.png'
                 pixels=np.array(Image.open(path).convert('RGBA'))
@@ -156,6 +199,19 @@ class MirrorTests(unittest.TestCase):
                 report=production_rest_report(layout,CASE,assets)
                 self.assertFalse(report['ok'])
                 self.assertEqual(report['mismatch_pixels'],1)
+
+    def test_density_snapshot_mutation_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix='rr18-density-snapshot-') as folder:
+            assets=Path(folder)/'assets';shutil.copytree(ASSETS,assets)
+            for view,layout in self.layouts.items():
+                path=assets/'humanoid_v2'/view/'rest.png'
+                pixels=np.array(Image.open(path).convert('RGBA'))
+                y,x=np.argwhere(pixels[...,3]>0)[0]
+                pixels[y,x,0]^=FIXTURE_RGB_XOR_MASK;Image.fromarray(pixels).save(path)
+                report=production_rest_report(layout,CASE,assets)
+                self.assertFalse(report['ok'])
+                self.assertEqual(report['mismatch_pixels'],0)
+                self.assertEqual(report['snapshot_mismatch_pixels'],1)
 
     def test_other_creatures_and_director_inputs_unchanged(self):
         prefixes=('assets/units/arc_thrall_cutout/','assets/units/hoarfrost_seer_cutout/',

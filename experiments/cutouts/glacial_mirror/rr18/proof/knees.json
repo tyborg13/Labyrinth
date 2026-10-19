@@ -1,54 +1,27 @@
 {
   "front": {
-    "ok": false,
-    "errors": [
-      "front/move/frame 0/near: knee bends against facing",
-      "front/move/frame 1/near: knee bends against facing",
-      "front/move/frame 2/near: knee bends against facing",
-      "front/move/frame 3/near: knee bends against facing",
-      "front/move/frame 4/near: knee bends against facing",
-      "front/move/frame 5/near: knee bends against facing",
-      "front/move/frame 6/near: knee bends against facing",
-      "front/move/frame 7/near: knee bends against facing",
-      "front/move/frame 8/near: knee bends against facing",
-      "front/move/frame 9/near: knee bends against facing",
-      "front/move/frame 10/near: knee bends against facing",
-      "front/move/frame 11/near: knee bends against facing",
-      "front/move/frame 12/near: knee bends against facing",
-      "front/move/frame 13/near: knee bends against facing",
-      "front/move/frame 40/near: knee bends against facing",
-      "front/move/frame 41/near: knee bends against facing",
-      "front/move/frame 42/near: knee bends against facing",
-      "front/move/frame 43/near: knee bends against facing",
-      "front/move/frame 44/near: knee bends against facing",
-      "front/move/frame 45/near: knee bends against facing",
-      "front/move/frame 46/near: knee bends against facing",
-      "front/move/frame 47/near: knee bends against facing",
-      "front/move/frame 48/near: knee bends against facing",
-      "front/move/frame 49/near: knee bends against facing",
-      "front/move/frame 50/near: knee bends against facing",
-      "front/near: swing knee does not exceed stance knee at apex"
-    ],
+    "ok": true,
+    "errors": [],
     "swings": [
       {
         "side": "near",
         "start": 0.05,
-        "end": 0.45,
+        "end": 0.38,
         "peak_frame": 9,
-        "peak_bend_deg": 36.38898290049385,
-        "apex_frame": 12,
-        "apex_swing_bend_deg": 30.21778387416753,
-        "apex_stance_bend_deg": 62.233162869055185
+        "peak_bend_deg": 47.47328033524183,
+        "apex_frame": 10,
+        "apex_swing_bend_deg": 46.02915480430598,
+        "apex_stance_bend_deg": 17.477829135062354
       },
       {
-        "side": "far",
+        "side": "near",
         "start": 0.5,
-        "end": 0.9,
-        "peak_frame": 34,
-        "peak_bend_deg": 109.3654249190004,
-        "apex_frame": 35,
-        "apex_swing_bend_deg": 102.93805631718647,
-        "apex_stance_bend_deg": 8.334270966619485e-06
+        "end": 0.83,
+        "peak_frame": 33,
+        "peak_bend_deg": 53.880697162032874,
+        "apex_frame": 33,
+        "apex_swing_bend_deg": 53.880697162032874,
+        "apex_stance_bend_deg": 17.477829135062354
       }
     ],
     "frames": [
@@ -57,7 +30,7 @@
         "phase": 0.0,
         "near": {
           "bend_deg": 8.998037445321092,
-          "facing_direction_ok": false
+          "facing_direction_ok": true
         },
         "far": {
           "bend_deg": 17.477829135062354,
@@ -68,8 +41,8 @@
         "frame": 1,
         "phase": 0.02,
         "near": {
-          "bend_deg": 12.41163858922659,
-          "facing_direction_ok": false
+          "bend_deg": 19.85235843374805,
+          "facing_direction_ok": true
         },
         "far": {
           "bend_deg": 17.477829135062354,
@@ -80,11 +53,11 @@
         "frame": 2,
         "phase": 0.04,
         "near": {
-          "bend_deg": 15.805488939427521,
-          "facing_direction_ok": false
+          "bend_deg": 27.34987578006988,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 23.556265333700622,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -92,11 +65,11 @@
         "frame": 3,
         "phase": 0.06,
         "near": {
-          "bend_deg": 21.44053676790427,
-          "facing_direction_ok": false
+          "bend_deg": 29.74488129694222,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 34.41042914193233,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -104,11 +77,11 @@
         "frame": 4,
         "phase": 0.08,
         "near": {
-          "bend_deg": 23.226960534655554,
-          "facing_direction_ok": false
+          "bend_deg": 32.99943628330582,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 40.31022476535876,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -116,11 +89,11 @@
         "frame": 5,
         "phase": 0.1,
         "near": {
-          "bend_deg": 29.13976178427792,
-          "facing_direction_ok": false
+          "bend_deg": 38.884496433714595,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 41.78590207350815,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -128,11 +101,11 @@
         "frame": 6,
         "phase": 0.12,
         "near": {
-          "bend_deg": 29.13978638831595,
-          "facing_direction_ok": false
+          "bend_deg": 39.045922458233086,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 45.24433020131409,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -140,11 +113,11 @@
         "frame": 7,
         "phase": 0.14,
         "near": {
-          "bend_deg": 36.01159811581251,
-          "facing_direction_ok": false
+          "bend_deg": 40.815122731042955,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 48.12886332063467,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -152,11 +125,11 @@
         "frame": 8,
         "phase": 0.16,
         "near": {
-          "bend_deg": 35.089817228983854,
-          "facing_direction_ok": false
+          "bend_deg": 42.57072667650004,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 53.04149943955727,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -164,11 +137,11 @@
         "frame": 9,
         "phase": 0.18,
         "near": {
-          "bend_deg": 36.38898290049385,
-          "facing_direction_ok": false
+          "bend_deg": 47.47328033524183,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 58.64623731893371,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -176,11 +149,11 @@
         "frame": 10,
         "phase": 0.2,
         "near": {
-          "bend_deg": 35.7677800870716,
-          "facing_direction_ok": false
+          "bend_deg": 46.02915480430598,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 61.868709623988,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -188,11 +161,11 @@
         "frame": 11,
         "phase": 0.22,
         "near": {
-          "bend_deg": 32.47539070657433,
-          "facing_direction_ok": false
+          "bend_deg": 43.60281897270362,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 61.08383303294707,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -200,11 +173,11 @@
         "frame": 12,
         "phase": 0.24,
         "near": {
-          "bend_deg": 30.21778387416753,
-          "facing_direction_ok": false
+          "bend_deg": 40.36453657309736,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 62.233162869055185,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -212,11 +185,11 @@
         "frame": 13,
         "phase": 0.26,
         "near": {
-          "bend_deg": 19.18550561928628,
-          "facing_direction_ok": false
+          "bend_deg": 34.64996316890235,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 65.21278953888547,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -224,11 +197,11 @@
         "frame": 14,
         "phase": 0.28,
         "near": {
-          "bend_deg": 1.7357045889283889,
+          "bend_deg": 33.0262011109419,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 70.24056021225628,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -236,11 +209,11 @@
         "frame": 15,
         "phase": 0.3,
         "near": {
-          "bend_deg": 1.786423766751282,
+          "bend_deg": 28.926425835253614,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 75.32763411913386,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -248,11 +221,11 @@
         "frame": 16,
         "phase": 0.32,
         "near": {
-          "bend_deg": 1.6180945327374552,
+          "bend_deg": 23.234521638696528,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 79.0986470530022,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -260,11 +233,11 @@
         "frame": 17,
         "phase": 0.34,
         "near": {
-          "bend_deg": 0.16139613512038367,
-          "facing_direction_ok": false
+          "bend_deg": 21.34692585475849,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 81.65610841596691,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -272,11 +245,11 @@
         "frame": 18,
         "phase": 0.36,
         "near": {
-          "bend_deg": 1.9305941662826185,
-          "facing_direction_ok": false
+          "bend_deg": 23.604532687165285,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 86.45955659353086,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -284,11 +257,11 @@
         "frame": 19,
         "phase": 0.38,
         "near": {
-          "bend_deg": 2.690043566757449e-05,
-          "facing_direction_ok": false
+          "bend_deg": 28.62312171648021,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 90.35421978081443,
+          "bend_deg": 17.477829135062354,
           "facing_direction_ok": true
         }
       },
@@ -296,356 +269,8 @@
         "frame": 20,
         "phase": 0.4,
         "near": {
-          "bend_deg": 1.769191306046608,
+          "bend_deg": 28.593227853097375,
           "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 92.34619268829323,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 21,
-        "phase": 0.42,
-        "near": {
-          "bend_deg": 1.9306137168684028,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 95.7451815905953,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 22,
-        "phase": 0.44,
-        "near": {
-          "bend_deg": 0.16142241082179484,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 93.95755311412786,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 23,
-        "phase": 0.46,
-        "near": {
-          "bend_deg": 1.6180945327374552,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 97.84170321510308,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 24,
-        "phase": 0.48,
-        "near": {
-          "bend_deg": 0.1080779016292631,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 95.71059313749964,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 25,
-        "phase": 0.5,
-        "near": {
-          "bend_deg": 1.8406578587474256,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 96.19449871538184,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 26,
-        "phase": 0.52,
-        "near": {
-          "bend_deg": 0.0542060193176805,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 93.46822925891715,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 27,
-        "phase": 0.54,
-        "near": {
-          "bend_deg": 2.6492854863778236e-05,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 90.6058240328054,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 28,
-        "phase": 0.56,
-        "near": {
-          "bend_deg": 1.7899106082460694,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 94.62617932682029,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 29,
-        "phase": 0.58,
-        "near": {
-          "bend_deg": 1.6783186506710783,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 94.18491612511842,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 30,
-        "phase": 0.6,
-        "near": {
-          "bend_deg": 0.10810511608020344,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 97.35237935989237,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 31,
-        "phase": 0.62,
-        "near": {
-          "bend_deg": 1.8875957839380424,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 102.35155915003018,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 32,
-        "phase": 0.64,
-        "near": {
-          "bend_deg": 0.16142241082179484,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 104.77816173293736,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 33,
-        "phase": 0.66,
-        "near": {
-          "bend_deg": 1.9305874411669917,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 106.69924423399362,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 34,
-        "phase": 0.68,
-        "near": {
-          "bend_deg": 2.690043566757449e-05,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 109.3654249190004,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 35,
-        "phase": 0.7,
-        "near": {
-          "bend_deg": 8.334270966619485e-06,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 102.93805631718647,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 36,
-        "phase": 0.72,
-        "near": {
-          "bend_deg": 8.334270966619485e-06,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 102.40406735061117,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 37,
-        "phase": 0.74,
-        "near": {
-          "bend_deg": 1.7389961256348891,
-          "facing_direction_ok": true
-        },
-        "far": {
-          "bend_deg": 96.21922968879116,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 38,
-        "phase": 0.76,
-        "near": {
-          "bend_deg": 0.0,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 90.43405063213942,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 39,
-        "phase": 0.78,
-        "near": {
-          "bend_deg": 1.3850246349278599,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 80.27981696540014,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 40,
-        "phase": 0.8,
-        "near": {
-          "bend_deg": 12.522871552986148,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 75.34561971137909,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 41,
-        "phase": 0.82,
-        "near": {
-          "bend_deg": 21.63878220049933,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 67.27244899618867,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 42,
-        "phase": 0.84,
-        "near": {
-          "bend_deg": 25.769327624338715,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 59.23016231447763,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 43,
-        "phase": 0.86,
-        "near": {
-          "bend_deg": 30.67649416658566,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 48.35164959903565,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 44,
-        "phase": 0.88,
-        "near": {
-          "bend_deg": 34.840066069374785,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 45.75059176691689,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 45,
-        "phase": 0.9,
-        "near": {
-          "bend_deg": 34.840066069374785,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 50.539378937804884,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 46,
-        "phase": 0.92,
-        "near": {
-          "bend_deg": 34.840066069374785,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 50.539378937804884,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 47,
-        "phase": 0.94,
-        "near": {
-          "bend_deg": 34.840066069374785,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 44.67991517621834,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 48,
-        "phase": 0.96,
-        "near": {
-          "bend_deg": 27.3498484593133,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 38.26106796584309,
-          "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 49,
-        "phase": 0.98,
-        "near": {
-          "bend_deg": 16.44558444349662,
-          "facing_direction_ok": false
         },
         "far": {
           "bend_deg": 24.77514056883192,
@@ -653,11 +278,359 @@
         }
       },
       {
+        "frame": 21,
+        "phase": 0.42,
+        "near": {
+          "bend_deg": 34.2424068097659,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 31.115379226539314,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 22,
+        "phase": 0.44,
+        "near": {
+          "bend_deg": 31.480585885870614,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 37.00750357643878,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 23,
+        "phase": 0.46,
+        "near": {
+          "bend_deg": 32.99943628330582,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 29.63961964308272,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 24,
+        "phase": 0.48,
+        "near": {
+          "bend_deg": 32.7352262721076,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 24.77514056883192,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 25,
+        "phase": 0.5,
+        "near": {
+          "bend_deg": 35.134193056915635,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 26,
+        "phase": 0.52,
+        "near": {
+          "bend_deg": 36.15818543980833,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 27,
+        "phase": 0.54,
+        "near": {
+          "bend_deg": 40.0302592718897,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 28,
+        "phase": 0.56,
+        "near": {
+          "bend_deg": 44.246197930133455,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 29,
+        "phase": 0.58,
+        "near": {
+          "bend_deg": 44.30040147591645,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 30,
+        "phase": 0.6,
+        "near": {
+          "bend_deg": 49.74129897905317,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 31,
+        "phase": 0.62,
+        "near": {
+          "bend_deg": 51.6288550629119,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 32,
+        "phase": 0.64,
+        "near": {
+          "bend_deg": 52.1250163489018,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 33,
+        "phase": 0.66,
+        "near": {
+          "bend_deg": 53.880697162032874,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 34,
+        "phase": 0.68,
+        "near": {
+          "bend_deg": 52.3426181641074,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 35,
+        "phase": 0.7,
+        "near": {
+          "bend_deg": 47.15528201783896,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 36,
+        "phase": 0.72,
+        "near": {
+          "bend_deg": 48.91094509205027,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 37,
+        "phase": 0.74,
+        "near": {
+          "bend_deg": 43.28318659398406,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 38,
+        "phase": 0.76,
+        "near": {
+          "bend_deg": 38.884496433714595,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 39,
+        "phase": 0.78,
+        "near": {
+          "bend_deg": 36.6195296545066,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 40,
+        "phase": 0.8,
+        "near": {
+          "bend_deg": 36.45816202911989,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 41,
+        "phase": 0.82,
+        "near": {
+          "bend_deg": 33.32124257239892,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 42,
+        "phase": 0.84,
+        "near": {
+          "bend_deg": 37.390162842448056,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 19.990350899091503,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 43,
+        "phase": 0.86,
+        "near": {
+          "bend_deg": 35.6639631936304,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 27.26469349083108,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 44,
+        "phase": 0.88,
+        "near": {
+          "bend_deg": 35.6639631936304,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 37.00750357643878,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 45,
+        "phase": 0.9,
+        "near": {
+          "bend_deg": 31.5347952677465,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 37.00750357643878,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 46,
+        "phase": 0.92,
+        "near": {
+          "bend_deg": 28.178614371002126,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 27.26469349083108,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 47,
+        "phase": 0.94,
+        "near": {
+          "bend_deg": 23.979443467123765,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 18.606663931722995,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 48,
+        "phase": 0.96,
+        "near": {
+          "bend_deg": 16.445557360773005,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 49,
+        "phase": 0.98,
+        "near": {
+          "bend_deg": 13.011287079346339,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
         "frame": 50,
         "phase": 1.0,
         "near": {
-          "bend_deg": 8.998037445321092,
-          "facing_direction_ok": false
+          "bend_deg": 9.819326537071117,
+          "facing_direction_ok": true
         },
         "far": {
           "bend_deg": 17.477829135062354,
@@ -667,44 +640,28 @@
     ]
   },
   "rear": {
-    "ok": false,
-    "errors": [
-      "rear/move/frame 0/near: knee bends against facing",
-      "rear/move/frame 1/near: knee bends against facing",
-      "rear/move/frame 2/near: knee bends against facing",
-      "rear/move/frame 3/near: knee bends against facing",
-      "rear/move/frame 4/near: knee bends against facing",
-      "rear/move/frame 42/near: knee bends against facing",
-      "rear/move/frame 43/near: knee bends against facing",
-      "rear/move/frame 44/near: knee bends against facing",
-      "rear/move/frame 45/near: knee bends against facing",
-      "rear/move/frame 46/near: knee bends against facing",
-      "rear/move/frame 47/near: knee bends against facing",
-      "rear/move/frame 48/near: knee bends against facing",
-      "rear/move/frame 49/near: knee bends against facing",
-      "rear/move/frame 50/near: knee bends against facing",
-      "rear/near: swing knee does not exceed stance knee at apex"
-    ],
+    "ok": true,
+    "errors": [],
     "swings": [
-      {
-        "side": "near",
-        "start": 0.5,
-        "end": 0.9,
-        "peak_frame": 44,
-        "peak_bend_deg": 38.41329851249104,
-        "apex_frame": 35,
-        "apex_swing_bend_deg": 4.541977183853555,
-        "apex_stance_bend_deg": 29.019082851605067
-      },
       {
         "side": "far",
         "start": 0.05,
-        "end": 0.45,
-        "peak_frame": 14,
-        "peak_bend_deg": 59.80087005832197,
-        "apex_frame": 12,
-        "apex_swing_bend_deg": 57.555296740788556,
-        "apex_stance_bend_deg": 0.6944602875497745
+        "end": 0.38,
+        "peak_frame": 10,
+        "peak_bend_deg": 55.01164919715909,
+        "apex_frame": 10,
+        "apex_swing_bend_deg": 55.01164919715909,
+        "apex_stance_bend_deg": 10.669782804496677
+      },
+      {
+        "side": "far",
+        "start": 0.5,
+        "end": 0.83,
+        "peak_frame": 34,
+        "peak_bend_deg": 43.5904629221598,
+        "apex_frame": 33,
+        "apex_swing_bend_deg": 41.92630120054227,
+        "apex_stance_bend_deg": 10.669811119058231
       }
     ],
     "frames": [
@@ -712,8 +669,8 @@
         "frame": 0,
         "phase": 0.0,
         "near": {
-          "bend_deg": 9.536635758459411,
-          "facing_direction_ok": false
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
         },
         "far": {
           "bend_deg": 10.4209698850854,
@@ -724,11 +681,11 @@
         "frame": 1,
         "phase": 0.02,
         "near": {
-          "bend_deg": 9.536635758459411,
-          "facing_direction_ok": false
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 10.4209698850854,
+          "bend_deg": 20.3819492994063,
           "facing_direction_ok": true
         }
       },
@@ -736,11 +693,11 @@
         "frame": 2,
         "phase": 0.04,
         "near": {
-          "bend_deg": 13.883687549782394,
-          "facing_direction_ok": false
+          "bend_deg": 9.254392130489377,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 13.60231766582237,
+          "bend_deg": 27.21207332913077,
           "facing_direction_ok": true
         }
       },
@@ -748,11 +705,11 @@
         "frame": 3,
         "phase": 0.06,
         "near": {
-          "bend_deg": 15.775198881220916,
-          "facing_direction_ok": false
+          "bend_deg": 9.254392130489377,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 15.2392285891996,
+          "bend_deg": 28.827791838663156,
           "facing_direction_ok": true
         }
       },
@@ -760,11 +717,11 @@
         "frame": 4,
         "phase": 0.08,
         "near": {
-          "bend_deg": 11.484720764974359,
-          "facing_direction_ok": false
+          "bend_deg": 10.669782804496677,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 23.525601903786786,
+          "bend_deg": 31.568971129318335,
           "facing_direction_ok": true
         }
       },
@@ -772,11 +729,11 @@
         "frame": 5,
         "phase": 0.1,
         "near": {
-          "bend_deg": 2.8803775528476065,
+          "bend_deg": 9.254406865295861,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 28.699309939580285,
+          "bend_deg": 36.68938882065529,
           "facing_direction_ok": true
         }
       },
@@ -784,11 +741,11 @@
         "frame": 6,
         "phase": 0.12,
         "near": {
-          "bend_deg": 0.18419506916876865,
+          "bend_deg": 9.254406865295861,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 35.49569003151933,
+          "bend_deg": 40.834552368700145,
           "facing_direction_ok": true
         }
       },
@@ -796,11 +753,11 @@
         "frame": 7,
         "phase": 0.14,
         "near": {
-          "bend_deg": 3.155531656726751,
+          "bend_deg": 9.254406865295861,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 39.07201674513535,
+          "bend_deg": 42.580947570921886,
           "facing_direction_ok": true
         }
       },
@@ -808,11 +765,11 @@
         "frame": 8,
         "phase": 0.16,
         "near": {
-          "bend_deg": 1.8183029644518336,
-          "facing_direction_ok": false
+          "bend_deg": 10.669747632938497,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 45.11307300138431,
+          "bend_deg": 47.72635939606687,
           "facing_direction_ok": true
         }
       },
@@ -820,11 +777,11 @@
         "frame": 9,
         "phase": 0.18,
         "near": {
-          "bend_deg": 2.450147302687436,
+          "bend_deg": 9.254372823141114,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 50.22367188968653,
+          "bend_deg": 52.79572401910218,
           "facing_direction_ok": true
         }
       },
@@ -832,11 +789,11 @@
         "frame": 10,
         "phase": 0.2,
         "near": {
-          "bend_deg": 0.4475801287058059,
+          "bend_deg": 10.669782804496677,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 54.69970851213167,
+          "bend_deg": 55.01164919715909,
           "facing_direction_ok": true
         }
       },
@@ -844,11 +801,11 @@
         "frame": 11,
         "phase": 0.22,
         "near": {
-          "bend_deg": 0.4475801287058059,
+          "bend_deg": 9.254372823141114,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 58.02560938797291,
+          "bend_deg": 53.43690413140591,
           "facing_direction_ok": true
         }
       },
@@ -856,11 +813,11 @@
         "frame": 12,
         "phase": 0.24,
         "near": {
-          "bend_deg": 0.6944602875497745,
+          "bend_deg": 10.669782804496677,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 57.555296740788556,
+          "bend_deg": 53.43690413140591,
           "facing_direction_ok": true
         }
       },
@@ -868,11 +825,11 @@
         "frame": 13,
         "phase": 0.26,
         "near": {
-          "bend_deg": 0.17961000574707633,
-          "facing_direction_ok": false
+          "bend_deg": 9.254372823141336,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 59.16914146178324,
+          "bend_deg": 51.84022268232598,
           "facing_direction_ok": true
         }
       },
@@ -880,11 +837,11 @@
         "frame": 14,
         "phase": 0.28,
         "near": {
-          "bend_deg": 2.121129331280943,
-          "facing_direction_ok": false
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 59.80087005832197,
+          "bend_deg": 50.9468630539735,
           "facing_direction_ok": true
         }
       },
@@ -892,11 +849,11 @@
         "frame": 15,
         "phase": 0.3,
         "near": {
-          "bend_deg": 0.17766076243366857,
-          "facing_direction_ok": false
+          "bend_deg": 10.669747632938726,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 56.5443085953494,
+          "bend_deg": 49.92144497735379,
           "facing_direction_ok": true
         }
       },
@@ -904,11 +861,11 @@
         "frame": 16,
         "phase": 0.32,
         "near": {
-          "bend_deg": 1.1017400515348748,
-          "facing_direction_ok": false
+          "bend_deg": 9.254358088334852,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 55.82643526312995,
+          "bend_deg": 48.331202009863034,
           "facing_direction_ok": true
         }
       },
@@ -916,11 +873,11 @@
         "frame": 17,
         "phase": 0.34,
         "near": {
-          "bend_deg": 1.829946307752657,
-          "facing_direction_ok": false
+          "bend_deg": 9.254358088334852,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 52.95363877793134,
+          "bend_deg": 44.196334280807406,
           "facing_direction_ok": true
         }
       },
@@ -928,11 +885,11 @@
         "frame": 18,
         "phase": 0.36,
         "near": {
-          "bend_deg": 0.7969532606246705,
-          "facing_direction_ok": false
+          "bend_deg": 9.254392130489377,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 52.553948126914264,
+          "bend_deg": 44.18085627591743,
           "facing_direction_ok": true
         }
       },
@@ -940,11 +897,11 @@
         "frame": 19,
         "phase": 0.38,
         "near": {
-          "bend_deg": 0.2689634855718605,
+          "bend_deg": 9.254358088334852,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 50.92235947115187,
+          "bend_deg": 42.87890360333855,
           "facing_direction_ok": true
         }
       },
@@ -952,11 +909,11 @@
         "frame": 20,
         "phase": 0.4,
         "near": {
-          "bend_deg": 0.3649363357306455,
-          "facing_direction_ok": false
+          "bend_deg": 24.62359692821936,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 48.379678836986244,
+          "bend_deg": 42.32727794541129,
           "facing_direction_ok": true
         }
       },
@@ -964,11 +921,11 @@
         "frame": 21,
         "phase": 0.42,
         "near": {
-          "bend_deg": 0.3649363357306455,
-          "facing_direction_ok": false
+          "bend_deg": 44.0419336878661,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 50.92236302146647,
+          "bend_deg": 40.18072326088837,
           "facing_direction_ok": true
         }
       },
@@ -976,11 +933,11 @@
         "frame": 22,
         "phase": 0.44,
         "near": {
-          "bend_deg": 0.08750513443531938,
-          "facing_direction_ok": false
+          "bend_deg": 45.660031508695354,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 48.729676766792004,
+          "bend_deg": 33.6327908577753,
           "facing_direction_ok": true
         }
       },
@@ -988,11 +945,11 @@
         "frame": 23,
         "phase": 0.46,
         "near": {
-          "bend_deg": 1.262951563479531,
-          "facing_direction_ok": false
+          "bend_deg": 39.99604978475532,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 50.3612618722398,
+          "bend_deg": 31.568971129318335,
           "facing_direction_ok": true
         }
       },
@@ -1000,11 +957,11 @@
         "frame": 24,
         "phase": 0.48,
         "near": {
-          "bend_deg": 3.0035058293069614,
-          "facing_direction_ok": false
+          "bend_deg": 24.623564786163612,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 49.78088387483196,
+          "bend_deg": 25.25432642217678,
           "facing_direction_ok": true
         }
       },
@@ -1012,11 +969,11 @@
         "frame": 25,
         "phase": 0.5,
         "near": {
-          "bend_deg": 0.7051432213496981,
+          "bend_deg": 10.669782804496677,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 47.54800520174119,
+          "bend_deg": 20.131366265010627,
           "facing_direction_ok": true
         }
       },
@@ -1024,11 +981,11 @@
         "frame": 26,
         "phase": 0.52,
         "near": {
-          "bend_deg": 2.097474838626924,
+          "bend_deg": 9.254358088334852,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 48.02105362345442,
+          "bend_deg": 13.76396414854729,
           "facing_direction_ok": true
         }
       },
@@ -1036,11 +993,11 @@
         "frame": 27,
         "phase": 0.54,
         "near": {
-          "bend_deg": 1.647085994447756,
-          "facing_direction_ok": false
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 44.695152747613186,
+          "bend_deg": 17.020525611519858,
           "facing_direction_ok": true
         }
       },
@@ -1048,11 +1005,11 @@
         "frame": 28,
         "phase": 0.56,
         "near": {
-          "bend_deg": 2.0974933350401095,
+          "bend_deg": 9.2543654557422,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 42.451994798258816,
+          "bend_deg": 23.351363227929983,
           "facing_direction_ok": true
         }
       },
@@ -1060,11 +1017,11 @@
         "frame": 29,
         "phase": 0.58,
         "near": {
-          "bend_deg": 0.3569973337336627,
+          "bend_deg": 4.914626803574838,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 38.975682049057674,
+          "bend_deg": 26.768407127129954,
           "facing_direction_ok": true
         }
       },
@@ -1072,11 +1029,11 @@
         "frame": 30,
         "phase": 0.6,
         "near": {
-          "bend_deg": 1.6470475642772733,
-          "facing_direction_ok": false
+          "bend_deg": 10.669811119058231,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 39.638738127760206,
+          "bend_deg": 33.47627829610267,
           "facing_direction_ok": true
         }
       },
@@ -1084,11 +1041,11 @@
         "frame": 31,
         "phase": 0.62,
         "near": {
-          "bend_deg": 3.273053916517736,
+          "bend_deg": 9.254399497896722,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 37.44605187308574,
+          "bend_deg": 38.59970533576029,
           "facing_direction_ok": true
         }
       },
@@ -1096,11 +1053,11 @@
         "frame": 32,
         "phase": 0.64,
         "near": {
-          "bend_deg": 0.09351758458452555,
+          "bend_deg": 9.2543654557422,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 36.144099200506865,
+          "bend_deg": 40.50394208757718,
           "facing_direction_ok": true
         }
       },
@@ -1108,11 +1065,11 @@
         "frame": 33,
         "phase": 0.66,
         "near": {
-          "bend_deg": 1.2629909249991333,
-          "facing_direction_ok": false
+          "bend_deg": 10.669811119058231,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 33.95829839373126,
+          "bend_deg": 41.92630120054227,
           "facing_direction_ok": true
         }
       },
@@ -1120,11 +1077,11 @@
         "frame": 34,
         "phase": 0.68,
         "near": {
-          "bend_deg": 1.695157805640931,
+          "bend_deg": 9.254371645264706,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 31.81178521731835,
+          "bend_deg": 43.5904629221598,
           "facing_direction_ok": true
         }
       },
@@ -1132,11 +1089,11 @@
         "frame": 35,
         "phase": 0.7,
         "near": {
-          "bend_deg": 4.541977183853555,
-          "facing_direction_ok": false
+          "bend_deg": 9.254386380054799,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 29.019082851605067,
+          "bend_deg": 41.335815679259284,
           "facing_direction_ok": true
         }
       },
@@ -1144,11 +1101,11 @@
         "frame": 36,
         "phase": 0.72,
         "near": {
-          "bend_deg": 0.2690085765460829,
+          "bend_deg": 10.669789661467183,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 25.26241024210515,
+          "bend_deg": 42.015717856406624,
           "facing_direction_ok": true
         }
       },
@@ -1156,11 +1113,11 @@
         "frame": 37,
         "phase": 0.74,
         "near": {
-          "bend_deg": 3.179846932620279,
+          "bend_deg": 9.254399497896722,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 23.198599566683427,
+          "bend_deg": 40.419085448329035,
           "facing_direction_ok": true
         }
       },
@@ -1168,11 +1125,11 @@
         "frame": 38,
         "phase": 0.76,
         "near": {
-          "bend_deg": 1.10175462261224,
-          "facing_direction_ok": false
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 21.74296578429973,
+          "bend_deg": 40.41903640732669,
           "facing_direction_ok": true
         }
       },
@@ -1180,11 +1137,11 @@
         "frame": 39,
         "phase": 0.78,
         "near": {
-          "bend_deg": 0.1796238033243624,
-          "facing_direction_ok": false
+          "bend_deg": 9.254463348703775,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 20.2584983599992,
+          "bend_deg": 38.80248561468724,
           "facing_direction_ok": true
         }
       },
@@ -1192,11 +1149,11 @@
         "frame": 40,
         "phase": 0.8,
         "near": {
-          "bend_deg": 1.397193086106728,
+          "bend_deg": 9.254463348703775,
           "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 23.378541997138196,
+          "bend_deg": 38.80248561468724,
           "facing_direction_ok": true
         }
       },
@@ -1204,11 +1161,11 @@
         "frame": 41,
         "phase": 0.82,
         "near": {
-          "bend_deg": 3.7663750796780455,
-          "facing_direction_ok": false
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 25.010127102585994,
+          "bend_deg": 35.495641277496986,
           "facing_direction_ok": true
         }
       },
@@ -1216,11 +1173,11 @@
         "frame": 42,
         "phase": 0.84,
         "near": {
-          "bend_deg": 24.203659636567167,
-          "facing_direction_ok": false
+          "bend_deg": 15.69778746430808,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 28.090786705811855,
+          "bend_deg": 35.495641277496986,
           "facing_direction_ok": true
         }
       },
@@ -1228,11 +1185,11 @@
         "frame": 43,
         "phase": 0.86,
         "near": {
-          "bend_deg": 31.900951443250854,
-          "facing_direction_ok": false
+          "bend_deg": 32.25924952480495,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 30.315123462250185,
+          "bend_deg": 34.04542498656356,
           "facing_direction_ok": true
         }
       },
@@ -1240,8 +1197,8 @@
         "frame": 44,
         "phase": 0.88,
         "near": {
-          "bend_deg": 38.41329851249104,
-          "facing_direction_ok": false
+          "bend_deg": 44.04196350588415,
+          "facing_direction_ok": true
         },
         "far": {
           "bend_deg": 33.37455254218945,
@@ -1252,11 +1209,11 @@
         "frame": 45,
         "phase": 0.9,
         "near": {
-          "bend_deg": 38.41322578340208,
-          "facing_direction_ok": false
+          "bend_deg": 45.6600580386216,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 33.37454488083553,
+          "bend_deg": 30.315129780969038,
           "facing_direction_ok": true
         }
       },
@@ -1264,11 +1221,11 @@
         "frame": 46,
         "phase": 0.92,
         "near": {
-          "bend_deg": 39.689799510099746,
-          "facing_direction_ok": false
+          "bend_deg": 36.38435181583589,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 34.04542498656356,
+          "bend_deg": 26.635090900157394,
           "facing_direction_ok": true
         }
       },
@@ -1276,11 +1233,11 @@
         "frame": 47,
         "phase": 0.94,
         "near": {
-          "bend_deg": 38.41329851249104,
-          "facing_direction_ok": false
+          "bend_deg": 14.577811771373327,
+          "facing_direction_ok": true
         },
         "far": {
-          "bend_deg": 33.37450096800601,
+          "bend_deg": 23.52565967828546,
           "facing_direction_ok": true
         }
       },
@@ -1288,20 +1245,8 @@
         "frame": 48,
         "phase": 0.96,
         "near": {
-          "bend_deg": 28.94273195508015,
-          "facing_direction_ok": false
-        },
-        "far": {
-          "bend_deg": 26.63515292342816,
+          "bend_deg": 9.254399497896722,
           "facing_direction_ok": true
-        }
-      },
-      {
-        "frame": 49,
-        "phase": 0.98,
-        "near": {
-          "bend_deg": 19.440049399253777,
-          "facing_direction_ok": false
         },
         "far": {
           "bend_deg": 16.763844764393674,
@@ -1309,11 +1254,23 @@
         }
       },
       {
+        "frame": 49,
+        "phase": 0.98,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 13.602276831098127,
+          "facing_direction_ok": true
+        }
+      },
+      {
         "frame": 50,
         "phase": 1.0,
         "near": {
-          "bend_deg": 9.53664781728245,
-          "facing_direction_ok": false
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
         },
         "far": {
           "bend_deg": 10.420975311087403,
