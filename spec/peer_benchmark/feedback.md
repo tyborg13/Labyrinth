@@ -187,3 +187,15 @@
   number pop ups still sped up? It may be worth slowing those down a little rather than keeping them sped up and just
   holding after." Answer: at Normal they already play at authored speed; feel-01 cut the gaps. → pace-02: enemy
   actions at 0.80× presentation speed; movement, lead and settle unchanged.
+
+## 2026-10-19 owner verdicts (inbox)
+- capacitor-rig: APPROVED.
+- mirror-rig: NEEDS CHANGES. Owner, verbatim: "Mostly good, but needs some tweaking. There's a bit too much asymmetry
+  between his arms for my liking, especially with one having a hand and the other just being a boulder. His right
+  foot in the front view and left foot in the rear view look off. I'm not sure if its a drawing order issue or
+  something else, but they don't seem properly positioned and connected to the ankle boulder. Lastly, on the guard
+  from the front view, his arm goes behind him instead of in front of him. That's *definitely* a drawing order bug.
+  Let's see if we can fix his walk a bit too. One leg is kind of shimmying and the other is mostly still like he's
+  limping along."
+  - Fixes: repaint both fists and the two odd feet (image revisions); draw the near fore/fist in front of the torso;
+    an alternating 4-step walk (director data); fresh unit rr-23.
