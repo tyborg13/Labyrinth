@@ -1,8 +1,12 @@
 """mq-08: a bounded shoulder edit, preserved anatomy, complete capture batches."""
 import json
 import hashlib
+from copy import deepcopy
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 from PIL import Image
@@ -12,18 +16,37 @@ from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
 from spec.art_identity.maquettes.blender.contract import digest
 from spec.art_identity.maquettes.glacial_mirror.shoulder_revision import revise, euler_matrix, matrix_euler
 from spec.art_identity.maquettes.raster import project
+from spec.art_identity.maquettes.glacial_mirror import guards, shoulder_revision, proof
+from spec.art_identity.maquettes.blender import capture_manifest
+from spec.art_identity.maquettes.blender.delivery_validation import validate_delivery
 
 ROOT = Path(__file__).resolve().parents[1]
 FIGURE = ROOT / 'spec/art_identity/maquettes/glacial_mirror'
 TEST_DEFAULTS = {'decimal_places': 12, 'array_tolerance': 1e-12,
                  'euler_cases': [[0, 0, 0], [.2, -.4, .6], [-.5, .3, -1.2]],
                  'selection_labels': ['head', 'torso', 'hand'], 'selection': ['hand', 'head'],
-                 'invalid_selections': [[], ['head', 'head'], ['missing']]}
+                 'invalid_selections': [[], ['head', 'head'], ['missing']],
+                 'cap_lift_px': 80, 'lowered_shoulder_px': 40}
+ACCEPTED_DELIVERY = {'front': {'shoulder_near': [722, 308], 'shoulder_far': [280, 241.7]},
+                     'rear': {'shoulder_near': [302, 240], 'shoulder_far': [744, 306.3]},
+                     'tops': {'upper_near': 159, 'upper_far': 93, 'head': 68},
+                     'rear_tops': {'upper_near': 32, 'upper_far': 99, 'head': 58},
+                     'cap_centre_front': [280, 205.7]}
 
 
 def baseline():
     retained = FIGURE / 'delivery/review/mq08_before_recipe.json'
     return json.loads((retained if retained.exists() else FIGURE / 'proof/measurements_before.json').read_text())
+
+
+def current():
+    return json.loads((FIGURE / 'measurements.json').read_text())
+
+
+def measured():
+    joints = json.loads((FIGURE / 'delivery/joints_px.json').read_text())
+    tops = {name: proof.mass_top(FIGURE / 'delivery', 'front', name) for name in ACCEPTED_DELIVERY['tops']}
+    return joints, tops
 
 
 class GlacialMirrorShoulderTests(unittest.TestCase):
@@ -71,6 +94,82 @@ class GlacialMirrorShoulderTests(unittest.TestCase):
         for key, value in surfaces['shoulder_near_crest'].items():
             if key not in {'id', 'part', 'rig_bone', 'centre_px'}:
                 self.assertEqual(value, surfaces['shoulder_far_mass'][key], key)
+        for candidate in (recipe, current()):
+            spec = compile_recipe(candidate)
+            cap = next(piece for piece in spec['pieces'] if piece['id'] == 'shoulder_far_mass')
+            np.testing.assert_allclose(project(spec, [cap['centre']])[0, :2],
+                                       ACCEPTED_DELIVERY['cap_centre_front'], atol=TEST_DEFAULTS['array_tolerance'])
+
+    def test_delivery_measurements_and_live_certification(self):
+        joints, tops = measured()
+        for view in ('front', 'rear'):
+            for name, expected in ACCEPTED_DELIVERY[view].items():
+                self.assertEqual(joints[view][name], expected)
+        near, far = (joints['front']['shoulder_' + side] for side in ('near', 'far'))
+        self.assertAlmostEqual(near[1] - far[1], .15 * abs(near[0] - far[0]))
+        for name, expected in ACCEPTED_DELIVERY['tops'].items():
+            self.assertEqual(tops[name][1], expected)
+        for name, expected in ACCEPTED_DELIVERY['rear_tops'].items():
+            self.assertEqual(proof.mass_top(FIGURE / 'delivery', 'rear', name)[1], expected)
+        spec = compile_recipe(current())
+        from spec.art_identity.maquettes.raster import camera
+        np.testing.assert_allclose(camera(spec, 'rear')[0] @ np.linalg.inv(camera(spec, 'front')[0]),
+                                   np.diag([-1, -1, 1, 1]), atol=TEST_DEFAULTS['array_tolerance'])
+        self.assertTrue(all(guards.geometry_checks(spec, joints['front'], tops).values()))
+        # Recompute masks, fit, native reports and the live guards. A saved
+        # mq08_gates.json summary cannot establish a passing certificate.
+        self.assertTrue(proof.evaluate(FIGURE / 'proof/before', FIGURE / 'delivery')['passed'])
+
+    def test_live_shoulder_guard_rejects_lowered_shoulder(self):
+        joints, tops = measured()
+        spec = compile_recipe(current())
+        joints['front']['shoulder_far'][1] += TEST_DEFAULTS['lowered_shoulder_px']
+        self.assertFalse(guards.geometry_checks(spec, joints['front'], tops)['front_shoulder_rule'])
+
+    def test_live_pauldron_guard_rejects_cap_lift_in_migration_and_canonical(self):
+        recipe = deepcopy(current())
+        cap = next(p for p in recipe['native_solids']['surfaces'] if p['id'] == 'shoulder_far_mass')
+        for pixel in cap['centre_px']:
+            pixel[1] -= TEST_DEFAULTS['cap_lift_px'] / 4
+        # Reproducing the same bad recipe is deliberately insufficient.
+        with patch.object(shoulder_revision, 'revise', return_value=deepcopy(recipe)):
+            self.assertEqual(shoulder_revision.revise(baseline()), recipe)
+            joints, tops = measured()
+            checks = guards.geometry_checks(compile_recipe(recipe), joints['front'], tops)
+            self.assertFalse(checks['pauldron_top'])
+        # Also exercise the actual raster-top branch, independently of centre.
+        tops['upper_far'][1] -= TEST_DEFAULTS['cap_lift_px']
+        self.assertFalse(guards.geometry_checks(compile_recipe(current()), joints['front'], tops)['pauldron_top'])
+
+    def test_live_turn_guard_rejects_mirrored_rear(self):
+        from spec.art_identity.maquettes.raster import camera
+        spec = compile_recipe(current())
+        spec['view_transforms'] = {}
+        base = compile_recipe(current())
+        for view in ('front', 'rear'):
+            matrix, target, _, scale = camera(base, view)
+            if view == 'rear':
+                matrix = matrix @ np.diag([-1, 1, 1, 1])
+            spec['view_transforms'][view] = {'object_to_world': matrix.tolist(), 'target': target.tolist(),
+                                           'azimuth_deg': 45, 'elevation_deg': 30, 'ortho_scale': scale}
+        joints, tops = measured()
+        self.assertFalse(guards.geometry_checks(spec, joints['front'], tops)['same_body_180_turn'])
+
+    def test_partial_capture_never_receives_full_delivery_certification(self):
+        spec = compile_recipe(current())
+        with tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary) / 'capture'
+            shutil.copytree(FIGURE / 'delivery', folder)
+            validate_delivery(spec, folder)
+            path = folder / 'capture_manifest.json'
+            original = path.read_text()
+            # Even complete stale files from an earlier run must not turn an
+            # explicitly selected solo batch into a full certificate.
+            for selection in (['upper_far'], list(spec['labels'])):
+                mode = capture_manifest.capture_mode(solo_parts=selection)
+                path.write_text(original.replace('"mode": "full"', '"mode": "' + mode + '"'))
+                with self.assertRaisesRegex(ValueError, 'Incompatible Blender capture mode'):
+                    validate_delivery(spec, folder)
 
     def test_euler_round_trip_retains_rigid_lengths(self):
         for angles in TEST_DEFAULTS['euler_cases']:
@@ -101,7 +200,8 @@ class GlacialMirrorShoulderTests(unittest.TestCase):
         from spec.art_identity.maquettes.blender.curate_delivery import sha
         folder = FIGURE / 'delivery/review'
         report = json.loads((folder / 'mq08_gates.json').read_text())
-        self.assertTrue(report['passed'])
+        joints, tops = measured()
+        self.assertTrue(all(guards.geometry_checks(compile_recipe(current()), joints['front'], tops).values()))
         self.assertEqual(report['sheet']['file_sha256'], sha(folder / 'mq08_shoulders.html'))
         self.assertEqual(len(report['sheet']['cells']), 6)
         for cell in report['sheet']['cells']:

@@ -14,7 +14,7 @@ from spec.art_identity.maquettes.blender.delivery_validation import validate_del
 from spec.art_identity.maquettes.blender.solid_fit import compute_fit
 from spec.art_identity.maquettes.blender.solid_review import save_review_sheet
 from spec.art_identity.maquettes.glacial_mirror.shoulder_revision import revise, SHOULDER_CONTRACT
-from spec.art_identity.maquettes.raster import camera
+from spec.art_identity.maquettes.glacial_mirror.guards import geometry_checks
 
 PROOF_DEFAULTS = {'cell_px': 1024, 'caption_px': 32, 'background': (24, 24, 24, 255),
                   'caption_colour': 'white', 'near_marker': '#ffdf50', 'far_marker': '#50e5ff',
@@ -73,21 +73,18 @@ def evaluate(before, after):
     build = json.loads((after / 'build_report.json').read_text())
     fit, _ = compute_fit(FIGURE, after)
     prior_fit = baseline['fit_report']
-    matrix = camera(spec, 'rear')[0] @ np.linalg.inv(camera(spec, 'front')[0])
     checks = {
         'reproduced_recipe': revise(before_recipe) == recipe,
-        'front_shoulder_rule': abs(far[1] - expected) <= SHOULDER_CONTRACT['joint_tolerance_px'],
         'far_shoulder_x': abs(far[0] - joints['before']['front']['shoulder_far'][0]) <= SHOULDER_CONTRACT['joint_tolerance_px'],
         'level_3d_shoulders': abs(spec['joints']['shoulder_near'][2] - spec['joints']['shoulder_far'][2]) <= PROOF_DEFAULTS['numerical_tolerance_m'],
-        'pauldron_top': abs(front['upper_far'][1] - expected_top) <= SHOULDER_CONTRACT['pauldron_tolerance_px'],
         'pauldron_below_head': front['upper_far'][1] >= front['head'][1],
         'every_limb_length': all(abs(a - b) <= PROOF_DEFAULTS['numerical_tolerance_m'] for a, b in lengths.values()),
         'protected_joints': protected_joints, 'protected_surfaces': protected_surfaces,
         'protected_native_meshes': all(value == build['mesh_hashes'].get(name) for name, value in baseline['mesh_hashes'].items()
                                        if name not in {part + '_render' for part in allowed}),
         'locked_15_labels': len(spec['labels']) == 15 and recipe['labels'] == before_recipe['labels'],
-        'same_body_180_turn': np.allclose(matrix, np.diag([-1, -1, 1, 1])) and not any(p.get('capture_view') for p in spec['pieces']),
         'native_geometry': build['passed'], 'fit_and_coverage': fit['passed']}
+    checks.update(geometry_checks(spec, joints['after']['front'], front))
     covered = {}
     for view in ('front', 'rear'):
         with Image.open(after / f'{view}_solo_upper_far.png') as image:

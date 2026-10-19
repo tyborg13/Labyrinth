@@ -1,9 +1,9 @@
-00:00.288  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/clean_project/spec/art_identity/maquettes/burrow_grub/build/maquette.blend"
-00:03.932  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_silhouette.png'
-00:06.672  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_silhouette.png'
-00:09.736  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_parts.png'
-00:17.467  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_clay.png'
-00:19.715  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_silhouette.png'
+00:00.280  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/build/maquette.blend"
+00:03.862  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_silhouette.png'
+00:06.121  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_silhouette.png'
+00:08.502  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_parts.png'
+00:16.204  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_clay.png'
+00:18.487  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/capture_jobs/batches/front_preview/front_silhouette.png'
 BLENDER_FACING: PASS
 MIRROR_BOUNDED_CAPTURE: PASS; view=front; solos=None
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)

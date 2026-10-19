@@ -7,7 +7,6 @@ import argparse
 import json
 from pathlib import Path
 import shutil
-import subprocess
 import sys
 
 from spec.art_identity.maquettes.blender.bridge_client import run_job
@@ -19,6 +18,7 @@ from spec.art_identity.maquettes.blender.curate_delivery import write, stage, sh
 from spec.art_identity.maquettes.blender.delivery_validation import seal_delivery
 from spec.art_identity.maquettes.blender.regenerate_delivery import compare_captures
 from spec.art_identity.maquettes.blender.solid_fit import write_fit
+from spec.art_identity.maquettes.glacial_mirror.regeneration_inputs import clean_inputs, input_builder
 
 WORKFLOW_DEFAULTS = {'job_timeout_s': 90, 'solo_batch_size': 5, 'joint_error_m': 1e-4}
 FIGURE = Path(__file__).resolve().parent
@@ -37,8 +37,21 @@ def job(script, values, receipt, resume):
         result = json.loads(receipt.read_text())
         if (result.get('requested') == command and result.get('exit') == 0 and
                 result.get('input_sha256') == inputs and result.get('builder_revision') == builder_revision):
-            return result
+            return dict(result, receipt_reused=True)
+    cache_files_before = set()
+    if Path(script).name == 'build.py':
+        cache = Path(values[values.index('--cache') + 1]) if '--cache' in values else Path(values[1]) / 'cloth_cache'
+        cache_files_before = {p.stem for p in cache.glob('*.json')}
     result = run_job(script, values, timeout_s=WORKFLOW_DEFAULTS['job_timeout_s'])
+    cache_hits = []
+    if cache_files_before and result['exit'] == 0:
+        from spec.art_identity.maquettes.blender.cloth_cache import cache_key
+        from spec.art_identity.maquettes.blender.facing import board_spec
+        built = json.loads((Path(values[1]) / 'build_report.json').read_text())
+        spec = board_spec(json.loads(Path(values[0]).read_text()))
+        cache_hits = [p['id'] for p in spec['pieces'] if p['type'] == 'cloth' and
+                      cache_key(built['context_key'], p, built['blender']) in cache_files_before]
+    result.update(cache_reused=bool(cache_hits), cache_hits=cache_hits, receipt_reused=False)
     write(receipt, dict({k: v for k, v in result.items() if k != 'stdout'}, requested=command,
                         input_sha256=inputs, builder_revision=builder_revision))
     receipt.with_suffix('.log').write_text(result['stdout'])
@@ -46,6 +59,11 @@ def job(script, values, receipt, resume):
     if result['exit'] or result.get('refused'):
         raise ValueError('Native job failed: ' + str(receipt))
     return result
+
+
+def reuse_summary(receipts, resumed):
+    return {'cache_reused': any(r['cache_reused'] for r in receipts),
+            'build_receipts_reused': any(r['receipt_reused'] for r in receipts), 'resumed': resumed}
 
 
 def capture(spec_path, build, output, root, resume, preview=False):
@@ -110,33 +128,14 @@ def capture(spec_path, build, output, root, resume, preview=False):
     return output
 
 
-def clean_inputs(output, figure=FIGURE, recipe_path=None):
-    project = output / 'clean_project'
-    root = project / 'spec/art_identity/maquettes'
-    root.mkdir(parents=True, exist_ok=True)
-    for path in FIGURE.parent.glob('*.py'):
-        shutil.copyfile(path, root / path.name)
-    shutil.copytree(BUILDER, root / 'blender', ignore=shutil.ignore_patterns('__pycache__'), dirs_exist_ok=True)
-    (root / 'frostglass_lancer').mkdir(exist_ok=True)
-    shutil.copyfile(FIGURE.parent / 'frostglass_lancer/spec_r3.json', root / 'frostglass_lancer/spec_r3.json')
-    target = root / figure.name
-    target.mkdir(exist_ok=True)
-    if (figure / 'measurements.json').is_file():
-        shutil.copyfile(recipe_path or figure / 'measurements.json', target / 'measurements.json')
-    else:
-        shutil.copyfile(figure / 'spec_r3.json', target / 'spec_native.json')
-    inventory = {str(p.relative_to(project)): sha(p) for p in sorted(project.rglob('*')) if p.is_file()}
-    write(output / 'clean_input_sha256.json', inventory)
-    if (target / 'measurements.json').is_file():
-        subprocess.run([sys.executable, '-B', str(root / 'blender/compile_recipe.py'), str(target / 'measurements.json')], check=True)
-    return target / 'spec_native.json'
-
-
 def curate_revision():
     """Retain the unit's editable migration/proof tools and hash every discard."""
     report = FIGURE / 'delivery/review/mq08_gates.json'
     if not report.is_file() or not json.loads(report.read_text())['passed']:
         raise ValueError('Curation requires the completed shoulder gates and native comparison sheet')
+    from spec.art_identity.maquettes.glacial_mirror.proof import evaluate
+    if not evaluate(FIGURE / 'proof/before', FIGURE / 'delivery')['passed']:
+        raise ValueError('Current live shoulder, pauldron or turn guard failed')
     for name in ('glacial_mirror', 'hoarfrost_seer', 'gale_herald', 'arc_thrall', 'gloam_stalker',
                  'burrow_grub', 'ember_tick', 'frostglass_lancer'):
         path = FIGURE / 'delivery/validation/mq08/regeneration' / name / 'regeneration.json'
@@ -158,6 +157,14 @@ def curate_revision():
     keep |= {archive, manifest}
     files = [p for p in FIGURE.rglob('*') if p.is_file()]
     discard_evidence(FIGURE, sorted(p for p in files if p not in keep), archive)
+    # Repeated cold proofs copy many identical input files. One path/size/hash
+    # row represents the same bytes across runs; keep every distinct version.
+    # The generic helper durably records all hashes before deleting anything.
+    discarded = json.loads(archive.read_text())
+    discarded['files'] = list(dict.fromkeys(tuple(row) for row in discarded['files']))
+    compact_archive = archive.with_suffix('.json.tmp')
+    write(compact_archive, discarded)
+    compact_archive.replace(archive)
     manifest.write_text('# Paths relative to this figure. Shared builder: ../blender/render.py, ../blender/capture_manifest.py\n'
                         '# Canonical build specification: measurements.json; generated spec_native.json is omitted.\n' +
                         '\n'.join(sorted(str(p.relative_to(FIGURE)) for p in keep)) + '\n')
@@ -233,9 +240,9 @@ def main():
         for name in names:
             folder = FIGURE.parent / name
             output = proof / 'regeneration' / name
-            fresh_spec = clean_inputs(output, folder)
-            build = fresh_spec.parent / 'build'
-            job(fresh_spec.parent.parent / 'blender/build.py', [fresh_spec, build, '--build-only'], output / 'build.json', args.resume)
+            fresh_spec = clean_inputs(output, folder, resume=args.resume)
+            build = output / 'build'
+            build_receipts = [job(input_builder(fresh_spec), [fresh_spec, build, '--build-only'], output / 'build.json', args.resume)]
             native = capture(fresh_spec, build, output / 'capture', output / 'capture_jobs', args.resume, preview=True)
             reference = folder / 'delivery'
             reference_parts = None
@@ -253,12 +260,12 @@ def main():
                 for view, source in sources['overrides'].items():
                     approved = source_spec(reference, source)
                     override_root = output / ('source_' + view)
-                    override_spec = clean_inputs(override_root, folder, folder / source['recipe'])
+                    override_spec = clean_inputs(override_root, folder, folder / source['recipe'], resume=args.resume)
                     if digest(json.loads(override_spec.read_text())) != digest(approved):
                         raise ValueError('Clean per-view source differs from its approved recipe')
-                    override_build = override_spec.parent / 'build'
-                    job(override_spec.parent.parent / 'blender/build.py', [override_spec, override_build, '--build-only'],
-                        override_root / 'build.json', args.resume)
+                    override_build = override_root / 'build'
+                    build_receipts.append(job(input_builder(override_spec), [override_spec, override_build, '--build-only'],
+                        override_root / 'build.json', args.resume))
                     override_capture = override_root / 'capture'
                     job(FIGURE / 'native_proof.py', [override_spec, override_build, override_capture, view, '--comparison'],
                         override_root / 'capture.json', args.resume)
@@ -274,6 +281,8 @@ def main():
                     native = comparison
                     per_view_sources[view] = {'recipe': source['recipe'], 'recipe_sha256': source['recipe_sha256'],
                                               'spec_hash': digest(approved), 'clean_input_sha256': sha(override_root / 'clean_input_sha256.json')}
+                    clean_inputs(override_root, folder, folder / source['recipe'], resume=True)
+            clean_inputs(output, folder, resume=True)
             views = compare_captures(native, reference, output, True, reference_parts)
             passed = all(r['passed'] for view in views.values() for r in view.values())
             fresh_report = json.loads((build / 'build_report.json').read_text())
@@ -286,23 +295,26 @@ def main():
                 geometry['geometry_matches_delivery'] = fresh_report['combined_mesh_hash'] == delivered_report['combined_mesh_hash']
                 passed &= geometry['geometry_matches_delivery']
             write(output / 'regeneration.json', {'passed': passed, 'figure': name, 'views': views,
-                'cache_reused': False, 'input_inventory_sha256': sha(output / 'clean_input_sha256.json'),
+                **reuse_summary(build_receipts, args.resume), 'input_inventory_validated': True,
+                'input_inventory_sha256': sha(output / 'clean_input_sha256.json'),
                 'per_view_sources': per_view_sources, **geometry})
+            if not args.resume:
+                shutil.copyfile(output / 'regeneration.json', output / 'cold_regeneration.json')
             retained = FIGURE / 'delivery/validation/mq08/regeneration' / name
             retained.mkdir(parents=True, exist_ok=True)
-            for filename in ('regeneration.json', 'clean_input_sha256.json', 'build.json', 'build.log'):
+            for filename in ('regeneration.json', 'clean_input_sha256.json', 'input_state.json', 'build.json', 'build.log'):
                 shutil.copyfile(output / filename, retained / filename)
+            if (output / 'cold_regeneration.json').is_file():
+                shutil.copyfile(output / 'cold_regeneration.json', retained / 'cold_regeneration.json')
             shutil.copytree(output / 'capture_jobs/bridge', retained / 'bridge', dirs_exist_ok=True)
             for view in per_view_sources:
                 source_root = output / ('source_' + view)
-                for filename in ('clean_input_sha256.json', 'build.json', 'build.log', 'capture.json', 'capture.log'):
+                for filename in ('clean_input_sha256.json', 'input_state.json', 'build.json', 'build.log', 'capture.json', 'capture.log'):
                     target = retained / ('source_' + view) / filename
                     target.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copyfile(source_root / filename, target)
             if name == 'glacial_mirror':
                 shutil.copyfile(output / 'regeneration.json', FIGURE / 'delivery/regeneration.json')
-                shutil.copyfile(output / 'regeneration.json', FIGURE / 'delivery/validation/regeneration/regeneration.json')
-                shutil.copyfile(output / 'clean_input_sha256.json', FIGURE / 'delivery/validation/regeneration/clean_input_sha256.json')
             print('CLEAN_REGENERATION: ' + ('PASS' if passed else 'FAIL') + '; ' + name + '; canonical_png_sha256=true', flush=True)
             if not passed:
                 raise ValueError('Regeneration differs: ' + name)

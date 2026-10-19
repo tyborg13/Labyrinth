@@ -43,7 +43,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     from .capture_manifest import write_manifest, prepare_capture
-    from .capture_manifest import selected_solos
+    from .capture_manifest import selected_solos, capture_mode
     solo_labels = selected_solos(spec['labels'], solo_parts)
     from .ownership import assign_materials, materials_match, cloak_owners, require_solos, sagittal_normal, ARMATURE_UP_AXIS, uses_body_side_ownership
     generated = set()
@@ -227,7 +227,8 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     joint_path.write_text(json.dumps(joints, indent=2) + '\n')
     # A bounded batch cannot certify a full delivery. Its caller must combine
     # all independently hash-checked batches and validate the complete capture.
-    mode = 'ownership' if ownership_only or solo_parts is not None else 'fit' if fit_only else 'preview' if preview else 'silhouettes' if silhouettes_only else 'full'
+    mode = capture_mode(ownership_only=ownership_only, solo_parts=solo_parts, fit_only=fit_only,
+                        preview=preview, silhouettes_only=silhouettes_only)
     if facing is not None:
         generated.update(('front_torso.png', 'front_torso_frontal_control.png'))
     report = json.loads((output / 'build_report.json').read_text())

@@ -1,0 +1,10 @@
+BLENDER_BRIDGE_SUBMITTED: mq03-32cdc250c0654eacb5391023b1bea5fe
+BLENDER_BRIDGE_STARTED: mq03-32cdc250c0654eacb5391023b1bea5fe
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-fd153869039a4dd18dfb64c7e742d7a2
+BLENDER_BRIDGE_STARTED: mq03-fd153869039a4dd18dfb64c7e742d7a2
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-f014a89c40ab455a91b85961a25ee4e5
+BLENDER_BRIDGE_STARTED: mq03-f014a89c40ab455a91b85961a25ee4e5
+MQ08_BRIDGE: rear_preview; exit=0
+MQ08_WORKFLOW_ERROR: [Errno 2] No such file or directory: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/delivery/validation/regeneration/regeneration.json'

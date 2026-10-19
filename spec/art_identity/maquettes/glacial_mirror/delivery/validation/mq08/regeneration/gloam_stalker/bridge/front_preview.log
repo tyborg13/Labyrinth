@@ -1,9 +1,9 @@
-00:00.289  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/build/maquette.blend"
-00:04.044  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_silhouette.png'
-00:06.435  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_silhouette.png'
-00:09.024  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_parts.png'
-00:18.047  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_clay.png'
-00:20.408  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_silhouette.png'
+00:00.332  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/build/maquette.blend"
+00:04.282  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_silhouette.png'
+00:06.603  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_silhouette.png'
+00:09.148  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_parts.png'
+00:18.516  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_clay.png'
+00:20.878  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/capture_jobs/batches/front_preview/front_silhouette.png'
 BLENDER_FACING: PASS
 MIRROR_BOUNDED_CAPTURE: PASS; view=front; solos=None
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)

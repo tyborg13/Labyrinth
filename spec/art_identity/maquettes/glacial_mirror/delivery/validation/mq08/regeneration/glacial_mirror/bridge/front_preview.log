@@ -1,9 +1,9 @@
-00:00.360  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/clean_project/spec/art_identity/maquettes/glacial_mirror/build/maquette.blend"
-00:10.717  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_silhouette.png'
-00:13.514  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_silhouette.png'
-00:17.108  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_parts.png'
-00:30.831  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_clay.png'
-00:34.384  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_silhouette.png'
+00:00.405  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/build/maquette.blend"
+00:11.380  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_silhouette.png'
+00:14.163  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_silhouette.png'
+00:17.649  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_parts.png'
+00:31.602  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_clay.png'
+00:35.034  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/glacial_mirror/capture_jobs/batches/front_preview/front_silhouette.png'
 BLENDER_FACING: PASS
 MIRROR_BOUNDED_CAPTURE: PASS; view=front; solos=None
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)

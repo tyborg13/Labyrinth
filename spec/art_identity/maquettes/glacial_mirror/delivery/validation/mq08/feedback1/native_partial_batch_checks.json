@@ -1,0 +1,103 @@
+{
+  "passed": true,
+  "spec_hash": "4370346c1cd0770f7c80ef75d41445d6c625ce416073b4bf85a202badcaf7b20",
+  "geometry_unchanged": true,
+  "geometry_checks": {
+    "labels_cover_every_face": true,
+    "view_piece_ownership": true,
+    "polygon_material_ownership": true,
+    "body_weight_ownership": true,
+    "cloth_collision_margin": true,
+    "collar_front_no_wider_than_back": true,
+    "plate_corners_preserved": true,
+    "armour_conforms_to_body": true,
+    "native_rigid_bindings": true,
+    "native_sculpted_surfaces": true,
+    "whole_native_features": true,
+    "native_contacts": true
+  },
+  "facing": {
+    "forward_world": [
+      0.9076172709465027,
+      -0.0831989124417305,
+      0.0
+    ],
+    "anatomical_forward_world": [
+      0.9076172709465027,
+      -0.0831989124417305,
+      0.4114713966846466
+    ],
+    "front_forward_screen": [
+      -0.7006128421831935,
+      0.2914759059167033
+    ],
+    "rear_forward_screen": [
+      0.7006128421831935,
+      -0.2914759059167033
+    ],
+    "board_axis_cosine": 0.9975928443852994,
+    "passed": true,
+    "torso_three_quarter": {
+      "left_area_px": 58595,
+      "right_area_px": 50307,
+      "area_imbalance": 0.07610512203632624,
+      "mirror_difference": 0.14704280950112297
+    },
+    "torso_frontal_control": {
+      "left_area_px": 62122,
+      "right_area_px": 45597,
+      "area_imbalance": 0.15340840520242482,
+      "mirror_difference": 0.2916930981984268
+    },
+    "torso_asymmetry_passed": true,
+    "frontal_axis_rejected": true
+  },
+  "mass_tops_px": {
+    "front": {
+      "upper_near": [
+        641.8805522015699,
+        159.13827988538293
+      ],
+      "upper_far": [
+        285.88055278706224,
+        92.83827789276296
+      ],
+      "head": [
+        521.1973869964417,
+        67.57695013482618
+      ]
+    },
+    "rear": {
+      "upper_near": [
+        387.33272973240565,
+        32.18004258907325
+      ],
+      "upper_far": [
+        743.3327268990814,
+        98.4800457056092
+      ],
+      "head": [
+        498.1958596230072,
+        57.70848867865794
+      ]
+    }
+  },
+  "native_mesh_hash": "e6578457943a7180e5b8ecfe8657283d0b9a738ceb0324a85b1f87dcd1578450",
+  "joint_errors_m": {
+    "pelvis": 3.332000937312528e-08,
+    "torso": 5.890201144234053e-09,
+    "head": 2.598160480471866e-07,
+    "shoulder_near": 1.2377834115800373e-07,
+    "elbow_near": 1.228781230931777e-07,
+    "hand_near": 1.9082797281243946e-07,
+    "hip_near": 2.5258676990909333e-06,
+    "knee_near": 3.332000937312528e-07,
+    "ankle_near": 8.971687092477304e-08,
+    "shoulder_far": 8.940696716308594e-08,
+    "elbow_far": 2.9802322387695312e-08,
+    "hand_far": 1.6858739404357614e-07,
+    "hip_far": 3.0036838028184444e-06,
+    "knee_far": 5.966544077546133e-07,
+    "ankle_far": 2.0485709734063626e-07
+  }
+}

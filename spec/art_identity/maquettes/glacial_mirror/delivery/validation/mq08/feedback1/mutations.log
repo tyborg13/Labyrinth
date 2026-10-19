@@ -1,0 +1,9 @@
+MQ08_MUTATION: cap_migration_and_recipe_up_80px; CAUGHT
+MQ08_MUTATION: shoulder_guard_removed; CAUGHT
+MQ08_MUTATION: pauldron_guard_removed; CAUGHT
+MQ08_MUTATION: turn_guard_removed; CAUGHT
+MQ08_MUTATION: partial_mode_guard_removed; CAUGHT
+MQ08_MUTATION: fresh_directory_guard_removed; CAUGHT
+MQ08_MUTATION: input_tree_guard_removed; CAUGHT
+MQ08_MUTATION: original_inventory_guard_removed; CAUGHT
+MQ08_MUTATION: cache_reuse_reporting_removed; CAUGHT
