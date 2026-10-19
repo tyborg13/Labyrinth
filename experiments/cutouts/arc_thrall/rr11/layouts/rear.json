@@ -180536,7 +180536,7 @@
       "z_index": -15,
       "source": "pieces/rear/hidden_torso.png",
       "rigid": true,
-      "source_sha256": "ff1e9327e6040ee81c1bf078c630b927ebd2dd04ad6ef6295b251d4ddc004851"
+      "source_sha256": "e948fd9cb1a91f07148e2579d59911bf11a8d811a02023dc6fadbef96b9d3449"
     },
     "joint_extension_torso": {
       "mask": "checks/rear/joint_extension_torso.png",
@@ -180547,7 +180547,7 @@
       "z_index": -14,
       "source": "pieces/rear/joint_extension_torso.png",
       "rigid": true,
-      "source_sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+      "source_sha256": "c5f6d19ce2cc7cfbacb9a0e027da7e2b503921f707e5e86fc5f7ad050c07b9da"
     },
     "torso": {
       "mask": "checks/rear/torso.png",
@@ -180591,7 +180591,7 @@
       "z_index": -19,
       "source": "pieces/rear/hidden_tube.png",
       "rigid": true,
-      "source_sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+      "source_sha256": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5"
     },
     "tube": {
       "mask": "checks/rear/tube.png",
@@ -180613,7 +180613,7 @@
       "z_index": -9,
       "source": "pieces/rear/hidden_sleeve_far.png",
       "rigid": false,
-      "source_sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+      "source_sha256": "768f88e695817b426ad5bb4eba00d9fed788f9da60ca1b2acbc25aaef8a191ae"
     },
     "sleeve_far": {
       "mask": "checks/rear/sleeve_far.png",
@@ -180635,7 +180635,7 @@
       "z_index": -16,
       "source": "pieces/rear/hidden_claw.png",
       "rigid": true,
-      "source_sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+      "source_sha256": "b33030e34b6ba095715b9740c3ec7eaa8d0c1307b6dbe430596e25bed386bfcd"
     },
     "claw": {
       "mask": "checks/rear/claw.png",
@@ -180701,7 +180701,7 @@
       "z_index": -11,
       "source": "pieces/rear/hidden_foot_near.png",
       "rigid": true,
-      "source_sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+      "source_sha256": "6d436d5c779a827975a5fdadbee0e97420eb33804ddfc38f57c0db108c3dceca"
     },
     "foot_near": {
       "mask": "checks/rear/foot_near.png",
@@ -180723,7 +180723,7 @@
       "z_index": -10,
       "source": "pieces/rear/hidden_foot_far.png",
       "rigid": true,
-      "source_sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+      "source_sha256": "8ad10794f1ffbaed81f83e4b3d87a378a1d8df955b70647d7bddcd558828538d"
     },
     "foot_far": {
       "mask": "checks/rear/foot_far.png",
@@ -180745,7 +180745,7 @@
       "z_index": -6,
       "source": "pieces/rear/hidden_loincloth.png",
       "rigid": false,
-      "source_sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+      "source_sha256": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692"
     },
     "joint_extension_loincloth": {
       "mask": "checks/rear/joint_extension_loincloth.png",
@@ -180811,7 +180811,7 @@
       "z_index": -4,
       "source": "pieces/rear/mq7b_continuation_sleeve_far.png",
       "rigid": false,
-      "source_sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+      "source_sha256": "7f41a7e830c739536ea78542488d183f49f1dc0b6f7800b3f807115e31cdceb0"
     },
     "mq7b_continuation_leg_near": {
       "mask": "checks/rear/mq7b_continuation_leg_near.png",
@@ -180844,7 +180844,7 @@
       "z_index": -1,
       "source": "pieces/rear/mq7b_continuation_loincloth.png",
       "rigid": false,
-      "source_sha256": "ba974ca66e2115de4281236b0e76836459792ea095b4e75b1e4cd81001f40000"
+      "source_sha256": "3e524490f2c01ac712697176b46f5925b0b0a20a428271d34126e40e9e3d49a3"
     },
     "joint_tuck_head": {
       "mask": "checks/rear/joint_tuck_head.png",

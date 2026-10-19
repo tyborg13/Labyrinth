@@ -30,6 +30,20 @@
       "restored": "in-memory patch only"
     },
     {
+      "guard": "own_mq7b_donors",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
+      "guard": "exposed_donor_provenance",
+      "caught_by_assertion": true,
+      "errors": 0,
+      "failures": 1,
+      "restored": "in-memory patch only"
+    },
+    {
       "guard": "hem_limit",
       "caught_by_assertion": true,
       "errors": 0,

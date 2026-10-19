@@ -57,7 +57,7 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png",
-      "sha256": "9211bc13ebfa597c8fd82ca9368e9fbdb32b1c576b5e385d5215b79e67447f21"
+      "sha256": "362f15a08aaeda9cc962ac4589de3e9f8ecef5b8f1cf20401d5f34cbe1f71509"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png.import": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png.import",
@@ -65,7 +65,7 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png",
-      "sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+      "sha256": "8244c1bc6cfc705e144f1cf3975d0e3f2171167ebd214cb67bc2a883d355fa0b"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png.import": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png.import",
@@ -73,7 +73,7 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png",
-      "sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+      "sha256": "0d94d1f321b7b77bc541ab4cd2b919b9cf7296310beb47bd1a5b635234b1d69d"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png.import": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png.import",
@@ -113,7 +113,7 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png",
-      "sha256": "f8bbbd212c17e4e67c6a1f07679ae0e5ab9c31faaa7078d1ddd9b5ec4cc3460c"
+      "sha256": "bbcba2c47c9abcb077be68ad465ac5d66df22c5189d9e9e6563d8a178e77124c"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png.import": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png.import",
@@ -185,11 +185,11 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png",
-      "sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+      "sha256": "32e9e2a0f9108f1e20ee5172423794f3d6b2d90d44d6340733389ec5c42d40f6"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png",
-      "sha256": "86ad60b78a227f8b2af8d1a5a3637f8b6a9571888a5faa2e345190120d1fddb3"
+      "sha256": "ff42245f95ac8efca0056f5c1a07592abbc06b78d27d9145cd3ecdfaa0e7e91d"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png",
@@ -253,15 +253,15 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png",
-      "sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+      "sha256": "b33030e34b6ba095715b9740c3ec7eaa8d0c1307b6dbe430596e25bed386bfcd"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png",
-      "sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+      "sha256": "5c419b656ef532622dd7dc4ceda46d9f0b2d81c0cdef55253784413a32764931"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png",
-      "sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+      "sha256": "6d436d5c779a827975a5fdadbee0e97420eb33804ddfc38f57c0db108c3dceca"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png",
@@ -277,19 +277,19 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png",
-      "sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+      "sha256": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png",
-      "sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+      "sha256": "768f88e695817b426ad5bb4eba00d9fed788f9da60ca1b2acbc25aaef8a191ae"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png",
-      "sha256": "b26f903a6a7a8298985b3b54832a94a2b2554efe084dc15991231cd8b39f6c5d"
+      "sha256": "f4235b45887a03bd96cd831c0e69fe3890838bc0b933cca6f83000b2feec29d0"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png",
-      "sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+      "sha256": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png",
@@ -301,7 +301,7 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png",
-      "sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+      "sha256": "c5f6d19ce2cc7cfbacb9a0e027da7e2b503921f707e5e86fc5f7ad050c07b9da"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png",
@@ -337,11 +337,11 @@
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png",
-      "sha256": "6e642d30140d33151a6b00806b2003896545d1ffd6e38472ee60aba3c1c1a8fe"
+      "sha256": "19e483f28b905f420dc015dbdf6c7a7864c1e10f5bfe77eabb67ffd78a04c5e2"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png",
-      "sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+      "sha256": "7f41a7e830c739536ea78542488d183f49f1dc0b6f7800b3f807115e31cdceb0"
     },
     "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png": {
       "reference_path": "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png",
@@ -769,11 +769,11 @@
     },
     "experiments/cutouts/arc_thrall/rr11/layouts/front.json": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/layouts/front.json",
-      "canonical_layout_sha256": "5f6aadd8657cfeda5f220313d96d2f95e6d2e77ae355effa76ee1e47804fc7ac"
+      "canonical_layout_sha256": "02cd42e2100c5da40f642a23bf856af76e6580ef07654238eecd02195a7a2c75"
     },
     "experiments/cutouts/arc_thrall/rr11/layouts/rear.json": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/layouts/rear.json",
-      "canonical_layout_sha256": "0fe3945d07742196e711e01df544b335a0121f6fe29256fb0a906252b6e5b05c"
+      "canonical_layout_sha256": "dae07cb3436b4155fa700d3acd55de6c66166a5a6869643240e2750220158448"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/claw.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/claw.png",
@@ -793,15 +793,15 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_claw.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_claw.png",
-      "sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e"
+      "sha256": "fc76f3346876e3c8ce00445918bce4ecc632af9ccc6456a39ad91d0b466ce347"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_far.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_far.png",
-      "sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+      "sha256": "8244c1bc6cfc705e144f1cf3975d0e3f2171167ebd214cb67bc2a883d355fa0b"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_near.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_near.png",
-      "sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+      "sha256": "10d743714f82415ff9e79651b73471e786ac76ee8125d1ab84130174aaa7f89d"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_head.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_head.png",
@@ -821,7 +821,7 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_torso.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_torso.png",
-      "sha256": "a86c419a9fbf6d235d384bb123b80513165d203c0e876537411d50be10cca911"
+      "sha256": "126264215da400fb39ce66c98dc6a94fbc8856a341d197a0a96afcb627476c04"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_tube.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_tube.png",
@@ -865,11 +865,11 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_loincloth.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_loincloth.png",
-      "sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+      "sha256": "ea553a642c75ed16d159035aead3d01500d5d5e3171a23a918d1de4cab5cfec0"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_sleeve_far.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_sleeve_far.png",
-      "sha256": "191e0866852b82d5d09526c702ed4faaf523d374323204c2364c84c899f0ab55"
+      "sha256": "ff42245f95ac8efca0056f5c1a07592abbc06b78d27d9145cd3ecdfaa0e7e91d"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_torso.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/front/mq7b_continuation_torso.png",
@@ -909,15 +909,15 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_claw.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_claw.png",
-      "sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+      "sha256": "b33030e34b6ba095715b9740c3ec7eaa8d0c1307b6dbe430596e25bed386bfcd"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_far.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_far.png",
-      "sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+      "sha256": "8ad10794f1ffbaed81f83e4b3d87a378a1d8df955b70647d7bddcd558828538d"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_near.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_near.png",
-      "sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+      "sha256": "6d436d5c779a827975a5fdadbee0e97420eb33804ddfc38f57c0db108c3dceca"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_head.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_head.png",
@@ -933,19 +933,19 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_loincloth.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_loincloth.png",
-      "sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+      "sha256": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_sleeve_far.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_sleeve_far.png",
-      "sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+      "sha256": "768f88e695817b426ad5bb4eba00d9fed788f9da60ca1b2acbc25aaef8a191ae"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_torso.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_torso.png",
-      "sha256": "ff1e9327e6040ee81c1bf078c630b927ebd2dd04ad6ef6295b251d4ddc004851"
+      "sha256": "e948fd9cb1a91f07148e2579d59911bf11a8d811a02023dc6fadbef96b9d3449"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_tube.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_tube.png",
-      "sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+      "sha256": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_upper_near.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_upper_near.png",
@@ -957,7 +957,7 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_torso.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_torso.png",
-      "sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+      "sha256": "c5f6d19ce2cc7cfbacb9a0e027da7e2b503921f707e5e86fc5f7ad050c07b9da"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_tuck_head.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_tuck_head.png",
@@ -993,11 +993,11 @@
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_loincloth.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_loincloth.png",
-      "sha256": "ba974ca66e2115de4281236b0e76836459792ea095b4e75b1e4cd81001f40000"
+      "sha256": "3e524490f2c01ac712697176b46f5925b0b0a20a428271d34126e40e9e3d49a3"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_sleeve_far.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_sleeve_far.png",
-      "sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+      "sha256": "7f41a7e830c739536ea78542488d183f49f1dc0b6f7800b3f807115e31cdceb0"
     },
     "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_torso.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_torso.png",
@@ -1157,7 +1157,7 @@
     },
     "experiments/cutouts/arc_thrall/rr11/rr24_policy.json": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/rr24_policy.json",
-      "sha256": "ddc6fe713fbeaa6e2499f5b438b0502d68eb8f101355c825623ba561c0a811ca"
+      "sha256": "fc50160f79e00df831ec0ad35b05ce558118061c37d46fba129d8073be991570"
     },
     "experiments/cutouts/arc_thrall/rr11/seams/front_claw.png": {
       "reference_path": "experiments/cutouts/arc_thrall/rr11/seams/front_claw.png",
@@ -1593,15 +1593,15 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png",
-      "sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e"
+      "sha256": "fc76f3346876e3c8ce00445918bce4ecc632af9ccc6456a39ad91d0b466ce347"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png",
-      "sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+      "sha256": "8244c1bc6cfc705e144f1cf3975d0e3f2171167ebd214cb67bc2a883d355fa0b"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png",
-      "sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+      "sha256": "10d743714f82415ff9e79651b73471e786ac76ee8125d1ab84130174aaa7f89d"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png",
@@ -1621,7 +1621,7 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png",
-      "sha256": "a86c419a9fbf6d235d384bb123b80513165d203c0e876537411d50be10cca911"
+      "sha256": "126264215da400fb39ce66c98dc6a94fbc8856a341d197a0a96afcb627476c04"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_tube.png",
@@ -1665,11 +1665,11 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_loincloth.png",
-      "sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+      "sha256": "ea553a642c75ed16d159035aead3d01500d5d5e3171a23a918d1de4cab5cfec0"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_sleeve_far.png",
-      "sha256": "191e0866852b82d5d09526c702ed4faaf523d374323204c2364c84c899f0ab55"
+      "sha256": "ff42245f95ac8efca0056f5c1a07592abbc06b78d27d9145cd3ecdfaa0e7e91d"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/front/mq7b_continuation_torso.png",
@@ -1713,15 +1713,15 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png",
-      "sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8"
+      "sha256": "b33030e34b6ba095715b9740c3ec7eaa8d0c1307b6dbe430596e25bed386bfcd"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png",
-      "sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7"
+      "sha256": "8ad10794f1ffbaed81f83e4b3d87a378a1d8df955b70647d7bddcd558828538d"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png",
-      "sha256": "093412557f5a5ef91193c61c635228b7cd21c657adc9933fc50946a4f2e0c6ed"
+      "sha256": "6d436d5c779a827975a5fdadbee0e97420eb33804ddfc38f57c0db108c3dceca"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png",
@@ -1737,19 +1737,19 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png",
-      "sha256": "a731773b2908c712fc6ba79ad4e09eb9bd6c2980735d102bfabdd6b0b0ac5b9f"
+      "sha256": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png",
-      "sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77"
+      "sha256": "768f88e695817b426ad5bb4eba00d9fed788f9da60ca1b2acbc25aaef8a191ae"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png",
-      "sha256": "ff1e9327e6040ee81c1bf078c630b927ebd2dd04ad6ef6295b251d4ddc004851"
+      "sha256": "e948fd9cb1a91f07148e2579d59911bf11a8d811a02023dc6fadbef96b9d3449"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png",
-      "sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615"
+      "sha256": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png",
@@ -1761,7 +1761,7 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png",
-      "sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5"
+      "sha256": "c5f6d19ce2cc7cfbacb9a0e027da7e2b503921f707e5e86fc5f7ad050c07b9da"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_head.png",
@@ -1797,11 +1797,11 @@
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_loincloth.png",
-      "sha256": "ba974ca66e2115de4281236b0e76836459792ea095b4e75b1e4cd81001f40000"
+      "sha256": "3e524490f2c01ac712697176b46f5925b0b0a20a428271d34126e40e9e3d49a3"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png",
-      "sha256": "07948a2572bcbb14f972753d015ac0b3415f07546c0004582125fa90c1dbc415"
+      "sha256": "7f41a7e830c739536ea78542488d183f49f1dc0b6f7800b3f807115e31cdceb0"
     },
     "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png": {
       "reference_path": "spec/assets/board_pixel_density/sources/assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_torso.png",

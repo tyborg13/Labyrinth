@@ -390,7 +390,7 @@
   "production_promoted": true,
   "native_proof": "pending director mq7b captures",
   "rr24_derivation": {
-    "builder_sha256": "41890aa49fbe44e98c633fdd22a93cbb610a563ab89831737c58a58112392b4d",
+    "builder_sha256": "757bc2487f774c4a860c7cd1e17dd2f5aa965b7e6ca8a3cf302dfe33da777aff",
     "ownership_sha256": "1e1471a60aa332fab5d8d3820bd368be8fad23fb55c156a3f5f26080cd97f8b1",
     "gait_coverage_sha256": "e44e497bbb09ba66a681211f57acf7692a5a4c62c02871821c0a4befab9fc646",
     "raw_authoring": "rr24/raw: exact mq7b RGBA, before the director residue rule",

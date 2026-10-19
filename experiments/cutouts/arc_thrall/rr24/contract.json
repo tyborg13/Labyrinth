@@ -23,5 +23,15 @@
       "Focused gates/tests/mutations all pass headless; exact director windowed sequence including crops"
     ],
     "proof": "Focused tests only; no full suite, peer review, commits or windowed runs."
+  },
+  "feedback2": {
+    "baseline_commit": "7cdcebb1e2e037f252d989627df4d70ade9003a0",
+    "acceptance": [
+      "Every hidden field keeps coverage and uses current own-mq7b edge donors; source and exposed provenance reject foreign skirt colours in both views",
+      "Every Thrall rest/native/idle capture selects layout.rest_source, with raw mq7b identity asserted separately",
+      "Walk crop metadata reproduces 382/338px overflow; frame-root stabilisation fits existing 320px cells at 2x without changing the sheet contract",
+      "No new alpha, geometry, draw-order, gait-coverage or motion changes; director re-runs the rr26 detached census after integration",
+      "Focused checks only, no windowed runs; exact director sequence including crops supplied"
+    ]
   }
 }

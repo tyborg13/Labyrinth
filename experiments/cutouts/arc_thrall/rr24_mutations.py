@@ -10,8 +10,10 @@ from rr24_build import PROJECT,RECIPE,write_json
 sys.path.insert(0,str(PROJECT))
 import rr24_check
 import rr24_seams
+import rr24_materials
 from tests import test_rr24_thrall as regressions
 from tests import test_rr24_policies as policies
+from tests import test_rr24_feedback2 as feedback2
 
 
 def main():
@@ -23,6 +25,12 @@ def main():
     cases=[(name,rr24_check.source_errors,rr24_check,'source_errors',old,'pass',regressions,
             'ThrallOwnerFixTests.'+test) for name,old,test in source_mutations]
     cases += [
+        ('own_mq7b_donors',rr24_check.source_errors,feedback2,'source_errors',
+         "errors.append('hidden fill must use own mq7b texels: '+part['name'])",'pass',feedback2,
+         'Feedback2Tests.test_foreign_skirt_colour_is_rejected_in_both_views'),
+        ('exposed_donor_provenance',rr24_materials.foreign_pixels,rr24_materials,'foreign_pixels',
+         '(image[...,3]>0) & ~np.isin(colour_codes(image),palette)','np.zeros(image.shape[:2],dtype=bool)',feedback2,
+         'Feedback2Tests.test_exposed_foreign_skirt_colour_cannot_pass'),
         ('hem_limit',rr24_check.hem_report,regressions,'hem_report','maximum <= 4 + FLOAT_TOLERANCE_PX','True',regressions,
          'ThrallOwnerFixTests.test_hem_limit_settling_and_excessive_follow_through_mutation'),
         ('head_ownership',rr24_seams.head_ownership,rr24_check,'head_ownership','covered = contact & (owned != 1)',
@@ -43,7 +51,7 @@ def main():
         suite=unittest.defaultTestLoader.loadTestsFromName(test,module)
         # source_errors is imported by the regression module; patch that
         # reference as well as the production namespace, without editing files.
-        target=regressions if attribute=='source_errors' else owner
+        target=module if attribute=='source_errors' else owner
         with patch.object(target,attribute,namespace[original.__name__]):
             result=unittest.TextTestRunner(stream=io.StringIO()).run(suite)
         caught=bool(result.failures) and not result.errors

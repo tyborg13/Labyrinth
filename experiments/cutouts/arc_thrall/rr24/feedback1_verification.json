@@ -292,5 +292,6 @@
     "No renderer captures were produced; headless probe validation is not native pixel proof.",
     "Native density/rest/shadow records and GPU ownership/seam acceptance await the exact director sequence.",
     "Some Godot exits emit macOS certificate and resource-shutdown messages; raw logs and exit codes are retained."
-  ]
+  ],
+  "superseded_by": "feedback2_verification.json"
 }

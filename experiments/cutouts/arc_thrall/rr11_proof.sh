@@ -15,7 +15,7 @@ python3 tools/process_board_density.py --check --only arc_thrall_cutout
 python3 experiments/cutouts/arc_thrall/rr11_density.py seal
 ;;
 rest)
-python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/rr11/rest_contract.json tests/rr11/native_capture.gd -- --case "$rig_case" --output "$proof/native_rest" --rest-only
+python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/rr11/rest_contract.json experiments/cutouts/arc_thrall/rr24_native_capture.gd -- --case "$rig_case" --output "$proof/native_rest" --rest-only
 ;;
 native)
 python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case "$rig_case" --output "$proof/samples.json"
@@ -30,7 +30,7 @@ PYTHONPATH=tools python3 -m humanoid_cutout.production_gates --case "$rig_case" 
 done
 ;;
 idle)
-python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 300 --expect-size 1920x1080 --proof-contract tests/rr11/idle_contract.json tests/rr11/native_capture.gd -- --case "$rig_case" --output "$proof/idle_native" --idle-comparison
+python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 300 --expect-size 1920x1080 --proof-contract tests/rr11/idle_contract.json experiments/cutouts/arc_thrall/rr24_native_capture.gd -- --case "$rig_case" --output "$proof/idle_native" --idle-comparison
 PYTHONPATH=tools python3 -m humanoid_cutout.proof idle --case "$rig_case" --capture "$proof/idle_native" --output "$proof/thrall_protagonist_idle.mp4"
 ;;
 review)

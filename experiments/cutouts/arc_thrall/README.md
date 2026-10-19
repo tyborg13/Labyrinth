@@ -3,7 +3,7 @@
 The current humanoid-v2 production case is `rr11/`, re-cut for rr-24 from the
 director's final mq7b paintings. Rebuild it with `rr24_build.py`, then
 `rr11_density.py --refresh-sources`; the older builders are revision-specific.
-See [the rr-24 feedback 1 handoff](rr24/feedback1.md) for ownership, proof,
+See [the rr-24 feedback 2 handoff](rr24/feedback2.md) for ownership, proof,
 current results and director capture commands. `rr24/baseline/` freezes the prior
 gait-01 geometry; `rr24/raw/` preserves the exact approved source partition.
 

@@ -156,11 +156,10 @@ def build_view(view):
         checks[y:y + check.shape[0], x:x + check.shape[1]] = check
         mask = checks[..., 1] > 0
         hidden[part['logical_part']][mask] = layer[mask]
-    for name, image in hidden.items():
-        hidden[name], _ = clean_residue(image, visible[name])
-    # The repaint supersedes mq7 donor colours as well as its visible cut.
-    # Keep the certified shoulder cap's alpha, using current own-arm texels.
-    hidden['upper_near'] = edge_texels(visible['upper_near'],hidden['upper_near'][...,3]>0,rules(CASE,view))
+    # mq7 coverage remains certified, but none of its colours is authority
+    # for mq7b. Rebuild every field from its own current non-outline edge.
+    for name,image in hidden.items():
+        hidden[name] = edge_texels(visible[name],image[...,3]>0,rules(CASE,view))
     # Skin uncovered by the new skirt remains on each leg's own skin field.
     # Extend only beneath the approved skirt, using that thigh's own texels.
     for name in ('leg_near', 'leg_far'):
@@ -312,11 +311,13 @@ def build_view(view):
 
 
 def main():
+    from rr24_capture_source import write as write_capture_probe
+    write_capture_probe()
     policy = read_json(CASE/'rr24_policy.json')
     policy['implementation_sha256'] = {str((Path(__file__).parent/name).relative_to(PROJECT)):
         digest(Path(__file__).parent/name) for name in
-        ('rr24_seams.py','rr24_check.py','rr24_native_gates.py','rr24_native_proof.py',
-         'rr24_native_capture.gd','rr24_crops.py','rr11_gates.py')}
+        ('rr24_seams.py','rr24_check.py','rr24_materials.py','rr24_native_gates.py','rr24_native_proof.py',
+         'rr24_capture_source.py','rr24_native_capture.gd','rr24_crops.py','rr11_gates.py')}
     write_json(CASE/'rr24_policy.json',policy)
     layouts, reports = {}, {}
     for view in ('front', 'rear'):

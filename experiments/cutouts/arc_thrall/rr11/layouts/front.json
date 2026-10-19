@@ -193632,7 +193632,7 @@
       "z_index": -13,
       "source": "pieces/front/hidden_torso.png",
       "rigid": true,
-      "source_sha256": "a86c419a9fbf6d235d384bb123b80513165d203c0e876537411d50be10cca911"
+      "source_sha256": "126264215da400fb39ce66c98dc6a94fbc8856a341d197a0a96afcb627476c04"
     },
     "joint_extension_torso": {
       "mask": "checks/front/joint_extension_torso.png",
@@ -193731,7 +193731,7 @@
       "z_index": -14,
       "source": "pieces/front/hidden_claw.png",
       "rigid": true,
-      "source_sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e"
+      "source_sha256": "fc76f3346876e3c8ce00445918bce4ecc632af9ccc6456a39ad91d0b466ce347"
     },
     "claw": {
       "mask": "checks/front/claw.png",
@@ -193797,7 +193797,7 @@
       "z_index": -9,
       "source": "pieces/front/hidden_foot_near.png",
       "rigid": true,
-      "source_sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e"
+      "source_sha256": "10d743714f82415ff9e79651b73471e786ac76ee8125d1ab84130174aaa7f89d"
     },
     "foot_near": {
       "mask": "checks/front/foot_near.png",
@@ -193819,7 +193819,7 @@
       "z_index": -8,
       "source": "pieces/front/hidden_foot_far.png",
       "rigid": true,
-      "source_sha256": "e5088843ce1b93080b4fe1fe8c7f2304793b4bd29c4fa551c80dda518328cc15"
+      "source_sha256": "8244c1bc6cfc705e144f1cf3975d0e3f2171167ebd214cb67bc2a883d355fa0b"
     },
     "foot_far": {
       "mask": "checks/front/foot_far.png",
@@ -193874,7 +193874,7 @@
       "z_index": -4,
       "source": "pieces/front/mq7b_continuation_sleeve_far.png",
       "rigid": false,
-      "source_sha256": "191e0866852b82d5d09526c702ed4faaf523d374323204c2364c84c899f0ab55"
+      "source_sha256": "ff42245f95ac8efca0056f5c1a07592abbc06b78d27d9145cd3ecdfaa0e7e91d"
     },
     "mq7b_continuation_leg_near": {
       "mask": "checks/front/mq7b_continuation_leg_near.png",
@@ -193907,7 +193907,7 @@
       "z_index": -1,
       "source": "pieces/front/mq7b_continuation_loincloth.png",
       "rigid": false,
-      "source_sha256": "f7bde2726e3dca9c154f464e47176d784b581e708f948424e59155171abf44df"
+      "source_sha256": "ea553a642c75ed16d159035aead3d01500d5d5e3171a23a918d1de4cab5cfec0"
     },
     "joint_tuck_torso": {
       "mask": "checks/front/joint_tuck_torso.png",

@@ -1,7 +1,7 @@
 # rr-24 implementation handoff
 
 **Historical pre-feedback handoff.** The director resolved both design questions
-and authorized the repaint re-pins. See [the current feedback 1 handoff](feedback1.md)
+and authorized the repaint re-pins. See [the current feedback 2 handoff](feedback2.md)
 for the passing headless results, changed files and exact windowed commands.
 The text below records the superseded initial state.
 

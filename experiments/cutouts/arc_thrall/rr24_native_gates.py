@@ -11,6 +11,10 @@ from tools.humanoid_cutout.anatomy import load
 from tools.humanoid_cutout.native_exceptions import load as exceptions, frame_errors, METRIC_RULES, JOINT_HOLE_RULE
 from tools.humanoid_cutout.silhouette_gates import posed_owners
 from maquette_motion.pixels import PROOF_DEFAULTS
+from rr24_check import source_errors as thrall_source_errors
+from rr24_build import visible_layers, clean_residue
+from rr24_materials import donor_palettes, exposed_provenance
+from maquette_motion.material_palette import rules
 
 
 def errors(case,capture,failure_output=None,hole_details=None):
@@ -22,6 +26,11 @@ def errors(case,capture,failure_output=None,hole_details=None):
     samples = read_json(case/'proof/samples.json')
     poses = {(p['view'],p['clip'],p['frame']):p for p in samples['samples'] if p['kind']=='presented'}
     layouts = {view:read_json(case/f'layouts/{view}.json') for view in ('front','rear')}
+    palettes = {}
+    for view,layout in layouts.items():
+        result += thrall_source_errors(view,layout)
+        paint = np.asarray(Image.open(case/layout['raw_rest_source']).convert('RGBA'))
+        palettes[view] = donor_palettes({n:clean_residue(im)[0] for n,im in visible_layers(view,paint).items()},rules(case,view))
     policies = {view:SkirtAirPolicy(case,layout) for view,layout in layouts.items()}
     anatomy = load(case); approved = exceptions(case)
     original = {(p['view'],p['clip'],p['frame']):p['pockets'] for p in original_pockets}
@@ -30,6 +39,7 @@ def errors(case,capture,failure_output=None,hole_details=None):
         grouped[field] = defaultdict(list)
         for row in manifest[field]: grouped[field][row['view'],row['clip'],row['frame']].append(row)
     air, contacts, failures = [], [], []
+    provenance = {'exposed_pixels':0,'foreign_pixels':0,'failures':[]}
     for key,rows in grouped['pieces'].items():
         view,clip,frame = key
         if key not in poses: continue  # Full validator already records missing poses.
@@ -44,6 +54,13 @@ def errors(case,capture,failure_output=None,hole_details=None):
             checks = np.asarray(Image.open(capture/row['checks']).convert('RGBA'))
             layers.append((part,image,checks)); allowed[part['name']] = checks[...,0] > 0
         if len(layers)!=len(layout['parts']): continue
+        exposed = exposed_provenance(layers,palettes[view])
+        provenance['exposed_pixels'] += sum(row['exposed_pixels'] for row in exposed)
+        foreign = sum(row['foreign_pixels'] for row in exposed)
+        provenance['foreign_pixels'] += foreign
+        if foreign:
+            result.append(str(key)+': foreign exposed hidden colour')
+            provenance['failures'].append(dict(view=view,clip=clip,frame=frame,pieces=exposed))
         ownership = head_ownership(layers)
         if ownership['contact_pixels']: contacts.append(dict(view=view,clip=clip,frame=frame,**ownership))
         if not ownership['ok']: result.append(str(key)+': collar covers rendered head')
@@ -71,6 +88,7 @@ def errors(case,capture,failure_output=None,hole_details=None):
             failures.append(record)
             if hole_details is not None: hole_details.append(record)
     write_json(capture/'rr24_policy_report.json',{'ok':not result,'native_pixels':True,
+        'hidden_provenance':provenance,
         'air_pockets':air,'contact_frames':contacts,'failures':failures,'errors':result,
         'inputs':manifest['inputs']})
     return result

@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 
 from rr24_build import (PROJECT, CASE, RECIPE, BASELINE, PIECES, polygon,
-                        read_json, write_json, source_pixels, residue, visible_layers)
+                        read_json, write_json, source_pixels, residue, visible_layers, clean_residue)
 from tools.humanoid_cutout.cpu_pose import CpuPose, sprite_transform
 from tools.humanoid_cutout.gates import bindings, matrix
 from tools.humanoid_cutout.native_exceptions import load as exceptions, frame_errors
@@ -18,6 +18,7 @@ from rr15_cpu_proof import frame_state
 from tools.humanoid_cutout.anatomy import load as load_anatomy
 from rr24_seams import head_ownership, SkirtAirPolicy
 from tools.humanoid_cutout.silhouette_gates import posed_owners
+from rr24_materials import donor_palettes, foreign_pixels, exposed_provenance
 
 PROOF_PROGRESS_INTERVAL = 50
 FLOAT_TOLERANCE_PX = 0.0001
@@ -53,14 +54,14 @@ def source_errors(view, layout):
         errors.append('protected compiled motion changed')
     for part in parts.values():
         if residue(source_pixels(CASE, part)).any(): errors.append('green residue: ' + part['name'])
-    for garment in ('leg_near','leg_far'):
-        donors = interior_donors(source_pixels(CASE, parts[garment]), rules(CASE,view))
-        palette = set(map(tuple, donors[donors[...,3]>0]))
-        for part in parts.values():
-            if part['logical_part'] != garment or not part.get('hidden_material'): continue
-            image = source_pixels(CASE,part)
-            if any(tuple(pixel) not in palette for pixel in image[image[...,3]>0]):
+    palettes = donor_palettes({name:clean_residue(image)[0] for name,image in expected.items()},rules(CASE,view))
+    for part in parts.values():
+        if not part.get('hidden_material'): continue
+        if foreign_pixels(source_pixels(CASE,part),palettes[part['logical_part']]).any():
+            if part['logical_part'] in ('leg_near','leg_far'):
                 errors.append('hidden fill must use own skin: '+part['name'])
+            else:
+                errors.append('hidden fill must use own mq7b texels: '+part['name'])
     return errors
 
 
@@ -106,7 +107,10 @@ def raster_report(view, layout, samples):
     model = CpuPose(CASE, deepcopy(layout))
     approved = exceptions(CASE)
     policy = SkirtAirPolicy(CASE,layout)
+    paint = np.asarray(Image.open(CASE/layout['raw_rest_source']).convert('RGBA'))
+    palettes = donor_palettes({n:clean_residue(im)[0] for n,im in visible_layers(view,paint).items()},rules(CASE,view))
     failures, air, count = [], [], 0
+    provenance = {'exposed_pixels':0,'foreign_pixels':0,'failures':[]}
     for pose in samples['samples']:
         if pose['view'] != view or pose['kind'] != 'presented': continue
         layers,maps = model.layers(pose)
@@ -123,6 +127,13 @@ def raster_report(view, layout, samples):
         metric = dict(outside_pixels=0, exposed_outline_pixels=0, dark_slab_blocks=0,
                       outline_outside_pixels=0, **detached_metrics(pixels))
         errors = frame_errors((view, pose['clip'], pose['frame']), metric, holes, approved)
+        exposed = exposed_provenance(layers,palettes)
+        provenance['exposed_pixels'] += sum(row['exposed_pixels'] for row in exposed)
+        foreign = sum(row['foreign_pixels'] for row in exposed)
+        provenance['foreign_pixels'] += foreign
+        if foreign:
+            errors.append('foreign exposed hidden colour')
+            provenance['failures'].append({'clip':pose['clip'],'frame':pose['frame'],'pieces':exposed})
         green = int(residue(pixels).sum())
         if green: errors.append('green residue')
         if errors:
@@ -133,6 +144,7 @@ def raster_report(view, layout, samples):
             print(f'RR24 CPU {view}: {count} frames; {len(failures)} failing frames', flush=True)
             write_json(RECIPE / f'{view}_raster_progress.json', {'frames': count, 'failures': failures})
     return {'ok': not failures, 'native_pixels': False, 'frames': count, 'failures': failures, 'air_pockets':air,
+            'hidden_provenance':provenance,
             'scope': 'CPU estimate only; director native gates remain mandatory'}
 
 

@@ -1,5 +1,7 @@
 # rr-24 feedback 1 handoff
 
+This historical report is superseded by [feedback 2](feedback2.md).
+
 Implementation is uncommitted on `codex/rr-24`, based on the director's
 `4de3c0dc2d59a83246c6b36abfcada081ff1fdc0` repaint handoff. The director's
 two decisions are implemented. There are no active `TODO_DESIGN` placeholders.
