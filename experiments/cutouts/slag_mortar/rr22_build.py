@@ -233,6 +233,8 @@ def build():
     layouts, reports, projections = {}, {}, {}
     for view in ('front', 'rear'):
         layouts[view], reports[view], projections[view] = build_view(view, inputs, anatomy)
+    # Provenance only: keep the protected mask recipe byte-identical too.
+    shutil.copyfile(DIRECTOR.parent / 'make_crucible_mask.py', CASE / 'source/make_crucible_mask.py')
     data = compile_motion(CASE / 'director_motion.json', 'slag_mortar', layouts, projections)
     for view, layout in layouts.items():
         layout['gait_leg_scale_max'] = data['clips']['move']['gait']['leg_scale_max']

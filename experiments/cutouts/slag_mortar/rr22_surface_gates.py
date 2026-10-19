@@ -7,6 +7,17 @@ from maquette_motion.silhouette import components
 from rr22_surfaces import resolve, clean_residue, molten_mask
 
 
+def continuation_errors(visible, hidden, label):
+    """A covered surface may only reuse texels from its own visible paint.
+
+    In particular, the crucible underside must never borrow the shoulder skin
+    that occupies its hidden domain in the approved assembled painting.
+    """
+    donors = {tuple(rgb) for rgb in visible[visible[..., 3] > 0, :3]}
+    foreign = sum(tuple(rgb) not in donors for rgb in hidden[hidden[..., 3] > 0, :3])
+    return [f'{label}: {foreign} continuation texels lack own-piece donors'] if foreign else []
+
+
 def connectivity_errors(images, label, approved=None, rigid=False):
     union = np.logical_or.reduce([image[..., 3] > 0 for image in images])
     labelled, groups = components(union)
@@ -55,6 +66,9 @@ def errors(case, layout):
         visible = [p for p in parts if not p.get('hidden_material')]
         if len(visible) != 1 or not np.array_equal(source_pixels(case, visible[0]), image):
             failures.append(view + '/' + name + ': actual source cut differs from director ownership')
+        for part in parts:
+            if part.get('hidden_material'):
+                failures += continuation_errors(image, source_pixels(case, part), view + '/' + name)
         failures += connectivity_errors([source_pixels(case, p) for p in parts], view + '/' + name,
                                        paint, rigid=not any(m['logical_part'] == name for m in layout['joint_meshes']))
     return failures

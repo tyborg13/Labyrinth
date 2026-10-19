@@ -1,22 +1,13 @@
 {
   "front": {
-    "ok": false,
-    "errors": [
-      "('front', 'lob', 36): detached opaque component outside outline exemption",
-      "('front', 'lob', 37): detached opaque component outside outline exemption",
-      "('front', 'lob', 38): detached opaque component outside outline exemption",
-      "('front', 'lob', 49): detached opaque component outside outline exemption",
-      "('front', 'lob', 50): detached opaque component outside outline exemption",
-      "('front', 'lob', 51): detached opaque component outside outline exemption",
-      "('front', 'death', 28): detached opaque component outside outline exemption",
-      "('front', 'death', 29): detached opaque component outside outline exemption"
-    ],
+    "ok": true,
+    "errors": [],
     "frames": 431,
     "native_pixels": false,
-    "air_pockets_passed": 2242,
+    "air_pockets_passed": 2198,
     "source_space": {
       "frames_with_passed_space": 431,
-      "air_pockets_passed": 2242,
+      "air_pockets_passed": 2198,
       "maximum_air_pocket_pixels": 578,
       "painted_detached_components_passed": 0,
       "pocket_bounds": [
@@ -8903,6 +8894,16 @@
         {
           "bbox": [
             301,
+            249,
+            302,
+            250
+          ],
+          "pixel_count": 1,
+          "occurrences": 1
+        },
+        {
+          "bbox": [
+            301,
             261,
             318,
             301
@@ -9213,6 +9214,16 @@
         {
           "bbox": [
             302,
+            248,
+            303,
+            249
+          ],
+          "pixel_count": 1,
+          "occurrences": 1
+        },
+        {
+          "bbox": [
+            302,
             265,
             303,
             267
@@ -9329,6 +9340,16 @@
           ],
           "pixel_count": 1,
           "occurrences": 5
+        },
+        {
+          "bbox": [
+            303,
+            247,
+            304,
+            248
+          ],
+          "pixel_count": 1,
+          "occurrences": 1
         },
         {
           "bbox": [
@@ -11063,61 +11084,11 @@
         {
           "bbox": [
             316,
-            245,
-            317,
-            246
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            316,
             261,
             317,
             262
           ],
           "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            317,
-            244,
-            318,
-            245
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            317,
-            245,
-            318,
-            246
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            318,
-            243,
-            320,
-            245
-          ],
-          "pixel_count": 3,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            318,
-            243,
-            321,
-            245
-          ],
-          "pixel_count": 4,
           "occurrences": 1
         },
         {
@@ -11133,51 +11104,11 @@
         {
           "bbox": [
             319,
-            242,
-            320,
-            243
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            319,
-            243,
-            320,
-            244
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            319,
             265,
             321,
             268
           ],
           "pixel_count": 4,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            320,
-            242,
-            322,
-            244
-          ],
-          "pixel_count": 3,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            320,
-            243,
-            321,
-            244
-          ],
-          "pixel_count": 1,
           "occurrences": 1
         },
         {
@@ -11202,86 +11133,6 @@
         },
         {
           "bbox": [
-            321,
-            241,
-            322,
-            242
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            321,
-            242,
-            322,
-            243
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            322,
-            240,
-            324,
-            241
-          ],
-          "pixel_count": 2,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            322,
-            240,
-            324,
-            242
-          ],
-          "pixel_count": 3,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            322,
-            241,
-            323,
-            242
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            323,
-            235,
-            324,
-            236
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            323,
-            239,
-            324,
-            240
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            323,
-            240,
-            324,
-            241
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
             323,
             256,
             324,
@@ -11289,26 +11140,6 @@
           ],
           "pixel_count": 1,
           "occurrences": 1
-        },
-        {
-          "bbox": [
-            324,
-            234,
-            325,
-            235
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            324,
-            239,
-            325,
-            240
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
         },
         {
           "bbox": [
@@ -11323,89 +11154,9 @@
         {
           "bbox": [
             325,
-            231,
-            327,
-            234
-          ],
-          "pixel_count": 5,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            325,
-            233,
-            326,
-            234
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            325,
-            238,
-            326,
-            239
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            326,
-            230,
-            327,
-            231
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            326,
-            230,
-            328,
-            231
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            326,
-            231,
-            327,
-            232
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            326,
             232,
-            327,
-            233
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
             326,
-            241,
-            327,
-            242
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            327,
-            241,
-            328,
-            242
+            233
           ],
           "pixel_count": 1,
           "occurrences": 1
@@ -11416,16 +11167,6 @@
             236,
             329,
             237
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            329,
-            239,
-            330,
-            240
           ],
           "pixel_count": 1,
           "occurrences": 1
@@ -11454,982 +11195,26 @@
     }
   },
   "rear": {
-    "ok": false,
-    "errors": [
-      "('rear', 'lob', 32): detached opaque component outside outline exemption",
-      "('rear', 'lob', 33): detached opaque component outside outline exemption",
-      "('rear', 'lob', 34): detached opaque component outside outline exemption",
-      "('rear', 'lob', 35): detached opaque component outside outline exemption",
-      "('rear', 'lob', 36): detached opaque component outside outline exemption",
-      "('rear', 'lob', 37): detached opaque component outside outline exemption",
-      "('rear', 'lob', 38): detached opaque component outside outline exemption",
-      "('rear', 'lob', 39): detached opaque component outside outline exemption",
-      "('rear', 'lob', 40): detached opaque component outside outline exemption",
-      "('rear', 'lob', 41): detached opaque component outside outline exemption",
-      "('rear', 'lob', 42): detached opaque component outside outline exemption",
-      "('rear', 'lob', 43): detached opaque component outside outline exemption",
-      "('rear', 'lob', 44): detached opaque component outside outline exemption",
-      "('rear', 'lob', 45): detached opaque component outside outline exemption",
-      "('rear', 'lob', 46): detached opaque component outside outline exemption",
-      "('rear', 'lob', 47): detached opaque component outside outline exemption",
-      "('rear', 'lob', 48): detached opaque component outside outline exemption",
-      "('rear', 'lob', 49): detached opaque component outside outline exemption",
-      "('rear', 'lob', 50): detached opaque component outside outline exemption",
-      "('rear', 'lob', 51): detached opaque component outside outline exemption",
-      "('rear', 'lob', 52): detached opaque component outside outline exemption",
-      "('rear', 'lob', 53): detached opaque component outside outline exemption",
-      "('rear', 'lob', 54): detached opaque component outside outline exemption",
-      "('rear', 'lob', 55): detached opaque component outside outline exemption",
-      "('rear', 'lob', 56): detached opaque component outside outline exemption",
-      "('rear', 'lob', 57): detached opaque component outside outline exemption",
-      "('rear', 'lob', 58): detached opaque component outside outline exemption",
-      "('rear', 'lob', 59): detached opaque component outside outline exemption",
-      "('rear', 'land', 11): detached opaque component outside outline exemption",
-      "('rear', 'land', 12): detached opaque component outside outline exemption",
-      "('rear', 'land', 13): detached opaque component outside outline exemption",
-      "('rear', 'brace', 17): detached opaque component outside outline exemption",
-      "('rear', 'brace', 18): detached opaque component outside outline exemption",
-      "('rear', 'brace', 19): detached opaque component outside outline exemption",
-      "('rear', 'brace', 20): detached opaque component outside outline exemption",
-      "('rear', 'brace', 21): detached opaque component outside outline exemption",
-      "('rear', 'brace', 22): detached opaque component outside outline exemption",
-      "('rear', 'brace', 23): detached opaque component outside outline exemption",
-      "('rear', 'brace', 24): detached opaque component outside outline exemption",
-      "('rear', 'brace', 25): detached opaque component outside outline exemption",
-      "('rear', 'brace', 26): detached opaque component outside outline exemption",
-      "('rear', 'brace', 27): detached opaque component outside outline exemption",
-      "('rear', 'brace', 28): detached opaque component outside outline exemption",
-      "('rear', 'brace', 29): detached opaque component outside outline exemption",
-      "('rear', 'brace', 30): detached opaque component outside outline exemption",
-      "('rear', 'brace', 31): detached opaque component outside outline exemption",
-      "('rear', 'brace', 32): detached opaque component outside outline exemption",
-      "('rear', 'brace', 33): detached opaque component outside outline exemption",
-      "('rear', 'brace', 34): detached opaque component outside outline exemption",
-      "('rear', 'brace', 35): detached opaque component outside outline exemption",
-      "('rear', 'brace', 36): detached opaque component outside outline exemption",
-      "('rear', 'brace', 37): detached opaque component outside outline exemption",
-      "('rear', 'brace', 38): detached opaque component outside outline exemption",
-      "('rear', 'brace', 39): detached opaque component outside outline exemption",
-      "('rear', 'brace', 40): detached opaque component outside outline exemption",
-      "('rear', 'death', 10): detached opaque component outside outline exemption",
-      "('rear', 'death', 11): detached opaque component outside outline exemption",
-      "('rear', 'death', 12): detached opaque component outside outline exemption",
-      "('rear', 'death', 13): detached opaque component outside outline exemption",
-      "('rear', 'death', 14): detached opaque component outside outline exemption",
-      "('rear', 'death', 15): detached opaque component outside outline exemption",
-      "('rear', 'death', 16): detached opaque component outside outline exemption",
-      "('rear', 'death', 17): detached opaque component outside outline exemption",
-      "('rear', 'death', 18): detached opaque component outside outline exemption",
-      "('rear', 'death', 19): detached opaque component outside outline exemption",
-      "('rear', 'death', 20): detached opaque component outside outline exemption",
-      "('rear', 'death', 21): detached opaque component outside outline exemption",
-      "('rear', 'death', 22): detached opaque component outside outline exemption",
-      "('rear', 'death', 23): detached opaque component outside outline exemption",
-      "('rear', 'death', 24): detached opaque component outside outline exemption",
-      "('rear', 'death', 25): detached opaque component outside outline exemption",
-      "('rear', 'death', 27): detached opaque component outside outline exemption",
-      "('rear', 'death', 28): detached opaque component outside outline exemption",
-      "('rear', 'death', 29): detached opaque component outside outline exemption",
-      "('rear', 'death', 30): detached opaque component outside outline exemption"
-    ],
+    "ok": true,
+    "errors": [],
     "frames": 431,
     "native_pixels": false,
-    "air_pockets_passed": 1317,
+    "air_pockets_passed": 878,
     "source_space": {
-      "frames_with_passed_space": 287,
-      "air_pockets_passed": 1317,
+      "frames_with_passed_space": 278,
+      "air_pockets_passed": 878,
       "maximum_air_pocket_pixels": 1001,
       "painted_detached_components_passed": 0,
       "pocket_bounds": [
         {
           "bbox": [
-            165,
-            209,
-            166,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            165,
-            210,
-            166,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            166,
-            208,
-            167,
-            209
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            166,
-            209,
-            167,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            166,
-            210,
-            167,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            166,
-            211,
-            167,
-            213
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            167,
-            208,
-            168,
-            209
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            167,
-            209,
-            168,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            167,
-            210,
-            168,
-            212
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            167,
-            211,
-            168,
-            213
-          ],
-          "pixel_count": 2,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            167,
-            212,
-            168,
-            213
-          ],
-          "pixel_count": 1,
-          "occurrences": 23
-        },
-        {
-          "bbox": [
-            167,
-            213,
-            168,
-            214
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            168,
-            205,
-            169,
-            206
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            168,
-            210,
-            169,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            168,
-            210,
-            169,
-            212
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            168,
-            211,
-            169,
-            212
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            168,
-            212,
-            169,
-            213
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            168,
-            213,
-            169,
-            214
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            168,
-            213,
-            169,
-            215
-          ],
-          "pixel_count": 2,
-          "occurrences": 23
-        },
-        {
-          "bbox": [
-            168,
-            214,
-            169,
-            215
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            169,
-            204,
-            170,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            206,
-            170,
-            207
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            169,
-            207,
-            170,
-            208
-          ],
-          "pixel_count": 1,
-          "occurrences": 6
-        },
-        {
-          "bbox": [
-            169,
-            209,
-            170,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            211,
-            170,
-            212
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            211,
-            170,
-            213
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            212,
-            170,
-            213
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            212,
-            170,
-            214
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            213,
-            170,
-            214
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            169,
-            215,
-            170,
-            216
-          ],
-          "pixel_count": 1,
-          "occurrences": 23
-        },
-        {
-          "bbox": [
-            170,
-            204,
-            171,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            170,
-            207,
-            171,
-            208
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            170,
-            207,
-            171,
-            209
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            170,
-            208,
-            171,
-            209
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            170,
-            208,
-            171,
-            210
-          ],
-          "pixel_count": 2,
-          "occurrences": 6
-        },
-        {
-          "bbox": [
-            170,
-            211,
-            171,
-            212
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            170,
-            213,
-            171,
-            214
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            170,
-            214,
-            171,
-            215
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            170,
-            216,
-            171,
-            217
-          ],
-          "pixel_count": 1,
-          "occurrences": 23
-        },
-        {
-          "bbox": [
-            171,
-            206,
-            172,
-            207
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            171,
-            207,
-            172,
-            208
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            171,
-            208,
-            172,
-            210
-          ],
-          "pixel_count": 2,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            171,
-            209,
-            172,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            171,
-            210,
-            172,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 6
-        },
-        {
-          "bbox": [
-            171,
-            212,
-            172,
-            213
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            171,
-            212,
-            172,
-            214
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            171,
-            214,
-            172,
-            215
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            171,
-            215,
-            172,
-            216
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            172,
-            204,
-            173,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            172,
-            205,
-            173,
-            206
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            172,
-            206,
-            173,
-            207
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            172,
-            207,
-            173,
-            208
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            172,
-            207,
-            173,
-            209
-          ],
-          "pixel_count": 2,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            172,
-            208,
-            173,
-            210
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            172,
-            210,
-            173,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            172,
-            211,
-            173,
-            212
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            172,
-            216,
-            173,
-            217
-          ],
-          "pixel_count": 1,
-          "occurrences": 23
-        },
-        {
-          "bbox": [
-            173,
-            199,
-            174,
-            200
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            173,
-            200,
-            174,
-            201
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            173,
-            202,
-            174,
-            203
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            173,
-            204,
-            174,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            173,
-            205,
-            174,
-            206
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            173,
-            205,
-            174,
-            207
-          ],
-          "pixel_count": 2,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            173,
-            206,
-            174,
-            207
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            173,
-            206,
-            174,
-            208
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            173,
-            207,
-            174,
-            209
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            173,
-            209,
-            174,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            173,
-            210,
-            174,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            173,
-            211,
-            174,
-            212
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            174,
-            203,
-            175,
-            204
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            174,
-            206,
-            175,
-            208
-          ],
-          "pixel_count": 2,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            174,
-            207,
-            175,
-            208
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            174,
-            208,
-            175,
-            209
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            174,
-            209,
-            175,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            174,
-            210,
-            175,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            174,
-            211,
-            175,
-            212
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            175,
-            200,
-            176,
-            201
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            200,
-            177,
-            203
-          ],
-          "pixel_count": 4,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            201,
-            176,
-            202
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            202,
-            176,
-            203
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            202,
-            176,
-            205
-          ],
-          "pixel_count": 3,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            203,
-            176,
-            204
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            203,
-            176,
-            205
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            204,
-            176,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            175,
-            204,
-            176,
-            206
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            205,
-            176,
-            206
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            175,
-            208,
-            176,
-            209
-          ],
-          "pixel_count": 1,
-          "occurrences": 6
-        },
-        {
-          "bbox": [
-            175,
-            209,
-            176,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
             175,
             211,
             176,
             212
           ],
           "pixel_count": 1,
-          "occurrences": 3
+          "occurrences": 2
         },
         {
           "bbox": [
@@ -12439,216 +11224,6 @@
             213
           ],
           "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            176,
-            199,
-            177,
-            202
-          ],
-          "pixel_count": 3,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            176,
-            200,
-            178,
-            203
-          ],
-          "pixel_count": 4,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            176,
-            201,
-            177,
-            202
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            176,
-            202,
-            177,
-            203
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            176,
-            203,
-            177,
-            204
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            176,
-            204,
-            177,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            176,
-            205,
-            177,
-            206
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            176,
-            205,
-            177,
-            207
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            176,
-            206,
-            177,
-            207
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            176,
-            206,
-            177,
-            208
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            176,
-            209,
-            177,
-            210
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            176,
-            214,
-            177,
-            215
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            177,
-            199,
-            178,
-            202
-          ],
-          "pixel_count": 3,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            177,
-            201,
-            178,
-            202
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            177,
-            203,
-            178,
-            204
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            177,
-            204,
-            178,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            177,
-            205,
-            178,
-            206
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            177,
-            206,
-            178,
-            207
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            177,
-            206,
-            178,
-            208
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            177,
-            207,
-            178,
-            208
-          ],
-          "pixel_count": 1,
-          "occurrences": 5
-        },
-        {
-          "bbox": [
-            177,
-            209,
-            178,
-            210
-          ],
-          "pixel_count": 1,
           "occurrences": 1
         },
         {
@@ -12659,16 +11234,6 @@
             215
           ],
           "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            177,
-            214,
-            178,
-            215
-          ],
-          "pixel_count": 1,
           "occurrences": 1
         },
         {
@@ -12677,176 +11242,6 @@
             215,
             178,
             216
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            178,
-            202,
-            179,
-            204
-          ],
-          "pixel_count": 2,
-          "occurrences": 7
-        },
-        {
-          "bbox": [
-            178,
-            204,
-            179,
-            205
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            178,
-            208,
-            179,
-            209
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            178,
-            210,
-            179,
-            211
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            178,
-            216,
-            180,
-            219
-          ],
-          "pixel_count": 4,
-          "occurrences": 4
-        },
-        {
-          "bbox": [
-            178,
-            218,
-            179,
-            219
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            180,
-            216,
-            181,
-            218
-          ],
-          "pixel_count": 2,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            180,
-            217,
-            181,
-            218
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            180,
-            235,
-            181,
-            236
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            181,
-            212,
-            182,
-            213
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            181,
-            213,
-            182,
-            214
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            181,
-            214,
-            182,
-            215
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            181,
-            215,
-            182,
-            216
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            181,
-            217,
-            182,
-            218
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            181,
-            234,
-            182,
-            235
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            181,
-            235,
-            182,
-            236
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
-        },
-        {
-          "bbox": [
-            182,
-            216,
-            183,
-            217
           ],
           "pixel_count": 1,
           "occurrences": 1
@@ -12860,56 +11255,6 @@
           ],
           "pixel_count": 1,
           "occurrences": 3
-        },
-        {
-          "bbox": [
-            182,
-            234,
-            183,
-            235
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            182,
-            238,
-            183,
-            239
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            183,
-            228,
-            184,
-            229
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            183,
-            235,
-            184,
-            236
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            183,
-            237,
-            184,
-            238
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
         },
         {
           "bbox": [
@@ -12939,7 +11284,7 @@
             232
           ],
           "pixel_count": 1,
-          "occurrences": 7
+          "occurrences": 1
         },
         {
           "bbox": [
@@ -12974,36 +11319,6 @@
         {
           "bbox": [
             185,
-            231,
-            186,
-            232
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            185,
-            231,
-            186,
-            233
-          ],
-          "pixel_count": 2,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            185,
-            232,
-            186,
-            233
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            185,
             235,
             186,
             236
@@ -13014,82 +11329,12 @@
         {
           "bbox": [
             185,
-            238,
-            186,
-            239
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            185,
             243,
             186,
             244
           ],
           "pixel_count": 1,
           "occurrences": 1
-        },
-        {
-          "bbox": [
-            186,
-            230,
-            187,
-            231
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            186,
-            234,
-            187,
-            235
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            187,
-            231,
-            188,
-            232
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            187,
-            232,
-            188,
-            233
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            187,
-            233,
-            188,
-            234
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            187,
-            234,
-            188,
-            235
-          ],
-          "pixel_count": 1,
-          "occurrences": 4
         },
         {
           "bbox": [
@@ -13100,26 +11345,6 @@
           ],
           "pixel_count": 1,
           "occurrences": 1
-        },
-        {
-          "bbox": [
-            188,
-            230,
-            189,
-            231
-          ],
-          "pixel_count": 1,
-          "occurrences": 2
-        },
-        {
-          "bbox": [
-            188,
-            232,
-            189,
-            233
-          ],
-          "pixel_count": 1,
-          "occurrences": 3
         },
         {
           "bbox": [
@@ -13127,16 +11352,6 @@
             244,
             189,
             245
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            189,
-            233,
-            190,
-            234
           ],
           "pixel_count": 1,
           "occurrences": 1
@@ -14454,16 +12669,6 @@
         {
           "bbox": [
             224,
-            179,
-            225,
-            180
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            224,
             341,
             225,
             342
@@ -14524,16 +12729,6 @@
         {
           "bbox": [
             225,
-            181,
-            226,
-            182
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            225,
             343,
             226,
             346
@@ -14580,16 +12775,6 @@
           ],
           "pixel_count": 6,
           "occurrences": 13
-        },
-        {
-          "bbox": [
-            226,
-            182,
-            227,
-            183
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
         },
         {
           "bbox": [
@@ -14964,16 +13149,6 @@
         {
           "bbox": [
             274,
-            154,
-            275,
-            155
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            274,
             184,
             275,
             185
@@ -15004,16 +13179,6 @@
         {
           "bbox": [
             275,
-            156,
-            276,
-            157
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            275,
             214,
             279,
             224
@@ -15029,16 +13194,6 @@
             222
           ],
           "pixel_count": 4,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            276,
-            157,
-            277,
-            158
-          ],
-          "pixel_count": 1,
           "occurrences": 1
         },
         {
@@ -15504,16 +13659,6 @@
         {
           "bbox": [
             281,
-            150,
-            282,
-            151
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            281,
             259,
             282,
             260
@@ -15644,16 +13789,6 @@
         {
           "bbox": [
             282,
-            152,
-            283,
-            153
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
-        },
-        {
-          "bbox": [
-            282,
             260,
             283,
             261
@@ -15690,16 +13825,6 @@
           ],
           "pixel_count": 176,
           "occurrences": 2
-        },
-        {
-          "bbox": [
-            283,
-            153,
-            284,
-            154
-          ],
-          "pixel_count": 1,
-          "occurrences": 1
         },
         {
           "bbox": [

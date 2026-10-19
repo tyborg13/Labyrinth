@@ -39,7 +39,7 @@ class SlagMortarTests(unittest.TestCase):
         cls.build = read_json(CASE / 'proof/build.json')
         with tempfile.TemporaryDirectory(prefix='rr22-bones-') as folder:
             path = Path(folder) / 'samples.json'
-            result = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-22', '--stream', '--',
+            result = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-25', '--stream', '--',
                 'godot', '--headless', '--path', '.', '--script', 'tests/rr22/samples.gd', '--',
                 '--case', str(CASE), '--output', str(path)], cwd=PROJECT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)
             if result.returncode: raise AssertionError(result.stdout + result.stderr)

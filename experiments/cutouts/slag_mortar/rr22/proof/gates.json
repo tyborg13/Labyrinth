@@ -1,8 +1,6 @@
 {
-  "ok": false,
-  "errors": [
-    "rear/arm_near: logical piece has 9 connected components"
-  ],
+  "ok": true,
+  "errors": [],
   "native_pixels": false,
   "views": {
     "front": {

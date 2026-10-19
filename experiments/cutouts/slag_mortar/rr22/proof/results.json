@@ -1,266 +1,364 @@
 {
-  "task": "rr-22",
-  "feedback": 3,
-  "base_head": "c716a93a6c0c31ed6539953e8d6e294472698bae",
-  "committed": false,
-  "worker_windowed_attempts": 0,
-  "production_ready": false,
-  "requirements": {
-    "1_mask_import": "PASS imports/exact ownership/source rest identity; remaining outside fragments explicitly reported without reassignment",
-    "2_negative_space": "PASS shared source-air and rigid painted-component rules, 7 focused mutation tests; every passed pocket bound/count reported; zero joint holes in 862 headless frames; neither approved painting has a detached component",
-    "3_all_gates": "NOT MET: 63 outside-mask source texels remain upper_near/arm_near, rear source connectivity fails, presented detached pixels fail 8 front / 75 rear frames. No exemptions or motion/ownership changes. Exact eight-stage windowed sequence includes walk; focused checks only"
+  "task": "rr-25",
+  "branch": "codex/rr-25",
+  "head": "bbe7195f6003d6748f0bc2a73c3ba746b686dce2",
+  "status": "implementation_headless_pass; native proof pending design owner",
+  "uncommitted": true,
+  "acceptance_criteria": [
+    {
+      "criterion": "Director masks own every pot pixel; near arm one connected piece; rest identity 0 px",
+      "status": "PASS (both views)"
+    },
+    {
+      "criterion": "Every Mortar gate passes headless in both views, including gait-01 and negative space",
+      "status": "PASS (source/bone/knee/walk/CPU coverage; native GPU checks pending owner)"
+    }
+  ],
+  "numbered_requirements": {
+    "1": "PASS: updated masks and generator imported byte for byte; 0 outside fragments; near arms connected; 0 px rest mismatch",
+    "2": "PASS: rebuilt own-piece continuations and hidden crucible fill from own paint; strict source-air rule; no exemptions",
+    "3": "PASS headless: source/bone/knee/walk 0 errors; front/rear CPU 431 frames each, 0 errors",
+    "4": "Prepared exact density/rest/native/sheets/walk/idle/production/review sequence using rr-25 runners"
   },
   "tests": {
-    "feedback3-affected.log": {
+    "rr25-rebuild.log": {
+      "command": "python3 experiments/cutouts/slag_mortar/rr22_build.py; python3 experiments/cutouts/slag_mortar/rr22_density.py --refresh-sources",
+      "exit_code": 0,
+      "result_lines": [
+        "RR22 OUTLINED CUTS: experiments/cutouts/slag_mortar/rr22/proof/contact_sheets/source_cuts_outlined.png",
+        "RR22 FRONT BUILD: PASS (rest mismatch: 0 px)",
+        "RR22 REAR BUILD: PASS (rest mismatch: 0 px)",
+        "RR22 DENSITY PAINT: PASS (both views adopted/processed; native rests pending director)",
+        "RR25 REBUILD: PASS (case/runtime/production bytes match verified inputs)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-rebuild.log"
+    },
+    "rr25-samples.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/samples.gd -- --case res://experiments/cutouts/slag_mortar/rr22 --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/samples_full.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (1214 poses; headless transforms only)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-samples.log"
+    },
+    "rr25-gates.log": {
+      "command": "python3 experiments/cutouts/slag_mortar/rr22_gates.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR22 SOURCE/BONE/KNEE GATES: PASS (0 errors; both views)",
+        "RR22 FRONT: 6 swings; minimum peak 51.387 degrees; support drift 0.000000 px; reach 14 paths, 6 overreach reports",
+        "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
+        "RR22 REAR: 6 swings; minimum peak 50.540 degrees; support drift 0.000000 px; reach 14 paths, 3 overreach reports",
+        "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-gates.log"
+    },
+    "rr25-cpu.log": {
+      "command": "python3 experiments/cutouts/slag_mortar/rr22_seams.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR22 FRONT CPU COVERAGE: checking 431 frames",
+        "RR22 FRONT CPU COVERAGE: 50 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 100 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 150 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 200 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 250 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 300 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 350 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE: 400 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: checking 431 frames",
+        "RR22 REAR CPU COVERAGE: 50 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 100 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 150 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 200 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 250 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 300 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 350 frames; 0 failures",
+        "RR22 REAR CPU COVERAGE: 400 frames; 0 failures",
+        "RR22 FRONT CPU COVERAGE GATES: PASS (431 frames; 0 errors)",
+        "RR22 REAR CPU COVERAGE GATES: PASS (431 frames; 0 errors)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-cpu.log"
+    },
+    "rr25-focused.log": {
+      "command": "LABYRINTH_TASK_ID=rr-25 python3 -m unittest discover -s tests -p 'test_rr2[25]*.py' -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 29 tests in 17.461s",
+        "OK",
+        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-focused.log"
+    },
+    "rr25-finish-tests.log": {
+      "command": "PYTHONPATH=tests python3 -m unittest test_rr25_mortar_finish -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 3 tests in 0.159s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-finish-tests.log"
+    },
+    "rr25-reference.log": {
+      "command": "LABYRINTH_TASK_ID=rr-25 PYTHONPATH=tests python3 -m unittest test_rr10_humanoid test_rr11_humanoid test_rr17_cutout test_rr18_humanoid test_rr19_overlap test_gait01 -v",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 94 tests in 210.965s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-reference.log"
+    },
+    "rr25-runtime.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/runtime_checks.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "RR22 RUNTIME: PASS (475 checks; headless logic only)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-runtime.log"
+    },
+    "rr25-affected.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/affected_suites.gd",
+      "exit_code": 0,
       "result_lines": [
         "RR22 AFFECTED SUITES: PASS (513 checks)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-affected.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-affected.log"
     },
-    "feedback3-art-identity.log": {
-      "result_lines": [
-        "Ran 111 tests in 46.124s",
-        "OK"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-art-identity.log"
-    },
-    "feedback3-build-initial.log": {
-      "result_lines": [
-        "RR22 FRONT BUILD: PASS (rest mismatch: 0 px)",
-        "RR22 REAR BUILD: PASS (rest mismatch: 0 px)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-build-initial.log"
-    },
-    "feedback3-build.log": {
-      "result_lines": [
-        "RR22 FRONT BUILD: PASS (rest mismatch: 0 px)",
-        "RR22 REAR BUILD: PASS (rest mismatch: 0 px)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-build.log"
-    },
-    "feedback3-cpu.log": {
-      "result_lines": [
-        "RR22 FRONT CPU COVERAGE GATES: FAIL (431 frames; 8 errors)",
-        "RR22 REAR CPU COVERAGE GATES: FAIL (431 frames; 75 errors)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-cpu.log"
-    },
-    "feedback3-density-check.log": {
-      "result_lines": [
-        "rest rebake needed: assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
-        "rest rebake needed: assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-density-check.log"
-    },
-    "feedback3-density.log": {
-      "result_lines": [
-        "RR22 DENSITY PAINT: PASS (both views adopted/processed; native rests pending director)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-density.log"
-    },
-    "feedback3-focused.log": {
-      "result_lines": [
-        "Ran 26 tests in 16.686s",
-        "FAILED (failures=1)",
-        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-focused.log"
-    },
-    "feedback3-gates.log": {
-      "result_lines": [
-        "RR22 SOURCE/BONE/KNEE GATES: FAIL (1 errors; both views)",
-        "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
-        "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-gates.log"
-    },
-    "feedback3-icon-identity.log": {
-      "result_lines": [
-        "Ran 7 tests in 0.092s",
-        "OK"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-icon-identity.log"
-    },
-    "feedback3-native-gates.log": {
-      "result_lines": [
-        "RR22 NATIVE GATES: FAIL (2 errors; both views)",
-        "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
-        "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-native-gates.log"
-    },
-    "feedback3-native-validate.log": {
+    "rr25-native-validate.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/native_capture.gd -- --output res://experiments/cutouts/slag_mortar/rr22/proof/native --validate-only",
+      "exit_code": 0,
       "result_lines": [
         "RR22 NATIVE PROBE LOAD: PASS"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-native-validate.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-native-validate.log"
     },
-    "feedback3-pack-build.log": {
+    "rr25-shadows.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/shadow_refresh.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "RR22 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-shadows.log"
+    },
+    "rr25-production-front.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --logic-only --type slag_mortar --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic",
+      "exit_code": 0,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-production-front.log"
+    },
+    "rr25-production-rear.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/production_capture.gd -- --logic-only --type slag_mortar --opposite --output res://experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic_rear",
+      "exit_code": 0,
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-production-rear.log"
+    },
+    "rr25-sfx-0.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-sfx-0.log"
+    },
+    "rr25-sfx-1.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-sfx-1.log"
+    },
+    "rr25-sfx-2.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-sfx-2.log"
+    },
+    "rr25-pack-build.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --script tests/rr22/pack.gd -- /private/tmp/rr25.pck",
+      "exit_code": 0,
       "result_lines": [
         "RR22 PRODUCTION PACK BUILD: PASS"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-pack-build.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-pack-build.log"
     },
-    "feedback3-pack-runtime.log": {
+    "rr25-pack-runtime.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- godot --headless --path . --main-pack /private/tmp/rr25.pck",
+      "exit_code": 0,
+      "result_lines": [
+        "RR22 PRODUCTION PACK: PASS (2 views; source-only PNG loading; editor=true)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-pack-runtime.log"
+    },
+    "rr25-pack-export-runtime-adjacent.log": {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-25 --stream -- /private/tmp/rr25-runtime/godot --headless",
+      "exit_code": 0,
       "result_lines": [
         "RR22 PRODUCTION PACK: PASS (2 views; source-only PNG loading; editor=false)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-pack-runtime.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-pack-export-runtime-adjacent.log"
     },
-    "feedback3-production-front.log": {
-      "result_lines": [
-        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-production-front.log"
-    },
-    "feedback3-production-rear.log": {
-      "result_lines": [
-        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-production-rear.log"
-    },
-    "feedback3-production-records.log": {
+    "rr25-production-records.log": {
+      "command": "python3 experiments/cutouts/slag_mortar/rr22_records.py production",
+      "exit_code": 0,
       "result_lines": [
         "RR22 COMPACT PRODUCTION_LOGIC: PASS (1516 frames)",
         "RR22 COMPACT PRODUCTION_LOGIC_REAR: PASS (1516 frames)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-production-records.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-production-records.log"
     },
-    "feedback3-reference.log": {
-      "result_lines": [
-        "Ran 92 tests in 186.107s",
-        "OK"
-      ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-reference.log"
-    },
-    "feedback3-registration.log": {
+    "rr25-registration.log": {
+      "command": "python3 tools/test_registration_audit.py",
+      "exit_code": 0,
       "result_lines": [
         "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-registration.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-registration.log"
     },
-    "feedback3-runtime.log": {
+    "rr25-art-identity.log": {
+      "command": "python3 -m unittest discover -s tests -p 'test_art_identity_gate.py' -v",
+      "exit_code": 0,
       "result_lines": [
-        "RR22 RUNTIME: PASS (475 checks; headless logic only)"
+        "Ran 111 tests in 47.223s",
+        "OK"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-runtime.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-art-identity.log"
     },
-    "feedback3-sfx-0.log": {
+    "rr25-icon-identity.log": {
+      "command": "python3 -m unittest discover -s tests -p 'test_icon_identity_policy.py' -v",
+      "exit_code": 0,
       "result_lines": [
-        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+        "Ran 7 tests in 0.071s",
+        "OK"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-sfx-0.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-icon-identity.log"
     },
-    "feedback3-sfx-1.log": {
+    "rr25-density-check.log": {
+      "command": "python3 tools/process_board_density.py --only slag_mortar_cutout --check",
+      "exit_code": 1,
       "result_lines": [
-        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+        "rest rebake needed: assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-sfx-1.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-density-check.log"
     },
-    "feedback3-sfx-2.log": {
+    "rr25-scope.log": {
+      "command": "Read-only Git/JSON scope and proof-binding audit",
+      "exit_code": 0,
       "result_lines": [
-        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+        "RR25 DENSITY SCOPE: PASS (8 owned output records; every other record identical)",
+        "RR25 PROTECTED INPUTS: PASS (152 files byte-identical to HEAD)",
+        "RR25 FILE SCOPE: PASS (shared code and every other figure byte-identical to HEAD)",
+        "RR25 PROOF BINDINGS: PASS (current case/runtime/production inputs)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-sfx-2.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-scope.log"
     },
-    "feedback3-shadows.log": {
+    "rr25-cpu-examples.log": {
+      "command": "CPU frame_report diagnostics at the named proof/chosen_defaults.json frames",
+      "exit_code": 0,
       "result_lines": [
-        "RR22 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+        "RR25 CPU EXAMPLE: PASS (proof/seam_cpu/rr25_front_death_0031.png)",
+        "RR25 CPU EXAMPLE: PASS (proof/seam_cpu/rr25_front_scatter_0008.png)",
+        "RR25 CPU EXAMPLE: PASS (proof/seam_cpu/rr25_front_lob_0038.png)",
+        "RR25 CPU EXAMPLE: PASS (proof/seam_cpu/rr25_rear_death_0019.png)",
+        "RR25 CPU EXAMPLE: PASS (proof/seam_cpu/rr25_rear_brace_0024.png)"
       ],
-      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/feedback3-shadows.log"
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr25-cpu-examples.log"
     }
-  },
-  "design_placeholders": {},
-  "outside_fragments": {
-    "front_pixels": 1,
-    "rear_pixels": 62,
-    "current_owner": "native upper_near; logical arm_near",
-    "exact_pixels_and_owners": "proof/mask_fragments.json",
-    "front_presented_sources": "proof/front_stray_sources.json",
-    "rear_presented_sources": "proof/rear_stray_sources.json",
-    "source_reassignment_performed": false
   },
   "headless_coverage": {
     "front": {
       "frames": 431,
-      "failed_frames": 8,
-      "joint_hole_frames": 0,
-      "air_pockets_passed": 2242,
-      "maximum_air_pocket_pixels": 578,
-      "painted_detached_components_passed": 0,
-      "failure_rules": [
-        "detached opaque component outside outline exemption"
-      ]
+      "failed_frames": 0,
+      "errors": [],
+      "air_pockets_passed": 2198,
+      "maximum_air_pocket_pixels": 578
     },
     "rear": {
       "frames": 431,
-      "failed_frames": 75,
-      "joint_hole_frames": 0,
-      "air_pockets_passed": 1317,
-      "maximum_air_pocket_pixels": 1001,
-      "painted_detached_components_passed": 0,
-      "failure_rules": [
-        "detached opaque component outside outline exemption"
-      ]
+      "failed_frames": 0,
+      "errors": [],
+      "air_pockets_passed": 878,
+      "maximum_air_pocket_pixels": 1001
     }
   },
-  "passed_pocket_bounds": "proof/seams.json (512x512 proof coordinates; source origin +128,+128)",
+  "passed_pocket_bounds": "proof/seams.json (512x512 CPU coordinates, source origin +128,+128)",
   "full_pocket_records": "proof/logs/seams_full.json",
-  "protected_inputs": "PASS: 46 files byte-identical to current director HEAD; regenerated masks copied byte for byte",
+  "protected_inputs": "PASS: 152 tracked director/art/maquette files byte-identical to HEAD; mask PNGs and generator copied byte for byte",
+  "outside_fragments": {
+    "front_pixels": 0,
+    "rear_pixels": 0,
+    "report": "proof/mask_fragments.json"
+  },
+  "generic_extensions_this_round": [],
   "reference_files_changed": [],
-  "reference_regression": "Ran 92 tests in 186.107s; OK (Seer, Thrall, Mirror, Capacitor and gait-01)",
-  "gait_scope_test": "PASS with merged integration scope fix; no assertion changed by rr-22",
-  "registry_scope": "PASS: 13 owned density output records changed, every other record identical; identity registry unchanged",
-  "shadows": "PASS: refreshed both v2 records, every unrelated entry/fingerprint retained; generated cache byte-identical to HEAD",
-  "generic_extensions_this_round": [
-    "tools/humanoid_cutout/source_space.py",
-    "tools/humanoid_cutout/gates.py"
-  ],
-  "density_pending": [
-    "native front rest rebake/record",
-    "native rear rest rebake/record",
-    "repeat scoped shadow refresh after those rests"
-  ],
+  "registry_scope": "PASS: 8 owned density output records changed; every other output record identical; identity/density registries unchanged",
+  "shadows": "PASS: both v2 entries refreshed; every unrelated entry/fingerprint retained; cache bytes identical to HEAD",
+  "rebuild": "PASS: rebuilt case/runtime/production input hashes exactly match verified evidence",
+  "design_placeholders": {},
   "chosen_defaults": "proof/chosen_defaults.json",
+  "new_chosen_defaults": "Only the 4x4 synthetic donor-mutation fixture, its two named test colours, and five CPU diagnostic frame selections",
   "observed_proof": {
     "source_cuts": "proof/contact_sheets/source_cuts_outlined.png",
-    "cpu_failed_frames": "proof/seam_cpu/",
-    "full_cpu_report": "proof/logs/seams_full.json",
-    "full_samples": "proof/logs/samples_full.json",
-    "old_native_capture": "proof/native/ (stale; cannot certify current cut/gate bindings)"
+    "cpu_examples": [
+      "proof/seam_cpu/rr25_front_death_0031.png",
+      "proof/seam_cpu/rr25_front_scatter_0008.png",
+      "proof/seam_cpu/rr25_front_lob_0038.png",
+      "proof/seam_cpu/rr25_rear_death_0019.png",
+      "proof/seam_cpu/rr25_rear_brace_0024.png"
+    ],
+    "native_captures": []
   },
   "director_commands": [
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh rest",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh native",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh walk",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh idle",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh production",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh review"
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh walk",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-25 && sh experiments/cutouts/slag_mortar/rr22_proof.sh review"
   ],
+  "native_status": "pending; proof/native_gates.json cannot certify pixels until the director runs a fresh windowed capture",
   "not_run": [
-    "full Python suite",
-    "full Godot suite",
-    "all windowed stages",
-    "peer review",
-    "inspection fixture (design owner assigned)"
+    "full Python suite (unit brief says focused only)",
+    "full Godot suite (unit brief says focused only)",
+    "all windowed stages (no window-server access)",
+    "peer review (owner assigned)",
+    "commit/push/publication (owner assigned)",
+    "inspection fixture (owner assigned; no command required by brief)"
   ],
-  "open_issues": [
-    "Rear arm has 9 connected components; 62 source pixels across 8 islands. Front retains 1 source texel at (200,108); its covered connection also produces detached paint at authored lob/death poses. Exact protected ownership retained as directed.",
-    "Native captures and density rests need director windowed refresh. Sheets/review will continue refusing genuine detached pixels."
-  ],
-  "proof_ignore_audit": "PASS: captures ignored; zero tracked PNG/MP4 under case proof",
-  "proof_input_consistency": "PASS: full samples and both production traces exactly match current case/runtime/production bindings",
-  "source_space_mutation_tests": "PASS: all 7 tests in tests/test_rr22_source_space.py",
-  "diff_check": "PASS: git diff --check",
-  "compact_record_bytes": {
-    "samples": 3697,
-    "gates": 32507,
-    "native_gates": 32601
+  "resolved_probe_launch_issue": {
+    "logs": [
+      "proof/logs/rr25-pack-export-runtime.log",
+      "proof/logs/rr25-pack-export-runtime-retry.log"
+    ],
+    "initial_exit_codes": [
+      1,
+      1
+    ],
+    "reason": "Installed release template disables --path and --main-pack path overrides",
+    "resolution": "Adjacent godot.pck launch passes with editor=false"
   },
-  "inspected_cpu_captures": [
-    "proof/seam_cpu/front_lob_0038.png",
-    "proof/seam_cpu/rear_brace_0024.png"
-  ]
+  "observed_environment_diagnostics": "Some headless Godot probes emit system-CA-certificate and exit-time resource cleanup diagnostics while returning 0; retained verbatim in logs",
+  "open_issues": [
+    "Two native rest rebakes/records and native GPU proof pending design owner; density --check exits 1 naming both absent rebake records; integration ready remains false"
+  ],
+  "changed_files": "proof/changed_files.json",
+  "final_audit": {
+    "log": "proof/logs/rr25-final-audit.log",
+    "historical_fragments_inside_masks": {
+      "front": 1,
+      "rear": 62
+    },
+    "proof_bindings": "PASS",
+    "proof_ignore": "PASS",
+    "diff_check": "PASS"
+  }
 }

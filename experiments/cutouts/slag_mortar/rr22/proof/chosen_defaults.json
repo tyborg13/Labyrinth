@@ -203,5 +203,48 @@
       30,
       255
     ]
-  }
+  },
+  "rr25_donor_mutation_fixture": {
+    "size_px": 4,
+    "pot_rgba": [
+      70,
+      70,
+      70,
+      255
+    ],
+    "skin_rgba": [
+      110,
+      60,
+      30,
+      255
+    ],
+    "scope": "synthetic own-piece donor mutation only"
+  },
+  "rr25_cpu_inspection_frames": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 31
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "frame": 8
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 38
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 19
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 24
+    }
+  ]
 }

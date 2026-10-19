@@ -250,7 +250,7 @@
       "bbox": [
         119,
         77,
-        201,
+        195,
         126
       ],
       "bone": "mortar",
@@ -317487,7 +317487,7 @@
       "z_index": 15,
       "source": "pieces/front/mortar.png",
       "rigid": true,
-      "source_sha256": "e1a47ecfdd43185145d0e0bafdcb45f5a69d350359d3cd9fefeabb384460d07c"
+      "source_sha256": "4f84772989391b90e22a0d57a99c628517893ff79bb2995a2eab2d3de46ec1e0"
     },
     "hidden_mortar": {
       "mask": "checks/front/hidden_mortar.png",
@@ -317498,7 +317498,7 @@
       "z_index": -1,
       "source": "pieces/front/hidden_mortar.png",
       "rigid": true,
-      "source_sha256": "04aaaeaca0b0a3f321569e5f0befceb075a06f44c9eb2f88b3210f3804d4ab56"
+      "source_sha256": "cda3f8f7c92275855b880069bec70063b9c54801116596a378e237b478d575ab"
     },
     "pelvis": {
       "mask": "checks/front/pelvis.png",
@@ -317553,7 +317553,7 @@
       "z_index": 13,
       "source": "pieces/front/arm_near.png",
       "rigid": false,
-      "source_sha256": "0119dfe5fff04506aa4179b9a5a7a770bec5c55514817beb270fae40409eec55"
+      "source_sha256": "85e7f3da1460c6f392e1cf6d8eb9a82c60e52b32c6836dadb67d227be8a9aafe"
     },
     "hidden_arm_near": {
       "mask": "checks/front/hidden_arm_near.png",
@@ -317564,7 +317564,7 @@
       "z_index": -1,
       "source": "pieces/front/hidden_arm_near.png",
       "rigid": false,
-      "source_sha256": "47ac21d8eb528c0bc7eb19f58a75abc6e95383cca430c552e65196a55928b294"
+      "source_sha256": "d3cf68417ab1a43156df17949d5a5b9c78d7b4fd0df18154d30ee69f16b56c80"
     },
     "hand_near": {
       "mask": "checks/front/hand_near.png",

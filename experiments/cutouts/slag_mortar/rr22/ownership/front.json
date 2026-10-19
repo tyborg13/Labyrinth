@@ -1,8 +1,8 @@
 {
   "rule": "protected_crucible_mask_and_native_body",
   "region_pixels": 6503,
-  "retained_pixels": 4739,
-  "transferred_pixels": 1764,
+  "retained_pixels": 4745,
+  "transferred_pixels": 1758,
   "speck_transfers": [
     {
       "from": "leg_near",
@@ -15,7 +15,7 @@
       "pixels": 2
     }
   ],
-  "director_mask_sha256": "e996b8bb678b74a4d668a267a74db3f181b096c3f61f480ce74eb9de69cf4325",
+  "director_mask_sha256": "a506bc823d6c0dcf76ee4942525c315b46cc65fdc98ed9717dda930d94042992",
   "names": [
     "head",
     "torso",
@@ -36,5 +36,5 @@
     "apron"
   ],
   "map": "ownership/front.png",
-  "map_sha256": "2df666a26e41089bb5d663a55d43dbac3e8f9ba49af4af62f59f7edd1ae2dbd7"
+  "map_sha256": "45412c926cce87305cdbbc7a24ea50a58181a040fca6a4f15380554f6373ea78"
 }

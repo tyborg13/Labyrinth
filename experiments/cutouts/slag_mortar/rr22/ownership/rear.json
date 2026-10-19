@@ -1,8 +1,8 @@
 {
   "rule": "protected_crucible_mask_and_native_body",
   "region_pixels": 7394,
-  "retained_pixels": 6825,
-  "transferred_pixels": 633,
+  "retained_pixels": 6911,
+  "transferred_pixels": 547,
   "rear_fist": {
     "bracer_pixels": 464,
     "fist_pixels": 858,
@@ -98,7 +98,7 @@
       "pixels": 2
     }
   ],
-  "director_mask_sha256": "7bd3fd5ea5f09812a3799d3444c4f7d1d288c0596732941c473b229636434182",
+  "director_mask_sha256": "74f4fa96c301ebc2bc2baf75d204eb64756289260f147e8ad5c1269ad3068d8c",
   "names": [
     "head",
     "torso",
@@ -119,5 +119,5 @@
     "apron"
   ],
   "map": "ownership/rear.png",
-  "map_sha256": "fc221939467aa346fcd583346f0f42e5c45c987bee69718596efe18517b84c2c"
+  "map_sha256": "347238584567d724cdeed6c92f7780f8cc65b9687e4984823226236fdeefcbca"
 }

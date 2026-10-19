@@ -7,14 +7,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.444225807842022,
+      "phase": 0.466062358276643,
       "presented_phase": 0.357142857142857,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371454484044011
+      "texture_id": -9223371454786033899
     },
     "hit": {
       "active": true,
@@ -22,14 +22,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.0617283950617284,
+      "phase": 0.0578703703703704,
       "presented_phase": 0.0,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371454484044011
+      "texture_id": -9223371454786033899
     },
     "land": {
       "active": true,
@@ -37,14 +37,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.325513865287222,
+      "phase": 0.348789701436129,
       "presented_phase": 0.238095238095238,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371454484044011
+      "texture_id": -9223371454786033899
     },
     "lob": {
       "active": true,
@@ -52,14 +52,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.202284934826149,
+      "phase": 0.217760638699923,
       "presented_phase": 0.119047619047619,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371454484044011
+      "texture_id": -9223371454786033899
     },
     "move": {
       "active": true,
@@ -67,14 +67,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.076490584863942,
+      "phase": 0.092031953892666,
       "presented_phase": 0.0,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371454484044011
+      "texture_id": -9223371454786033899
     },
     "scatter": {
       "active": true,
@@ -82,14 +82,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.57825940572562,
+      "phase": 0.592431670445956,
       "presented_phase": 0.476190476190476,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371454484044011
+      "texture_id": -9223371454786033899
     }
   },
   "errors": [],
@@ -103,7 +103,7 @@
   "type": "slag_mortar",
   "ui_scale": 1.0,
   "full_report": "proof/logs/production_logic/logic_frames.json",
-  "full_sha256": "62ab92f316e7e929338fe03f0e3c536c2dce4be84886fb8fb940b5a61ee3d35e",
+  "full_sha256": "b022c32786d03b667d50fd7a97639946729b814430c5d106255e6163ce74dcc6",
   "frame_count": 1516,
   "stage_counts": {
     "idle": 50,
