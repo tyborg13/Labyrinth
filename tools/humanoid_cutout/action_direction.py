@@ -13,7 +13,7 @@ import numpy as np
 
 from .bone_contracts import fk_world, target_chains
 from .bone_evidence import evidence_errors
-from maquette_motion.compiler import evaluate
+from .gait import evaluate
 from maquette_motion.pixels import phase_for, unpack
 from cutout_pipeline.cases import read_json
 
@@ -98,6 +98,9 @@ def report(layout, data, samples, current_bindings, *, require_presented=False):
                 shoulder, neutral_fk[target][:2, 2], rest)
             _, _, authored_distance, solved_distance = clamped_target(shoulder, fk[target][:2, 2], rest)
             dot = float((solved - neutral) @ forward)
+            # Generated symmetric arm swings have exact neutral crossings;
+            # floating-point phase arithmetic may leave ~1e-15 of travel.
+            if 'gait' in data['clips'][clip] and abs(amount) < SOLVE_EPSILON * SOLVE_EPSILON: amount = 0.
             if amount > 0:
                 checked += 1
                 coverage[clip] = coverage.get(clip, 0) + 1

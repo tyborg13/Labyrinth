@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    209,
+    230
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.09118210124357046,
+    "edge_light_share": 0.0,
+    "feature_px": 6.265712314276076,
+    "height": 230,
+    "height_drawn": 230.0,
+    "orphan_share": 0.06615946893413888,
+    "regions": 683,
+    "run_length": 2.1694174757281552,
+    "symmetry": 0.607856171627134,
+    "thin_abs": 0.006638323263966628,
+    "thin_rel": 0.013164764675169693,
+    "value": 0.23021423224917625,
+    "width": 209
+  },
+  "pixel_sha256": "919a6f0dde80f9670c32cef001716b8e7ab85a380ed15d1a7bc4c990c9b664c5",
+  "placement": [
+    24,
+    16
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/glacial_mirror/front/kit.json",
+        "pixel_sha256": "b786300193bd8b76d344b1021773d0943bdf8e4e817320279770f5ed87157e38"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "0e29d7cf4f9718d78f4405a832ac38b967eb79ade5bd536ada8d42605b85def8",
+      "protected_body_share": {
+        "front": 0.0013952308472856417,
+        "rear": 0.032120872971460546
+      },
+      "reference_pixel_sha256": "b786300193bd8b76d344b1021773d0943bdf8e4e817320279770f5ed87157e38",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "b6ec718d9b5569621b34790e1607c098247bb83b3603ca521bdce6a76e15ba61",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "ca8208ae8f03468a750d475ad6ae7e02fb7f7f441b4883577cc5a43baead9148",
+  "shift": [
+    0,
+    0
+  ]
+}

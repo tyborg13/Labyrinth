@@ -5,8 +5,9 @@ import json
 from .anatomy import for_layout
 from .bone_contracts import visible_leg, leg_bend_side
 from .leg_roles import roles_for, resolve_bone
+from .gait import expand
 
-CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg'}
+CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg', 'lane_px'}
 
 
 def keys_for_view(definition, view, views):
@@ -46,6 +47,12 @@ def compile_motion(source, creature, layouts, projection):
         for clip, definition in author['clips'].items():
             result['clips'][clip] = {k: v for k, v in definition.items() if k not in ('keys', 'view_keys')}
             effective_keys = keys_for_view(definition, view, projection)
+            generated = expand(definition['gait'], layout, clip) if 'gait' in definition else {}
+            generated_channels = {(resolve_bone(name.rsplit('.', 1)[0], anatomy, view), name.rsplit('.', 1)[1]) for name in generated}
+            conflicts = [name for name in effective_keys if (resolve_bone(name.rsplit('.', 1)[0], anatomy, view), name.rsplit('.', 1)[1]) in generated_channels]
+            if conflicts:
+                raise ValueError('gait: director key on generated channel: ' + str(sorted(conflicts)))
+            effective_keys.update(generated)
             tracks, release = [], {}
             modes = {}
             for name, keys in effective_keys.items():
@@ -69,7 +76,7 @@ def compile_motion(source, creature, layouts, projection):
                 rows = []
                 for row in keys:
                     interpolation = row[2] if len(row) > 2 else 'smoothstep'
-                    if interpolation not in ('smoothstep', 'linear', 'hold'):
+                    if interpolation not in ('smoothstep', 'linear', 'hold') and not (name in generated and interpolation == 'sine_power'):
                         raise ValueError('TODO_DESIGN_interpolation_' + name)
                     rows.append({'at': row[0], 'value': row[1] * sign, 'interpolation': interpolation})
                 if not rows or any(not 0 <= k['at'] <= 1 for k in rows) or any(
@@ -82,7 +89,7 @@ def compile_motion(source, creature, layouts, projection):
             # like mode-only supports. Preserve legacy positional-track bytes.
             tracked_bones = {track['bone'] for track in tracks
                              if track['channel'] in ('forward_px', 'lift_px', 'inward_px')}
-            if roles or any(bone not in tracked_bones for bone in modes):
+            if roles or anatomy.get('channel_aliases') or any(bone not in tracked_bones for bone in modes):
                 result.setdefault('view_forward_modes', {}).setdefault(view, {})[clip] = modes
             result['view_tracks'][view][clip] = tracks
             view_release = any(name.endswith('.release_at') for keys in definition.get('view_keys', {}).values()

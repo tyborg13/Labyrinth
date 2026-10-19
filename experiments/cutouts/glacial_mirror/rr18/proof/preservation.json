@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "protected_tracked_files": 3616,
+  "unchanged_raw_authoring_layers": 30,
+  "director_and_compiled_motion": "byte-identical",
+  "generic_extensions": [
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/material_gates.py",
+    "tools/humanoid_cutout/promotion.py",
+    "tools/humanoid_cutout/rigid_air.py"
+  ],
+  "unrelated_identity_density_records": "retained",
+  "errors": []
+}

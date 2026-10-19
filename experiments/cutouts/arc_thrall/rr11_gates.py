@@ -6,6 +6,7 @@ from rr11_knees import knee_report, support_report
 from tools.humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
 from tools.humanoid_cutout.action_direction import report as action_direction_report
 from tools.humanoid_cutout.reach import report as reach_report
+from tools.humanoid_cutout.walk_gates import write_reports as write_walk_reports
 
 
 def main():
@@ -32,8 +33,8 @@ def main():
     errors += cut_errors
     if args.native: errors += native_errors(CASE, args.native)
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
-    write_json(CASE / 'proof/knees.json', knees)
-    write_json(CASE / 'proof/supports.json', supports)
+    write_walk_reports(CASE, 'knees', knees)
+    write_walk_reports(CASE, 'supports', supports)
     write_json(CASE / 'proof/directions.json', {v: {k: value for k, value in r.items() if k != 'rows'}
                                                for v, r in directions.items()})
     write_json(CASE / 'proof/reach.json', reaches)
@@ -52,6 +53,9 @@ def main():
                reach['dense_intervals'], len(reach['errors'])))
         print('RR11 %s SWING KNEES: %s (%d swings; minimum peak %.3f degrees)' %
               (view.upper(), 'PASS' if report['ok'] else 'FAIL', len(report['swings']), report['minimum_peak_bend_deg']))
+        print('GAIT %s: %s (maximum fit %.6f px; total drop %.6f px; rigid air %.6f px)' %
+              (view.upper(), 'PASS' if report['ok'] else 'FAIL', report['maximum_fit_px'],
+               report['maximum_total_pelvis_drop_px'], report['maximum_rigid_air_px']))
         support = supports[view]
         print('RR11 %s SUPPORTS: %s (move/jab frame change %.6f/%.6f px; target error %.6f/%.6f px)' %
               (view.upper(), 'PASS' if support['ok'] else 'FAIL', support['maximum_stance_frame_change_px'],

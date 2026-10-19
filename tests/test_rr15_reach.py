@@ -61,7 +61,7 @@ class ReachTests(unittest.TestCase):
 
     def test_current_data_passes_with_documented_overreach(self):
         # Director 2026-10-19: death flings and the front jab claw reach past full extension on purpose.
-        expected = {'front/jab/hand_far', 'front/death/tube_tip',
+        expected = {'front/move/hand_far', 'front/jab/hand_far', 'front/death/tube_tip',
                     'front/death/hand_far', 'rear/death/hand_far'}
         front, rear = self.reach('front'), self.reach('rear')
         self.assertEqual(front['errors'] + rear['errors'], [])

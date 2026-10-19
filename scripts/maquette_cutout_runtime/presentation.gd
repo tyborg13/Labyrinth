@@ -3,13 +3,19 @@ extends RefCounted
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
 	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
-	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor",
+	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor", "glacial_mirror": "glacial_mirror",
 	"slag_mortar": "slag_mortar"}
 static var _integration_cache: Dictionary = {}
 
+# Optional case-owned contact adapter. Existing action dispatch remains intact.
+const ACTION_ADAPTERS := {"glacial_mirror": "res://assets/units/glacial_mirror_cutout/actions.gd"}
+
+static func action_script(type: String) -> Script:
+	return load(ACTION_ADAPTERS[type]) as Script if ACTION_ADAPTERS.has(type) else null
+
 static func asset_directory(type: String) -> String:
 	var directory: String = "res://assets/units/" + str(CREATURES[type]) + "_cutout"
-	var rig_directory: String = str(integration_for(type).get("rig_directory", "humanoid_v2" if type in ["hoarfrost_seer", "arc_thrall"] else ""))
+	var rig_directory: String = str(integration_for(type).get("rig_directory", "humanoid_v2" if type in ["hoarfrost_seer", "arc_thrall", "glacial_mirror"] else ""))
 	return directory.path_join(rig_directory) if not rig_directory.is_empty() else directory
 
 static func handles(type: String) -> bool:

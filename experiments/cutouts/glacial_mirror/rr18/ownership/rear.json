@@ -1,0 +1,16 @@
+{
+  "policy": "cutout_workflow complete-mask components <12 px to the greatest four-neighbour owner; exact RGBA preserved",
+  "transfers": [
+    {
+      "from": "foot_near",
+      "to": "shin_near",
+      "pixels": 1,
+      "points": [
+        [
+          113,
+          176
+        ]
+      ]
+    }
+  ]
+}

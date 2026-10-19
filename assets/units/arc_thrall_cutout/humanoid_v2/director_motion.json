@@ -1,5 +1,5 @@
 {
- "_doc": "Director motion data (rr-11), humanoid rig v2 for the Arc Thrall. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels, two-bone hand/foot targets, world_step feet, inward_px). The idle weapon-arm lag is pre-computed: upper_near.lift_px = torso bob minus the protagonist's sword lag, sampled every 0.05. Clip durations, contacts and intents are unchanged from rr-07. 'root' is the body bone. Per-view key overrides (`view_keys.<view>`) replace those channels in that view only: the rear tube is foreshortened differently, so the shared jab/tether tube targets fell inside the arm's minimum reach in the rear (director, rr-15, 2026-10-19).",
+ "_doc": "Director motion data (rr-11), humanoid rig v2 for the Arc Thrall. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels, two-bone hand/foot targets, world_step feet, inward_px). The idle weapon-arm lag is pre-computed: upper_near.lift_px = torso bob minus the protagonist's sword lag, sampled every 0.05. Clip durations, contacts and intents are unchanged from rr-07. 'root' is the body bone. Per-view key overrides (`view_keys.<view>`) replace those channels in that view only: the rear tube is foreshortened differently, so the shared jab/tether tube targets fell inside the arm's minimum reach in the rear (director, rr-15, 2026-10-19). `move` is a gait block (section 4, Gait block): the compiler generates its feet, pelvis, root and arm swing (director, gait-01, 2026-10-19).",
  "arc_thrall": {
   "rig": "humanoid_v2",
   "units": "source_px",
@@ -131,43 +131,46 @@
     "intents": [
      "arc_jab:move_toward"
     ],
-    "note": "a lurching shamble: the long camera-side leg (stride) plants two world steps per tile with a 4 px lift and a clearly bent knee; the foreshortened leg (trailing) follows the body with a 3 px shuffle between strides; the pelvis never rises above rest and dips 3 px after each stride landing; the torso pitches forward 4 degrees per step, the tube trails, the claw swings",
+    "note": "a lurching walk on the protagonist's model: both legs step, six steps per tile rest to rest (a half step, four full steps, a closing half step), the near foot leading; 6 px lift; the pelvis settles 3 px after each landing; the torso pitches forward 4 degrees; the claw swings 4 px opposite the stepping leg and the tube 2 px; the loincloth trails 2 px",
+    "gait": {
+     "model": "protagonist_walk",
+     "steps_per_tile": 6,
+     "lead": "near",
+     "stance_fraction": 0.6,
+     "lift_px": 6,
+     "lane_narrowing": 0.7,
+     "leg_scale_max": 1.22,
+     "settle_px": {
+      "contact": 1.5,
+      "down": 3.0,
+      "passing": 0.8,
+      "up": 0.4
+     },
+     "arm_swing": {
+      "near": {
+       "bone": "tube_tip",
+       "px": 2
+      },
+      "far": {
+       "bone": "hand_far",
+       "px": 4
+      }
+     },
+     "max_fit_px": 6
+    },
     "keys": {
-     "root.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.9,
-       1.0
-      ],
-      [
-       1,
-       1.0
-      ]
-     ],
-     "root.forward_mode": "fraction_of_step",
      "torso.lean_deg": [
       [
        0,
        0
       ],
       [
-       0.25,
+       0.12,
        4
       ],
       [
-       0.45,
-       2
-      ],
-      [
-       0.7,
+       0.88,
        4
-      ],
-      [
-       0.9,
-       2
       ],
       [
        1,
@@ -180,82 +183,12 @@
        0
       ],
       [
-       0.45,
-       2
-      ],
-      [
-       0.6,
+       0.15,
        1
       ],
       [
-       0.9,
-       2
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "tube_tip.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.3,
-       -3
-      ],
-      [
-       0.6,
-       -1
-      ],
-      [
        0.85,
-       -3
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "hand_far.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.25,
-       4
-      ],
-      [
-       0.5,
-       -2
-      ],
-      [
-       0.75,
-       4
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "hand_far.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.25,
-       2
-      ],
-      [
-       0.5,
-       0
-      ],
-      [
-       0.75,
-       2
+       1
       ],
       [
        1,
@@ -268,186 +201,18 @@
        0
       ],
       [
-       0.3,
+       0.15,
        -2
       ],
       [
-       0.55,
-       0
-      ],
-      [
-       0.75,
+       0.9,
        -2
       ],
       [
        1,
        0
       ]
-     ],
-     "foot_stride.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.05,
-       0
-      ],
-      [
-       0.38,
-       0.5
-      ],
-      [
-       0.5,
-       0.5
-      ],
-      [
-       0.83,
-       1.0
-      ],
-      [
-       1,
-       1.0
-      ]
-     ],
-     "foot_stride.forward_mode": "world_step",
-     "foot_stride.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.05,
-       0
-      ],
-      [
-       0.2,
-       4
-      ],
-      [
-       0.38,
-       0
-      ],
-      [
-       0.5,
-       0
-      ],
-      [
-       0.65,
-       4
-      ],
-      [
-       0.83,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "foot_trailing.forward_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.38,
-       0
-      ],
-      [
-       0.44,
-       2
-      ],
-      [
-       0.5,
-       0
-      ],
-      [
-       0.83,
-       0
-      ],
-      [
-       0.89,
-       2
-      ],
-      [
-       0.95,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "foot_trailing.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.38,
-       0
-      ],
-      [
-       0.44,
-       3
-      ],
-      [
-       0.5,
-       0
-      ],
-      [
-       0.83,
-       0
-      ],
-      [
-       0.89,
-       3
-      ],
-      [
-       0.95,
-       0
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "pelvis.lift_px": [
-      [
-       0,
-       0
-      ],
-      [
-       0.05,
-       -2
-      ],
-      [
-       0.2,
-       -1
-      ],
-      [
-       0.4,
-       -3
-      ],
-      [
-       0.5,
-       -2
-      ],
-      [
-       0.65,
-       -1
-      ],
-      [
-       0.85,
-       -3
-      ],
-      [
-       1,
-       0
-      ]
-     ],
-     "foot_trailing.forward_mode": "body"
+     ]
     }
    },
    "tether": {

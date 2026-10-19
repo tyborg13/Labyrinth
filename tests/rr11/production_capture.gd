@@ -13,7 +13,10 @@ const Settings = preload("res://scripts/settings_store.gd")
 const SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 8
 const HIT_PROOF_HP: int = 30
+const FIXTURE_REFLECTION_X_SUM: int = 8
+const FIXTURE_CONTACT_TILE := Vector2i(3, 4)
 const IDLE_SAMPLE_SECONDS: float = 1.0 / 60.0
+var _view: String = "front"
 var _type: String
 var _output: String
 var _scene: Control
@@ -21,6 +24,7 @@ var _viewport: SubViewport
 var _stage: String
 var _logic: bool
 var _frames: Array[Dictionary]
+var _walk_samples: Dictionary = {}
 var _failures: Array[String]
 var _data: Dictionary
 
@@ -31,10 +35,12 @@ func _initialize() -> void:
 func _run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.find("--type") < 0 or args.find("--output") < 0:
-		push_error("Use -- --type hoarfrost_seer|arc_thrall --output DIRECTORY [--logic-only]")
+		push_error("Use -- --type hoarfrost_seer|arc_thrall --output DIRECTORY [--view front|rear] [--logic-only]")
 		quit(1)
 		return
 	_type = args[args.find("--type") + 1]
+	if args.has("--view"): _view = args[args.find("--view") + 1]
+	assert(_view in ["front", "rear"])
 	_output = args[args.find("--output") + 1]
 	_logic = args.has("--logic-only")
 	_data = preload("res://scripts/maquette_cutout_runtime/motion.gd").data_for({"motion_data": "res://experiments/cutouts/arc_thrall/rr11/compiled_motion.json"})
@@ -75,7 +81,7 @@ func _run() -> void:
 				await create_timer(IDLE_SAMPLE_SECONDS).timeout
 			continue
 		if clip in ["hit", "death"]:
-			state["enemies"][0]["pos"] = Vector2i(5, 4)
+			state["enemies"][0]["pos"] = FIXTURE_CONTACT_TILE
 			if clip == "death": state["enemies"][0]["hp"] = 1
 			else:
 				state["enemies"][0]["hp"] = HIT_PROOF_HP
@@ -96,7 +102,7 @@ func _run() -> void:
 		var selector: String = str(_data["clips"][clip]["intents"][0])
 		var fields: PackedStringArray = selector.split(":")
 		state = fixture(fields[0])
-		if clip == "jab": state["enemies"][0]["pos"] = Vector2i(5, 4)
+		if clip == "jab": state["enemies"][0]["pos"] = FIXTURE_CONTACT_TILE
 		await install(state)
 		var action: Dictionary = {}
 		for item: Dictionary in state["enemies"][0]["intent"]["actions"]:
@@ -110,7 +116,7 @@ func _run() -> void:
 	for error: String in _failures: push_error(error)
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/arc_thrall/rr11")
 	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
-		"size": [1920, 1080], "ui_scale": 1.0, "inputs": bindings, "frames": _frames, "completions": _scene.proof_completions, "errors": _failures}
+		"size": [1920, 1080], "ui_scale": 1.0, "view": _view, "inputs": bindings, "frames": _frames, "walk_samples": _walk_samples, "completions": _scene.proof_completions, "errors": _failures}
 	var file := FileAccess.open(_output.path_join("logic_frames.json" if _logic else "frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(report))
 	print("MAQUETTE PRODUCTION %s: %s (%d frames)" % ["LOGIC" if _logic else "NATIVE", "PASS" if _failures.is_empty() else "FAIL", _frames.size()])
@@ -130,8 +136,11 @@ func _capture() -> void:
 		_failures.append("Recorded a renderer other than the promoted two-view humanoid_v2")
 		return
 	var snapshot: Dictionary = renderer.snapshot()
+	if str(snapshot["facing"]) != _view: _failures.append(_stage + ": expected " + _view + " production view")
 	if snapshot["clip"] != _stage: return
 	var rig: Node = renderer.rigs[snapshot["facing"]]
+	if _stage == "move" and not _walk_samples.has(snapshot["facing"]):
+		_walk_samples[snapshot["facing"]] = preload("res://tests/gait01/production_walk.gd").capture(rig, str(snapshot["clip"]), float(snapshot["phase"]))
 	var pose: Array = []
 	for bone: String in rig.bones:
 		var node: Bone2D = rig.bones[bone]
@@ -179,6 +188,8 @@ func fixture(intent: String) -> Dictionary:
 	return state
 
 func install(state: Dictionary) -> void:
+	if _view == "rear":
+		for unit: Dictionary in state["enemies"]: unit["pos"].x = FIXTURE_REFLECTION_X_SUM - unit["pos"].x
 	Fixtures.install(_scene, state)
 	_scene._render_board_state(state, {})
 	await settle()

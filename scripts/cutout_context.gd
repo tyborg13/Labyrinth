@@ -25,6 +25,7 @@ const FAMILY_KEYS: Dictionary = {
 	"zekarion": "zekarion_motion",
 	"hoarfrost_seer": "hoarfrost_seer_motion", "arc_thrall": "arc_thrall_motion",
 	"burrow_grub": "burrow_grub_motion", "ember_tick": "ember_tick_motion",
+	"glacial_mirror": "glacial_mirror_motion",
 }
 
 static func _static_enemy_types() -> Array[String]:

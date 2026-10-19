@@ -706,6 +706,41 @@
       "type": "number",
       "minimum": 0,
       "description": "Case-owned planted anchor source-pixel tolerance; omitted keeps the existing serialized-transform tolerance."
+    },
+    "seam_policy": {
+      "enum": [
+        "strict",
+        "air_between_rigid_pieces"
+      ],
+      "description": "Omitted/strict retains calibrated joint-local holes. Opt-in rigid-air policy checks every enclosed pocket against immutable source silhouettes/tucks; only air between rigid parts is allowed."
+    },
+    "seam_protected_pieces": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "description": "Logical piece silhouettes whose enclosed source interiors must remain solid under the rigid-air seam policy."
+    },
+    "material_policy": {
+      "type": "object",
+      "properties": {
+        "green_dominance_margin": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "description": "Optional case-owned chroma residue threshold; omitted keeps existing material rules."
+    },
+    "channel_aliases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
     }
   },
   "additionalProperties": false

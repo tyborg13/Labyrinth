@@ -1,0 +1,833 @@
+{
+ "_doc": "Director motion data (rr-18), humanoid rig v2 for the Glacial Mirror. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels of the 255 px painting, two-bone hand and foot targets, world_step feet, inward_px, per-view view_keys). Every piece is a rigid boulder; both arms are free arms in the idle upper-body group. `move` is a gait block (section 4, Gait block): the compiler generates its feet, pelvis, root and arm swing (director, gait-01, 2026-10-19). Key rows are [phase, value] or [phase, value, interpolation]; the interpolation names the segment that ends at that key.",
+ "glacial_mirror": {
+  "rig": "humanoid_v2",
+  "units": "source_px",
+  "maquette": "spec/art_identity/maquettes/glacial_mirror/measurements.json",
+  "art": {
+   "front": "spec/art_identity/jobs/glacial_mirror/mq8_front",
+   "rear": "spec/art_identity/jobs/glacial_mirror/mq8_rear"
+  },
+  "pieces_note": "every piece is rigid: head stone; torso = chest boulder with the ice mirror; pelvis stone; per arm upper (shoulder boulder and upper arm), fore and fist; per leg thigh, shin and foot. Boulders overlap at every joint (the gap between them is painted dark), so bends are covered by the overlapping boulder, never by skinning.",
+  "clips": {
+   "idle": {
+    "seconds": 0.84,
+    "loop": true,
+    "intents": [],
+    "note": "the protagonist's cut-out bob: torso, head and both free arms drop 2 px and return as one rigid group; pelvis, legs and feet still",
+    "keys": {
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -2
+      ],
+      [
+       0.55,
+       -2
+      ],
+      [
+       0.91,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.9,
+    "intents": [
+     "advance:move_toward"
+    ],
+    "note": "a heavy golem walk on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 6 px lift; the pelvis settles 3.5 px after each landing; the rigid boulder legs space their joints at most 14% on long reaches; both fists swing 3 px opposite the stepping leg; the torso leans 2 degrees",
+    "gait": {
+     "model": "protagonist_walk",
+     "steps_per_tile": 6,
+     "lead": "near",
+     "stance_fraction": 0.6,
+     "lift_px": 6,
+     "lane_narrowing": 0.7,
+     "leg_scale_max": 1.14,
+     "settle_px": {
+      "contact": 2.0,
+      "down": 3.5,
+      "passing": 1.0,
+      "up": 0.5
+     },
+     "arm_swing": {
+      "near": {
+       "bone": "hand_near",
+       "px": 3
+      },
+      "far": {
+       "bone": "hand_far",
+       "px": 3
+      }
+     },
+     "max_fit_px": 6
+    },
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.12,
+       2
+      ],
+      [
+       0.88,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "refraction": {
+    "seconds": 1.1,
+    "contact": 0.5,
+    "intents": [
+     "refraction:aoe"
+    ],
+    "note": "opens its chest: it rocks back and swings both fists out and up to the sides, then heaves the chest forward to present the ice mirror along the line (contact: the existing Refraction beam), holding with a 1 px shudder and bent knees; then settles",
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -4
+      ],
+      [
+       0.47,
+       4
+      ],
+      [
+       0.75,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.47,
+       4
+      ],
+      [
+       0.55,
+       3,
+       "hold"
+      ],
+      [
+       0.6,
+       4,
+       "hold"
+      ],
+      [
+       0.65,
+       3,
+       "hold"
+      ],
+      [
+       0.7,
+       4,
+       "hold"
+      ],
+      [
+       0.75,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -4
+      ],
+      [
+       0.47,
+       3
+      ],
+      [
+       0.75,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -1
+      ],
+      [
+       0.47,
+       -2
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -4
+      ],
+      [
+       0.47,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -8
+      ],
+      [
+       0.47,
+       -10
+      ],
+      [
+       0.75,
+       -10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       8
+      ],
+      [
+       0.47,
+       10
+      ],
+      [
+       0.75,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -4
+      ],
+      [
+       0.47,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -8
+      ],
+      [
+       0.47,
+       -10
+      ],
+      [
+       0.75,
+       -10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       8
+      ],
+      [
+       0.47,
+       10
+      ],
+      [
+       0.75,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "guard": {
+    "seconds": 0.9,
+    "contact": 0.45,
+    "intents": [
+     "crystal_guard:guard_ally"
+    ],
+    "note": "raises the near fist to a boxer's guard in front of the ice mirror (elbow folding) while the far fist comes up to the hip, sinks 2 px into its knees and leans back 2 degrees; at the contact the near fist punches 4 px inward as the ward lands; holds; lowers",
+    "keys": {
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       48
+      ],
+      [
+       0.75,
+       48
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       45
+      ],
+      [
+       0.45,
+       49
+      ],
+      [
+       0.55,
+       45
+      ],
+      [
+       0.75,
+       45
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       10
+      ],
+      [
+       0.75,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       14
+      ],
+      [
+       0.75,
+       14
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       12
+      ],
+      [
+       0.45,
+       14
+      ],
+      [
+       0.55,
+       12
+      ],
+      [
+       0.75,
+       12
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       6
+      ],
+      [
+       0.75,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -3
+      ],
+      [
+       0.75,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "hit": {
+    "seconds": 0.5,
+    "intents": [],
+    "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both fists trail 1 px; recovered by 0.6",
+    "keys": {
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -4
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       1
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       1
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.5,
+    "terminal": true,
+    "intents": [],
+    "note": "the cold goes out of it: a 1 px lurch up, then the knees buckle over planted feet (pelvis down 20 px and 5 forward), the torso pitches forward 20 degrees, the head tips 15, and both fists drop to the floor ahead; terminal pose held, then the existing fade",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       1
+      ],
+      [
+       0.6,
+       -12
+      ],
+      [
+       0.9,
+       -20
+      ],
+      [
+       1,
+       -20
+      ]
+     ],
+     "pelvis.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.9,
+       5
+      ],
+      [
+       1,
+       5
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -2
+      ],
+      [
+       0.55,
+       8
+      ],
+      [
+       0.85,
+       20
+      ],
+      [
+       1,
+       20
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.9,
+       6
+      ],
+      [
+       1,
+       6
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -3
+      ],
+      [
+       0.55,
+       6
+      ],
+      [
+       0.9,
+       15
+      ],
+      [
+       1,
+       15
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -6
+      ],
+      [
+       0.9,
+       -10
+      ],
+      [
+       1,
+       -10
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       4
+      ],
+      [
+       0.9,
+       8
+      ],
+      [
+       1,
+       8
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -6
+      ],
+      [
+       0.9,
+       -10
+      ],
+      [
+       1,
+       -10
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       4
+      ],
+      [
+       0.9,
+       8
+      ],
+      [
+       1,
+       8
+      ]
+     ]
+    }
+   }
+  }
+ }
+}

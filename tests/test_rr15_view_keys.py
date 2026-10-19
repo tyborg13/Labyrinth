@@ -59,14 +59,11 @@ class ViewKeyTests(unittest.TestCase):
 
     def test_mode_override_resolves_roles_and_malformed_view_maps_are_rejected(self):
         source = copy.deepcopy(self.source)
-        move = source['arc_thrall']['clips']['move']
-        move['view_keys'] = {'rear': {'foot_stride.forward_mode': 'body'}}
+        jab = source['arc_thrall']['clips']['jab']
+        jab['view_keys'] = {'rear': {'foot_trailing.forward_mode': 'world_step'}}
         data = compile_fixture(source, 'arc_thrall', THRALL, self.path)
-        rear = next(t for t in data['view_tracks']['rear']['move'] if t['source'] == 'foot_stride.forward_px')
-        front = next(t for t in data['view_tracks']['front']['move'] if t['source'] == 'foot_stride.forward_px')
-        self.assertEqual((rear['bone'], rear['forward_mode']), ('foot_far', 'body'))
-        self.assertEqual(front['forward_mode'], 'world_step')
-        self.assertEqual(data['view_forward_modes']['rear']['move']['foot_far'], 'body')
+        self.assertEqual(data['view_forward_modes']['rear']['jab']['foot_near'], 'world_step')
+        self.assertEqual(data['view_forward_modes']['front']['jab']['foot_far'], 'body')
         for invalid in ({'rear_typo': {}}, {'rear': []}, []):
             with self.assertRaisesRegex(ValueError, 'view_keys'):
                 keys_for_view({'keys': {}, 'view_keys': invalid}, 'rear', ('front', 'rear'))

@@ -1,0 +1,8 @@
+{
+  "min_images": 24,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "front_move_*.png", "width": 1920, "height": 1080, "min_count": 12},
+    {"pattern": "rear_move_*.png", "width": 1920, "height": 1080, "min_count": 12}
+  ]
+}

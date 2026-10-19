@@ -1,0 +1,76 @@
+{
+  "scope": "Director feedback 3 zero-green cleanup; original paintings and raw authoring partition retained unchanged",
+  "raw_authoring_mismatch_pixels": {
+    "front": 0,
+    "rear": 0
+  },
+  "presentation_reference_delta_pixels": {
+    "front": 1,
+    "rear": 28
+  },
+  "corrections": [
+    {
+      "piece": "head",
+      "source_xy": [
+        124,
+        18
+      ],
+      "raw_rgba": [
+        52,
+        95,
+        62,
+        255
+      ],
+      "presentation_rgba": [
+        16,
+        30,
+        42,
+        255
+      ],
+      "view": "front",
+      "applied_to": "derived presentation only"
+    },
+    {
+      "piece": "upper_near",
+      "source_xy": [
+        113,
+        18
+      ],
+      "raw_rgba": [
+        0,
+        15,
+        0,
+        255
+      ],
+      "presentation_rgba": [
+        0,
+        0,
+        0,
+        255
+      ],
+      "view": "rear",
+      "applied_to": "derived presentation only"
+    },
+    {
+      "piece": "upper_far",
+      "source_xy": [
+        172,
+        109
+      ],
+      "raw_rgba": [
+        20,
+        33,
+        20,
+        255
+      ],
+      "presentation_rgba": [
+        15,
+        23,
+        23,
+        255
+      ],
+      "view": "rear",
+      "applied_to": "derived presentation only"
+    }
+  ]
+}

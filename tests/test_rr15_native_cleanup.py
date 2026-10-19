@@ -19,6 +19,7 @@ from maquette_motion.native_ties import select
 from maquette_motion.features import source_pixels
 from maquette_motion.silhouette import components, dilate
 from rr15_cpu_proof import CASE, frame_state
+from tests.gait01.preservation import assert_preserved
 
 FIXTURES = PROJECT / 'tests/rr11/rr15'
 DETACHED_POSES = [('front', 'jab', 5), ('rear', 'tether', 15)]
@@ -101,6 +102,9 @@ class NativeCleanupTests(unittest.TestCase):
         for key in SEAM_POSES:
             view = key[0]
             model, pose = self.models[view], self.poses[key]
+            if key == ('rear', 'move', 6):
+                # The retained GPU defect belongs to the old walk pose.
+                pose = read_json(FIXTURES / 'legacy_rear_move6_pose.json')
             # Pin the actual retained GPU defect, rather than unrelated CPU
             # raster-boundary predictions elsewhere in the same pose.
             target = np.asarray(Image.open(FIXTURES / f'{view}_{key[1]}{key[2]}_native_joint_hole.png')) > 0
@@ -170,7 +174,7 @@ class NativeCleanupTests(unittest.TestCase):
     def test_paint_motion_rest_and_visible_mesh_fields_are_unchanged(self):
         self.assertTrue(rest_identity(CASE)['ok'])
         for path, expected in read_json(FIXTURES / 'protected.json').items():
-            self.assertEqual(hashlib.sha256((PROJECT / path).read_bytes()).hexdigest(), expected, path)
+            assert_preserved(self, PROJECT, path, expected)
         geometry = read_json(FIXTURES / 'geometry_before.json')
         for view, model in self.models.items():
             for mesh in model.layout['joint_meshes']:
