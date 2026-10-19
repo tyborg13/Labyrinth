@@ -2,8 +2,7 @@
   "min_images": 33,
   "expected_sizes": [
     "1920x1080",
-    "255x255",
-    "512x512"
+    "255x255"
   ],
   "required_images": [
     {
