@@ -334,7 +334,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
     for view in data['view_tracks']:
         rest = np.asarray(Image.open(capture / (view + '_rest.png')).convert('RGBA'))
-        source = np.asarray(Image.open(case / f'source/{view}/processed.png').convert('RGBA'))
+        source = np.asarray(Image.open(case / layouts[view]['rest_source']).convert('RGBA'))
         if not np.array_equal(rest, source): errors.append(view + ': native rest mismatch')
         for clip, definition in data['clips'].items():
             rows = [r for r in manifest['frames'] if r['view'] == view and r['clip'] == clip]
@@ -430,6 +430,8 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
             from maquette_motion.pixels import changed
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
         rejected = frame_errors(key, metric, new_holes if air_policy is None else [], approved)
+        from .material_gates import colour_errors
+        rejected += [str(key)+': '+error for error in colour_errors(np.asarray(composite),anatomy.get('material_policy',{}))]
         if air_policy is not None and new_holes:
             rejected.append(str(key) + ': pocket through rigid painted silhouette/tuck')
         errors += rejected

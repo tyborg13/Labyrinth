@@ -1,20 +1,6 @@
 {
-  "ok": false,
-  "errors": [
-    "rear/guard/frame 16: seam holes [{'bbox': [300, 181, 302, 186], 'pixel_count': 8, 'stone_pixels': 1}, {'bbox': [337, 187, 343, 189], 'pixel_count': 8, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/guard/frame 47: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/guard/frame 48: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/guard/frame 7: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/guard/frame 8: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/move/frame 1: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 13: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 14: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 15: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 16: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 17: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 58: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-    "rear/refraction/frame 59: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}"
-  ],
+  "ok": true,
+  "errors": [],
   "production_ready": false,
   "design_placeholders": {},
   "scope": "headless source/Bone2D evidence; native pixels pending"

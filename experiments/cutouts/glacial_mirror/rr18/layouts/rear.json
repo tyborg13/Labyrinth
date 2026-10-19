@@ -512,14 +512,14 @@
       "name": "hidden_upper_far",
       "file": "pieces/rear/hidden_upper_far.png",
       "offset": [
-        147,
-        24
+        144,
+        21
       ],
       "bbox": [
-        147,
-        24,
-        215,
-        120
+        144,
+        21,
+        218,
+        123
       ],
       "bone": "upper_far",
       "z_index": -9,
@@ -534,14 +534,14 @@
       "name": "upper_far",
       "file": "pieces/rear/upper_far.png",
       "offset": [
-        147,
-        24
+        144,
+        21
       ],
       "bbox": [
-        147,
-        24,
-        215,
-        120
+        144,
+        21,
+        218,
+        123
       ],
       "bone": "upper_far",
       "z_index": 13,
@@ -641,14 +641,14 @@
       "name": "hidden_thigh_far",
       "file": "pieces/rear/hidden_thigh_far.png",
       "offset": [
-        135,
-        131
+        132,
+        128
       ],
       "bbox": [
-        135,
-        131,
-        180,
-        182
+        132,
+        128,
+        183,
+        185
       ],
       "bone": "thigh_far",
       "z_index": -2,
@@ -663,14 +663,14 @@
       "name": "thigh_far",
       "file": "pieces/rear/thigh_far.png",
       "offset": [
-        135,
-        131
+        132,
+        128
       ],
       "bbox": [
-        135,
-        131,
-        180,
-        182
+        132,
+        128,
+        183,
+        185
       ],
       "bone": "thigh_far",
       "z_index": 6,
@@ -848,7 +848,8 @@
     ]
   },
   "features": [],
-  "rest_source": "source/rear/processed.png",
+  "rest_source": "source/rear/continued.png",
+  "raw_rest_source": "source/rear/processed.png",
   "motion_data": "res://experiments/cutouts/glacial_mirror/rr18/compiled_motion.json",
   "proof_layers": {
     "hidden_head": {
@@ -937,7 +938,7 @@
       "z_index": 9,
       "source": "pieces/rear/upper_near.png",
       "rigid": true,
-      "source_sha256": "54a4c0b9533eb9eb853784e93b20bdd7971527eef690788187d16b2fcba1ec7a"
+      "source_sha256": "2f78d31b66c1a7cbd3e17e1ca0b2c8b8056040554a3d3e2ccccf43b04c35f50f"
     },
     "hidden_fore_near": {
       "mask": "checks/rear/hidden_fore_near.png",
@@ -1052,24 +1053,24 @@
     "hidden_upper_far": {
       "mask": "checks/rear/hidden_upper_far.png",
       "mask_offset": [
-        147,
-        24
+        144,
+        21
       ],
       "z_index": -9,
       "source": "pieces/rear/hidden_upper_far.png",
       "rigid": true,
-      "source_sha256": "92b2e19cbf094fb94b49a0219624f40e7ae7cfbd2485ee761674b38de6a7ae34"
+      "source_sha256": "8a583c321375d6b8ec37408f355d373a5123406a1071a91d7929bb68adf77a76"
     },
     "upper_far": {
       "mask": "checks/rear/upper_far.png",
       "mask_offset": [
-        147,
-        24
+        144,
+        21
       ],
       "z_index": 13,
       "source": "pieces/rear/upper_far.png",
       "rigid": true,
-      "source_sha256": "898dfea0d7271bf279c52cb73bb19327af121686d841f23f597c9ff77b77e282"
+      "source_sha256": "2bfbfbcfc1a0db529bd108fb2741653473bfb66069105cfcd8bfe27f6c33993d"
     },
     "hidden_fore_far": {
       "mask": "checks/rear/hidden_fore_far.png",
@@ -1118,24 +1119,24 @@
     "hidden_thigh_far": {
       "mask": "checks/rear/hidden_thigh_far.png",
       "mask_offset": [
-        135,
-        131
+        132,
+        128
       ],
       "z_index": -2,
       "source": "pieces/rear/hidden_thigh_far.png",
       "rigid": true,
-      "source_sha256": "88678f598109780ea265038a19356d5e7c79cb7fa5c9aa360ddb363e1c302d14"
+      "source_sha256": "4ee20cc45703dfdbdb66a5149f8f3352ad52770ff39c55bfb657c4dd8ea2f156"
     },
     "thigh_far": {
       "mask": "checks/rear/thigh_far.png",
       "mask_offset": [
-        135,
-        131
+        132,
+        128
       ],
       "z_index": 6,
       "source": "pieces/rear/thigh_far.png",
       "rigid": true,
-      "source_sha256": "0f3a79baf67872f74eee8c5f5e77ace357a3f75ff80c8b8ff44e002fc2335399"
+      "source_sha256": "ca2bbb7e66cf9f195b253531d2575e351493aa2c6d7ac22619492c8cb22877d2"
     },
     "hidden_shin_far": {
       "mask": "checks/rear/hidden_shin_far.png",

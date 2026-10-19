@@ -1,24 +1,24 @@
 # rr-18 — Glacial Mirror humanoid v2
 
-Current handoff: [director feedback 2](rr18/feedback2.md). The approved rigid-air calibration is implemented and all design placeholders are resolved. **Acceptance remains incomplete:** the final strict scan retains 13 rear-frame failures containing 14 pocket occurrences, each mapping one pixel into an existing continuation. Every remaining failure has an inspected, ignored CPU crop linked from the handoff. No frame exceptions, art changes or motion tuning were added.
+Current handoff: [director feedback 3](rr18/feedback3.md). **All headless gates pass in both views.** The 13 rear continuation failures (14 pockets) are repaired; every original material-hit pixel is covered for all native UV candidates. All 682 presented frames have zero pockets, green-dominant texels and clean-piece defects. No exemptions or motion changes.
 
 ## Numbered unit requirements
 
-1. Fifteen rigid boulders per view retain the specified source labels/bones, two-bone hand/foot targets, minimum tucks, facing knee policy, stride/trailing roles and torso-owned front mirror. Source rest remains **0 px** against both approved paintings. All **313 Mirror PNGs** remain byte-identical in this feedback pass.
-2. The existing upper-body idle, stationary pelvis/legs/feet and three proof groups remain unchanged. Headless idle rigidity passes; native proof is pending.
-3. Existing board, pre-battle, portrait, per-tile move, Refraction, guard, hit/death/fade integration remains unchanged. Production callbacks pass **940 frames in each view**; the three SFX harnesses pass with zero failures. Density rest remains **0 px** against the processed output: front clean / rear regrid 1.22. No density override.
-4. The Mirror opts into a generic, data-driven rigid-air seam policy in case anatomy. The shared proof-only extensions are `tools/humanoid_cutout/{rigid_air.py,anatomy.schema.json,gates.py}`. Other figures retain the strict default; no generic creature-name or runtime-rendering branch was added. Seer/Thrall paint/layouts/compiled motion remain unchanged, with 990 exact Thrall and 1,258 exact Seer pose rows retained.
-5. Source/cut, idle/signed motion, direction/coverage, every stride swing, support, dense reach and production-rest checks pass in both views. The scan covers **682 presented frames**; front seams pass, rear seams retain **13 errors**. A synthetic punched stone hole, missing tuck, single-pixel hole and torso hole all fail; air passes. No remaining failure was waived. Native rigid/sprite/idle/seam proof is wired to the same policy and awaits the director's renderer.
+1. Fifteen rigid boulders per view retain the specified labels/bones, two-bone targets, knee policy, stride/trailing roles and front torso-owned mirror. The immutable raw authoring partition remains **0 px against both protected paintings**.
+2. Idle groups/motion remain unchanged and pass rigid/signed checks. Pelvis, legs and feet remain stationary.
+3. Board, pre-battle, portraits, advance, Refraction, guard and hit/death/fade integration remains unchanged. Production logic passes **940 frames per view**; three SFX harnesses pass with zero failures. Production rest is **0 px** against the existing density rule's output.
+4. Case-owned material data specifies rounded own-edge continuation and exact zero-green cleanup; generic proof helpers are optional and contain no creature-name branches. Seer/Thrall render inputs and pose rows remain unchanged. No shared humanoid runtime changed.
+5. Every headless gate passes, including source/material provenance, raw identity, green, pockets/strays, action direction/coverage, knees/supports and dense reach. All ten mutations are caught. Fresh native proof remains director-owned.
 
-## Proof and reproduction
+## Source stages and proof
 
-The final focused rr-10/11/14/15/16, rr-07 production, audit and rr-18 set reports `Ran 198 tests in 168.006s`, `OK`. All eight mutations are caught. Registration reports `TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)`. SFX harnesses pass 4075 / 3348 / 1604 observations with zero failures. Full suites are not run, per the brief/director.
+Raw authoring stays exact in `rr18/raw_cut/`; original paintings are unchanged. The prescribed presentation cleanup changes **1 front / 28 rear reference pixels** (three green replacements and 26 rear coverage pixels), using only existing same-boulder texels. It has its own exact derived references, then uses front clean / rear regrid 1.22 without a density override. This preserves raw identity while making every presented frame clean. See [handoff](rr18/feedback3.md), [green corrections](rr18/proof/green_sources.json) and [raw identity](rr18/proof/raw_identity.json).
 
-[Current handoff](rr18/feedback2.md) contains every remaining crop, exact headless commands, chosen defaults and open issues. [Verification](rr18/proof/verification.json) contains exact result lines, logs and hashes. [Feedback 1](rr18/feedback1.md) is historical; its calibration TODO is resolved by feedback 2.
+Observed: `RR18 ALL GATES: PASS (0 unique errors)`; `Ran 208 tests in 161.968s`, `OK`; all ten mutations caught; art identity 111 tests, icon identity 7, sidecars 19 all OK; registration audit PASS (750 scripts). Exact result lines/log hashes: [verification](rr18/proof/verification.json). No full suites or windowed runs were attempted.
 
 ## Proof for the design owner
 
-No windowed command was attempted. Run in this order at **1920×1080 / 100% UI scale**:
+Fresh **1920×1080 / 100% UI scale** proof is required after these texture changes. Run in order:
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh density
@@ -30,10 +30,8 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutou
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh review
 ```
 
-Captures stay gitignored under `rr18/proof/{native_rest,native,contact_sheets,idle_native,production_native}` and `*.mp4`; current CPU-only failure crops are under `rr18/proof/seam_cpu`. The `native` gate retains the reported failures. Native rest sealing and inspection are pending. No fixture command is requested; the director prepares the fixture.
+Captures stay ignored under `rr18/proof/{native_rest,native,contact_sheets,idle_native,production_native}` and `*.mp4`. Repaired CPU crops/index are in ignored `rr18/proof/feedback3_repaired/`; they are not GPU proof. No fixture command is requested; the director prepares the fixture.
 
-## Changes, defaults and remaining work
+## Defaults and remaining work
 
-This pass changes only case policy/placeholder metadata, shared opt-in proof helpers/schema, Mirror seam reports/crops, tests/mutations and this handoff. No paint, motion, runtime-renderer, density, shadow, input, analytics, save or combat value changes. Three small generic extensions are listed/tested; all other protected content passes the 3,616-file audit.
-
-No TODO_DESIGN remains. New defaults are diagnostic crop padding (8 px), inherited 3× crop zoom and named synthetic test fixtures; no player-facing value was selected. Remaining work is the 13 reported rear-frame continuation failures and director-native proof. Changes remain uncommitted and unstaged; no peer review or publication was performed.
+No TODO_DESIGN remains. Only named debug fixtures were chosen. Existing 8 px crop context / 3× zoom and proof cameras/timeouts remain; material growth/quad padding use the existing 3 px tuck depth and the prescribed green margin is 12. Fresh native sealing and inspection are the remaining steps. All changes remain uncommitted and unstaged; no peer review or publication was performed. Earlier feedback handoffs are historical.

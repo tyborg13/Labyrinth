@@ -23,6 +23,8 @@ from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.promotion import promote
 from humanoid_cutout.underlays import distinct_depths
 from rr18_ownership import clean as clean_ownership
+from rr18_materials import continue_surfaces
+from rr18_source_stage import raw_cut, clean_visible, raw_identity
 
 
 def recipe_for(_creature, _spec):
@@ -83,6 +85,8 @@ def build_view(view,inputs,anatomy):
         visible[name] = source_pixels(base,part)
         depths[name] = part['z_index']
     transfers = clean_ownership(visible)
+    visible=raw_cut(visible,depths,view)
+    visible,source_corrections=clean_visible(visible,anatomy['material_policy']['green_dominance_margin'])
     for name,labels in PIECES.items():
         hidden[name] = clean_continuation(visible[name],seeds[labels[0]],rules(base,view))
     write_json(CASE/f'ownership/{view}.json',{'policy':'cutout_workflow complete-mask components <12 px to the greatest four-neighbour owner; exact RGBA preserved','transfers':transfers})
@@ -99,6 +103,7 @@ def build_view(view,inputs,anatomy):
         reports.append({'piece':name,'minimum_px':recipe['depth_px'],'cover':recipe['covers'],
             'required_mask':str(path.relative_to(CASE)),'required_pixels':int(mask.sum()),
             'missing_pixels':int((mask & (hidden[name][...,3] == 0)).sum())})
+    surfaces = continue_surfaces(visible,hidden,anatomy,view,rules(base,view))
     parts = []
     for name,image in visible.items():
         bone = BONES.get(name,name)
@@ -110,6 +115,9 @@ def build_view(view,inputs,anatomy):
         union = (image[...,3]>0) | (hidden[name][...,3]>0)
         ys,xs = np.nonzero(union)
         bounds = [int(xs.min()),int(ys.min()),int(xs.max())+1,int(ys.max())+1]
+        if name in read_json(CASE/'joint_continuations.json').get(view,{}):
+            depth=anatomy['joint_continuations']['depth_px']
+            bounds=[bounds[0]-depth,bounds[1]-depth,bounds[2]+depth,bounds[3]+depth]
         main = store(image,CASE/'pieces'/view,name,bounds)
         if hidden[name][...,3].any():
             part = store(hidden[name],CASE/'pieces'/view,'hidden_'+name,bounds)
@@ -118,7 +126,7 @@ def build_view(view,inputs,anatomy):
     layout = {'version':2,'rig':'humanoid_v2','facing':view,'canvas_size':[255,255], 'joints':joints,'parts':parts,
         'joint_meshes':[],'idle_groups':GROUPS,'held_items':{}, 'ik_chains':[],
         'planted_bones':anatomy['planted_bones'], 'leg_roles':anatomy['leg_roles'][view], 'source_labels':PIECES,'features':[],
-        'rest_source':f'source/{view}/processed.png','motion_data':'res://'+str(CASE.relative_to(PROJECT)/'compiled_motion.json')}
+        'rest_source':f'source/{view}/continued.png','raw_rest_source':f'source/{view}/processed.png','motion_data':'res://'+str(CASE.relative_to(PROJECT)/'compiled_motion.json')}
     # The single front feature remains wholly inside the torso owner. Its
     # exact source paint is protected along with the entire chest boulder.
     if view == 'front':
@@ -128,18 +136,25 @@ def build_view(view,inputs,anatomy):
         layout['features'] = [{'name':'ice_mirror','piece':'torso','mask':str(path.relative_to(CASE)),
                                'scope':'whole owning chest boulder, including the single inset'}]
     distinct_depths(layout)
-    proof_masks(layout,paint,visible,hidden,rules(base,view),anatomy)
-    write_json(CASE/f'layouts/{view}.json',layout)
+    expected = Image.new('RGBA',(255,255))
     rest = Image.new('RGBA',(255,255))
-    for part in sorted(parts,key=lambda p:p['z_index']): rest.alpha_composite(Image.fromarray(source_pixels(CASE,part)))
-    mismatch = int(np.any(np.asarray(rest) != paint,axis=-1).sum())
+    for part in sorted(parts,key=lambda p:p['z_index']):
+        image=hidden[part['logical_part']] if part.get('hidden_material') else visible[part['logical_part']]
+        expected.alpha_composite(Image.fromarray(image))
+        rest.alpha_composite(Image.fromarray(source_pixels(CASE,part)))
+    expected.save(CASE/layout['rest_source'])
+    processed=np.asarray(expected)
+    proof_masks(layout,processed,visible,hidden,rules(base,view),anatomy)
+    write_json(CASE/f'layouts/{view}.json',layout)
+    mismatch = int(np.any(np.asarray(rest) != processed,axis=-1).sum())
+    raw_delta = int(np.any(processed != paint,axis=-1).sum())
     spec = read_json(base/'source/spec_native.json')
     origin = np.asarray(projected(spec,[0,0,0],view))
     up = np.asarray(projected(spec,[0,0,1],view))-origin
     forward = np.asarray(projected(spec,[1,0,0],view))-origin
     projection = {'forward':(forward/np.linalg.norm(forward)).tolist(),
         'lean_sign':float(np.sign(up[0]*forward[1]-up[1]*forward[0]))}
-    return layout,{'front_rest_mismatch_pixels':mismatch,'rest_mismatch_pixels':mismatch,'tucks':reports,'delivery':delivery,
+    return layout,{'front_rest_mismatch_pixels':mismatch,'rest_mismatch_pixels':mismatch,'tucks':reports,'continuations':surfaces,'raw_authoring':raw_identity(view),'presentation_delta_pixels':raw_delta,'visible_green_corrections':source_corrections,'delivery':delivery,
         'source_ownership':str(base.relative_to(PROJECT)/f'layouts/{view}.json'),
         'source_ownership_sha256':digest(base/f'layouts/{view}.json')},projection
 

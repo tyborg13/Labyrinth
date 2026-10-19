@@ -8,6 +8,7 @@ from humanoid_cutout.gates import bindings, clean_metrics
 from humanoid_cutout.silhouette_gates import posed_owners, joint_holes
 from humanoid_cutout.anatomy import load
 from humanoid_cutout.rigid_air import for_case
+from humanoid_cutout.material_gates import colour_errors
 from maquette_motion.pixels import PROOF_DEFAULTS
 
 PROGRESS_INTERVAL_FRAMES = 50  # Existing Thrall diagnostic cadence.
@@ -50,14 +51,16 @@ def report(layout,samples,save_failures=False):
                         'pixels':sum(h['pixel_count'] for h in pockets['air_pockets'])})
         metrics=clean_metrics(layers)
         rejected={k:metrics[k] for k in ('outside_pixels','exposed_outline_pixels','dark_slab_blocks','outline_outside_pixels','stray_components') if metrics[k]}
+        composite=Image.new('RGBA',(PROOF_DEFAULTS['canvas_size'],)*2)
+        for part,image,_ in sorted(layers,key=lambda r:r[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
+        colour=colour_errors(np.asarray(composite),load(CASE).get('material_policy',{}))
+        if colour:rejected['colour']=colour
         if holes or rejected:
             label=f'{view}/{pose["clip"]}/frame {pose["frame"]}'
             summary=[{k:h[k] for k in ('bbox','pixel_count','stone_pixels') if k in h} for h in holes]
             errors.append(f'{label}: seam holes {summary}; clean-piece defects {rejected}')
             failures.append({'clip':pose['clip'],'frame':pose['frame'],'holes':holes,'metrics':rejected})
             if save_failures:
-                composite=Image.new('RGBA',(PROOF_DEFAULTS['canvas_size'],)*2)
-                for part,image,_ in sorted(layers,key=lambda r:r[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
                 path=CASE/f'proof/seam_cpu/{view}_{pose["clip"]}_{pose["frame"]:04d}.png'
                 path.parent.mkdir(parents=True,exist_ok=True);composite.save(path)
                 for pocket_index,hole in enumerate(holes):

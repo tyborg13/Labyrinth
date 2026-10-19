@@ -64,6 +64,22 @@
       "failures": 1,
       "errors": 0,
       "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "green residue",
+      "regression": "test_green_boundary_is_strict_and_ignores_transparent_rgb",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
+    },
+    {
+      "guard": "own-surface flat patch",
+      "regression": "test_flat_patch_mutation_is_rejected",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "restored": "in-memory only; source bytes untouched"
     }
   ]
 }

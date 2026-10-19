@@ -28,6 +28,7 @@ var _logic: bool
 var _frames: Array[Dictionary]
 var _failures: Array[String]
 var _data: Dictionary
+var _green_margin: int
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -49,6 +50,8 @@ func _run() -> void:
 		push_error("Production capture requires a registered creature and windowed renderer (or --logic-only)")
 		quit(1)
 		return
+	var anatomy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://experiments/cutouts/glacial_mirror/rr18/anatomy.json"))
+	_green_margin = int(anatomy["material_policy"]["green_dominance_margin"])
 	root.size = SIZE
 	root.content_scale_size = SIZE
 	Settings.set_storage_path("user://rr18_settings.json")
@@ -153,11 +156,15 @@ func _capture() -> void:
 		var image: Image = renderer.texture().get_image()
 		image.convert(Image.FORMAT_RGBA8)
 		var bytes: PackedByteArray = image.get_data()
+		var green_pixels: int = 0
 		for alpha: int in range(3, bytes.size(), 4):
 			if bytes[alpha] == 0:
 				bytes[alpha - 3] = 0
 				bytes[alpha - 2] = 0
 				bytes[alpha - 1] = 0
+			elif int(bytes[alpha - 2]) > int(bytes[alpha - 3]) + _green_margin and int(bytes[alpha - 2]) > int(bytes[alpha - 1]) + _green_margin:
+				green_pixels += 1
+		if green_pixels > 0: _failures.append(_stage + ": green-dominant native texels: " + str(green_pixels))
 		var hash := HashingContext.new()
 		hash.start(HashingContext.HASH_SHA256)
 		hash.update(bytes)

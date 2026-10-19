@@ -6,13 +6,13 @@
       "mode": "clean",
       "grid": 1.04,
       "file": "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png",
-      "sha256": "5bba16e5b9e4a0d12071813d6c928b3436994058314b23781923ef2829283d75"
+      "sha256": "dddbda6bb5fab664a5745ad1557aba24ca8598ae5ba2ca0428c65697cee84e3c"
     },
     "rear": {
       "mode": "regrid",
       "grid": 1.22,
       "file": "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png",
-      "sha256": "08fc976c90a192dc2e655b282db1067aabae128205d97494ebfb6417a11f6cdf"
+      "sha256": "f25d49aad074d4157d3cb74cfc28f30fa13c422f32787642ea20ba452968a7f3"
     }
   }
 }

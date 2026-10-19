@@ -137,7 +137,7 @@ func _run() -> void:
 	for view: String in primary:
 		var image: Image = picture(primary[view]).get_region(Rect2i(128,128,255,255))
 		image.save_png(output.path_join(view + "_rest.png"))
-		var source: Image = Image.load_from_file(directory.path_join("source/" + view + "/processed.png"))
+		var source: Image = Image.load_from_file(directory.path_join(str(primary[view].layout["rest_source"])))
 		source.convert(Image.FORMAT_RGBA8)
 		if image.get_data() != source.get_data(): failures.append(view + ": native rest mismatch")
 	for view: String in production:

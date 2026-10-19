@@ -46,7 +46,7 @@ class RigidAirPolicy:
         # Every actual tuck texel is still checked independently below.
         self.protected_masks = {name: visible_masks[name] | self._interiors(visible_masks[name])
                                 for name in self.protected}
-        self.source = np.asarray(Image.open(case / layout['rest_source']).convert('RGBA'))[..., 3] > 0
+        self.source = np.asarray(Image.open(case / layout.get('raw_rest_source',layout['rest_source'])).convert('RGBA'))[..., 3] > 0
 
     @staticmethod
     def _interiors(mask):

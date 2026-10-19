@@ -43,6 +43,7 @@ def initialize():
         'leg_roles': {'front': {'stride': 'near', 'trailing': 'far'}, 'rear': {'stride': 'far', 'trailing': 'near'}},
         'planted_bones': ['foot_near', 'foot_far'], 'planted_tolerance_px': 0.5, 'held_depth_roles': {},
         'ownership': {'names': list(PIECES), 'segments': {}, 'joint_pairs': JOINS, 'free_space_owners': []},
+        'material_policy': {'green_dominance_margin': 12},
         'seam_policy': 'air_between_rigid_pieces', 'seam_protected_pieces': ['torso'],
         'seam_joins': JOINS, 'covered_surfaces': {}, 'joint_continuations': {'depth_px': 3, 'bounded_pieces': []},
         'tucks': {'base_px': 3, 'pieces': {n: {'depth_px': 3, 'covers': adjacency[n], 'mode': 'radial'} for n in PIECES}},

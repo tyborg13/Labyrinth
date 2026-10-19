@@ -1,254 +1,61 @@
 {
-  "implementation_state": "uncommitted feedback 2 seam calibration; remaining tuck-pixel failures reported without exceptions",
+  "implementation_state": "uncommitted feedback 3 implementation; every headless gate passes; fresh director native proof pending",
+  "headless_complete": true,
   "acceptance_complete": false,
   "design_placeholders": {},
-  "director_decision": "spec/peer_benchmark/feedback/rr-18_feedback_2.md",
-  "case_policy": {
-    "seam_policy": "air_between_rigid_pieces",
-    "seam_protected_pieces": [
-      "torso"
-    ],
-    "frame_exceptions": false
-  },
-  "generic_extensions": [
-    "tools/humanoid_cutout/rigid_air.py",
-    "tools/humanoid_cutout/anatomy.schema.json",
-    "tools/humanoid_cutout/gates.py"
-  ],
+  "frame_exceptions": false,
+  "motion_changes": false,
   "strict_gates": {
-    "ok": false,
-    "error_count": 13,
+    "ok": true,
+    "error_count": 0,
     "report": "proof/gates.json",
+    "native_pixels": false,
     "production_ready": false
   },
-  "seam_scan": {
+  "source_stages": {
+    "raw_authoring": {
+      "front": {
+        "ok": true,
+        "errors": [],
+        "mismatch_pixels": 0,
+        "scope": "exact pre-cleanup source partition against protected painting"
+      },
+      "rear": {
+        "ok": true,
+        "errors": [],
+        "mismatch_pixels": 0,
+        "scope": "exact pre-cleanup source partition against protected painting"
+      }
+    },
+    "derived_presentation_delta_pixels": {
+      "front": 1,
+      "rear": 28
+    },
+    "explanation": "Exact raw partition retained. Only director-prescribed nearest own-surface continuation and zero-green processing is applied to the derived presentation; original paintings unchanged."
+  },
+  "scan": {
     "front": {
       "frames": 341,
-      "failed_frames": 0,
-      "failed_pocket_occurrences": 0,
-      "allowed_air_pocket_occurrences": 349,
-      "clean_piece_defect_frames": 0
+      "pocket_defects": 0,
+      "green_frames": 0,
+      "clean_piece_defects": 0,
+      "ok": true
     },
     "rear": {
       "frames": 341,
-      "failed_frames": 13,
-      "failed_pocket_occurrences": 14,
-      "allowed_air_pocket_occurrences": 1735,
-      "clean_piece_defect_frames": 0
+      "pocket_defects": 0,
+      "green_frames": 0,
+      "clean_piece_defects": 0,
+      "ok": true
     }
   },
-  "remaining_failures": [
-    {
-      "view": "rear",
-      "clip": "move",
-      "frame": 1,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_move_0001_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 13,
-      "bbox": [
-        295,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 4,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0013_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 14,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0014_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 15,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0015_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 16,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0016_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 17,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0017_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 58,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0058_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "refraction",
-      "frame": 59,
-      "bbox": [
-        295,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 4,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_refraction_0059_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "guard",
-      "frame": 7,
-      "bbox": [
-        295,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 4,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_guard_0007_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "guard",
-      "frame": 8,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_guard_0008_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "guard",
-      "frame": 16,
-      "bbox": [
-        300,
-        181,
-        302,
-        186
-      ],
-      "pixel_count": 8,
-      "stone_pixels": 1,
-      "source": "hidden_upper_far (165,93)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_guard_0016_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "guard",
-      "frame": 16,
-      "bbox": [
-        337,
-        187,
-        343,
-        189
-      ],
-      "pixel_count": 8,
-      "stone_pixels": 1,
-      "source": "hidden_upper_far (168,55)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_guard_0016_pocket_01.png"
-    },
-    {
-      "view": "rear",
-      "clip": "guard",
-      "frame": 47,
-      "bbox": [
-        296,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 3,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_guard_0047_pocket_00.png"
-    },
-    {
-      "view": "rear",
-      "clip": "guard",
-      "frame": 48,
-      "bbox": [
-        295,
-        305,
-        299,
-        306
-      ],
-      "pixel_count": 4,
-      "stone_pixels": 1,
-      "source": "hidden_thigh_far (168,178)",
-      "crop": "experiments/cutouts/glacial_mirror/rr18/proof/seam_cpu/rear_guard_0048_pocket_00.png"
-    }
-  ],
+  "former_rear_failures": {
+    "frames": 13,
+    "pockets": 14,
+    "target_pixel_coverage": "all opaque for every allowed native UV candidate; positive regression retained",
+    "crop_index": "proof/feedback3_repaired/index.json",
+    "native_pixels": false
+  },
   "production_rest": {
     "front": {
       "ok": true,
@@ -265,28 +72,39 @@
       "scope": "exact density-derived source-space rest; native seal pending director"
     }
   },
+  "generic_extensions": [
+    "tools/humanoid_cutout/material_gates.py",
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/rigid_air.py",
+    "tools/humanoid_cutout/promotion.py"
+  ],
   "results": {
-    "focused-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-focused-final.log",
-      "log_sha256": "b5886080dfd81b8f97c5837106c867b97845d9457d4ee801e9b66fc14a544d1b",
+    "build-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-build-final.log",
+      "log_sha256": "97f910703a5bf357038beebb3a96d7e30193d1e1895fc0bec36e192330902fc8",
       "result_lines": [
-        "Ran 198 tests in 168.006s",
-        "OK",
-        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
-        "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
-        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)"
+        "RR18 FRONT BUILD: PASS (rest mismatch: 0 px; all rigid; protected tracks byte-identical)",
+        "RR18 REAR BUILD: PASS (rest mismatch: 0 px; all rigid; protected tracks byte-identical)"
       ]
     },
-    "samples": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-samples.log",
-      "log_sha256": "70300e9f63ca423ae35846b5e7007e21ed70a21f26e3c4943f6370cea190e46c",
+    "density-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-density-final.log",
+      "log_sha256": "b5cd02837ab5c36ca65a5432387c81ca236cb77eaa3a5aaa10cf6cffb78be0b3",
+      "result_lines": [
+        "RR18 DENSITY PAINT: PASS (both views adopted/processed; native rest records pending director)"
+      ]
+    },
+    "samples-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-samples-final.log",
+      "log_sha256": "beb23d283ed62ec34fafce2a101d56425ed128845f48884014caea2cd5044b41",
       "result_lines": [
         "RR10 BONE SAMPLES: PASS (896 poses; headless transforms only)"
       ]
     },
-    "gates-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-gates-final.log",
-      "log_sha256": "fef0c7c918d3ad4d5d6cb5742fba96b470f288a188f329e07ea5c4ef1e14426a",
+    "gates-clean": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-gates-clean.log",
+      "log_sha256": "06345d01bc16f5bc1107b54d9243f6c90edc82096d6db5e7f1368f6d6999d5ad",
       "result_lines": [
         "RR18 FRONT KNEES: PASS (0 errors)",
         "RR18 FRONT SUPPORTS: PASS (0 errors)",
@@ -294,19 +112,34 @@
         "RR18 FRONT REACH: PASS (0 errors)",
         "RR18 FRONT PRODUCTION_REST: PASS (0 errors)",
         "RR18 FRONT SEAMS: PASS (0 errors)",
+        "RR18 FRONT MATERIALS: PASS (0 errors)",
+        "RR18 FRONT RAW_IDENTITY: PASS (0 errors)",
         "RR18 REAR KNEES: PASS (0 errors)",
         "RR18 REAR SUPPORTS: PASS (0 errors)",
         "RR18 REAR DIRECTIONS: PASS (0 errors)",
         "RR18 REAR REACH: PASS (0 errors)",
         "RR18 REAR PRODUCTION_REST: PASS (0 errors)",
-        "RR18 REAR SEAMS: FAIL (13 errors)",
+        "RR18 REAR SEAMS: PASS (0 errors)",
+        "RR18 REAR MATERIALS: PASS (0 errors)",
+        "RR18 REAR RAW_IDENTITY: PASS (0 errors)",
         "RR18 SOURCE/CUT GATES: PASS (0 errors; both views)",
-        "RR18 ALL GATES: FAIL (13 unique errors)"
+        "RR18 ALL GATES: PASS (0 unique errors)"
       ]
     },
-    "mutations": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-mutations.log",
-      "log_sha256": "fe5f30728142010e78fd1d90a05ba10e703847adb63dee33b356c8fc3c307d8d",
+    "focused-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-focused-final.log",
+      "log_sha256": "e56cb14064a12794c32acd07d5c1ee2c048e7fd306a087930e07adfe61fc7b14",
+      "result_lines": [
+        "Ran 208 tests in 161.968s",
+        "OK",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
+        "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)"
+      ]
+    },
+    "mutations-final": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-mutations-final.log",
+      "log_sha256": "f91af32621da882082766ef80d5c303413e3701858faa634f8f725d0835db064",
       "result_lines": [
         "RR18 MUTATION production rest identity: CAUGHT",
         "RR18 MUTATION idle rigidity: CAUGHT",
@@ -315,74 +148,97 @@
         "RR18 MUTATION every swing minimum: CAUGHT",
         "RR18 MUTATION support stationarity: CAUGHT",
         "RR18 MUTATION rigid air allowance: CAUGHT",
-        "RR18 MUTATION rigid stone interior: CAUGHT"
+        "RR18 MUTATION rigid stone interior: CAUGHT",
+        "RR18 MUTATION green residue: CAUGHT",
+        "RR18 MUTATION own-surface flat patch: CAUGHT"
       ]
     },
     "native-load": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-native-load.log",
-      "log_sha256": "a7e5044f4f923ebb73e760ecea6c31e7b2c7ca310e4c5e41dc0801a1c45730af",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-native-load.log",
+      "log_sha256": "5cd04031710e1132240e2aa8720490687e149d34964303bd2af75d174592c1ea",
       "result_lines": [
         "RR18 NATIVE PROBE LOAD: PASS"
       ]
     },
     "production-front": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-production-front.log",
-      "log_sha256": "6ce3b777729b5511d5f2cef7276669eb109fe52e9006dd3066287fa8aeaca0f2",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-production-front.log",
+      "log_sha256": "4acd789001312e9814a6f67c844fccda0919124acf5752155ed4a7e0d9ae2ba9",
       "result_lines": [
         "MAQUETTE PRODUCTION LOGIC: PASS (940 frames)"
       ]
     },
     "production-rear": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-production-rear.log",
-      "log_sha256": "7f66c24e0a718974d1a7b06a9bfd9fc5e24c7d7c4fba682ad82e272d33f26f38",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-production-rear.log",
+      "log_sha256": "61a683e337182568bdf6f1b84f12b064756f1ce3ec6a48a49805743204f4dcc4",
       "result_lines": [
         "MAQUETTE PRODUCTION LOGIC: PASS (940 frames)"
       ]
     },
+    "shadow": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-shadow.log",
+      "log_sha256": "afa1e85cbb53f0763624b27f3995329bcff81346effc586f9d935ee804160b3a",
+      "result_lines": [
+        "RR18 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ]
+    },
+    "art-identity": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-art-identity.log",
+      "log_sha256": "d6a73a1470559cf3377815bb2ac386b1d3b858adf00dcbb1c238d24fe9090c50",
+      "result_lines": [
+        "Ran 111 tests in 38.143s",
+        "OK"
+      ]
+    },
+    "icon-identity": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-icon-identity.log",
+      "log_sha256": "aeb8eab8eeb87c97d150804b54d470279b25d480780ccf79e9464381ccfc401a",
+      "result_lines": [
+        "Ran 7 tests in 0.076s",
+        "OK"
+      ]
+    },
+    "registration": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-registration.log",
+      "log_sha256": "9b1822beb8111c258af1be73ca53c76f39197de60e2db812f36009be230bea37",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+      ]
+    },
+    "sidecars": {
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sidecars.log",
+      "log_sha256": "fae20e9145922680d911d80ac07c55df1d5756518834a0493de745bee60f99a9",
+      "result_lines": [
+        "Ran 19 tests in 1.135s",
+        "OK",
+        "GODOT SIDECARS: gitignored exemptions = 1724"
+      ]
+    },
     "sfx0": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-sfx0.log",
-      "log_sha256": "355a5089ff82ee7262bb0ef9ef33403029b5dacf3601fa1192f0a85e029c3a38",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sfx0.log",
+      "log_sha256": "5e000f9aa834690c89a237b783cb2ae5391a82b056729547e10181ff853d5aca",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
       ]
     },
     "sfx1": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-sfx1.log",
-      "log_sha256": "335d1316e23d855d65a4e9453bcfa3c4c91b9bc0b4cfbe7cf22da9bb6ef28300",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sfx1.log",
+      "log_sha256": "0e7ea31cdede168da6a0a2d8e5c969920d7b41715a8d11c5a4189e07de8486d0",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
       ]
     },
     "sfx2": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-sfx2.log",
-      "log_sha256": "d8e275cde8ad1f20f94089c64c2ae42475d622776329366ed2ac3129f2f6d2f6",
+      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sfx2.log",
+      "log_sha256": "97b1e4c293bbd0ee3d27ade9097f9790e07418f9c7ce14d96876173f4c1a323e",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
       ]
-    },
-    "registration": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback2-registration.log",
-      "log_sha256": "9b1822beb8111c258af1be73ca53c76f39197de60e2db812f36009be230bea37",
-      "result_lines": [
-        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
-      ]
     }
   },
-  "preservation": {
-    "ok": true,
-    "checked_protected_tracked_files": 3616,
-    "mirror_png_files_unchanged": 313,
-    "declared_generic_extensions": [
-      "tools/humanoid_cutout/anatomy.schema.json",
-      "tools/humanoid_cutout/gates.py",
-      "tools/humanoid_cutout/rigid_air.py"
-    ],
-    "errors": []
-  },
-  "full_suites": "not run per unit brief/director; focused sets only",
+  "full_suites": "not run per unit brief/director",
   "windowed": "not attempted; worker has no window-server access",
-  "peer_review": "not run per explicit unit rules",
-  "git_publication": "none; edits uncommitted and unstaged",
+  "peer_review": "not run per explicit instructions",
+  "git_publication": "none; all changes uncommitted and unstaged",
   "director_proof_commands": [
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh density",
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh rest",
@@ -392,26 +248,18 @@
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh production",
     "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh review"
   ],
-  "capture_paths": "proof/{native_rest,native,contact_sheets,idle_native,production_native}; no new native captures; ignored CPU failure crops at proof/seam_cpu",
-  "inspection_fixture": "none requested; design owner prepares fixture",
+  "capture_paths": "proof/{native_rest,native,contact_sheets,idle_native,production_native}; refreshed CPU crops at proof/feedback3_repaired (all ignored)",
+  "inspection_fixture": "none requested; director owns fixture preparation",
   "chosen_defaults": [
-    "CROP_PADDING_PX=8 diagnostic context",
-    "CROP_ZOOM=3 inherited native failure crop zoom",
-    "debug-only named fixture constants in tests/test_rr18_air_policy.py",
-    "AIR_PROOF_FRAMES selects existing front guard20, rear refraction32 and rear idle0 poses"
+    "test-only synthetic fixtures in tests/test_rr18_materials.py",
+    "existing crop padding 8 px and zoom 3; existing cameras/steps/timeouts retained"
   ],
+  "native_rest_sealing": "refresh required after derived presentation/density updates",
+  "preservation": "proof/preservation.json",
   "diff_check": "git diff --check exited 0",
-  "final_artifact_checks": {
-    "ok": true,
-    "branch": "codex/rr-18",
-    "staged_files": 0,
-    "failing_frames": 13,
-    "inspected_ignored_crops": 14,
-    "seam_report_bytes": 109936,
-    "allowed_air_occurrences": {
-      "front": 349,
-      "rear": 1735
-    }
-  },
-  "current_bindings": "samples and both production callback reports match current case/runtime proof inputs"
+  "current_bindings": "PASS (samples and both 940-frame production reports match current bindings)",
+  "capture_ignore": "PASS (14 CPU crops and all windowed capture/video paths ignored)",
+  "change_ownership": "PASS (all changed files owned/allowed, all uncommitted and unstaged on codex/rr-18)",
+  "cpu_crop_inspection": "14 final regenerated crops inspected",
+  "new_source_sidecars": "RR18 NEW SOURCE SIDECARS: PASS (untracked raw-cut and presentation sources included)"
 }

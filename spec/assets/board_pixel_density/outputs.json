@@ -5833,8 +5833,8 @@
     "facing": "front"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/front/head.png": {
-    "pixel_sha256": "ed6d97e2f8668ec3c590d05658206b15b99fa33e17c0eeeda16d7351ae98c273",
-    "source_pixel_sha256": "fb7aec60971fd53fde32ff55fc94d2b69ea9de81e281c28f42a8f9c0ccb24e58",
+    "pixel_sha256": "8a5216105122aeb241d28ecea567e28e4aae230d0a9c297d58a87af09c7b07dc",
+    "source_pixel_sha256": "ada2d48a25a86a9e8e367e04d6d35bfc9580a2d1977c7e5c46aecca7a0f49a7c",
     "id": "glacial_mirror_cutout",
     "mode": "clean",
     "grid": 1.04,
@@ -5937,16 +5937,16 @@
     "facing": "front"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_torso.png": {
-    "pixel_sha256": "6de619e249c5884cef7e9879f1b43082d7e629ed05a29273a65bc18eba4e1819",
-    "source_pixel_sha256": "bb731a5f42c07ea7e4e5571e6197b5ef702f860d3659d585027b6ac8b00756a2",
+    "pixel_sha256": "242bbe45e04b119ab3f0c3f9070f8ffca9a5ab2e722a3c09995c0a470cdb20c8",
+    "source_pixel_sha256": "1cc46cc1f89977972004cf17955b78172701541b64c2ce0b6ab268e09e45c8fe",
     "id": "glacial_mirror_cutout",
     "mode": "clean",
     "grid": 1.04,
     "facing": "front"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_upper_far.png": {
-    "pixel_sha256": "73f1123d2cff94dfd8c7edd342875b52f1fd240cea5bfa9e0587522de6b3a0f8",
-    "source_pixel_sha256": "7b8396d570513a5b93d51a3dcfd870f91bab7e0d8953cb32750764f656141b76",
+    "pixel_sha256": "fb1a58e26e9b87c4a485c6a34cab42ada0cb77cbd8812974d1932555996e82ea",
+    "source_pixel_sha256": "50403e4381933fffefc50e583c17e73c8f60c30dd01682206fa9dfc55057f983",
     "id": "glacial_mirror_cutout",
     "mode": "clean",
     "grid": 1.04,
@@ -5967,6 +5967,12 @@
     "mode": "clean",
     "grid": 1.04,
     "facing": "front"
+  },
+  "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png": {
+    "kind": "rest",
+    "id": "glacial_mirror_cutout",
+    "pixel_sha256": "5d211a36423f897143e5ee2e0d271ecc403963d4d7f293c88c4f57b68fb64ee5",
+    "parts_pixel_sha256": "cd535c39ec50c447d4fc4caad6aea11483f3172a982bbb8c4796315a289ec0b4"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/front/shin_far.png": {
     "pixel_sha256": "333c25b50365252735fab39225bb763bb32dcafa819e238fcef61aadbbac78ec",
@@ -6161,8 +6167,8 @@
     "facing": "rear"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_thigh_far.png": {
-    "pixel_sha256": "79e467c3757749f8c5b001b8f1a47249beeb3b2ed5b100e937471eeda82a2a01",
-    "source_pixel_sha256": "0ca895da6a4d8f292fa8f47b02479c5244f70ad778a2b8dc1be314479c3171f7",
+    "pixel_sha256": "5686e6ef184f7d82b5c29c5ba1638e79de00cccb76f3c670456e2708b885191a",
+    "source_pixel_sha256": "9e4d60bd9e22172cb14f26b62f94b0d03a4993ba3b94e802d663aad2d3bd01cb",
     "id": "glacial_mirror_cutout",
     "mode": "regrid",
     "grid": 1.22,
@@ -6185,8 +6191,8 @@
     "facing": "rear"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_upper_far.png": {
-    "pixel_sha256": "9b729410e81712cee9223c48a23c544f6935c441951fc2e99fed2220d412204c",
-    "source_pixel_sha256": "0b1f4e5ba37f95ec9e2a4658973f6d5ca689467f406f09ae4afbf3326788c9f3",
+    "pixel_sha256": "c7416d6179e8d680003fef9b800dda75d84b517d373fcd22a042fe2206cd75b5",
+    "source_pixel_sha256": "382da5d8701e904445462937e727fd9e940d9acf3e6db750105b77743cb4c39a",
     "id": "glacial_mirror_cutout",
     "mode": "regrid",
     "grid": 1.22,
@@ -6208,6 +6214,12 @@
     "grid": 1.22,
     "facing": "rear"
   },
+  "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png": {
+    "kind": "rest",
+    "id": "glacial_mirror_cutout",
+    "pixel_sha256": "33f61dd5a0144aa82e93ea04a6a91bf7d58b24fb89897846460851bc46220ea5",
+    "parts_pixel_sha256": "cd535c39ec50c447d4fc4caad6aea11483f3172a982bbb8c4796315a289ec0b4"
+  },
   "assets/units/glacial_mirror_cutout/humanoid_v2/rear/shin_far.png": {
     "pixel_sha256": "fac856bb2a9e4e6356e3516727904b51d6ecdbcb0727bacbd5ffbf3fdbbec588",
     "source_pixel_sha256": "e7700b2328c03b7d558f2f5bb0867ae6e94561d34a684588c7ff549c7bab5435",
@@ -6225,8 +6237,8 @@
     "facing": "rear"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/rear/thigh_far.png": {
-    "pixel_sha256": "236f598647bf3448e57e9e8c6216a8b3e2f83da87b4f8a0b4a490ce01ef15ca6",
-    "source_pixel_sha256": "04bce0ccba73907178617c434b861d80cf6e86817450b0ac3592323985ec858c",
+    "pixel_sha256": "5863a7075b3b0eb17a712d9b04695ebce8b2fabd35270fc71f8e4bad966b1e59",
+    "source_pixel_sha256": "45c6ae72029c2e3215126f67453f6dbce08960997f699c3173963e0b1c936358",
     "id": "glacial_mirror_cutout",
     "mode": "regrid",
     "grid": 1.22,
@@ -6249,16 +6261,16 @@
     "facing": "rear"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/rear/upper_far.png": {
-    "pixel_sha256": "1ae3e5325b681aa9db2f69905992e1141426acbe73cf53f0ba99c1b54ee98829",
-    "source_pixel_sha256": "9c8ef48400bf3cbbb104ab1622c4539081032d7bdb4b2167c4a75784521c9f09",
+    "pixel_sha256": "3542d96e97c20d1e13111b1cfcb142aab8fe524dfef236650a4bb8e2fa9b7bad",
+    "source_pixel_sha256": "e7326021a2c48f873b56975a36c601474ef11cfc830ddfe02ae7e5118f5d20b9",
     "id": "glacial_mirror_cutout",
     "mode": "regrid",
     "grid": 1.22,
     "facing": "rear"
   },
   "assets/units/glacial_mirror_cutout/humanoid_v2/rear/upper_near.png": {
-    "pixel_sha256": "0895c2f683e291134b981795399263348eaa4fc8847e02b6e8b71a6149c4e6fa",
-    "source_pixel_sha256": "3e5f82f2baa25caefe307bdcb18f52a19e0724dbf846262c7d2d206c6e4617ac",
+    "pixel_sha256": "1550b8521ec7f332eb0919f72a48a7bc2b16fdec6bafc6bb58db4f803b795ef9",
+    "source_pixel_sha256": "7a04c13a6df77008ed78cfca1f82361665c3254894f8a552653bdd2d01fac5e5",
     "id": "glacial_mirror_cutout",
     "mode": "regrid",
     "grid": 1.22,

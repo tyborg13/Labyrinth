@@ -23,7 +23,10 @@ from maquette_motion.silhouette import components
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.cpu_pose import CpuPose, sprite_transform
+from maquette_motion.features import source_pixels
 from rr18_seams import frame_state, frame_report
+from rr18_source_stage import raw_identity, visible_errors
+from maquette_motion.pixels import render
 
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID','rr-18')
 PROOF_TIMEOUT_SECONDS = 180
@@ -31,6 +34,8 @@ FIXTURE_SLIDE_PX = 1
 FIXTURE_RGB_XOR_MASK = 1
 FIXTURE_ROTATION_RAD = 0.1
 FIXTURE_FRAME = 5
+REPAIRED_REAR_FRAMES = {'move': (1,), 'refraction': (13,14,15,16,17,58,59), 'guard': (7,8,16,47,48)}
+REPAIRED_REAR_COVERAGE = (('move', 1, 298, 305), ('refraction', 13, 298, 305), ('refraction', 14, 298, 305), ('refraction', 15, 298, 305), ('refraction', 16, 298, 305), ('refraction', 17, 298, 305), ('refraction', 58, 298, 305), ('refraction', 59, 298, 305), ('guard', 7, 298, 305), ('guard', 8, 298, 305), ('guard', 16, 300, 181), ('guard', 16, 338, 187), ('guard', 47, 298, 305), ('guard', 48, 298, 305))
 AIR_PROOF_FRAMES = (('front','guard',20),('rear','refraction',32),('rear','idle',0))
 
 
@@ -145,6 +150,27 @@ class MirrorTests(unittest.TestCase):
                 self.assertEqual(report['failures'],[])
                 self.assertTrue(report['air_pockets'])
 
+    def test_repaired_rear_continuations_close_every_native_confirmed_pocket(self):
+        model=CpuPose(CASE,copy.deepcopy(self.layouts['rear']))
+        for clip,frames in REPAIRED_REAR_FRAMES.items():
+            for frame in frames:
+                row=next(r for r in self.samples['samples'] if r['view']=='rear' and r['clip']==clip and r['frame']==frame and r['kind']=='presented')
+                self.assertEqual(frame_state(model,row)[1],[],(clip,frame))
+                layers,_=model.layers(row)
+                occupied=np.zeros((512,512),dtype=bool)
+                for part in model.layout['parts']:
+                    samples=render(Image.open(CASE/part['file']).convert('RGBA'),sprite_transform(model.layout,row,part),with_ties=True)
+                    occupied|=np.logical_and.reduce([image[...,3]>0 for image in samples.candidates])
+                for expected_clip,expected_frame,x,y in REPAIRED_REAR_COVERAGE:
+                    if (clip,frame)==(expected_clip,expected_frame):self.assertTrue(occupied[y,x],(clip,frame,x,y))
+
+    def test_raw_authoring_and_clean_presentation_identity_are_independently_exact(self):
+        for view,layout in self.layouts.items():
+            self.assertEqual(raw_identity(view)['errors'],[])
+            visible={p['logical_part']:source_pixels(CASE,p) for p in layout['parts'] if not p.get('hidden_material')}
+            depths={p['logical_part']:p['z_index'] for p in layout['parts'] if not p.get('hidden_material')}
+            self.assertEqual(visible_errors(visible,depths,view,12),[])
+
     def test_runtime_adapters_and_contact_reduced_motion(self):
         self.assertIn('RR18 RUNTIME: PASS',godot('tests/rr18/runtime_test.gd'))
 
@@ -230,7 +256,7 @@ class MirrorTests(unittest.TestCase):
             'spec/art_identity/maquettes/glacial_mirror/','spec/art_identity/jobs/glacial_mirror/',
             'spec/peer_benchmark/staged/rr-18/')
         changed=subprocess.check_output(['git','diff','--name-only'],cwd=PROJECT,text=True).splitlines()
-        extensions={'tools/humanoid_cutout/gates.py','tools/humanoid_cutout/anatomy.schema.json','tools/humanoid_cutout/rigid_air.py'}
+        extensions={'tools/humanoid_cutout/gates.py','tools/humanoid_cutout/anatomy.schema.json','tools/humanoid_cutout/rigid_air.py','tools/humanoid_cutout/material_gates.py','tools/humanoid_cutout/promotion.py'}
         self.assertEqual([p for p in changed if p.startswith(prefixes) and p not in extensions],[])
 
 

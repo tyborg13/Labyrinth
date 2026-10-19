@@ -9,6 +9,7 @@ from rr18_case import PROJECT, CASE
 sys.path.insert(0,str(PROJECT))
 from tests import test_rr18_humanoid as tests
 from tests.test_rr18_air_policy import AirPolicyTests
+from tests import test_rr18_materials as material_tests
 from humanoid_cutout.rigid_air import RigidAirPolicy
 from cutout_pipeline.cases import write_json
 
@@ -64,6 +65,20 @@ def main():
         records.append({'guard':name,'regression':regression,'caught':caught,'failures':len(result.failures),'errors':len(result.errors),'restored':'in-memory only; source bytes untouched'})
         print('RR18 MUTATION '+name+': '+('CAUGHT' if caught else 'FAIL'))
         if not caught: print(output.getvalue())
+    for name,function,before,after,regression in (
+        ('green residue', 'colour_errors', 'if count else []', 'if False else []', 'test_green_boundary_is_strict_and_ignores_transparent_rgb'),
+        ('own-surface flat patch', 'continuation_errors', 'if mismatch:errors.append', 'if False:errors.append', 'test_flat_patch_mutation_is_rejected')):
+        original=getattr(material_tests,function);source=inspect.getsource(original)
+        if before not in source:raise ValueError('Mutation guard moved: '+name)
+        namespace=dict(original.__globals__)
+        exec(compile(source.replace(before,after,1),inspect.getsourcefile(original),'exec'),namespace)
+        output=io.StringIO()
+        with patch.object(material_tests,function,namespace[original.__name__]):
+            result=unittest.TextTestRunner(stream=output,verbosity=2).run(unittest.TestSuite([material_tests.MaterialTests(regression)]))
+        caught=len(result.failures)==1 and not result.errors
+        records.append({'guard':name,'regression':regression,'caught':caught,'failures':len(result.failures),'errors':len(result.errors),'restored':'in-memory only; source bytes untouched'})
+        print('RR18 MUTATION '+name+': '+('CAUGHT' if caught else 'FAIL'))
+        if not caught:print(output.getvalue())
     write_json(CASE/'proof/mutations.json',{'ok':all(r['caught'] for r in records),'mutations':records})
     return int(not all(r['caught'] for r in records))
 

@@ -8,6 +8,11 @@ from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from rr18_checks import knee_report, support_report, production_rest_report
 from rr18_seams import report as seam_report
+from rr18_materials import continuation_errors
+from maquette_motion.features import source_pixels
+from maquette_motion.material_palette import rules
+from humanoid_cutout.anatomy import load
+from rr18_source_stage import raw_identity, visible_errors
 
 
 def run(native=None):
@@ -15,12 +20,19 @@ def run(native=None):
     errors,source = [],[]
     if (CASE/'director_motion.json').read_bytes()!=DIRECTOR.read_bytes(): errors.append('protected director tracks changed')
     current = bindings(CASE)
-    reports = {name:{} for name in ('knees','supports','directions','reach','production_rest','seams')}
+    reports = {name:{} for name in ('knees','supports','directions','reach','production_rest','seams','materials','raw_identity')}
     for view in data['view_tracks']:
         layout = read_json(CASE/f'layouts/{view}.json')
         source += structure_errors(layout,build)+source_errors(CASE,layout,build)
         errors += bone_errors(layout,data,samples,current)
         reports['seams'][view] = seam_report(layout,samples,True)
+        visible={p['logical_part']:source_pixels(CASE,p) for p in layout['parts'] if not p.get('hidden_material')}
+        hidden={p['logical_part']:source_pixels(CASE,p) for p in layout['parts'] if p.get('hidden_material')}
+        reports['raw_identity'][view]=raw_identity(view)
+        depths={p['logical_part']:p['z_index'] for p in layout['parts'] if not p.get('hidden_material')}
+        material=continuation_errors(visible,hidden,load(CASE),rules(CASE,view))
+        material+=visible_errors(visible,depths,view,load(CASE)['material_policy']['green_dominance_margin'])
+        reports['materials'][view]={'ok':not material,'errors':material,'scope':'exact nearest own-surface provenance and hidden green residue'}
         reports['production_rest'][view] = production_rest_report(layout,CASE,ASSETS)
         reports['knees'][view] = knee_report(layout,data,samples)
         reports['supports'][view] = support_report(layout,data,samples)

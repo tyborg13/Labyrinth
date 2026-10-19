@@ -855,7 +855,8 @@
       "scope": "whole owning chest boulder, including the single inset"
     }
   ],
-  "rest_source": "source/front/processed.png",
+  "rest_source": "source/front/continued.png",
+  "raw_rest_source": "source/front/processed.png",
   "motion_data": "res://experiments/cutouts/glacial_mirror/rr18/compiled_motion.json",
   "proof_layers": {
     "hidden_head": {
@@ -878,7 +879,7 @@
       "z_index": 14,
       "source": "pieces/front/head.png",
       "rigid": true,
-      "source_sha256": "5a98f2e6a24cb74b3a264445f76871aa44c35c1673b56a5f0e69a50d96217057"
+      "source_sha256": "ecccdcfa77c17fd356dedb0d6fb821133a3f7fbb8c6bef112ac626bbc1139565"
     },
     "hidden_torso": {
       "mask": "checks/front/hidden_torso.png",
@@ -889,7 +890,7 @@
       "z_index": -8,
       "source": "pieces/front/hidden_torso.png",
       "rigid": true,
-      "source_sha256": "c03d946304dc40437cc6f6d3d5462f10759abef8456882261fcde63326873ff9"
+      "source_sha256": "13817d6da678557a21b76f9bdc048126af04d6ffceee0f5fc9be348b785e95f2"
     },
     "torso": {
       "mask": "checks/front/torso.png",
@@ -1065,7 +1066,7 @@
       "z_index": -9,
       "source": "pieces/front/hidden_upper_far.png",
       "rigid": true,
-      "source_sha256": "7d3de7c6fe46b0805e79bc8b362d1a2cf912bd9d5e3c760f29d6bed5c3cf0516"
+      "source_sha256": "9028b4d14ed4d08984ec1ae4cef218aba0f327f926c8368deadc60dc0117da51"
     },
     "upper_far": {
       "mask": "checks/front/upper_far.png",

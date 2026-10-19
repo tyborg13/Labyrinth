@@ -394,5 +394,8 @@
     "identity_kind": "creature",
     "identity_entry_kind": "legacy",
     "identity_boss": false
+  },
+  "material_policy": {
+    "green_dominance_margin": 12
   }
 }

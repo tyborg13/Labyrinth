@@ -512,14 +512,14 @@
       "name": "hidden_upper_far",
       "file": "humanoid_v2/rear/hidden_upper_far.png",
       "offset": [
-        147,
-        24
+        144,
+        21
       ],
       "bbox": [
-        147,
-        24,
-        215,
-        120
+        144,
+        21,
+        218,
+        123
       ],
       "bone": "upper_far",
       "z_index": -9,
@@ -534,14 +534,14 @@
       "name": "upper_far",
       "file": "humanoid_v2/rear/upper_far.png",
       "offset": [
-        147,
-        24
+        144,
+        21
       ],
       "bbox": [
-        147,
-        24,
-        215,
-        120
+        144,
+        21,
+        218,
+        123
       ],
       "bone": "upper_far",
       "z_index": 13,
@@ -641,14 +641,14 @@
       "name": "hidden_thigh_far",
       "file": "humanoid_v2/rear/hidden_thigh_far.png",
       "offset": [
-        135,
-        131
+        132,
+        128
       ],
       "bbox": [
-        135,
-        131,
-        180,
-        182
+        132,
+        128,
+        183,
+        185
       ],
       "bone": "thigh_far",
       "z_index": -2,
@@ -663,14 +663,14 @@
       "name": "thigh_far",
       "file": "humanoid_v2/rear/thigh_far.png",
       "offset": [
-        135,
-        131
+        132,
+        128
       ],
       "bbox": [
-        135,
-        131,
-        180,
-        182
+        132,
+        128,
+        183,
+        185
       ],
       "bone": "thigh_far",
       "z_index": 6,
@@ -849,5 +849,5 @@
   },
   "rest_source": "humanoid_v2/rear/rest.png",
   "motion_data": "res://assets/units/glacial_mirror_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "08fc976c90a192dc2e655b282db1067aabae128205d97494ebfb6417a11f6cdf"
+  "rest_source_sha256": "f25d49aad074d4157d3cb74cfc28f30fa13c422f32787642ea20ba452968a7f3"
 }

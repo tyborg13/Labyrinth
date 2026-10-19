@@ -721,6 +721,17 @@
       },
       "uniqueItems": true,
       "description": "Logical piece silhouettes whose enclosed source interiors must remain solid under the rigid-air seam policy."
+    },
+    "material_policy": {
+      "type": "object",
+      "properties": {
+        "green_dominance_margin": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "description": "Optional case-owned chroma residue threshold; omitted keeps existing material rules."
     }
   },
   "additionalProperties": false

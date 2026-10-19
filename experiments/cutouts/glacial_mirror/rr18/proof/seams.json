@@ -1163,2425 +1163,328 @@
     "scope": "headless rigid raster and calibrated joint-hole diagnostics; director native capture still required"
   },
   "rear": {
-    "ok": false,
-    "errors": [
-      "rear/move/frame 1: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 13: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 14: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 15: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 16: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 17: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 58: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/refraction/frame 59: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/guard/frame 7: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/guard/frame 8: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/guard/frame 16: seam holes [{'bbox': [300, 181, 302, 186], 'pixel_count': 8, 'stone_pixels': 1}, {'bbox': [337, 187, 343, 189], 'pixel_count': 8, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/guard/frame 47: seam holes [{'bbox': [296, 305, 299, 306], 'pixel_count': 3, 'stone_pixels': 1}]; clean-piece defects {}",
-      "rear/guard/frame 48: seam holes [{'bbox': [295, 305, 299, 306], 'pixel_count': 4, 'stone_pixels': 1}]; clean-piece defects {}"
-    ],
+    "ok": true,
+    "errors": [],
     "frames": 341,
-    "failures": [
-      {
-        "clip": "move",
-        "frame": 1,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      168,
-                      176
-                    ],
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ]
-                  ],
-                  [
-                    [
-                      168,
-                      176
-                    ],
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_move_0001_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 13,
-        "holes": [
-          {
-            "bbox": [
-              295,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 4,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      163,
-                      178
-                    ],
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      163,
-                      178
-                    ],
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 0,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 4,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0013_pocket_00.png",
-            "crop_bounds": [
-              287,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 14,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 0,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0014_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 15,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 0,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0015_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 16,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      164,
-                      178
-                    ],
-                    [
-                      165,
-                      178
-                    ],
-                    [
-                      166,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 0,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0016_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 17,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0017_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 58,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      170,
-                      176
-                    ],
-                    [
-                      171,
-                      176
-                    ],
-                    [
-                      172,
-                      176
-                    ]
-                  ],
-                  [
-                    [
-                      170,
-                      176
-                    ],
-                    [
-                      171,
-                      176
-                    ],
-                    [
-                      172,
-                      176
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0058_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "refraction",
-        "frame": 59,
-        "holes": [
-          {
-            "bbox": [
-              295,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 4,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ],
-                    [
-                      171,
-                      176
-                    ],
-                    [
-                      172,
-                      176
-                    ]
-                  ],
-                  [
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ],
-                    [
-                      171,
-                      176
-                    ],
-                    [
-                      172,
-                      176
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 4,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 4,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_refraction_0059_pocket_00.png",
-            "crop_bounds": [
-              287,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "guard",
-        "frame": 7,
-        "holes": [
-          {
-            "bbox": [
-              295,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 4,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      167,
-                      176
-                    ],
-                    [
-                      168,
-                      176
-                    ],
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ]
-                  ],
-                  [
-                    [
-                      167,
-                      176
-                    ],
-                    [
-                      168,
-                      176
-                    ],
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 4,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_guard_0007_pocket_00.png",
-            "crop_bounds": [
-              287,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "guard",
-        "frame": 8,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_guard_0008_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "guard",
-        "frame": 16,
-        "holes": [
-          {
-            "bbox": [
-              300,
-              181,
-              302,
-              186
-            ],
-            "pixel_count": 8,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "torso",
-              "upper_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      172,
-                      52
-                    ],
-                    [
-                      172,
-                      53
-                    ],
-                    [
-                      173,
-                      53
-                    ],
-                    [
-                      172,
-                      54
-                    ],
-                    [
-                      173,
-                      54
-                    ],
-                    [
-                      172,
-                      55
-                    ],
-                    [
-                      173,
-                      55
-                    ],
-                    [
-                      172,
-                      56
-                    ]
-                  ],
-                  [
-                    [
-                      172,
-                      52
-                    ],
-                    [
-                      172,
-                      53
-                    ],
-                    [
-                      173,
-                      53
-                    ],
-                    [
-                      172,
-                      54
-                    ],
-                    [
-                      173,
-                      54
-                    ],
-                    [
-                      172,
-                      55
-                    ],
-                    [
-                      173,
-                      55
-                    ],
-                    [
-                      172,
-                      56
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 0,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "upper_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      93
-                    ],
-                    [
-                      166,
-                      93
-                    ],
-                    [
-                      166,
-                      92
-                    ],
-                    [
-                      167,
-                      93
-                    ],
-                    [
-                      167,
-                      92
-                    ],
-                    [
-                      168,
-                      93
-                    ],
-                    [
-                      168,
-                      92
-                    ],
-                    [
-                      169,
-                      93
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      93
-                    ],
-                    [
-                      166,
-                      93
-                    ],
-                    [
-                      166,
-                      92
-                    ],
-                    [
-                      167,
-                      93
-                    ],
-                    [
-                      167,
-                      92
-                    ],
-                    [
-                      168,
-                      93
-                    ],
-                    [
-                      168,
-                      92
-                    ],
-                    [
-                      169,
-                      93
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 7,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_guard_0016_pocket_00.png",
-            "crop_bounds": [
-              292,
-              173,
-              310,
-              194
-            ]
-          },
-          {
-            "bbox": [
-              337,
-              187,
-              343,
-              189
-            ],
-            "pixel_count": 8,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "upper_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      209,
-                      59
-                    ],
-                    [
-                      210,
-                      59
-                    ],
-                    [
-                      209,
-                      60
-                    ],
-                    [
-                      210,
-                      60
-                    ],
-                    [
-                      211,
-                      60
-                    ],
-                    [
-                      212,
-                      60
-                    ],
-                    [
-                      213,
-                      60
-                    ],
-                    [
-                      214,
-                      60
-                    ]
-                  ],
-                  [
-                    [
-                      209,
-                      59
-                    ],
-                    [
-                      210,
-                      59
-                    ],
-                    [
-                      209,
-                      60
-                    ],
-                    [
-                      210,
-                      60
-                    ],
-                    [
-                      211,
-                      60
-                    ],
-                    [
-                      212,
-                      60
-                    ],
-                    [
-                      213,
-                      60
-                    ],
-                    [
-                      214,
-                      60
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 8,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "upper_far": {
-                "source_points": [
-                  [
-                    [
-                      169,
-                      56
-                    ],
-                    [
-                      168,
-                      55
-                    ],
-                    [
-                      170,
-                      56
-                    ],
-                    [
-                      169,
-                      55
-                    ],
-                    [
-                      169,
-                      54
-                    ],
-                    [
-                      169,
-                      53
-                    ],
-                    [
-                      169,
-                      52
-                    ],
-                    [
-                      169,
-                      51
-                    ]
-                  ],
-                  [
-                    [
-                      169,
-                      56
-                    ],
-                    [
-                      168,
-                      55
-                    ],
-                    [
-                      170,
-                      56
-                    ],
-                    [
-                      169,
-                      55
-                    ],
-                    [
-                      169,
-                      54
-                    ],
-                    [
-                      169,
-                      53
-                    ],
-                    [
-                      169,
-                      52
-                    ],
-                    [
-                      169,
-                      51
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 7,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_guard_0016_pocket_01.png",
-            "crop_bounds": [
-              329,
-              179,
-              351,
-              197
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "guard",
-        "frame": 47,
-        "holes": [
-          {
-            "bbox": [
-              296,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 3,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_guard_0047_pocket_00.png",
-            "crop_bounds": [
-              288,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      },
-      {
-        "clip": "guard",
-        "frame": 48,
-        "holes": [
-          {
-            "bbox": [
-              295,
-              305,
-              299,
-              306
-            ],
-            "pixel_count": 4,
-            "stone_pixels": 1,
-            "surrounding_pieces": [
-              "thigh_far",
-              "shin_far"
-            ],
-            "checked_pieces": 15,
-            "source": {
-              "torso": {
-                "source_points": [
-                  [
-                    [
-                      167,
-                      176
-                    ],
-                    [
-                      168,
-                      176
-                    ],
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ]
-                  ],
-                  [
-                    [
-                      167,
-                      176
-                    ],
-                    [
-                      168,
-                      176
-                    ],
-                    [
-                      169,
-                      176
-                    ],
-                    [
-                      170,
-                      176
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 2,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              },
-              "thigh_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      178
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 3,
-                "painted_or_tuck_pixels": 1,
-                "protected_silhouette_pixels": 0
-              },
-              "shin_far": {
-                "source_points": [
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ],
-                  [
-                    [
-                      165,
-                      177
-                    ],
-                    [
-                      166,
-                      177
-                    ],
-                    [
-                      167,
-                      177
-                    ],
-                    [
-                      168,
-                      177
-                    ]
-                  ]
-                ],
-                "transparent_source_pixels": 4,
-                "painted_or_tuck_pixels": 0,
-                "protected_silhouette_pixels": 0
-              }
-            },
-            "crop": "proof/seam_cpu/rear_guard_0048_pocket_00.png",
-            "crop_bounds": [
-              287,
-              297,
-              307,
-              314
-            ]
-          }
-        ],
-        "metrics": {}
-      }
-    ],
+    "failures": [],
     "air_pockets": [
       {
         "clip": "idle",
         "frame": 0,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 1,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 2,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 3,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 4,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 5,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 6,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 7,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 8,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 9,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 10,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 11,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 12,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 13,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 14,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 15,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 16,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 17,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 18,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 19,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 20,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 21,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 22,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 23,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 24,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 25,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 26,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 27,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 28,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 29,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 30,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 31,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 32,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 33,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 34,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 35,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 36,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 37,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 38,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 39,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 40,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 41,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 42,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 43,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 44,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 45,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 46,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 47,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 48,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "idle",
         "frame": 49,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 0,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 1,
         "count": 3,
-        "pixels": 18
+        "pixels": 12
       },
       {
         "clip": "move",
         "frame": 2,
-        "count": 3,
-        "pixels": 8
+        "count": 2,
+        "pixels": 7
       },
       {
         "clip": "move",
@@ -3592,86 +1495,86 @@
       {
         "clip": "move",
         "frame": 4,
-        "count": 4,
-        "pixels": 18
+        "count": 5,
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 5,
         "count": 4,
-        "pixels": 16
+        "pixels": 10
       },
       {
         "clip": "move",
         "frame": 6,
-        "count": 5,
-        "pixels": 14
+        "count": 4,
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 7,
         "count": 5,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 8,
         "count": 7,
-        "pixels": 20
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 9,
         "count": 5,
-        "pixels": 13
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 10,
         "count": 6,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 11,
-        "count": 5,
-        "pixels": 13
+        "count": 6,
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 12,
         "count": 8,
-        "pixels": 21
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 13,
         "count": 7,
-        "pixels": 16
+        "pixels": 10
       },
       {
         "clip": "move",
         "frame": 14,
-        "count": 5,
-        "pixels": 869
+        "count": 6,
+        "pixels": 856
       },
       {
         "clip": "move",
         "frame": 15,
         "count": 3,
-        "pixels": 15
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 16,
         "count": 5,
-        "pixels": 17
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 17,
         "count": 5,
-        "pixels": 20
+        "pixels": 15
       },
       {
         "clip": "move",
@@ -3683,19 +1586,19 @@
         "clip": "move",
         "frame": 19,
         "count": 5,
-        "pixels": 12
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 20,
         "count": 3,
-        "pixels": 17
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 21,
-        "count": 4,
-        "pixels": 10
+        "count": 2,
+        "pixels": 6
       },
       {
         "clip": "move",
@@ -3712,176 +1615,176 @@
       {
         "clip": "move",
         "frame": 24,
-        "count": 4,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 25,
         "count": 2,
-        "pixels": 13
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 26,
         "count": 4,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 27,
         "count": 4,
-        "pixels": 15
+        "pixels": 9
       },
       {
         "clip": "move",
         "frame": 28,
         "count": 4,
-        "pixels": 13
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 29,
         "count": 6,
-        "pixels": 19
+        "pixels": 13
       },
       {
         "clip": "move",
         "frame": 30,
         "count": 5,
-        "pixels": 18
+        "pixels": 12
       },
       {
         "clip": "move",
         "frame": 31,
         "count": 6,
-        "pixels": 19
+        "pixels": 13
       },
       {
         "clip": "move",
         "frame": 32,
         "count": 6,
-        "pixels": 19
+        "pixels": 13
       },
       {
         "clip": "move",
         "frame": 33,
         "count": 5,
-        "pixels": 13
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 34,
         "count": 5,
-        "pixels": 13
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 35,
         "count": 9,
-        "pixels": 19
+        "pixels": 13
       },
       {
         "clip": "move",
         "frame": 36,
         "count": 5,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 37,
         "count": 3,
-        "pixels": 16
+        "pixels": 10
       },
       {
         "clip": "move",
         "frame": 38,
         "count": 2,
-        "pixels": 13
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 39,
         "count": 5,
-        "pixels": 20
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 40,
-        "count": 3,
-        "pixels": 13
+        "count": 5,
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 41,
-        "count": 4,
-        "pixels": 12
+        "count": 3,
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 42,
         "count": 4,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 43,
         "count": 6,
-        "pixels": 20
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 44,
         "count": 3,
-        "pixels": 17
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 45,
-        "count": 4,
-        "pixels": 18
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 46,
-        "count": 4,
-        "pixels": 18
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "move",
         "frame": 47,
         "count": 5,
-        "pixels": 18
+        "pixels": 12
       },
       {
         "clip": "move",
         "frame": 48,
-        "count": 3,
-        "pixels": 19
+        "count": 4,
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 49,
-        "count": 3,
-        "pixels": 19
+        "count": 4,
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 50,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "refraction",
         "frame": 0,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "refraction",
         "frame": 1,
-        "count": 3,
-        "pixels": 18
+        "count": 4,
+        "pixels": 13
       },
       {
         "clip": "refraction",
@@ -3892,368 +1795,368 @@
       {
         "clip": "refraction",
         "frame": 3,
-        "count": 2,
-        "pixels": 11
+        "count": 3,
+        "pixels": 12
       },
       {
         "clip": "refraction",
         "frame": 4,
-        "count": 2,
-        "pixels": 10
+        "count": 3,
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 5,
         "count": 4,
-        "pixels": 15
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 6,
         "count": 4,
-        "pixels": 15
+        "pixels": 9
       },
       {
         "clip": "refraction",
         "frame": 7,
         "count": 5,
-        "pixels": 19
+        "pixels": 13
       },
       {
         "clip": "refraction",
         "frame": 8,
         "count": 4,
-        "pixels": 16
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 9,
         "count": 8,
-        "pixels": 25
+        "pixels": 19
       },
       {
         "clip": "refraction",
         "frame": 10,
         "count": 8,
-        "pixels": 25
+        "pixels": 19
       },
       {
         "clip": "refraction",
         "frame": 11,
         "count": 7,
-        "pixels": 18
+        "pixels": 12
       },
       {
         "clip": "refraction",
         "frame": 12,
         "count": 7,
-        "pixels": 17
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 13,
-        "count": 7,
-        "pixels": 19
+        "count": 8,
+        "pixels": 14
       },
       {
         "clip": "refraction",
         "frame": 14,
         "count": 5,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "refraction",
         "frame": 15,
         "count": 5,
-        "pixels": 14
+        "pixels": 8
       },
       {
         "clip": "refraction",
         "frame": 16,
         "count": 7,
-        "pixels": 15
+        "pixels": 9
       },
       {
         "clip": "refraction",
         "frame": 17,
         "count": 7,
-        "pixels": 17
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 18,
-        "count": 6,
-        "pixels": 16
+        "count": 7,
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 19,
-        "count": 9,
-        "pixels": 20
+        "count": 8,
+        "pixels": 13
       },
       {
         "clip": "refraction",
         "frame": 20,
-        "count": 8,
-        "pixels": 18
+        "count": 7,
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 21,
-        "count": 7,
-        "pixels": 17
+        "count": 6,
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 22,
-        "count": 7,
-        "pixels": 17
+        "count": 6,
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 23,
-        "count": 6,
-        "pixels": 15
+        "count": 5,
+        "pixels": 8
       },
       {
         "clip": "refraction",
         "frame": 24,
-        "count": 8,
-        "pixels": 15
+        "count": 6,
+        "pixels": 9
       },
       {
         "clip": "refraction",
         "frame": 25,
-        "count": 6,
-        "pixels": 14
+        "count": 4,
+        "pixels": 8
       },
       {
         "clip": "refraction",
         "frame": 26,
         "count": 4,
-        "pixels": 15
+        "pixels": 8
       },
       {
         "clip": "refraction",
         "frame": 27,
         "count": 7,
-        "pixels": 18
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 28,
-        "count": 7,
-        "pixels": 19
+        "count": 6,
+        "pixels": 13
       },
       {
         "clip": "refraction",
         "frame": 29,
-        "count": 10,
+        "count": 9,
+        "pixels": 16
+      },
+      {
+        "clip": "refraction",
+        "frame": 30,
+        "count": 8,
+        "pixels": 21
+      },
+      {
+        "clip": "refraction",
+        "frame": 31,
+        "count": 8,
         "pixels": 22
       },
       {
         "clip": "refraction",
-        "frame": 30,
-        "count": 9,
-        "pixels": 27
-      },
-      {
-        "clip": "refraction",
-        "frame": 31,
-        "count": 9,
-        "pixels": 28
-      },
-      {
-        "clip": "refraction",
         "frame": 32,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 33,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 34,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 35,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 36,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 37,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 38,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 39,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 40,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 41,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 42,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 43,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 44,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 45,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 46,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 47,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 48,
-        "count": 9,
-        "pixels": 28
+        "count": 8,
+        "pixels": 22
       },
       {
         "clip": "refraction",
         "frame": 49,
-        "count": 9,
-        "pixels": 27
+        "count": 8,
+        "pixels": 21
       },
       {
         "clip": "refraction",
         "frame": 50,
-        "count": 8,
-        "pixels": 29
+        "count": 7,
+        "pixels": 23
       },
       {
         "clip": "refraction",
         "frame": 51,
-        "count": 13,
-        "pixels": 32
+        "count": 12,
+        "pixels": 26
       },
       {
         "clip": "refraction",
         "frame": 52,
-        "count": 10,
-        "pixels": 20
+        "count": 9,
+        "pixels": 14
       },
       {
         "clip": "refraction",
         "frame": 53,
-        "count": 7,
-        "pixels": 15
+        "count": 6,
+        "pixels": 9
       },
       {
         "clip": "refraction",
         "frame": 54,
-        "count": 7,
-        "pixels": 15
+        "count": 6,
+        "pixels": 9
       },
       {
         "clip": "refraction",
         "frame": 55,
-        "count": 10,
-        "pixels": 24
+        "count": 9,
+        "pixels": 18
       },
       {
         "clip": "refraction",
         "frame": 56,
-        "count": 5,
-        "pixels": 16
+        "count": 4,
+        "pixels": 8
       },
       {
         "clip": "refraction",
         "frame": 57,
-        "count": 8,
-        "pixels": 20
+        "count": 7,
+        "pixels": 12
       },
       {
         "clip": "refraction",
         "frame": 58,
-        "count": 6,
-        "pixels": 13
+        "count": 5,
+        "pixels": 7
       },
       {
         "clip": "refraction",
         "frame": 59,
-        "count": 7,
-        "pixels": 17
+        "count": 8,
+        "pixels": 12
       },
       {
         "clip": "refraction",
         "frame": 60,
         "count": 7,
-        "pixels": 17
+        "pixels": 11
       },
       {
         "clip": "refraction",
         "frame": 61,
         "count": 7,
-        "pixels": 26
+        "pixels": 20
       },
       {
         "clip": "refraction",
         "frame": 62,
         "count": 4,
-        "pixels": 15
+        "pixels": 10
       },
       {
         "clip": "refraction",
         "frame": 63,
-        "count": 2,
-        "pixels": 10
+        "count": 3,
+        "pixels": 11
       },
       {
         "clip": "refraction",
@@ -4264,1052 +2167,1052 @@
       {
         "clip": "refraction",
         "frame": 65,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "guard",
         "frame": 0,
-        "count": 3,
-        "pixels": 19
+        "count": 5,
+        "pixels": 15
       },
       {
         "clip": "guard",
         "frame": 1,
-        "count": 4,
-        "pixels": 18
+        "count": 5,
+        "pixels": 14
       },
       {
         "clip": "guard",
         "frame": 2,
         "count": 6,
-        "pixels": 13
+        "pixels": 9
       },
       {
         "clip": "guard",
         "frame": 3,
-        "count": 3,
-        "pixels": 10
+        "count": 2,
+        "pixels": 5
       },
       {
         "clip": "guard",
         "frame": 4,
-        "count": 8,
-        "pixels": 722
+        "count": 7,
+        "pixels": 717
       },
       {
         "clip": "guard",
         "frame": 5,
-        "count": 9,
-        "pixels": 546
+        "count": 8,
+        "pixels": 540
       },
       {
         "clip": "guard",
         "frame": 6,
-        "count": 11,
-        "pixels": 518
+        "count": 10,
+        "pixels": 512
       },
       {
         "clip": "guard",
         "frame": 7,
         "count": 11,
-        "pixels": 284
+        "pixels": 281
       },
       {
         "clip": "guard",
         "frame": 8,
-        "count": 8,
-        "pixels": 139
+        "count": 7,
+        "pixels": 134
       },
       {
         "clip": "guard",
         "frame": 9,
-        "count": 8,
-        "pixels": 98
+        "count": 7,
+        "pixels": 91
       },
       {
         "clip": "guard",
         "frame": 10,
-        "count": 10,
-        "pixels": 89
+        "count": 7,
+        "pixels": 83
       },
       {
         "clip": "guard",
         "frame": 11,
-        "count": 3,
-        "pixels": 10
+        "count": 2,
+        "pixels": 3
       },
       {
         "clip": "guard",
         "frame": 12,
         "count": 6,
-        "pixels": 19
+        "pixels": 12
       },
       {
         "clip": "guard",
         "frame": 13,
         "count": 3,
-        "pixels": 10
+        "pixels": 4
       },
       {
         "clip": "guard",
         "frame": 14,
-        "count": 3,
-        "pixels": 11
+        "count": 2,
+        "pixels": 3
       },
       {
         "clip": "guard",
         "frame": 15,
         "count": 5,
-        "pixels": 19
-      },
-      {
-        "clip": "guard",
-        "frame": 16,
-        "count": 2,
         "pixels": 8
       },
       {
         "clip": "guard",
+        "frame": 16,
+        "count": 5,
+        "pixels": 11
+      },
+      {
+        "clip": "guard",
         "frame": 17,
-        "count": 8,
-        "pixels": 51
+        "count": 9,
+        "pixels": 38
       },
       {
         "clip": "guard",
         "frame": 18,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 19,
-        "count": 5,
-        "pixels": 24
+        "count": 7,
+        "pixels": 29
       },
       {
         "clip": "guard",
         "frame": 20,
-        "count": 7,
-        "pixels": 34
+        "count": 9,
+        "pixels": 39
       },
       {
         "clip": "guard",
         "frame": 21,
-        "count": 7,
-        "pixels": 36
+        "count": 8,
+        "pixels": 41
       },
       {
         "clip": "guard",
         "frame": 22,
         "count": 7,
-        "pixels": 214
+        "pixels": 207
       },
       {
         "clip": "guard",
         "frame": 23,
-        "count": 9,
-        "pixels": 191
+        "count": 8,
+        "pixels": 185
       },
       {
         "clip": "guard",
         "frame": 24,
-        "count": 11,
-        "pixels": 194
+        "count": 10,
+        "pixels": 188
       },
       {
         "clip": "guard",
         "frame": 25,
-        "count": 9,
-        "pixels": 191
+        "count": 8,
+        "pixels": 185
       },
       {
         "clip": "guard",
         "frame": 26,
         "count": 6,
-        "pixels": 217
+        "pixels": 210
       },
       {
         "clip": "guard",
         "frame": 27,
-        "count": 6,
-        "pixels": 35
+        "count": 7,
+        "pixels": 40
       },
       {
         "clip": "guard",
         "frame": 28,
-        "count": 7,
-        "pixels": 34
+        "count": 9,
+        "pixels": 39
       },
       {
         "clip": "guard",
         "frame": 29,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 30,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 31,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 32,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 33,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 34,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 35,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 36,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 37,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 38,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 39,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 40,
-        "count": 8,
-        "pixels": 46
+        "count": 9,
+        "pixels": 31
       },
       {
         "clip": "guard",
         "frame": 41,
-        "count": 8,
-        "pixels": 53
+        "count": 9,
+        "pixels": 40
       },
       {
         "clip": "guard",
         "frame": 42,
-        "count": 5,
-        "pixels": 26
+        "count": 7,
+        "pixels": 14
       },
       {
         "clip": "guard",
         "frame": 43,
-        "count": 3,
-        "pixels": 11
-      },
-      {
-        "clip": "guard",
-        "frame": 44,
-        "count": 3,
-        "pixels": 9
-      },
-      {
-        "clip": "guard",
-        "frame": 45,
-        "count": 4,
-        "pixels": 14
-      },
-      {
-        "clip": "guard",
-        "frame": 46,
-        "count": 6,
-        "pixels": 87
-      },
-      {
-        "clip": "guard",
-        "frame": 47,
-        "count": 8,
-        "pixels": 106
-      },
-      {
-        "clip": "guard",
-        "frame": 48,
-        "count": 11,
-        "pixels": 284
-      },
-      {
-        "clip": "guard",
-        "frame": 49,
-        "count": 10,
-        "pixels": 494
-      },
-      {
-        "clip": "guard",
-        "frame": 50,
-        "count": 8,
-        "pixels": 686
-      },
-      {
-        "clip": "guard",
-        "frame": 51,
-        "count": 5,
-        "pixels": 14
-      },
-      {
-        "clip": "guard",
-        "frame": 52,
-        "count": 6,
-        "pixels": 24
-      },
-      {
-        "clip": "guard",
-        "frame": 53,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 0,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 1,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 2,
-        "count": 4,
-        "pixels": 21
-      },
-      {
-        "clip": "hit",
-        "frame": 3,
-        "count": 5,
-        "pixels": 18
-      },
-      {
-        "clip": "hit",
-        "frame": 4,
-        "count": 3,
-        "pixels": 11
-      },
-      {
-        "clip": "hit",
-        "frame": 5,
-        "count": 4,
-        "pixels": 10
-      },
-      {
-        "clip": "hit",
-        "frame": 6,
-        "count": 4,
-        "pixels": 10
-      },
-      {
-        "clip": "hit",
-        "frame": 7,
-        "count": 3,
-        "pixels": 9
-      },
-      {
-        "clip": "hit",
-        "frame": 8,
-        "count": 3,
-        "pixels": 8
-      },
-      {
-        "clip": "hit",
-        "frame": 9,
-        "count": 3,
-        "pixels": 13
-      },
-      {
-        "clip": "hit",
-        "frame": 10,
-        "count": 5,
-        "pixels": 17
-      },
-      {
-        "clip": "hit",
-        "frame": 11,
-        "count": 4,
-        "pixels": 11
-      },
-      {
-        "clip": "hit",
-        "frame": 12,
-        "count": 4,
-        "pixels": 16
-      },
-      {
-        "clip": "hit",
-        "frame": 13,
-        "count": 4,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 14,
-        "count": 3,
-        "pixels": 14
-      },
-      {
-        "clip": "hit",
-        "frame": 15,
-        "count": 3,
-        "pixels": 14
-      },
-      {
-        "clip": "hit",
-        "frame": 16,
-        "count": 3,
-        "pixels": 18
-      },
-      {
-        "clip": "hit",
-        "frame": 17,
-        "count": 3,
-        "pixels": 18
-      },
-      {
-        "clip": "hit",
-        "frame": 18,
-        "count": 3,
-        "pixels": 18
-      },
-      {
-        "clip": "hit",
-        "frame": 19,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 20,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 21,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 22,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 23,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 24,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 25,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 26,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 27,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 28,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "hit",
-        "frame": 29,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "death",
-        "frame": 0,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "death",
-        "frame": 1,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "death",
-        "frame": 2,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "death",
-        "frame": 3,
-        "count": 3,
-        "pixels": 19
-      },
-      {
-        "clip": "death",
-        "frame": 4,
-        "count": 3,
-        "pixels": 17
-      },
-      {
-        "clip": "death",
-        "frame": 5,
-        "count": 3,
-        "pixels": 16
-      },
-      {
-        "clip": "death",
-        "frame": 6,
-        "count": 4,
-        "pixels": 18
-      },
-      {
-        "clip": "death",
-        "frame": 7,
-        "count": 4,
-        "pixels": 20
-      },
-      {
-        "clip": "death",
-        "frame": 8,
-        "count": 4,
-        "pixels": 20
-      },
-      {
-        "clip": "death",
-        "frame": 9,
-        "count": 4,
-        "pixels": 17
-      },
-      {
-        "clip": "death",
-        "frame": 10,
-        "count": 4,
-        "pixels": 18
-      },
-      {
-        "clip": "death",
-        "frame": 11,
-        "count": 3,
-        "pixels": 10
-      },
-      {
-        "clip": "death",
-        "frame": 12,
-        "count": 3,
-        "pixels": 8
-      },
-      {
-        "clip": "death",
-        "frame": 13,
-        "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 14,
-        "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 15,
-        "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 16,
-        "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 17,
-        "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 18,
-        "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 19,
-        "count": 5,
-        "pixels": 10
-      },
-      {
-        "clip": "death",
-        "frame": 20,
-        "count": 6,
-        "pixels": 17
-      },
-      {
-        "clip": "death",
-        "frame": 21,
-        "count": 4,
-        "pixels": 11
-      },
-      {
-        "clip": "death",
-        "frame": 22,
-        "count": 4,
-        "pixels": 10
-      },
-      {
-        "clip": "death",
-        "frame": 23,
-        "count": 3,
-        "pixels": 11
-      },
-      {
-        "clip": "death",
-        "frame": 24,
-        "count": 4,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 25,
         "count": 2,
-        "pixels": 7
+        "pixels": 3
       },
       {
-        "clip": "death",
-        "frame": 26,
-        "count": 4,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 27,
-        "count": 4,
-        "pixels": 12
-      },
-      {
-        "clip": "death",
-        "frame": 28,
-        "count": 3,
-        "pixels": 9
-      },
-      {
-        "clip": "death",
-        "frame": 29,
-        "count": 3,
-        "pixels": 9
-      },
-      {
-        "clip": "death",
-        "frame": 30,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "death",
-        "frame": 31,
-        "count": 3,
-        "pixels": 7
-      },
-      {
-        "clip": "death",
-        "frame": 32,
-        "count": 4,
-        "pixels": 5
-      },
-      {
-        "clip": "death",
-        "frame": 33,
-        "count": 3,
-        "pixels": 7
-      },
-      {
-        "clip": "death",
-        "frame": 34,
-        "count": 3,
-        "pixels": 6
-      },
-      {
-        "clip": "death",
-        "frame": 35,
-        "count": 3,
-        "pixels": 5
-      },
-      {
-        "clip": "death",
-        "frame": 36,
-        "count": 4,
-        "pixels": 7
-      },
-      {
-        "clip": "death",
-        "frame": 37,
-        "count": 4,
-        "pixels": 7
-      },
-      {
-        "clip": "death",
-        "frame": 38,
-        "count": 3,
-        "pixels": 7
-      },
-      {
-        "clip": "death",
-        "frame": 39,
-        "count": 5,
-        "pixels": 11
-      },
-      {
-        "clip": "death",
-        "frame": 40,
-        "count": 4,
-        "pixels": 7
-      },
-      {
-        "clip": "death",
-        "frame": 41,
-        "count": 4,
-        "pixels": 10
-      },
-      {
-        "clip": "death",
-        "frame": 42,
-        "count": 5,
-        "pixels": 8
-      },
-      {
-        "clip": "death",
-        "frame": 43,
-        "count": 4,
-        "pixels": 8
-      },
-      {
-        "clip": "death",
+        "clip": "guard",
         "frame": 44,
-        "count": 4,
-        "pixels": 7
+        "count": 2,
+        "pixels": 3
       },
       {
-        "clip": "death",
+        "clip": "guard",
         "frame": 45,
         "count": 3,
         "pixels": 7
       },
       {
-        "clip": "death",
+        "clip": "guard",
         "frame": 46,
+        "count": 4,
+        "pixels": 79
+      },
+      {
+        "clip": "guard",
+        "frame": 47,
+        "count": 6,
+        "pixels": 100
+      },
+      {
+        "clip": "guard",
+        "frame": 48,
+        "count": 11,
+        "pixels": 281
+      },
+      {
+        "clip": "guard",
+        "frame": 49,
+        "count": 9,
+        "pixels": 488
+      },
+      {
+        "clip": "guard",
+        "frame": 50,
+        "count": 7,
+        "pixels": 681
+      },
+      {
+        "clip": "guard",
+        "frame": 51,
+        "count": 4,
+        "pixels": 9
+      },
+      {
+        "clip": "guard",
+        "frame": 52,
+        "count": 7,
+        "pixels": 19
+      },
+      {
+        "clip": "guard",
+        "frame": 53,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 0,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 1,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 2,
+        "count": 6,
+        "pixels": 17
+      },
+      {
+        "clip": "hit",
+        "frame": 3,
+        "count": 7,
+        "pixels": 14
+      },
+      {
+        "clip": "hit",
+        "frame": 4,
         "count": 3,
+        "pixels": 11
+      },
+      {
+        "clip": "hit",
+        "frame": 5,
+        "count": 4,
+        "pixels": 9
+      },
+      {
+        "clip": "hit",
+        "frame": 6,
+        "count": 4,
+        "pixels": 9
+      },
+      {
+        "clip": "hit",
+        "frame": 7,
+        "count": 3,
+        "pixels": 8
+      },
+      {
+        "clip": "hit",
+        "frame": 8,
+        "count": 3,
+        "pixels": 8
+      },
+      {
+        "clip": "hit",
+        "frame": 9,
+        "count": 3,
+        "pixels": 12
+      },
+      {
+        "clip": "hit",
+        "frame": 10,
+        "count": 4,
+        "pixels": 13
+      },
+      {
+        "clip": "hit",
+        "frame": 11,
+        "count": 4,
+        "pixels": 10
+      },
+      {
+        "clip": "hit",
+        "frame": 12,
+        "count": 5,
+        "pixels": 11
+      },
+      {
+        "clip": "hit",
+        "frame": 13,
+        "count": 5,
+        "pixels": 14
+      },
+      {
+        "clip": "hit",
+        "frame": 14,
+        "count": 4,
+        "pixels": 9
+      },
+      {
+        "clip": "hit",
+        "frame": 15,
+        "count": 4,
+        "pixels": 9
+      },
+      {
+        "clip": "hit",
+        "frame": 16,
+        "count": 4,
+        "pixels": 13
+      },
+      {
+        "clip": "hit",
+        "frame": 17,
+        "count": 4,
+        "pixels": 13
+      },
+      {
+        "clip": "hit",
+        "frame": 18,
+        "count": 4,
+        "pixels": 13
+      },
+      {
+        "clip": "hit",
+        "frame": 19,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 20,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 21,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 22,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 23,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 24,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 25,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 26,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 27,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 28,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "hit",
+        "frame": 29,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "death",
+        "frame": 0,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "death",
+        "frame": 1,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "death",
+        "frame": 2,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "death",
+        "frame": 3,
+        "count": 5,
+        "pixels": 15
+      },
+      {
+        "clip": "death",
+        "frame": 4,
+        "count": 4,
+        "pixels": 13
+      },
+      {
+        "clip": "death",
+        "frame": 5,
+        "count": 4,
+        "pixels": 12
+      },
+      {
+        "clip": "death",
+        "frame": 6,
+        "count": 6,
+        "pixels": 16
+      },
+      {
+        "clip": "death",
+        "frame": 7,
+        "count": 6,
+        "pixels": 16
+      },
+      {
+        "clip": "death",
+        "frame": 8,
+        "count": 6,
+        "pixels": 16
+      },
+      {
+        "clip": "death",
+        "frame": 9,
+        "count": 6,
+        "pixels": 13
+      },
+      {
+        "clip": "death",
+        "frame": 10,
+        "count": 5,
+        "pixels": 14
+      },
+      {
+        "clip": "death",
+        "frame": 11,
+        "count": 3,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 12,
+        "count": 3,
+        "pixels": 7
+      },
+      {
+        "clip": "death",
+        "frame": 13,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 14,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 15,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 16,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 17,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 18,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 19,
+        "count": 6,
+        "pixels": 10
+      },
+      {
+        "clip": "death",
+        "frame": 20,
+        "count": 8,
+        "pixels": 13
+      },
+      {
+        "clip": "death",
+        "frame": 21,
+        "count": 6,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 22,
+        "count": 6,
+        "pixels": 7
+      },
+      {
+        "clip": "death",
+        "frame": 23,
+        "count": 5,
+        "pixels": 7
+      },
+      {
+        "clip": "death",
+        "frame": 24,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 25,
+        "count": 4,
         "pixels": 5
       },
       {
         "clip": "death",
-        "frame": 47,
+        "frame": 26,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 27,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 28,
+        "count": 4,
+        "pixels": 4
+      },
+      {
+        "clip": "death",
+        "frame": 29,
         "count": 5,
         "pixels": 6
       },
       {
         "clip": "death",
-        "frame": 48,
+        "frame": 30,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "death",
+        "frame": 31,
+        "count": 4,
+        "pixels": 4
+      },
+      {
+        "clip": "death",
+        "frame": 32,
+        "count": 5,
+        "pixels": 5
+      },
+      {
+        "clip": "death",
+        "frame": 33,
+        "count": 4,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 34,
         "count": 4,
         "pixels": 6
       },
       {
         "clip": "death",
+        "frame": 35,
+        "count": 4,
+        "pixels": 6
+      },
+      {
+        "clip": "death",
+        "frame": 36,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 37,
+        "count": 6,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 38,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "death",
+        "frame": 39,
+        "count": 8,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 40,
+        "count": 6,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 41,
+        "count": 7,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 42,
+        "count": 6,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 43,
+        "count": 6,
+        "pixels": 9
+      },
+      {
+        "clip": "death",
+        "frame": 44,
+        "count": 5,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 45,
+        "count": 5,
+        "pixels": 8
+      },
+      {
+        "clip": "death",
+        "frame": 46,
+        "count": 5,
+        "pixels": 6
+      },
+      {
+        "clip": "death",
+        "frame": 47,
+        "count": 6,
+        "pixels": 7
+      },
+      {
+        "clip": "death",
+        "frame": 48,
+        "count": 6,
+        "pixels": 7
+      },
+      {
+        "clip": "death",
         "frame": 49,
-        "count": 3,
-        "pixels": 5
+        "count": 5,
+        "pixels": 6
       },
       {
         "clip": "death",
         "frame": 50,
-        "count": 3,
+        "count": 6,
         "pixels": 8
       },
       {
         "clip": "death",
         "frame": 51,
-        "count": 3,
+        "count": 6,
         "pixels": 8
       },
       {
         "clip": "death",
         "frame": 52,
-        "count": 4,
-        "pixels": 10
+        "count": 6,
+        "pixels": 7
       },
       {
         "clip": "death",
         "frame": 53,
-        "count": 3,
-        "pixels": 10
+        "count": 5,
+        "pixels": 7
       },
       {
         "clip": "death",
         "frame": 54,
-        "count": 5,
-        "pixels": 989
+        "count": 7,
+        "pixels": 965
       },
       {
         "clip": "death",
         "frame": 55,
-        "count": 4,
-        "pixels": 947
+        "count": 6,
+        "pixels": 925
       },
       {
         "clip": "death",
         "frame": 56,
-        "count": 6,
-        "pixels": 887
+        "count": 8,
+        "pixels": 865
       },
       {
         "clip": "death",
         "frame": 57,
-        "count": 6,
-        "pixels": 811
+        "count": 7,
+        "pixels": 789
       },
       {
         "clip": "death",
         "frame": 58,
-        "count": 6,
-        "pixels": 778
+        "count": 7,
+        "pixels": 757
       },
       {
         "clip": "death",
         "frame": 59,
-        "count": 8,
-        "pixels": 703
+        "count": 9,
+        "pixels": 678
       },
       {
         "clip": "death",
         "frame": 60,
-        "count": 9,
-        "pixels": 680
+        "count": 10,
+        "pixels": 656
       },
       {
         "clip": "death",
         "frame": 61,
-        "count": 7,
-        "pixels": 683
+        "count": 8,
+        "pixels": 657
       },
       {
         "clip": "death",
         "frame": 62,
-        "count": 7,
-        "pixels": 649
-      },
-      {
-        "clip": "death",
-        "frame": 63,
-        "count": 6,
+        "count": 8,
         "pixels": 623
       },
       {
         "clip": "death",
+        "frame": 63,
+        "count": 8,
+        "pixels": 602
+      },
+      {
+        "clip": "death",
         "frame": 64,
-        "count": 7,
-        "pixels": 515
+        "count": 8,
+        "pixels": 497
       },
       {
         "clip": "death",
         "frame": 65,
         "count": 7,
-        "pixels": 558
+        "pixels": 533
       },
       {
         "clip": "death",
         "frame": 66,
-        "count": 6,
-        "pixels": 492
+        "count": 7,
+        "pixels": 468
       },
       {
         "clip": "death",
         "frame": 67,
-        "count": 9,
-        "pixels": 454
+        "count": 10,
+        "pixels": 430
       },
       {
         "clip": "death",
         "frame": 68,
         "count": 7,
-        "pixels": 439
+        "pixels": 417
       },
       {
         "clip": "death",
         "frame": 69,
-        "count": 10,
-        "pixels": 432
+        "count": 11,
+        "pixels": 411
       },
       {
         "clip": "death",
         "frame": 70,
         "count": 9,
-        "pixels": 395
+        "pixels": 374
       },
       {
         "clip": "death",
         "frame": 71,
-        "count": 5,
-        "pixels": 385
+        "count": 6,
+        "pixels": 371
       },
       {
         "clip": "death",
         "frame": 72,
-        "count": 6,
-        "pixels": 387
+        "count": 7,
+        "pixels": 368
       },
       {
         "clip": "death",
         "frame": 73,
         "count": 7,
-        "pixels": 424
+        "pixels": 405
       },
       {
         "clip": "death",
         "frame": 74,
         "count": 8,
-        "pixels": 413
+        "pixels": 394
       },
       {
         "clip": "death",
         "frame": 75,
         "count": 6,
-        "pixels": 407
+        "pixels": 387
       },
       {
         "clip": "death",
         "frame": 76,
-        "count": 6,
-        "pixels": 406
+        "count": 8,
+        "pixels": 386
       },
       {
         "clip": "death",
         "frame": 77,
-        "count": 5,
-        "pixels": 393
+        "count": 7,
+        "pixels": 373
       },
       {
         "clip": "death",
         "frame": 78,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 79,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 80,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 81,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 82,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 83,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 84,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 85,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 86,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 87,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 88,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       },
       {
         "clip": "death",
         "frame": 89,
-        "count": 5,
-        "pixels": 407
+        "count": 6,
+        "pixels": 388
       }
     ],
     "native_pixels": false,
