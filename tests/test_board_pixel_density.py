@@ -36,13 +36,14 @@ def cutout_families(code: str) -> set[str]:
     # Include conditional equality branches as well as the final `in` roster.
     # Inspect the entire function, independent of whether a rig is available.
     body = function_text(code, "_unit_uses_cutout")
-    families = set(re.findall(r'"([a-z_]+)"', body)) - {"type", "player"}
-    # The maquette rigs are data-driven (MaquettePresentation.handles); their roster lives in presentation.gd.
+    return set(re.findall(r'"([a-z_]+)"', body)) - {"type", "player"}
+
+
+def maquette_roster() -> set[str]:
+    """The data-driven maquette rigs (MaquettePresentation.handles); their roster lives in presentation.gd."""
     roster = (ROOT / "scripts/maquette_cutout_runtime/presentation.gd").read_text()
     creatures = re.search(r"const CREATURES := \{(.*?)\}", roster, re.S)
-    if creatures:
-        families |= set(re.findall(r'"([a-z_]+)":', creatures.group(1)))
-    return families
+    return set(re.findall(r'"([a-z_]+)":', creatures.group(1))) if creatures else set()
 
 
 def mask_bounds(mask: np.ndarray) -> tuple[int, int, int, int] | None:
@@ -146,7 +147,7 @@ class BoardPixelDensityTest(unittest.TestCase):
                             np.testing.assert_array_equal(aa[ring], bb[ring], err_msg=path)
 
     def test_rig_coverage_names_adoption_command_for_new_art(self) -> None:
-        types = cutout_families(self.board)
+        types = cutout_families(self.board) | maquette_roster()
         directories = {"assets/units/stone_warden_cutout" if kind == "warden"
                        else f"assets/units/{kind}_cutout" for kind in types}
         directories.update(str(p.relative_to(ROOT)) for p in (ROOT / "assets/units/guardians").iterdir() if p.is_dir())
