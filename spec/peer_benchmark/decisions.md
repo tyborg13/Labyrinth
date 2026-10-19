@@ -265,3 +265,10 @@
   `authorize-publish` recorded at 02:31Z). Included pace-02, purge-02/03 (+ a director null-viewport guard, Codex
   SIGNOFF), qa-14 and the sidecar commit. The primary checkout's local master update was skipped (untracked files);
   the owner's call. Follow-up: the optional Purge lifecycle regression suggested by the guard review.
+
+## 2026-10-19 Thrall rear tube aim (rr-15)
+- The rear jab and tether looked backward. The rr-15 trace showed the shared tube targets fell inside the arm's minimum
+  reach in the rear (43 px against 56.47), so the elbow folded outward. Decided: per-view key overrides
+  (`view_keys.<view>`) in motion data. The rear jab contact aims about 90% extended toward the rear facing at shoulder
+  height (forward 209 / lift 50). The rear tether hold is forward 206 / lift 63. A new gate keeps every two-bone target
+  inside its reachable annulus.
