@@ -2796,6 +2796,390 @@
     "grid": 1.74,
     "facing": "rear"
   },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/arm_far.png": {
+    "pixel_sha256": "1f8e11a14cc40f1d5953d3a0e4a974e994317979612a2cd7ae296419cf866683",
+    "source_pixel_sha256": "9baac9ab2d85256f21039ddd383c1661b8d3105766970a1fe14346d0d6b957f4",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/arm_near.png": {
+    "pixel_sha256": "a843a420c6665ba35eb59ee987bbabcd53cf9d2105ebf3a0b541800931c7ce73",
+    "source_pixel_sha256": "6523bfd1e95ab08425d5a760eeba0bdee7421d3fa40307e6b395b2fc932b3d4d",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/foot_far.png": {
+    "pixel_sha256": "159d703c69f0bd4737adcaae96990784cf30fdba13881eb815ef98bd5fa07280",
+    "source_pixel_sha256": "159d703c69f0bd4737adcaae96990784cf30fdba13881eb815ef98bd5fa07280",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/foot_near.png": {
+    "pixel_sha256": "e3c96ce9c4e89fcec35c96b994f51a4500c80f1b577832d5c9146f75bce8a72c",
+    "source_pixel_sha256": "187cdcdfb75d616e6d6208caee469dc6efa6c26a64bc53510bd8806c83b37b25",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hand_far.png": {
+    "pixel_sha256": "e2f491890c5cf87b10972f547c33cdc375c08c704e647557edd2a55318066b90",
+    "source_pixel_sha256": "97e80071424972e563924fab9e87f169554d788e8aedc973b3e9bcea018496c5",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hand_near.png": {
+    "pixel_sha256": "bcb7c52875ebb8dd0ae5062ed63933e2dfb0bcb69c22041960df32094bbd930e",
+    "source_pixel_sha256": "a61e5085c4031ebdacbad09c942b6eefecdb4ed2a00845d12b875827e9180104",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/head.png": {
+    "pixel_sha256": "4c0a493174dff2982f4effe7b3ea695d68bc569821694b37417d588379278475",
+    "source_pixel_sha256": "191f22f5916ee3abddc7ce76fac84999e94dadb13c82c921005028971f2fe392",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_arm_far.png": {
+    "pixel_sha256": "3d68dd7cf89e2766dfb0c3d01ef129b2b9b6641101821e65d750954b5893dbce",
+    "source_pixel_sha256": "3d68dd7cf89e2766dfb0c3d01ef129b2b9b6641101821e65d750954b5893dbce",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_arm_near.png": {
+    "pixel_sha256": "8bb21c58293a0ad7461703699d7f320909592a161605fe3bdd38596de08293e4",
+    "source_pixel_sha256": "8bb21c58293a0ad7461703699d7f320909592a161605fe3bdd38596de08293e4",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_foot_far.png": {
+    "pixel_sha256": "620ec3b084db5a342852a7095595187fab8e5bf0fe64db003749c8275d4b41dc",
+    "source_pixel_sha256": "620ec3b084db5a342852a7095595187fab8e5bf0fe64db003749c8275d4b41dc",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_foot_near.png": {
+    "pixel_sha256": "62ec773394fdc4543618229da3b551138928fa4f0922fef79c2b306facc770b7",
+    "source_pixel_sha256": "62ec773394fdc4543618229da3b551138928fa4f0922fef79c2b306facc770b7",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_hand_far.png": {
+    "pixel_sha256": "c7c449c6226eb3ef66eb0cb0441b9cdd2f16600f5603e022bb3a8a6afa0f553e",
+    "source_pixel_sha256": "c7c449c6226eb3ef66eb0cb0441b9cdd2f16600f5603e022bb3a8a6afa0f553e",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_hand_near.png": {
+    "pixel_sha256": "6412b3ccc6b5d3461cd000460219bbac0f7f305dc36bd18dfe9b487f8abfc858",
+    "source_pixel_sha256": "6412b3ccc6b5d3461cd000460219bbac0f7f305dc36bd18dfe9b487f8abfc858",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_head.png": {
+    "pixel_sha256": "ca1557a8cb7bf9b408d73fc363743094cce87892af3a406ae5ff9909cff71684",
+    "source_pixel_sha256": "305dc2abcbd54574dcac2ba4302f84623e87817fd2bc7222a18a819fd7e9618c",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_leg_far.png": {
+    "pixel_sha256": "1b4d308b66d1d4d80de3bf12720fb2dca07e2b3217b3a895120ddd7428ccc541",
+    "source_pixel_sha256": "1b4d308b66d1d4d80de3bf12720fb2dca07e2b3217b3a895120ddd7428ccc541",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_leg_near.png": {
+    "pixel_sha256": "5345fd937f029afa248b31a3fb88ddedbb4306dbe7eea9e69a777e91d5eb4c86",
+    "source_pixel_sha256": "5345fd937f029afa248b31a3fb88ddedbb4306dbe7eea9e69a777e91d5eb4c86",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_pelvis.png": {
+    "pixel_sha256": "28e17294597ac1be1a9f327e887a0478b1c46a1853ceb5d9ce1dbba9e7c5a852",
+    "source_pixel_sha256": "28e17294597ac1be1a9f327e887a0478b1c46a1853ceb5d9ce1dbba9e7c5a852",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_tatters.png": {
+    "pixel_sha256": "ba414aa459a67bb71c029385bdeaa9db32862f4be8acf05b044f25e5238a1bce",
+    "source_pixel_sha256": "ba414aa459a67bb71c029385bdeaa9db32862f4be8acf05b044f25e5238a1bce",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_torso.png": {
+    "pixel_sha256": "6faf7a283c797b3504eb22c0468ca72dec30f9a0684889f8487c189e59654780",
+    "source_pixel_sha256": "ee09427eb7e8c25540f9a205f8d65fa4213e8c93aa2bf241af9602974c57b670",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/leg_far.png": {
+    "pixel_sha256": "e018c0aa7d5ec8f0ca9cf84b7228aa439c4c60ef15b1d7d40865708b520820b4",
+    "source_pixel_sha256": "ab8bd24d4e5214c964d6e252c4f8f39619891b807bae197dbfbd13f52ea24b6e",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/leg_near.png": {
+    "pixel_sha256": "f032025560e1ffda093e2c1d78319c8aa6ca9673377677388c1da0c37ab7acca",
+    "source_pixel_sha256": "78078684b7ea19e66df193c581af7b0bb8ed12a9f52d8adcbef6d1dc20e1a26f",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/pelvis.png": {
+    "pixel_sha256": "76e06e70077b7ca19edebe71fea42fd48040bb46e8aee47fafd06dbd906dd165",
+    "source_pixel_sha256": "76e06e70077b7ca19edebe71fea42fd48040bb46e8aee47fafd06dbd906dd165",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/tatters.png": {
+    "pixel_sha256": "231bb2c99dbbbfc58c7576cd58393908d3952b2c5cff83c84fd31a8f25971de4",
+    "source_pixel_sha256": "e586431866ef42913142e1ee5f9f970516ece4256ca16907bef45108efd9cbeb",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/front/torso.png": {
+    "pixel_sha256": "b66cd064ebd481e3040206ac8aa479609aa86c3836a6ca660a0c6bc1d273a8b7",
+    "source_pixel_sha256": "981b4cbe5fbfceb7f960426664fd0da2e0ea5f92c88a81bb2caf29cda14f8653",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "front"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/arm_far.png": {
+    "pixel_sha256": "62d7189651d2ac532c926355c3ddf5349379840bedcb6913e40aac56af8d135a",
+    "source_pixel_sha256": "8bfe8a208bf03187e0f1c3be8cf5572ca05492b3c98bd44acfb8525d61f84a20",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/arm_near.png": {
+    "pixel_sha256": "6df99e47a44ba6a48af12d38639d13be65547b61bff0991e06d5e5f48e138016",
+    "source_pixel_sha256": "695c115d672da3fd91a6b42d14b64171c15d43d6f94ec56f170221a52d2b16d8",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/foot_far.png": {
+    "pixel_sha256": "b1f6dfe31423f8f7856eb2b8e2a813e4b2e3af0c294435c76e0e05c215afcb51",
+    "source_pixel_sha256": "e48ee78d0fb6d995330948e7ddbcb3167158f8bbef74d9856c5259e6f666df42",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/foot_near.png": {
+    "pixel_sha256": "5e4d9eb7e362b57dcab4d805a3b3383dbd2e81cd0a1d1660012824d82067c639",
+    "source_pixel_sha256": "6ec010d3ffb0044f3a9731989fbd859d70712cdc5245a66d28afc8b4d8dac0a7",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hand_far.png": {
+    "pixel_sha256": "4140719cb6f6b2eff25711487e2bec3af80a613543a96713f37511931d837df3",
+    "source_pixel_sha256": "04ac29fec6bc21e80eac4bf314ab0fe58b3cf2a480d8760a624e91077f668536",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hand_near.png": {
+    "pixel_sha256": "b32d793db0fd0a844681bf865591ff409653effb43af77739f86239eb43e0beb",
+    "source_pixel_sha256": "1c0e9ad80afc86ef6f9d536adae3ffc22a1ef1b053b1c8e56070053a6264ffc5",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/head.png": {
+    "pixel_sha256": "a5bcfe7fbb7f0536bb152f3d56d4b75de4dd790cab194394e300fb098734ce30",
+    "source_pixel_sha256": "f0adaad0d9971aebf33ffa0ada150178f64b8c3d988a41d8b80b86c89915ec0f",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_arm_far.png": {
+    "pixel_sha256": "2c1b903d26c8d0d54af1b6c90673eddbfc348d2b9331e518859d7afc39b0bbeb",
+    "source_pixel_sha256": "162cd42834ec59ff1fd7a3219ef7d65761c0665b2663981013a9fea68c98edb3",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_arm_near.png": {
+    "pixel_sha256": "3c039621d886be3e94f140fb451a4465e69ee3c341c7a1fa343d45d233581a21",
+    "source_pixel_sha256": "3c039621d886be3e94f140fb451a4465e69ee3c341c7a1fa343d45d233581a21",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_foot_far.png": {
+    "pixel_sha256": "938a166de17dd4a4d440eaaac3a6034cf57f1beb3c790248a1ae94917a4de4e9",
+    "source_pixel_sha256": "938a166de17dd4a4d440eaaac3a6034cf57f1beb3c790248a1ae94917a4de4e9",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+    "pixel_sha256": "66e947fbacb386f2c54f4f114f75c79fdad5fc79956d3de0942de680f8c8b515",
+    "source_pixel_sha256": "906b400ee413cc9f7741be80926cb68a89fcf7e5d71c291aca9a5f81be2d3919",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_hand_far.png": {
+    "pixel_sha256": "6dfae22ac6193b2fc1f91e3968478cd0895c78f6fb21a5c2e7e3f2147ccb8376",
+    "source_pixel_sha256": "6dfae22ac6193b2fc1f91e3968478cd0895c78f6fb21a5c2e7e3f2147ccb8376",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_hand_near.png": {
+    "pixel_sha256": "2c97ed315996c32fdeb32cb2d59731cd5c06b9f604877128a2bec5fe1c3dd51c",
+    "source_pixel_sha256": "518fbcb091972c887d9fba6b48e1cf2986905ba1b86aeed58766d6d0120d7352",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_head.png": {
+    "pixel_sha256": "c79046c32e91082fb46b8e51aec6bf3216c847d5a7f5ed3611ddf5005e2eb29e",
+    "source_pixel_sha256": "a2ee0c15268279d9675dc74fefcd511dbcdb3d832e0ee23220d98bf06e7df4b3",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_leg_far.png": {
+    "pixel_sha256": "3194fed5c385db3b7bb887a7638b98f1db7781c73da7e2718a59d8f73f21ba92",
+    "source_pixel_sha256": "3194fed5c385db3b7bb887a7638b98f1db7781c73da7e2718a59d8f73f21ba92",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_leg_near.png": {
+    "pixel_sha256": "d03632ccbfaf87e7ccf26544a8d223d29222dcb03b7332963788f630d3f98550",
+    "source_pixel_sha256": "d03632ccbfaf87e7ccf26544a8d223d29222dcb03b7332963788f630d3f98550",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_pelvis.png": {
+    "pixel_sha256": "7eccffd02774cfada45324bad74397d1faab2031974a0a7ae7156aa47d2395b3",
+    "source_pixel_sha256": "7eccffd02774cfada45324bad74397d1faab2031974a0a7ae7156aa47d2395b3",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_tatters.png": {
+    "pixel_sha256": "06f2277b25132545e2d6493491c5b0986cbafa44e3ec48c6fa8b77af3d8919b8",
+    "source_pixel_sha256": "2071d0cdfcfa469734b0f1071312475cbb59dcb487f31cda97e8dc2fc95c6072",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_torso.png": {
+    "pixel_sha256": "5aeca36aec3698ecfb9936db641181d2d7f2eb71fb32afe51e8cb16a41c53fff",
+    "source_pixel_sha256": "3dd43fa0afa4ac96d744256cdd5d14effac7b27b6ecf6ff985db0d7780266f46",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/leg_far.png": {
+    "pixel_sha256": "70476d2eeb05dbbc99804e875a784778b5f04a93d56f93194184d49a2501a9c0",
+    "source_pixel_sha256": "ffa4dab5e2829c365c955784e62de00ad499dca3d7fd4b0fcc6fd3e719084cf0",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/leg_near.png": {
+    "pixel_sha256": "563732c36e000669b7c4c0e5d4b7f589c09d1f2c2560a7a4171464f8a006f737",
+    "source_pixel_sha256": "ec423d72e5b325204beeef173a773ffcc534825debe7ed23ad92f14cc8e21d3e",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/pelvis.png": {
+    "pixel_sha256": "2ee28a6c9ad3c8d481c62fc591e365a9a789923ea928d53aa3d6737e2a04735e",
+    "source_pixel_sha256": "2ee28a6c9ad3c8d481c62fc591e365a9a789923ea928d53aa3d6737e2a04735e",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/tatters.png": {
+    "pixel_sha256": "16810dab240f94dbc7de997efbfd2c4072ddb73bd5f005a9512df0f940156db1",
+    "source_pixel_sha256": "6238186191990ae24817a4e661ecd1bfd193c036703b53efd1fc25dd262572c2",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/briar_weaver_cutout/humanoid_v2/rear/torso.png": {
+    "pixel_sha256": "acd07e60b3688738471fff9c873612536b24ccc6977b991d25be3e070452854e",
+    "source_pixel_sha256": "ffc83486688ce656c39af9c428acc6db959c87e942d1bb7e6fdc1a38657141f5",
+    "id": "briar_weaver_cutout",
+    "mode": "clean",
+    "grid": 1.0,
+    "facing": "rear"
+  },
   "assets/units/burrow_grub_cutout/front/rest.png": {
     "kind": "rest",
     "id": "burrow_grub_cutout",

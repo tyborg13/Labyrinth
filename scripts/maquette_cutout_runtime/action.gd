@@ -20,6 +20,7 @@ static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	if data.is_empty() or bool(effect.get("cancelled", false)): return ""
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
+	verb = str(Presentation.integration_for(str(actor.get("type", ""))).get("action_aliases", {}).get(verb, verb))
 	# The existing Kindle resolver emits a status snapshot. Normalize only its
 	# presentation selector; preserve the resolver step and protected clip data.
 	if str(actor.get("type", "")) == "ember_tick" and intent == "kindle" and verb == "status" and effect.has("enemy_after"):
@@ -88,3 +89,12 @@ static func play_utility(scene: Control, state: Dictionary, step: Dictionary) ->
 	if clip.is_empty() or clip == "move" or scene._reduced_motion_enabled(): return
 	await scene._play_timed_animation_frames(frames_for(type, clip), 1.0 / FPS, func(frame: int) -> void:
 		scene._render_board_state(state, {type + "_motion": {key: {"clip": clip, "phase": float(frame) / frames_for(type, clip)}}}, true))
+
+## Optional case-owned action adapter. An absent declaration preserves all
+## existing dispatch and timing; the integration record owns the resource path.
+static func declared_adapter(step: Dictionary, actor: Dictionary) -> Script:
+	var type: String = str(actor.get("type", ""))
+	var path: String = str(Presentation.integration_for(type).get("action_script", ""))
+	if path.is_empty(): return null
+	var adapter: Script = load(path) as Script
+	return adapter if adapter != null and adapter.handles(step, actor) else null

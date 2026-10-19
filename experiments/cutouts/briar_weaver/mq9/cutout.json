@@ -1,0 +1,75 @@
+{
+  "character_id": "briar_weaver",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_front_move_knee_apex": "Protected front move lifts the stride foot 4 px; in the certified anatomy both swing apex knees bend less than the trailing knee. Preserve keys/joints; strict knee gate remains failing.",
+    "TODO_DESIGN_green_eye_gate": "Brief requires the protected green eye and also forbids every green-dominant presented texel. Preserve the head eye; strict green gate remains failing."
+  },
+  "direction_clips": [
+    "lash",
+    "thornwall"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the hero's cut-out bob, hunched: torso (with mantle and thorns), hood and both free arms drop 2 px and return as one rigid group; pelvis, tatters, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.9,
+      "intents": [],
+      "note": "a hunched shuffle on the stride/trailing pattern: 4 px lift, the pelvis dips 3 px after each landing, the claws sway, the leaf tatters trail 2 px",
+      "release_at": {}
+    },
+    "thornwall": {
+      "seconds": 1.1,
+      "contact": 0.55,
+      "intents": [
+        "thornwall:grow_bramble"
+      ],
+      "note": "rears back raising both claws high, then plunges them down to the floor ahead as the bramble wall erupts (contact); holds, claws dug in; rises",
+      "release_at": {}
+    },
+    "lash": {
+      "seconds": 0.75,
+      "contact": 0.45,
+      "intents": [
+        "lash_of_thorns:ranged"
+      ],
+      "note": "whips the near claw back and up, then snaps it forward and down at the target (contact; the thorn lash flies); the far claw swings back as a counterweight",
+      "release_at": {}
+    },
+    "mend": {
+      "seconds": 1.0,
+      "contact": 0.55,
+      "intents": [
+        "root_mend:heal_ally"
+      ],
+      "note": "draws both claws up to its chest and bows its hood, then presses them down and out toward the floor as roots reach the ally (contact); holds; eases back",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "sags forward into a heap of leaves: the pelvis drops 18 px, the torso pitches forward 25 degrees, the hood drops, the claws fall to the floor ahead, the tatters settle; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

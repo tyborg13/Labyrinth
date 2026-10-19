@@ -601,6 +601,14 @@
     "assets/units/storm_capacitor_cutout/rear/rest.png": {
       "category": "other",
       "reason": "Derived exact rest, separately registered in rest_paths; native rebake pending director."
+    },
+    "assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png": {
+      "category": "other",
+      "reason": "Derived rr-21 native rest; separately bound in rest_paths, never live paint."
+    },
+    "assets/units/briar_weaver_cutout/humanoid_v2/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived rr-21 native rest; separately bound in rest_paths, never live paint."
     }
   },
   "entries": [
@@ -5487,6 +5495,94 @@
         ],
         "rear": [
           "assets/units/storm_capacitor_cutout/rear/rest.png"
+        ]
+      }
+    },
+    {
+      "id": "briar_weaver_cutout",
+      "unit_type": "briar_weaver",
+      "kind": "rig",
+      "dir": "assets/units/briar_weaver_cutout",
+      "rig_script": "assets/units/briar_weaver_cutout/rig.gd",
+      "paths": [
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/arm_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/arm_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/foot_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/foot_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hand_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hand_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/head.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_arm_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_arm_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_foot_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_foot_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_hand_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_hand_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_head.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_leg_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_leg_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_pelvis.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_tatters.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/hidden_torso.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/leg_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/leg_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/pelvis.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/tatters.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/front/torso.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/arm_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/arm_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/foot_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/foot_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hand_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hand_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/head.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_arm_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_arm_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_foot_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_foot_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_hand_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_hand_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_head.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_leg_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_leg_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_pelvis.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_tatters.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/hidden_torso.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/leg_far.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/leg_near.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/pelvis.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/tatters.png",
+        "assets/units/briar_weaver_cutout/humanoid_v2/rear/torso.png"
+      ],
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "briar_weaver.art_scale",
+        "expression": "art_scale (default 1.0); standard board source-pixel registration"
+      },
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png",
+          "orphan_share": 0.01872950591896849,
+          "t": 1.0,
+          "grid": 1.0,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/briar_weaver_cutout/humanoid_v2/rear/rest.png",
+          "orphan_share": 0.02658657612953774,
+          "t": 1.0,
+          "grid": 1.0,
+          "mode": "clean"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/briar_weaver_cutout/humanoid_v2/rear/rest.png"
         ]
       }
     }

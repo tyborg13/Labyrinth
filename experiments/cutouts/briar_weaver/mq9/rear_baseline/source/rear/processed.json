@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    185,
+    210
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.11529084028492566,
+    "edge_light_share": 0.0,
+    "feature_px": 5.443916137324005,
+    "height": 210,
+    "height_drawn": 210.0,
+    "orphan_share": 0.02658657612953774,
+    "regions": 646,
+    "run_length": 3.399325284090909,
+    "symmetry": 0.6422588722908211,
+    "thin_abs": 0.010916688430399613,
+    "thin_rel": 0.06738051710629411,
+    "value": 0.1748191133711254,
+    "width": 185
+  },
+  "pixel_sha256": "d29f24e8f70a0e786e64dfc31a5d55d42b1930bc7dc93e7dc1c9f3849f580878",
+  "placement": [
+    36,
+    36
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/briar_weaver/mq9_front/kit.json",
+        "pixel_sha256": "96250780774cbba20cd5b9b2df4e25b7d1710e11fffc5f1d2701702ef4595a7b"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "168de1e1b02d11d72e4980c887695213214d5dcd4a22868644119dfce065441d",
+      "protected_body_share": {
+        "front": 0.0,
+        "rear": 0.0
+      },
+      "reference_pixel_sha256": "96250780774cbba20cd5b9b2df4e25b7d1710e11fffc5f1d2701702ef4595a7b",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "80f4065606e0f59d898dabc04d557e50747caabbb72184bc25709d7a8e4993a6",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "af25d6c0f1d437ef58b7f568d2ba6f265616d08d7c8b21a6ef6b69dcdae2e40a",
+  "shift": [
+    0,
+    0
+  ]
+}
