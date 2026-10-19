@@ -180,3 +180,6 @@
   - → Enemy phase: keep movement speed (approved); slow attacks/casts to readable speed with a beat between enemies
     (`scripts/combat_pacing.gd`, feel-01 budget). Clip of a busy enemy round to the inbox.
   - → Spells straight into the deck: approved, keep.
+- 2026-10-19 purge-redesign NEEDS CHANGES (owner, minor): "sooo much better. I think the "x2" for multiple copies
+  should be more pronounced. The "purge a spell" header maybe a bit bigger. Otherwise, looking very good." → purge-02
+  (medallion badge, shared with the pile viewer; 24 px header).
