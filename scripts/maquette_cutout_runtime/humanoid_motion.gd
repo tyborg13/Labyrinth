@@ -39,6 +39,10 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var data: Dictionary = Tracks.data_for(layout)
 	if clip == "rest" or not data.get("clips", {}).has(clip): return {}
 	var transforms: Dictionary = world_transforms(data, clip, clampf(phase, 0.0, 1.0), layout, facing)
+	if data["clips"][clip].has("gait"):
+		# Carry the analytical world targets to presentation, before Bone2D's
+		# float32 parent/local reconstruction can perturb a half-pixel tie.
+		layout["_gait_world_targets"] = Gait.world_targets(data, layout, facing, clip, clampf(phase, 0.0, 1.0))
 	var result: Dictionary = {}
 	for name: String in transforms:
 		var parent: String = parent_name(layout["joints"][name])

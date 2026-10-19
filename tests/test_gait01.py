@@ -19,6 +19,11 @@ from humanoid_cutout.gait import evaluate, expand, schedule
 from humanoid_cutout.walk_gates import report, rigid_air_errors
 from humanoid_cutout.rigid_joint_gap import gap
 from humanoid_cutout import walk_gates
+from humanoid_cutout.cpu_pose import CpuPose
+from humanoid_cutout.silhouette_gates import joint_holes, posed_owners
+from humanoid_cutout.gait_continuations import texture as continuation_texture, errors as continuation_errors
+from humanoid_cutout.anatomy import load as load_anatomy
+from maquette_motion.silhouette import holes
 from cutout_pipeline.cases import read_json
 
 CASES={'arc_thrall':'rr11','glacial_mirror':'rr18'}
@@ -231,6 +236,66 @@ class GaitTests(unittest.TestCase):
 
     def test_thrall_runtime_diagnostic_uses_declared_supports(self):
         self.assertIn('RR11 RUNTIME: PASS',run_godot('tests/rr11/runtime_checks.gd'))
+
+    def test_production_presented_stances_include_director_failure_frames(self):
+        with tempfile.TemporaryDirectory(prefix='gait01-stance-') as folder:
+            self.assertIn('GAIT PRESENTED STANCE: PASS (464 consecutive planted checks;',
+                          run_godot('tests/gait01/presented_stance.gd','--output',Path(folder)/'samples.json'))
+
+    def test_thrall_projected_seams_close_and_removing_coverage_reopens_them(self):
+        case,_,layouts,samples=self.cases['arc_thrall']
+        failed={'front':(2,9,10,11,19,25,31,39,40,41,43,44,45),'rear':(5,45)}
+        for view,frames in failed.items():
+            layout=layouts[view]
+            model=CpuPose(case,copy.deepcopy(layout))
+            unfilled=copy.deepcopy(layout);unfilled.pop('gait_continuations')
+            baseline=CpuPose(case,unfilled)
+            for frame in frames:
+                pose=next(r for r in samples['samples'] if r['view']==view and r['clip']=='move'
+                          and r['kind']=='presented' and r['frame']==frame)
+                def pockets(subject):
+                    layers,maps=subject.layers(pose)
+                    seams=np.logical_or.reduce(subject.masks(pose,layout['proof_joint_seams'],maps))
+                    owners=posed_owners(layers,layout['parts'],pose['bones'],[128,128],load_anatomy(case)['ownership'])
+                    return joint_holes(owners>0,seams,owners,pocket_details=True)
+                with self.subTest(view=view,frame=frame):
+                    self.assertEqual(pockets(model),[])
+                    self.assertTrue(pockets(baseline),'fed320023 source must reproduce the seam regression')
+
+    def test_gait_continuations_are_own_edge_copies_and_preserve_non_move_textures(self):
+        self.assertIn('GAIT CONTINUATION TEXTURES: PASS',run_godot('tests/gait01/continuation_checks.gd'))
+        case,_,layouts,_=self.cases['arc_thrall']
+        recipes=read_json(case/'gait_continuations.json')
+        for view,layout in layouts.items():
+            self.assertEqual(layout['gait_continuations'],recipes[view])
+            self.assertEqual(continuation_errors(case,layout),[])
+            for name,recipe in layout['gait_continuations'].items():
+                part=next(p for p in layout['parts'] if p['name']==name)
+                before=np.asarray(Image.open(case/part['file']).convert('RGBA'))
+                np.testing.assert_array_equal(continuation_texture(case,layout,part),before)
+                filled=continuation_texture(case,layout,part,gait=True)
+                self.assertEqual(np.count_nonzero(np.any(before!=filled,axis=2)),len(recipe['texels']))
+                np.testing.assert_array_equal(filled[before[...,3]>0],before[before[...,3]>0])
+            for base in (ROOT/'assets/units/arc_thrall_cutout',ROOT/'assets/units/arc_thrall_cutout/humanoid_v2'):
+                self.assertEqual(read_json(base/f'{view}.json')['gait_continuations'],recipes[view])
+            mutant=copy.deepcopy(layout)
+            next(iter(mutant['gait_continuations'].values()))['texels'][0][2:]=[0,0]
+            self.assertTrue(continuation_errors(case,mutant))
+
+    def test_continuations_do_not_trap_new_air_anywhere_in_the_move_cycle(self):
+        case,_,layouts,samples=self.cases['arc_thrall']
+        for view,layout in layouts.items():
+            model=CpuPose(case,copy.deepcopy(layout))
+            old=copy.deepcopy(layout);old.pop('gait_continuations')
+            baseline=CpuPose(case,old)
+            for pose in samples['samples']:
+                if pose['view']!=view or pose['clip']!='move' or pose['kind']!='presented':continue
+                before=np.logical_or.reduce([image[...,3]>0 for _,image,_ in baseline.layers(pose)[0]])
+                after=np.logical_or.reduce([image[...,3]>0 for _,image,_ in model.layers(pose)[0]])
+                original=holes(before)
+                for hole in holes(after):
+                    if hole.sum()>1:
+                        self.assertTrue(any((hole&h).any() for h in original),(view,pose['frame'],int(hole.sum())))
 
     def test_preservation_scope_includes_the_committed_implementation(self):
         self.assertIn('scripts/maquette_cutout_runtime/humanoid_gait.gd',changed_paths())

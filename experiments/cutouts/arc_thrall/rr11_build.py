@@ -251,6 +251,8 @@ def build_view(view, inputs, anatomy):
               'rest_source': f'source/{view}/processed.png',
               'motion_data': 'res://' + str(CASE.relative_to(PROJECT) / 'compiled_motion.json')}
     distinct_depths(layout)
+    gait_coverage = CASE / 'gait_continuations.json'
+    if gait_coverage.exists(): layout['gait_continuations'] = read_json(gait_coverage)[view]
     proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
     write_json(CASE / f'layouts/{view}.json', layout)
     reconstructed = Image.new('RGBA', (255, 255))

@@ -78,7 +78,9 @@ def report(layout, data, samples):
             scale = float(np.clip(1 + forward[1]*(v['forward_px']-phase)*step/(np.linalg.norm(b-a)+np.linalg.norm(c-b)),.78,gait.get('leg_scale_max',1.22)))
             target = c + [v['lane_px'], -v['lift_px']] + forward*v['forward_px']*step
             actual = np.asarray(row['bones'][foot]['global'][4:])
-            snapped = c + np.rint(actual-c) if row['kind']=='presented' else actual
+            # Presentation has already snapped the world target. Rounding a
+            # second time relative to a fractional bind reintroduces a tie.
+            snapped = actual
             error = float(np.linalg.norm(snapped-target))
             if error > limit: errors.append(f'{view}/move/{side}/frame {row["frame"]}: foot target error {error:.6f} px')
             start = fk['thigh_'+side][:2,2]
@@ -96,7 +98,8 @@ def report(layout, data, samples):
                 key=(row['kind'],side)
                 old=previous.get(key)
                 if old is not None and row['frame']==old['frame']+1 and row['kind']=='presented':
-                    leg['frame_change_px']=float(np.linalg.norm(snapped-old['actual']))
+                    change=float(np.linalg.norm(snapped-old['actual']))
+                    leg['frame_change_px']=change if change > EPSILON else 0.
                     if leg['frame_change_px'] != 0.: errors.append(f'{view}/move/{side}/frame {row["frame"]}: stance moved {leg["frame_change_px"]:.6f} px')
                 previous[key]={'frame':row['frame'],'actual':snapped}
                 stances.append({'side':side,**record,**leg})

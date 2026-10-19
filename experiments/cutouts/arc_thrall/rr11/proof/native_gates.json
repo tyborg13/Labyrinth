@@ -1,7 +1,23 @@
 {
-  "ok": true,
-  "errors": [],
-  "production_ready": true,
+  "ok": false,
+  "errors": [
+    "('front', 'move', 2): new joint-seam hole larger than 1px",
+    "('rear', 'move', 5): new joint-seam hole larger than 1px",
+    "('front', 'move', 9): new joint-seam hole larger than 1px",
+    "('front', 'move', 10): new joint-seam hole larger than 1px",
+    "('front', 'move', 11): new joint-seam hole larger than 1px",
+    "('front', 'move', 19): new joint-seam hole larger than 1px",
+    "('front', 'move', 25): new joint-seam hole larger than 1px",
+    "('front', 'move', 31): new joint-seam hole larger than 1px",
+    "('front', 'move', 39): new joint-seam hole larger than 1px",
+    "('front', 'move', 40): new joint-seam hole larger than 1px",
+    "('front', 'move', 41): new joint-seam hole larger than 1px",
+    "('front', 'move', 43): new joint-seam hole larger than 1px",
+    "('front', 'move', 44): new joint-seam hole larger than 1px",
+    "('front', 'move', 45): new joint-seam hole larger than 1px",
+    "('rear', 'move', 45): new joint-seam hole larger than 1px"
+  ],
+  "production_ready": false,
   "design_placeholders": {},
   "scope": "native windowed proof"
 }

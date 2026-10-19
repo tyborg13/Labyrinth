@@ -105,6 +105,7 @@ func _run() -> void:
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
 				var checks: Node2D = make_rig(view)
+				checks.set_meta("gait_proof_checks", true)
 				isolate(checks, [str(part["name"])])
 				var node: Node2D = painted_node(checks, str(part["name"]))
 				node.set("texture", checks._texture(checks.layout["proof_layers"][part["name"]]["mask"]))

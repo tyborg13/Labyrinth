@@ -91,7 +91,8 @@ def structure_errors(layout, build):
 def source_errors(case, layout, build):
     build = view_build(layout, build)
     from maquette_motion.features import source_pixels
-    errors = []
+    from .gait_continuations import errors as continuation_errors
+    errors = continuation_errors(case, layout)
     images = {p['name']: source_pixels(case,p) for p in layout['parts']}
     continuations = {}
     rest = Image.new('RGBA',(255,255))
@@ -389,12 +390,15 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         # Retain one frame of GPU surfaces, not the entire reel in RAM.
         layers=[]
         for row in rows:
+            part = next(p for p in layout['parts'] if p['name'] == row['name'])
+            if row['source'] != part['file']: errors.append(row['file'] + ': native source differs from layout')
             image=np.asarray(Image.open(capture / row['file']).convert('RGBA'))
             checks=np.asarray(Image.open(capture / row['checks']).convert('RGBA'))
             if row.get('rigid'):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
-                source=Image.open(case / row['source']).convert('RGBA')
+                from .gait_continuations import texture
+                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip]))
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.

@@ -20,6 +20,30 @@ static func skinned(layout: Dictionary, side: String) -> bool:
 		if mesh.get("weights", {}).has("thigh_" + side) and mesh.get("weights", {}).has("shin_" + side): return true
 	return false
 
+static func world_targets(data: Dictionary, layout: Dictionary, facing: String, clip: String, phase: float) -> Dictionary:
+	# Read world-step progress directly. Subtracting and adding root travel,
+	# then reconstructing a foot through Bone2D, can cross a half-pixel tie.
+	var values: Dictionary = {}
+	for track: Dictionary in data["view_tracks"][facing][clip]:
+		var bone: String = str(track["bone"])
+		if not bone.begins_with("foot_"): continue
+		if not values.has(bone): values[bone] = {}
+		values[bone][track["channel"]] = value_at(track["keys"], phase)
+	var forward: Vector2 = Tracks.point(data["projection"][facing]["forward"])
+	var step: float = float(layout.get("step_distance_px", 0.0)) / maxf(float(layout.get("screen_pixel_scale", 1.0)), EPSILON)
+	var targets: Dictionary = {}
+	for foot: String in values:
+		var value: Dictionary = values[foot]
+		targets[foot] = Tracks.point(layout["joints"][foot]["position"]) + forward * float(value["forward_px"]) * step + Vector2(float(value["lane_px"]), -float(value["lift_px"]))
+	return targets
+
+static func snapped_world_target(target: Vector2, bind: Vector2, to_world: Transform2D) -> Vector2:
+	# Snap once in the common world, before deriving a root-relative position.
+	# The painted bind is the grid's anchor: fractional registered pivots must
+	# retain the rr-05 whole-pixel TRANSLATIONS, including at zero travel.
+	var anchor: Vector2 = to_world * bind
+	return to_world.affine_inverse() * (anchor + (to_world * target - anchor).round())
+
 static func prepare(world: Dictionary, authored: Dictionary, order: Array[String], layout: Dictionary, values: Dictionary, forward: Vector2, gait: Dictionary) -> Dictionary:
 	var joints: Dictionary = layout["joints"]
 	var root: Vector2 = Tracks.point(joints["root"]["position"])
