@@ -60,8 +60,6 @@ def structure_errors(layout, build):
             errors.append('mesh: invalid grid or normalized weights: ' + mesh['name'])
         from .mesh import grid, weights_for
         vertices,uvs,triangles=grid(mesh['bbox'])
-        if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
-            errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
         garment=mesh.get('garment',mesh['name'])
         if mesh.get('hidden_material') and (garment not in meshes or mesh.get('weight_bounds') != meshes[garment]['bbox']):
             errors.append('mesh: hidden layer must share its garment field: '+mesh['name'])
@@ -69,7 +67,18 @@ def structure_errors(layout, build):
             errors.append('mesh: unknown garment: ' + garment)
             continue
         expected=weights_for(vertices,mesh.get('weight_bounds',mesh['bbox']),layout['joints'],anatomy['meshes'][garment])
-        if set(mesh['weights'])!=set(expected) or any(not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
+        if 'texel_attachments' in mesh:
+            from .texel_attachments import attach
+            try:
+                attached = attach({'bbox': mesh['bbox'], 'vertices': vertices, 'uvs': uvs,
+                                   'triangles': triangles, 'weights': expected}, mesh['texel_attachments'])
+                vertices, uvs, triangles, expected = [attached[key] for key in ('vertices', 'uvs', 'triangles', 'weights')]
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append('mesh: invalid texel attachment: ' + mesh['name'] + ': ' + str(error))
+                continue
+        if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
+            errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
+        if set(mesh['weights'])!=set(expected) or any(len(mesh['weights'][name])!=len(values) or not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
             errors.append('mesh: director weight rule differs: '+mesh['name'])
     for tuck in build['tucks']:
         if tuck['minimum_px'] < 3 or tuck['missing_pixels'] or not tuck['required_pixels']:
@@ -111,6 +120,8 @@ def source_errors(case, layout, build):
             errors.append('piece source outside own silhouette/tuck: '+part['name'])
     approved = np.asarray(Image.open(case / layout['rest_source']).convert('RGBA'))
     if not np.array_equal(np.asarray(rest),approved): errors.append('rest: composed source mismatch')
+    from .texel_attachments import surface_errors as attachment_errors
+    errors += attachment_errors(layout, images, continuations)
     from .ownership import partition_errors
     errors += partition_errors(case,layout,build,images,continuations,approved)
     from .occluded_surface import source_errors as occluded_errors

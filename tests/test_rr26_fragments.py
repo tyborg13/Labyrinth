@@ -15,6 +15,7 @@ from case import CASE, read_json
 from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.rest_space import DetachedSource
 from humanoid_cutout.gates import structure_errors, source_errors
+from humanoid_cutout.texel_attachments import attach
 
 APPROVED_REVISION = 'e0d78de13'
 SEER = ROOT / 'experiments/cutouts/hoarfrost_seer/rr10'
@@ -42,7 +43,7 @@ class FragmentTests(unittest.TestCase):
                 if result.returncode: raise AssertionError(result.stdout + result.stderr)
                 cls.samples[name] = read_json(output)
 
-    def test_original_paint_rest_motion_and_meshes_are_unchanged(self):
+    def test_original_paint_rest_motion_and_other_geometry_are_unchanged(self):
         for case, assets in ((CASE, ROOT / 'assets/units/hollow_mimic_cutout'),
                              (SEER, ROOT / 'assets/units/hoarfrost_seer_cutout/humanoid_v2')):
             for view in ('front', 'rear'):
@@ -51,7 +52,11 @@ class FragmentTests(unittest.TestCase):
                 self.assertEqual(old['joints'], current['joints'])
                 for key in ('parts', 'joint_meshes'):
                     current_rows = {row['name']: row for row in current[key]}
-                    for row in old[key]: self.assertEqual(row, current_rows[row['name']])
+                    for row in old[key]:
+                        expected = row
+                        if case == SEER and key == 'joint_meshes' and row['name'] == 'robe':
+                            expected = attach(row, current_rows['robe']['texel_attachments'])
+                        self.assertEqual(expected, current_rows[row['name']])
                 for part in old['parts']:
                     if not part.get('hidden_material'):
                         path = case / part['file']

@@ -1,4 +1,6 @@
-Feedback 1 coverage status and both owner sequences: [rr26_feedback1.md](rr26_feedback1.md).
+Current feedback 2 results, complete pose inventory and both owner sequences:
+[rr26_feedback2.md](rr26_feedback2.md). Historical coverage investigation:
+[rr26_feedback1.md](rr26_feedback1.md).
 
 # rr-26 strict provenance follow-up
 

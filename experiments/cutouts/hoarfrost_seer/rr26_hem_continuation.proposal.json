@@ -1,6 +1,5 @@
 {
   "active": false,
-  "TODO_DESIGN_SEER_HEM_CONTINUATION_POLICY": "Owner must supply activation/endpoints or a corrected ownership/hem attachment; this proposal is not read by runtime or builders.",
   "scope": "CPU diagnostic only; exact shortest 8-connected bridges and nearest own non-outline donors; never an exception.",
   "views": {
     "front": {
@@ -1460,5 +1459,6 @@
       }
     }
   },
-  "status": "rejected as a permanent or whole-move fix; diagnostic only, never activated"
+  "status": "rejected as a permanent or whole-move fix; diagnostic only, never activated",
+  "resolved_policy": "Director feedback 2: neighbour-weight attachments; this historical air-bridge diagnostic remains inactive."
 }
