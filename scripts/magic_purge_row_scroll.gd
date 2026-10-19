@@ -59,6 +59,8 @@ func _refresh_page() -> void:
 			artwork.visible = on_page
 
 func _reconcile_focus() -> void:
+	# Range syncs also run while the overlay is built or torn down, outside the tree.
+	if not is_inside_tree(): return
 	var focused: Control = get_viewport().gui_get_focus_owner()
 	if focused == null or focused.get_parent() != _grid: return
 	var first_row: int = scroll_vertical / _row_pitch
