@@ -19,6 +19,12 @@ MUTATIONS = (
      '    remaining = set(approved)',
      '    approved = {entry[:4] for entry in approved}  # MUTATION: frame-wide suppression\n    remaining = set(approved)',
      'tests.test_rr16_review_fixes.ReviewFixTests.test_extra_hole_in_each_approved_frame_is_rejected'),
+    ('feedback1-1: rotation-only support modes', 'tools/humanoid_cutout/compiler.py',
+     "if track['channel'] in ('forward_px', 'lift_px', 'inward_px')", 'if True',
+     'tests.test_rr16_feedback1.FeedbackTests.test_zero_lean_keeps_body_support_metadata_and_runtime_position_in_both_views'),
+    ('feedback1-2: conservative nonlinear reach bounds', 'tools/humanoid_cutout/reach.py',
+     'None if proven_linear(tracks, start, end) else', 'None if True else',
+     'tests.test_rr16_feedback1.FeedbackTests.test_mixed_linear_smoothstep_reach_dip_fails_at_true_minimum'),
 )
 
 

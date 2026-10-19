@@ -22,5 +22,21 @@
     "exit_code": 1,
     "log": "/private/tmp/labyrinth_codex/rr-16/mutations/fix5.log",
     "restored": true
+  },
+  {
+    "guard": "feedback1-1: rotation-only support modes",
+    "regression": "tests.test_rr16_feedback1.FeedbackTests.test_zero_lean_keeps_body_support_metadata_and_runtime_position_in_both_views",
+    "status": "CAUGHT",
+    "exit_code": 1,
+    "log": "/private/tmp/labyrinth_codex/rr-16/mutations/fix6.log",
+    "restored": true
+  },
+  {
+    "guard": "feedback1-2: conservative nonlinear reach bounds",
+    "regression": "tests.test_rr16_feedback1.FeedbackTests.test_mixed_linear_smoothstep_reach_dip_fails_at_true_minimum",
+    "status": "CAUGHT",
+    "exit_code": 1,
+    "log": "/private/tmp/labyrinth_codex/rr-16/mutations/fix7.log",
+    "restored": true
   }
 ]
