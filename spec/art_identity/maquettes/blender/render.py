@@ -38,11 +38,13 @@ def material(name, colour, mode):
     return mat
 
 
-def render(spec, objects, output, engine='cycles', silhouettes_only=False, gallery=False, fit_only=False, preview=False, views=('front', 'rear'), ownership_only=False):
+def render(spec, objects, output, engine='cycles', silhouettes_only=False, gallery=False, fit_only=False, preview=False, views=('front', 'rear'), ownership_only=False, solo_parts=None):
     from bpy_extras.object_utils import world_to_camera_view
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
     from .capture_manifest import write_manifest, prepare_capture
+    from .capture_manifest import selected_solos
+    solo_labels = selected_solos(spec['labels'], solo_parts)
     from .ownership import assign_materials, materials_match, cloak_owners, require_solos, sagittal_normal, ARMATURE_UP_AXIS, uses_body_side_ownership
     generated = set()
     prepare_capture(output, 'fit' if fit_only else 'preview' if preview else 'full')
@@ -196,11 +198,11 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
                 capture(view, 'silhouette')
         # Body is split by weight region before rendering: solos retain hidden anatomy.
             if not preview:
-                for part in spec['labels']:
+                for part in solo_labels:
                     capture(view, 'silhouette', part)
                     move_capture(f'{view}_silhouette.png', f'{view}_solo_{part}.png')
                 solo_counts[view] = {}
-                for part in spec['labels']:
+                for part in solo_labels:
                     image = bpy.data.images.load(str(output / f'{view}_solo_{part}.png'), check_existing=False)
                     solo_counts[view][part] = sum(a >= .5 for a in image.pixels[3::4])
                     bpy.data.images.remove(image)
@@ -223,7 +225,9 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     if joint_path.exists() and len(views) == 1:
         joints = {**json.loads(joint_path.read_text()), **joints}
     joint_path.write_text(json.dumps(joints, indent=2) + '\n')
-    mode = 'ownership' if ownership_only else 'fit' if fit_only else 'preview' if preview else 'silhouettes' if silhouettes_only else 'full'
+    # A bounded batch cannot certify a full delivery. Its caller must combine
+    # all independently hash-checked batches and validate the complete capture.
+    mode = 'ownership' if ownership_only or solo_parts is not None else 'fit' if fit_only else 'preview' if preview else 'silhouettes' if silhouettes_only else 'full'
     if facing is not None:
         generated.update(('front_torso.png', 'front_torso_frontal_control.png'))
     report = json.loads((output / 'build_report.json').read_text())
@@ -238,7 +242,7 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         path.write_text(json.dumps({'rule': 'body_sagittal_plane', 'pieces': body_side_report,
             'view_owner_hashes': {**previous.get('view_owner_hashes', {}), **view_owner_hashes}}, indent=2) + '\n')
     if solo_counts:
-        missing = {view: [name for name in spec['labels'] if counts.get(name, 0) <= 0]
+        missing = {view: [name for name in solo_labels if counts.get(name, 0) <= 0]
                    for view, counts in solo_counts.items()}
         report['checks']['required_solo_coverage'] = not any(missing.values())
         report['passed'] = all(report['checks'].values())
@@ -248,5 +252,5 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         # Retain diagnostic outputs, but never report a passing capture when a
         # required rig label is empty. The strict gate runs for every view.
         for counts in solo_counts.values():
-            require_solos(spec['labels'], counts)
+            require_solos(solo_labels, counts)
     return facing

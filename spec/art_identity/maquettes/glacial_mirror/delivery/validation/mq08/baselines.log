@@ -1,0 +1,74 @@
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/hoarfrost_seer/clean_project/spec/art_identity/maquettes/hoarfrost_seer/spec_native.json
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/hoarfrost_seer/source_rear/clean_project/spec/art_identity/maquettes/hoarfrost_seer/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-6f15f6d568304522a10fe38a72b22f20
+BLENDER_BRIDGE_STARTED: mq03-6f15f6d568304522a10fe38a72b22f20
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-588d941176b84f8585ff42abaefabaa6
+BLENDER_BRIDGE_STARTED: mq03-588d941176b84f8585ff42abaefabaa6
+MQ08_BRIDGE: capture; exit=0
+CLEAN_REGENERATION: PASS; hoarfrost_seer; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gale_herald/clean_project/spec/art_identity/maquettes/gale_herald/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-078205c338694151b5485c3f93c66f91
+BLENDER_BRIDGE_STARTED: mq03-078205c338694151b5485c3f93c66f91
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-83cac530e8ab45fdadc40089a2f9f65f
+BLENDER_BRIDGE_STARTED: mq03-83cac530e8ab45fdadc40089a2f9f65f
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-20eb922048704aaabc9dc03cf647d63d
+BLENDER_BRIDGE_STARTED: mq03-20eb922048704aaabc9dc03cf647d63d
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; gale_herald; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-57213da8e9554866bcc8aff56df85f54
+BLENDER_BRIDGE_STARTED: mq03-57213da8e9554866bcc8aff56df85f54
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-dd33c84a32a5450eaf2d5e0ec7107148
+BLENDER_BRIDGE_STARTED: mq03-dd33c84a32a5450eaf2d5e0ec7107148
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-ce2abc0f1cfd4069a58925f5a3f98fef
+BLENDER_BRIDGE_STARTED: mq03-ce2abc0f1cfd4069a58925f5a3f98fef
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; arc_thrall; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/gloam_stalker/clean_project/spec/art_identity/maquettes/gloam_stalker/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-3c299c54dddc4b43a8a01606dfe56229
+BLENDER_BRIDGE_STARTED: mq03-3c299c54dddc4b43a8a01606dfe56229
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-e600f4e6f1434918856216945f3a5de5
+BLENDER_BRIDGE_STARTED: mq03-e600f4e6f1434918856216945f3a5de5
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-0f36127c0a9044acbaf0fb5fab53b248
+BLENDER_BRIDGE_STARTED: mq03-0f36127c0a9044acbaf0fb5fab53b248
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; gloam_stalker; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/burrow_grub/clean_project/spec/art_identity/maquettes/burrow_grub/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-72a237d0ac6b4b0e9946107f79dcb6a4
+BLENDER_BRIDGE_STARTED: mq03-72a237d0ac6b4b0e9946107f79dcb6a4
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-675a94b22f674e9c8b70768bc3db4447
+BLENDER_BRIDGE_STARTED: mq03-675a94b22f674e9c8b70768bc3db4447
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-6bb98b7d9b984e238086cc2414bc5b65
+BLENDER_BRIDGE_STARTED: mq03-6bb98b7d9b984e238086cc2414bc5b65
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; burrow_grub; canonical_png_sha256=true
+SOURCE_RECIPE: PASS; /Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/ember_tick/clean_project/spec/art_identity/maquettes/ember_tick/spec_native.json
+BLENDER_BRIDGE_SUBMITTED: mq03-50bdf2c14a654226a68e3e5fabb1e9fb
+BLENDER_BRIDGE_STARTED: mq03-50bdf2c14a654226a68e3e5fabb1e9fb
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-1a53fe714af24318b04169e9b832888b
+BLENDER_BRIDGE_STARTED: mq03-1a53fe714af24318b04169e9b832888b
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-1140565ba8b3441688ed609cc2b4dd4f
+BLENDER_BRIDGE_STARTED: mq03-1140565ba8b3441688ed609cc2b4dd4f
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; ember_tick; canonical_png_sha256=true
+BLENDER_BRIDGE_SUBMITTED: mq03-94446c74c1ef48188e37e2cc503daa11
+BLENDER_BRIDGE_STARTED: mq03-94446c74c1ef48188e37e2cc503daa11
+MQ08_BRIDGE: build; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-06bff67923d34569b74eac8bf2629834
+BLENDER_BRIDGE_STARTED: mq03-06bff67923d34569b74eac8bf2629834
+MQ08_BRIDGE: front_preview; exit=0
+BLENDER_BRIDGE_SUBMITTED: mq03-8e9982600053418a84e3f0d9cd7316ff
+BLENDER_BRIDGE_STARTED: mq03-8e9982600053418a84e3f0d9cd7316ff
+MQ08_BRIDGE: rear_preview; exit=0
+CLEAN_REGENERATION: PASS; frostglass_lancer; canonical_png_sha256=true

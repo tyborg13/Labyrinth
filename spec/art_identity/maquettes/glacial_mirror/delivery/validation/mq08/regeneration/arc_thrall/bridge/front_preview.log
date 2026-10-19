@@ -1,0 +1,11 @@
+00:00.285  blend            | Read blend: "/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/clean_project/spec/art_identity/maquettes/arc_thrall/build/maquette.blend"
+00:03.095  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/capture_jobs/batches/front_preview/front_silhouette.png'
+00:05.977  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/capture_jobs/batches/front_preview/front_silhouette.png'
+00:08.984  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/capture_jobs/batches/front_preview/front_parts.png'
+00:17.591  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/capture_jobs/batches/front_preview/front_clay.png'
+00:20.338  render           | Saved: '/Users/borgerding/workspace/Labyrinth.worktrees/mq-08/spec/art_identity/maquettes/glacial_mirror/proof/regeneration/arc_thrall/capture_jobs/batches/front_preview/front_silhouette.png'
+BLENDER_FACING: PASS
+MIRROR_BOUNDED_CAPTURE: PASS; view=front; solos=None
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 01:35:57)
+
+Blender quit
