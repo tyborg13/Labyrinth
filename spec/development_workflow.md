@@ -249,6 +249,18 @@ two en05 front sprites. It checks every baseline geometry/hash, the two added
 geometries, and the exact six merged enemy records including art-04's approved
 gust-shrike presentation. No manually copied fixture under `output/` is needed.
 
+## Godot sidecars
+
+Commit new assets and scripts together with their adjacent `.import`/`.uid`
+sidecars. Before committing, run `python3 tools/godot_task_runner.py --task-id
+<task-id> --stream -- godot --headless --path . --import`, then include the
+generated sidecars. Never add sidecars to `.gitignore`. Scratch output folders
+use `tools/output_gdignore.py` so Godot does not import them. The Python guard
+`tests/test_godot_sidecars.py` checks tracked sources and sidecars, respecting
+tracked `.gdignore` folders and rejecting sidecars whose source is untracked.
+Missing sidecars whose paths Git ignores are exempt; the guard prints their
+count so existing scratch/runtime folder exclusions remain visible.
+
 ## Visual Proof
 
 `tools/visual_probe_runner.py` provides:

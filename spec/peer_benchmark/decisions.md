@@ -240,3 +240,35 @@
 - Knees bend toward the figure's facing: screen-left in the front view (facing the lower-left), screen-right in the
   rear view (facing the upper-right). Straight-at-rest legs must declare it per view in case anatomy; bent legs keep
   their rest side. Recorded in `humanoid_cutout_rig.md` §3.
+
+## 2026-10-18 Thrall gait (rr-11 TODO_DESIGN items)
+- The Thrall's legs are almost straight at rest, and each view has one foreshortened leg. Decided: near-straight rest
+  knees (within 6°) take the facing policy; per-view `stride`/`trailing` leg roles; the pelvis never above rest, dipping
+  3 px after stride landings and under the jab; the knee gate checks peak bend per stride swing. The director revised
+  `staged/rr-11/motion_tracks.json` accordingly; the rules are in `humanoid_cutout_rig.md` §3.
+- purge-01 merged at 6302747af, then was reset off integration: the SFX sync harness failed deterministically
+  (`ambience.tharokh` loop waits after its state change) and the registration audit flagged
+  `magic_deck_guard_mutation_test.gd`. Final fix round: feedback 3.
+
+## 2026-10-19 master checkpoint (owner approval)
+- Owner, 2026-10-19: "After this batch of changes, let's go ahead and merge into master, just to checkpoint while we keep
+  making progress."
+- Batch = purge-02 (Purge polish) and pace-02 (enemy actions at 0.8×), the two owner notes in flight. When both are
+  merged into integration and the full suites pass at that exact HEAD, publish with `tools/parallel_task.py
+  authorize-publish` and `push` (lands on origin/master). The Thrall (rr-15) joins a later checkpoint after owner review,
+  unless it has landed by then.
+- 2026-10-19 sidecar noise (owner: "handle it permanently"): the director committed the 10,664 missing `.import`/`.uid`
+  sidecars of tracked assets (bf68dc2ce) and removed a stale `.uid`; qa-14 adds a guard test and a workflow note. When an
+  in-flight worktree syncs integration, first delete its untracked copies of the newly tracked sidecars, then merge and
+  run a headless import.
+- 2026-10-19 checkpoint PUBLISHED: `origin/master` = 209cbc67c (integration at that commit: Godot PASS, Python 1019 OK;
+  `authorize-publish` recorded at 02:31Z). Included pace-02, purge-02/03 (+ a director null-viewport guard, Codex
+  SIGNOFF), qa-14 and the sidecar commit. The primary checkout's local master update was skipped (untracked files);
+  the owner's call. Follow-up: the optional Purge lifecycle regression suggested by the guard review.
+
+## 2026-10-19 Thrall rear tube aim (rr-15)
+- The rear jab and tether looked backward. The rr-15 trace showed the shared tube targets fell inside the arm's minimum
+  reach in the rear (43 px against 56.47), so the elbow folded outward. Decided: per-view key overrides
+  (`view_keys.<view>`) in motion data. The rear jab contact aims about 90% extended toward the rear facing at shoulder
+  height (forward 209 / lift 50). The rear tether hold is forward 206 / lift 63. A new gate keeps every two-bone target
+  inside its reachable annulus.

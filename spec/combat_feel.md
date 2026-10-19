@@ -41,6 +41,8 @@ The struck-unit flash is white, peaks on the first frame after hit-stop (85% ene
 - Enemy travel is bounded by 0.20 s per tile. One existing target-frame interval is reserved for submission so the measured tile interval stays within the bound. Hero travel and authored gait phases/distances remain unchanged. This enemy scheduling cap supersedes the older native enemy travel timings in actor_presentation.md.
 - Existing 0.06 s movement settle remains; the extra 0.20 s intent-caption wait is removed.
 - Superseded by pace-01 (owner, playtest 10, 2026-10-18: actions were too fast to follow): an enemy action's hit reaction and damage numbers play their full authored duration, then `ENEMY_ACTION_SETTLE_SECONDS` = 0.15 s before the next actor; each acting enemy after the first holds its caption `ENEMY_ACTION_LEAD_SECONDS` = 0.25 s before its wind-up. Move-only turns add no wait. The staged round measured Normal 4.267 → 5.364 s, Fast 3.680 → 4.638 s, Fastest 3.098 → 3.817 s (budget ≤ 9.0 s at Normal).
+- pace-02 (owner enemy-pacing verdict, 2026-10-19): `ENEMY_ACTION_SPEED_SCALE = 0.80` multiplies combat speed from each enemy action's wind-up through its complete hit reaction and damage numbers. Effective Normal / Fast / Fastest action scales are 0.80 / 1.20 / 1.60. This includes attacks, casts, push/pull, AoE, lightning, ally support, status damage, mechanic views and maquette actions. The existing presentation clock supplies the scale; no authored animation is shortened, repeated or retuned.
+- Caption/banner leads and the 0.15 s post-action settle retain ordinary combat speed. Travel, including approach walks embedded in mechanic actions, temporarily restores that speed and resumes the action clock afterward. Hero cards, real-time hit-stop, audio pitch and Reduced Motion behavior retain their existing rules.
 - (Before pace-01) Floating feedback advanced using a 0.20 s action-advance beat.
 - Turn-clock transitions are serialized and may coalesce pending order updates while actor actions continue. Final order work settles before the hero UI refresh, avoiding stale child/tween references.
 - Independent enemy death dissolves retain their authored durations and overlap subsequent actors. A dying actor or an action targeting its tile waits for the dependency. Hero death retains the established blocking terminal presentation.
@@ -189,3 +191,59 @@ real victory beat, retaining scope bookkeeping until normal cleanup. A restored
 scale remains at the positive base during subsequent scope processing. Deferred
 refresh callbacks recheck attachment, deletion and animation-lock state, and
 exiting pacing never queues a stage refresh.
+
+## pace-02 verification and director capture
+
+Headless `pass_to_hero_banner` measurements against merged pace-01 (`4e874c34f`):
+
+| Speed | Before | After |
+| --- | ---: | ---: |
+| Normal | 5.326 s | 6.010 s |
+| Fast | 4.600 s | 5.053 s |
+| Fastest | 3.805 s | 4.115 s |
+
+Both probes passed resolver state/RNG equality at all three speeds. Normal
+remains within 9.0 s. These are scheduling measurements, not renderer proof.
+Logs and isolated timeline directories are indexed by the probe output in
+`output/pace-02/logs/before-baseline-final.log` and `after-final.log`.
+
+The action-clock suite exercises every action kind, all three speeds and both
+Reduced Motion settings, including 12 real mechanic routes (en02/en04/en05/en06,
+Seer, Thrall and other maquettes), nested travel, hero cards, modal restore,
+director scale and hit-stop restore. Timed presentations must reach their final
+authored frame without replay and retain their complete authored duration.
+Mutations reject restored 1.0 action speed, slowed movement, stretched caption
+lead and stretched settle, alongside the four existing pacing mutations.
+Review feedback 1 additionally checks identical Fade/Ambush blinks and an
+unaligned Dive at all three speeds, with Reduced Motion on and off. Blink and
+approach submissions use movement speed; the following strike/flight uses the
+0.80 action multiplier. A mutation removes both production path-animation
+movement guards and must fail the independently observed approach-scale check.
+
+All five SFX frame profiles run at 1.0 / 1.5 / 2.0 and 0.8 / 1.2 / 1.6.
+Each added scale inherits every count floor of its corresponding combat speed;
+the approved sync baseline is unchanged. The added runs pair fixture RNG inputs
+with the original runs. Synthetic stagger fixtures submit their final resolved
+board after the authored attack, as production callers do, so coarse sampling
+cannot drop a target. Cue-frame, sample-length and onset checks remain intact.
+
+Proof for the design owner (windowed; fresh output directories):
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/pace-02 && python3 tests/capture_pace_round.py --before --output-dir output/pace-02/captures/before
+cd /Users/borgerding/workspace/Labyrinth.worktrees/pace-02 && python3 tests/capture_pace_round.py --output-dir output/pace-02/captures/after
+```
+
+The helper uses `tools/visual_probe_runner.py` with
+`tests/pace_round_proof_contract.json` at 1920×1080, 100% UI scale, 60 fps,
+retaining game audio. Each directory contains its `before.mp4` or `after.mp4`,
+`capture.json` and `renderer-manifest.json`; the manifest locates the validated
+`round_start.png` / `round_end.png` captures. Inspect both clips. No windowed run
+was attempted in the implementation sandbox. Full suites, the inspection
+fixture, commit, peer review and publication remain assigned to the director.
+
+Chosen defaults (test-only): authored clock sample 0.08 s, real sample tolerance
+0.025 s, external director fixture scale 0.5, authored-duration rounding tolerance
+0.001 s, and nested movement offset `(0, 1)`. Mechanic cases reuse existing engine
+fixtures and authored intents; no player-visible value or asset was chosen.
+No `TODO_DESIGN_` placeholder was needed.

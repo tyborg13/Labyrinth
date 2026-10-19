@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Capture pace-01's staged Normal round at 1920x1080/60 fps with game audio.
+"""Capture pace-02's staged Normal round at 1920x1080/60 fps with game audio.
 
 The visual-probe runner owns launch isolation, renderer leasing, failure scanning,
 and semantic PNG validation. This adapter adds Godot Movie Maker arguments to
@@ -60,9 +60,21 @@ def encode_command(movie: Path, output: Path, start: int, end: int) -> list[str]
             "-c:a", "aac", "-b:a", AUDIO_BITRATE, "-ar", str(AUDIO_SAMPLE_RATE), "-movflags", "+faststart", str(output)]
 
 
+def probe_arguments(manifest_path: Path, *, before: bool) -> list[str]:
+    arguments = ["tests/combat_feel_probe.gd", "--project", str(ROOT), "--task-id", "pace-02",
+                 "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy",
+                 "--timeout", str(CAPTURE_TIMEOUT_SECONDS), "--expect-size", "1920x1080",
+                 "--godot-home-root", str(CAPTURE_HOME_ROOT),
+                 "--proof-contract", str(ROOT / "tests/pace_round_proof_contract.json"),
+                 "--result-manifest", str(manifest_path), "--", "--round-only"]
+    if before:
+        arguments.append("--baseline")
+    return arguments
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--before", action="store_true", help="Use the exact pace-01 parent pacing")
+    parser.add_argument("--before", action="store_true", help="Use the exact merged pace-01 pacing (4e874c34f)")
     parser.add_argument("--output-dir", type=Path, required=True, help="Fresh capture directory")
     args = parser.parse_args()
     for executable in ("godot", "ffmpeg", "ffprobe"):
@@ -73,15 +85,7 @@ def main() -> int:
     movie = directory / "round.avi"
     manifest_path = directory / "renderer-manifest.json"
     visual.build_command = lambda opts, driver, log: movie_command(opts, driver, log, movie)
-    probe_args = ["tests/combat_feel_probe.gd", "--project", str(ROOT), "--task-id", "pace-01",
-                  "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy",
-                  "--timeout", str(CAPTURE_TIMEOUT_SECONDS), "--expect-size", "1920x1080",
-                  "--godot-home-root", str(CAPTURE_HOME_ROOT),
-                  "--proof-contract", str(ROOT / "tests/pace_round_proof_contract.json"),
-                  "--result-manifest", str(manifest_path), "--", "--round-only"]
-    if args.before:
-        probe_args.append("--baseline")
-    if visual.main(probe_args):
+    if visual.main(probe_arguments(manifest_path, before=args.before)):
         return 1
     manifest = json.loads(manifest_path.read_text())
     # The runner preserves the Godot log inside the attempt's isolated HOME.

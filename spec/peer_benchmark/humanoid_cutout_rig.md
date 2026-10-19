@@ -70,6 +70,14 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
   - Feet are two-bone targets for thigh and shin, and the knee keeps its rest bend side.
   - Knees bend toward the figure's facing: screen-left in the front view, screen-right in the rear view. A leg that is
     straight at rest declares this per view in its case anatomy (required; missing data fails).
+    A rest knee within the case's `knee_policy.near_straight_deg` of straight (Thrall: 6°) counts as straight.
+  - **Leg roles per view:** `stride` is the long camera-side leg, which plants world steps; `trailing` is the
+    foreshortened leg, which follows the body with a small shuffle and is never world-planted. In flat 2D a
+    foreshortened leg can't reach a planted foot one step away.
+  - The pelvis never rises above its rest height in walks or actions; it dips after each stride landing. A planted foot
+    stays within about ±0.08 of a step of the hip (Thrall geometry), or the near-straight legs overreach.
+  - Knee gate: for each stride swing, the peak bend is at least 15°, and at the apex the swing knee bends more than the
+    stance knee. Lift-off and touch-down frames are naturally near-straight.
   - Each foot steps on the floor: planted while in stance, lifted and carried forward in swing.
   - The pelvis dips 1–2 px at each passing, so the stance knee visibly flexes.
   - The swing knee bends more than the stance knee.

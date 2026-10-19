@@ -39,6 +39,8 @@ var source_hashes: Dictionary = {}
 var combat_scale: float = 1.0
 var frame_profile: String = "fixed_60"
 var length_failures: Array[String]
+var _reference_case_rng: Dictionary = {}
+var _case_occurrences: Dictionary = {}
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -46,10 +48,15 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var scales: Array[float]
-	scales.assign([1.0, 1.5, 2.0])
+	# Existing card/movement speeds plus pace-02's effective enemy-action clocks.
+	scales.assign([1.0, 1.5, 2.0, 0.8, 1.2, 1.6])
 	var profiles: Array[String] = _program_frame_profiles()
 	for argument: String in OS.get_cmdline_user_args():
-		if argument.begins_with("--speed="): scales.assign([float(argument.trim_prefix("--speed="))])
+		if argument.begins_with("--speed="):
+			var requested: float = float(argument.trim_prefix("--speed="))
+			scales.assign([requested])
+			for base: float in [1.0, 1.5, 2.0]:
+				if is_equal_approx(requested,base*0.80): scales.assign([base,requested])
 		if argument.begins_with("--frames="): profiles.assign([argument.trim_prefix("--frames=")])
 	for profile: String in profiles:
 		frame_profile = profile
@@ -74,6 +81,7 @@ func _verify_program_lengths() -> void:
 	if not measured_samples.is_empty(): Lengths.verify(measured_samples, length_failures)
 
 func _run_scale() -> void:
+	_case_occurrences.clear()
 	clock = Clock.new()
 	clock.configure(frame_profile)
 	var first_row: int = rows.size()
@@ -195,7 +203,33 @@ func _begin(label: String) -> void:
 	walk_goals.clear()
 	events.clear()
 	clock.frames.clear()
+	_match_reference_case_rng(label)
 	clock.observing = true
+
+func _match_reference_case_rng(label: String) -> void:
+	# Pair each new clock with the exact RNG inputs of its existing speed.
+	# Different frame sampling can consume a different number of area variants;
+	# that must not accidentally remove an unrelated probabilistic cue later.
+	var base_speed: float = combat_scale
+	var enemy_clock: bool = false
+	for base: float in [1.0, 1.5, 2.0]:
+		if is_equal_approx(combat_scale,base*0.80):
+			base_speed = base
+			enemy_clock = true
+	var occurrence: int = int(_case_occurrences.get(label,0))
+	_case_occurrences[label] = occurrence+1
+	var key: String = "%s/%s/%s/%d" % [frame_profile,base_speed,label,occurrence]
+	if not enemy_clock:
+		var cues: Dictionary = {}
+		for cue: String in bank.cues:
+			cues[cue] = {"rng_state":bank.cues[cue]["rng"].state,"next":bank.cues[cue]["next"]}
+		_reference_case_rng[key] = {"serial":router.get("_action_serial"),"cues":cues}
+	elif _reference_case_rng.has(key):
+		var reference: Dictionary = _reference_case_rng[key]
+		router.set("_action_serial",reference["serial"])
+		for cue: String in reference["cues"]:
+			bank.cues[cue]["rng"].state = reference["cues"][cue]["rng_state"]
+			bank.cues[cue]["next"] = reference["cues"][cue]["next"]
 
 func _state() -> Dictionary:
 	return (scene.get("_combat_state") as Dictionary).duplicate(true)
@@ -327,6 +361,15 @@ func _present_hit(label: String, action: Dictionary, weapon: String, count: int 
 			shown["floating_texts"] = scene.call("_player_action_floating_texts", before, after)
 		scene.call("_render_board_state", display if contact else before, shown)
 	])
+	if int(contacts["count"]) < count:
+		# The synthetic stagger introduces one target per sampled action frame.
+		# As in the real caller, submit the complete resolved board afterward:
+		# coarse sampling must never silently omit the remaining targets. This
+		# neither replays nor extends the authored attack animation.
+		scene.call("_render_board_state", after, {
+			"impact_actor_keys":scene.call("_player_action_impact_actor_keys",before,after),
+			"floating_texts":scene.call("_player_action_floating_texts",before,after)})
+		for index: int in range(8): clock.step(self)
 	if supplied_sources.is_empty() and simultaneous and events.filter(func(e: Dictionary) -> bool: return e["cue"] == "spell.fire" and e["result"] == "played").size() != 1:
 		failures.append("Same-frame area must have one primary voice")
 	_finish(before)

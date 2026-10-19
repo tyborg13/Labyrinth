@@ -13,12 +13,15 @@ const FIXTURE_HIDDEN_TILE: Vector2i = Vector2i(6, 4)
 const FIXTURE_HIDDEN_RANGE: int = 6
 const CLOCK_TOLERANCE_SECONDS: float = 0.08
 const CLEANUP_FRAMES: int = 20
+const Clocks = preload("res://tests/suites/combat_enemy_action_clock_suite.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
+	await Clocks.run(tree, expect)
 	await ally_support(tree, expect)
 	await _bleed_settle(tree, expect, false)
 	await _bleed_settle(tree, expect, true)
 	for reduced: bool in [false, true]: await _clipped_umbra_settle(tree, expect, reduced)
+	print("COMBAT ACTION PACING SUITE: complete")
 
 static func ally_support(tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
 	var scene: Node = await _scene(tree)
@@ -129,6 +132,8 @@ static func _clipped_umbra_settle(tree: SceneTree, expect: Callable, reduced: bo
 
 static func _scene(tree: SceneTree) -> Node:
 	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	scene.get("_combat_pacing").free()
+	scene.set_script(Clocks.ObservedScene)
 	tree.root.add_child(scene)
 	await tree.process_frame
 	Motion._install_fixture(scene, false)
@@ -155,6 +160,9 @@ static func _rows(pacing: Node, phase: String) -> Array[Dictionary]:
 	return rows
 
 static func _expect_one_settle(pacing: Node, expect: Callable, message: String) -> void:
+	var samples: Array = pacing.scene.get("action_scales")
+	var action_scale: float = preload("res://scripts/settings_store.gd").combat_speed_scale(pacing.scene.get("_settings"))*0.80
+	expect.call(not samples.is_empty() and samples.all(func(scale: float) -> bool: return is_equal_approx(scale,action_scale)),message + " renders at 0.80 times the selected combat speed")
 	var settles: Array[Dictionary] = _rows(pacing, "post-action settle")
 	expect.call(settles.size() == 1, message + " has exactly one settle")
 	if settles.size() == 1: _expect_clock_duration(settles[0], 0.15, expect, message + " settles for 0.15 s")
