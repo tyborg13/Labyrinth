@@ -44,8 +44,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
 - Next (in order):
-  1. rr-15 Codex review → merge rr-15 (contains rr-11) → clean rr-11/rr-15 worktrees. Owner verdicts on
-     thrall-rig-v2, purge-polish, enemy-pacing-2.
+  1. Running: rr-16 (Thrall review fixes on rr-15) → windowed recheck if compiled output changed → review → merge
+     (contains rr-11, rr-15) → clean rr-11/rr-15/rr-16. mq-08 (Mirror shoulder; bridge running for mq-08) → director
+     repaint of both views → Mirror rig. rr-17 (Storm Capacitor rig). Owner verdicts: thrall-rig-v2, purge-polish,
+     enemy-pacing-2.
   2. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
      conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
   3. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
