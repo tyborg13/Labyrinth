@@ -2,6 +2,7 @@ extends RefCounted
 ## Enemy action clock coverage, independent of gameplay tuning and assets.
 const Pacing = preload("res://scripts/combat_pacing.gd")
 const Motion = preload("res://tests/suites/combat_motion_timing_suite.gd")
+const En03 = preload("res://tests/suites/en03_enemies_suite.gd")
 const En02 = preload("res://tests/suites/en02_enemies_suite.gd")
 const En05 = preload("res://tests/suites/en05_enemies_suite.gd")
 const En06 = preload("res://tests/suites/en06_enemies_suite.gd")
@@ -12,6 +13,8 @@ const AUTHORED_DURATION_TOLERANCE_SECONDS: float = 0.001
 const CLOCK_SAMPLE_SECONDS: float = 0.08
 const CLOCK_SAMPLE_TOLERANCE_SECONDS: float = 0.025
 const DIRECTOR_FIXTURE_SCALE: float = 0.5
+const BLINK_FIXTURE_FROM: Vector2i = Vector2i(6, 4)
+const BLINK_FIXTURE_TO: Vector2i = Vector2i(3, 4)
 
 class ClockOwner:
 	extends Node
@@ -22,30 +25,13 @@ class ClockOwner:
 	var modal: bool = false
 	func _controller_modal_visible() -> bool: return modal
 
-class ObservedScene:
-	extends "res://scripts/run_scene.gd"
-	var action_scales: Array[float]
-	var movement_scales: Array[float]
-	var timed_presentations: Array[Dictionary]
-	var record_clocks: bool = false
-	func _render_board_state(state: Dictionary, presentation: Dictionary, stable: bool = false) -> void:
-		if _combat_pacing.enemies_active and bool(_combat_pacing.get("_enemy_action_active")) and Engine.time_scale > 0.0:
-			action_scales.append(Engine.time_scale)
-		if record_clocks and presentation.has("unit_world_positions") and Engine.time_scale > 0.0:
-			movement_scales.append(Engine.time_scale)
-		super._render_board_state(state, presentation, stable)
-	func _play_timed_animation_frames(count: int, seconds: float, render_frame: Callable) -> void:
-		var began: int = _combat_pacing.presentation_usec()
-		var frames: Array[int]
-		await super._play_timed_animation_frames(count, seconds, func(frame: int) -> void:
-			frames.append(frame)
-			render_frame.call(frame))
-		if record_clocks:
-			timed_presentations.append({"count":count,"seconds":seconds,"frames":frames,"elapsed":float(_combat_pacing.presentation_usec()-began)/1000000.0})
+const ObservedScene = preload("res://tests/helpers/combat_action_clock_scene.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
 	await action_clocks(tree, expect)
 	await _nested_movement(tree, expect)
+	await veil_blinks(tree, expect)
+	await unaligned_dive(tree, expect)
 	await _mechanic_views(tree, expect)
 
 static func action_clocks(tree: SceneTree, expect: Callable, pacing_script: Script = Pacing) -> void:
@@ -122,6 +108,56 @@ static func _nested_movement(tree: SceneTree, expect: Callable) -> void:
 	await tree.process_frame
 	print("COMBAT NESTED MOVEMENT CLOCKS: three speeds / reduced motion / action resume checked")
 
+static func veil_blinks(tree: SceneTree, expect: Callable) -> void:
+	var scene: Node = await _scene(tree)
+	for speed: String in ["normal", "fast", "fastest"]:
+		for reduced: bool in [false, true]:
+			for intent: String in ["fade", "ambush"]:
+				var before: Dictionary = En03.state([En03.enemy("gloam_stalker",1,BLINK_FIXTURE_FROM,intent)])
+				before["enemies"][0]["veiled"] = intent == "ambush"
+				var resolved: Dictionary = En06.resolve_action(before)
+				var step: Dictionary = resolved["step"]
+				expect.call(step["from"] == BLINK_FIXTURE_FROM and step["to"] == BLINK_FIXTURE_TO,"Fade and Ambush fixtures share the same nonzero blink")
+				_start(scene,before,speed,reduced)
+				await scene.call("_animate_enemy_phase_steps",before,[step])
+				scene.get("_combat_pacing").end_scope()
+				var scale: float = Settings.combat_speed_scale(scene.get("_settings"))
+				var effects: Dictionary = scene.get("effect_scales")
+				var blinks: Array = effects.get("blink",[])
+				var strikes: Array = effects.get("melee",[])
+				expect.call(not blinks.is_empty() and blinks.all(func(value: float) -> bool: return is_equal_approx(value,scale)),"Veil blink uses combat speed: %s / %s / reduced=%s" % [intent,speed,reduced])
+				if intent == "ambush":
+					expect.call(not strikes.is_empty() and strikes.all(func(value: float) -> bool: return is_equal_approx(value,scale*0.80)),"Ambush strike resumes the enemy action scale at %s reduced=%s" % [speed,reduced])
+				else: expect.call(strikes.is_empty(),"Fade remains movement only")
+				expect.call(before["enemies"] == resolved["state"]["enemies"] and before["player"] == resolved["state"]["player"],"Veil presentation preserves the resolved blink/strike outcome")
+				_verify_presentations(scene,expect,"Veil "+intent)
+	scene.queue_free()
+	await tree.process_frame
+	print("COMBAT VEIL BLINK CLOCKS: Fade / Ambush / three speeds / reduced motion / independent blink and strike scales checked")
+
+static func unaligned_dive(tree: SceneTree, expect: Callable, scene_script: Script = ObservedScene) -> void:
+	var scene: Node = await _scene(tree,scene_script)
+	for speed: String in ["normal", "fast", "fastest"]:
+		for reduced: bool in [false, true]:
+			var before: Dictionary = En05.shrike()
+			before["enemies"][0]["pos"] = En05.TEST_UNALIGNED_START
+			var resolved: Dictionary = En06.resolve_action(before)
+			var step: Dictionary = resolved["step"]
+			expect.call((step.get("approach_path",[]) as Array).size() > 1 and not bool(step.get("cancelled",false)),"Unaligned Dive fixture must walk before its attack")
+			_start(scene,before,speed,reduced)
+			await scene.call("_animate_enemy_phase_steps",before,[step])
+			scene.get("_combat_pacing").end_scope()
+			var scale: float = Settings.combat_speed_scale(scene.get("_settings"))
+			var approaches: Array = scene.get("movement_scales")
+			var attacks: Array = scene.get("effect_scales").get("dive_line",[])
+			expect.call(not approaches.is_empty() and approaches.all(func(value: float) -> bool: return is_equal_approx(value,scale)),"Unaligned Dive approach uses combat speed at %s reduced=%s" % [speed,reduced])
+			expect.call(not attacks.is_empty() and attacks.all(func(value: float) -> bool: return is_equal_approx(value,scale*0.80)),"Unaligned Dive attack resumes the enemy action scale at %s reduced=%s" % [speed,reduced])
+			expect.call(before["enemies"] == resolved["state"]["enemies"] and before["player"] == resolved["state"]["player"],"Unaligned Dive presentation preserves the resolved approach/attack outcome")
+			_verify_presentations(scene,expect,"Unaligned Dive")
+	scene.queue_free()
+	await tree.process_frame
+	print("COMBAT UNALIGNED DIVE CLOCKS: nonzero approach / three speeds / reduced motion / independent approach and attack scales checked")
+
 static func _mechanic_views(tree: SceneTree, expect: Callable) -> void:
 	var scene: Node = await _scene(tree)
 	var engine := Combat.new()
@@ -164,10 +200,10 @@ static func _mechanic_views(tree: SceneTree, expect: Callable) -> void:
 	await tree.process_frame
 	print("COMBAT MECHANIC ACTION CLOCKS: 12 routes / three speeds / reduced motion / complete authored presentations checked")
 
-static func _scene(tree: SceneTree) -> Node:
+static func _scene(tree: SceneTree, scene_script: Script = ObservedScene) -> Node:
 	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
 	scene.get("_combat_pacing").free()
-	scene.set_script(ObservedScene)
+	scene.set_script(scene_script)
 	tree.root.add_child(scene)
 	await tree.process_frame
 	Motion._install_fixture(scene,false)
@@ -182,6 +218,7 @@ static func _start(scene: Node, state: Dictionary, speed: String, reduced: bool)
 	scene.set("_animation_lock",true)
 	scene.get("action_scales").clear()
 	scene.get("movement_scales").clear()
+	scene.get("effect_scales").clear()
 	scene.get("timed_presentations").clear()
 	scene.set("record_clocks",true)
 	var pacing: Node = scene.get("_combat_pacing")

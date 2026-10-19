@@ -214,6 +214,11 @@ director scale and hit-stop restore. Timed presentations must reach their final
 authored frame without replay and retain their complete authored duration.
 Mutations reject restored 1.0 action speed, slowed movement, stretched caption
 lead and stretched settle, alongside the four existing pacing mutations.
+Review feedback 1 additionally checks identical Fade/Ambush blinks and an
+unaligned Dive at all three speeds, with Reduced Motion on and off. Blink and
+approach submissions use movement speed; the following strike/flight uses the
+0.80 action multiplier. A mutation removes both production path-animation
+movement guards and must fail the independently observed approach-scale check.
 
 All five SFX frame profiles run at 1.0 / 1.5 / 2.0 and 0.8 / 1.2 / 1.6.
 Each added scale inherits every count floor of its corresponding combat speed;
