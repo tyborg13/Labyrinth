@@ -16,5 +16,8 @@ also rejected that pattern as a limp on the Glacial Mirror. Every humanoid now w
    - detached components in rear frames 28–35.
    Re-run the native gate on the new walk and fix every failure by its root cause: joint continuations from the
    pieces' own edge texels, no exemptions.
-4. Then every gate passes headless in both views. List the exact windowed sequence. Proof captures stay gitignored.
+4. **Compact proof records** (the gait-01 rule): the case's committed `samples.json`, `gates.json` and
+   `native_gates.json` hold summaries, extrema and failures only. Full per-frame data goes to the gitignored proof
+   outputs. They are 3–9 MB each today.
+5. Then every gate passes headless in both views. List the exact windowed sequence. Proof captures stay gitignored.
    Run focused tests only.

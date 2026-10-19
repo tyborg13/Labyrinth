@@ -30,5 +30,8 @@ review. Do this round, then hand back:
      - rear `death` frames 19, 34;
      - rear `lob` frames 14, 31.
    - Re-run the native gate on the new cut and data, and fix every failure it reports.
-5. Then every gate passes headless in both views. List the exact windowed sequence. Proof captures stay gitignored.
+5. **Compact proof records** (the gait-01 rule): the case's committed `samples.json`, `gates.json` and
+   `native_gates.json` hold summaries, extrema and failures only. Full per-frame data goes to the gitignored proof
+   outputs. They are 3–9 MB each today.
+6. Then every gate passes headless in both views. List the exact windowed sequence. Proof captures stay gitignored.
    Run focused tests only.

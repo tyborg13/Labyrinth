@@ -28,5 +28,8 @@ native gates refused sheets and review. Do this round, then hand back:
      - front `mirror` frames 11–14, 17, 18.
    - Frame numbers refer to the old data. Re-run the native gate on the new data and fix every failure it reports,
      including any in the new `move`.
-4. Then every gate passes headless in both views. List the exact windowed sequence. Proof captures stay gitignored.
+4. **Compact proof records** (the gait-01 rule): the case's committed `samples.json`, `gates.json` and
+   `native_gates.json` hold summaries, extrema and failures only. Full per-frame data goes to the gitignored proof
+   outputs. They are 3–9 MB each today.
+5. Then every gate passes headless in both views. List the exact windowed sequence. Proof captures stay gitignored.
    Run focused tests only.
