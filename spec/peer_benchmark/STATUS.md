@@ -18,7 +18,7 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight (2026-10-18 afternoon; humanoid rig v2 + roster wave 1)
+## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
 - Merged on integration since playtest 10: map-02, cbt-01, boon-01, fix-05, flow-01, qa-07, qa-08, bug-01, mq-04,
   rr-05, det-01, rr-07, mq-05 (d2560b9c9), rr-12 (9fdb6462f), mq-06 (78d87f474), mq-07 (663a8e84e). Owner approved:
   section transition, Bloomer rr-05 clip, roster plan, Lancer look, Burrow Grub and Ember Tick rigs (rr-12).
@@ -31,7 +31,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   - det-02 and pace-01 merged; integration green at 4e874c34f (Godot PASS, Python 978 OK). The rr-05 owner-proof
     script and det-02's helper were fixed after the first full-suite run caught them.
   - rr-14 merged e08e4e296; purge-01 merged 3d8b22d4f (integration green: Godot PASS, Python 999 OK). Thrall v2:
-    rr-11 headless gates PASS, native gates 908 → rr-15 cleanup running. Inbox: enemy-pacing, purge-redesign.
+    rr-11 + rr-15 committed 4f287165b: windowed native gates 0 errors, sheets/idle/production/review PASS; reach gate
+    reports overreach (death flings, front jab claw) without failing. Codex review of the range running. Inbox:
+    thrall-rig-v2, purge-polish, enemy-pacing-2 open (pace-02/purge-03 merged and published).
   - 2026-10-18 cleanup: removed 15 merged worktrees (93 GB). Kept: anim-01/02 (shelved, unmerged), rr-06/rr-08 (parked),
     qa-05 (merged, but 2 uncommitted edits: scripts/asset_loader.gd, tests/helpers/program_sub_suites.gd; inspect
     before removing), peer-benchmark-playtest-10 (frozen playtest), gear-devlog-capture.
@@ -42,8 +44,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
 - Next (in order):
-  1. rr-11 (Thrall v2) review → windowed proof → inbox. purge-01 merge → inbox (Purge screens). Owner verdicts on
-     enemy-pacing and Purge.
+  1. rr-15 Codex review → merge rr-15 (contains rr-11) → clean rr-11/rr-15 worktrees. Owner verdicts on
+     thrall-rig-v2, purge-polish, enemy-pacing-2.
   2. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
      conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
   3. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
