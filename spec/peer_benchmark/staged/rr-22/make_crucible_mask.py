@@ -1,10 +1,13 @@
 """Director-authored crucible ownership masks for the Slag Mortar (rr-22 feedback 2).
 
 The crucible owns every opaque pixel inside its polygon: the iron rim and pot body, the molten slag and the leather
-straps where they lie on the pot. Head, shoulder and harness skin outside the polygon belong to their own pieces.
+straps where they lie on the pot. It also owns the rim's own dark outline where the pot meets the background: opaque
+pixels within 2 px of the polygon and within 2 px of transparent background that are dark (max channel < 70) or
+grey (saturation < 0.30). That never reaches the head's or the shoulder's outline where they overlap the pot. Head, shoulder and harness skin outside the polygon belong to their own pieces.
 Coordinates are on the 255 px processed paintings (spec/art_identity/jobs/slag_mortar/mq9_<view>).
 """
 from pathlib import Path
+import numpy as np
 from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -22,8 +25,25 @@ def mask(view: str) -> Image.Image:
     art = Image.open(ROOT / f"spec/art_identity/jobs/slag_mortar/mq9_{view}/processed.png").convert("RGBA")
     poly = Image.new("L", art.size, 0)
     ImageDraw.Draw(poly).polygon(POLYGONS[view], fill=255, outline=255)
-    alpha = art.getchannel("A").point(lambda a: 255 if a else 0)
-    return Image.composite(poly, Image.new("L", art.size, 0), alpha)
+    rgba = np.asarray(art).astype(int)
+    opaque = rgba[..., 3] > 0
+    inside = (np.asarray(poly) > 0) & opaque
+    hi = rgba[..., :3].max(axis=2)
+    lo = rgba[..., :3].min(axis=2)
+    rim_like = (hi < 70) | ((hi - lo) / np.maximum(hi, 1) < 0.30)
+    outline = opaque & _grow(~opaque, 2) & _grow(inside, 2) & rim_like
+    return Image.fromarray(((inside | outline) * 255).astype(np.uint8))
+
+
+def _grow(mask: np.ndarray, steps: int) -> np.ndarray:
+    for _ in range(steps):
+        grown = mask.copy()
+        grown[1:] |= mask[:-1]
+        grown[:-1] |= mask[1:]
+        grown[:, 1:] |= mask[:, :-1]
+        grown[:, :-1] |= mask[:, 1:]
+        mask = grown
+    return mask
 
 
 if __name__ == "__main__":
