@@ -249,3 +249,11 @@
 - purge-01 merged at 6302747af, then was reset off integration: the SFX sync harness failed deterministically
   (`ambience.tharokh` loop waits after its state change) and the registration audit flagged
   `magic_deck_guard_mutation_test.gd`. Final fix round: feedback 3.
+
+## 2026-10-19 master checkpoint (owner approval)
+- Owner, 2026-10-19: "After this batch of changes, let's go ahead and merge into master, just to checkpoint while we keep
+  making progress."
+- Batch = purge-02 (Purge polish) and pace-02 (enemy actions at 0.8×), the two owner notes in flight. When both are
+  merged into integration and the full suites pass at that exact HEAD, publish with `tools/parallel_task.py
+  authorize-publish` and `push` (lands on origin/master). The Thrall (rr-15) joins a later checkpoint after owner review,
+  unless it has landed by then.
