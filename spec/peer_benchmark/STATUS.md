@@ -43,19 +43,17 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
-- Next (in order), 2026-10-19 late morning:
-  1. Integration: mq-10 (edb555b5a) and rr-18 Mirror (8683d6b1d) merged; post-merge oracle fixes for the promoted
-     Mirror; Godot PASS after the fixes, Python 1 count fixed (passes alone).
-  2. Owner verdicts 2026-10-19: capacitor-rig APPROVED, purge-polish APPROVED, enemy-pacing-2 APPROVED; mirror-rig and
-     thrall-rig-v2 NEEDS CHANGES (feedback.md). Walk redesign (decisions 2026-10-19): every humanoid walks on the
-     protagonist's model, 6 steps per tile.
-  3. Running: gait-01 (shared walk + Thrall + Mirror; brief spec/peer_benchmark/briefs/gait-01.md). Windowed proof
-     chain for rr-20/22/21 (scratchpad batchc_proofs.sh) to review non-walk visuals.
-  4. After gait-01 lands: launch rr-23 (Mirror re-cut from mq8b, guard draw order, preservation Low) and rr-24 (Thrall
-     re-cut from mq7b: collar, skirt); resume rr-20/21/22 with feedback 2 = gait block adoption (6 steps; Mimic move
-     0.8 s; Weaver lift 7; Mortar lift 5 + torso jolt) + windowed review findings.
-  5. Then: fresh inbox items for the Mirror, Thrall, Mimic, Weaver, Mortar; Lancer/Herald/Gloam v2 conversions.
-  6. rr-09 (narrow rig proof bindings), qa-09..12, design-01; mq-06 Low follow-up; mq-07 floor-guard note.
+- Next (in order), 2026-10-19 afternoon:
+  1. Integration green at 521fa8f20+ (Godot PASS, Python 1223 OK): mq-10, rr-18, gait-01 merged (+ director post-merge
+     fixes). gait-01 = every humanoid walks on the protagonist's model (6 steps/tile, projected legs, pelvis fit).
+  2. Running: rr-20/21/22 round 2 (walk adoption, Mimic restaging, Mortar crucible masks, native gate fixes); rr-24
+     (Thrall re-cut: collar, skirt). rr-23 (Mirror re-cut, guard order) committed ba68a1359: windowed chain + Codex
+     review running.
+  3. On each finish: windowed proof (locked chain scripts in scratchpad), Codex review, merge with suites, then fresh inbox
+     items (Mirror, Thrall first; then Mimic, Weaver, Mortar).
+  4. Then: Lancer/Herald/Gloam v2 conversions; rr-09 (narrow rig proof bindings), qa-09..12, design-01.
+  5. Hygiene: workers can't write Git metadata, so the director merges integration into unit branches; never commit to
+     integration while its suites run; proof captures are deleted after review (20 GB each round).
 - Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,
   gloam_stalker}/mq5_{front,rear}`. Motion data: `staged/rr-07`, `staged/rr-08`.
 - Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10 (owner's call).
