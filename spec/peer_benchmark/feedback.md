@@ -220,3 +220,4 @@
   answer, but it needs to be redesigned to look and feel much better." Director design: brief ui-03 (the card is the
   control).
 
+- empower-redesign: APPROVED (direction, 2026-10-19 21:12). ui-03 builds it; a real-renderer clip goes to the inbox next.
