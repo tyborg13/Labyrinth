@@ -27,8 +27,9 @@ from maquette_motion.features import source_pixels
 from rr18_seams import frame_state, frame_report
 from rr18_source_stage import raw_identity, visible_errors
 from maquette_motion.pixels import render
+from rr23_preservation import protected_changes
 
-PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID','rr-18')
+PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID','rr-23')
 PROOF_TIMEOUT_SECONDS = 180
 FIXTURE_SLIDE_PX = 1
 FIXTURE_RGB_XOR_MASK = 1
@@ -251,13 +252,34 @@ class MirrorTests(unittest.TestCase):
                 self.assertEqual(report['snapshot_mismatch_pixels'],1)
 
     def test_other_creatures_and_director_inputs_unchanged(self):
-        prefixes=('assets/units/protagonist_cutout/','scripts/protagonist_cutout/',
-            'assets/units/hoarfrost_seer_cutout/','experiments/cutouts/hoarfrost_seer/',
-            'assets/units/storm_capacitor_cutout/','experiments/cutouts/storm_capacitor/',
-            'spec/art_identity/maquettes/glacial_mirror/','spec/art_identity/jobs/glacial_mirror/',
-            'spec/peer_benchmark/staged/')
-        changed=subprocess.check_output(['git','diff','--name-only'],cwd=PROJECT,text=True).splitlines()
-        self.assertEqual([p for p in changed if p.startswith(prefixes)],[])
+        self.assertEqual(protected_changes(PROJECT),[])
+
+    def test_committed_protected_mutation_is_caught(self):
+        # Commit only in a disposable fixture repository, never this worktree.
+        with tempfile.TemporaryDirectory(prefix='rr23-preservation-',dir=CASE/'proof') as folder:
+            project=Path(folder)
+            def git(*args):
+                return subprocess.check_output(['git',*args],cwd=project,text=True).strip()
+            git('init','-q')
+            git('config','user.name','Preservation fixture')
+            git('config','user.email','fixture@example.invalid')
+            protected=project/'spec/peer_benchmark/staged/rr-18/motion_tracks.json'
+            protected.parent.mkdir(parents=True)
+            protected.write_text('approved fixture\n')
+            git('add','.')
+            git('commit','-qm','baseline fixture')
+            baseline=git('rev-parse','HEAD')
+            self.assertEqual(protected_changes(project,baseline,{}),[])
+            protected.write_text('committed protected mutation\n')
+            git('add','.')
+            git('commit','-qm','protected mutation fixture')
+            self.assertEqual(git('diff','--name-only'),'')
+            self.assertEqual(protected_changes(project,baseline,{}),[str(protected.relative_to(project))])
+            import hashlib
+            approved={str(protected.relative_to(project)):hashlib.sha256(protected.read_bytes()).hexdigest()}
+            self.assertEqual(protected_changes(project,baseline,approved),[])
+            protected.write_text('unapproved replacement at allowlisted path\n')
+            self.assertEqual(protected_changes(project,baseline,approved),[str(protected.relative_to(project))])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

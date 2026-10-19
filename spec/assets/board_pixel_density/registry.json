@@ -5576,16 +5576,16 @@
       "facings": {
         "front": {
           "measurement_path": "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png",
-          "orphan_share": 0.057951233907558374,
-          "t": 1.039756169537792,
-          "grid": 1.04,
+          "orphan_share": 0.06607009694258016,
+          "t": 1.0803504847129008,
+          "grid": 1.08,
           "mode": "clean"
         },
         "rear": {
           "measurement_path": "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png",
-          "orphan_share": 0.09333476210887269,
-          "t": 1.2166738105443635,
-          "grid": 1.22,
+          "orphan_share": 0.10040720102871839,
+          "t": 1.252036005143592,
+          "grid": 1.25,
           "mode": "regrid"
         }
       },

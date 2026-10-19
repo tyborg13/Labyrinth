@@ -51,10 +51,10 @@ def initialize():
             'binding_folders': ['tools/humanoid_cutout', 'scripts', 'tests/rr10', 'tests/rr18', 'tests/gait01'],
             'scale': {'file': 'data/enemies.json', 'key': 'glacial_mirror', 'field': 'art_scale', 'default': 1.0},
             'identity_registry': 'spec/art_identity/registry.json', 'identity_id': 'glacial_mirror',
-            'density_id': 'glacial_mirror_cutout', 'owner_approval': 'rr-18 director-approved mq8 paintings; native cutout proof pending director.',
+            'density_id': 'glacial_mirror_cutout', 'owner_approval': 'rr-23 director-approved mq8b repaint; native cutout proof pending director.',
             'identity_kind': 'creature', 'identity_entry_kind': 'legacy', 'identity_boss': False}}
     write_json(CASE / 'anatomy.json', anatomy)
-    write_json(CASE / 'inputs.json', {**{v + '_job': 'spec/art_identity/jobs/glacial_mirror/mq8_' + v for v in ('front','rear')},
+    write_json(CASE / 'inputs.json', {**{v + '_job': 'spec/art_identity/jobs/glacial_mirror/mq8b_' + v for v in ('front','rear')},
         **{v + '_delivery': 'spec/art_identity/maquettes/glacial_mirror/delivery' for v in ('front','rear')}, 'design_placeholders': DESIGN_PLACEHOLDERS})
 
 if __name__ == '__main__': initialize()

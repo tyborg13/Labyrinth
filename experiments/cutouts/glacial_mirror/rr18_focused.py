@@ -7,9 +7,10 @@ import unittest
 from unittest.mock import patch
 
 PROJECT = Path(__file__).resolve().parents[3]
-TASK_ID = 'rr-18'
+TASK_ID = 'rr-23'
 PATTERNS = ('test_rr11*.py', 'test_rr14*.py', 'test_rr15*.py', 'test_rr10*.py',
-            'test_rr07_production.py', 'test_rr16*.py', 'test_test_registration_audit.py', 'test_rr18*.py')
+            'test_rr07_production.py', 'test_rr16*.py', 'test_rr17*.py',
+            'test_test_registration_audit.py', 'test_rr18*.py', 'test_rr23*.py', 'test_gait01.py')
 
 
 def main():

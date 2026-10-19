@@ -1,0 +1,12 @@
+{
+  "min_images": 6,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "front_guard_contact.png", "width": 1920, "height": 1080},
+    {"pattern": "rear_guard_contact.png", "width": 1920, "height": 1080},
+    {"pattern": "front_ankles_a.png", "width": 1920, "height": 1080},
+    {"pattern": "front_ankles_b.png", "width": 1920, "height": 1080},
+    {"pattern": "rear_ankles_a.png", "width": 1920, "height": 1080},
+    {"pattern": "rear_ankles_b.png", "width": 1920, "height": 1080}
+  ]
+}

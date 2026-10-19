@@ -160,6 +160,9 @@
     ],
     "free_space_owners": []
   },
+  "material_policy": {
+    "green_dominance_margin": 12
+  },
   "seam_policy": "air_between_rigid_pieces",
   "seam_protected_pieces": [
     "torso"
@@ -381,12 +384,9 @@
     "identity_registry": "spec/art_identity/registry.json",
     "identity_id": "glacial_mirror",
     "density_id": "glacial_mirror_cutout",
-    "owner_approval": "rr-18 director-approved mq8 paintings; native cutout proof pending director.",
+    "owner_approval": "rr-23 director-approved mq8b repaint; native cutout proof pending director.",
     "identity_kind": "creature",
     "identity_entry_kind": "legacy",
     "identity_boss": false
-  },
-  "material_policy": {
-    "green_dominance_margin": 12
   }
 }

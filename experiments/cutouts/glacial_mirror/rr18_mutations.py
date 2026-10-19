@@ -22,9 +22,9 @@ MUTATIONS = (
      'if False:', 'test_mutation_visible_source_rgba_is_caught'),
     ('required direction coverage', 'direction_report', 'for clip in required_clips(layout):',
      'for clip in []:', 'test_mutation_zero_forward_loses_required_coverage'),
-    ('every swing minimum', 'knee_report', "if record['peak_bend_deg']+EPSILON < 15:",
+    ('every swing minimum', 'knee_report', "if swing['peak_bend_deg']+EPSILON < MINIMUM_SWING_PEAK_DEG:",
      'if False:', 'test_mutation_second_swing_no_knee_is_caught'),
-    ('support stationarity', 'support_report', 'if change!=0:',
+    ('support stationarity', 'support_report', 'if change!=0.:',
      'if False:', 'test_mutation_action_support_slide_is_caught'),
 )
 

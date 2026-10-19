@@ -7,9 +7,9 @@ from maquette_motion.bleed import edge_texels
 from humanoid_cutout.material_gates import green_dominant
 
 
-def raw_cut(visible, depths, view):
+def raw_cut(visible, depths, view, refresh=False):
     path=CASE/f'raw_cut/{view}.json'
-    if not path.exists():
+    if refresh or not path.exists():
         parts=[]
         for name,image in visible.items():
             ys,xs=np.nonzero(image[...,3]);box=[int(xs.min()),int(ys.min()),int(xs.max())+1,int(ys.max())+1]

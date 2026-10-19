@@ -1,5 +1,5 @@
 {
-  "painting_sha256": "9771f4bb6eccaaeb25aa2670c4c16b64f7cf8b31bc1bae86ecca13ece1c8ecc1",
+  "painting_sha256": "735c23eb0e62a823a4f55135a86fc300208b08e8e92f37568f8b9fbe28c8b5ba",
   "delivery": {
     "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
     "front_parts.png": "6f899df117f3c3579a619ecd5bb624c58c7fefb543a3f7dedc729ea82251e23e",
@@ -82,16 +82,16 @@
       "above_15_percent": false
     },
     "fore_far": {
-      "painted_pixels": 1169,
-      "reassigned_pixels": 123,
-      "reassigned_share": 0.10521813515825491,
+      "painted_pixels": 1168,
+      "reassigned_pixels": 122,
+      "reassigned_share": 0.10445205479452055,
       "above_15_percent": false
     },
     "hand_far": {
-      "painted_pixels": 1088,
-      "reassigned_pixels": 234,
-      "reassigned_share": 0.21507352941176472,
-      "above_15_percent": true
+      "painted_pixels": 865,
+      "reassigned_pixels": 39,
+      "reassigned_share": 0.04508670520231214,
+      "above_15_percent": false
     },
     "thigh_far": {
       "painted_pixels": 953,
@@ -100,15 +100,15 @@
       "above_15_percent": false
     },
     "shin_far": {
-      "painted_pixels": 602,
-      "reassigned_pixels": 56,
-      "reassigned_share": 0.09302325581395349,
+      "painted_pixels": 601,
+      "reassigned_pixels": 55,
+      "reassigned_share": 0.09151414309484193,
       "above_15_percent": false
     },
     "foot_far": {
-      "painted_pixels": 710,
-      "reassigned_pixels": 92,
-      "reassigned_share": 0.1295774647887324,
+      "painted_pixels": 640,
+      "reassigned_pixels": 47,
+      "reassigned_share": 0.0734375,
       "above_15_percent": false
     }
   },

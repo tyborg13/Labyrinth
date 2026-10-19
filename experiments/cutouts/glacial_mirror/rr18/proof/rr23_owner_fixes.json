@@ -1,0 +1,156 @@
+{
+  "front": {
+    "ankles": {
+      "ok": true,
+      "errors": [],
+      "presented_frames": 344,
+      "rest_overlap_pixels": {
+        "near": 647,
+        "far": 1064
+      },
+      "maximum_ankle_air_px": 0.0,
+      "clip_maxima": {
+        "hit": 0.0,
+        "idle": 0.0,
+        "guard": 0.0,
+        "refraction": 0.0,
+        "death": 0.0,
+        "move": 0.0
+      },
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "side": "near",
+        "air_px": 0.0
+      }
+    },
+    "arms": {
+      "ok": true,
+      "errors": [],
+      "painted_fists": {
+        "near": {
+          "width_px": 48,
+          "height_px": 53,
+          "wrist_pivot": [
+            208.5,
+            163.0
+          ]
+        },
+        "far": {
+          "width_px": 41,
+          "height_px": 36,
+          "wrist_pivot": [
+            44.9575,
+            122.97
+          ]
+        }
+      },
+      "shoulders": {
+        "positions": {
+          "near": [
+            178.5,
+            77.0
+          ],
+          "far": [
+            68.0,
+            60.425
+          ]
+        },
+        "front_height_delta_px": 16.575000000000003,
+        "front_expected_delta_px": 16.575,
+        "tolerance_px": 2.5
+      },
+      "guard_contact_frame": 24,
+      "guard_contact_phase": 0.452830188679245,
+      "fist_torso_overlap_pixels": {
+        "near": 1994,
+        "far": 0
+      },
+      "near_fist_ice_overlap_pixels": 944,
+      "draw_order": {
+        "head": 14,
+        "torso": 13,
+        "fore_near": 15,
+        "fist_near": 16,
+        "fist_far": 2
+      }
+    }
+  },
+  "rear": {
+    "ankles": {
+      "ok": true,
+      "errors": [],
+      "presented_frames": 344,
+      "rest_overlap_pixels": {
+        "near": 1252,
+        "far": 348
+      },
+      "maximum_ankle_air_px": 0.0,
+      "clip_maxima": {
+        "hit": 0.0,
+        "idle": 0.0,
+        "guard": 0.0,
+        "refraction": 0.0,
+        "death": 0.0,
+        "move": 0.0
+      },
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "side": "near",
+        "air_px": 0.0
+      }
+    },
+    "arms": {
+      "ok": true,
+      "errors": [],
+      "painted_fists": {
+        "near": {
+          "width_px": 48,
+          "height_px": 46,
+          "wrist_pivot": [
+            47.5,
+            127.0
+          ]
+        },
+        "far": {
+          "width_px": 44,
+          "height_px": 43,
+          "wrist_pivot": [
+            211.0425,
+            156.7125
+          ]
+        }
+      },
+      "shoulders": {
+        "positions": {
+          "near": [
+            77.5,
+            60.0
+          ],
+          "far": [
+            188.0,
+            76.575
+          ]
+        },
+        "front_height_delta_px": -16.575000000000003,
+        "front_expected_delta_px": 16.575,
+        "tolerance_px": 2.5
+      },
+      "guard_contact_frame": 24,
+      "guard_contact_phase": 0.452830188679245,
+      "fist_torso_overlap_pixels": {
+        "near": 963,
+        "far": 0
+      },
+      "near_fist_ice_overlap_pixels": 0,
+      "draw_order": {
+        "head": 14,
+        "torso": 11,
+        "fore_near": 4,
+        "fist_near": 2,
+        "fist_far": 10
+      }
+    }
+  }
+}
