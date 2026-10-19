@@ -54,6 +54,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   4. Backlog from today: the Mirror's feet and fists revisit (owner: "not totally sold"); unify the two detached
      provenance classifiers (rest_space.py from rr-26, source_space.py from rr-25) with differential tests (rr-26 review Low);
      rr-26 Low: a sum-preserving canonical-weight regression; rr-21 Low: path-containment test fixture.
+     Thrall rear tether (director data, staged/rr-11 view_keys.rear): the tube rises over the FAR shoulder, so the upper
+     arm crosses the back and leaves a fin at the near shoulder; re-key it to rise over the near shoulder after rr-24 lands.
+     Empower charge sound: three candidates for an owner audition (ui-03 ships silent).
   5. Then: Lancer/Herald/Gloam v2 conversions; rr-09 (narrow rig proof bindings), qa-09..12, design-01.
   5. Hygiene: workers can't write Git metadata, so the director merges integration into unit branches; never commit to
      integration while its suites run; proof captures are deleted after review (20 GB each round).
