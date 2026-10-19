@@ -15,6 +15,7 @@ const PROOF_LABEL_HEIGHT: float = 60.0
 const PROOF_VERTICAL_OFFSET: float = 40.0
 const PROOF_REPRESENTATIVES: int = 6
 const IDLE_COMPARISON_LOOPS: int = 5
+var proof_geometry: Dictionary = {"step": Samples.PROOF_STEP_PX, "scale": Samples.PROOF_SCALE}
 var directory: String = "res://experiments/cutouts/arc_thrall/rr11"
 var output: String
 var data: Dictionary
@@ -51,6 +52,8 @@ func _run() -> void:
 	output = args[args.find("--output") + 1]
 	data = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
 	anatomy = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
+	if data["clips"].get("move", {}).has("gait"):
+		proof_geometry = await preload("res://tests/gait01/board_geometry.gd").measure(self, str(data["creature"]))
 	if args.has("--validate-only"):
 		for view: String in data["view_tracks"]:
 			var rig: Node2D = make_rig(view)
@@ -227,8 +230,8 @@ func make_rig(view: String) -> Node2D:
 	rig.position = ORIGIN
 	viewport(POSE_SIZE,true).add_child(rig)
 	if not rig.load_rig(): failures.append(str(rig.load_errors))
-	rig.layout["step_distance_px"] = Samples.PROOF_STEP_PX
-	rig.layout["screen_pixel_scale"] = Samples.PROOF_SCALE
+	rig.layout["step_distance_px"] = proof_geometry["step"]
+	rig.layout["screen_pixel_scale"] = proof_geometry["scale"]
 	rigs.append(rig)
 	return rig
 

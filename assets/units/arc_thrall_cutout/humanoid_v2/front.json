@@ -139526,10 +139526,6 @@
   "planted_bones": [
     "foot_near"
   ],
-  "leg_roles": {
-    "stride": "near",
-    "trailing": "far"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -139571,5 +139567,6 @@
   },
   "rest_source": "front/rest.png",
   "motion_data": "res://assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "3025383b060c2a10f994f396455d2910b2fb6bc6d064a99d6c0c96b17dc3c2db"
+  "rest_source_sha256": "3025383b060c2a10f994f396455d2910b2fb6bc6d064a99d6c0c96b17dc3c2db",
+  "gait_leg_scale_max": 1.22
 }

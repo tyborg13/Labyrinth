@@ -36,6 +36,10 @@ def run(native=None):
         reports['production_rest'][view] = production_rest_report(layout,CASE,ASSETS)
         reports['knees'][view] = knee_report(layout,data,samples)
         reports['supports'][view] = support_report(layout,data,samples)
+        walk = reports['knees'][view]
+        print('GAIT %s: %s (maximum fit %.6f px; total drop %.6f px; rigid air %.6f px)' %
+              (view.upper(), 'PASS' if walk['ok'] else 'FAIL', walk['maximum_fit_px'],
+               walk['maximum_total_pelvis_drop_px'], walk['maximum_rigid_air_px']))
         reports['directions'][view] = direction_report(layout,data,samples,current,require_presented=True)
         reports['reach'][view] = reach_report(layout,data,step_distance_px=samples['step_distance_px'],screen_pixel_scale=samples['screen_pixel_scale'])
         for name,views in reports.items():

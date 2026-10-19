@@ -98,7 +98,7 @@ class MirrorTests(unittest.TestCase):
             self.assertEqual(report['dense_intervals'],1000)
             self.assertTrue(report['overreach'])
 
-    def test_revised_stride_gait_and_density_rests_pass(self):
+    def test_both_leg_gait_and_density_rests_pass(self):
         for view,layout in self.layouts.items():
             self.assertEqual(read_json(CASE/'anatomy.json')['knee_policy']['near_straight_deg'],10)
             self.assertEqual(knee_report(layout,self.data,self.samples)['errors'],[])
@@ -106,10 +106,11 @@ class MirrorTests(unittest.TestCase):
             report=production_rest_report(layout,CASE,ASSETS)
             self.assertEqual(report['errors'],[])
             self.assertEqual(report['snapshot_mismatch_pixels'],0)
-            self.assertEqual(len(knee_report(layout,self.data,self.samples)['swings']),2)
-            trailing='foot_'+layout['leg_roles']['trailing']
-            track=next(t for t in self.data['view_tracks'][view]['move'] if t['bone']==trailing and t['channel']=='forward_px')
-            self.assertEqual(track['forward_mode'],'body')
+            self.assertEqual(len(knee_report(layout,self.data,self.samples)['swings']),6)
+            self.assertNotIn('leg_roles',layout)
+            for side in ('near','far'):
+                track=next(t for t in self.data['view_tracks'][view]['move'] if t['bone']=='foot_'+side and t['channel']=='forward_px')
+                self.assertEqual(track['forward_mode'],'world_step')
 
     def test_boulder_layers_share_registered_anchor_in_real_runtime(self):
         for view,layout in self.layouts.items():
@@ -202,11 +203,11 @@ class MirrorTests(unittest.TestCase):
     def test_mutation_second_swing_no_knee_is_caught(self):
         samples=copy.deepcopy(self.samples)
         for row in samples['samples']:
-            if row['view']=='front' and row['clip']=='move' and row['kind']=='presented' and .5<row['phase']<.83:
+            if row['view']=='front' and row['clip']=='move' and row['kind']=='presented' and .32<row['phase']<.48:
                 a,c=[np.array(row['bones'][p+'_near']['global'][4:]) for p in ('thigh','foot')]
                 row['bones']['shin_near']['global'][4:]=((a+c)/2).tolist()
         errors=knee_report(self.layouts['front'],self.data,samples)['errors']
-        self.assertIn('front/near: swing peak below 15 degrees',errors)
+        self.assertIn('front/near: peak knee below 15 degrees',errors)
 
     def test_mutation_action_support_slide_is_caught(self):
         samples=copy.deepcopy(self.samples)
@@ -250,14 +251,13 @@ class MirrorTests(unittest.TestCase):
                 self.assertEqual(report['snapshot_mismatch_pixels'],1)
 
     def test_other_creatures_and_director_inputs_unchanged(self):
-        prefixes=('assets/units/arc_thrall_cutout/','assets/units/hoarfrost_seer_cutout/',
-            'experiments/cutouts/arc_thrall/','experiments/cutouts/hoarfrost_seer/',
-            'scripts/maquette_cutout_runtime/humanoid_', 'tools/humanoid_cutout/',
+        prefixes=('assets/units/protagonist_cutout/','scripts/protagonist_cutout/',
+            'assets/units/hoarfrost_seer_cutout/','experiments/cutouts/hoarfrost_seer/',
+            'assets/units/storm_capacitor_cutout/','experiments/cutouts/storm_capacitor/',
             'spec/art_identity/maquettes/glacial_mirror/','spec/art_identity/jobs/glacial_mirror/',
-            'spec/peer_benchmark/staged/rr-18/')
+            'spec/peer_benchmark/staged/')
         changed=subprocess.check_output(['git','diff','--name-only'],cwd=PROJECT,text=True).splitlines()
-        extensions={'tools/humanoid_cutout/gates.py','tools/humanoid_cutout/anatomy.schema.json','tools/humanoid_cutout/rigid_air.py','tools/humanoid_cutout/material_gates.py','tools/humanoid_cutout/promotion.py'}
-        self.assertEqual([p for p in changed if p.startswith(prefixes) and p not in extensions],[])
+        self.assertEqual([p for p in changed if p.startswith(prefixes)],[])
 
 
 if __name__=='__main__':unittest.main(verbosity=2)

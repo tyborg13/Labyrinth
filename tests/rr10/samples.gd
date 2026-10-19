@@ -22,6 +22,7 @@ func _run() -> void:
 	if args.has("--case"): directory = args[args.find("--case") + 1]
 	if args.has("--output"): output = args[args.find("--output") + 1]
 	var data: Dictionary = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
+	var geometry: Dictionary = await proof_geometry(data)
 	for view: String in data["view_tracks"]:
 		var rig := Rig.new()
 		rig.position=SOURCE_ORIGIN
@@ -29,8 +30,8 @@ func _run() -> void:
 		rig.facing = view
 		root.add_child(rig)
 		if not rig.load_rig(): errors.append(str(rig.load_errors))
-		rig.layout["screen_pixel_scale"] = PROOF_SCALE
-		rig.layout["step_distance_px"] = PROOF_STEP_PX
+		rig.layout["screen_pixel_scale"] = geometry["scale"]
+		rig.layout["step_distance_px"] = geometry["step"]
 		for clip: String in data["clips"]:
 			var phases: Array[float]
 			phases.assign([0.0, 1.0])
@@ -56,10 +57,13 @@ func _run() -> void:
 	file.store_string(JSON.stringify({"ok": errors.is_empty(), "native_pixels": false, "fps": FPS,
 		"inputs": preload("bindings.gd").for_case(directory),
 		"compiled_sha256": FileAccess.get_sha256(directory.path_join("compiled_motion.json")),
-		"step_distance_px": PROOF_STEP_PX, "screen_pixel_scale": PROOF_SCALE,
+		"step_distance_px": geometry["step"], "screen_pixel_scale": geometry["scale"],
 		"samples": rows, "errors": errors}))
 	print("RR10 BONE SAMPLES: %s (%d poses; headless transforms only)" % ["PASS" if errors.is_empty() else "FAIL", rows.size()])
 	quit(0 if errors.is_empty() else 1)
+
+func proof_geometry(_data: Dictionary) -> Dictionary:
+	return {"step": PROOF_STEP_PX, "scale": PROOF_SCALE}
 
 func record(rig: Node2D, view: String, clip: String, phase: float, frame: int, kind: String) -> Dictionary:
 	var bones: Dictionary = {}

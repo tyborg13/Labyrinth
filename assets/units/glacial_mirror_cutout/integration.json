@@ -2,7 +2,7 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/glacial_mirror/rr18",
-  "director_sha256": "91322088b5a9ca199e15c725967a79bf1999137eb61af44e462026eca42360e7",
+  "director_sha256": "31f78bfc141976e1998fbacdffa4ae2b3d6945c4545f8bdffaa774c895643aa2",
   "design_placeholders": {},
   "native_proof": "pending director rest/native/production/idle/review",
   "rest_identity": {
@@ -18,8 +18,8 @@
   "files": {
     "actions.gd": "976f322b98adc63bae33ce692d56ed4a11459e0d7ee42336657fcc1fdc1e414b",
     "front.json": "ac0368ad18009a3c5894d0c66f2c0e5208ad9806ff39a9d194bf09576b4a11f8",
-    "humanoid_v2/compiled_motion.json": "2e82d463fd89976b1abf9c5b2c1cf9ec678fe4017449068dcc1715bffee37f4e",
-    "humanoid_v2/director_motion.json": "91322088b5a9ca199e15c725967a79bf1999137eb61af44e462026eca42360e7",
+    "humanoid_v2/compiled_motion.json": "e23767d8978e1024eec4fa706293d8a2da59b77777aaa65533b5dda3837639c3",
+    "humanoid_v2/director_motion.json": "31f78bfc141976e1998fbacdffa4ae2b3d6945c4545f8bdffaa774c895643aa2",
     "humanoid_v2/front/fist_far.png": "f57f8fb68779acb2262e1c0839f0d5f5d8801da93dd1e3378b0325c9ddcf2f0a",
     "humanoid_v2/front/fist_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/fist_near.png": "0b155a97acd22b20706995091ea435fb852433a2e30526b5f02b109c964b132e",
@@ -82,7 +82,7 @@
     "humanoid_v2/front/upper_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/upper_near.png": "ea0426cb3d40938e7a764963dc8276e7339e9ece4265c3924e80200485a23ab2",
     "humanoid_v2/front/upper_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front.json": "21ec336f44b018be4b4c415ad3ccbc25ecf58438ec43da63e8faa46ba5290155",
+    "humanoid_v2/front.json": "6239b84b13de5c30c77ef23c4a46f007e60df30f1c367a66c6b819606ea8507f",
     "humanoid_v2/rear/fist_far.png": "01e4b4c7394b463144f3f118b2e5ed232cd0c36a35ed13cd78a125fa55e864c1",
     "humanoid_v2/rear/fist_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/fist_near.png": "007061700d55c8667ca714646f91f2faaa4f042671d92cb81f55bc744c210891",
@@ -145,7 +145,7 @@
     "humanoid_v2/rear/upper_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/upper_near.png": "bf9aaf4185a40e157fd627465650acc47065b4705a1de5758f50575f78859f9c",
     "humanoid_v2/rear/upper_near.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "af4f6792c1e79e708ddaa00504f4b49212dbd58a3b0bddc8108da8f06a7a3504",
+    "humanoid_v2/rear.json": "87a044574b9c2b3e601195c45b57e60b67255fdf470876f041896be084459ded",
     "rear.json": "7e757ffc2d6bc5b2eeba2ff90120a699e4da22885d0789532be99255dc4cf450",
     "renderer.gd": "89fca52a70bcf6121d74ae6aecfd1e4278236b1004d6a3c0964343aaa539ce2e",
     "rig.gd": "eec178d9c047c8c247e9687e62652b10afca9fddb3976b2fb50effad58ef0c0e"

@@ -796,10 +796,6 @@
     "foot_near",
     "foot_far"
   ],
-  "leg_roles": {
-    "stride": "near",
-    "trailing": "far"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -1282,5 +1278,6 @@
       "bone": "foot_far",
       "file": "seams/front_foot_far.png"
     }
-  ]
+  ],
+  "gait_leg_scale_max": 1.14
 }

@@ -52,6 +52,9 @@ def main():
                reach['dense_intervals'], len(reach['errors'])))
         print('RR11 %s SWING KNEES: %s (%d swings; minimum peak %.3f degrees)' %
               (view.upper(), 'PASS' if report['ok'] else 'FAIL', len(report['swings']), report['minimum_peak_bend_deg']))
+        print('GAIT %s: %s (maximum fit %.6f px; total drop %.6f px; rigid air %.6f px)' %
+              (view.upper(), 'PASS' if report['ok'] else 'FAIL', report['maximum_fit_px'],
+               report['maximum_total_pelvis_drop_px'], report['maximum_rigid_air_px']))
         support = supports[view]
         print('RR11 %s SUPPORTS: %s (move/jab frame change %.6f/%.6f px; target error %.6f/%.6f px)' %
               (view.upper(), 'PASS' if support['ok'] else 'FAIL', support['maximum_stance_frame_change_px'],

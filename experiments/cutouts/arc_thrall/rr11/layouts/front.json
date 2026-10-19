@@ -139526,10 +139526,6 @@
   "planted_bones": [
     "foot_near"
   ],
-  "leg_roles": {
-    "stride": "near",
-    "trailing": "far"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -139888,5 +139884,6 @@
       "file": "seams/front_loincloth.png",
       "mesh_template": "seams/front_loincloth_mesh.json"
     }
-  ]
+  ],
+  "gait_leg_scale_max": 1.22
 }

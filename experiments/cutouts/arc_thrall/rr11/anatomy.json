@@ -130,18 +130,8 @@
       }
     }
   },
-  "leg_roles": {
-    "front": {
-      "stride": "near",
-      "trailing": "far"
-    },
-    "rear": {
-      "stride": "far",
-      "trailing": "near"
-    }
-  },
   "planted_bones": [
-    "foot_stride"
+    "foot_support"
   ],
   "planted_tolerance_px": 0.5,
   "held_depth_roles": {},
@@ -428,7 +418,8 @@
       "tools/humanoid_cutout",
       "scripts/maquette_cutout_runtime",
       "tests/rr10",
-      "tests/rr11"
+      "tests/rr11",
+      "tests/gait01"
     ],
     "scale": {
       "file": "data/enemies.json",
@@ -443,5 +434,15 @@
     "identity_kind": "creature",
     "identity_entry_kind": "legacy",
     "identity_boss": false
+  },
+  "channel_aliases": {
+    "front": {
+      "foot_support": "foot_near",
+      "foot_trailing": "foot_far"
+    },
+    "rear": {
+      "foot_support": "foot_far",
+      "foot_trailing": "foot_near"
+    }
   }
 }

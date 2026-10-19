@@ -9,6 +9,7 @@ const Humanoid = preload("humanoid_motion.gd")
 static func apply(rig: Node2D, clip: String) -> void:
 	var source: Transform2D = rig.global_transform.affine_inverse()
 	var world: Dictionary = {}
+	var gait: bool = Motion.data_for(rig.layout).get("clips", {}).get(clip, {}).has("gait")
 	for name: String in rig.bones:
 		var bone: Bone2D = rig.bones[name]
 		var pose: Transform2D = source * bone.global_transform
@@ -21,6 +22,10 @@ static func apply(rig: Node2D, clip: String) -> void:
 			limit = floorf(limit / Pixels.ROTATION_STEP) * Pixels.ROTATION_STEP
 			angle = clampf(angle, -limit, limit)
 		world[name] = Transform2D(angle, bind + (pose.origin - bind).round())
+		if gait and (name.begins_with("thigh_") or name.begins_with("shin_")) and preload("humanoid_gait.gd").skinned(rig.layout, name.get_slice("_", 1)):
+			var projected: Transform2D = Transform2D(angle - pose.get_rotation(), Vector2.ZERO) * pose
+			projected.origin = bind + (pose.origin - bind).round()
+			world[name] = projected
 	# Independent world snapping can add one step to the head's relative
 	# angle when the torso rounds down. Enforce the same authored limit.
 	if world.has("head") and world.has("torso"):

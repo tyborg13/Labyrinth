@@ -2,7 +2,7 @@
   "front": {
     "ok": true,
     "errors": [],
-    "frames": 341,
+    "frames": 344,
     "failures": [],
     "air_pockets": [
       {
@@ -151,9 +151,39 @@
       },
       {
         "clip": "move",
-        "frame": 8,
+        "frame": 2,
+        "count": 3,
+        "pixels": 52
+      },
+      {
+        "clip": "move",
+        "frame": 3,
+        "count": 2,
+        "pixels": 6
+      },
+      {
+        "clip": "move",
+        "frame": 4,
+        "count": 3,
+        "pixels": 3
+      },
+      {
+        "clip": "move",
+        "frame": 5,
         "count": 1,
         "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 7,
+        "count": 2,
+        "pixels": 2
+      },
+      {
+        "clip": "move",
+        "frame": 9,
+        "count": 2,
+        "pixels": 4
       },
       {
         "clip": "move",
@@ -163,9 +193,9 @@
       },
       {
         "clip": "move",
-        "frame": 11,
+        "frame": 13,
         "count": 1,
-        "pixels": 1
+        "pixels": 2
       },
       {
         "clip": "move",
@@ -175,27 +205,147 @@
       },
       {
         "clip": "move",
-        "frame": 17,
+        "frame": 16,
         "count": 1,
-        "pixels": 1
+        "pixels": 2
       },
       {
         "clip": "move",
-        "frame": 18,
+        "frame": 20,
         "count": 1,
-        "pixels": 1
+        "pixels": 2
+      },
+      {
+        "clip": "move",
+        "frame": 21,
+        "count": 2,
+        "pixels": 56
+      },
+      {
+        "clip": "move",
+        "frame": 22,
+        "count": 1,
+        "pixels": 17
+      },
+      {
+        "clip": "move",
+        "frame": 23,
+        "count": 2,
+        "pixels": 3
       },
       {
         "clip": "move",
         "frame": 24,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 26,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 28,
         "count": 2,
         "pixels": 2
+      },
+      {
+        "clip": "move",
+        "frame": 31,
+        "count": 4,
+        "pixels": 5
+      },
+      {
+        "clip": "move",
+        "frame": 32,
+        "count": 2,
+        "pixels": 2
+      },
+      {
+        "clip": "move",
+        "frame": 33,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 35,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 37,
+        "count": 2,
+        "pixels": 3
+      },
+      {
+        "clip": "move",
+        "frame": 39,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 42,
+        "count": 1,
+        "pixels": 134
+      },
+      {
+        "clip": "move",
+        "frame": 43,
+        "count": 2,
+        "pixels": 39
+      },
+      {
+        "clip": "move",
+        "frame": 44,
+        "count": 3,
+        "pixels": 9
       },
       {
         "clip": "move",
         "frame": 46,
         "count": 2,
+        "pixels": 7
+      },
+      {
+        "clip": "move",
+        "frame": 47,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 48,
+        "count": 1,
         "pixels": 2
+      },
+      {
+        "clip": "move",
+        "frame": 49,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 50,
+        "count": 1,
+        "pixels": 10
+      },
+      {
+        "clip": "move",
+        "frame": 51,
+        "count": 1,
+        "pixels": 1
+      },
+      {
+        "clip": "move",
+        "frame": 52,
+        "count": 1,
+        "pixels": 1
       },
       {
         "clip": "refraction",
@@ -1159,7 +1309,7 @@
   "rear": {
     "ok": true,
     "errors": [],
-    "frames": 341,
+    "frames": 344,
     "failures": [],
     "air_pockets": [
       {
@@ -1471,266 +1621,266 @@
       {
         "clip": "move",
         "frame": 1,
-        "count": 3,
-        "pixels": 12
+        "count": 4,
+        "pixels": 14
       },
       {
         "clip": "move",
         "frame": 2,
-        "count": 2,
-        "pixels": 7
+        "count": 5,
+        "pixels": 26
       },
       {
         "clip": "move",
         "frame": 3,
-        "count": 2,
-        "pixels": 7
+        "count": 8,
+        "pixels": 24
       },
       {
         "clip": "move",
         "frame": 4,
-        "count": 5,
-        "pixels": 14
+        "count": 7,
+        "pixels": 16
       },
       {
         "clip": "move",
         "frame": 5,
-        "count": 4,
-        "pixels": 10
+        "count": 9,
+        "pixels": 19
       },
       {
         "clip": "move",
         "frame": 6,
-        "count": 4,
-        "pixels": 7
+        "count": 7,
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 7,
-        "count": 5,
-        "pixels": 8
+        "count": 6,
+        "pixels": 12
       },
       {
         "clip": "move",
         "frame": 8,
-        "count": 7,
-        "pixels": 14
+        "count": 6,
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 9,
         "count": 5,
-        "pixels": 7
+        "pixels": 10
       },
       {
         "clip": "move",
         "frame": 10,
-        "count": 6,
-        "pixels": 8
+        "count": 4,
+        "pixels": 11
       },
       {
         "clip": "move",
         "frame": 11,
-        "count": 6,
-        "pixels": 8
+        "count": 7,
+        "pixels": 893
       },
       {
         "clip": "move",
         "frame": 12,
-        "count": 8,
-        "pixels": 15
+        "count": 6,
+        "pixels": 877
       },
       {
         "clip": "move",
         "frame": 13,
         "count": 7,
-        "pixels": 10
+        "pixels": 883
       },
       {
         "clip": "move",
         "frame": 14,
-        "count": 6,
-        "pixels": 856
+        "count": 7,
+        "pixels": 869
       },
       {
         "clip": "move",
         "frame": 15,
-        "count": 3,
-        "pixels": 8
+        "count": 7,
+        "pixels": 916
       },
       {
         "clip": "move",
         "frame": 16,
-        "count": 5,
-        "pixels": 11
+        "count": 6,
+        "pixels": 905
       },
       {
         "clip": "move",
         "frame": 17,
-        "count": 5,
-        "pixels": 15
+        "count": 6,
+        "pixels": 881
       },
       {
         "clip": "move",
         "frame": 18,
-        "count": 2,
-        "pixels": 6
-      },
-      {
-        "clip": "move",
-        "frame": 19,
-        "count": 5,
-        "pixels": 11
-      },
-      {
-        "clip": "move",
-        "frame": 20,
-        "count": 3,
-        "pixels": 11
-      },
-      {
-        "clip": "move",
-        "frame": 21,
-        "count": 2,
-        "pixels": 6
-      },
-      {
-        "clip": "move",
-        "frame": 22,
-        "count": 3,
-        "pixels": 11
-      },
-      {
-        "clip": "move",
-        "frame": 23,
-        "count": 2,
-        "pixels": 6
-      },
-      {
-        "clip": "move",
-        "frame": 24,
-        "count": 5,
-        "pixels": 15
-      },
-      {
-        "clip": "move",
-        "frame": 25,
-        "count": 2,
+        "count": 4,
         "pixels": 7
       },
       {
         "clip": "move",
-        "frame": 26,
+        "frame": 19,
         "count": 4,
         "pixels": 8
       },
       {
         "clip": "move",
-        "frame": 27,
+        "frame": 20,
         "count": 4,
         "pixels": 9
       },
       {
         "clip": "move",
-        "frame": 28,
+        "frame": 21,
         "count": 4,
-        "pixels": 7
+        "pixels": 8
+      },
+      {
+        "clip": "move",
+        "frame": 22,
+        "count": 7,
+        "pixels": 8
+      },
+      {
+        "clip": "move",
+        "frame": 23,
+        "count": 5,
+        "pixels": 13
+      },
+      {
+        "clip": "move",
+        "frame": 24,
+        "count": 10,
+        "pixels": 32
+      },
+      {
+        "clip": "move",
+        "frame": 25,
+        "count": 10,
+        "pixels": 19
+      },
+      {
+        "clip": "move",
+        "frame": 26,
+        "count": 8,
+        "pixels": 25
+      },
+      {
+        "clip": "move",
+        "frame": 27,
+        "count": 13,
+        "pixels": 74
+      },
+      {
+        "clip": "move",
+        "frame": 28,
+        "count": 9,
+        "pixels": 104
       },
       {
         "clip": "move",
         "frame": 29,
-        "count": 6,
-        "pixels": 13
+        "count": 8,
+        "pixels": 243
       },
       {
         "clip": "move",
         "frame": 30,
         "count": 5,
-        "pixels": 12
-      },
-      {
-        "clip": "move",
-        "frame": 31,
-        "count": 6,
-        "pixels": 13
-      },
-      {
-        "clip": "move",
-        "frame": 32,
-        "count": 6,
-        "pixels": 13
-      },
-      {
-        "clip": "move",
-        "frame": 33,
-        "count": 5,
-        "pixels": 7
-      },
-      {
-        "clip": "move",
-        "frame": 34,
-        "count": 5,
-        "pixels": 7
-      },
-      {
-        "clip": "move",
-        "frame": 35,
-        "count": 9,
-        "pixels": 13
-      },
-      {
-        "clip": "move",
-        "frame": 36,
-        "count": 5,
         "pixels": 8
       },
       {
         "clip": "move",
+        "frame": 31,
+        "count": 4,
+        "pixels": 9
+      },
+      {
+        "clip": "move",
+        "frame": 32,
+        "count": 4,
+        "pixels": 8
+      },
+      {
+        "clip": "move",
+        "frame": 33,
+        "count": 6,
+        "pixels": 894
+      },
+      {
+        "clip": "move",
+        "frame": 34,
+        "count": 7,
+        "pixels": 873
+      },
+      {
+        "clip": "move",
+        "frame": 35,
+        "count": 4,
+        "pixels": 854
+      },
+      {
+        "clip": "move",
+        "frame": 36,
+        "count": 7,
+        "pixels": 902
+      },
+      {
+        "clip": "move",
         "frame": 37,
-        "count": 3,
-        "pixels": 10
+        "count": 10,
+        "pixels": 950
       },
       {
         "clip": "move",
         "frame": 38,
-        "count": 2,
-        "pixels": 7
+        "count": 5,
+        "pixels": 859
       },
       {
         "clip": "move",
         "frame": 39,
-        "count": 5,
-        "pixels": 15
+        "count": 4,
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 40,
-        "count": 5,
+        "count": 4,
         "pixels": 11
       },
       {
         "clip": "move",
         "frame": 41,
         "count": 3,
-        "pixels": 11
+        "pixels": 8
       },
       {
         "clip": "move",
         "frame": 42,
-        "count": 4,
-        "pixels": 8
+        "count": 3,
+        "pixels": 5
       },
       {
         "clip": "move",
         "frame": 43,
         "count": 6,
-        "pixels": 14
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 44,
-        "count": 3,
-        "pixels": 11
+        "count": 5,
+        "pixels": 22
       },
       {
         "clip": "move",
@@ -1741,30 +1891,48 @@
       {
         "clip": "move",
         "frame": 46,
-        "count": 5,
-        "pixels": 15
+        "count": 7,
+        "pixels": 25
       },
       {
         "clip": "move",
         "frame": 47,
         "count": 5,
-        "pixels": 12
+        "pixels": 6
       },
       {
         "clip": "move",
         "frame": 48,
-        "count": 4,
-        "pixels": 14
+        "count": 5,
+        "pixels": 6
       },
       {
         "clip": "move",
         "frame": 49,
-        "count": 4,
-        "pixels": 14
+        "count": 6,
+        "pixels": 7
       },
       {
         "clip": "move",
         "frame": 50,
+        "count": 6,
+        "pixels": 8
+      },
+      {
+        "clip": "move",
+        "frame": 51,
+        "count": 5,
+        "pixels": 11
+      },
+      {
+        "clip": "move",
+        "frame": 52,
+        "count": 5,
+        "pixels": 10
+      },
+      {
+        "clip": "move",
+        "frame": 53,
         "count": 5,
         "pixels": 15
       },

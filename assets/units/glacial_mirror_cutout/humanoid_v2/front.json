@@ -796,10 +796,6 @@
     "foot_near",
     "foot_far"
   ],
-  "leg_roles": {
-    "stride": "near",
-    "trailing": "far"
-  },
   "source_labels": {
     "head": [
       "head"
@@ -849,5 +845,6 @@
   },
   "rest_source": "front/rest.png",
   "motion_data": "res://assets/units/glacial_mirror_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "97dcd78b97530b0dee7555c30eecb6a830d773e21b348251d1fdddbb32de3984"
+  "rest_source_sha256": "97dcd78b97530b0dee7555c30eecb6a830d773e21b348251d1fdddbb32de3984",
+  "gait_leg_scale_max": 1.14
 }
