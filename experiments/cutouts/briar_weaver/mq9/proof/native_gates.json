@@ -1,22 +1,23 @@
 {
-  "ok": false,
-  "errors": [
-    "bone evidence: stale input bindings",
-    "stale headless pose reference; rerun samples.gd",
-    "stale native proof inputs"
-  ],
+  "ok": true,
+  "errors": [],
   "views": {
     "front": {
       "cut_errors": [],
-      "bone_errors": [
-        "bone evidence: stale input bindings"
-      ],
+      "bone_errors": [],
       "direction": {
-        "ok": false,
-        "errors": [
-          "bone evidence: stale input bindings"
-        ],
-        "positive_checks": 0
+        "ok": true,
+        "errors": [],
+        "positive_checks": 621,
+        "clip_positive_checks": {
+          "move": 123,
+          "thornwall": 97,
+          "lash": 37,
+          "mend": 90,
+          "hit": 60,
+          "death": 214
+        },
+        "minimum_forward_channel_dot": 0.0015695057215244037
       },
       "reach": {
         "ok": true,
@@ -508,15 +509,20 @@
     },
     "rear": {
       "cut_errors": [],
-      "bone_errors": [
-        "bone evidence: stale input bindings"
-      ],
+      "bone_errors": [],
       "direction": {
-        "ok": false,
-        "errors": [
-          "bone evidence: stale input bindings"
-        ],
-        "positive_checks": 0
+        "ok": true,
+        "errors": [],
+        "positive_checks": 621,
+        "clip_positive_checks": {
+          "move": 123,
+          "thornwall": 97,
+          "lash": 37,
+          "mend": 90,
+          "hit": 60,
+          "death": 214
+        },
+        "minimum_forward_channel_dot": 0.0015558578457360137
       },
       "reach": {
         "ok": true,
@@ -2022,7 +2028,7 @@
     "failures": []
   },
   "design_placeholders": {},
-  "production_ready": false,
+  "production_ready": true,
   "native_pixels": true,
   "reach_policy": "overreach diagnostic per rr-21 brief; inside-minimum targets fail; all pre-clamp violations retained",
   "residue_gate": "G >= max(R,B)+12 AND 2*G >= 3*max(R,B); declared feature masks exempt; zero outside features"
