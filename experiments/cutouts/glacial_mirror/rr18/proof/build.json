@@ -1,0 +1,1148 @@
+{
+  "front_rest_mismatch_pixels": 0,
+  "rest_mismatch_pixels": 0,
+  "tucks": [
+    {
+      "piece": "head",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_head.png",
+      "required_pixels": 148,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "torso",
+      "minimum_px": 3,
+      "cover": [
+        "head",
+        "pelvis",
+        "upper_near",
+        "upper_far"
+      ],
+      "required_mask": "tucks/front_torso.png",
+      "required_pixels": 729,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "pelvis",
+      "minimum_px": 3,
+      "cover": [
+        "torso",
+        "thigh_near",
+        "thigh_far"
+      ],
+      "required_mask": "tucks/front_pelvis.png",
+      "required_pixels": 513,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "upper_near",
+      "minimum_px": 3,
+      "cover": [
+        "torso",
+        "fore_near"
+      ],
+      "required_mask": "tucks/front_upper_near.png",
+      "required_pixels": 398,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "fore_near",
+      "minimum_px": 3,
+      "cover": [
+        "upper_near",
+        "fist_near"
+      ],
+      "required_mask": "tucks/front_fore_near.png",
+      "required_pixels": 231,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "fist_near",
+      "minimum_px": 3,
+      "cover": [
+        "fore_near"
+      ],
+      "required_mask": "tucks/front_fist_near.png",
+      "required_pixels": 102,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "thigh_near",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis",
+        "shin_near"
+      ],
+      "required_mask": "tucks/front_thigh_near.png",
+      "required_pixels": 271,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "shin_near",
+      "minimum_px": 3,
+      "cover": [
+        "thigh_near",
+        "foot_near"
+      ],
+      "required_mask": "tucks/front_shin_near.png",
+      "required_pixels": 286,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "foot_near",
+      "minimum_px": 3,
+      "cover": [
+        "shin_near"
+      ],
+      "required_mask": "tucks/front_foot_near.png",
+      "required_pixels": 150,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "upper_far",
+      "minimum_px": 3,
+      "cover": [
+        "torso",
+        "fore_far"
+      ],
+      "required_mask": "tucks/front_upper_far.png",
+      "required_pixels": 301,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "fore_far",
+      "minimum_px": 3,
+      "cover": [
+        "upper_far",
+        "fist_far"
+      ],
+      "required_mask": "tucks/front_fore_far.png",
+      "required_pixels": 309,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "fist_far",
+      "minimum_px": 3,
+      "cover": [
+        "fore_far"
+      ],
+      "required_mask": "tucks/front_fist_far.png",
+      "required_pixels": 170,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "thigh_far",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis",
+        "shin_far"
+      ],
+      "required_mask": "tucks/front_thigh_far.png",
+      "required_pixels": 324,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "shin_far",
+      "minimum_px": 3,
+      "cover": [
+        "thigh_far",
+        "foot_far"
+      ],
+      "required_mask": "tucks/front_shin_far.png",
+      "required_pixels": 412,
+      "missing_pixels": 0
+    },
+    {
+      "piece": "foot_far",
+      "minimum_px": 3,
+      "cover": [
+        "shin_far"
+      ],
+      "required_mask": "tucks/front_foot_far.png",
+      "required_pixels": 216,
+      "missing_pixels": 0
+    }
+  ],
+  "continuations": [
+    {
+      "piece": "head",
+      "added_pixels": 0,
+      "retextured_pixels": 290,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "torso",
+      "added_pixels": 0,
+      "retextured_pixels": 1268,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "pelvis",
+      "added_pixels": 0,
+      "retextured_pixels": 1132,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "upper_near",
+      "added_pixels": 0,
+      "retextured_pixels": 466,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "fore_near",
+      "added_pixels": 0,
+      "retextured_pixels": 274,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "fist_near",
+      "added_pixels": 0,
+      "retextured_pixels": 112,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "thigh_near",
+      "added_pixels": 0,
+      "retextured_pixels": 640,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "shin_near",
+      "added_pixels": 0,
+      "retextured_pixels": 653,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "foot_near",
+      "added_pixels": 0,
+      "retextured_pixels": 188,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "upper_far",
+      "added_pixels": 0,
+      "retextured_pixels": 681,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "fore_far",
+      "added_pixels": 0,
+      "retextured_pixels": 732,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "fist_far",
+      "added_pixels": 0,
+      "retextured_pixels": 544,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "thigh_far",
+      "added_pixels": 0,
+      "retextured_pixels": 696,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "shin_far",
+      "added_pixels": 0,
+      "retextured_pixels": 792,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    },
+    {
+      "piece": "foot_far",
+      "added_pixels": 0,
+      "retextured_pixels": 838,
+      "green_before": 0,
+      "green_after": 0,
+      "source_points": [],
+      "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+      "surface": "nearest eligible non-green own-boulder visible texel"
+    }
+  ],
+  "raw_authoring": {
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "scope": "exact pre-cleanup source partition against protected painting"
+  },
+  "presentation_delta_pixels": 1,
+  "visible_green_corrections": [
+    {
+      "piece": "head",
+      "source_xy": [
+        124,
+        18
+      ],
+      "raw_rgba": [
+        52,
+        95,
+        62,
+        255
+      ],
+      "presentation_rgba": [
+        16,
+        30,
+        42,
+        255
+      ]
+    }
+  ],
+  "delivery": {
+    "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
+    "front_parts.png": "6f899df117f3c3579a619ecd5bb624c58c7fefb543a3f7dedc729ea82251e23e",
+    "front_solo_head.png": "0c56b7b2d18aad99e244decfc422f3bfb8be8a2deffac9b1df6db28343faf9fc",
+    "front_solo_torso.png": "0c43e6dddbe12948b03e0aab99de688f2f38f86f4c6915fc57d4b672d789f828",
+    "front_solo_pelvis.png": "b04365509fcdbf6bda4adfed58c1a8b372f755ae800e90a88bb205ef359ce7b6",
+    "front_solo_upper_near.png": "cfb255f0fdc97a8545345e375cdf93356cccb2329d4e459edd4ee71416f21060",
+    "front_solo_fore_near.png": "2fd1269db8bd2b21df8ac9e5a76bbca01b837f12346573f5554c5d275ab5dba2",
+    "front_solo_hand_near.png": "a813b19c2af13ce485b796074d50288fc57572f942384f89137905a407b9b08f",
+    "front_solo_thigh_near.png": "7493fd37580c1a55d3e639515e013003649f03e1aa5568d4a7d556db6aef3227",
+    "front_solo_shin_near.png": "9fa51c5e4e6392f33f41847cf016901fa87dfec56d8e29617055d78dc3f7b601",
+    "front_solo_foot_near.png": "fcdfa626e5d7abcd33fe7704ec19e74cffba66d107fce558d29055293a1d7288",
+    "front_solo_upper_far.png": "c309d8c3fe21c5693bf12f1df87b366f3d6e2ba60269fe802ad0605f138b31f5",
+    "front_solo_fore_far.png": "41da15476276ca307f1ea1f899c8b4cd43ad02881728f898fee199c3ea463c8d",
+    "front_solo_hand_far.png": "c4c47f0b31a579598f2a3544b927cc573a7ad98966ef4b0ed8d983283156aa24",
+    "front_solo_thigh_far.png": "2e77c2c60758f9794b16c34878881fd6b9d44fe685f4e66bc919bf9242b9b462",
+    "front_solo_shin_far.png": "5b5fb088e849df3387287927a3d27db92a876d50790249c4159557d8817624ae",
+    "front_solo_foot_far.png": "3a7886435e84303753c58810108142093aee4ee0f18ffcff4e67f967f69c9106"
+  },
+  "source_ownership": "experiments/cutouts/glacial_mirror/rr18/front_baseline/layouts/front.json",
+  "source_ownership_sha256": "ab43a584931d4339005dbf9c6cab2ba1bdbbc07597e27d8a5365d4ba77441913",
+  "views": {
+    "front": {
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_head.png",
+          "required_pixels": 148,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "head",
+            "pelvis",
+            "upper_near",
+            "upper_far"
+          ],
+          "required_mask": "tucks/front_torso.png",
+          "required_pixels": 729,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "thigh_near",
+            "thigh_far"
+          ],
+          "required_mask": "tucks/front_pelvis.png",
+          "required_pixels": 513,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "upper_near",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "fore_near"
+          ],
+          "required_mask": "tucks/front_upper_near.png",
+          "required_pixels": 398,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fore_near",
+          "minimum_px": 3,
+          "cover": [
+            "upper_near",
+            "fist_near"
+          ],
+          "required_mask": "tucks/front_fore_near.png",
+          "required_pixels": 231,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fist_near",
+          "minimum_px": 3,
+          "cover": [
+            "fore_near"
+          ],
+          "required_mask": "tucks/front_fist_near.png",
+          "required_pixels": 102,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "thigh_near",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_near"
+          ],
+          "required_mask": "tucks/front_thigh_near.png",
+          "required_pixels": 271,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "shin_near",
+          "minimum_px": 3,
+          "cover": [
+            "thigh_near",
+            "foot_near"
+          ],
+          "required_mask": "tucks/front_shin_near.png",
+          "required_pixels": 286,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "shin_near"
+          ],
+          "required_mask": "tucks/front_foot_near.png",
+          "required_pixels": 150,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "upper_far",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "fore_far"
+          ],
+          "required_mask": "tucks/front_upper_far.png",
+          "required_pixels": 301,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fore_far",
+          "minimum_px": 3,
+          "cover": [
+            "upper_far",
+            "fist_far"
+          ],
+          "required_mask": "tucks/front_fore_far.png",
+          "required_pixels": 309,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fist_far",
+          "minimum_px": 3,
+          "cover": [
+            "fore_far"
+          ],
+          "required_mask": "tucks/front_fist_far.png",
+          "required_pixels": 170,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "thigh_far",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_far"
+          ],
+          "required_mask": "tucks/front_thigh_far.png",
+          "required_pixels": 324,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "shin_far",
+          "minimum_px": 3,
+          "cover": [
+            "thigh_far",
+            "foot_far"
+          ],
+          "required_mask": "tucks/front_shin_far.png",
+          "required_pixels": 412,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "shin_far"
+          ],
+          "required_mask": "tucks/front_foot_far.png",
+          "required_pixels": 216,
+          "missing_pixels": 0
+        }
+      ],
+      "continuations": [
+        {
+          "piece": "head",
+          "added_pixels": 0,
+          "retextured_pixels": 290,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "torso",
+          "added_pixels": 0,
+          "retextured_pixels": 1268,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "pelvis",
+          "added_pixels": 0,
+          "retextured_pixels": 1132,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_near",
+          "added_pixels": 0,
+          "retextured_pixels": 466,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_near",
+          "added_pixels": 0,
+          "retextured_pixels": 274,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_near",
+          "added_pixels": 0,
+          "retextured_pixels": 112,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_near",
+          "added_pixels": 0,
+          "retextured_pixels": 640,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_near",
+          "added_pixels": 0,
+          "retextured_pixels": 653,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_near",
+          "added_pixels": 0,
+          "retextured_pixels": 188,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_far",
+          "added_pixels": 0,
+          "retextured_pixels": 681,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_far",
+          "added_pixels": 0,
+          "retextured_pixels": 732,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_far",
+          "added_pixels": 0,
+          "retextured_pixels": 544,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_far",
+          "added_pixels": 0,
+          "retextured_pixels": 696,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_far",
+          "added_pixels": 0,
+          "retextured_pixels": 792,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_far",
+          "added_pixels": 0,
+          "retextured_pixels": 838,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        }
+      ],
+      "raw_authoring": {
+        "ok": true,
+        "errors": [],
+        "mismatch_pixels": 0,
+        "scope": "exact pre-cleanup source partition against protected painting"
+      },
+      "presentation_delta_pixels": 1,
+      "visible_green_corrections": [
+        {
+          "piece": "head",
+          "source_xy": [
+            124,
+            18
+          ],
+          "raw_rgba": [
+            52,
+            95,
+            62,
+            255
+          ],
+          "presentation_rgba": [
+            16,
+            30,
+            42,
+            255
+          ]
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
+        "front_parts.png": "6f899df117f3c3579a619ecd5bb624c58c7fefb543a3f7dedc729ea82251e23e",
+        "front_solo_head.png": "0c56b7b2d18aad99e244decfc422f3bfb8be8a2deffac9b1df6db28343faf9fc",
+        "front_solo_torso.png": "0c43e6dddbe12948b03e0aab99de688f2f38f86f4c6915fc57d4b672d789f828",
+        "front_solo_pelvis.png": "b04365509fcdbf6bda4adfed58c1a8b372f755ae800e90a88bb205ef359ce7b6",
+        "front_solo_upper_near.png": "cfb255f0fdc97a8545345e375cdf93356cccb2329d4e459edd4ee71416f21060",
+        "front_solo_fore_near.png": "2fd1269db8bd2b21df8ac9e5a76bbca01b837f12346573f5554c5d275ab5dba2",
+        "front_solo_hand_near.png": "a813b19c2af13ce485b796074d50288fc57572f942384f89137905a407b9b08f",
+        "front_solo_thigh_near.png": "7493fd37580c1a55d3e639515e013003649f03e1aa5568d4a7d556db6aef3227",
+        "front_solo_shin_near.png": "9fa51c5e4e6392f33f41847cf016901fa87dfec56d8e29617055d78dc3f7b601",
+        "front_solo_foot_near.png": "fcdfa626e5d7abcd33fe7704ec19e74cffba66d107fce558d29055293a1d7288",
+        "front_solo_upper_far.png": "c309d8c3fe21c5693bf12f1df87b366f3d6e2ba60269fe802ad0605f138b31f5",
+        "front_solo_fore_far.png": "41da15476276ca307f1ea1f899c8b4cd43ad02881728f898fee199c3ea463c8d",
+        "front_solo_hand_far.png": "c4c47f0b31a579598f2a3544b927cc573a7ad98966ef4b0ed8d983283156aa24",
+        "front_solo_thigh_far.png": "2e77c2c60758f9794b16c34878881fd6b9d44fe685f4e66bc919bf9242b9b462",
+        "front_solo_shin_far.png": "5b5fb088e849df3387287927a3d27db92a876d50790249c4159557d8817624ae",
+        "front_solo_foot_far.png": "3a7886435e84303753c58810108142093aee4ee0f18ffcff4e67f967f69c9106"
+      },
+      "source_ownership": "experiments/cutouts/glacial_mirror/rr18/front_baseline/layouts/front.json",
+      "source_ownership_sha256": "ab43a584931d4339005dbf9c6cab2ba1bdbbc07597e27d8a5365d4ba77441913"
+    },
+    "rear": {
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_head.png",
+          "required_pixels": 206,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "head",
+            "pelvis",
+            "upper_near",
+            "upper_far"
+          ],
+          "required_mask": "tucks/rear_torso.png",
+          "required_pixels": 851,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "thigh_near",
+            "thigh_far"
+          ],
+          "required_mask": "tucks/rear_pelvis.png",
+          "required_pixels": 472,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "upper_near",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "fore_near"
+          ],
+          "required_mask": "tucks/rear_upper_near.png",
+          "required_pixels": 429,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fore_near",
+          "minimum_px": 3,
+          "cover": [
+            "upper_near",
+            "fist_near"
+          ],
+          "required_mask": "tucks/rear_fore_near.png",
+          "required_pixels": 385,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fist_near",
+          "minimum_px": 3,
+          "cover": [
+            "fore_near"
+          ],
+          "required_mask": "tucks/rear_fist_near.png",
+          "required_pixels": 182,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "thigh_near",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_near"
+          ],
+          "required_mask": "tucks/rear_thigh_near.png",
+          "required_pixels": 282,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "shin_near",
+          "minimum_px": 3,
+          "cover": [
+            "thigh_near",
+            "foot_near"
+          ],
+          "required_mask": "tucks/rear_shin_near.png",
+          "required_pixels": 403,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "shin_near"
+          ],
+          "required_mask": "tucks/rear_foot_near.png",
+          "required_pixels": 236,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "upper_far",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "fore_far"
+          ],
+          "required_mask": "tucks/rear_upper_far.png",
+          "required_pixels": 352,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fore_far",
+          "minimum_px": 3,
+          "cover": [
+            "upper_far",
+            "fist_far"
+          ],
+          "required_mask": "tucks/rear_fore_far.png",
+          "required_pixels": 194,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "fist_far",
+          "minimum_px": 3,
+          "cover": [
+            "fore_far"
+          ],
+          "required_mask": "tucks/rear_fist_far.png",
+          "required_pixels": 91,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "thigh_far",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_far"
+          ],
+          "required_mask": "tucks/rear_thigh_far.png",
+          "required_pixels": 204,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "shin_far",
+          "minimum_px": 3,
+          "cover": [
+            "thigh_far",
+            "foot_far"
+          ],
+          "required_mask": "tucks/rear_shin_far.png",
+          "required_pixels": 182,
+          "missing_pixels": 0
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "shin_far"
+          ],
+          "required_mask": "tucks/rear_foot_far.png",
+          "required_pixels": 120,
+          "missing_pixels": 0
+        }
+      ],
+      "continuations": [
+        {
+          "piece": "head",
+          "added_pixels": 0,
+          "retextured_pixels": 254,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "torso",
+          "added_pixels": 0,
+          "retextured_pixels": 1439,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "pelvis",
+          "added_pixels": 0,
+          "retextured_pixels": 1138,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_near",
+          "added_pixels": 0,
+          "retextured_pixels": 589,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_near",
+          "added_pixels": 0,
+          "retextured_pixels": 697,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_near",
+          "added_pixels": 0,
+          "retextured_pixels": 593,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_near",
+          "added_pixels": 0,
+          "retextured_pixels": 513,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_near",
+          "added_pixels": 0,
+          "retextured_pixels": 703,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_near",
+          "added_pixels": 0,
+          "retextured_pixels": 1009,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_far",
+          "added_pixels": 16,
+          "retextured_pixels": 373,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [
+            [
+              165,
+              93
+            ],
+            [
+              168,
+              55
+            ]
+          ],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_far",
+          "added_pixels": 0,
+          "retextured_pixels": 253,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_far",
+          "added_pixels": 0,
+          "retextured_pixels": 105,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_far",
+          "added_pixels": 11,
+          "retextured_pixels": 227,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [
+            [
+              168,
+              178
+            ]
+          ],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_far",
+          "added_pixels": 0,
+          "retextured_pixels": 253,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_far",
+          "added_pixels": 0,
+          "retextured_pixels": 164,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        }
+      ],
+      "raw_authoring": {
+        "ok": true,
+        "errors": [],
+        "mismatch_pixels": 0,
+        "scope": "exact pre-cleanup source partition against protected painting"
+      },
+      "presentation_delta_pixels": 28,
+      "visible_green_corrections": [
+        {
+          "piece": "upper_near",
+          "source_xy": [
+            113,
+            18
+          ],
+          "raw_rgba": [
+            0,
+            15,
+            0,
+            255
+          ],
+          "presentation_rgba": [
+            0,
+            0,
+            0,
+            255
+          ]
+        },
+        {
+          "piece": "upper_far",
+          "source_xy": [
+            172,
+            109
+          ],
+          "raw_rgba": [
+            20,
+            33,
+            20,
+            255
+          ],
+          "presentation_rgba": [
+            15,
+            23,
+            23,
+            255
+          ]
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "a4b7265d52349aada7f933d21e02cd8524ec49a3b2afb88eb55a975018f3ceae",
+        "rear_parts.png": "a92e4058384d505feb6698c6327504a277aa5265395243c29d26d89f972e02fe",
+        "rear_solo_head.png": "a333ef503924ee64a28fee5337caad2ee1c71231e832b6b4c5ab2423a158629a",
+        "rear_solo_torso.png": "3a87b0ba3a34d9dfd28c40877023fa24e8ba6b00685d04be6e347189c8d643c6",
+        "rear_solo_pelvis.png": "5bda497917314914020a344c7aec3f4e937e81c6d6a838bb6c963d8e3e595597",
+        "rear_solo_upper_near.png": "ee5dfbe706381d3f435bd13cdf86303bb5ce3deb71d4bb3ebe475a1b4e31434f",
+        "rear_solo_fore_near.png": "25babfdbb4cbf36c414c1fdc8c130f871099ceecf3cec8fde3a341a9354f8a24",
+        "rear_solo_hand_near.png": "8fa32e8f71b062d300264014bdcfeae704423b692120f17d98e11a5825023ea8",
+        "rear_solo_thigh_near.png": "7adb8934e840776353f2c8ac7c4b1c5977b5534a7a3cf1946493704a07b7c0b4",
+        "rear_solo_shin_near.png": "f16c3ed7078745361fea59a49cedf5160aeb89686c47085c5ae40b1c896cfb5b",
+        "rear_solo_foot_near.png": "9ec73b9bf59baedd68417e393f966197a7f09ea5cfdddbd22be4afe18c3a3142",
+        "rear_solo_upper_far.png": "fe276a22855c76774d4e2bdc2909e9eeac3dde6fc25caf8f13494d9dbbbff099",
+        "rear_solo_fore_far.png": "bec9e8755d6c0959e7f9b0110a0190cd67c7d52b8c7652e1a158363d83fc9791",
+        "rear_solo_hand_far.png": "e5059d18962c0437c5fba8010ee27feadf44e6de27be543a2101b2952c936e70",
+        "rear_solo_thigh_far.png": "d7341f86d9099762652068532f856dad60d82f17b7d886a99af26734401b73cc",
+        "rear_solo_shin_far.png": "0f9234bdd2a895e0ed303f0d8877bf683f871377278d87e8b03fe1b41e33c4b2",
+        "rear_solo_foot_far.png": "44c27b33a3d8044416c844937af0c45871fde10798d9d182246d717625101c8b"
+      },
+      "source_ownership": "experiments/cutouts/glacial_mirror/rr18/rear_baseline/layouts/rear.json",
+      "source_ownership_sha256": "b6f07157b529a96c853d6c62337abc1435bbe52c1b23065b996ee767abce97c1"
+    }
+  },
+  "director_sha256": "91322088b5a9ca199e15c725967a79bf1999137eb61af44e462026eca42360e7",
+  "production_promoted": true,
+  "native_proof": "pending director windowed captures"
+}

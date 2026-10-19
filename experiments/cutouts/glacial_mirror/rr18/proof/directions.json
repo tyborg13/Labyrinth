@@ -1,0 +1,28 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "positive_checks": 555,
+    "clip_positive_checks": {
+      "move": 65,
+      "refraction": 100,
+      "guard": 122,
+      "hit": 60,
+      "death": 208
+    },
+    "minimum_forward_channel_dot": 0.0007337098052983712
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "positive_checks": 555,
+    "clip_positive_checks": {
+      "move": 65,
+      "refraction": 100,
+      "guard": 122,
+      "hit": 60,
+      "death": 208
+    },
+    "minimum_forward_channel_dot": 0.001555857845742369
+  }
+}

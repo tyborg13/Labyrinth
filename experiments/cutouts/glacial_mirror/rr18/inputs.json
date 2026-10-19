@@ -1,0 +1,7 @@
+{
+  "front_job": "spec/art_identity/jobs/glacial_mirror/mq8_front",
+  "rear_job": "spec/art_identity/jobs/glacial_mirror/mq8_rear",
+  "front_delivery": "spec/art_identity/maquettes/glacial_mirror/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/glacial_mirror/delivery",
+  "design_placeholders": {}
+}

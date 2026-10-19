@@ -1,0 +1,1282 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "swings": [
+      {
+        "side": "near",
+        "start": 0.05,
+        "end": 0.38,
+        "peak_frame": 9,
+        "peak_bend_deg": 47.47328033524183,
+        "apex_frame": 10,
+        "apex_swing_bend_deg": 46.02915480430598,
+        "apex_stance_bend_deg": 17.477829135062354
+      },
+      {
+        "side": "near",
+        "start": 0.5,
+        "end": 0.83,
+        "peak_frame": 33,
+        "peak_bend_deg": 53.880697162032874,
+        "apex_frame": 33,
+        "apex_swing_bend_deg": 53.880697162032874,
+        "apex_stance_bend_deg": 17.477829135062354
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "phase": 0.0,
+        "near": {
+          "bend_deg": 8.998037445321092,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 1,
+        "phase": 0.02,
+        "near": {
+          "bend_deg": 19.85235843374805,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 2,
+        "phase": 0.04,
+        "near": {
+          "bend_deg": 27.34987578006988,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 3,
+        "phase": 0.06,
+        "near": {
+          "bend_deg": 29.74488129694222,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 4,
+        "phase": 0.08,
+        "near": {
+          "bend_deg": 32.99943628330582,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 5,
+        "phase": 0.1,
+        "near": {
+          "bend_deg": 38.884496433714595,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 6,
+        "phase": 0.12,
+        "near": {
+          "bend_deg": 39.045922458233086,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 7,
+        "phase": 0.14,
+        "near": {
+          "bend_deg": 40.815122731042955,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 8,
+        "phase": 0.16,
+        "near": {
+          "bend_deg": 42.57072667650004,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 9,
+        "phase": 0.18,
+        "near": {
+          "bend_deg": 47.47328033524183,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 10,
+        "phase": 0.2,
+        "near": {
+          "bend_deg": 46.02915480430598,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 11,
+        "phase": 0.22,
+        "near": {
+          "bend_deg": 43.60281897270362,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 12,
+        "phase": 0.24,
+        "near": {
+          "bend_deg": 40.36453657309736,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 13,
+        "phase": 0.26,
+        "near": {
+          "bend_deg": 34.64996316890235,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 14,
+        "phase": 0.28,
+        "near": {
+          "bend_deg": 33.0262011109419,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 15,
+        "phase": 0.3,
+        "near": {
+          "bend_deg": 28.926425835253614,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 16,
+        "phase": 0.32,
+        "near": {
+          "bend_deg": 23.234521638696528,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 17,
+        "phase": 0.34,
+        "near": {
+          "bend_deg": 21.34692585475849,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 18,
+        "phase": 0.36,
+        "near": {
+          "bend_deg": 23.604532687165285,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 19,
+        "phase": 0.38,
+        "near": {
+          "bend_deg": 28.62312171648021,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 20,
+        "phase": 0.4,
+        "near": {
+          "bend_deg": 28.593227853097375,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 24.77514056883192,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 21,
+        "phase": 0.42,
+        "near": {
+          "bend_deg": 34.2424068097659,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 31.115379226539314,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 22,
+        "phase": 0.44,
+        "near": {
+          "bend_deg": 31.480585885870614,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 37.00750357643878,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 23,
+        "phase": 0.46,
+        "near": {
+          "bend_deg": 32.99943628330582,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 29.63961964308272,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 24,
+        "phase": 0.48,
+        "near": {
+          "bend_deg": 32.7352262721076,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 24.77514056883192,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 25,
+        "phase": 0.5,
+        "near": {
+          "bend_deg": 35.134193056915635,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 26,
+        "phase": 0.52,
+        "near": {
+          "bend_deg": 36.15818543980833,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 27,
+        "phase": 0.54,
+        "near": {
+          "bend_deg": 40.0302592718897,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 28,
+        "phase": 0.56,
+        "near": {
+          "bend_deg": 44.246197930133455,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 29,
+        "phase": 0.58,
+        "near": {
+          "bend_deg": 44.30040147591645,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 30,
+        "phase": 0.6,
+        "near": {
+          "bend_deg": 49.74129897905317,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 31,
+        "phase": 0.62,
+        "near": {
+          "bend_deg": 51.6288550629119,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 32,
+        "phase": 0.64,
+        "near": {
+          "bend_deg": 52.1250163489018,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 33,
+        "phase": 0.66,
+        "near": {
+          "bend_deg": 53.880697162032874,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 34,
+        "phase": 0.68,
+        "near": {
+          "bend_deg": 52.3426181641074,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 35,
+        "phase": 0.7,
+        "near": {
+          "bend_deg": 47.15528201783896,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 36,
+        "phase": 0.72,
+        "near": {
+          "bend_deg": 48.91094509205027,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 37,
+        "phase": 0.74,
+        "near": {
+          "bend_deg": 43.28318659398406,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 38,
+        "phase": 0.76,
+        "near": {
+          "bend_deg": 38.884496433714595,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 39,
+        "phase": 0.78,
+        "near": {
+          "bend_deg": 36.6195296545066,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 40,
+        "phase": 0.8,
+        "near": {
+          "bend_deg": 36.45816202911989,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 41,
+        "phase": 0.82,
+        "near": {
+          "bend_deg": 33.32124257239892,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 42,
+        "phase": 0.84,
+        "near": {
+          "bend_deg": 37.390162842448056,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 19.990350899091503,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 43,
+        "phase": 0.86,
+        "near": {
+          "bend_deg": 35.6639631936304,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 27.26469349083108,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 44,
+        "phase": 0.88,
+        "near": {
+          "bend_deg": 35.6639631936304,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 37.00750357643878,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 45,
+        "phase": 0.9,
+        "near": {
+          "bend_deg": 31.5347952677465,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 37.00750357643878,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 46,
+        "phase": 0.92,
+        "near": {
+          "bend_deg": 28.178614371002126,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 27.26469349083108,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 47,
+        "phase": 0.94,
+        "near": {
+          "bend_deg": 23.979443467123765,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 18.606663931722995,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 48,
+        "phase": 0.96,
+        "near": {
+          "bend_deg": 16.445557360773005,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 49,
+        "phase": 0.98,
+        "near": {
+          "bend_deg": 13.011287079346339,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 50,
+        "phase": 1.0,
+        "near": {
+          "bend_deg": 9.819326537071117,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.477829135062354,
+          "facing_direction_ok": true
+        }
+      }
+    ]
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "swings": [
+      {
+        "side": "far",
+        "start": 0.05,
+        "end": 0.38,
+        "peak_frame": 10,
+        "peak_bend_deg": 55.01164919715909,
+        "apex_frame": 10,
+        "apex_swing_bend_deg": 55.01164919715909,
+        "apex_stance_bend_deg": 10.669782804496677
+      },
+      {
+        "side": "far",
+        "start": 0.5,
+        "end": 0.83,
+        "peak_frame": 34,
+        "peak_bend_deg": 43.5904629221598,
+        "apex_frame": 33,
+        "apex_swing_bend_deg": 41.92630120054227,
+        "apex_stance_bend_deg": 10.669811119058231
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "phase": 0.0,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 10.4209698850854,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 1,
+        "phase": 0.02,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 20.3819492994063,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 2,
+        "phase": 0.04,
+        "near": {
+          "bend_deg": 9.254392130489377,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 27.21207332913077,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 3,
+        "phase": 0.06,
+        "near": {
+          "bend_deg": 9.254392130489377,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 28.827791838663156,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 4,
+        "phase": 0.08,
+        "near": {
+          "bend_deg": 10.669782804496677,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 31.568971129318335,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 5,
+        "phase": 0.1,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 36.68938882065529,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 6,
+        "phase": 0.12,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 40.834552368700145,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 7,
+        "phase": 0.14,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 42.580947570921886,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 8,
+        "phase": 0.16,
+        "near": {
+          "bend_deg": 10.669747632938497,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 47.72635939606687,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 9,
+        "phase": 0.18,
+        "near": {
+          "bend_deg": 9.254372823141114,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 52.79572401910218,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 10,
+        "phase": 0.2,
+        "near": {
+          "bend_deg": 10.669782804496677,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 55.01164919715909,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 11,
+        "phase": 0.22,
+        "near": {
+          "bend_deg": 9.254372823141114,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 53.43690413140591,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 12,
+        "phase": 0.24,
+        "near": {
+          "bend_deg": 10.669782804496677,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 53.43690413140591,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 13,
+        "phase": 0.26,
+        "near": {
+          "bend_deg": 9.254372823141336,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 51.84022268232598,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 14,
+        "phase": 0.28,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 50.9468630539735,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 15,
+        "phase": 0.3,
+        "near": {
+          "bend_deg": 10.669747632938726,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 49.92144497735379,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 16,
+        "phase": 0.32,
+        "near": {
+          "bend_deg": 9.254358088334852,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 48.331202009863034,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 17,
+        "phase": 0.34,
+        "near": {
+          "bend_deg": 9.254358088334852,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 44.196334280807406,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 18,
+        "phase": 0.36,
+        "near": {
+          "bend_deg": 9.254392130489377,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 44.18085627591743,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 19,
+        "phase": 0.38,
+        "near": {
+          "bend_deg": 9.254358088334852,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 42.87890360333855,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 20,
+        "phase": 0.4,
+        "near": {
+          "bend_deg": 24.62359692821936,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 42.32727794541129,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 21,
+        "phase": 0.42,
+        "near": {
+          "bend_deg": 44.0419336878661,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 40.18072326088837,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 22,
+        "phase": 0.44,
+        "near": {
+          "bend_deg": 45.660031508695354,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 33.6327908577753,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 23,
+        "phase": 0.46,
+        "near": {
+          "bend_deg": 39.99604978475532,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 31.568971129318335,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 24,
+        "phase": 0.48,
+        "near": {
+          "bend_deg": 24.623564786163612,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 25.25432642217678,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 25,
+        "phase": 0.5,
+        "near": {
+          "bend_deg": 10.669782804496677,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 20.131366265010627,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 26,
+        "phase": 0.52,
+        "near": {
+          "bend_deg": 9.254358088334852,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 13.76396414854729,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 27,
+        "phase": 0.54,
+        "near": {
+          "bend_deg": 9.254406865295861,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 17.020525611519858,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 28,
+        "phase": 0.56,
+        "near": {
+          "bend_deg": 9.2543654557422,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 23.351363227929983,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 29,
+        "phase": 0.58,
+        "near": {
+          "bend_deg": 4.914626803574838,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 26.768407127129954,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 30,
+        "phase": 0.6,
+        "near": {
+          "bend_deg": 10.669811119058231,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 33.47627829610267,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 31,
+        "phase": 0.62,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 38.59970533576029,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 32,
+        "phase": 0.64,
+        "near": {
+          "bend_deg": 9.2543654557422,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 40.50394208757718,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 33,
+        "phase": 0.66,
+        "near": {
+          "bend_deg": 10.669811119058231,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 41.92630120054227,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 34,
+        "phase": 0.68,
+        "near": {
+          "bend_deg": 9.254371645264706,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 43.5904629221598,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 35,
+        "phase": 0.7,
+        "near": {
+          "bend_deg": 9.254386380054799,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 41.335815679259284,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 36,
+        "phase": 0.72,
+        "near": {
+          "bend_deg": 10.669789661467183,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 42.015717856406624,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 37,
+        "phase": 0.74,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 40.419085448329035,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 38,
+        "phase": 0.76,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 40.41903640732669,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 39,
+        "phase": 0.78,
+        "near": {
+          "bend_deg": 9.254463348703775,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 38.80248561468724,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 40,
+        "phase": 0.8,
+        "near": {
+          "bend_deg": 9.254463348703775,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 38.80248561468724,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 41,
+        "phase": 0.82,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 35.495641277496986,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 42,
+        "phase": 0.84,
+        "near": {
+          "bend_deg": 15.69778746430808,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 35.495641277496986,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 43,
+        "phase": 0.86,
+        "near": {
+          "bend_deg": 32.25924952480495,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 34.04542498656356,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 44,
+        "phase": 0.88,
+        "near": {
+          "bend_deg": 44.04196350588415,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 33.37455254218945,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 45,
+        "phase": 0.9,
+        "near": {
+          "bend_deg": 45.6600580386216,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 30.315129780969038,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 46,
+        "phase": 0.92,
+        "near": {
+          "bend_deg": 36.38435181583589,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 26.635090900157394,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 47,
+        "phase": 0.94,
+        "near": {
+          "bend_deg": 14.577811771373327,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 23.52565967828546,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 48,
+        "phase": 0.96,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 16.763844764393674,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 49,
+        "phase": 0.98,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 13.602276831098127,
+          "facing_direction_ok": true
+        }
+      },
+      {
+        "frame": 50,
+        "phase": 1.0,
+        "near": {
+          "bend_deg": 9.254399497896722,
+          "facing_direction_ok": true
+        },
+        "far": {
+          "bend_deg": 10.420975311087403,
+          "facing_direction_ok": true
+        }
+      }
+    ]
+  }
+}
