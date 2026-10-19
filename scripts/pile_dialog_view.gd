@@ -17,6 +17,8 @@ const CARD_BACK_PATH: String = "res://assets/art/ui/card_back.png"
 const COPY_BADGE_SIZE := Vector2(52.0, 52.0)
 const COPY_BADGE_INSET := Vector2(6.0, 6.0)
 const COPY_BADGE_FONT_SIZE: int = 22
+const COPY_BADGE_DOUBLE_FONT_SIZE: int = 18
+const COPY_BADGE_CAPPED_FONT_SIZE: int = 16
 const COPY_BADGE_DISC_ALPHA: float = 0.92
 # Above CardWidget's hover lift and its child ornaments.
 const COPY_BADGE_Z_INDEX: int = 40
@@ -48,11 +50,16 @@ class CopyCountFace extends Control:
 		queue_redraw()
 
 	func _draw() -> void:
+		paint_disc(Callable(self, "draw_circle"))
+
+	# The real draw path accepts a painter so headless checks can record the
+	# exact circle colour, alpha and geometry sent to the renderer.
+	func paint_disc(paint_circle: Callable) -> void:
 		var source_size: float = float(_geometry["size"][0])
 		var center: Array = _geometry["center"]
 		var ring_center: Vector2 = _ring.position + Vector2(float(center[0]), float(center[1])) * _ring.size.x / source_size
 		var radius: float = float(_geometry["inner_radius"]) * _ring.size.x / source_size
-		draw_circle(ring_center, radius, Color(Palette.INK_0, COPY_BADGE_DISC_ALPHA))
+		paint_circle.call(ring_center, radius, Color(Palette.INK_0, COPY_BADGE_DISC_ALPHA))
 
 static func finish_panel(panel: PanelContainer, style: StyleBox) -> void:
 	panel.add_theme_stylebox_override("panel", style)
@@ -101,17 +108,10 @@ static func card_cell(host: Node, card_id: String, count: int, activated: Callab
 	cell.focus_exited.connect(cell._highlight)
 	cell.pressed.connect(activated.bind(card_id))
 	if count > 1:
-		var copies := Label.new()
+		var copies := Control.new()
 		copies.name = "PileCopyCount"
-		copies.text = "×%d" % count
-		copies.add_theme_font_override("font", Typography.ui_font())
-		Typography.set_label_size(copies, COPY_BADGE_FONT_SIZE)
-		copies.add_theme_color_override("font_color", Palette.GOLD_BRIGHT)
-		copies.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
-		copies.add_theme_constant_override("outline_size", 3)
+		copies.custom_minimum_size = COPY_BADGE_SIZE
 		copies.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		copies.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		copies.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		copies.z_index = COPY_BADGE_Z_INDEX
 		cell.add_child(copies)
 		copies.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
@@ -123,8 +123,20 @@ static func card_cell(host: Node, card_id: String, count: int, activated: Callab
 		var face := CopyCountFace.new()
 		face.name = "Medallion"
 		face.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		face.show_behind_parent = true
 		face.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		copies.add_child(face)
 		face.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		var text := Label.new()
+		text.name = "Text"
+		text.text = "×99+" if count >= 100 else "×%d" % count
+		text.add_theme_font_override("font", Typography.ui_font())
+		Typography.set_label_size(text, COPY_BADGE_CAPPED_FONT_SIZE if count >= 100 else COPY_BADGE_DOUBLE_FONT_SIZE if count >= 10 else COPY_BADGE_FONT_SIZE)
+		text.add_theme_color_override("font_color", Palette.GOLD_BRIGHT)
+		text.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
+		text.add_theme_constant_override("outline_size", 3)
+		text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		text.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		text.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		copies.add_child(text)
+		text.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return cell

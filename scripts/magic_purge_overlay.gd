@@ -14,6 +14,7 @@ const Section = preload("res://scripts/ui_section_header.gd")
 const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
+const RowScroll = preload("res://scripts/magic_purge_row_scroll.gd")
 const MAX_COLUMNS: int = 7
 const CARD_GAP := Vector2(16.0, 20.0)
 const CROWN_HEADROOM: float = 18.0
@@ -42,7 +43,7 @@ var _price: int = 0
 var _held: int = 0
 var _panel: PanelContainer
 var _grid: Control
-var _scroll: ScrollContainer
+var _scroll: RowScroll
 var _header: HBoxContainer
 var _grid_panel_style: StyleBoxFlat
 var _confirm_panel_style: StyleBoxFlat
@@ -137,11 +138,10 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 	scroll_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(scroll_host)
-	_scroll = ScrollContainer.new()
+	_scroll = RowScroll.new()
 	_scroll.name = "MagicPurgeScroll"
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO if entries.size() > 14 else ScrollContainer.SCROLL_MODE_DISABLED
-	_scroll.follow_focus = true
 	_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var padding := StyleBoxEmpty.new()
 	padding.content_margin_top = CROWN_HEADROOM
@@ -164,6 +164,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, _dialog_size
 		_grid.add_child(empty)
 		empty.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_columns = maxi(1, mini(entries.size(), MAX_COLUMNS))
+	if not entries.is_empty(): _scroll.configure(_grid, _columns, int(PileView.CARD_SIZE.y + CARD_GAP.y))
 	_grid.resized.connect(_layout_grid)
 	_panel.custom_minimum_size = dialog_size_for(entries.size()) if not entries.is_empty() else _dialog_size
 	# Reserve the scrollbar in the existing right margin, keeping seven 196px

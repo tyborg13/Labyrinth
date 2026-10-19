@@ -78,9 +78,7 @@ static func _walk_text(node: Node, failures: Array[String]) -> void:
 		if measured.x > label.size.x + FIT_EPSILON or measured.y > label.size.y + FIT_EPSILON or label.get_visible_line_count() < paragraph.get_line_count():
 			failures.append("%s clips Label %s (%s in %s)" % [node.get_path(), label.text, measured, label.size])
 		var parent: Control = label.get_parent() as Control
-		# The count medallion intentionally straddles the card corner. Its own
-		# text fit and exact attachment are checked separately from button copy.
-		if parent != null and ((parent is Button and label.name != "PileCopyCount") or parent.name == "MagicPurgePrice") and not parent.get_global_rect().grow(FIT_EPSILON).encloses(label.get_global_rect()):
+		if parent != null and (parent is Button or parent.name == "MagicPurgePrice") and not parent.get_global_rect().grow(FIT_EPSILON).encloses(label.get_global_rect()):
 			failures.append("%s places Label outside its button/chip" % node.get_path())
 	elif node is Button:
 		var button := node as Button
@@ -144,7 +142,7 @@ static func assert_heading(modal: Control, spell_count: int, expect: Callable) -
 
 static func assert_polish_text_fit_mutations(modal: Control, expect: Callable) -> void:
 	var heading: Control = modal.find_child("MagicPurgeHeading", true, false)
-	for label: Label in [heading.get_node("Title"), heading.get_node("Count"), modal.find_child("PileCopyCount", true, false)]:
+	for label: Label in [heading.get_node("Title"), heading.get_node("Count"), modal.find_child("PileCopyCount", true, false).get_node("Text")]:
 		expect.call(label != null, "Polish text-fit fixture includes title, count and duplicate badge")
 		if label == null: continue
 		var label_path: String = str(label.get_path())
