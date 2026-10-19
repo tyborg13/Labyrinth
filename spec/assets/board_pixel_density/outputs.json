@@ -12668,6 +12668,422 @@
     "grid": 1.49,
     "facing": "rear"
   },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/apron.png": {
+    "pixel_sha256": "0946a05393d421a86290ec7d6072fb098757a14a0213b21e48cf7e5552b4636d",
+    "source_pixel_sha256": "1416f7bb160e56d75ce8cbddbd51f2349e6e07162fdf3d49ffbe9eac0654fb23",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/arm_far.png": {
+    "pixel_sha256": "71ec1c36533dea78d6874de95ab26ad9fc57c35b658fdd89ed8e1d61677da52b",
+    "source_pixel_sha256": "1eb1aa81dfeecdffd2d380f4030cc35332c43a247f51e9efdb2130bc3ddcdbd8",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/arm_near.png": {
+    "pixel_sha256": "f8e3e3f409ec6a719d3f026509e0bbf23248bb73c7e256a24d59109a2155db46",
+    "source_pixel_sha256": "9f2afc9559ef5dd9ccb64046613a8a6ac63960e46a12c1e5016ea089e534b8f7",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/foot_far.png": {
+    "pixel_sha256": "05b164fb3397b9ce37f910f9e6abfa9388cb28f39c8822ee050bfdea4af28628",
+    "source_pixel_sha256": "9bd0931fcb8d687ab5ba55827d5b93ef1f3e456eb574c1634122c126b01efcec",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/foot_near.png": {
+    "pixel_sha256": "d1ac54eebb1779a8686e55801be2a531f46426359f641b0d24c29f6cbe2ebcdc",
+    "source_pixel_sha256": "ed32c753558d1fd141fa3f0b731876a2553b477e582eb13c518621efe2010ecc",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hand_far.png": {
+    "pixel_sha256": "b7aca37b05005b61fb7e8e3be4fc937c9da214c15b328b7fb4f9e6fd513f4d67",
+    "source_pixel_sha256": "8800f98471caf3409016fc1af87f0710cc308f68ab7531766f41f44bd6c02185",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hand_near.png": {
+    "pixel_sha256": "30603bca8a81c8f874d3269a34caddf5976fb3ad09cda62344a00c32ae53d171",
+    "source_pixel_sha256": "3e704af910ce24476ec61a7f905c67df12995357520777373fbfe3e1ffdd2413",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/head.png": {
+    "pixel_sha256": "31e2189be89ab97f5bcae7c4b0905677b1837c24c46f5b252194e2bf8a3debd2",
+    "source_pixel_sha256": "9a08ffaf4c5264014158d4a08e26cb2bafd817a26920b03569a5919fc68084c8",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_apron.png": {
+    "pixel_sha256": "b1cfb80faa8147730fc3e9eea977c847da33fde655b492159b6ebe72659a2599",
+    "source_pixel_sha256": "bccb5d5358a96be0b216dd871f98c584081e7fb61830c42ac33ef5e425a5bfa3",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_arm_far.png": {
+    "pixel_sha256": "b97dbdd3c53303b2e79adf47f029110355b1f5b517653bc6bff83562b430ccb6",
+    "source_pixel_sha256": "749309ed7fc8c25659d8b920e4a2ac4415d5e0bf54e6c25bfdcfabc45ca5a972",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_arm_near.png": {
+    "pixel_sha256": "578b7f3eba3d0fbd4e9fd937ac9bae00cdc1ad6422eb76fc1dd61725712f03a1",
+    "source_pixel_sha256": "459313e51d483b183f0416586c2b91610dc7f17a033d9122a44aa1641547515b",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_foot_far.png": {
+    "pixel_sha256": "3e2ff3a62a74fe3c8425b8f0dde02bb16f3d048be9561b2c742b46fd1aa440a4",
+    "source_pixel_sha256": "3e2ff3a62a74fe3c8425b8f0dde02bb16f3d048be9561b2c742b46fd1aa440a4",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_foot_near.png": {
+    "pixel_sha256": "fa3aadc2525163784dc3034e6bb95c8c3a65706a9cc47dc88a6fe4b8c1a5711b",
+    "source_pixel_sha256": "fa3aadc2525163784dc3034e6bb95c8c3a65706a9cc47dc88a6fe4b8c1a5711b",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_hand_far.png": {
+    "pixel_sha256": "83cb360f78971cba0d608b7c574185b027aec93ade9fc35c09602662a48bfb4b",
+    "source_pixel_sha256": "d309ea20f700ccabba95efabd73de9753b58bea3b90b34a1e448f0ff9b4c8dc2",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_hand_near.png": {
+    "pixel_sha256": "0701c9eb1e8b804ffbe29d9a0f034ca3a9e59d2b6887a4dc17b757c990268e59",
+    "source_pixel_sha256": "cfff712cfd1a2c79773350f1d451c6800f02805a60979e73b9cb0384c7ffeeaa",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_head.png": {
+    "pixel_sha256": "ed1220f5423439bcce0f61e8c8442ac31b770b2dc681744b5d6cc0b3a497fa79",
+    "source_pixel_sha256": "ed1220f5423439bcce0f61e8c8442ac31b770b2dc681744b5d6cc0b3a497fa79",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_leg_far.png": {
+    "pixel_sha256": "4d342c17743d3b875895fdc1bad1a88220c5be185e6b4328d750f73a89bb3447",
+    "source_pixel_sha256": "6e5b8cfb7cbad7f31a912719e62eaf0dc3bbd79b76af0a9d8de05089648dad24",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_leg_near.png": {
+    "pixel_sha256": "7df3d7c5eb826cf81b41765023afc9c60c9fb7f5210c16ae8f09930e6e2f555b",
+    "source_pixel_sha256": "7df3d7c5eb826cf81b41765023afc9c60c9fb7f5210c16ae8f09930e6e2f555b",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_mortar.png": {
+    "pixel_sha256": "8e7dd85f56fc3eae925ee9a929a16b40ed1afb3bfebd92be8cc04444092a85ba",
+    "source_pixel_sha256": "3ca2cc844d2ebb82cb44c5ffdd8b4ec228a1cab96cc9e83a6daba1dbf5429af9",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_pelvis.png": {
+    "pixel_sha256": "fb798e2f7e105a987bf8ec73e7b17ec86bcd26cdb85fa3d2d98798492cff71fd",
+    "source_pixel_sha256": "df702ac1b670d6a4ff1abacab693a095056f74febce27211eb08fa5066fdda84",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_torso.png": {
+    "pixel_sha256": "6329bffe55d64e2c28def3ef4108d4076299a7453ae6207028c659cf5b6fd415",
+    "source_pixel_sha256": "1e5ecd3feac3c90615ae4342e2b8e3950133bec0ee85718d53ca586567665406",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/leg_far.png": {
+    "pixel_sha256": "c9b64c2edaa1bdb14b2fab7165d1765102c41a537255fb8aae0996da229e4719",
+    "source_pixel_sha256": "1e3ecc696787afd21eeaa86c6ed717ddee47024ec408f8f18ed850fe18cc889d",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/leg_near.png": {
+    "pixel_sha256": "a37923e9e10c6a57dee54ca549f9b424b5aa48b5798d0d42d6eaab5adfde3ae4",
+    "source_pixel_sha256": "47334614a14127e79272ad6f217c663e69aec2c65040705aadfacfbfc445e43a",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/mortar.png": {
+    "pixel_sha256": "f2048cdf3bd286b555d1cf6d3fb2b56a12acababdf0f903286926231c8f48a51",
+    "source_pixel_sha256": "5b6256d5b83ed97830b7c2ba9a545a19b684bd57bbd1b1ba50b839d8c57b196a",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/pelvis.png": {
+    "pixel_sha256": "2745b06503f3cbdf81cc82ea75598f3469ba6fa50fe6fc49a54ee4c7224297f3",
+    "source_pixel_sha256": "b9260799a798f236d8b13c9a9f51375d8757b903fe1b8de19327cbaee195159e",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/torso.png": {
+    "pixel_sha256": "21c5cd288e47e69122c50c38667bf58d7a3fb37a9f45ded7952db3e9971604ef",
+    "source_pixel_sha256": "da76f1ec2e89c4fbf98b6dd95858cad9237382304163f8001198db3bd2950e54",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.96,
+    "facing": "front"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/apron.png": {
+    "pixel_sha256": "93ab4dbecc6d3fb222eebddab53f912035a1a931c11df82d22420ffca4f44497",
+    "source_pixel_sha256": "7b0fad0134f58f5a32fe341328f7f9ab87ecb2ff59729a6716a58fc5f022909b",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/arm_far.png": {
+    "pixel_sha256": "630d490f3f69040e3a0f7285bd742fadcb657416618e9f339af2afb0bb42f66a",
+    "source_pixel_sha256": "0cc3b40949058c960e83f49387fd3504dddf40832e19d224ffc1154c54d2c666",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/arm_near.png": {
+    "pixel_sha256": "ccfefcce40c20c922abe0a5af2477d63c35f5652eadf812fb70fbf74fe92c4f2",
+    "source_pixel_sha256": "20684e9093112fd2e622200a6e1b0956ce8f4e857cf0c4eb649ba1460385d907",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/foot_far.png": {
+    "pixel_sha256": "3ca5f7654340b4c5520ac263a2a2bd02c9e11fcded47fcf33011bcf5fea2f64c",
+    "source_pixel_sha256": "5b4a2315680237aecaa8936ac9f07e639b96d237e3fcfb142be0afc28f299e6e",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/foot_near.png": {
+    "pixel_sha256": "969be16eeb887e7411bbbd299b3a1630ac30bdb3bdec7eb3cd8960c9e622f4de",
+    "source_pixel_sha256": "969be16eeb887e7411bbbd299b3a1630ac30bdb3bdec7eb3cd8960c9e622f4de",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hand_far.png": {
+    "pixel_sha256": "a1e98718f4bb19b0d10daee41322148519f7d2e60cdf08b8128354d758d0b82a",
+    "source_pixel_sha256": "4b5b59650f45464b28f420bbf04d956c2f0771d2c56a3a32327b91aa556e2c75",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hand_near.png": {
+    "pixel_sha256": "7d17869043bd639dbef2b1107fb6bca20ae88460ea6b76d0040c10ba0c1d68e5",
+    "source_pixel_sha256": "74766a4f903b89657042d9a21090cc73a003014a9aba276431b95c1075e32242",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/head.png": {
+    "pixel_sha256": "23587361312a58646ff9ce6855e8ddc370f38d22e630334f3448a1a595992693",
+    "source_pixel_sha256": "746f09613bfbb6aa7d3e702f2069641ff6d1871e3c66ccbefe8df2173b225667",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_apron.png": {
+    "pixel_sha256": "3a0b661630938a5fb728ee6d8e970edb78f43def4d5622312f42bac78a1756e4",
+    "source_pixel_sha256": "d958009f0d57a41972c76aa027946032c881c4971b73e2000ce2eeb63100a709",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_arm_far.png": {
+    "pixel_sha256": "63f5d3b6a71d5fc507a4f7f1249fd6304812fc4b9a64c56eec84c7d5c84f2185",
+    "source_pixel_sha256": "63f5d3b6a71d5fc507a4f7f1249fd6304812fc4b9a64c56eec84c7d5c84f2185",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_arm_near.png": {
+    "pixel_sha256": "bff050a12c494ee9c735ab5238cb5b549803d7a063ad62c5aa5fe673c12e0457",
+    "source_pixel_sha256": "c6f4d7e5ea8a5f625c4c706497c4b93282d8da6abaf49a8639cf77efd11bc9c9",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_foot_far.png": {
+    "pixel_sha256": "16fd14d7d6d8aafcca559a02fc5f378b4b61d7d83df8c97bb7e5de1577bd54b3",
+    "source_pixel_sha256": "a8680b64a2ba8b164b537549d1ec1516f4e4dbb8425bec835c1a042a86660139",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+    "pixel_sha256": "6b7a31805c434ec2080622a445362c080bcb58c29571794d716aba054a4cdacf",
+    "source_pixel_sha256": "6b7a31805c434ec2080622a445362c080bcb58c29571794d716aba054a4cdacf",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_hand_far.png": {
+    "pixel_sha256": "fa9333f46272e66ad3250a800bea43762d6e89361b99459ef601c8e07ce55908",
+    "source_pixel_sha256": "fa9333f46272e66ad3250a800bea43762d6e89361b99459ef601c8e07ce55908",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_hand_near.png": {
+    "pixel_sha256": "d484094df023e392c861fe5a1ead92cdb1b7b451759a000a5bccfb3e46b7035e",
+    "source_pixel_sha256": "d484094df023e392c861fe5a1ead92cdb1b7b451759a000a5bccfb3e46b7035e",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_head.png": {
+    "pixel_sha256": "aa218a35ceb93c243c4a74226f706dc0534d94b464656943ebe2b07cd36b58c2",
+    "source_pixel_sha256": "e314dd0fd25ba084858dbc9f09ae08c142fbf94742c0b411f1a3226a7670e15a",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_leg_far.png": {
+    "pixel_sha256": "e9a9d34efacb4b5d959fae1051c4d8648790c5d6930e26567ab3ffb2dd87f5db",
+    "source_pixel_sha256": "e9a9d34efacb4b5d959fae1051c4d8648790c5d6930e26567ab3ffb2dd87f5db",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_leg_near.png": {
+    "pixel_sha256": "4894581ac1592fbd4c44df831310108b7ac1c3f33e50c3137a24f7f565267338",
+    "source_pixel_sha256": "f6475556d7d3b72ad0ed9617430d247800aba099b3d7fa09df4390aa6ddea71b",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_mortar.png": {
+    "pixel_sha256": "674837a3795f87a895213d9bda6df1cb4953155998b758c929bae9fee9a71fd5",
+    "source_pixel_sha256": "885deb83e3d046ba1014c1b3a7d0cd25a5e9030787f22dc9d55e5929d33fb66a",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_pelvis.png": {
+    "pixel_sha256": "7fee477d69b8b192b471d272f9c7879f503229ecb95d8c44c34aa895e48afd0e",
+    "source_pixel_sha256": "7fee477d69b8b192b471d272f9c7879f503229ecb95d8c44c34aa895e48afd0e",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_torso.png": {
+    "pixel_sha256": "f6e4409da19fb13d5efc6ba66311011f20d2c4c43cac31695fdd32a292662b7a",
+    "source_pixel_sha256": "f9142d466b174300a15ff3619be97dcac2a3000f061cf86f31650f560c7fabf6",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/leg_far.png": {
+    "pixel_sha256": "983bc483d54897f9c2e80020ef9471aa645b1a48173e40e27525a4b795b42fad",
+    "source_pixel_sha256": "059ec614b25352fcc6a1775396b412611626fdabe1356ef676a0e3d642d1ac67",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/leg_near.png": {
+    "pixel_sha256": "d53139db18aba16d0c7d2592e5bc90fc6e690d424e4c5f6e5a6abf6b858a1e1f",
+    "source_pixel_sha256": "11ff5a413b064239a560aac521b283a8507289074d432e7a884ae2cf6771c7be",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/mortar.png": {
+    "pixel_sha256": "f411c90de50ac981057694fafb4bbdf40ede01b8db9c0999d2f5673c78e4befd",
+    "source_pixel_sha256": "bb88cac77e1c093ef66bc6057056b72a0642f3424f4f5092297674e3a24ef3f8",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/pelvis.png": {
+    "pixel_sha256": "2433e22c97d7a42b16a3eccedda2bc4e4a9af4a46a8deec3664ca899d4ed4e42",
+    "source_pixel_sha256": "075abe77b2a3ae34b90759641c834bf29d61da7cd4e96890c10d734d9f70d1a2",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/torso.png": {
+    "pixel_sha256": "99b10a42d78b04740c6fb0d6669ebc363220301ea60b36d1fd61a9c8ddcb6f26",
+    "source_pixel_sha256": "98428d82da7242d204b0572e109768bff291048a095fb1285aacad45ed66c05b",
+    "id": "slag_mortar_cutout",
+    "mode": "clean",
+    "grid": 0.98,
+    "facing": "rear"
+  },
   "assets/units/stone_warden_cutout/front/arm_r.png": {
     "pixel_sha256": "143d7b88e2efe89a0791cc9fa96e4cbd273a6d339cc4ed600c359705bb1d32fe",
     "source_pixel_sha256": "0645e266039b0b94f918b258f81255364bc10b7d55fc804112ebe722b90d3405",

@@ -1,0 +1,85 @@
+{
+  "character_id": "slag_mortar",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_surface_ownership_masks": "Native categorical projection places part of the front near shoulder/harness on mortar and rear near fist on the arm. Exact painted boundaries need director ownership masks; current source partition is provisional, not visual acceptance.",
+    "TODO_DESIGN_front_green_dominant_texels": "Approved mq9 front contains 28 opaque texels with G > R and G > B. Strict zero-green gate conflicts with immutable painting; owner must supply corrected paint or clarify the gate."
+  },
+  "direction_clips": [
+    "scatter"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the hero's cut-out bob: torso (with the harness and the crucible riding on it), head and both free arms drop 2 px and return as one rigid group; pelvis, apron, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [
+        "brace:move_away"
+      ],
+      "note": "a heavy plod on the stride/trailing pattern: 5 px stomp lift, the pelvis drops 3 px after each landing and the torso jolts 1 px, the crucible rides the torso, the apron trails 2 px",
+      "release_at": {}
+    },
+    "lob": {
+      "seconds": 1.2,
+      "contact": 0.6,
+      "intents": [
+        "lob_slag:lob_mark"
+      ],
+      "note": "sinks 4 px and leans in, then heaves up and back: the crucible tips 22 degrees over the shoulder toward the target and the slag is lobbed (contact; the existing lob mark); both fists drive up; settles",
+      "release_at": {}
+    },
+    "land": {
+      "seconds": 0.6,
+      "contact": 0.3,
+      "intents": [
+        "slag_lands:lob_land"
+      ],
+      "note": "as the slag lands far away the brute rocks forward 2 px and the emptied crucible rattles on its back (hold steps); a satisfied nod",
+      "release_at": {}
+    },
+    "brace": {
+      "seconds": 0.9,
+      "contact": 0.4,
+      "intents": [
+        "brace:block"
+      ],
+      "note": "plants its feet and raises both iron bracers crossed in front of its face, sinking 3 px behind them; holds; lowers",
+      "release_at": {}
+    },
+    "scatter": {
+      "seconds": 0.8,
+      "contact": 0.5,
+      "intents": [
+        "scatter_shot:ranged"
+      ],
+      "note": "reaches its near fist back over the shoulder into the crucible's mouth, then hurls a handful of slag at the target (contact); the torso turns into the throw",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "sags to its knees: the pelvis drops 16 px over planted feet, the torso pitches forward 25 degrees with the crucible tipping a further 12 degrees over its head, the head bows, the fists hit the floor; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

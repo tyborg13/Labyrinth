@@ -1,0 +1,8 @@
+native/
+native_rest/
+production_native/
+idle_native/
+contact_sheets/
+seam_cpu/
+logs/
+*.mp4

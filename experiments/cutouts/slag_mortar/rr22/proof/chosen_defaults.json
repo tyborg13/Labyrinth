@@ -1,0 +1,78 @@
+{
+  "scope": "test fixtures and proof presentation only; no production tuning chosen",
+  "headless_samples": {
+    "fps": 60,
+    "step_distance_px": 96,
+    "screen_pixel_scale": 2,
+    "source_origin_px": [
+      128,
+      128
+    ],
+    "basis": "existing rr10 sampler"
+  },
+  "runtime_test": {
+    "idle_seed": 0.37,
+    "action_phase": 0.6
+  },
+  "production_fixture": {
+    "lob_origin": [
+      1,
+      4
+    ],
+    "opposite_lob_origin": [
+      7,
+      4
+    ],
+    "move_origin": [
+      2,
+      4
+    ],
+    "opposite_move_origin": [
+      6,
+      4
+    ],
+    "near_origin": [
+      5,
+      4
+    ],
+    "opposite_near_origin": [
+      3,
+      4
+    ],
+    "hit_hp": 30,
+    "panel_center_ratio": 0.5,
+    "settle_frames": 8
+  },
+  "density_proof": {
+    "paint_scale": 2,
+    "background": "#1e1e24"
+  },
+  "source_cut_sheet": {
+    "columns": 7,
+    "rows": 4,
+    "source_cell_px": 255
+  },
+  "timeouts_seconds": {
+    "python_bone_subprocess": 180,
+    "rest": 120,
+    "density": 180,
+    "idle": 180,
+    "native": 900,
+    "production": 900
+  },
+  "mutation": {
+    "slide_px": 2,
+    "green_rgba": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "transparent_green_rgba": [
+      0,
+      255,
+      0,
+      0
+    ]
+  }
+}

@@ -10,6 +10,14 @@ const FPS: float = 60.0
 static func handles(type: String) -> bool:
 	return Presentation.handles(type)
 
+## Optional case-owned playback for existing special feedback paths.
+static func playback_adapter(step: Dictionary, actor: Dictionary) -> Script:
+	var type: String = str(actor.get("type", ""))
+	var path: String = str(Presentation.integration_for(type).get("action_adapter", ""))
+	if path.is_empty(): return null
+	var adapter: Script = load(path) as Script
+	return adapter if adapter != null and adapter.handles(step, actor) else null
+
 static func data_for(type: String) -> Dictionary:
 	if not handles(type): return {}
 	var directory: String = Presentation.asset_directory(type)

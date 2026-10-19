@@ -1,0 +1,183 @@
+{
+  "task": "rr-22",
+  "committed": false,
+  "windowed_attempts": 0,
+  "production_ready": false,
+  "requirements": {
+    "1_cut": "implemented topology, source registration and production density; exact surface ownership pending director masks; visible rest mismatch 0 in both views; 1 transparent RGB texel normalized in front calibration",
+    "2_idle": "headless rigidity and coordinated two-pixel bob pass; native pixels pending director",
+    "3_production": "both facing fixture setups, actual outcomes/contact, pre-battle live portrait, move/hit/death and package pass headlessly; native board/UI pending director",
+    "4_gates": "headless bone/knee/support/reach pass; strict green source gate fails protected front paint; native clean-piece/seam/stray/color proof pending"
+  },
+  "tests": {
+    "rr22-tests-final.log": {
+      "result_lines": [
+        "Ran 10 tests in 6.364s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/rr22-tests-final.log"
+    },
+    "references-final.log": {
+      "result_lines": [
+        "Ran 196 tests in 273.000s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/references-final.log"
+    },
+    "art-identity-final.log": {
+      "result_lines": [
+        "Ran 111 tests in 40.748s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/art-identity-final.log"
+    },
+    "ui-identity.log": {
+      "result_lines": [
+        "Ran 25 tests in 4.105s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/ui-identity.log"
+    },
+    "icon-identity.log": {
+      "result_lines": [
+        "Ran 7 tests in 0.080s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/icon-identity.log"
+    },
+    "board-density.log": {
+      "result_lines": [
+        "Ran 47 tests in 137.194s",
+        "FAILED (failures=1)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/board-density.log"
+    },
+    "runtime-final.log": {
+      "result_lines": [
+        "RR22 RUNTIME: PASS (303 checks; headless logic only)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/runtime-final.log"
+    },
+    "affected-final.log": {
+      "result_lines": [
+        "RR22 AFFECTED SUITES: PASS (514 checks)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/affected-final.log"
+    },
+    "native-load-final.log": {
+      "result_lines": [
+        "RR22 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/native-load-final.log"
+    },
+    "samples.log": {
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (1124 poses; headless transforms only)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/samples.log"
+    },
+    "gates.log": {
+      "result_lines": [
+        "RR22 SOURCE/BONE/KNEE GATES: FAIL (1 errors; both views)",
+        "RR22 FRONT: 2 swings; minimum peak 45.581 degrees; support drift 0.000000 px; reach 14 paths, 4 overreach reports",
+        "RR22 REAR: 2 swings; minimum peak 47.992 degrees; support drift 0.000000 px; reach 14 paths, 1 overreach reports"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/gates.log"
+    },
+    "production-front-final.log": {
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/production-front-final.log"
+    },
+    "production-rear-final.log": {
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/production-rear-final.log"
+    },
+    "sfx0.log": {
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/sfx0.log"
+    },
+    "sfx1.log": {
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/sfx1.log"
+    },
+    "sfx2.log": {
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/sfx2.log"
+    },
+    "registration-final.log": {
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/registration-final.log"
+    },
+    "pack-build.log": {
+      "result_lines": [
+        "RR22 PRODUCTION PACK BUILD: FAIL"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/pack-build.log"
+    },
+    "pack-runtime-final.log": {
+      "result_lines": [
+        "RR22 PRODUCTION PACK: PASS (2 views; source-only PNG loading; editor=false)"
+      ],
+      "log": "experiments/cutouts/slag_mortar/rr22/proof/logs/pack-runtime-final.log"
+    }
+  },
+  "reference_files_changed": [],
+  "mirror_rr18": "absent from this checkout; not run",
+  "design_placeholders": {
+    "TODO_DESIGN_surface_ownership_masks": "Native categorical projection places part of the front near shoulder/harness on mortar and rear near fist on the arm. Exact painted boundaries need director ownership masks; current source partition is provisional, not visual acceptance.",
+    "TODO_DESIGN_front_green_dominant_texels": "Approved mq9 front contains 28 opaque texels with G > R and G > B. Strict zero-green gate conflicts with immutable painting; owner must supply corrected paint or clarify the gate."
+  },
+  "density_pending": [
+    "native front rest rebake/record",
+    "native rear rest rebake/record",
+    "refresh shadow fingerprints after native rests"
+  ],
+  "observed_proof": {
+    "samples": "experiments/cutouts/slag_mortar/rr22/proof/samples.json",
+    "gates": "experiments/cutouts/slag_mortar/rr22/proof/gates.json",
+    "production_front": "experiments/cutouts/slag_mortar/rr22/proof/production_logic/logic_frames.json",
+    "production_rear": "experiments/cutouts/slag_mortar/rr22/proof/production_logic_rear/logic_frames.json",
+    "source_cut_diagnostic": "experiments/cutouts/slag_mortar/rr22/proof/contact_sheets/source_cuts.png"
+  },
+  "chosen_defaults": "experiments/cutouts/slag_mortar/rr22/proof/chosen_defaults.json",
+  "director_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-22 && sh experiments/cutouts/slag_mortar/rr22_proof.sh review"
+  ],
+  "not_run": [
+    "full Python suite (unit brief assigns merge suites to director)",
+    "full Godot suite (unit brief assigns merge suites to director)",
+    "all windowed stages",
+    "peer review and inspection fixture (design owner assigned)"
+  ],
+  "production_contacts": {
+    "front": {
+      "lob": 0.6,
+      "land": 0.3,
+      "brace": 0.4
+    },
+    "rear": {
+      "lob": 0.6,
+      "land": 0.3,
+      "brace": 0.4
+    }
+  },
+  "production_bindings_and_progression": "PASS (both headless manifests match current input bindings)"
+}
