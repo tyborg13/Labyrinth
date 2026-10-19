@@ -2,9 +2,9 @@
   "front": {
     "ok": true,
     "errors": [],
-    "positive_checks": 458,
+    "positive_checks": 501,
     "clip_positive_checks": {
-      "move": 76,
+      "move": 119,
       "tether": 87,
       "jab": 53,
       "hit": 30,
@@ -15,9 +15,9 @@
   "rear": {
     "ok": true,
     "errors": [],
-    "positive_checks": 458,
+    "positive_checks": 501,
     "clip_positive_checks": {
-      "move": 76,
+      "move": 119,
       "tether": 87,
       "jab": 53,
       "hit": 30,

@@ -394,5 +394,8 @@
   },
   {
     "path": "tests/rr17/runtime_test.gd"
+  },
+  {
+    "path": "tests/rr18/runtime_test.gd"
   }
 ]

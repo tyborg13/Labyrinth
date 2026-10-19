@@ -19,7 +19,33 @@
       "intents": [
         "arc_jab:move_toward"
       ],
-      "note": "a lurching shamble: the long camera-side leg (stride) plants two world steps per tile with a 4 px lift and a clearly bent knee; the foreshortened leg (trailing) follows the body with a 3 px shuffle between strides; the pelvis never rises above rest and dips 3 px after each stride landing; the torso pitches forward 4 degrees per step, the tube trails, the claw swings",
+      "note": "a lurching walk on the protagonist's model: both legs step, six steps per tile rest to rest (a half step, four full steps, a closing half step), the near foot leading; 6 px lift; the pelvis settles 3 px after each landing; the torso pitches forward 4 degrees; the claw swings 4 px opposite the stepping leg and the tube 2 px; the loincloth trails 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 6,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "tube_tip",
+            "px": 2
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 4
+          }
+        },
+        "max_fit_px": 6
+      },
       "release_at": {}
     },
     "tether": {

@@ -32,7 +32,7 @@ FIXTURE_ANKLE_PX = [100, 140]
 FIXTURE_FORWARD_KNEE_PX = [90, 120]
 FIXTURE_STRAIGHT_KNEE_PX = [100, 120]
 FIXTURE_REVERSED_KNEE_PX = [110, 120]
-FIXTURE_STANCE_FRAME = 20
+FIXTURE_STANCE_FRAME = 15
 FIXTURE_STANCE_SLIDE_PX = 1
 
 
@@ -133,23 +133,21 @@ class ThrallTests(unittest.TestCase):
         row['bones']['torso']['global'][:4] = [math.cos(angle), math.sin(angle), -math.sin(angle), math.cos(angle)]
         self.assertTrue(any('idle rotation' in e for e in bone_errors(self.layouts['front'], self.data, mutant, self.bound)))
 
-    def test_leg_roles_resolve_tracks_and_mode_only_jab(self):
+    def test_retired_roles_and_legacy_mode_only_jab_alias(self):
         anatomy = read_json(CASE / 'anatomy.json')
-        self.assertEqual(anatomy['knee_policy'], {'near_straight_deg': 6})
-        for view, expected in [('front', {'stride': 'near', 'trailing': 'far'}), ('rear', {'stride': 'far', 'trailing': 'near'})]:
-            self.assertEqual(roles_for(anatomy, view), expected)
-            for role, side in expected.items():
-                self.assertEqual(resolve_bone('foot_' + role, anatomy, view), 'foot_' + side)
-            track = lift_track(self.layouts[view], self.data)
-            self.assertEqual(track['bone'], 'foot_' + expected['stride'])
-            self.assertEqual(track['source'], 'foot_stride.lift_px')
-            self.assertEqual(self.data['view_forward_modes'][view]['jab'], {'foot_' + expected['trailing']: 'body'})
-        wrong = copy.deepcopy(anatomy)
-        wrong['leg_roles']['rear']['trailing'] = 'far'
-        with self.assertRaisesRegex(ValueError, 'distinct'): roles_for(wrong, 'rear')
-        missing = copy.deepcopy(anatomy)
-        missing['leg_roles'] = {}
-        with self.assertRaisesRegex(ValueError, 'TODO_DESIGN'): resolve_bone('foot_stride', missing, 'front')
+        self.assertNotIn('leg_roles', anatomy)
+        self.assertNotIn('leg_roles', self.data)
+        for view, support, body in [('front', 'near', 'far'), ('rear', 'far', 'near')]:
+            self.assertNotIn('leg_roles', self.layouts[view])
+            self.assertEqual(resolve_bone('foot_support', anatomy, view), 'foot_' + support)
+            self.assertEqual(self.data['view_forward_modes'][view]['jab'], {'foot_' + body: 'body'})
+            for side in ('near', 'far'):
+                self.assertEqual(lift_track(self.layouts[view], self.data, side)['bone'], 'foot_' + side)
+        # Parked units can still resolve their old role vocabulary.
+        legacy = {'leg_roles': {'rear': {'stride': 'far', 'trailing': 'near'}}}
+        self.assertEqual(resolve_bone('foot_stride', legacy, 'rear'), 'foot_far')
+        legacy['leg_roles']['rear']['trailing'] = 'far'
+        with self.assertRaisesRegex(ValueError, 'distinct'): roles_for(legacy, 'rear')
 
     def test_case_threshold_applies_only_to_near_straight_rest(self):
         anatomy = read_json(CASE / 'anatomy.json')
@@ -173,7 +171,7 @@ class ThrallTests(unittest.TestCase):
         row = next(r for r in report['samples'] if r['view'] == 'front' and r['clip'] == 'move' and r['kind'] == 'presented' and .15 < r['phase'] < .25)
         for joint, xy in [('thigh', FIXTURE_HIP_PX), ('shin', FIXTURE_REVERSED_KNEE_PX), ('foot', FIXTURE_ANKLE_PX)]:
             row['bones'][joint + '_far']['global'][4:] = xy
-        self.assertTrue(any('trailing: bent knee against facing' in e for e in knee_report(layout, self.data, report)['errors']))
+        self.assertTrue(any('bent knee against facing' in e for e in knee_report(layout, self.data, report)['errors']))
         # Straighten the entire first stride swing: the peak gate must fail.
         report = copy.deepcopy(self.samples)
         start, end = swing_intervals(lift_track(layout, self.data)['keys'])[0]
@@ -183,7 +181,7 @@ class ThrallTests(unittest.TestCase):
                     row['bones'][joint + '_near']['global'][4:] = xy
         errors = knee_report(layout, self.data, report)['errors']
         self.assertTrue(any('peak knee' in e and 'below 15' in e for e in errors))
-        self.assertTrue(any('apex stride knee' in e for e in errors))
+        self.assertTrue(any('apex swing knee' in e for e in errors))
         self.assertTrue(knee_report(layout, self.data, {'samples': []})['errors'])
 
     def test_presented_stride_support_is_stationary_and_on_target(self):
@@ -200,8 +198,8 @@ class ThrallTests(unittest.TestCase):
 
     def test_one_frame_stride_slide_fails_move_and_jab_in_both_views(self):
         for view, layout in self.layouts.items():
-            foot = 'foot_' + self.data['leg_roles'][view]['stride']
             for clip in ('move', 'jab'):
+                foot = 'foot_far' if clip == 'move' else resolve_bone('foot_support', read_json(CASE / 'anatomy.json'), view)
                 with self.subTest(view=view, clip=clip):
                     report = copy.deepcopy(self.samples)
                     row = next(r for r in report['samples'] if r['view'] == view and r['clip'] == clip and
@@ -212,8 +210,8 @@ class ThrallTests(unittest.TestCase):
                     direction = -1 if view == 'front' else 1
                     row['bones'][foot]['global'][4] += direction * FIXTURE_STANCE_SLIDE_PX
                     result = support_report(layout, self.data, report)
-                    self.assertTrue(any('stride stance moved 1.000000 px' in e for e in result['errors']))
-                    if clip == 'move': self.assertFalse(any('stride target error' in e for e in result['errors']))
+                    self.assertTrue(any('stance moved 1.000000 px' in e for e in result['errors']))
+                    self.assertFalse(result['ok'])
 
     def test_constant_stance_shift_fails_target_without_sliding(self):
         layout = self.layouts['front']
@@ -223,8 +221,8 @@ class ThrallTests(unittest.TestCase):
             if row['view'] == 'front' and row['clip'] == 'move' and row['kind'] == 'presented' and row['phase'] <= first_swing:
                 row['bones']['foot_near']['global'][4] += FIXTURE_STANCE_SLIDE_PX
         result = support_report(layout, self.data, report)
-        self.assertTrue(any('stride target error' in e for e in result['errors']))
-        self.assertFalse(any('stride stance moved' in e for e in result['errors']))
+        self.assertTrue(any('foot target error' in e for e in result['errors']))
+        self.assertFalse(any('stance moved' in e for e in result['errors']))
 
     def test_chain_field_is_finite_and_normalized(self):
         for layout in self.layouts.values():

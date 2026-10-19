@@ -3,14 +3,20 @@ extends RefCounted
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
 	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
-	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor", "briar_weaver": "briar_weaver"}
+	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor", "glacial_mirror": "glacial_mirror", "briar_weaver": "briar_weaver"}
 static var _integration_cache: Dictionary = {}
+
+# Optional case-owned contact adapter. Existing action dispatch remains intact.
+const ACTION_ADAPTERS := {"glacial_mirror": "res://assets/units/glacial_mirror_cutout/actions.gd"}
+
+static func action_script(type: String) -> Script:
+	return load(ACTION_ADAPTERS[type]) as Script if ACTION_ADAPTERS.has(type) else null
 
 static func asset_directory(type: String) -> String:
 	var directory: String = "res://assets/units/" + str(CREATURES[type]) + "_cutout"
 	var version: String = str(integration_for(type).get("rig_directory", ""))
 	if not version.is_empty(): return directory.path_join(version)
-	return directory.path_join("humanoid_v2") if type in ["hoarfrost_seer", "arc_thrall"] else directory
+	return directory.path_join("humanoid_v2") if type in ["hoarfrost_seer", "arc_thrall", "glacial_mirror"] else directory
 
 static func handles(type: String) -> bool:
 	return CREATURES.has(type)

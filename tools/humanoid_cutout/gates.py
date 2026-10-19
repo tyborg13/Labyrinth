@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 
 from cutout_pipeline.cases import read_json, digest
-from maquette_motion.compiler import evaluate
+from .gait import evaluate
 from .silhouette_gates import detached_metrics, joint_holes, posed_owners
 from .anatomy import for_layout, load
 
@@ -91,7 +91,8 @@ def structure_errors(layout, build):
 def source_errors(case, layout, build):
     build = view_build(layout, build)
     from maquette_motion.features import source_pixels
-    errors = []
+    from .gait_continuations import errors as continuation_errors
+    errors = continuation_errors(case, layout)
     images = {p['name']: source_pixels(case,p) for p in layout['parts']}
     continuations = {}
     rest = Image.new('RGBA',(255,255))
@@ -169,11 +170,12 @@ def bone_errors(layout, data, report, current_bindings):
                 modes[track['bone']] = track['forward_mode']
             root_progress = values.get('root', {}).get('forward_px', 0.)
             from .bone_contracts import target_chains, fk_world, ik_errors
+            gait = 'gait' in data['clips'][clip]
             chains = target_chains(layout, values)
             solved = {chain[key] for chain in chains for key in ('first', 'second', 'target')}
             fk = fk_world(layout, values, modes, forward, step)
             for name, channels in values.items():
-                if name in solved or name in layout.get('held_items', {}): continue
+                if name in solved or name in layout.get('held_items', {}) or (gait and name == 'pelvis'): continue
                 position = np.asarray(joints[name]['position'])
                 parent = joints[name]['parent']
                 origin = position - (np.asarray(joints[parent]['position']) if parent else 0.)
@@ -188,6 +190,7 @@ def bone_errors(layout, data, report, current_bindings):
                 if abs(angle(bones[name]['local']) - channels.get('lean_deg', 0.)) > EPSILON:
                     errors.append(tag + ': signed rotation: ' + name)
             for chain in chains:
+                if gait and chain['target'].startswith('foot_'): continue
                 errors += [tag + ': ' + error for error in ik_errors(layout, bones, chain, fk, EPSILON, anatomy)]
             for item in layout.get('held_items', {}):
                 expected_angle = values.get(item, {}).get('angle_deg', 0.)
@@ -226,6 +229,9 @@ def bone_errors(layout, data, report, current_bindings):
         for item in layout.get('held_items', {}):
             if clip != 'death' and abs(angle(bones[item]['global'])) > 35 + EPSILON:
                 errors.append(tag + ': ' + item + ' angle limit')
+    if any('gait' in definition for definition in data['clips'].values()):
+        from .walk_gates import report as walk_report
+        errors += walk_report(layout, data, report)['errors']
     from .action_direction import report as action_direction_report
     errors += action_direction_report(layout, data, report, current_bindings)['errors']
     return sorted(set(errors))
@@ -327,12 +333,14 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
     if sampled.get('inputs')!=bound_inputs: errors.append('stale headless pose reference; rerun samples.gd')
     expected_poses={(r['view'],r['clip'],r['frame']):r for r in sampled['samples'] if r['kind']=='presented'}
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
+    from .rigid_air import for_case as air_policy_for_case
+    air_policies = {view: air_policy_for_case(case, layout, anatomy) for view, layout in layouts.items()}
     for layout in layouts.values():
         errors += source_errors(case,layout,read_json(case/'proof/build.json'))
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
     for view in data['view_tracks']:
         rest = np.asarray(Image.open(capture / (view + '_rest.png')).convert('RGBA'))
-        source = np.asarray(Image.open(case / f'source/{view}/processed.png').convert('RGBA'))
+        source = np.asarray(Image.open(case / layouts[view]['rest_source']).convert('RGBA'))
         if not np.array_equal(rest, source): errors.append(view + ': native rest mismatch')
         for clip, definition in data['clips'].items():
             rows = [r for r in manifest['frames'] if r['view'] == view and r['clip'] == clip]
@@ -382,12 +390,15 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         # Retain one frame of GPU surfaces, not the entire reel in RAM.
         layers=[]
         for row in rows:
+            part = next(p for p in layout['parts'] if p['name'] == row['name'])
+            if row['source'] != part['file']: errors.append(row['file'] + ': native source differs from layout')
             image=np.asarray(Image.open(capture / row['file']).convert('RGBA'))
             checks=np.asarray(Image.open(capture / row['checks']).convert('RGBA'))
             if row.get('rigid'):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
-                source=Image.open(case / row['source']).convert('RGBA')
+                from .gait_continuations import texture
+                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip]))
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.
@@ -408,13 +419,18 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
         for row in seam_frames.get(key, []):
             seam |= np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3] > 0
         pose = expected_poses.get(key)
+        air_policy = air_policies[view]
         if pose is None:
             errors.append(str(key) + ': missing independent joint-boundary pose')
             new_holes = []
         else:
             from maquette_motion.pixels import PROOF_DEFAULTS
             owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
-            new_holes = joint_holes(occupied, seam, owners, references, pocket_details=True)
+            if air_policy is None:
+                new_holes = joint_holes(occupied, seam, owners, references, pocket_details=True)
+            else:
+                transforms = {name: part['transform'] for name, part in pose['parts'].items()}
+                new_holes = air_policy.report(occupied, owners, transforms)['failures']
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -422,9 +438,13 @@ def native_errors(case, capture, failure_output=None, hole_details=None):
             actual=np.asarray(Image.open(capture / native_frames[key]['file']).convert('RGBA'))
             from maquette_motion.pixels import changed
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
-        rejected = frame_errors(key, metric, new_holes, approved)
+        rejected = frame_errors(key, metric, new_holes if air_policy is None else [], approved)
+        from .material_gates import colour_errors
+        rejected += [str(key)+': '+error for error in colour_errors(np.asarray(composite),anatomy.get('material_policy',{}))]
+        if air_policy is not None and new_holes:
+            rejected.append(str(key) + ': pocket through rigid painted silhouette/tuck')
         errors += rejected
-        if hole_details is not None and new_holes and str(key) + ': new joint-seam hole larger than 1px' in rejected:
+        if hole_details is not None and new_holes and (air_policy is not None or str(key) + ': new joint-seam hole larger than 1px' in rejected):
             hole_details.append({'view': view, 'clip': clip, 'frame': frame,
                                  'pixel_counts': [hole['pixel_count'] for hole in new_holes],
                                  'pockets': new_holes})

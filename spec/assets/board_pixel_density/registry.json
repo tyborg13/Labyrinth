@@ -609,6 +609,14 @@
     "assets/units/briar_weaver_cutout/humanoid_v2/rear/rest.png": {
       "category": "other",
       "reason": "Derived rr-21 native rest; separately bound in rest_paths, never live paint."
+    },
+    "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png": {
+      "category": "other",
+      "reason": "Derived Mirror assembly snapshot; separately bound in rest_paths, never live paint."
+    },
+    "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived Mirror assembly snapshot; separately bound in rest_paths, never live paint."
     }
   },
   "entries": [
@@ -5583,6 +5591,106 @@
         ],
         "rear": [
           "assets/units/briar_weaver_cutout/humanoid_v2/rear/rest.png"
+        ]
+      }
+    },
+    {
+      "id": "glacial_mirror_cutout",
+      "unit_type": "glacial_mirror",
+      "kind": "rig",
+      "dir": "assets/units/glacial_mirror_cutout",
+      "rig_script": "assets/units/glacial_mirror_cutout/rig.gd",
+      "paths": [
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/fist_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/fist_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/foot_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/foot_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/fore_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/fore_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/head.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_fist_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_fist_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_foot_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_foot_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_fore_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_fore_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_head.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_pelvis.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_shin_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_shin_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_thigh_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_thigh_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_torso.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_upper_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/hidden_upper_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/pelvis.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/shin_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/shin_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/thigh_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/thigh_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/torso.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/upper_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/front/upper_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/fist_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/fist_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/foot_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/foot_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/fore_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/fore_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/head.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_fist_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_fist_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_foot_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_foot_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_fore_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_fore_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_head.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_pelvis.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_shin_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_shin_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_thigh_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_thigh_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_torso.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_upper_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/hidden_upper_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/pelvis.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/shin_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/shin_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/thigh_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/thigh_near.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/torso.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/upper_far.png",
+        "assets/units/glacial_mirror_cutout/humanoid_v2/rear/upper_near.png"
+      ],
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "glacial_mirror.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png",
+          "orphan_share": 0.057951233907558374,
+          "t": 1.039756169537792,
+          "grid": 1.04,
+          "mode": "clean"
+        },
+        "rear": {
+          "measurement_path": "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png",
+          "orphan_share": 0.09333476210887269,
+          "t": 1.2166738105443635,
+          "grid": 1.22,
+          "mode": "regrid"
+        }
+      },
+      "rest_paths": {
+        "front": [
+          "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png"
         ]
       }
     }

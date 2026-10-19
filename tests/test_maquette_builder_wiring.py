@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from spec.art_identity.maquettes import blender as package
-from spec.art_identity.maquettes.blender import build, facing, ownership, pose_adjustment, socket_tuck
+from spec.art_identity.maquettes.blender import build, facing, ownership, pose_adjustment, socket_tuck, source_cage
 from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
 from spec.art_identity.maquettes.blender.contract import validate
 import json
@@ -81,7 +81,7 @@ class BuilderWiringTests(unittest.TestCase):
         modules = {
             'rig': {'append_body': append, 'bind_and_pose': bind, 'evaluated_mesh': Mock()},
             'pieces': {'mesh_object': split}, 'cloth': {'cloth': Mock()},
-            'source_cage': {'fit_body': fit}, 'creature_rig': {'create': create},
+            'creature_rig': {'create': create},
             'render': {'material': Mock()}, 'validation': {'geometry_report': finish}}
         with tempfile.TemporaryDirectory() as temporary, ExitStack() as stack:
             root = Path(temporary)
@@ -98,6 +98,9 @@ class BuilderWiringTests(unittest.TestCase):
             stack.enter_context(patch.dict('sys.modules', replacements))
             contract = stack.enter_context(patch.object(build, 'validate'))
             stack.enter_context(patch.object(facing, 'board_spec', side_effect=deepcopy))
+            # Keep hand_pose's real source_cage import graph, including
+            # unpose_point; only the native fitting operation is replaced.
+            stack.enter_context(patch.object(source_cage, 'fit_body', fit))
             stack.enter_context(patch.object(pose_adjustment, 'repose', repose))
             stack.enter_context(patch.object(socket_tuck, 'append_tucks', side_effect=tucks))
             stack.enter_context(patch.object(ownership, 'assign_materials'))
