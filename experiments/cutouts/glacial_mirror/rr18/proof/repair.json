@@ -1,0 +1,402 @@
+{
+  "scope": "nearest own-surface, non-green continuation repair; fixed accepted quads",
+  "views": {
+    "front": {
+      "continuations": [
+        {
+          "piece": "head",
+          "added_pixels": 0,
+          "retextured_pixels": 290,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "torso",
+          "added_pixels": 0,
+          "retextured_pixels": 1268,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "pelvis",
+          "added_pixels": 0,
+          "retextured_pixels": 1132,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_near",
+          "added_pixels": 0,
+          "retextured_pixels": 466,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_near",
+          "added_pixels": 0,
+          "retextured_pixels": 274,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_near",
+          "added_pixels": 0,
+          "retextured_pixels": 112,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_near",
+          "added_pixels": 0,
+          "retextured_pixels": 640,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_near",
+          "added_pixels": 0,
+          "retextured_pixels": 653,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_near",
+          "added_pixels": 0,
+          "retextured_pixels": 188,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_far",
+          "added_pixels": 0,
+          "retextured_pixels": 681,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_far",
+          "added_pixels": 0,
+          "retextured_pixels": 732,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_far",
+          "added_pixels": 0,
+          "retextured_pixels": 544,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_far",
+          "added_pixels": 0,
+          "retextured_pixels": 696,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_far",
+          "added_pixels": 0,
+          "retextured_pixels": 792,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_far",
+          "added_pixels": 0,
+          "retextured_pixels": 838,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        }
+      ],
+      "visible_green_corrections": [
+        {
+          "piece": "head",
+          "source_xy": [
+            124,
+            18
+          ],
+          "raw_rgba": [
+            52,
+            95,
+            62,
+            255
+          ],
+          "presentation_rgba": [
+            16,
+            30,
+            42,
+            255
+          ]
+        }
+      ],
+      "raw_identity": {
+        "ok": true,
+        "errors": [],
+        "mismatch_pixels": 0,
+        "scope": "exact pre-cleanup source partition against protected painting"
+      },
+      "presentation_delta_pixels": 1
+    },
+    "rear": {
+      "continuations": [
+        {
+          "piece": "head",
+          "added_pixels": 0,
+          "retextured_pixels": 254,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "torso",
+          "added_pixels": 0,
+          "retextured_pixels": 1439,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "pelvis",
+          "added_pixels": 0,
+          "retextured_pixels": 1138,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_near",
+          "added_pixels": 0,
+          "retextured_pixels": 589,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_near",
+          "added_pixels": 0,
+          "retextured_pixels": 697,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_near",
+          "added_pixels": 0,
+          "retextured_pixels": 593,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_near",
+          "added_pixels": 0,
+          "retextured_pixels": 513,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_near",
+          "added_pixels": 0,
+          "retextured_pixels": 703,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_near",
+          "added_pixels": 0,
+          "retextured_pixels": 1009,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "upper_far",
+          "added_pixels": 0,
+          "retextured_pixels": 373,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [
+            [
+              165,
+              93
+            ],
+            [
+              168,
+              55
+            ]
+          ],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fore_far",
+          "added_pixels": 0,
+          "retextured_pixels": 253,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "fist_far",
+          "added_pixels": 0,
+          "retextured_pixels": 105,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "thigh_far",
+          "added_pixels": 0,
+          "retextured_pixels": 227,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [
+            [
+              168,
+              178
+            ]
+          ],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "shin_far",
+          "added_pixels": 0,
+          "retextured_pixels": 253,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        },
+        {
+          "piece": "foot_far",
+          "added_pixels": 0,
+          "retextured_pixels": 164,
+          "green_before": 0,
+          "green_after": 0,
+          "source_points": [],
+          "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
+          "surface": "nearest eligible non-green own-boulder visible texel"
+        }
+      ],
+      "visible_green_corrections": [
+        {
+          "piece": "upper_near",
+          "source_xy": [
+            113,
+            18
+          ],
+          "raw_rgba": [
+            0,
+            15,
+            0,
+            255
+          ],
+          "presentation_rgba": [
+            0,
+            0,
+            0,
+            255
+          ]
+        },
+        {
+          "piece": "upper_far",
+          "source_xy": [
+            172,
+            109
+          ],
+          "raw_rgba": [
+            20,
+            33,
+            20,
+            255
+          ],
+          "presentation_rgba": [
+            15,
+            23,
+            23,
+            255
+          ]
+        }
+      ],
+      "raw_identity": {
+        "ok": true,
+        "errors": [],
+        "mismatch_pixels": 0,
+        "scope": "exact pre-cleanup source partition against protected painting"
+      },
+      "presentation_delta_pixels": 28
+    }
+  }
+}

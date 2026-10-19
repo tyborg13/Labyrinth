@@ -6,3 +6,9 @@ production_native/
 contact_sheets/
 logs/
 *.mp4
+
+# gait-01 director native captures and composed move proof
+gait_move_native/
+gait_move_sheet.png
+gait_move_sheet.json
+gait_production_logic/

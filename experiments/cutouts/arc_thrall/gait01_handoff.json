@@ -1,0 +1,286 @@
+{
+  "task": "gait-01",
+  "branch": "codex/gait-01",
+  "base_head": "80d5ec39bfa4b79c176835a02c6137044a7de75e",
+  "state": "Implemented and headless-verified; uncommitted; director owns native proof, full suites, commit and review.",
+  "files_changed": [
+    "assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json",
+    "assets/units/arc_thrall_cutout/humanoid_v2/director_motion.json",
+    "assets/units/arc_thrall_cutout/humanoid_v2/front.json",
+    "assets/units/arc_thrall_cutout/humanoid_v2/rear.json",
+    "assets/units/arc_thrall_cutout/integration.json",
+    "assets/units/glacial_mirror_cutout/humanoid_v2/compiled_motion.json",
+    "assets/units/glacial_mirror_cutout/humanoid_v2/director_motion.json",
+    "assets/units/glacial_mirror_cutout/humanoid_v2/front.json",
+    "assets/units/glacial_mirror_cutout/humanoid_v2/rear.json",
+    "assets/units/glacial_mirror_cutout/integration.json",
+    "experiments/cutouts/arc_thrall/gait01_handoff.json",
+    "experiments/cutouts/arc_thrall/rr11/anatomy.json",
+    "experiments/cutouts/arc_thrall/rr11/compiled_motion.json",
+    "experiments/cutouts/arc_thrall/rr11/cutout.json",
+    "experiments/cutouts/arc_thrall/rr11/director_motion.json",
+    "experiments/cutouts/arc_thrall/rr11/layouts/front.json",
+    "experiments/cutouts/arc_thrall/rr11/layouts/rear.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/.gitignore",
+    "experiments/cutouts/arc_thrall/rr11/proof/build.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/directions.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/knees.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/reach.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/supports.json",
+    "experiments/cutouts/arc_thrall/rr11_build.py",
+    "experiments/cutouts/arc_thrall/rr11_case.py",
+    "experiments/cutouts/arc_thrall/rr11_gates.py",
+    "experiments/cutouts/arc_thrall/rr11_knees.py",
+    "experiments/cutouts/arc_thrall/rr11_proof.sh",
+    "experiments/cutouts/glacial_mirror/rr18/anatomy.json",
+    "experiments/cutouts/glacial_mirror/rr18/compiled_motion.json",
+    "experiments/cutouts/glacial_mirror/rr18/cutout.json",
+    "experiments/cutouts/glacial_mirror/rr18/director_motion.json",
+    "experiments/cutouts/glacial_mirror/rr18/layouts/front.json",
+    "experiments/cutouts/glacial_mirror/rr18/layouts/rear.json",
+    "experiments/cutouts/glacial_mirror/rr18/proof/.gitignore",
+    "experiments/cutouts/glacial_mirror/rr18/proof/build.json",
+    "experiments/cutouts/glacial_mirror/rr18/proof/directions.json",
+    "experiments/cutouts/glacial_mirror/rr18/proof/knees.json",
+    "experiments/cutouts/glacial_mirror/rr18/proof/reach.json",
+    "experiments/cutouts/glacial_mirror/rr18/proof/seams.json",
+    "experiments/cutouts/glacial_mirror/rr18/proof/supports.json",
+    "experiments/cutouts/glacial_mirror/rr18_build.py",
+    "experiments/cutouts/glacial_mirror/rr18_case.py",
+    "experiments/cutouts/glacial_mirror/rr18_checks.py",
+    "experiments/cutouts/glacial_mirror/rr18_gates.py",
+    "experiments/cutouts/glacial_mirror/rr18_proof.sh",
+    "scripts/maquette_cutout_runtime/humanoid_gait.gd",
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+    "tests/gait01/board_geometry.gd",
+    "tests/gait01/move_capture.gd",
+    "tests/gait01/move_contract.json",
+    "tests/gait01/preservation.py",
+    "tests/gait01/production_walk.gd",
+    "tests/rr10/samples.gd",
+    "tests/rr11/action_direction.gd",
+    "tests/rr11/native_capture.gd",
+    "tests/rr11/production_capture.gd",
+    "tests/rr11/rr15/legacy_rear_move6_pose.json",
+    "tests/rr18/native_capture.gd",
+    "tests/rr18/production_capture.gd",
+    "tests/test_gait01.py",
+    "tests/test_rr11_humanoid.py",
+    "tests/test_rr15_action_direction.py",
+    "tests/test_rr15_native_cleanup.py",
+    "tests/test_rr15_reach.py",
+    "tests/test_rr15_view_keys.py",
+    "tests/test_rr18_humanoid.py",
+    "tools/humanoid_cutout/action_direction.py",
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/bone_contracts.py",
+    "tools/humanoid_cutout/compiler.py",
+    "tools/humanoid_cutout/gait.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/leg_roles.py",
+    "tools/humanoid_cutout/move_sheet.py",
+    "tools/humanoid_cutout/production_gates.py",
+    "tools/humanoid_cutout/reach.py",
+    "tools/humanoid_cutout/recompile.py",
+    "tools/humanoid_cutout/rigid_joint_gap.py",
+    "tools/humanoid_cutout/walk_gates.py"
+  ],
+  "requirements": {
+    "1": "Compiler expands the six-step schedule into inspectable root, foot progress/lift/lane, pelvis settle and arm tracks. Exact sine-power lift has explicit serialized interpolation. Conflicts (including view overrides/aliases), unknown fields, other models and odd step counts fail compilation.",
+    "2": "Gait-only root-frame lane anchors; depth-projected segment spacing; affine skin transforms preserve painted width; rigid pieces retain unit bases; pelvis fits after authored offsets. Hero untouched. Seer/Capacitor source and poses unchanged; non-move Thrall/Mirror poses and tracks unchanged.",
+    "3": "Shared both-leg stance, swing peak/apex, facing, reach, fit and rigid pixel-square joint-air gates; source and actual production geometry covered. Leg roles removed from both cases; protected non-move Thrall jab keeps explicit aliases.",
+    "4": "Both protected imports copied byte for byte and motion rebuilt into cases/production. Paint, density and rest records unchanged; all non-move gates pass and both paintings retain zero-pixel source identity.",
+    "5": "Native probe/contract and sheet composer provided: 12 equal phases per view, native board scale measured from production, 3x nearest, one row/view, planted/swing world-target markers, per-frame pelvis drop and scales. Headless resource/phase validation passed; native capture pending director."
+  },
+  "results": {
+    "unit_tests": [
+      "Ran 44 tests in 65.369s",
+      "OK"
+    ],
+    "regression_tests": [
+      "Ran 167 tests in 173.257s",
+      "OK"
+    ],
+    "case_gates": [
+      "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+      "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)",
+      "RR18 SOURCE/CUT GATES: PASS (0 errors; both views)",
+      "RR18 ALL GATES: PASS (0 unique errors)"
+    ],
+    "production_logic": [
+      "MAQUETTE PRODUCTION LOGIC: PASS (923 frames) -- Thrall front and rear",
+      "MAQUETTE PRODUCTION LOGIC: PASS (949 frames) -- Mirror front and rear",
+      "GAIT PRODUCTION arc_thrall front: PASS (0 errors)",
+      "GAIT PRODUCTION arc_thrall rear: PASS (0 errors)",
+      "GAIT PRODUCTION glacial_mirror front: PASS (0 errors)",
+      "GAIT PRODUCTION glacial_mirror rear: PASS (0 errors)"
+    ],
+    "sfx": [
+      "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)",
+      "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)",
+      "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+    ],
+    "registration": "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)",
+    "density": [
+      "arc_thrall_cutout: CHECK-OK",
+      "glacial_mirror_cutout: CHECK-OK"
+    ],
+    "probe_load": "GAIT MOVE PROBE LOAD: PASS (24 frames; 12 per view) -- both figures",
+    "required_mutations": "All caught: planted foot +1 px (both feet/views), zero swing lift, exact 4 px rigid gap, director generated-channel keys (base/view overrides).",
+    "diff_check": "git diff --check passed",
+    "shell_syntax": "Both proof scripts passed sh -n",
+    "full_suites": "Not run, as the brief explicitly assigns them to the director at merge."
+  },
+  "cases": {
+    "arc_thrall": {
+      "headless_gates_ok": true,
+      "non_move_authored_bones_and_presented_sprites_identical": true,
+      "non_move_scope": "All authored bones and all presented bones/sprites. Authored Sprite2D diagnostic fields inherit the preceding presented pose and are excluded.",
+      "source_tile_px": 138.39739073341735,
+      "walk": {
+        "front": {
+          "maximum_fit_px": 0.45254351094601475,
+          "maximum_total_pelvis_drop_px": 3.000000000000007,
+          "maximum_rigid_air_px": 0.0
+        },
+        "rear": {
+          "maximum_fit_px": 0.056471353811730296,
+          "maximum_total_pelvis_drop_px": 3.000000000000014,
+          "maximum_rigid_air_px": 0.0
+        }
+      },
+      "production_walk": {
+        "front": {
+          "ok": true,
+          "errors": [],
+          "maximum_fit_px": 0.45254351094601475,
+          "maximum_total_pelvis_drop_px": 2.915815184205183,
+          "maximum_rigid_air_px": 0.0
+        },
+        "rear": {
+          "ok": true,
+          "errors": [],
+          "maximum_fit_px": 0.056471353811730296,
+          "maximum_total_pelvis_drop_px": 2.915815184205183,
+          "maximum_rigid_air_px": 0.0
+        }
+      },
+      "rest_mismatch_pixels": {
+        "front": 0,
+        "rear": 0
+      },
+      "native_move_capture": "experiments/cutouts/arc_thrall/rr11/proof/gait_move_native",
+      "native_move_sheet": "experiments/cutouts/arc_thrall/rr11/proof/gait_move_sheet.png"
+    },
+    "glacial_mirror": {
+      "headless_gates_ok": true,
+      "non_move_authored_bones_and_presented_sprites_identical": true,
+      "non_move_scope": "All authored bones and all presented bones/sprites. Authored Sprite2D diagnostic fields inherit the preceding presented pose and are excluded.",
+      "source_tile_px": 138.39745407014354,
+      "walk": {
+        "front": {
+          "maximum_fit_px": 2.716828686459621,
+          "maximum_total_pelvis_drop_px": 4.715246843730412,
+          "maximum_rigid_air_px": 0.0
+        },
+        "rear": {
+          "maximum_fit_px": 2.842170943040401e-14,
+          "maximum_total_pelvis_drop_px": 3.5000000000000036,
+          "maximum_rigid_air_px": 0.0
+        }
+      },
+      "production_walk": {
+        "front": {
+          "ok": true,
+          "errors": [],
+          "maximum_fit_px": 2.716828686459621,
+          "maximum_total_pelvis_drop_px": 4.715246843730412,
+          "maximum_rigid_air_px": 0.0
+        },
+        "rear": {
+          "ok": true,
+          "errors": [],
+          "maximum_fit_px": 2.842170943040401e-14,
+          "maximum_total_pelvis_drop_px": 3.4976628881950997,
+          "maximum_rigid_air_px": 0.0
+        }
+      },
+      "rest_mismatch_pixels": {
+        "front": 0,
+        "rear": 0
+      },
+      "native_move_capture": "experiments/cutouts/glacial_mirror/rr18/proof/gait_move_native",
+      "native_move_sheet": "experiments/cutouts/glacial_mirror/rr18/proof/gait_move_sheet.png"
+    }
+  },
+  "legacy_leg_role_readers": [
+    "tools/humanoid_cutout/leg_roles.py",
+    "tools/humanoid_cutout/compiler.py",
+    "tools/humanoid_cutout/anatomy.schema.json",
+    "tools/humanoid_cutout/bone_contracts.py",
+    "tools/humanoid_cutout/reach.py",
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "Planted-support gates call the compatibility resolver; Thrall protected jab uses channel_aliases, not leg_roles."
+  ],
+  "TODO_DESIGN": [],
+  "chosen_defaults": {
+    "scope": "Debug/test/proof only; no new player-facing tuning.",
+    "proof_camera_origin_px": [
+      960,
+      760
+    ],
+    "proof_geometry_fixture": {
+      "seed": 91210,
+      "settle_frames": 8,
+      "tile": [
+        2,
+        4
+      ],
+      "next_tile": [
+        3,
+        4
+      ],
+      "source": "Reuses existing rr18 board-proof fixture. Scale and step are measured, not chosen."
+    },
+    "production_fixture": {
+      "contact_tile": [
+        3,
+        4
+      ],
+      "reflection_x_sum": 8,
+      "source": "Existing Mirror fixture convention, reused for Thrall view isolation."
+    },
+    "headless_probe_validation_only": {
+      "scale": 1.0,
+      "step_px": 96.0
+    },
+    "sheet": {
+      "crop_margin_native_px": 5,
+      "label_height_px": 44,
+      "marker_radius_native_px": 2,
+      "planted": "#00ff00",
+      "swing": "#ffa500",
+      "background": "#1e1e24"
+    },
+    "rigid_air_cache_entries": 16,
+    "new_test_process_timeout_seconds": 180
+  },
+  "proof_for_design_owner": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/arc_thrall/rr11_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/arc_thrall/rr11_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/arc_thrall/rr11_proof.sh review",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/arc_thrall/rr11_proof.sh move",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/glacial_mirror/rr18_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/glacial_mirror/rr18_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/glacial_mirror/rr18_proof.sh review",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/gait-01 && LABYRINTH_TASK_ID=gait-01 sh experiments/cutouts/glacial_mirror/rr18_proof.sh move"
+  ],
+  "logs": "experiments/cutouts/arc_thrall/rr11/proof/logs/gait01",
+  "open_issues": [
+    "Native renderer captures/sheets and full suites remain for the director. No windowed runs were attempted.",
+    "Some headless engine runs log macOS CA-certificate/cleanup warnings; all recorded final checks exited 0. No native-pixel success is claimed."
+  ],
+  "workflow": "No commit, push, branch change, peer review, queue edit or publication performed."
+}

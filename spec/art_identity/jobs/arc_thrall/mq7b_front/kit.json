@@ -1,0 +1,63 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "arc_thrall",
+  "job_id": "mq-thrall-front-r2 (revision 2)",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "2e67f19425567d647577937b21164848c88faf9e4068fed6d5e482fd5cda7bf0",
+  "method": "maquette paint-over r2 from the mq-07 maquette (raised far shoulder, capped forearm tube, planted feet) + one gauntness revision; peer ref = owner-approved Lightning Wisp; + owner-feedback revision: a broad iron collar low on the shoulders below the jaw (rear: an even band, no upturn) and a ragged hide skirt wrapped round the hips with a rope belt (edit of the approved mq7 raw; nothing else changed)",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "e35b91bc06cfb3116ef39c2dc5ab1f7b6113955a18d3e0cd68202b2a60b92015",
+  "prompt_source": "spec/art_identity/maquettes/arc_thrall/prompt_front_r2_fix.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts_mq07",
+      "file": "refs/01_maquette_front_parts_mq07.png",
+      "pixel_sha256": "aeb4c61500adb134c083f533d68f2647b052f646eb4519990149ba84169a7b84",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-front-r2/refs/01_maquette_front_parts.png"
+    },
+    {
+      "canon_id": "maquette_front_clay_mq07",
+      "file": "refs/02_maquette_front_clay_mq07.png",
+      "pixel_sha256": "40e4bc4ee73e412aa4faec84eeb3b3e2b0e974e22f8a0b45aa2913afb2fc54a5",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-front-r2/refs/02_maquette_front_clay.png"
+    },
+    {
+      "canon_id": "identity_arc_thrall_original",
+      "file": "refs/03_identity_arc_thrall_original.png",
+      "pixel_sha256": "f2ceecf1173ecf71c7f2f910fdcb6e9020294b14df1f953aa7a0960e39d588d3",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-front-r2/refs/03_identity_arc_thrall_original.png"
+    },
+    {
+      "canon_id": "approved_lightning_wisp_front",
+      "file": "refs/04_approved_lightning_wisp_front.png",
+      "pixel_sha256": "93f0ae572f82f3f53f57b656dc1e29f5917300f9033e9e6b8d7d50ab3c6c8940",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-front-r2/refs/04_peer_wisp.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-thrall-front-r2/refs/05_hero_front.png"
+    },
+    {
+      "canon_id": "arc_thrall_front_mq7_raw",
+      "file": "refs/06_previous_raw_mq7_front.png",
+      "pixel_sha256": "53e7d45c1a092af2e7fda13fccdc92b5b1d2b957c6df0f7cb568207e9ea6876d",
+      "role": "identity",
+      "source_file": "spec/art_identity/jobs/arc_thrall/mq7_front/refs/raw_approved.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 202,
+  "view": "creature_front"
+}

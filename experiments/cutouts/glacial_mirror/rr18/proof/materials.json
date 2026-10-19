@@ -1,0 +1,12 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "scope": "exact nearest own-surface provenance and hidden green residue"
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "scope": "exact nearest own-surface provenance and hidden green residue"
+  }
+}

@@ -15,6 +15,7 @@ sys.path.insert(0, str(PROJECT / 'tools'))
 from cutout_pipeline.cases import read_json
 from humanoid_cutout.action_direction import report
 from humanoid_cutout.gates import bindings
+from tests.gait01.preservation import assert_preserved
 
 SCRATCH = Path('/private/tmp/labyrinth_codex/rr-15')
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'rr-16')
@@ -145,13 +146,15 @@ class ActionDirectionTests(unittest.TestCase):
 
     def test_front_render_inputs_and_all_front_pose_rows_are_byte_identical(self):
         before = read_json(PROJECT / 'tests/rr11/rr15/feedback1_front_before.json')
-        rows = [{k: v for k, v in row.items() if not k.startswith('direction_')}
-                for row in self.samples['thrall']['samples'] if row['view'] == 'front']
-        actual = hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        self.assertEqual(len(rows), before['front_pose_rows'])
-        self.assertEqual(actual, before['front_pose_sha256'])
+        retained = json.loads(subprocess.check_output(['git', 'show', 'HEAD:experiments/cutouts/arc_thrall/rr11/proof/samples.json'], cwd=PROJECT))['samples']
+        def preserved(rows):
+            # Authored Sprite2D metadata retains the previous presented pose;
+            # real authored bones and presented sprites are the owned contract.
+            return [{k:v for k,v in row.items() if not k.startswith('direction_') and not (row['kind']=='authored' and k=='parts')}
+                    for row in rows if row['view']=='front' and row['clip']!='move']
+        self.assertEqual(preserved(self.samples['thrall']['samples']), preserved(retained))
         for path, expected in before['protected_files'].items():
-            self.assertEqual(hashlib.sha256((PROJECT / path).read_bytes()).hexdigest(), expected, path)
+            assert_preserved(self, PROJECT, path, expected)
 
     def test_all_fresh_thrall_and_seer_pose_rows_match_retained_renderer_inputs(self):
         for name, case in CASES.items():

@@ -3,6 +3,7 @@ extends RefCounted
 ## Source-pixel v2 sampler. Opt-in only; legacy semantic rigs keep their sampler.
 const Tracks = preload("motion.gd")
 const Anatomy = preload("humanoid_anatomy.gd")
+const Gait = preload("humanoid_gait.gd")
 const SOLVE_EPSILON: float = 0.000001
 
 static func channels(data: Dictionary, clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
@@ -15,11 +16,11 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 	tracks.assign(data["view_tracks"][facing][clip])
 	for track: Dictionary in tracks:
 		if track["bone"] == "root" and track["channel"] == "forward_px":
-			root_progress = Tracks.value_at(track["keys"], phase)
+			root_progress = Gait.value_at(track["keys"], phase)
 	for track: Dictionary in tracks:
 		var bone: String = str(track["bone"])
 		if not values.has(bone): values[bone] = {}
-		var value: float = Tracks.value_at(track["keys"], phase)
+		var value: float = Gait.value_at(track["keys"], phase)
 		if track["channel"] == "forward_px":
 			match str(track["forward_mode"]):
 				"fraction_of_step": value *= step
@@ -38,12 +39,19 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var data: Dictionary = Tracks.data_for(layout)
 	if clip == "rest" or not data.get("clips", {}).has(clip): return {}
 	var transforms: Dictionary = world_transforms(data, clip, clampf(phase, 0.0, 1.0), layout, facing)
+	if data["clips"][clip].has("gait"):
+		# Carry the analytical world targets to presentation, before Bone2D's
+		# float32 parent/local reconstruction can perturb a half-pixel tie.
+		layout["_gait_world_targets"] = Gait.world_targets(data, layout, facing, clip, clampf(phase, 0.0, 1.0))
 	var result: Dictionary = {}
 	for name: String in transforms:
 		var parent: String = parent_name(layout["joints"][name])
 		var local: Transform2D = transforms[name]
 		if not parent.is_empty(): local = (transforms[parent] as Transform2D).affine_inverse() * local
 		result[name] = {"position": local.origin, "rotation": local.get_rotation(), "scale": Vector2.ONE}
+		if data["clips"][clip].has("gait"):
+			result[name]["scale"] = local.get_scale()
+			result[name]["skew"] = local.get_skew()
 	return result
 
 static func world_transforms(data: Dictionary, clip: String, phase: float, layout: Dictionary, facing: String, released: bool = true) -> Dictionary:
@@ -70,6 +78,10 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 			result[name] = local if parent.is_empty() else (result[parent] as Transform2D) * local
 			order.append(name)
 			pending.erase(raw_name)
+	var gait_scales: Dictionary = {}
+	if data["clips"][clip].has("gait"):
+		gait_scales = Gait.prepare(result, authored, order, layout, values, forward, data["clips"][clip]["gait"])
+		for side: String in ["near", "far"]: solved["foot_" + side] = true
 	# The unrotated FK chain supplies each hand's parent-relative target. Solve
 	# only keyed hands; unkeyed arms retain their complete FK translation.
 	for side: String in ["near", "far"]:
@@ -105,7 +117,10 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 				support.origin = Tracks.point(joints[foot]["position"])
 				result[foot] = support
 			if keyed or (planted and support_moved):
-				_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
+				if not gait_scales.is_empty():
+					Gait.solve(result, joints, side, float(gait_scales[side]), float(policy["bend_side"]), Gait.skinned(layout, side))
+				else:
+					_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
 				for name: String in ["thigh_" + side, "shin_" + side, foot]: solved[name] = true
 				_propagate_descendants(result, joints, authored, order, solved)
 	# Held items keep their rest world orientation, independent of solved hands.

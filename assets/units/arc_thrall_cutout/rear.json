@@ -121913,5 +121913,96 @@
   },
   "rest_source": "humanoid_v2/rear/rest.png",
   "motion_data": "res://assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "b96c7315999c1d6a36813e17ffd587742b600f3e38cf3fb49a6fa912d6085870"
+  "rest_source_sha256": "b96c7315999c1d6a36813e17ffd587742b600f3e38cf3fb49a6fa912d6085870",
+  "gait_continuations": {
+    "hidden_torso": {
+      "donor": "torso",
+      "texels": [
+        [
+          65,
+          31,
+          61,
+          27
+        ],
+        [
+          66,
+          31,
+          61,
+          27
+        ],
+        [
+          67,
+          31,
+          64,
+          27
+        ],
+        [
+          68,
+          31,
+          64,
+          27
+        ],
+        [
+          64,
+          32,
+          61,
+          27
+        ],
+        [
+          65,
+          32,
+          61,
+          27
+        ],
+        [
+          66,
+          32,
+          61,
+          27
+        ],
+        [
+          67,
+          32,
+          64,
+          27
+        ],
+        [
+          68,
+          32,
+          64,
+          27
+        ],
+        [
+          69,
+          32,
+          64,
+          27
+        ],
+        [
+          65,
+          33,
+          60,
+          30
+        ],
+        [
+          66,
+          33,
+          62,
+          31
+        ],
+        [
+          67,
+          33,
+          64,
+          27
+        ],
+        [
+          68,
+          33,
+          64,
+          27
+        ]
+      ]
+    }
+  }
 }

@@ -1,0 +1,16 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "snapshot_mismatch_pixels": 0,
+    "scope": "exact density-derived source-space rest; native seal pending director"
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "snapshot_mismatch_pixels": 0,
+    "scope": "exact density-derived source-space rest; native seal pending director"
+  }
+}

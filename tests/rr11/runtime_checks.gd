@@ -75,8 +75,8 @@ func _run() -> void:
 		for side: String in ["near", "far"]:
 			var foot: String = "foot_" + side
 			var expected: Vector2 = Motion.point(layout["joints"][foot]["position"])
-			if side == layout["leg_roles"]["trailing"]: expected += Vector2(0.0, FIXTURE_PELVIS_DIP_PX)
-			check((planted[foot] as Transform2D).origin.distance_to(expected) < EPSILON, "stride plants while the trailing foot follows the body")
+			if foot not in layout["planted_bones"]: expected += Vector2(0.0, FIXTURE_PELVIS_DIP_PX)
+			check((planted[foot] as Transform2D).origin.distance_to(expected) < EPSILON, "declared supports plant while other feet follow the body")
 	renderer.free()
 	for failure: String in failures: push_error(failure)
 	print("RR11 RUNTIME: %s (%d checks; headless logic only)" % ["PASS" if failures.is_empty() else "FAIL", checks])

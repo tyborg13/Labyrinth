@@ -43,15 +43,19 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
-- Next (in order):
-  1. Integration green at 6e26013c0 (Godot PASS, Python OK): Thrall v2 (rr-11/15/16) and the Mirror maquette r2 (mq-08)
-     merged; Mirror repaint committed. Running: rr-18 (Mirror rig), rr-17 Codex review (Capacitor), mq-09 (Mimic,
-     Weaver, Mortar maquettes; bridge serves mq-09). Owner verdicts open: thrall-rig-v2, capacitor-rig, purge-polish,
-     enemy-pacing-2.
-  2. Glacial Mirror v2 motion and rig (a humanoid golem: rigid boulders, protagonist bob); Lancer/Herald/Gloam v2
-     conversions (rr-06/rr-08 are past usefulness as sessions; start fresh units).
-  3. rr-09 (narrow rig proof bindings), det-02, qa-09..12, design-01; mq-06 Low follow-up (packing regression
-     fixtures); mq-07 floor-guard note for the Herald and Lancer exceptions.
+- Next (in order), 2026-10-19 late morning:
+  1. Integration: mq-10 (edb555b5a) and rr-18 Mirror (8683d6b1d) merged; post-merge oracle fixes for the promoted
+     Mirror; Godot PASS after the fixes, Python 1 count fixed (passes alone).
+  2. Owner verdicts 2026-10-19: capacitor-rig APPROVED, purge-polish APPROVED, enemy-pacing-2 APPROVED; mirror-rig and
+     thrall-rig-v2 NEEDS CHANGES (feedback.md). Walk redesign (decisions 2026-10-19): every humanoid walks on the
+     protagonist's model, 6 steps per tile.
+  3. Running: gait-01 (shared walk + Thrall + Mirror; brief spec/peer_benchmark/briefs/gait-01.md). Windowed proof
+     chain for rr-20/22/21 (scratchpad batchc_proofs.sh) to review non-walk visuals.
+  4. After gait-01 lands: launch rr-23 (Mirror re-cut from mq8b, guard draw order, preservation Low) and rr-24 (Thrall
+     re-cut from mq7b: collar, skirt); resume rr-20/21/22 with feedback 2 = gait block adoption (6 steps; Mimic move
+     0.8 s; Weaver lift 7; Mortar lift 5 + torso jolt) + windowed review findings.
+  5. Then: fresh inbox items for the Mirror, Thrall, Mimic, Weaver, Mortar; Lancer/Herald/Gloam v2 conversions.
+  6. rr-09 (narrow rig proof bindings), qa-09..12, design-01; mq-06 Low follow-up; mq-07 floor-guard note.
 - Paint-overs DONE (director, identity gate PASS): `spec/art_identity/jobs/{hoarfrost_seer,arc_thrall,gale_herald,
   gloam_stalker}/mq5_{front,rear}`. Motion data: `staged/rr-07`, `staged/rr-08`.
 - Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10 (owner's call).

@@ -144,12 +144,38 @@ class FormDeliveryProofTests(unittest.TestCase):
 
     def test_clean_regeneration_inventory_is_the_current_builder_and_recipe(self):
         from spec.art_identity.maquettes.blender.curate_delivery import sha
-        from spec.art_identity.maquettes.blender.compile_recipe import PROJECT
+        from spec.art_identity.maquettes.glacial_mirror.regeneration_inputs import source_files
         for name in ('hollow_mimic','briar_weaver','slag_mortar'):
             path=ROOT/name/'delivery/validation/regeneration/clean_input_sha256.json'
             inventory=json.loads(path.read_text())
-            for relative,expected in inventory.items():
-                self.assertEqual(sha(PROJECT/relative),expected,(name,relative))
+            sources,_=source_files(ROOT/name)
+            # Exact inventory equality also catches new builder modules absent
+            # from an older seal, rather than checking only its recorded files.
+            self.assertEqual(inventory,{relative:sha(source) for relative,source in sources.items()},name)
+            report=json.loads((path.parent/'regeneration.json').read_text())
+            self.assertEqual(report['input_inventory_sha256'],sha(path),name)
+
+    def test_merged_builder_baseline_regeneration_inventories_are_current(self):
+        from spec.art_identity.maquettes.blender.curate_delivery import sha
+        from spec.art_identity.maquettes.glacial_mirror.regeneration_inputs import source_files
+        for name in ('glacial_mirror','hoarfrost_seer','gale_herald','arc_thrall','gloam_stalker',
+                     'burrow_grub','ember_tick','frostglass_lancer'):
+            with self.subTest(figure=name):
+                folder=ROOT/'glacial_mirror/delivery/validation/mq08/regeneration'/name
+                inventory=json.loads((folder/'clean_input_sha256.json').read_text())
+                sources,_=source_files(ROOT/folder.name)
+                self.assertEqual(inventory,{relative:sha(source) for relative,source in sources.items()})
+                report=json.loads((folder/'regeneration.json').read_text())
+                self.assertTrue(report['passed'])
+                self.assertEqual(report['input_inventory_sha256'],sha(folder/'clean_input_sha256.json'))
+                view_sources=ROOT/folder.name/'delivery/view_sources.json'
+                if view_sources.is_file():
+                    source=json.loads(view_sources.read_text())['overrides']['rear']
+                    sources,_=source_files(ROOT/folder.name,ROOT/folder.name/source['recipe'])
+                    self.assertEqual(json.loads((folder/'source_rear/clean_input_sha256.json').read_text()),
+                                     {relative:sha(path) for relative,path in sources.items()})
+                    self.assertEqual(report['per_view_sources']['rear']['clean_input_sha256'],
+                                     sha(folder/'source_rear/clean_input_sha256.json'))
 
     def test_painting_clay_pairs_and_before_after_table_are_bound_to_current_inputs(self):
         from spec.art_identity.maquettes.blender.curate_delivery import sha

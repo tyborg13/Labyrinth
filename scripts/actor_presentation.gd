@@ -7,6 +7,7 @@ const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/pres
 ## HUD heights use each painted rest view; raised weapons never lift a nameplate.
 const SOURCE_SIZE: float = 255.0
 const PROFILES: Dictionary = {
+	"glacial_mirror": {"front": Vector2(127.0, 231.46), "rear": Vector2(130.0, 231.46), "height": Vector2(215.46, 223.46)},
 	"ember_tick": {"front": Vector2(117.0, 226.46), "rear": Vector2(135.75, 225.21), "height": Vector2(127.46000000000001, 132.21)},
 	"burrow_grub": {"front": Vector2(120.0, 236.46), "rear": Vector2(128.0, 241.21), "height": Vector2(132.46, 137.21)},
 	"hoarfrost_seer": {"front": Vector2(135.0, 232.46), "rear": Vector2(122.0, 219.21), "height": Vector2(192.46, 182.21)},

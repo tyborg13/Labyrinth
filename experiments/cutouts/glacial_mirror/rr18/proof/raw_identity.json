@@ -1,0 +1,14 @@
+{
+  "front": {
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "scope": "exact pre-cleanup source partition against protected painting"
+  },
+  "rear": {
+    "ok": true,
+    "errors": [],
+    "mismatch_pixels": 0,
+    "scope": "exact pre-cleanup source partition against protected painting"
+  }
+}

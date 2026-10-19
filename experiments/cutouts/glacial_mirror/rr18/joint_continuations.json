@@ -1,0 +1,33 @@
+{
+  "front": {},
+  "rear": {
+    "thigh_far": {
+      "covers": [
+        "pelvis",
+        "shin_far"
+      ],
+      "source_points": [
+        [
+          168,
+          178
+        ]
+      ]
+    },
+    "upper_far": {
+      "covers": [
+        "torso",
+        "fore_far"
+      ],
+      "source_points": [
+        [
+          165,
+          93
+        ],
+        [
+          168,
+          55
+        ]
+      ]
+    }
+  }
+}

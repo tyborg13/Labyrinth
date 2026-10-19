@@ -1,0 +1,91 @@
+{
+  "character_id": "glacial_mirror",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: torso, head and both free arms drop 2 px and return as one rigid group; pelvis, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.9,
+      "intents": [
+        "advance:move_toward"
+      ],
+      "note": "a heavy golem walk on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 6 px lift; the pelvis settles 3.5 px after each landing; the rigid boulder legs space their joints at most 14% on long reaches; both fists swing 3 px opposite the stepping leg; the torso leans 2 degrees",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 6,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.14,
+        "settle_px": {
+          "contact": 2.0,
+          "down": 3.5,
+          "passing": 1.0,
+          "up": 0.5
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "refraction": {
+      "seconds": 1.1,
+      "contact": 0.5,
+      "intents": [
+        "refraction:aoe"
+      ],
+      "note": "opens its chest: it rocks back and swings both fists out and up to the sides, then heaves the chest forward to present the ice mirror along the line (contact: the existing Refraction beam), holding with a 1 px shudder and bent knees; then settles",
+      "release_at": {}
+    },
+    "guard": {
+      "seconds": 0.9,
+      "contact": 0.45,
+      "intents": [
+        "crystal_guard:guard_ally"
+      ],
+      "note": "raises the near fist to a boxer's guard in front of the ice mirror (elbow folding) while the far fist comes up to the hip, sinks 2 px into its knees and leans back 2 degrees; at the contact the near fist punches 4 px inward as the ward lands; holds; lowers",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both fists trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "the cold goes out of it: a 1 px lurch up, then the knees buckle over planted feet (pelvis down 20 px and 5 forward), the torso pitches forward 20 degrees, the head tips 15, and both fists drop to the floor ahead; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "direction_clips": [
+    "refraction",
+    "guard"
+  ],
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

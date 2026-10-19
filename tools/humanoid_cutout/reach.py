@@ -5,13 +5,13 @@ import numpy as np
 
 from .action_direction import pose_values
 from .bone_contracts import fk_world, target_chains
-from maquette_motion.compiler import evaluate
+from .gait import evaluate
 
 DENSE_INTERVALS = 1000
 MIN_REACH_MARGIN_PX = 4.0
 MAX_REACH_OVERSHOOT = 0.02
 MINIMUM_PHASE_RESOLUTION = 1e-6
-POSITION_CHANNELS = ('forward_px', 'lift_px', 'inward_px')
+POSITION_CHANNELS = ('forward_px', 'lift_px', 'inward_px', 'lane_px')
 
 
 def proven_linear(tracks, start, end):
@@ -92,7 +92,7 @@ def world_bounds(layout, data, view, clip, forward, step, start, end):
         parent, position = joint['parent'], joint['position']
         channels = values.get(name, {})
         mode = modes.get(name, 'pixels')
-        if layout.get('leg_roles') and mode == 'world_step' and name.startswith('foot_'):
+        if (layout.get('leg_roles') or 'lane_px' in channels) and mode == 'world_step' and name.startswith('foot_'):
             parent = 'root'  # Same world-step floor-anchor parent as fk_world.
         origin = [_point(position[i] - (joints[parent]['position'][i] if parent else 0.)) for i in range(2)]
         amount = channels.get('forward_px', zero)
@@ -102,6 +102,7 @@ def world_bounds(layout, data, view, clip, forward, step, start, end):
             amount = _multiply(_add(amount, _negative(values.get('root', {}).get('forward_px', zero))), _point(step))
         origin = [_add(origin[i], _multiply(_point(forward[i]), amount)) for i in range(2)]
         inward_sign = int(joints['root']['position'][0] > position[0]) - int(joints['root']['position'][0] < position[0])
+        origin[0] = _add(origin[0], channels.get('lane_px', zero))
         origin[0] = _add(origin[0], _multiply(_point(inward_sign), channels.get('inward_px', zero)))
         origin[1] = _add(origin[1], _negative(channels.get('lift_px', zero)))
         local_angle = _multiply(channels.get('lean_deg', zero), _point(math.pi / 180.))
@@ -117,7 +118,32 @@ def world_bounds(layout, data, view, clip, forward, step, start, end):
 
     for name in joints:
         visit(name)
-    return {name: transform[0] for name, transform in result.items()}
+    positions = {name: transform[0] for name, transform in result.items()}
+    if 'gait' in data.get('clips', {}).get(clip, {}):
+        # Bound the same post-authored fit as the sampler, with outward
+        # interval arithmetic. A sample chord cannot certify this curve.
+        fit_low, fit_high = 0., 0.
+        for side in ('near', 'far'):
+            foot = 'foot_' + side
+            a, b, c = [np.asarray(joints[n+'_'+side]['position']) for n in ('thigh','shin','foot')]
+            length = float(np.linalg.norm(b-a) + np.linalg.norm(c-b))
+            travel = _multiply(_add(values[foot]['forward_px'], _negative(values['root']['forward_px'])), _point(step))
+            scale = _add(_point(1.), _multiply(travel, _point(forward[1]/length)))
+            maximum = data['clips'][clip]['gait'].get('leg_scale_max', 1.22)
+            scale = tuple(float(np.clip(value, .78, maximum)) for value in scale)
+            reach = _add(_multiply(_point(length), scale), _point(-.10))
+            hip, target = positions['thigh_'+side], positions[foot]
+            horizontal = _add(target[0], _negative(hip[0]))
+            horizontal_max = max(abs(value) for value in horizontal)
+            horizontal_min = max(0., horizontal[0], -horizontal[1])
+            vertical_low = math.sqrt(max(.01, math.nextafter(reach[0]*reach[0]-horizontal_max*horizontal_max, -math.inf)))
+            vertical_high = math.sqrt(max(.01, math.nextafter(reach[1]*reach[1]-horizontal_min*horizontal_min, math.inf)))
+            drop = _add(_add(target[1], _negative(hip[1])), _negative(_outward(vertical_low, vertical_high)))
+            fit_low, fit_high = max(fit_low, drop[0]), max(fit_high, drop[1])
+        for name, position in positions.items():
+            if name not in ('root','foot_near','foot_far'):
+                positions[name] = position[0], _add(position[1], (fit_low, fit_high))
+    return positions
 
 
 def box_minimum(first, target):
