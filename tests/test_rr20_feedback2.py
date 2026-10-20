@@ -25,6 +25,18 @@ GAIT_ENDPOINT_ALPHA_MISMATCH_PX=20
 
 
 class FeedbackTwoTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        # Full diagnostics are ignored, so a clean integration checkout must
+        # produce its own evidence with the Mimic's canonical sampler.
+        from tests.test_rr18_humanoid import godot
+        folder = tempfile.TemporaryDirectory(prefix='int03-mimic-')
+        cls.addClassCleanup(folder.cleanup)
+        case = Path(folder.name)
+        output = case / 'proof/samples.json'
+        godot('tests/rr20/samples.gd', '--case', CASE, '--output', output)
+        cls.samples = read_report(case)
+
     def test_new_director_import_gait_and_readable_leading_hand(self):
         self.assertEqual((CASE/'director_motion.json').read_bytes(),DIRECTOR.read_bytes())
         self.assertEqual((ASSETS/'director_motion.json').read_bytes(),DIRECTOR.read_bytes())
@@ -80,7 +92,7 @@ class FeedbackTwoTests(unittest.TestCase):
     def test_cpu_mask_pruning_preserves_opaque_reference_fragments(self):
         # Compare pruned proof triangles with the original oracle at a rest
         # pose, before walking can fold distant transparent template triangles.
-        samples=read_report(CASE)
+        samples=self.samples
         for view in VIEWS:
             layout=read_json(CASE/f'layouts/{view}.json')
             row=next(r for r in samples['samples'] if r['view']==view and r['clip']=='idle' and r['kind']=='presented')
@@ -98,7 +110,7 @@ class FeedbackTwoTests(unittest.TestCase):
         candidate['gait_continuations']=read_json(CASE/'gait_continuations.proposal.json')['rear']
         self.assertEqual(errors(CASE,candidate),[])
         before,after=CpuPose(CASE,layout),CpuPose(CASE,candidate)
-        samples=read_report(CASE)
+        samples=self.samples
         frames=[r for r in samples['samples'] if r['view']=='rear' and r['clip']=='move' and r['kind']=='presented']
         for row in (frames[0],frames[-1]):
             original=np.logical_or.reduce([image[...,3]>0 for _,image,_ in before.layers(row)[0]])

@@ -13,8 +13,8 @@ const EXPECTED_COPY: Dictionary = {
 	"survive": "Survive until the marked time.",
 	"reach_exit": "Reach a marked door to escape."
 }
-const EXPECTED_STATIC := ["gale_herald", "gloam_stalker", "hollow_mimic", "briar_weaver", "slag_mortar"]
-const MAQUETTE_FOES := ["bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor", "glacial_mirror"]
+const EXPECTED_STATIC := ["gale_herald", "gloam_stalker"]
+const MAQUETTE_FOES := ["bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor", "glacial_mirror", "slag_mortar", "briar_weaver", "hollow_mimic"]
 const TEST_STAGE_SIZE := Vector2(206, 365)
 const PROCESS_FRAMES: int = 3
 const PHASE_EPSILON: float = 0.000001
@@ -25,6 +25,9 @@ const OBJECTIVE_TEST_SIZE := Vector2(1000, 100)
 # Independent oracle: board constants plus explicit maquette Scripts, never the
 # selector under test. Shared Guardian instances must also carry their identity.
 const EXPECTED_RENDERERS: Dictionary = {
+	"slag_mortar": preload("res://assets/units/slag_mortar_cutout/renderer.gd"),
+	"briar_weaver": preload("res://assets/units/briar_weaver_cutout/renderer.gd"),
+	"hollow_mimic": preload("res://assets/units/hollow_mimic_cutout/renderer.gd"),
 	"storm_capacitor": preload("res://assets/units/storm_capacitor_cutout/renderer.gd"),
 	"glacial_mirror": preload("res://assets/units/glacial_mirror_cutout/renderer.gd"),
 	"burrow_grub": preload("res://assets/units/burrow_grub_cutout/renderer.gd"),
@@ -159,7 +162,7 @@ static func _test_roster(expect: Callable) -> void:
 	before = _clocks(actors)
 	await _frames(tree)
 	_assert_frozen(actors, before, expect, "Reduced-motion SceneTree idle stays frozen: ")
-	expect.call(count == 43 and actors.size() == 38, "Every identity is covered (38 cutouts / 5 stills)")
+	expect.call(count == 43 and actors.size() == 41, "Every identity is covered (41 cutouts / 2 stills)")
 	stage.free()
 	host.free()
 	Settings.apply_settings(saved_settings, null, false)

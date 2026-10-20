@@ -12,7 +12,7 @@ from rr18_case import CASE
 from cutout_pipeline.cases import read_json
 from rr23_checks import ankle_report, arm_report
 from rr23_geometry import front_arm_order
-from rr23_preservation import BASELINE_COMMIT
+from rr23_preservation import BASELINE_COMMIT, UNIT_HEAD
 
 FIXTURE_DISCONNECTED_FOOT_PX=100
 FIXTURE_RGBA=(80,90,110,255)
@@ -73,7 +73,7 @@ class OwnerFixTests(unittest.TestCase):
         for relative in ('spec/art_identity/registry.json','spec/assets/board_pixel_density/registry.json',
                          'spec/assets/board_pixel_density/outputs.json'):
             before=json.loads(subprocess.check_output(['git','show',BASELINE_COMMIT+':'+relative],cwd=PROJECT))
-            current=read_json(PROJECT/relative)
+            current=json.loads(subprocess.check_output(['git','show',UNIT_HEAD+':'+relative],cwd=PROJECT))
             if relative.endswith('outputs.json'):
                 def protected(data):return {k:v for k,v in data.items() if '/glacial_mirror_cutout/' not in k}
             else:
@@ -90,7 +90,15 @@ class OwnerFixTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rr23-shadow-',dir=CASE/'proof') as folder:
             baseline=Path(folder)/'baseline.res'
             baseline.write_bytes(subprocess.check_output(['git','show',BASELINE_COMMIT+':assets/generated/unit_shadow_cache.res'],cwd=PROJECT))
-            self.assertIn('RR23 SHADOW PRESERVATION: PASS',godot('tests/rr18/shadow_refresh.gd','--check-baseline',baseline))
+            unit=Path(folder)/'unit.res'
+            unit.write_bytes(subprocess.check_output(['git','show',UNIT_HEAD+':assets/generated/unit_shadow_cache.res'],cwd=PROJECT))
+            # Check the unit's sources as well as both ends of its cache diff.
+            for view in ('front','rear'):
+                relative=f'assets/units/glacial_mirror_cutout/humanoid_v2/{view}/rest.png'
+                target=Path(folder)/relative;target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_bytes(subprocess.check_output(['git','show',UNIT_HEAD+':'+relative],cwd=PROJECT))
+            self.assertIn('RR23 SHADOW PRESERVATION: PASS',godot('tests/rr18/shadow_refresh.gd',
+                '--check-baseline',baseline,'--check-unit',unit,'--source-root',folder))
 
     def test_all_mirror_motion_bytes_match_the_pinned_baseline(self):
         import subprocess

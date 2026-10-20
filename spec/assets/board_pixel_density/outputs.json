@@ -14256,6 +14256,12 @@
     "grid": 0.96,
     "facing": "front"
   },
+  "assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png": {
+    "kind": "rest",
+    "id": "slag_mortar_cutout",
+    "pixel_sha256": "e66c06f6146625e62770b665a33d8937891f8d6ce28ef209091f9bcb643851b9",
+    "parts_pixel_sha256": "e6b40aee1f774f83146ef9f94eea7cba3c5b6fc9a93a337edb238fc64d2d52f3"
+  },
   "assets/units/slag_mortar_cutout/humanoid_v2/front/torso.png": {
     "pixel_sha256": "37a9b4e163507a7936de545f788ae354228a7486d8b2ec9811f73d32dd175918",
     "source_pixel_sha256": "80d973d10ed77fd424d22cdc7f1e642e06ce3bc58de7389704027ee2f1a4da29",
@@ -14463,6 +14469,12 @@
     "mode": "clean",
     "grid": 0.98,
     "facing": "rear"
+  },
+  "assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png": {
+    "kind": "rest",
+    "id": "slag_mortar_cutout",
+    "pixel_sha256": "5e11856413f663bac0c797c0f2d93db0493b7d965687cb2906c668330890f72e",
+    "parts_pixel_sha256": "e6b40aee1f774f83146ef9f94eea7cba3c5b6fc9a93a337edb238fc64d2d52f3"
   },
   "assets/units/slag_mortar_cutout/humanoid_v2/rear/torso.png": {
     "pixel_sha256": "cd5dbf0e160069c6a18fab7d8937cd2fa6f507d66c473b2fcc17520183c6bc01",
