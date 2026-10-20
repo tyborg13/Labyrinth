@@ -49,8 +49,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
      declarations, Mortar digests, density manifest, unit-scoped preservation pins, Empower glossary at 19 words).
   2. **Integration green at 1fd63e03c** (Godot PASS, Python 1458 OK): rr-27, int-04 and cap-01 merged. Proof captures
      are now cropped to the actor and saved as lossless WebP (Seer production 30 min/4 GB -> 4.3 min/0.58 GB).
-     Running: native re-check of Mirror, Mimic, Weaver and Capacitor under the canonical gate, in a throwaway
-     worktree (Labyrinth.worktrees/native-check, detached at 1fd63e03c; remove after).
+     Native re-check under the canonical gate (fast captures, throwaway worktree native-check): Mirror, Weaver,
+     Mortar, Thrall, Capacitor native PASS; Seer 31 joint tears; Mimic 73 joint tears (rear death 49, bolt 18, move/
+     mirror/hit 2 each); Capacitor's proof-script shadow-preservation pins other figures (stale baseline).
+     rr-28 running: close the Seer/Mimic tears with clip-scoped own-piece continuations; scope the Capacitor check.
+     Evidence: /private/tmp/labyrinth_codex/rr28_evidence (614 MB; delete after rr-28).
   3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig. Master checkpoint only on the owner's word.
   4. Found by cap-01's director run (2026-10-20): under rr-26's canonical gate (joint tears can no longer pass as air;
      historical frame/pocket exceptions no longer waive source-space failures) the Seer's native gates fail with 31
