@@ -72,7 +72,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
      (222,39), past the far shoulder (170,83) and head (156,49), so the upper arm crosses the back. Plan: render rear
      hold poses for cap targets A (100,20) f65/l153, B (85,60) f47/l121, C (95,130) f59/l46, D (60,95) f19/l101 and
      pick one by eye; then a data edit before the post-rr-26 record refresh.
-     Empower charge sound: three candidates for an owner audition (ui-03 ships silent).
+     Empower charge sound: audition posted 2026-10-20 (inbox empower-sound): recipes
+     spec/peer_benchmark/staged/sfx/recipes_empower.json (A Kindle, B Seal, C Ignite), rendered with sfx_lab design.py
+     against the rebuilt library index output/sfx-lab-index-2026-10-20/ (the /tmp copy was lost to temp cleanup);
+     clips in output/peer-benchmark-2026-10-12/empower-charge-audition/. After the pick: build via sfx_lab build.py
+     with the mix targets and wire the cue (a small unit).
      Keyword tooltip stacks list a keyword twice when an Empower bonus modifies it (charged Overhead Smash: MELEE
      "Modified by: Empower +4" and plain MELEE). Pre-existing: `action_icon_library._append_tooltip_entry` dedupes on
      icon+full text. Show each keyword once, keeping the modified entry.
