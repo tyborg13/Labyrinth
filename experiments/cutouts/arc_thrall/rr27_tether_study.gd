@@ -28,11 +28,23 @@ func _run() -> void:
 		quit(0)
 		return
 	var logic_only: bool = args.has("--logic-only")
+	var feedback: bool = args.has("--feedback-1")
+	var candidates: Dictionary = CANDIDATES.duplicate(true)
+	var phases: Array = PHASES.duplicate()
+	var expected_hashes: Dictionary = {}
+	var candidate_hashes: Dictionary = {}
+	var study_directory: String = STUDY_DIRECTORY
+	if feedback:
+		study_directory = STUDY_DIRECTORY.path_join("feedback1")
+		var request: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(study_directory.path_join("request.json")))
+		candidates = request["candidates"]
+		phases = request["phases"]
+		expected_hashes = request["compiled_sha256"]
 	if not logic_only and DisplayServer.get_name() == "headless":
 		push_error("RR27 Tether native study requires the director's windowed renderer")
 		quit(1)
 		return
-	var output: String = STUDY_DIRECTORY.path_join("cpu" if logic_only else "native")
+	var output: String = study_directory.path_join("cpu" if logic_only else "native")
 	if args.has("--output"): output = args[args.find("--output") + 1]
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
 	var path: String = CASE_DIRECTORY.path_join("compiled_motion.json")
@@ -48,13 +60,19 @@ func _run() -> void:
 		background.color = Color("1e1e24")
 		background.size = Vector2(PROOF_SIZE)
 		_proof.add_child(background)
-	for candidate: String in CANDIDATES:
+	for candidate: String in candidates:
 		var data: Dictionary = approved.duplicate(true)
-		for track: Dictionary in data["view_tracks"]["rear"]["tether"]:
-			if track["source"] not in ["tube_tip.forward_px", "tube_tip.lift_px"]: continue
-			var value: float = float(CANDIDATES[candidate][0 if track["channel"] == "forward_px" else 1])
-			for key: Dictionary in track["keys"]:
-				if float(key["value"]) != 0.0: key["value"] = value
+		if feedback:
+			var candidate_path: String = study_directory.path_join(candidate + "_compiled.json")
+			candidate_hashes[candidate] = FileAccess.get_sha256(candidate_path)
+			if candidate_hashes[candidate] != expected_hashes[candidate]: errors.append("Changed candidate motion: " + candidate)
+			data = JSON.parse_string(FileAccess.get_file_as_string(candidate_path))
+		else:
+			for track: Dictionary in data["view_tracks"]["rear"]["tether"]:
+				if track["source"] not in ["tube_tip.forward_px", "tube_tip.lift_px"]: continue
+				var value: float = float(candidates[candidate][0 if track["channel"] == "forward_px" else 1])
+				for key: Dictionary in track["keys"]:
+					if float(key["value"]) != 0.0: key["value"] = value
 		Motion._cache[path] = data
 		var rig := Rig.new()
 		rig.case_directory = CASE_DIRECTORY
@@ -62,13 +80,13 @@ func _run() -> void:
 		rig.position = SOURCE_ORIGIN
 		(root if logic_only else _canvas).add_child(rig)
 		if not rig.load_rig(): errors.append(str(rig.load_errors))
-		for index: int in range(PHASES.size()):
-			var phase: float = PHASES[index]
+		for index: int in range(phases.size()):
+			var phase: float = phases[index]
 			rig.apply_pose("tether", phase)
 			var row: Dictionary = record(rig, "rear", "tether", phase, index, "presented")
 			row["candidate"] = candidate
-			row["forward_px"] = CANDIDATES[candidate][0]
-			row["lift_px"] = CANDIDATES[candidate][1]
+			row["forward_px"] = candidates[candidate][0]
+			row["lift_px"] = candidates[candidate][1]
 			if not logic_only:
 				await process_frame
 				await RenderingServer.frame_post_draw
@@ -110,7 +128,9 @@ func _run() -> void:
 	if preload("res://tests/rr10/bindings.gd").for_case(CASE_DIRECTORY) != input_bindings:
 		errors.append("Study modified approved inputs")
 	write_report(output.path_join("samples.json"), {"ok": errors.is_empty(), "native_pixels": not logic_only,
-		"inputs": input_bindings, "phases": PHASES, "candidates": CANDIDATES, "samples": _study_rows,
+		"inputs": input_bindings, "phases": phases, "candidates": candidates, "samples": _study_rows,
+		"feedback_1": feedback,
+		"candidate_compiled_sha256": candidate_hashes,
 		"errors": errors, "ui_scale": 1.0, "proof_size": [1920, 1080]})
 	print("RR27 TETHER STUDY %s: %s (%d poses; in-memory keys only)" % ["LOGIC" if logic_only else "NATIVE", "PASS" if errors.is_empty() else "FAIL", _study_rows.size()])
 	quit(0 if errors.is_empty() else 1)

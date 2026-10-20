@@ -1,0 +1,7 @@
+{
+  "authority": "rr-27 feedback 1: director authorizes removal of the two copied continuation texels",
+  "rear": [
+    {"piece":"mq7b_continuation_leg_far","source_texel":[171,218],"kind":"baked_hidden_copy"},
+    {"piece":"mq7b_continuation_leg_near","source_texel":[109,179],"kind":"gait_recipe_target"}
+  ]
+}

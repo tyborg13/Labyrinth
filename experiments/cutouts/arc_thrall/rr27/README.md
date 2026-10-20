@@ -1,5 +1,10 @@
 # rr-27 implementation handoff
 
+**Superseded by [feedback 1](FEEDBACK1.md).** The director authorized and the
+worker applied the rear removals. Both-view strict census and the prescribed
+three-pair Tether results are recorded in that current handoff. The rest of
+this document retains the original handoff for historical context.
+
 Changes are uncommitted on `codex/rr-27`. No peer review, publication, queue
 edit, windowed run, density processing or shadow/registry change was made.
 The prepared task contract/preflight was supplied by the design owner. This

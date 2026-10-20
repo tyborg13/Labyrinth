@@ -66,14 +66,18 @@ def preservation(samples):
             protected[relative] = {'before_sha256': hashlib.sha256(original).hexdigest(),
                                    'after_sha256': digest(path)}
     changed_files = [p for p, row in protected.items() if row['before_sha256'] != row['after_sha256']]
-    result = {'ok': not changed and not changed_files, 'base_revision': BASE_REVISION,
+    from rr27_preservation import copy_removal_is_exact
+    authorized = [p for p in changed_files if copy_removal_is_exact(p,committed(p))]
+    unexpected = [p for p in changed_files if p not in authorized]
+    result = {'ok': not changed and not unexpected, 'base_revision': BASE_REVISION,
         'inventories': inventories, 'changed_pose_rows': changed, 'changed_protected_files': changed_files,
+        'authorized_continuation_removals':authorized,'unexpected_changes':unexpected,
         'protected_files': protected, 'inputs': samples['inputs']}
     write_json(RECIPE / 'preservation.json', result)
     print('RR27 POSE ROW IDENTITY: %s (%d rows; %d changed raw rows)' %
           ('PASS' if not changed else 'FAIL', sum(r['rows'] for r in inventories.values()), len(changed)))
-    print('RR27 PAINT/REST/MOTION IDENTITY: %s (%d protected files; %d changed)' %
-          ('PASS' if not changed_files else 'FAIL', len(protected), len(changed_files)))
+    print('RR27 PAINT/REST/MOTION IDENTITY: %s (%d protected files; %d authorized copy-removal outputs; %d unexpected)' %
+          ('PASS' if not unexpected else 'FAIL', len(protected), len(authorized), len(unexpected)))
     return result
 
 

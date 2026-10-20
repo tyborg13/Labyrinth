@@ -1,0 +1,10 @@
+{
+  "min_images": 1011,
+  "expected_sizes": ["512x512", "1920x1080"],
+  "required_images": [
+    {"pattern":"*_proof.png","min_count":3,"width":1920,"height":1080,"regions":[{"rect":[600,20,700,850],"min_luma_range":8}]},
+    {"pattern":"F10_L110_*.png","min_count":337},
+    {"pattern":"F0_L90_*.png","min_count":337},
+    {"pattern":"F20_L130_*.png","min_count":337}
+  ]
+}

@@ -41,6 +41,12 @@ def file_record(relative):
 def assert_preserved(test,relative):
     baseline=read_json(BASELINE_FILE)
     test.assertIn(relative,baseline['files'])
+    # Director rr-27 feedback 1 removes exactly two continuation copies.
+    # Keep every original baseline value and prove only that explicit delta.
+    from rr27_preservation import REMOVED_COPY_OUTPUTS, REAR_LAYOUTS, assert_original_rear_delta
+    if relative in REMOVED_COPY_OUTPUTS or relative in REAR_LAYOUTS:
+        assert_original_rear_delta(test,relative,baseline)
+        return
     test.assertEqual(file_record(relative),baseline['files'][relative],relative)
 
 

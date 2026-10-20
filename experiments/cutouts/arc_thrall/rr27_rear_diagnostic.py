@@ -24,6 +24,14 @@ def weights_at(mesh, point):
     return {bone: float(bary @ np.asarray(values)[indices]) for bone, values in mesh['weights'].items()}
 
 
+def removals_applied(layout):
+    for name,point,_,_ in TARGETS:
+        part=next(p for p in layout['parts'] if p['name']==name)
+        x,y=[a-b for a,b in zip(point,part['offset'])]
+        if texture(CASE,layout,part,gait=True,clip='move')[y,x,3]:return False
+    return True
+
+
 def attachment_definitions(mesh, image, offset, point, neighbour):
     """Retain every opaque texel in replaced cells, using a painted neighbour.
 
@@ -49,6 +57,14 @@ def attachment_definitions(mesh, image, offset, point, neighbour):
 
 def main():
     layout = read_json(CASE / 'layouts/rear.json')
+    if removals_applied(layout):
+        report=read_json(RECIPE/'rear_attachment_diagnostic.json')
+        report.pop('TODO_DESIGN_REAR_COMPONENT_REPAIR',None)
+        report['director_resolution']={'authority':'rr-27 feedback 1',
+            'status':'resolved; two copied continuation texels removed','historical_attachment_trials':True}
+        write_json(RECIPE/'rear_attachment_diagnostic.json',report)
+        print('RR27 REAR REPAIR: RESOLVED (authorized removal applied; original attachment trials retained as history)')
+        return
     samples = read_json(CASE / 'proof/samples.json')['samples']
     source = DetachedSource(CASE, layout)
     rows = []
@@ -80,6 +96,7 @@ def main():
 def removal_proposal():
     """Counterfactual proof only; never write either proposed source edit."""
     layout = read_json(CASE / 'layouts/rear.json')
+    applied=removals_applied(layout)
     trial = deepcopy(layout)
     recipe = trial['gait_continuations']['mq7b_continuation_leg_near']
     recipe['texels'] = [row for row in recipe['texels'] if row[:2] != [17,60]]
@@ -101,15 +118,15 @@ def removal_proposal():
         count += 1
         if count % 50 == 0:
             print(f'RR27 REMOVAL PROPOSAL: {count} rear frames; {len(failures)} failing',flush=True)
-    write_json(RECIPE/'removal_proposal.json',{'applied':False,'native_pixels':False,'frames':count,
+    write_json(RECIPE/'removal_proposal.json',{'applied':applied,'native_pixels':False,'frames':count,
         'failures':failures,'ok':not failures,'inputs':samples['inputs'],
         'changes':[{'part':'mq7b_continuation_leg_far','source_texel':[171,218],
                     'local_texel':[53,97],'kind':'remove copied hidden texel'},
                    {'part':'mq7b_continuation_leg_near','source_texel':[109,179],
                     'local_texel':[17,60],'kind':'remove gait recipe target'}],
-        'decision_required':'Brief permits removal only without an in-piece neighbour. Both neighbours exist, but neighbour weights are already identical.'})
+        'director_resolution':'rr-27 feedback 1 authorizes both removals; no further approval required'})
     print(f'RR27 REMOVAL PROPOSAL: {"PASS" if not failures else "FAIL"} '
-          f'({count} rear frames; {len(failures)} failing; not applied)')
+          f'({count} rear frames; {len(failures)} failing; {"applied" if applied else "not applied"})')
 
 
 if __name__ == '__main__':

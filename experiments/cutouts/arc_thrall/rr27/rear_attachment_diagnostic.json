@@ -148,5 +148,9 @@
       ]
     }
   ],
-  "TODO_DESIGN_REAR_COMPONENT_REPAIR": "Both offending texels have in-piece neighbours but already inherit 100% shin weights. The specified attachment repair cannot change their deformation. Director decision requested on extending the removal exception; no production rear change made."
+  "director_resolution": {
+    "authority": "rr-27 feedback 1",
+    "status": "resolved; two copied continuation texels removed",
+    "historical_attachment_trials": true
+  }
 }

@@ -1,5 +1,5 @@
 {
-  "ok": false,
+  "ok": true,
   "native_pixels": false,
   "scope": "Canonical source_space.py plus independent rr24 joint-tear detection; no exceptions",
   "inputs": {
@@ -11,7 +11,7 @@
     "rr15_design_todos.json": "f7767a721e58297f1888639be0ac69d0cabc6681a8a18e599ca92e4c9d40aafe",
     "inputs.json": "4b9bde5f8d882db8d5d94efe2bd9fc508ca0644bcae9f00abbcdaa7ea2035f2e",
     "joint_continuations.json": "fad3a15882b2578f93fd7a4659454e24b2c5a96be875edaa9b4760044b38548a",
-    "gait_continuations.json": "b17d74f0ca4bb5de6b298ac649111a2eafa5a7eaef8be47bc32cbe4dbacdbd43",
+    "gait_continuations.json": "0ab22f13d02ad2713e629a0451878bfed8964edfd39e3ff09a71f5104aaabee4",
     "director_motion.json": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
     "continuation_alpha_cleanup.json": "f54211bba777cd074a77a4adc7cf260ff78b926f6357cfd16373d8472b3eaae1",
     "cutout.json": "5865432d85a19402028d06d8537135b57b4dc4243e260c2243d285824026d882",
@@ -27,7 +27,7 @@
     "tucks/front_sleeve_far.png": "d23438a6f8c9d57d7301229d361a5023d32230341c7555666f7eddce12f27b69",
     "tucks/rear_head.png": "7a91e1982e22a458552092f1091b67b82d3ab7eb6acc0dea5e2dcfadf736ee33",
     "tucks/front_claw.png": "81b0e4440230fcb874b5f1646abf436f1f7327d7157ca8361d7de3c654aa4dcb",
-    "tucks/rear_leg_far.png": "eb6d213ce893d4ca71c842e49a2408865075f454c5e064587176632b59036b8d",
+    "tucks/rear_leg_far.png": "bfc4081032b97dac0fce759d7a3277bf1642e368d99bedcfc6edb51f142890f0",
     "tucks/front_loincloth.png": "5c80e5e6991bac8542a02c92fcde1daeec6e34d92c3d487b6eeaecc4d59f7fa8",
     "tucks/front_upper_near.png": "10e6ed2be78163f5407ed0cd261b41c3fe65b9d192848ddf4022924029dc15ef",
     "tucks/rear_leg_near.png": "43eda11d7276e72a86de7e0f88526fbec3c95f7a7fd4dbc4aa789f2b5206c046",
@@ -52,7 +52,7 @@
     "checks/rear/hidden_upper_near.png": "32ade0e37d980b4968da586a047e3e01785dcc940edf4089069d45910f7ab34c",
     "checks/rear/hidden_leg_near.png": "9fd91e5041c80dca6ffdc63e2e49e8a90323fbb164a9fb9e088d27a9f7475384",
     "checks/rear/mq7b_continuation_sleeve_far.png": "b0b336422915e92f41289ee6b8fe9bb1e1c9b4ea80334408b17841af41b5ea65",
-    "checks/rear/mq7b_continuation_leg_far.png": "90f34cf3848432fc256630ceef28d365df6ec3da0d15421cf41690b23abe32ae",
+    "checks/rear/mq7b_continuation_leg_far.png": "63705ca7698c02dd7dddab11f96b73c97ee3d784f42fe56daf6c3d73e743011a",
     "checks/rear/foot_far.png": "3cbe7ecd6a6976e3a04a3691b19d588889768472a078771d2f5f451943d5564b",
     "checks/rear/head.png": "5cf0581590d4fc5c7e598c4242c9a20e1dddc8d1ffe52eefe7188d61ed786d25",
     "checks/rear/hidden_tube.png": "12b09b0b95ea58bd2fb17dba66e37f5df0ec89ad47c176e2452b50718539a878",
@@ -120,7 +120,7 @@
     "pieces/rear/hidden_upper_near.png": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223",
     "pieces/rear/hidden_leg_near.png": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969",
     "pieces/rear/mq7b_continuation_sleeve_far.png": "7f41a7e830c739536ea78542488d183f49f1dc0b6f7800b3f807115e31cdceb0",
-    "pieces/rear/mq7b_continuation_leg_far.png": "db586dc91e129bfa9becf550ff158e01a7c79b98aa7f7c2e951555cd27861783",
+    "pieces/rear/mq7b_continuation_leg_far.png": "095f77977f7e0f5137dd3d13d8a252c56c0fee9fb4de2123dab3eed7fb264bea",
     "pieces/rear/foot_far.png": "87d2bfcbcd102acc0709490d756ac5195469c42a610a1ede8ea0fa3ae58ba935",
     "pieces/rear/head.png": "836fbd308547746f31b86ebb99aa0ccc32d26bc4adf13a34e7558902e12f0bb9",
     "pieces/rear/hidden_tube.png": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5",
@@ -196,7 +196,7 @@
     "seams/front_foot_near.png": "cd04b5fced868ae4b985903c417d39e5f45748dcfa55a8b5919f8130e6a71fea",
     "seams/rear_leg_far_mesh.json": "1f67b10c887e836828b053bc537a0184bd23392a3a5b9477046a4a7212ff98e2",
     "seams/rear_torso.png": "484cb87131245d5660378e1ee7aaa778897ec289e3db771731ea19208d990348",
-    "layouts/rear.json": "3d4b9d88b8583d08aea7f47d1b6526bbc629020d503aeabfe48b3c3d089a1be7",
+    "layouts/rear.json": "48f32a54c3b8939dbee0b1576275da01bafc470d2d79b765e8ad21dbeeaef241",
     "layouts/front.json": "06da40b875b4ff2044b779c6789c901709f80d0c144746097ce7e0861922f092",
     "rear_baseline/derivation.json": "88200c00f271d5efb46cda7c829495c234eb8ac84c672872e5ac5c3b9e9f6dae",
     "rear_baseline/source/spec_native.json": "cc38f53ef82d930320cf9a9a9590ba6988c1962f0d6694d5a2284fa5c8273e54",
@@ -383,7 +383,7 @@
     "runtime:tests/gait01/move_capture.gd": "61b519c0335479b304d115e8089374b5431cdcf1c2536ace9a8ab677ea3f37db",
     "runtime:tests/gait01/presented_stance.gd": "c2c24bab344964ceaf7670b924ccd9a5099ca526e1155ae805bf96e748cd29be",
     "runtime:tests/gait01/continuation_checks.gd": "3132eb2d6f899a08c5c6304974393fcd6f4b9d4c32af6d68ba430056e5d38e92",
-    "production:assets/units/arc_thrall_cutout/humanoid_v2/rear.json": "45a3a3024435a65f1e1221b6f6f93ef55f90c61e9f6e9cece8b3cb27e49bb430",
+    "production:assets/units/arc_thrall_cutout/humanoid_v2/rear.json": "78f981f956abd45d1835286aee3758096ba65b4dd4b7af8f3058e7bb4d4a5578",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/front.json": "b54849dda8f99784d72ae82987b18817e676282b5d2ad09950d357afd7be882e",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/director_motion.json": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
@@ -403,7 +403,7 @@
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_sleeve_far.png": "7f41a7e830c739536ea78542488d183f49f1dc0b6f7800b3f807115e31cdceb0",
-    "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png": "858737421813de577e19fd8301fc70faa4ece9068a6c15827381d9664c4af74e",
+    "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png": "595ca4365837fb0275c75ac9c426d57ac38c8bb4cb6a3c200a1a01e4bb5d2828",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png": "63cf41e72d3644c57bf3560145f8ec9827f0a34dbd01e1f972a0ed2833848f57",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png": "ad836f761f4e8ac3b7a5e38672d43dc0c01ce450ba9ea8469824a2914461033c",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5",
@@ -14340,139 +14340,11 @@
       ]
     },
     "rear": {
-      "ok": false,
+      "ok": true,
       "frames": 335,
-      "unmatched_detached_components": 2,
+      "unmatched_detached_components": 0,
       "pocket_failures": 0,
-      "failures": [
-        {
-          "clip": "move",
-          "frame": 14,
-          "failures": [],
-          "air_pockets": [
-            {
-              "bbox": [
-                320,
-                215,
-                345,
-                269
-              ],
-              "pixel_count": 415,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                337,
-                271,
-                339,
-                274
-              ],
-              "pixel_count": 6,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                355,
-                291,
-                357,
-                293
-              ],
-              "pixel_count": 3,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                323,
-                179,
-                324,
-                180
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                262,
-                239,
-                263,
-                240
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            }
-          ],
-          "unmatched_components": [
-            {
-              "bbox": [
-                340,
-                319,
-                341,
-                320
-              ],
-              "pixel_count": 1,
-              "pixels": [
-                [
-                  340,
-                  319
-                ]
-              ]
-            }
-          ],
-          "source_components": []
-        },
-        {
-          "clip": "move",
-          "frame": 23,
-          "failures": [],
-          "air_pockets": [
-            {
-              "bbox": [
-                322,
-                266,
-                332,
-                279
-              ],
-              "pixel_count": 55,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                345,
-                167,
-                346,
-                168
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            }
-          ],
-          "unmatched_components": [
-            {
-              "bbox": [
-                323,
-                269,
-                324,
-                270
-              ],
-              "pixel_count": 1,
-              "pixels": [
-                [
-                  323,
-                  269
-                ]
-              ]
-            }
-          ],
-          "source_components": []
-        }
-      ],
+      "failures": [],
       "records": [
         {
           "clip": "idle",
@@ -15594,17 +15466,6 @@
             },
             {
               "bbox": [
-                273,
-                294,
-                274,
-                295
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
                 278,
                 336,
                 279,
@@ -16046,23 +15907,7 @@
               "joint_tear": false
             }
           ],
-          "unmatched_components": [
-            {
-              "bbox": [
-                340,
-                319,
-                341,
-                320
-              ],
-              "pixel_count": 1,
-              "pixels": [
-                [
-                  340,
-                  319
-                ]
-              ]
-            }
-          ],
+          "unmatched_components": [],
           "source_components": []
         },
         {
@@ -16380,7 +16225,7 @@
                 332,
                 279
               ],
-              "pixel_count": 55,
+              "pixel_count": 56,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -16396,23 +16241,7 @@
               "joint_tear": false
             }
           ],
-          "unmatched_components": [
-            {
-              "bbox": [
-                323,
-                269,
-                324,
-                270
-              ],
-              "pixel_count": 1,
-              "pixels": [
-                [
-                  323,
-                  269
-                ]
-              ]
-            }
-          ],
+          "unmatched_components": [],
           "source_components": []
         },
         {
@@ -16427,7 +16256,7 @@
                 334,
                 279
               ],
-              "pixel_count": 55,
+              "pixel_count": 56,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
