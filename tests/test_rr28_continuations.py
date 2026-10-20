@@ -6,16 +6,17 @@ import os
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'experiments/cutouts/hoarfrost_seer')]
-from rr28_build import RIGS, paths, apply, production_layouts
+from rr28_build import RIGS, paths, apply, build, production_layouts, clip_evidence_errors
 from rr28_check import model_for, committed
 from humanoid_cutout.source_space import DetachedSource
-from cutout_pipeline.cases import read_json
+from cutout_pipeline.cases import read_json, write_json
 from humanoid_cutout.gait_continuations import active_recipe, errors, texture
 from maquette_motion.pixels import rest_identity
 
@@ -47,6 +48,7 @@ class JointContinuationTests(unittest.TestCase):
             for view in ('front', 'rear'):
                 layout = read_json(case / f'layouts/{view}.json')
                 self.assertEqual(errors(case, layout), [])
+                self.assertEqual(clip_evidence_errors(case, layout, definitions), [])
                 self.assertEqual(apply(case, deepcopy(layout), definitions), layout)
                 for path in [case / f'layouts/{view}.json', *production_layouts(assets, view)]:
                     production = read_json(path)
@@ -56,13 +58,19 @@ class JointContinuationTests(unittest.TestCase):
 
     def test_clip_scope_and_exact_own_donor_rgba_including_density_treated_production(self):
         for name in RIGS:
-            case, assets, _ = paths(name)
+            case, assets, recipe_folder = paths(name)
+            definitions = read_json(recipe_folder / 'joint_continuations.json')
             clips = ['rest', *read_json(case / 'compiled_motion.json')['clips']]
             for view in ('front', 'rear'):
                 for root, path in [(case, case / f'layouts/{view}.json'),
                                    *[(p.parent, p) for p in production_layouts(assets, view)]]:
                     layout = read_json(path)
+                    self.assertEqual(clip_evidence_errors(case, layout, definitions), [])
                     for piece, recipe in layout.get('gait_continuations', {}).items():
+                        evidence = definitions[view][piece]['source_evidence']
+                        expected_clips = {row['clip'] for row in evidence}
+                        self.assertTrue(all(row['view'] == view for row in evidence))
+                        self.assertEqual(set(recipe['clips']), expected_clips)
                         part = next(p for p in layout['parts'] if p['name'] == piece)
                         donor = next(p for p in layout['parts'] if p['name'] == recipe['donor'])
                         self.assertEqual(part['logical_part'], donor['logical_part'])
@@ -71,7 +79,7 @@ class JointContinuationTests(unittest.TestCase):
                         for clip in clips:
                             active = active_recipe(layout, piece, clip=clip, gait=clip == 'move')
                             filled = texture(root, layout, part, clip=clip, gait=clip == 'move')
-                            if clip not in recipe['clips']:
+                            if clip not in expected_clips:
                                 self.assertIsNone(active)
                                 np.testing.assert_array_equal(filled, original)
                             else:
@@ -81,6 +89,47 @@ class JointContinuationTests(unittest.TestCase):
                                     self.assertEqual(original[y, x, 3], 0)
                                     expected[y, x] = paint[v, u]
                                 np.testing.assert_array_equal(filled, expected)
+
+    def test_coherent_rebuild_rejects_unjustified_clips_before_any_output_write(self):
+        case, assets, recipe = paths('seer')
+        for view, piece, clip in [('front', 'sleeve_near', 'mark'), ('rear', 'torso', 'bolt')]:
+            with self.subTest(view=view, piece=piece, clip=clip):
+                definitions = read_json(recipe / 'joint_continuations.json')
+                definitions[view][piece]['clips'].append(clip)
+                layout = read_json(case / f'layouts/{view}.json')
+                # Reproduce the old coherent rebuild: source definition and
+                # derived activation agree, so the shared clip-name gate passes.
+                with patch('rr28_build.clip_evidence_errors', return_value=[]):
+                    rebuilt = apply(case, deepcopy(layout), definitions)
+                self.assertEqual(errors(case, rebuilt), [])
+                self.assertIn(f'{view}.{piece} layout: clip {clip} has no recorded tear evidence',
+                              clip_evidence_errors(case, rebuilt, definitions))
+                # Check both views: even a rejected rear recipe must leave the
+                # otherwise valid front and all production outputs untouched.
+                with tempfile.TemporaryDirectory(prefix='rr28-clip-mutation-') as folder:
+                    mutated_recipe = Path(folder)
+                    write_json(mutated_recipe / 'joint_continuations.json', definitions)
+                    with patch('rr28_build.paths', return_value=(case, assets, mutated_recipe)), \
+                            patch('rr28_build.write_json') as writes:
+                        with self.assertRaisesRegex(ValueError,
+                                rf'{view}\.{piece}.*{clip}.*no recorded tear evidence'):
+                            build('seer')
+                        writes.assert_not_called()
+
+    def test_clip_evidence_requires_matching_view_and_valid_presented_frame(self):
+        case, _, recipe = paths('seer')
+        original = read_json(recipe / 'joint_continuations.json')
+        layout = read_json(case / 'layouts/front.json')
+        frames = [r['frame'] for r in self.samples['seer']['samples']
+                  if (r['view'], r['clip'], r['kind']) == ('front', 'move', 'presented')]
+        for field, value in [('view', 'rear'), ('clip', 'unknown'), ('frame', -1),
+                             ('frame', max(frames) + 1), ('frame', True)]:
+            with self.subTest(field=field, value=value):
+                definitions = deepcopy(original)
+                definitions['front']['sleeve_near']['source_evidence'][0][field] = value
+                rejected = clip_evidence_errors(case, layout, definitions)
+                self.assertTrue(any('front.sleeve_near: invalid tear evidence' in r for r in rejected))
+                self.assertIn('front.sleeve_near layout: clip move has no recorded tear evidence', rejected)
 
     def test_every_original_native_pocket_pixel_is_covered_in_cpu_estimate(self):
         for name in RIGS:
