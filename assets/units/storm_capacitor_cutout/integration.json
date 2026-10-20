@@ -34,20 +34,32 @@
     }
   },
   "files": {
-    "actions.gd": "d81299bf84c5109d19368ee1e2385895d72a2914d80c94041e6a8f45513af390",
+    "actions.gd": "da186ad4bcc47f06203a8178890bbfbd4ea226f099b9c32a2da0b15585b0c17f",
+    "actions.gd.uid": "5e9001c40613843411c9c4e3c23bf3ab15616b140752681a436cc8368a0fc329",
     "compiled_motion.json": "679e7b0f557ea3d2c7258802a03830de118e8f4079c6865960822c28638a4b84",
     "front/rest.png": "5fd8ec5cd682c465abd1429a8b07ce798aad9d6885eee47647c2499036b3e47d",
+    "front/rest.png.import": "dcb2dc0179ca3c3fd5952b13a40799b4579fd681494b07c2ad421bb13c3c826d",
     "front.json": "267c6c6c8d382429251027b4491f648195236256e7490590a21dc1365d6dd0e5",
     "paint/cap.png": "e4408bb3b966749de075b460ddfc3850555c576840c796ae68a2b7e0546950c7",
+    "paint/cap.png.import": "d3a1a0d7fc0c7eb70f6fea7a43ceb2b7a79133446f5305100dab9e2487e0588f",
     "paint/column.png": "6f9fc9846c56dfc2da496939205ce11d887300d1ec517207ac515ee846b1137c",
+    "paint/column.png.import": "b52a243a5faf0a1e417b268e970d9e5a27cce4cd96d4e2c4d3483fb7bbc696cd",
     "paint/column_glow_-1.png": "741756abb65f26bc539c3376a9c5dead075d160700eba895089728752cc93df5",
+    "paint/column_glow_-1.png.import": "0baae85b66e5e0bfe08c7e25f66159def77c0e3dc600558c2cf46e59d84da671",
     "paint/column_glow_-2.png": "13b2c84dc1022a19f2b3ca7480dcf9b0f5f732b184d1129f71f9a50b2cea20f5",
+    "paint/column_glow_-2.png.import": "ae2ec03ebb398c5d5f4559ad9590854555d710ad62b6d17cfbbf46c5a13d8a06",
     "paint/column_glow_0.png": "6f9fc9846c56dfc2da496939205ce11d887300d1ec517207ac515ee846b1137c",
+    "paint/column_glow_0.png.import": "e15dd3a57eb2cea5614149d5e74622c43c214d7872d855a5e1cf91ae519b9b1b",
     "paint/column_glow_1.png": "0ec4b3eb3efbefc8026c7198f8d9715bb9531c28ab5fbb630b6ad961c03b8ec3",
+    "paint/column_glow_1.png.import": "cec6c78a1f108c80f102bf125b32e02104db1609c0f654e8310137110d8f25b2",
     "paint/column_glow_2.png": "18932b5c135d60a56558ac31a62c5eeec7974faf15ebec327784ba54039ece47",
+    "paint/column_glow_2.png.import": "95ca9ded0d5b7d329ff04026996758bed5d9688474093a79ac03b7fb345f8be8",
     "rear/rest.png": "5fd8ec5cd682c465abd1429a8b07ce798aad9d6885eee47647c2499036b3e47d",
+    "rear/rest.png.import": "e76bb24f618ed5b69f8c57a94fcac4731cc9dc2d72ff83e880ed8fc59e20ea25",
     "rear.json": "b7b5749f0295045aaeb6da819048abbcbed3ead76fc450a627ef4132e82ee57c",
     "renderer.gd": "9d114c6fc51eb396be05db4aa90afcb34461f679fe36373f77be163dda784e0b",
-    "rig.gd": "f7119aa47e6c0f6710a86a30d4c0f21791233fad3b01c151299bfe3d79e5f5c0"
+    "renderer.gd.uid": "0f60861e02aa85a207725257113f09988531f780c08081cc9216754404c0075b",
+    "rig.gd": "f7119aa47e6c0f6710a86a30d4c0f21791233fad3b01c151299bfe3d79e5f5c0",
+    "rig.gd.uid": "1ff7a26f032c83d878fc6ccdd9cf7a30bf9e8f5355c85f2cc7eb945a225014b0"
   }
 }
