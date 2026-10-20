@@ -131020,5 +131020,127 @@
   },
   "rest_source": "front/rest.png",
   "motion_data": "res://assets/units/hoarfrost_seer_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "c50fca1b7d11c686fad8e2ab77ea385cc260cead1f9589f58c26503afdfd29cd"
+  "rest_source_sha256": "c50fca1b7d11c686fad8e2ab77ea385cc260cead1f9589f58c26503afdfd29cd",
+  "gait_continuations": {
+    "sleeve_near": {
+      "donor": "sleeve_near",
+      "texels": [
+        [
+          17,
+          54,
+          17,
+          53
+        ],
+        [
+          17,
+          55,
+          16,
+          55
+        ],
+        [
+          17,
+          56,
+          16,
+          56
+        ]
+      ],
+      "clips": [
+        "move"
+      ]
+    },
+    "sleeve_far": {
+      "donor": "sleeve_far",
+      "texels": [
+        [
+          11,
+          24,
+          12,
+          23
+        ],
+        [
+          11,
+          25,
+          12,
+          25
+        ],
+        [
+          11,
+          26,
+          12,
+          26
+        ],
+        [
+          32,
+          49,
+          32,
+          48
+        ],
+        [
+          33,
+          49,
+          33,
+          48
+        ],
+        [
+          32,
+          50,
+          31,
+          50
+        ],
+        [
+          33,
+          50,
+          34,
+          50
+        ],
+        [
+          32,
+          51,
+          31,
+          51
+        ],
+        [
+          33,
+          51,
+          34,
+          51
+        ],
+        [
+          32,
+          52,
+          31,
+          52
+        ],
+        [
+          33,
+          52,
+          34,
+          52
+        ],
+        [
+          31,
+          53,
+          31,
+          52
+        ],
+        [
+          32,
+          53,
+          32,
+          54
+        ],
+        [
+          33,
+          53,
+          34,
+          53
+        ]
+      ],
+      "clips": [
+        "bolt",
+        "death",
+        "hit"
+      ]
+    }
+  }
 }

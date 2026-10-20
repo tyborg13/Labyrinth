@@ -105,9 +105,15 @@ class FeedbackTwoTests(unittest.TestCase):
     def test_gait_candidate_stays_inactive_and_would_change_rest_endpoints(self):
         from humanoid_cutout.gait_continuations import errors
         layout=read_json(CASE/'layouts/rear.json')
-        self.assertNotIn('gait_continuations',layout)
+        proposal=read_json(CASE/'gait_continuations.proposal.json')['rear']
+        self.assertNotEqual(layout.get('gait_continuations'),proposal)
+        # rr-28 adds scoped joint copies; the rejected, unconditional gait
+        # candidate remains inactive. Isolate that historical proposal's delta.
+        for recipe in layout.get('gait_continuations',{}).values():
+            self.assertIn('clips',recipe)
+        layout.pop('gait_continuations',None)
         candidate=copy.deepcopy(layout)
-        candidate['gait_continuations']=read_json(CASE/'gait_continuations.proposal.json')['rear']
+        candidate['gait_continuations']=proposal
         self.assertEqual(errors(CASE,candidate),[])
         before,after=CpuPose(CASE,layout),CpuPose(CASE,candidate)
         samples=self.samples

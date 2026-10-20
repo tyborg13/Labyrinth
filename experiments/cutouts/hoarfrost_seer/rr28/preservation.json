@@ -1,0 +1,1439 @@
+{
+  "ok": true,
+  "base_revision": "370ab4b13b298b4a32bc1670f4c36916541850da",
+  "pose_rows": 1258,
+  "raw_pose_rows_identical": true,
+  "raw_before_sha256": "6197afac1d0f07fdda2d5bf9f9207bdc218a032e08b76cf71058ff18065aeeda",
+  "raw_after_sha256": "6197afac1d0f07fdda2d5bf9f9207bdc218a032e08b76cf71058ff18065aeeda",
+  "committed_raw_pose_sha256": "6197afac1d0f07fdda2d5bf9f9207bdc218a032e08b76cf71058ff18065aeeda",
+  "baseline_samples_sha256": "d2efd90a231b7dcec74a60b7025d6ae8c70ce17bf086cc975852c92dd2cbbab3",
+  "protected_files": {
+    "experiments/cutouts/hoarfrost_seer/rr10/anatomy.json": {
+      "sha256": "1e6d0bf8221bcdb60d4341470c253c48a0f3c578be4630eeb8f2e91ceb1bd55a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/foot_far.png": {
+      "sha256": "209541cdd9093bf77658c4f6cbf7f960cf872ab2d55a1f92bf75b47de5268ea0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/foot_near.png": {
+      "sha256": "8bbde4e86ad73fd75be3ee7922f7107fd439f802e6d36a1ca1b38a031b8c215e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hand_far.png": {
+      "sha256": "a3dff787cf55c864e6d690994a086b4414a1fab3205bd892a46ea5915436ce4f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hand_near.png": {
+      "sha256": "0fe0e4f21826690dabf85056ce0fdb4b613be03cd6404ce08b0c229bde7ece1c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/head.png": {
+      "sha256": "0296e953f76acba8f1b374fb1ecfcfaa65448df7e70797b3c84c9a5013a4e01b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_foot_far.png": {
+      "sha256": "0efad2c81f78fa4fecd0b12dc814e4f2b6f4195610df9bcf85a769de4246519b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_foot_near.png": {
+      "sha256": "32da0b4a22e7b5a807d443c6b407f5b89dd00f48fbad3a226738d18e2c7cb2a9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_hand_far.png": {
+      "sha256": "d0417ea128f149b5e356883d7278a923c5b7cc2336acf0fb17b559bac9d408d6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_hand_near.png": {
+      "sha256": "c334ed63061669d562cec6325fb7ce3cd7378e80099d3d60caf9ddf33e229a81",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_head.png": {
+      "sha256": "6022807388b974f027bb2f3c9f1b16175db49f62e40e11bb51a11c9e39819f53",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_robe.png": {
+      "sha256": "8cc73356cbe8eceb8d424b58b04c8cf4d73729b0f3284ab0f830ea6826229773",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_sleeve_far.png": {
+      "sha256": "770b0b3c069824dd75273671d38a2c8d2d8d513e76c8af6274b3739bf2eb9944",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_staff.png": {
+      "sha256": "3609a80043bf68da4bd6324ea38d45f062edcfcef510a0902cb925af01976289",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/hidden_torso.png": {
+      "sha256": "aa0f0f626b819b26ea61b9e5135b2fc0a3747d938468e1e68045a8c078d1f80e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/robe.png": {
+      "sha256": "e4ea3dbb078651519c6ae90d7cdf80d0c8ca80bac23ea697438bd09eeb4811af",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/sleeve_far.png": {
+      "sha256": "9db27b1485aa36c5be6fbc67fd8c66cfc5938b727fdd8797bb10100a4610b23a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/sleeve_near.png": {
+      "sha256": "e27ae3e9bc543b460f6d392f79734a1228304ff68739f0daf19c87fa58cbafdc",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/staff.png": {
+      "sha256": "f2914c95d2c4c5a8eb3775c0d8a9c449e77b332f03b40babc06fc39b8c1a8879",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/front/torso.png": {
+      "sha256": "70b321d1b8b61806eca1ca6baeefccd850cbfc7ccf700836cd6133329ad80172",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/foot_far.png": {
+      "sha256": "9dff2a707ee846c80a62b8b04a03b0c5877345abc5516128ec96fa23ce216dc1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/foot_near.png": {
+      "sha256": "83be1d9ce3aae2e2889920f2d516a01357f6a35efd4275791165dfdc0772b4e5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hand_far.png": {
+      "sha256": "53b52aac92b517a1d2d70a52993326a39d2a46fa605707b7e5311cf1e1c3be04",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hand_near.png": {
+      "sha256": "91fe09dc054740f96166a2b3a8b3ae37abfedc43a9650330cfe61a9b4f9aad06",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/head.png": {
+      "sha256": "7be28814f0de39fd420dff68fd7d5a19794fae1cd2cf96c72991286a9db7f921",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_foot_far.png": {
+      "sha256": "c66d83f8d06db21d772ebdc94b995de37a80f5d3a484bcb6d786bd3f5c212f3f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_foot_near.png": {
+      "sha256": "544706ddb22118f8b35fc86009352ee2f24e94b988e72b94715f28d745b9515e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_hand_far.png": {
+      "sha256": "94f976de3480756002531ae44c3c2716307f5177b94157e990472384e70a1cc8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_hand_near.png": {
+      "sha256": "e4fccde3aad0878b500f6b55688f20c87b2bdf4fb52752266ceb6e8fb93b9141",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_head.png": {
+      "sha256": "59da45c43855bed65d03f60ec361bf83baa7aac25fe7c5e29ea8bba7505f3707",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_robe.png": {
+      "sha256": "061c4c1e99349933f81c447fd888fd8de604575304cea74e1c399b1b2d240b30",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_sleeve_far_edge_underlap.png": {
+      "sha256": "0654ba20fd8f8882291a5c0daea7a9cf769b3e1d8ee1f37b14c0e3c8366e201b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/hidden_torso.png": {
+      "sha256": "e4b50511696e2d23509b13fe68934b0d7b2f85a5d87098efb66c410263d1e4ae",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/robe.png": {
+      "sha256": "046d4e820d8f427a7a9a76aa6d1a78c66937d21498f9967af06ce1ae5d3324d7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/sleeve_far.png": {
+      "sha256": "aab1235dc441cbf6a5be8abfcf250d31240147a5dd017797ff3e610b89c0bafe",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/sleeve_near.png": {
+      "sha256": "da1313629dd5acacc44d6b7641096bcb92f1f6b8947c9b89245b02ad5345a3b1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/staff.png": {
+      "sha256": "08ec7ab0646aafe2470e5d1b7165863c0323b6cde3fa21d6bc04b17ad05b6b63",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/checks/rear/torso.png": {
+      "sha256": "b56986f73781bffe8fce73ea9a7e7437afce2ab6235286c70747e6bf9eebd3b1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/compiled_motion.json": {
+      "sha256": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/front_hem.png": {
+      "sha256": "09d56c48c503a1061a8a231093a4834c6fd98009e02e9e74efcc28be4708e0aa",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/front_joint_robe.png": {
+      "sha256": "c309497b4b56cc551b226309c5fc6a55e7707614f1732a8077adc624c1de0732",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/front_joint_sleeve_near.png": {
+      "sha256": "0d63cbe408cb148eebce2f89ce080f2cd9545efc4b2244ffd87f8ce07807e707",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/front_joint_torso.png": {
+      "sha256": "c240726bb088810cb711a5a72380fe32bbbdab7729dba94de7f1ce66e6ee289c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/front_robe.png": {
+      "sha256": "4d7d9f9fc92d1fc3e87a995298ac87a0a1f40460ec59472c1e3551e8603c154f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/front_torso.png": {
+      "sha256": "f9520ed973a3d3934f4ff63763a6aa6a7193fa21e2761b13365573f2a4f4e8f4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/rear_hem.png": {
+      "sha256": "70f8b0628d36faeebe017598da8e89092319948ffd91638b425434bf9de76dde",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/rear_joint_torso.png": {
+      "sha256": "5f4214322ccd88e9fdd6ee7d0031237ba4c5a15431e50dee38a22d2c177552cd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/rear_robe.png": {
+      "sha256": "2e742d2915db251e62c41fede5d700fde9cf390b82e2ff76fe136518d7477111",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/continuations/rear_torso.png": {
+      "sha256": "5cabf6dd3ab9e5bd74256d252a5831244fb74caa0f7ec1d088c3ccde7a363a71",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/director_motion.json": {
+      "sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/features/front_ice_crystal.png": {
+      "sha256": "8f7a8b8a66ca3a7c886213f4838abd410e6d44eede5f381bccc15fc1b24f5810",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/features/rear_ice_crystal.png": {
+      "sha256": "33cbf2de66b168b849d26fdad404845c5f2b2fba42ca363c0c2e1c16302b72f2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_00.png": {
+      "sha256": "0f63cda0ba8ad5e1e19be1da0d39c12442fab53aa4ef05855d5ceba04c0195b5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_01.png": {
+      "sha256": "f3f1fb062704cc70abed25fd0a119f943209497812a710f47b7ef083de4e21d6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_02.png": {
+      "sha256": "ab7dcd4827f0343cea0e3fdf1cd746b55244016371005ce073d403d5929c038d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_03.png": {
+      "sha256": "6572f5b20a213f476a836a7ec9d0e6d30d77fe622d33c632f9024a0c6dac94e2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_04.png": {
+      "sha256": "f6d5466f1d581b40d82f79a184335c5d520b7c68529829199e318a2c2f8545e8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_05.png": {
+      "sha256": "1c8054379fb54e12f1cf1904898a867adfc0108c1c95cf11634ae4722c7f1552",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/front_06.png": {
+      "sha256": "072cfbdb9910abaf94f0fed5f6e6f877d7207111cf494ce26025c509a9f747f5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/rear_00.png": {
+      "sha256": "7266db4b71c90952f472bfc441b74a3b5e4175a893849f31d22c98c7a9108c87",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/holes/rear_01.png": {
+      "sha256": "79f4540dc4cd20e09deb3a4e5677566c698aed826c404e4bd3424fbdd1267d9c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/inputs/rope_mask_front.png": {
+      "sha256": "26bc001a33b23ba21dada83c27e8c0e1d7fd21eb067e7b5ded4329509595444c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/inputs/rope_mask_rear.png": {
+      "sha256": "2ded642ed2062d2b37c31c4aad01bb1fc717036ca6cd85b3994836b7c0b03348",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/inputs.json": {
+      "sha256": "f679cde08f62352c1fe880b3c91bc5968f617f8de8bfd9c4f241377bf93c9f15",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/ownership/front_rope_underlay.png": {
+      "sha256": "6f8f5fbbfee0df21b2b9a40a1ebe47efa51a6c49d1e17e9b61804b1b95f8a40f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/ownership/rear_rope_underlay.png": {
+      "sha256": "5c7c2593949670f593b1064922fa929f2e9fded2313711caaf0e01c025f4298c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/foot_far.png": {
+      "sha256": "79c88b96e284ed29f60ec3d2f3a0e5c9a5ecf18024b29fea3c948dca7ddc7214",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/foot_near.png": {
+      "sha256": "d9227a34299fa9920498d5fa15007dd66ca8a561fdb5aa90cef802540c1bc4cb",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hand_far.png": {
+      "sha256": "b28e099d9c416aa6bbd08155d04211073fef3d0ffcf81de0dbc0f673c11dcbc0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hand_near.png": {
+      "sha256": "1bb6969bf5a7afa7ad58cb4ff6a31a07d1bfef8fc781142459d7b05b8256a198",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/head.png": {
+      "sha256": "6874065a39761cb849f588198cd4b7a0f1a02302ca7c0145e243f2b00076bd55",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_foot_far.png": {
+      "sha256": "b72c99ca7c8bc33e641809467756b8f31aa9d06906a0177a35b19b5c321c7f17",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_foot_near.png": {
+      "sha256": "e5c461a1beb156e36d3bb6b13cfd7d5195ad0a237a2ba4de9cec15dda19d8369",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_hand_far.png": {
+      "sha256": "8363958c565200ea8556d30698e14d9c5b16c0065acf21b5c01cee7b6a4df5af",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_hand_near.png": {
+      "sha256": "4408db4845058aa9541f3c0919c887c4660828d52897a09c7405ac5c2ceae110",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_head.png": {
+      "sha256": "038fc5489f4081a7cd3bbc00e94fc202cd5d26f18ddc81e5df53afaa15017b4c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_robe.png": {
+      "sha256": "e2cf1cc23ecc05de0f47eb192d0fc5c3925f35299cd5d56ca882682f65416370",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_sleeve_far.png": {
+      "sha256": "06292e0f79d78d75e7ea3e1a17b60e8d83d77f4e40ae3d9f7a0542744fa6adb9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_staff.png": {
+      "sha256": "f45ad1570cba630d17a61371d17ef76f0161bd39461a330bd3a05ac05d0470b6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/hidden_torso.png": {
+      "sha256": "872d89ebf57f93520cc1a5a4715eefb04539c6fe5634027a5f5d138b9edf00b6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/robe.png": {
+      "sha256": "0b08b3821c721dba858746d80bf0b7f180b2b5725a50a89c823f67f56caee23d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/sleeve_far.png": {
+      "sha256": "d94bb941e4d03228e66c1acd9608af60bf574798ce251a04cec0828a2252a2da",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/sleeve_near.png": {
+      "sha256": "443938148bf6fa6be98f621362640f301d70ae8727955b03d9f1ae08c0518a65",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/staff.png": {
+      "sha256": "6aa3d98abd0a97c54269e76603db821e2c7db326eec3441964b3f6561a344836",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/front/torso.png": {
+      "sha256": "eb76de6b573f68d6e29efce11daf11ac875bedabc9662ffa48a11377b49f3f1e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/foot_far.png": {
+      "sha256": "acdfac791ce1ec2a48859a265d9e6351b9a26ba47d89bb3745122de818e7c1e4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/foot_near.png": {
+      "sha256": "83be1d9ce3aae2e2889920f2d516a01357f6a35efd4275791165dfdc0772b4e5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hand_far.png": {
+      "sha256": "eb88d600340bc77040e5bf648fa8829d13290173917ef40fbc3f74e911359f2b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hand_near.png": {
+      "sha256": "675d005fe7b46f1ef1c1f24a66f9e92afe2cbe713f131cf7974495112cbe64a7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/head.png": {
+      "sha256": "f97f564c9502132290f7ffd39ce45f17b1d551b0167d873fd919732f6c0e2cf1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_foot_far.png": {
+      "sha256": "d05dffd6d0ad540119f2abeff22d38f077c3c5656315c9f73f414b32428786e4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_foot_near.png": {
+      "sha256": "ffe8f88dd2f8309c8c19bccae023407d653da35417452e51b3d0fb4d3b9d2d14",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_hand_far.png": {
+      "sha256": "fa2b030689860f842c46f1ae1925e668bea1aabef8ae922f11f4aaad54462842",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_hand_near.png": {
+      "sha256": "12022493e1ceb1d2d519b870e0b35a20885cc76e2c4fafece191eef8d33b3972",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_head.png": {
+      "sha256": "5291f6afbe9c1dd0d9e3e7f4a3b37733686cc4b03dd7d54c876b58eb960b2c80",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_robe.png": {
+      "sha256": "e13c34a6cb81922d05fdb4c8fb13faf1cda4af8beade1ed8e9c86dafa3c897bd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_sleeve_far_edge_underlap.png": {
+      "sha256": "79f2c105634a60301d4dc67b8a95a62e2ce924ea4c4cfd0949a539fe8bd5e43b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/hidden_torso.png": {
+      "sha256": "fd95f2fe1f38c30e2138f389d0fe29c639d40a3db55f0b5e5bad7e7243b13631",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/robe.png": {
+      "sha256": "04165590c51500d3346ddea41c4c726872ee090184b8a6ec378837d6a03ee56c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/sleeve_far.png": {
+      "sha256": "e51c0b2262d63017b63a3d746e6384faa0ed00c4b6981cb23ccaa305452d363d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/sleeve_near.png": {
+      "sha256": "266b93901fc6dc9d42823e2a124fb0019e6676c6c81686e9a21f0aab1b3b4bbc",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/staff.png": {
+      "sha256": "8bdcd2af09a77b0fd63d41c38a71e9a60cc5e2ddc0fca691f69574c34596c1df",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/pieces/rear/torso.png": {
+      "sha256": "faa8c266767d4dbab73a5fc608a2ef0b726a26637b38840e3f38065e12f264a6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/collar.png": {
+      "sha256": "a21d3b21cc37247be329b963a483f86bb7fd7c133dc6e60d848ad847f2800929",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/foot_far.png": {
+      "sha256": "acdfac791ce1ec2a48859a265d9e6351b9a26ba47d89bb3745122de818e7c1e4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/foot_near.png": {
+      "sha256": "83be1d9ce3aae2e2889920f2d516a01357f6a35efd4275791165dfdc0772b4e5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/fore_far.png": {
+      "sha256": "2b7c5534cb66c47846310832e7b5b4434c153c512f89b268c48d673cc9140c0e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/fore_near.png": {
+      "sha256": "f5f1889025b9081eb309b0dc2c05fd68343bfa20c9feea6404bfa7386b15ba8c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/hand_far.png": {
+      "sha256": "eb88d600340bc77040e5bf648fa8829d13290173917ef40fbc3f74e911359f2b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/hand_near.png": {
+      "sha256": "675d005fe7b46f1ef1c1f24a66f9e92afe2cbe713f131cf7974495112cbe64a7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/head.png": {
+      "sha256": "f97f564c9502132290f7ffd39ce45f17b1d551b0167d873fd919732f6c0e2cf1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/skirt_far.png": {
+      "sha256": "e1627e31fed1b904823e82b92af97c478f3c5280bb3924b4d6b48fe41439d279",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/skirt_near.png": {
+      "sha256": "04c93b96d37ef2fdc7a961daf4539559dc623034ed7b73075054a70a0588c28a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/staff_crystal.png": {
+      "sha256": "7e1f47be35bf982d68a47117cbeefdf8b91032754615d44ada529b534b2820a9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/staff_shaft.png": {
+      "sha256": "2e2b36cb1faae70dd33a8402ebe7cc4a7adf6718349da2303983df5e678af7ae",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/torso.png": {
+      "sha256": "b8fd20f83fb41088c4b921d2b4f00c61f278e0b9bd4c9721d86c3bf51a954058",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/upper_far.png": {
+      "sha256": "224f08d5d9d84db4e498f0e009bd4b5c7941fa581af4a04889688e636716e372",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/pieces/rear/upper_near.png": {
+      "sha256": "b94f499f6e6a6a3048a812e2f327e7d194ee4d31398e3b81667ae64564d1b9af",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_parts.png": {
+      "sha256": "5a63a552443337fada5d34ddd7fe2b4f9b056841c0e1be98502607abe588d7ce",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_collar.png": {
+      "sha256": "836cfc4405e03e862062df4210f141eab72a357fd141f5ce3b75c448653c9c8c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_foot_far.png": {
+      "sha256": "523ff7b0124f1e68e86516f72dff7f6a26fabd47596155fde5cdfe451fda0739",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_foot_near.png": {
+      "sha256": "f494f60a59ad2cda8c1456d7a89e7e57f5f7b65913b3e9afd755e3056e17a9b3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_fore_far.png": {
+      "sha256": "2d4e92723b188eaf6d350112dbcae5ff7abe71ae1eb42ef88a0cda03a2c0d7f0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_fore_near.png": {
+      "sha256": "b60616f6f3d217bdcf6c6e8333509888cfd909c1b77420af6da60e308c4fb6a8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_hand_far.png": {
+      "sha256": "2043d98e55a13733ac591b3e84ee8dde208fe72f375de014f4360049ae55d96e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_hand_near.png": {
+      "sha256": "46b523a01020c102e01ab23464c965c1dc0be0ef49dabc4244129cb7a8a3c428",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_head.png": {
+      "sha256": "17e6426dedb0af39db52755a639c498739ad99884e990666471265b9919f9e89",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_skirt_far.png": {
+      "sha256": "17106629635944e8ae1c85a132baf33a6faae926aefd8ce63a0eaa61e664f5ce",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_skirt_near.png": {
+      "sha256": "a5d4d64bdf89009d9de61e7c8b5552930989d86d46e324f10283d0b10b990680",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_staff_crystal.png": {
+      "sha256": "c95b3bdad08f96e4c35ea59a1bdec1831925b2e44fbc0ab03e42038cdef1fdc2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_staff_shaft.png": {
+      "sha256": "2e2d641d8b7a5326e37d34ecf2696d6c90f7c7eb1cb22be2b851a7ad102d2785",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_torso.png": {
+      "sha256": "30d1ef7cdecb0e8b110ad44720d31cc6fbb29c9298269d58520413075a579c84",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_upper_far.png": {
+      "sha256": "316efa777fd09b08c13da36d144ee2edc7ea689f9bd6cd0b01e7f0607e1a7b45",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/registered/rear_solo_upper_near.png": {
+      "sha256": "62040a77c09d5798cb4bf0383282a4a39cfe36c131162e42b155cac92e5207e4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/processed.png": {
+      "sha256": "d84433a5cff4b3391d3c2531cc74736f6e06ee2c4eb84688d9078c8778d11742",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/rear_baseline/source/rear/raw.png": {
+      "sha256": "ec1e5d6d39d2978a2a04641ff8297fa5b7cec5c4137efdb1273c44744743aeff",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_foot_far.png": {
+      "sha256": "75c4b4d62d9a7044f695886b9df417e463ea5748dcc2bbafba80d94fae5dc590",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_foot_near.png": {
+      "sha256": "d08a25b8762e97100b38eb0933c3e5d7be108483f0a2b7bb78892f89f95c6101",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_hand_far.png": {
+      "sha256": "23a427cb546a3f45dd842c9ce5a2a1333043d469c264ad4ec46dd6d8a9a5e8fa",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_hand_near.png": {
+      "sha256": "88a0a959f940d958f9077590e97f8b3063019b86db9c78f4be35b8cb1f209249",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_head.png": {
+      "sha256": "ed217f825346c9f2ec4a927e9ab15954cc2150596974441259e9192d87dc1a0d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_robe.png": {
+      "sha256": "20ee7bb6696af95d59446b8605a598a6c0e47605621b94b351be645f44e31314",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_sleeve_far.png": {
+      "sha256": "0a1ab40439effbf79d761936a35b7c584bab7f6cbf187ce8200f0ea533c2bd51",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_sleeve_near.png": {
+      "sha256": "f543ef056ff413ad089f29f79fbb45907e8562426281da632dbeef98fe536566",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_staff.png": {
+      "sha256": "9a5011346505d4505875b5a06436d8197b636b9dbb183327b50575c0d5a2352e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/front_torso.png": {
+      "sha256": "753020b154f86bbc7f1452c6f7eeb18b96511f305c78ecc85dfa5bf50a076359",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_foot_far.png": {
+      "sha256": "2bdc0f90d21bbe480ddd09025c720b8c629e4c66f383a3c9ea761bd28e2aa084",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_foot_near.png": {
+      "sha256": "ce5fe04737a6569ca0acdab16a88c2bb2e734d589d3a2c17f4f5bebd4a251bed",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_hand_far.png": {
+      "sha256": "285b848efded4c289af794e12c81be6b88cdf17a63462e4c3541c26d8532c29b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_hand_near.png": {
+      "sha256": "f083e78a0b1e9b993fd97825ee1dbbcd049c9f9663d302a4fc2f1f3bcdf2dda3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_head.png": {
+      "sha256": "104e4e8ab2c36724ca6540bce0c1029c8e676ded8ea82cedd90f2327b48ea3d4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_robe.png": {
+      "sha256": "f53f2e5b393709a7aa466c0fa04849a74287883e52717d25385a296026f4f0bd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_far.png": {
+      "sha256": "ee14abd0b8f19221537e3fc35656fc2c11765c11eeb476ac3d2c20aafe95ac4a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_sleeve_near.png": {
+      "sha256": "c80bc0372a48e6048af58599d80011c17dc131c81f61a898a7090b498cfcc03e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_staff.png": {
+      "sha256": "94ec554a7114bd8131338bc5f5093e51738912de19d80ddc7f47766296b14edc",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/seams/rear_torso.png": {
+      "sha256": "8b437b35bdc6c26f59ad0ad24b6a6135d24fb43aec6536765094701342519cc8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/source/front/processed.png": {
+      "sha256": "50cb831186da2ae47833f9a8133c65b7b637890a2db3440a779f5e8925b7d528",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/source/rear/processed.png": {
+      "sha256": "d84433a5cff4b3391d3c2531cc74736f6e06ee2c4eb84688d9078c8778d11742",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_foot_far.png": {
+      "sha256": "af9ea9e8f37cae9386364cbbb309f28f6631ad587d7258d6c522e1880673f9c5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_foot_near.png": {
+      "sha256": "86d3d95bbba21ea77125e8a2fad731de24b318bab663332ca9592bfc0a2fb101",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_hand_far.png": {
+      "sha256": "561165c5498e6e01c4cb6b591079de7d7fd2bf669b17cb92c8fe241f78147626",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_hand_near.png": {
+      "sha256": "a8bb0cfd68cd7ad4c3c8398c3e343806f0b396e2c2847b764bebf682efc4ca5e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_head.png": {
+      "sha256": "365717dbe85611d39c70283c27824bba06c3c1e420e0341df54035cc71f7f22c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_robe.png": {
+      "sha256": "5ea9983ee2e474da1e3e885038cd7186e66ed8f5f01917407dbb4fc6459b0031",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_sleeve_far.png": {
+      "sha256": "026be7fce9b887f8e11bc07a6f8763603faa542dbb6eae2a4804305d24d36f84",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_sleeve_near.png": {
+      "sha256": "6cdc20c69a6defd6ea1867dd5801e5cc83130cd01ff9a0bbb87a4c85525391b4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/front_torso.png": {
+      "sha256": "8acdf1ce4476102802becaf5897eaba64042784ec71d00b51a9d9d4ebb765c85",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_foot_far.png": {
+      "sha256": "92747fc63f10ed2fdb489295916bb947caabe5b9b48537ab6dce3af55c16c779",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_foot_near.png": {
+      "sha256": "876ecbea604efcff02eb31f749a614f6dbaeca8389acf87d4b60ef56c6e53c96",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_hand_far.png": {
+      "sha256": "7d6cfba6cc5b5def9551c357b7fbe542c628b131ab96f6a086bbc6b09fbdc940",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_hand_near.png": {
+      "sha256": "61854d56c5b5457368f14cfc0d4ea0168885548e4d2da7cfbab467ba0c8af9db",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_head.png": {
+      "sha256": "92b0d7eabe77fa3617ae662b065a8657c7bd4f2d6ffc109b6f7b85479c1e6521",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_robe.png": {
+      "sha256": "1f55c3f518e5f7087a30186d8b69696faa36b08368af57194e11db30c5c583a8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_sleeve_far.png": {
+      "sha256": "1f2fbf68b7264936dfb276e70b596182b8ecb703fd615e4e7e5d4ec4d56a44ae",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_sleeve_near.png": {
+      "sha256": "f96f131d58cf2a71520ea6b58d98d8c4e6498b0d3f9a50ef376c0de4d71ef904",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hoarfrost_seer/rr10/tucks/rear_torso.png": {
+      "sha256": "6f7271f9204767040af8b5bd97ddb3b5fe867ea2eea3ed435b21aac28bed642a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/compiled_motion.json": {
+      "sha256": "3063f5e9134e3d375715b5fc2a8229445aa32107cc6974c76b7ef5aeadad03ff",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/features/front_ice_crystal.png": {
+      "sha256": "8f7a8b8a66ca3a7c886213f4838abd410e6d44eede5f381bccc15fc1b24f5810",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/features/rear_ice_crystal.png": {
+      "sha256": "8c18ea30569de3b69af39033c82070cc18d12d7fe08e778d5c79fbd4a75991b0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/front/rest.png": {
+      "sha256": "261be19b8d6c29bb88e757aa8064ed5dacbefb327405898bfe84a144d2ec7766",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/collar.png": {
+      "sha256": "09fd52149247fd35999248709b4d2bab1703f399ef3387e191ad495b0eb340a5",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/foot_far.png": {
+      "sha256": "1fe1a6897b4f6ac730aad9969287cb6b7971d98b0da70236bcf2fd186d92141c",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/foot_near.png": {
+      "sha256": "0b9c1c868d4ac873df6137680b2d97477a713f8592b822d65d8a125554209d41",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/fore_far.png": {
+      "sha256": "870f954655ff2761eac4368ad990852e7374ec82b9e87d550f120f69578043c1",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/fore_near.png": {
+      "sha256": "cf255bedb93cb8f2694bc4d32f4d55b0738150ec8aea92d66ca3784ad83c47f6",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/hand_far.png": {
+      "sha256": "869d3722551ffc8fe3773a2b155f42494dfe764605a8def91d4738b1c0281ca0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/hand_near.png": {
+      "sha256": "432bd11291a0d28b2a8f8b9c6eef3263a730bf7ad95ced9b9a2563c7f27676a7",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/head.png": {
+      "sha256": "984e7025872161e4369ad7cf78757ba5616b270dde75c362d8a5af0cc993b7da",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/skirt_far.png": {
+      "sha256": "79f481de637129b0a4df88a7bcff5341d66810fe68179486733f1da059fdbb39",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/skirt_near.png": {
+      "sha256": "c25cc80a7dec25992a0a3e2d622b4aaa01f347b4546f74c85d3aa6d02ec523ff",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/staff_shaft.png": {
+      "sha256": "45192c9e208ff4909bd697a5253e315a6680c35c5970b43e07ddf2b8f6b14018",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/torso.png": {
+      "sha256": "720c47bef63e337e54fe89b786ac7380c0e7b58ee02a1aab86a1714c00871427",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/upper_far.png": {
+      "sha256": "1851ccf6fea4bb7529be7a69e0b848d1d75e5090d1a0635b0ce182bc5d07ef65",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/front/upper_near.png": {
+      "sha256": "f02f29d1c482670dd01ec04cc8947e8f0850ab53998109d4ea15425970a07e0d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/collar.png": {
+      "sha256": "82a1380a6683cbc9d8f9b8fd79a7d487309d23ea3ccb63230acc85a3ec5080b4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/foot_far.png": {
+      "sha256": "481b02c42da9d62720e9255e598957c2253492e636b3120622cfb5be40493001",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/foot_near.png": {
+      "sha256": "72e46375d008b38c008e591d0e2b0813f7c5dc527d00e3595edc3dbaaaaa425b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/fore_far.png": {
+      "sha256": "4e2bd30a9ceaf013b624c517a181a970ae9ba2f6e4f7be1314668af07d6175a0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/fore_near.png": {
+      "sha256": "d146917e27b881c392808ec68325797135d5e9b5c153a626c7f29b27a3a0aaa0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/hand_far.png": {
+      "sha256": "0c74cbbdc19a7cc786dfe59c1de6a13838d88e98f658bb53dc3a4c413dff5c24",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/hand_near.png": {
+      "sha256": "28b76893dae8da10233f97bc82b7a23d8509575d45ef16c2abde55d849a2b35d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/head.png": {
+      "sha256": "f4332498274c2c9f518ed9dfc911a4a6de99113be4c4ca4a87be82c1e69dd717",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/skirt_far.png": {
+      "sha256": "56dab7517b95b6adb56f81237a807d6557d82267f19becc8f5684f118c35d648",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/skirt_near.png": {
+      "sha256": "967fb12806540c4886d99ae4cff0dd5af15675b7d9ca5c8b9498387e2606d190",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/staff_crystal.png": {
+      "sha256": "d6292bfb8f595ae648705da9ce71ffad5192d906143520f25ca2173ff345c5c2",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/staff_shaft.png": {
+      "sha256": "5911eb56fa3e304deabf8d7127700a68f84c9bb751dc63c426a46aa8e6f71326",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/torso.png": {
+      "sha256": "3c9298406f45336be691ea7a642ed8735daafc427ee7cfe58c88a0f04d81e5ba",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/upper_far.png": {
+      "sha256": "f57df6d64e7b8a171adfd0663bd22057a5a13c347fa2a6db833da697c7ec597a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/hidden/rear/upper_near.png": {
+      "sha256": "6b0c0b075e2db1f96b1fda079c8edb548ac1d653d7834495cc3107edd35fa7de",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/compiled_motion.json": {
+      "sha256": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/director_motion.json": {
+      "sha256": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_far.png": {
+      "sha256": "11d546cb71560b4279216802f4de6390a5705e0edbe98a0427206362d5045216",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/foot_near.png": {
+      "sha256": "79108696fa4574882e51c9f4bf52620e757c6d5ac4144d90120472c6a957e75d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_far.png": {
+      "sha256": "8010d2e01066a065d9cd4706db01f8e7a2b6eee454d0bc64a5d1fc04eec181e4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hand_near.png": {
+      "sha256": "37135e43482991c34ec7a34f0bf3d6df5d945f92b6d460925f0c13f0617fcf2a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/head.png": {
+      "sha256": "caf0268b5f08312f750f21e1166f7be2c4d3c48e2fdd7f11709a8bf7c7197ed1",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_far.png": {
+      "sha256": "87b8b0c087057af71fe46eb5d37c107e303c299ebaf830177d79373a6b9baf27",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_foot_near.png": {
+      "sha256": "e5c461a1beb156e36d3bb6b13cfd7d5195ad0a237a2ba4de9cec15dda19d8369",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_far.png": {
+      "sha256": "7cfabf405a564d860d9bf6eb0f34b82c1a06533f6d7f29cafc2c1cf1bd68f2e3",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_hand_near.png": {
+      "sha256": "350c765c10f83d5abe08b3f1f4b565d14d1c52c5acde9ff17c2bd3aec7e8d176",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_head.png": {
+      "sha256": "038fc5489f4081a7cd3bbc00e94fc202cd5d26f18ddc81e5df53afaa15017b4c",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_robe.png": {
+      "sha256": "e61edba51da42425457580508105628b659848071b4a52fad27b4036f87b68cc",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_sleeve_far.png": {
+      "sha256": "06292e0f79d78d75e7ea3e1a17b60e8d83d77f4e40ae3d9f7a0542744fa6adb9",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_staff.png": {
+      "sha256": "f45ad1570cba630d17a61371d17ef76f0161bd39461a330bd3a05ac05d0470b6",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/hidden_torso.png": {
+      "sha256": "8bc0643d380914b16990991a07d5e84a5d5fce634bdbfdf8f497593974c615de",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/rest.png": {
+      "sha256": "c50fca1b7d11c686fad8e2ab77ea385cc260cead1f9589f58c26503afdfd29cd",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png": {
+      "sha256": "44e9902044f1e055b6f124b790323aec9983585a71eae4d36a635d150ab37739",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_far.png": {
+      "sha256": "c0ec0f469d3d77612464a697188f3688d396030711aa7ea4aded04a48b8dd649",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/sleeve_near.png": {
+      "sha256": "4489b7d1aa8a37951427094b60470a596e4782a12cc001e68f808b38441b0087",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/staff.png": {
+      "sha256": "fad7d2f43fa680d244e0a15d6d7b54222f5517a73a5370f31e41f29b15d74b53",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/torso.png": {
+      "sha256": "bee46d6907f16ec9111e638b5bb596d9af287dd0ca94d825a30aa0fd3232ed61",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_far.png": {
+      "sha256": "eb1e33a60bdfb2cd99589824e8b9a10d203d9d7ef55fd1f615d5a983f23841f7",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/foot_near.png": {
+      "sha256": "83be1d9ce3aae2e2889920f2d516a01357f6a35efd4275791165dfdc0772b4e5",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_far.png": {
+      "sha256": "f66e7310b0f148c02d546d780dff32bbb11015b69fc011fa737120c6460a9a91",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hand_near.png": {
+      "sha256": "f3ac6440f69a00bce5bcb4604bd98959605ed3b6f15bc8f36bc84c11cc670bf3",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/head.png": {
+      "sha256": "8b70c74a6525adcc446fbe9fa95d4b53ed93b687831ec7ea8babd1be29357d7c",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_far.png": {
+      "sha256": "d05dffd6d0ad540119f2abeff22d38f077c3c5656315c9f73f414b32428786e4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+      "sha256": "8e7e812e348b2cc659b23d4815194fdcd77a0096b22f62ffa3352363c881c016",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_far.png": {
+      "sha256": "fa2b030689860f842c46f1ae1925e668bea1aabef8ae922f11f4aaad54462842",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_hand_near.png": {
+      "sha256": "12022493e1ceb1d2d519b870e0b35a20885cc76e2c4fafece191eef8d33b3972",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_head.png": {
+      "sha256": "97269a563bc22a8fc7fb41b07f1dd3ce1fadaa421bfe7d0c0d80e833c876e6e6",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_robe.png": {
+      "sha256": "e13c34a6cb81922d05fdb4c8fb13faf1cda4af8beade1ed8e9c86dafa3c897bd",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_sleeve_far_edge_underlap.png": {
+      "sha256": "79f2c105634a60301d4dc67b8a95a62e2ce924ea4c4cfd0949a539fe8bd5e43b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/hidden_torso.png": {
+      "sha256": "531affb26320270fad1bc64f49d9f8c81893d45dfabc7b08c6ccd8c5084fe85f",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/rest.png": {
+      "sha256": "ed088952f4716dc80ffaa28eb6cdcda9e782a6edf8e4a80bcfe90931d30bcd6a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png": {
+      "sha256": "8448c9d4297be48e2891aa6b4c537de51923f7253aba6dbe3b657754035b9a48",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_far.png": {
+      "sha256": "f64a31c795c36a3b3218178d220ccc04047e841b8125b110e0c15ddf4ad28044",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/sleeve_near.png": {
+      "sha256": "27ab0297de9077816eb4016dd1d26a383a24b7858e07fd044e7b64deda153cb9",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/staff.png": {
+      "sha256": "cfe3c526cbfed0a74c803e51ea5319e41e290daf5d6a63c86989386b718ae935",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/torso.png": {
+      "sha256": "eb2912b4ecf4aaff5b38c30d7f773ae15717cbc97558eea8a5ca94c365ac3380",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/rear/rest.png": {
+      "sha256": "edcf856e4f446e9d6af25f4098cf76efda96664d6235f30b7c448cc4337ba25d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png": {
+      "sha256": "c73d48f8562ab7c986f19526ebc8ebd7628151c4cfcc2843ea922edfa878ef47",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_upper_far.png": {
+      "sha256": "95d4b8854d60debdf72ad7b64b4957b4967f13525ba7a16d213bd64b9bb6df13",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_torso.png": {
+      "sha256": "fca3bc9c3ad865ac47e7adbfbc97ffc71fc30b191149030aa82e599ba2096377",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_upper_near.png": {
+      "sha256": "6503cf28ccf4a663dbbda8bd7b52c1c580fcdde60a92c32b14bb7951dd902c02",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_far_hand_far.png": {
+      "sha256": "7056551f8d5b426e8bc29e1478ceecfbcf80d3a37be3cd4a2f0ce6178620a6d9",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_far_staff_shaft.png": {
+      "sha256": "7f4d4817de517713685c9884c88259c8ecfcedc9b504055e7a80b9250afca1db",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_far_staff_shaft_component_03.png": {
+      "sha256": "41c995254f0730d5a325cbb4fbff51132c910f388e52044583e498a3d17a818b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_fore_near_hand_near.png": {
+      "sha256": "e15c496306a69f7e70bca644baac83f384ff217365f299f38e137ebfa2c6f3e8",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_hand_far_staff_shaft_component_02.png": {
+      "sha256": "89622f258897e1171dee7809362df49e12240ae4fe9ffdbeb387e27d521bd9a7",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_hand_far_staff_shaft_component_03.png": {
+      "sha256": "6ad0b4a8d94c111aecdaf3dbb98a65f4eaa3205e407449413c1c2f3f716f2986",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_hand_far_staff_shaft_component_04.png": {
+      "sha256": "0dcb616483502a4aad1c3518da9e151668833654a6ea2859f15be54efa9fb179",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar.png": {
+      "sha256": "8a5fef2bd236116f743f3bdc2e2e5a1d9d0299f8705f2601ad402f9774637158",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_02.png": {
+      "sha256": "4962d0afbdff559617b09d7407c7f8192e097387f1a3933eee74f6695dcd8c69",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_03.png": {
+      "sha256": "12fa4a7cf93c09e92a51df2918dc2e0aeab008d5381f645eab75a4c199530b5a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_04.png": {
+      "sha256": "1093ef985bd19a155269a5c0f372f369c39a0b712c388f876bc67a311aa3ce4b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_head_collar_component_05.png": {
+      "sha256": "222df7f9f39f385d17edde22603ae5da8496c305678f7adc4059581b1cea7083",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_head_torso.png": {
+      "sha256": "f9d206f036c202b07588755c7bf2dae6428c4cc2c7401ee62a89637b944a02ba",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_far_foot_far.png": {
+      "sha256": "b2e0da3e034dabbea58aea751c071f0a848bbc5268eb79fa737f0e372b7037f4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_far_staff_shaft.png": {
+      "sha256": "e3ef8060fd7088f5aff4d4342376ccca34bc6937b3858ba85a6888fedbf0eda8",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_foot_near.png": {
+      "sha256": "ad877071cac6a9339ee727d743730090cd2e22ac51a75b51d60aab935710b060",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_fore_near.png": {
+      "sha256": "7f12e62a227070970e108bf159e0e76a4f0f35f3c6e08b70dc0e7d1b8f9f23cb",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_hand_near.png": {
+      "sha256": "207e7cf5e2ee2118e561b25b268b3cd7163b37d74f59dc007c57b1d7a425ad6a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_skirt_near_skirt_far.png": {
+      "sha256": "35fe90bc3beff108d2da0a759b7d15b30ba21f2ef5218679ab2f5523c7cffe1b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_staff_shaft_foot_far.png": {
+      "sha256": "3c8c14779d727d1f3a95ecb87f092cc4118e0a97ac9b1ea0aadf28e4f20f17ad",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_far_component_01.png": {
+      "sha256": "9c85efc290996cede4df588bf4332370fa7fcb8f2a54416e52373ac1a70531c0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_far_component_02.png": {
+      "sha256": "83f209e5e7fa78f8357f5a098ad32eac237d5dede92cbb14a45d4ea3d34560a9",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_near.png": {
+      "sha256": "c10832b160246fe776db08e0876cf61068b8ce1980f1b2d09f30e9e0de2879a3",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_skirt_near_component_02.png": {
+      "sha256": "6acaf5803457533ff3f0d5ecd0c5c4c482d1053a5cdf58dde1836ceee299d9e0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_upper_far_component_01.png": {
+      "sha256": "06590b39c068d50839e79826cc4893b6176511ba62cebc0b3132148a2b8fb1cb",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_upper_far_component_02.png": {
+      "sha256": "2329eaa7addf16d42ae0a87bb5e8a5f874bbd0122bf88c8c737b74fc4023958a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_torso_upper_near.png": {
+      "sha256": "5dd13b49fae97c06569c61ca7f8a09e4b4426ed9578223711402f695c6d5fd03",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_upper_far_fore_far.png": {
+      "sha256": "1b1fb9ce4fa4b607ec4e6fa2425cbed660e12c83ba20ddc05003a22764fccd06",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_upper_far_hand_far.png": {
+      "sha256": "b8bb46dacd80a53177cbdb8a653816b34ce21863d585d70febf4a6bb8c59eec3",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/front/seam_upper_near_fore_near.png": {
+      "sha256": "2b4755d3e868497f086f27d6bba95594cac815fce50d688594f67aa6ef53a993",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_component_02_torso.png": {
+      "sha256": "aec357efa96e0e6e871b74459968ca0e24c8399343e1807028b09afa5ef2acaf",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_component_02_upper_near.png": {
+      "sha256": "97dba1be4a8bd14f6147ed5ba06f0d9477844e4e67c09d055025073164ffc4cc",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_torso.png": {
+      "sha256": "83a09d39b415c55e3c02e7441aa6853dc9518bafa62b4ce37ff1ad60e697889f",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_collar_upper_far.png": {
+      "sha256": "c777be7681bf6ed82b39be4cc1a305be27ee9e5c0068e73a6c3e870f9d51ee17",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_fore_far_hand_far.png": {
+      "sha256": "3bf1e1e6267f3ff85a9738a244f067c939f018b56f238b0aabbc017137673d52",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_fore_far_staff_shaft.png": {
+      "sha256": "90d98ba22d65050b0a842558030431ebbf2a30ed96ad4aebba7da51d45274fd0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_fore_near_hand_near.png": {
+      "sha256": "53c9baaf421b0d31a900640c0359e458f1658e72c6362dc13936c28e6cf59954",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_hand_far_staff_shaft.png": {
+      "sha256": "78263dc3eb1493c7c051afa12640ca6d999eebb4421727f396459300c170b8fd",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_head_torso.png": {
+      "sha256": "652c888e8897cbac472f1ecc8632ff84f9d6c7dff0407cb6de81f7b7f1655dd4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_foot_far.png": {
+      "sha256": "b0682abe686757b833c40085fcbdcd16b07ae4b8cde50b9de846299ccebc3524",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_foot_near.png": {
+      "sha256": "d11e3eb31de4c92450282060422b8742e2c0074ec1871fcbc756e2bc6b0131e3",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_staff_shaft.png": {
+      "sha256": "78c89754591f32b645830d7feb0fb9f444eb377d8201bc7ba985f08337f309e9",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_far_upper_far.png": {
+      "sha256": "6142646b6eb017fd52f4e7e7735dc347eae53cc0f08a1d6535987bdf5b8c4321",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_foot_near.png": {
+      "sha256": "6041a9db5eb1508539471e88c994ac1eab15ae33d78889b0ba4b592d660b2498",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_fore_near.png": {
+      "sha256": "6693e3d1ce582597f37bea91dc137d92be133ca06db3703d5ecf5f72087e8c2a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_hand_near.png": {
+      "sha256": "8ba74fcbbc7bec60d47e09ab8c6ed75684f70f3f3f49cd49e1eb8b8d61436234",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_skirt_far.png": {
+      "sha256": "b82b83680b622591110cdde3ea4c1a0db6ecfcc86216ec3cacbdd375b83455f7",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_skirt_near_upper_near.png": {
+      "sha256": "bafac83e43012305a5c2b31fb2c4b9ed21d1181112884316932ff04152b51d73",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_staff_shaft_foot_far.png": {
+      "sha256": "0b6fe41dbea2c9fae1cb891ff7fc015fdf334a2a1b87a517f1a8db828075c1b1",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_staff_shaft_staff_crystal.png": {
+      "sha256": "1eef319117435bf08ed609022e1a8b7e5cdfda110632ae4a19b567561edb3b74",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_skirt_far.png": {
+      "sha256": "fae5929bf1f881c77655fa960b8cdb547518cf9b317099ff7522898cbcb015f3",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_skirt_near.png": {
+      "sha256": "bb84d236676178021261cd81cc127cde42c19d7f34221d8490bf750650ec26d2",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_skirt_near_component_02.png": {
+      "sha256": "35f7a7f2c567de483f28d6d8b7f9796a2a797f67de3d3a26f8927b891eaf7884",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_upper_far.png": {
+      "sha256": "04a0a24aa8abc60db7d834710774f186ea27838a7d5032cfcbe76c81c139d605",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_torso_upper_near.png": {
+      "sha256": "15906f1c42c25ee1ecc92d45b393f2c9feb8e435770d694fffb249ff50e1db9a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_upper_far_fore_far.png": {
+      "sha256": "4b24f7c24bc359794916446bb6da3ebdd9067915ca39f7b7cc32ccf8caf811ec",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/seams/rear/seam_upper_near_fore_near.png": {
+      "sha256": "6c1c7215dc12ec271a4ab0886204ce4f9c7f3e2f8919ec7dd6c1858ebd6f384c",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/collar.png": {
+      "sha256": "dfaff9070fe1509a14ad36a5d76b14772f8980ff126ba41320fd53f85f9a668d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_02.png": {
+      "sha256": "d956bf52a4ceaa38d78ca104bf637ad71861e85fb231cec12ce148faaff8ef76",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_03.png": {
+      "sha256": "95fe29497ec919030e7a60de0c358cd838d7fe16836c7595629d4e44c5d451ea",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_04.png": {
+      "sha256": "a33ef9b38a84ba607bb3b4abb3068701daf8f0e201f562817dfd395cff52313d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/collar_component_05.png": {
+      "sha256": "83dc9a089897bf10ccae72b6a9a8b9bfb3bd2fabccd1d7afeefe035d49c7713b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/feature_ice_crystal.png": {
+      "sha256": "acf66fcff30872148d29a96f9195f8fa8077acda049ed6a547e3356dffdd4d44",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/foot_far.png": {
+      "sha256": "11d546cb71560b4279216802f4de6390a5705e0edbe98a0427206362d5045216",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/foot_near.png": {
+      "sha256": "8e3eaa25bfb93c73c9a18f36e0d3ff053e4b48a8a45a8bc929c1c6937c57c356",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/fore_far.png": {
+      "sha256": "3fe8345e61f162f7ab9aaca875919b16025bfc6d5ae7ca2e074aabc21dd398e4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/fore_near.png": {
+      "sha256": "ba6d775d496d193f8343b1d40d6fece86d8fec9e252558292ba4c0d7f37f35dd",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/hand_far.png": {
+      "sha256": "8010d2e01066a065d9cd4706db01f8e7a2b6eee454d0bc64a5d1fc04eec181e4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/hand_near.png": {
+      "sha256": "37135e43482991c34ec7a34f0bf3d6df5d945f92b6d460925f0c13f0617fcf2a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/head.png": {
+      "sha256": "caf0268b5f08312f750f21e1166f7be2c4d3c48e2fdd7f11709a8bf7c7197ed1",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/skirt_far.png": {
+      "sha256": "99a090c266a5c75824510dc23fcb8090da2393422ce28ed2dc8d777eddf0f2e9",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/skirt_near.png": {
+      "sha256": "d84f06b0e4c5dc3625ceb1030db78325d1d3b201f4bb7f1d5692d677df83976d",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/skirt_near_component_02.png": {
+      "sha256": "e53316946a409dd0a1158e101c807a00d20860345733b470c60df6feeb68318c",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft.png": {
+      "sha256": "4192261a4fa5f46e8d6d7d206e42429587159198fdc0881e2aa64eff2d40c800",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft_component_02.png": {
+      "sha256": "e586f8fd35d510b0fcf6329d70a60c56b9a7c1680ba2791cbd10f2d9e6cf0cc5",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft_component_03.png": {
+      "sha256": "969ce20021390d49195d544fd5839715c86e1840d0e0acd21030bbd1699424ee",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/staff_shaft_component_04.png": {
+      "sha256": "5faaf3f4f62e39b5ef9f815d91b140365f25d513f57abe30eeed905af1e3ab65",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/torso.png": {
+      "sha256": "552792386c1a4beeb82bd7d7c424b526d75a81ed97c143f5ea3ca79a7af2cbc4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/upper_far.png": {
+      "sha256": "208306488f411d71a0693ee2354a3320f7627bd5f84487dee11fd53daa85fa3c",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/front/upper_near.png": {
+      "sha256": "6b5416d1f40c7ad8a7a0c00787869df603d65ab58d6d0060a21369b7a897c0a4",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/collar.png": {
+      "sha256": "c86b2085d2968bcc3c15f3cb5dd93b67bddff7b14c09089b1c96206bc3dfc7f0",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/collar_component_02.png": {
+      "sha256": "edc861b3e2b0140f8908933eb0487f0a0ce0b6d4b6e162251a524af12fb5313a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/feature_ice_crystal.png": {
+      "sha256": "7aee25149c94e2f562a83499600cd9a19d9bdcefa1e760dd6ab8bfd82d3829fc",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/foot_far.png": {
+      "sha256": "2e867315ec7f2a01699e7f67d6c569fb2079239af06256bfcd350ea5a42b7bdf",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/foot_near.png": {
+      "sha256": "3fcd1ead3425d445cf790024c18ee94dd8651a4f616042b2d5a27b75cf23e204",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/fore_far.png": {
+      "sha256": "d104cd88d4ad9d1729f9b4124a47600181771c4672c3145729cc8a326fc9d773",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/fore_near.png": {
+      "sha256": "417080524c7efe69e3a98dcbe54e4254eb5c44e22615073bf0232c337cc4a509",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/hand_far.png": {
+      "sha256": "e19d3f941e9a77e93f5e85f2f0ecdee2334bdc133e30da6b7e430e63eee11d61",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/hand_near.png": {
+      "sha256": "eca01d44d404a5fc7991c8bf09dab6c1ce6b38ec927370bb43d79884a5a22299",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/head.png": {
+      "sha256": "c8b0ff5a5daedef534d2c4dd08dad5010f302fedc8624b88a7817f8b0f69ea37",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/skirt_far.png": {
+      "sha256": "555935b1b7b343cc086a5a3c28b49b07d4d27c33306213cc8e65cc26dff9506a",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/skirt_near.png": {
+      "sha256": "710381ff96c02e953bf0db519106b9fb18715f6aba3244c72fee6c6831184821",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/skirt_near_component_02.png": {
+      "sha256": "df0f8f5769c1b35c594773f35b2432af790ffe50c8c6fc4c5be2e658dadcf178",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/staff_crystal.png": {
+      "sha256": "08fb36bfd22711cef3ee5b3db88a48f0ebea01f43ccd1370800e85673a85e62b",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/staff_shaft.png": {
+      "sha256": "aba11603c0041d59bdd621c1bdf8e52e2f4cd25df53065c0d3d8c5ee9181f915",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/torso.png": {
+      "sha256": "2f002a6d9b5bde913ae4a4ce29e2416881a537f4d70fb028abb2967b57a73715",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/upper_far.png": {
+      "sha256": "277cce57357c7e240fd5f75cedf4d4f4fefe23f763cdd9ed934659280ca34021",
+      "byte_identical": true
+    },
+    "assets/units/hoarfrost_seer_cutout/segmented/rear/upper_near.png": {
+      "sha256": "16b55f43783b73439cf8bc7fc4b0483925c20376486da941ab394981082e371b",
+      "byte_identical": true
+    }
+  },
+  "unexpected_changed_files": [],
+  "unexpected_layout_changes": [],
+  "rest_identity": {
+    "ok": true,
+    "views": {
+      "front": {
+        "different_pixels": 0,
+        "pixel_identical": true
+      },
+      "rear": {
+        "different_pixels": 0,
+        "pixel_identical": true
+      }
+    }
+  }
+}

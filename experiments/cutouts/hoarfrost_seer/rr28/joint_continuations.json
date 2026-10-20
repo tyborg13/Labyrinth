@@ -1,0 +1,931 @@
+{
+  "front": {
+    "sleeve_near": {
+      "clips": [
+        "move"
+      ],
+      "local_targets": [
+        [
+          17,
+          54
+        ],
+        [
+          17,
+          55
+        ],
+        [
+          17,
+          56
+        ]
+      ],
+      "source_evidence": [
+        {
+          "view": "front",
+          "clip": "move",
+          "frame": 7,
+          "bbox": [
+            293,
+            274,
+            294,
+            277
+          ],
+          "pixels": [
+            [
+              293,
+              274
+            ],
+            [
+              293,
+              275
+            ],
+            [
+              293,
+              276
+            ]
+          ]
+        }
+      ]
+    },
+    "sleeve_far": {
+      "clips": [
+        "bolt",
+        "death",
+        "hit"
+      ],
+      "local_targets": [
+        [
+          11,
+          24
+        ],
+        [
+          11,
+          25
+        ],
+        [
+          11,
+          26
+        ],
+        [
+          32,
+          49
+        ],
+        [
+          33,
+          49
+        ],
+        [
+          32,
+          50
+        ],
+        [
+          33,
+          50
+        ],
+        [
+          32,
+          51
+        ],
+        [
+          33,
+          51
+        ],
+        [
+          32,
+          52
+        ],
+        [
+          33,
+          52
+        ],
+        [
+          31,
+          53
+        ],
+        [
+          32,
+          53
+        ],
+        [
+          33,
+          53
+        ]
+      ],
+      "source_evidence": [
+        {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 20,
+          "bbox": [
+            240,
+            278,
+            242,
+            279
+          ],
+          "pixels": [
+            [
+              240,
+              278
+            ],
+            [
+              241,
+              278
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "hit",
+          "frame": 4,
+          "bbox": [
+            246,
+            272,
+            248,
+            273
+          ],
+          "pixels": [
+            [
+              246,
+              272
+            ],
+            [
+              247,
+              272
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "hit",
+          "frame": 8,
+          "bbox": [
+            246,
+            272,
+            248,
+            273
+          ],
+          "pixels": [
+            [
+              246,
+              272
+            ],
+            [
+              247,
+              272
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "hit",
+          "frame": 9,
+          "bbox": [
+            246,
+            272,
+            248,
+            273
+          ],
+          "pixels": [
+            [
+              246,
+              272
+            ],
+            [
+              247,
+              272
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 27,
+          "bbox": [
+            244,
+            272,
+            246,
+            273
+          ],
+          "pixels": [
+            [
+              244,
+              272
+            ],
+            [
+              245,
+              272
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 28,
+          "bbox": [
+            244,
+            272,
+            246,
+            273
+          ],
+          "pixels": [
+            [
+              244,
+              272
+            ],
+            [
+              245,
+              272
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 29,
+          "bbox": [
+            244,
+            273,
+            246,
+            274
+          ],
+          "pixels": [
+            [
+              244,
+              273
+            ],
+            [
+              245,
+              273
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 30,
+          "bbox": [
+            244,
+            273,
+            246,
+            274
+          ],
+          "pixels": [
+            [
+              244,
+              273
+            ],
+            [
+              245,
+              273
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 62,
+          "bbox": [
+            213,
+            275,
+            215,
+            276
+          ],
+          "pixels": [
+            [
+              213,
+              275
+            ],
+            [
+              214,
+              275
+            ]
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 0,
+          "bbox": [
+            243,
+            273,
+            245,
+            274
+          ],
+          "pixels": [
+            [
+              243,
+              273
+            ],
+            [
+              244,
+              273
+            ]
+          ],
+          "reason": "newly trapped joint pocket in CPU census"
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 63,
+          "bbox": [
+            210,
+            278,
+            211,
+            279
+          ],
+          "pixels": [
+            [
+              210,
+              278
+            ]
+          ],
+          "reason": "Bridge the new detached fold fragment with its adjacent own-piece texel [11,24]; also covers frame 64"
+        },
+        {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 0,
+          "bbox": [
+            243,
+            275,
+            245,
+            277
+          ],
+          "pixels": [
+            [
+              243,
+              275
+            ],
+            [
+              244,
+              275
+            ],
+            [
+              243,
+              276
+            ],
+            [
+              244,
+              276
+            ]
+          ],
+          "reason": "newly enclosed pocket after continuation, including one-pixel air"
+        },
+        {
+          "view": "front",
+          "clip": "bolt",
+          "frame": 7,
+          "bbox": [
+            243,
+            276,
+            244,
+            277
+          ],
+          "pixels": [
+            [
+              243,
+              276
+            ]
+          ],
+          "reason": "newly enclosed pocket after continuation, including one-pixel air"
+        }
+      ]
+    }
+  },
+  "rear": {
+    "torso": {
+      "clips": [
+        "mark"
+      ],
+      "local_targets": [
+        [
+          69,
+          27
+        ],
+        [
+          70,
+          27
+        ]
+      ],
+      "source_evidence": [
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 27,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 28,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 29,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 30,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 31,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 32,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 33,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 34,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 35,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 36,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 37,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 38,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 39,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 40,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 41,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 42,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 43,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 44,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 45,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 46,
+          "bbox": [
+            278,
+            218,
+            280,
+            219
+          ],
+          "pixels": [
+            [
+              278,
+              218
+            ],
+            [
+              279,
+              218
+            ]
+          ]
+        }
+      ]
+    },
+    "hidden_torso": {
+      "clips": [
+        "mark"
+      ],
+      "local_targets": [
+        [
+          11,
+          70
+        ],
+        [
+          10,
+          71
+        ],
+        [
+          11,
+          71
+        ],
+        [
+          9,
+          72
+        ],
+        [
+          10,
+          72
+        ],
+        [
+          11,
+          72
+        ]
+      ],
+      "source_evidence": [
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 10,
+          "bbox": [
+            213,
+            257,
+            215,
+            259
+          ],
+          "pixels": [
+            [
+              214,
+              257
+            ],
+            [
+              213,
+              258
+            ],
+            [
+              214,
+              258
+            ]
+          ]
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 58,
+          "bbox": [
+            217,
+            255,
+            218,
+            257
+          ],
+          "pixels": [
+            [
+              217,
+              255
+            ],
+            [
+              217,
+              256
+            ]
+          ],
+          "reason": "newly enclosed pocket after continuation, including one-pixel air"
+        },
+        {
+          "view": "rear",
+          "clip": "mark",
+          "frame": 7,
+          "bbox": [
+            215,
+            255,
+            216,
+            256
+          ],
+          "pixels": [
+            [
+              215,
+              255
+            ]
+          ],
+          "reason": "newly enclosed pocket after continuation, including one-pixel air"
+        }
+      ]
+    }
+  }
+}

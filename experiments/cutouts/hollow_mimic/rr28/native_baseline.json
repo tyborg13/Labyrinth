@@ -1,0 +1,1760 @@
+{
+  "errors": [
+    "('rear', 'move', 6): new joint-seam hole larger than 1px",
+    "('rear', 'move', 26): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 6): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 7): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 8): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 9): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 10): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 11): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 12): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 13): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 14): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 15): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 16): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 20): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 24): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 26): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 27): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 29): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 30): new joint-seam hole larger than 1px",
+    "('rear', 'bolt', 31): new joint-seam hole larger than 1px",
+    "('rear', 'mirror', 7): new joint-seam hole larger than 1px",
+    "('rear', 'mirror', 9): new joint-seam hole larger than 1px",
+    "('rear', 'hit', 2): new joint-seam hole larger than 1px",
+    "('rear', 'hit', 13): new joint-seam hole larger than 1px",
+    "('rear', 'death', 5): new joint-seam hole larger than 1px",
+    "('rear', 'death', 7): new joint-seam hole larger than 1px",
+    "('rear', 'death', 8): new joint-seam hole larger than 1px",
+    "('rear', 'death', 20): new joint-seam hole larger than 1px",
+    "('rear', 'death', 21): new joint-seam hole larger than 1px",
+    "('rear', 'death', 27): new joint-seam hole larger than 1px",
+    "('rear', 'death', 29): new joint-seam hole larger than 1px",
+    "('rear', 'death', 30): new joint-seam hole larger than 1px",
+    "('rear', 'death', 31): new joint-seam hole larger than 1px",
+    "('rear', 'death', 33): new joint-seam hole larger than 1px",
+    "('rear', 'death', 34): new joint-seam hole larger than 1px",
+    "('rear', 'death', 35): new joint-seam hole larger than 1px",
+    "('rear', 'death', 37): new joint-seam hole larger than 1px",
+    "('rear', 'death', 38): new joint-seam hole larger than 1px",
+    "('rear', 'death', 40): new joint-seam hole larger than 1px",
+    "('rear', 'death', 41): new joint-seam hole larger than 1px",
+    "('rear', 'death', 42): new joint-seam hole larger than 1px",
+    "('rear', 'death', 45): new joint-seam hole larger than 1px",
+    "('rear', 'death', 46): new joint-seam hole larger than 1px",
+    "('rear', 'death', 49): new joint-seam hole larger than 1px",
+    "('rear', 'death', 50): new joint-seam hole larger than 1px",
+    "('rear', 'death', 51): new joint-seam hole larger than 1px",
+    "('rear', 'death', 52): new joint-seam hole larger than 1px",
+    "('rear', 'death', 53): new joint-seam hole larger than 1px",
+    "('rear', 'death', 54): new joint-seam hole larger than 1px",
+    "('rear', 'death', 56): new joint-seam hole larger than 1px",
+    "('rear', 'death', 57): new joint-seam hole larger than 1px",
+    "('rear', 'death', 60): new joint-seam hole larger than 1px",
+    "('rear', 'death', 61): new joint-seam hole larger than 1px",
+    "('rear', 'death', 62): new joint-seam hole larger than 1px",
+    "('rear', 'death', 63): new joint-seam hole larger than 1px",
+    "('rear', 'death', 64): new joint-seam hole larger than 1px",
+    "('rear', 'death', 65): new joint-seam hole larger than 1px",
+    "('rear', 'death', 66): new joint-seam hole larger than 1px",
+    "('rear', 'death', 67): new joint-seam hole larger than 1px",
+    "('rear', 'death', 70): new joint-seam hole larger than 1px",
+    "('rear', 'death', 71): new joint-seam hole larger than 1px",
+    "('rear', 'death', 72): new joint-seam hole larger than 1px",
+    "('rear', 'death', 73): new joint-seam hole larger than 1px",
+    "('rear', 'death', 74): new joint-seam hole larger than 1px",
+    "('rear', 'death', 75): new joint-seam hole larger than 1px",
+    "('rear', 'death', 76): new joint-seam hole larger than 1px",
+    "('rear', 'death', 77): new joint-seam hole larger than 1px",
+    "('rear', 'death', 78): new joint-seam hole larger than 1px",
+    "('rear', 'death', 79): new joint-seam hole larger than 1px",
+    "('rear', 'death', 80): new joint-seam hole larger than 1px",
+    "('rear', 'death', 81): new joint-seam hole larger than 1px",
+    "('rear', 'death', 82): new joint-seam hole larger than 1px",
+    "('rear', 'death', 83): new joint-seam hole larger than 1px"
+  ],
+  "holes": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 6,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            219,
+            263,
+            221
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 26,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            314,
+            192,
+            315,
+            194
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 6,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            228,
+            248,
+            230
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 7,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            228,
+            248,
+            230
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 8,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            239,
+            227,
+            244,
+            228
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 9,
+      "pixel_counts": [
+        3,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            242,
+            227,
+            244,
+            229
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            238,
+            227,
+            240,
+            228
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 10,
+      "pixel_counts": [
+        7
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            238,
+            227,
+            244,
+            229
+          ],
+          "pixel_count": 7,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 11,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            243,
+            229,
+            247,
+            231
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 12,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            243,
+            229,
+            247,
+            231
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 13,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            243,
+            229,
+            247,
+            231
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 14,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            243,
+            229,
+            247,
+            231
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 15,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            243,
+            229,
+            247,
+            231
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 16,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            228,
+            248,
+            231
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 20,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            295,
+            266,
+            296,
+            268
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 24,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            249,
+            226,
+            253,
+            228
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 26,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            295,
+            266,
+            296,
+            268
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 27,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            295,
+            266,
+            296,
+            268
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 29,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            294,
+            267,
+            295,
+            269
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 30,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            294,
+            267,
+            295,
+            269
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "bolt",
+      "frame": 31,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            294,
+            267,
+            295,
+            269
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mirror",
+      "frame": 7,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            230,
+            248,
+            233
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "mirror",
+      "frame": 9,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            243,
+            231,
+            247,
+            234
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 2,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            229,
+            248,
+            232
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 13,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            229,
+            248,
+            232
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 5,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            245,
+            228,
+            249,
+            231
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 7,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            245,
+            227,
+            249,
+            230
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 8,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            245,
+            227,
+            249,
+            230
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 20,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            246,
+            226,
+            247,
+            228
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 21,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            246,
+            226,
+            247,
+            228
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 27,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            244,
+            227,
+            249,
+            228
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 29,
+      "pixel_counts": [
+        4,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            245,
+            228,
+            249,
+            229
+          ],
+          "pixel_count": 4,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            249,
+            229,
+            250,
+            231
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 30,
+      "pixel_counts": [
+        12
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            246,
+            228,
+            255,
+            232
+          ],
+          "pixel_count": 12,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 31,
+      "pixel_counts": [
+        4
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            250,
+            229,
+            252,
+            231
+          ],
+          "pixel_count": 4,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 33,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            251,
+            230,
+            252,
+            232
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 34,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            251,
+            230,
+            252,
+            232
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 35,
+      "pixel_counts": [
+        10
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            247,
+            230,
+            253,
+            233
+          ],
+          "pixel_count": 10,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 37,
+      "pixel_counts": [
+        7
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            248,
+            231,
+            253,
+            234
+          ],
+          "pixel_count": 7,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 38,
+      "pixel_counts": [
+        10
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            248,
+            231,
+            254,
+            234
+          ],
+          "pixel_count": 10,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 40,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            249,
+            232,
+            255,
+            235
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 41,
+      "pixel_counts": [
+        9
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            249,
+            232,
+            255,
+            235
+          ],
+          "pixel_count": 9,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 42,
+      "pixel_counts": [
+        3
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            253,
+            233,
+            255,
+            235
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 45,
+      "pixel_counts": [
+        4,
+        3
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            253,
+            234,
+            255,
+            236
+          ],
+          "pixel_count": 4,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            249,
+            233,
+            252,
+            234
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 46,
+      "pixel_counts": [
+        4,
+        3
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            253,
+            234,
+            255,
+            236
+          ],
+          "pixel_count": 4,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            249,
+            233,
+            252,
+            234
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 49,
+      "pixel_counts": [
+        2,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            250,
+            233,
+            252,
+            234
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            254,
+            234,
+            255,
+            236
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 50,
+      "pixel_counts": [
+        2,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            250,
+            233,
+            252,
+            234
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            254,
+            234,
+            255,
+            236
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 51,
+      "pixel_counts": [
+        4,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            254,
+            234,
+            256,
+            236
+          ],
+          "pixel_count": 4,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            250,
+            233,
+            252,
+            234
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 52,
+      "pixel_counts": [
+        4,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            254,
+            234,
+            256,
+            236
+          ],
+          "pixel_count": 4,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            250,
+            233,
+            252,
+            234
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 53,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            254,
+            234,
+            257,
+            236
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 54,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            255,
+            234,
+            258,
+            236
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 56,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            256,
+            235,
+            258,
+            236
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 57,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            256,
+            235,
+            258,
+            236
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 60,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            258,
+            235,
+            261,
+            237
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 61,
+      "pixel_counts": [
+        5
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            258,
+            235,
+            261,
+            237
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 62,
+      "pixel_counts": [
+        5,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            259,
+            235,
+            262,
+            237
+          ],
+          "pixel_count": 5,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            257,
+            234,
+            259,
+            235
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 63,
+      "pixel_counts": [
+        10
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            256,
+            233,
+            261,
+            237
+          ],
+          "pixel_count": 10,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 64,
+      "pixel_counts": [
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            260,
+            235,
+            261,
+            237
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 65,
+      "pixel_counts": [
+        3,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            260,
+            235,
+            262,
+            237
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            257,
+            234,
+            259,
+            235
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 66,
+      "pixel_counts": [
+        3,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            261,
+            235,
+            263,
+            237
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            258,
+            234,
+            260,
+            235
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 67,
+      "pixel_counts": [
+        3,
+        2
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            261,
+            235,
+            263,
+            237
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        },
+        {
+          "bbox": [
+            258,
+            234,
+            260,
+            235
+          ],
+          "pixel_count": 2,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 70,
+      "pixel_counts": [
+        3
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            264,
+            238
+          ],
+          "pixel_count": 3,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 71,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 72,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 73,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 74,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 75,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 76,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 77,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 78,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 79,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 80,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 81,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 82,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 83,
+      "pixel_counts": [
+        6
+      ],
+      "pockets": [
+        {
+          "bbox": [
+            262,
+            236,
+            265,
+            239
+          ],
+          "pixel_count": 6,
+          "painted_or_tuck_pixels": 0,
+          "joint_tear": true
+        }
+      ]
+    }
+  ],
+  "scope": "Director native captures before rr-28; canonical native_errors re-derived without exemptions",
+  "capture_directory": "/private/tmp/labyrinth_codex/rr28_evidence/mimic_native",
+  "manifest_sha256": "46c2686a00ef8ebde9a5402535f785a3ac4e92a85a1617ba93d7bf7f87743b7c",
+  "gate_sha256": "7ccd59042d3298e597be8061275768b18cd6f20ab659aa2288a92e09ef00745f"
+}

@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "native_pixels": false,
+  "full_report": {
+    "file": "proof/logs/rr28/census.full.json",
+    "sha256": "9ccc251cc7c4d2372ee14345345f6aac7911ffd770e98668038201db3819b08f"
+  },
+  "views": {
+    "front": {
+      "ok": true,
+      "frames": 362,
+      "unique_poses": 267,
+      "pocket_failures": 0,
+      "unmatched_detached_components": 0,
+      "failures": []
+    },
+    "rear": {
+      "ok": true,
+      "frames": 362,
+      "unique_poses": 267,
+      "pocket_failures": 0,
+      "unmatched_detached_components": 0,
+      "failures": []
+    }
+  }
+}

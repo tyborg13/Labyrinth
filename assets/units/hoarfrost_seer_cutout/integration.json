@@ -17,7 +17,7 @@
   },
   "files": {
     "actions.gd": "5fb5be41dade5aed30c593f6ae8fda84d8cc74f9b8099af802da9eb6f1499267",
-    "front.json": "7616887d13630807aa8632120eed00fc19621f8778a359ba1355fbf64726224f",
+    "front.json": "f5fa38ad3b9389b51c9a0c625b0716fab1841cf8f5f49de74e3ec38b653d32ce",
     "humanoid_v2/compiled_motion.json": "1d1b8579fe6189732b404ee0e266b9f006661997cafad140139ffa05d19a8736",
     "humanoid_v2/director_motion.json": "3936cc0fb6028fe2eb858e7f753efe7aab712d92b8158ea9f74ea4dd91e25f42",
     "humanoid_v2/front/foot_far.png": "11d546cb71560b4279216802f4de6390a5705e0edbe98a0427206362d5045216",
@@ -60,7 +60,7 @@
     "humanoid_v2/front/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/torso.png": "bee46d6907f16ec9111e638b5bb596d9af287dd0ca94d825a30aa0fd3232ed61",
     "humanoid_v2/front/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/front.json": "2e0155744eae46af120b8ca7b15bca7efc8170743a8d150184105da2607b9e93",
+    "humanoid_v2/front.json": "2ff7ede08f5c490c74a4db3a226d7e2159fe1e65c97a00ff81a5f2dae875099b",
     "humanoid_v2/rear/foot_far.png": "eb1e33a60bdfb2cd99589824e8b9a10d203d9d7ef55fd1f615d5a983f23841f7",
     "humanoid_v2/rear/foot_far.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/foot_near.png": "83be1d9ce3aae2e2889920f2d516a01357f6a35efd4275791165dfdc0772b4e5",
@@ -98,8 +98,8 @@
     "humanoid_v2/rear/staff.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/rear/torso.png": "eb2912b4ecf4aaff5b38c30d7f773ae15717cbc97558eea8a5ca94c365ac3380",
     "humanoid_v2/rear/torso.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
-    "humanoid_v2/rear.json": "54825cde26729a63a7f41db030a9bea07705f920beb8da82c2e96fa06d276006",
-    "rear.json": "d9f03580474bc4d2c292c7b2bd01848fac91eb14ae6604b452863ca605656280",
+    "humanoid_v2/rear.json": "58e9fdb203ed0ad76efa3ef42adfd1c20805bb725df8283a042dba5724c8ce97",
+    "rear.json": "4bc5899a9796d11240835a312f77ef956cf64ebd7c09fab6f43429dfcfce6b5f",
     "renderer.gd": "0f607acd367d0acb5af8102c0f0cb9acbe57dad147f2300b74974dbd8fcf5e5a",
     "rig.gd": "e44395d3bf6080fa72d4de05a183f65ab8d1ccf2b6f643fa198dfba7be04e421"
   }
