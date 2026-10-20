@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://cbulfjldqprrs"
+
+[deps]
+
+files=["res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.view.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.kind.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.clip.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.frame.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.phase.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.part.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.tip.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.maximum.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.exceeds.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.robe.translation"]
+
+source_file="res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.csv"
+dest_files=["res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.view.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.kind.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.clip.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.frame.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.phase.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.part.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.tip.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.maximum.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.exceeds.translation", "res://experiments/cutouts/hoarfrost_seer/rr26_feedback2_pose_changes.robe.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

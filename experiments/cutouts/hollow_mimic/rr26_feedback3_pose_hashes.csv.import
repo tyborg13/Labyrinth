@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bo2ipjpg7onq5"
+
+[deps]
+
+files=["res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.view.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.clip.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.kind.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.inventory.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.rows.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.before.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.after.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.raw.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.raw.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.identical.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.before.translation"]
+
+source_file="res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.csv"
+dest_files=["res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.view.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.clip.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.kind.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.inventory.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.rows.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.before.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.after.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.raw.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.raw.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.identical.translation", "res://experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.before.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
