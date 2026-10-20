@@ -43,6 +43,20 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
+- **PAUSED 2026-10-20 10:24 (owner: quiet machine for a video meeting). Nothing running, nothing queued.**
+  Resume checklist, in order:
+  1. Launch int-05 (scope test_rr14_seer_identity to rr-14's range + re-pinned-guard sweep; the only red test on
+     integration), sfx-05 (Empower charge/un-charge cues: A at -24 LUFS, un-charge -30), and mq-11 (Mimic hero-style
+     hair; Mortar loincloth on the hip line). mq-11 needs the Blender bridge for its worktree. Briefs committed 7ad4fd7e4.
+     Steps per unit: CU new, reset to integration HEAD, copy brief to .codex/tasks/briefs, contract + preflight, launch,
+     re-arm spec/peer_benchmark/director_tools/watch_loop2.sh (scratchpad copy) as a tracked background job.
+  2. Windowed Capacitor re-run on integration (rr17_proof.sh; checks cap-02's crop + rr-28's scoped preservation
+     together) in a throwaway worktree.
+  3. After mq-11: director paint-overs (Mimic head only; Mortar loincloth only) through the identity gate, then rig
+     units: Mimic (re-cut head, arm swing from the shoulder opposite the legs with forearm lag, front-view hands crossing
+     the chest draw in front) and Mortar (re-cut loincloth, rigid head and bracers, covered elbow/shoulder joints, a
+     stretch limit added to the gates).
+  Integration HEAD after the pause notes: e03e2ab90+ (rr-28 + cap-02 merged; post-merge repairs 84406a34a).
 - Next (in order), 2026-10-19 night:
   1. **Integration green at e151882cd** (Godot PASS, Python OK): rr-23, rr-25, rr-24, rr-21, ui-03, rr-26 and int-03
      (integration repair: ui-03 targeting regressions fixed in product code, fixtures derived from canonical
