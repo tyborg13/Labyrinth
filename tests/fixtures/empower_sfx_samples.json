@@ -1,0 +1,30 @@
+{
+  "res://assets/audio/sfx/cues/empower.charge/empower.charge_01.ogg": {
+    "duration_seconds": 0.47,
+    "envelope_peak_dbfs": -15.119817934366202,
+    "leading_ms": 1.5208333333333333,
+    "peak_dbfs": -8.821079157862254,
+    "peak_ms": 24.916666666666668,
+    "perceived_onset_ms": 20.104166666666668,
+    "sample_rate": 48000,
+    "sha256": "e81cb8675c878296371b284f0f53e27b057b0d9d902ccf60a49186fb204d814b",
+    "short_loudness_lufs": -20.31018627918119,
+    "strongest_envelope_dbfs": -13.785251608567284,
+    "strongest_peak_ms": 147.25,
+    "true_peak_dbtp": -8.815551782831184
+  },
+  "res://assets/audio/sfx/cues/empower.uncharge/empower.uncharge_01.ogg": {
+    "duration_seconds": 0.36,
+    "envelope_peak_dbfs": -16.309443741737446,
+    "leading_ms": 1.8125,
+    "peak_dbfs": -10.00964917999559,
+    "peak_ms": 17.479166666666668,
+    "perceived_onset_ms": 12.229166666666666,
+    "sample_rate": 48000,
+    "sha256": "28ff9de66deb5def912e2c44004940c02a8ff294b51ba92b79a92fd4f4a38176",
+    "short_loudness_lufs": -22.099436869667723,
+    "strongest_envelope_dbfs": -14.719434550871245,
+    "strongest_peak_ms": 162.29166666666666,
+    "true_peak_dbtp": -10.004121804964521
+  }
+}

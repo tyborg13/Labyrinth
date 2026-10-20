@@ -2292,7 +2292,7 @@ func _input(event: InputEvent) -> void:
 			board_view.call("_clear_hover_for_navigation")
 			_on_board_tile_hovered(INVALID_TARGET_TILE)
 		_sync_click_targeting_arrow(pointer_position)
-	if _is_empower_shortcut_event(event) and not _controller_modal_visible() and EmpowerUi.available(self, EmpowerUi.index_for_input(self)):
+	if _is_empower_shortcut_event(event) and not _controller_modal_visible() and EmpowerUi.can_attempt(self, EmpowerUi.index_for_input(self)):
 		get_viewport().set_input_as_handled()
 		await _toggle_pending_empower()
 		return
@@ -2436,7 +2436,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 	if controller_activity and router != null and router.has_method("mark_controller_device"):
 		router.call("mark_controller_device", event.device, event)
 	if _drag_card_index >= 0 and event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
-		if _empower_toggle_available():
+		if EmpowerUi.can_attempt(self, EmpowerUi.index_for_input(self, true)):
 			await _toggle_pending_empower("controller")
 		_refresh_controller_prompts()
 		return true
@@ -2522,7 +2522,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			return true
 		return false
 	if event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
-		if _empower_toggle_available():
+		if EmpowerUi.can_attempt(self, EmpowerUi.index_for_input(self, true)):
 			await _toggle_pending_empower("controller")
 		_refresh_controller_interface()
 		return true

@@ -13,7 +13,7 @@ const Sources = preload("res://tests/sfx_sync_sources.gd")
 const Coverage = preload("res://tests/sfx_sync_coverage.gd")
 const Visuals = preload("res://tests/sfx_sync_visuals.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
-const INPUT_ANCHORS: Array = ["_on_card_pressed", "_on_card_drag_started", "_begin_card_preview", "_on_card_hover_started", "_on_board_tile_clicked", "_on_map_view_room_selected", "_on_section_map_event", "_on_merchant_buy_pressed", "_on_merchant_sell_pressed", "_confirm_magic_purge", "_refresh_relic_bar", "_update_ambient_sfx_for_context"]
+const INPUT_ANCHORS: Array = ["_toggle_pending_empower", "_on_hand_empower_toggled", "_on_card_pressed", "_on_card_drag_started", "_begin_card_preview", "_on_card_hover_started", "_on_board_tile_clicked", "_on_map_view_room_selected", "_on_section_map_event", "_on_merchant_buy_pressed", "_on_merchant_sell_pressed", "_confirm_magic_purge", "_refresh_relic_bar", "_update_ambient_sfx_for_context"]
 const FIXTURE_SEED: int = 410
 const MAX_ACTION_FRAMES: int = 600
 const SETTLE_FRAMES: int = 12
@@ -377,6 +377,7 @@ func _present_hit(label: String, action: Dictionary, weapon: String, count: int 
 func _drive_support() -> void:
 	SupportCases.run(self)
 	preload("res://tests/suites/magic_deck_sfx_sync.gd").run(self)
+	preload("res://tests/suites/empower_sfx_sync_cases.gd").run(self)
 
 func _finish(before: Dictionary) -> void:
 	var occurrences: Dictionary = {}
@@ -451,7 +452,7 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 		var shown: Dictionary = frame["shown"]
 		var state: Dictionary = frame["state"]
 		if frame.has("mark"):
-			if cue.begins_with("card.") or cue.begins_with("map.") or cue.begins_with("event.") or cue.begins_with("shop.") or cue.begins_with("ambience.") or cue in ["defiance", "omen.bane", "omen.blessing"]: return frame
+			if cue.begins_with("empower.") or cue.begins_with("card.") or cue.begins_with("map.") or cue.begins_with("event.") or cue.begins_with("shop.") or cue.begins_with("ambience.") or cue in ["defiance", "omen.bane", "omen.blessing"]: return frame
 			continue
 		if cue == "move.blink" and scenario == "player/swap" and state.get("player", {}).get("pos") != before["player"]["pos"]: return frame
 		if cue == "move.blink" and str(shown.get("effect", {}).get("kind", "")) == "blink": return frame

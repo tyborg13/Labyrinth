@@ -1,0 +1,22 @@
+{
+  "empower.charge": {
+    "category": "card",
+    "variants": [
+      {
+        "take": "807989c208ac#1",
+        "source_path": "designed/empower.charge/A.wav"
+      }
+    ],
+    "loop": false
+  },
+  "empower.uncharge": {
+    "category": "card",
+    "variants": [
+      {
+        "take": "dd180dd9a2bf#1",
+        "source_path": "designed/empower.uncharge/A.wav"
+      }
+    ],
+    "loop": false
+  }
+}
