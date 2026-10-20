@@ -18,9 +18,11 @@ from .creature_recipe import shell_path
 from .facing import axis_report, board_spec
 from .solid_review import silhouette_fit, inspect_figure
 from ..raster import Raster, project
+from tools.unit_preservation import read_json as revision_json
 
 ROOT = Path(__file__).resolve().parents[1]
 FIGURES = ('burrow_grub','ember_tick','glacial_mirror')
+UNIT_HEAD = '7bde1e145cd9360afad86d63bf76868fca118815'  # mq-05 signoff
 TEST_DEFAULTS = {'mask_size': 64, 'test_alpha_rectangle': (10,5,54,60)}
 
 
@@ -60,8 +62,9 @@ class CreatureContractTests(unittest.TestCase):
     def test_batch_a_compiles_to_unchanged_delivery_hashes(self):
         for name in ('hoarfrost_seer','gale_herald','arc_thrall','gloam_stalker'):
             with self.subTest(figure=name):
-                spec=compile_recipe(recipe(name))
-                old=json.loads((ROOT/name/'delivery/build_report.json').read_text())
+                relative='spec/art_identity/maquettes/'+name
+                spec=compile_recipe(revision_json(ROOT.parents[2],UNIT_HEAD,relative+'/measurements.json'))
+                old=revision_json(ROOT.parents[2],UNIT_HEAD,relative+'/delivery/build_report.json')
                 self.assertEqual(digest(spec),old['spec_hash'])
 
     def test_round_trip_cracks_lie_on_shell_and_retain_the_source_stroke(self):

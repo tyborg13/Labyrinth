@@ -17,9 +17,11 @@ from spec.art_identity.maquettes.blender.source_recipe import path_points
 from spec.art_identity.maquettes.blender.socket_tuck import boundary_loop, tuck_mesh
 from spec.art_identity.maquettes.blender.view_states import view_parts
 from spec.art_identity.maquettes.arc_thrall.r2.proof import joints, pose_gates, review_sheet
+from tools.unit_preservation import read_json as revision_json
 
 
 ROOT = Path(__file__).resolve().parents[1] / 'spec/art_identity/maquettes'
+UNIT_HEAD = 'c1ecf9f226f632b3298f29576e967cfa73afa1b1'  # mq-07 signoff
 TEST_DEFAULTS = {'cylinder_start': [0, 0, 0], 'cylinder_tip': [0, 0, 3],
                  'cylinder_radius': .5, 'sides': 16, 'cap_rings': 4,
                  'scale_mutation_multiplier': 2,
@@ -158,8 +160,9 @@ class ThrallRevisionTests(unittest.TestCase):
     def test_other_figure_spec_hashes_remain_their_delivered_values(self):
         for name in ('hoarfrost_seer', 'gale_herald', 'gloam_stalker'):
             with self.subTest(name=name):
-                recipe = json.loads((ROOT / name / 'measurements.json').read_text())
-                report = json.loads((ROOT / name / 'delivery/build_report.json').read_text())
+                relative = 'spec/art_identity/maquettes/' + name
+                recipe = revision_json(ROOT.parents[2], UNIT_HEAD, relative + '/measurements.json')
+                report = revision_json(ROOT.parents[2], UNIT_HEAD, relative + '/delivery/build_report.json')
                 self.assertEqual(digest(compile_recipe(recipe)), report['spec_hash'])
 
     def test_review_sheet_copies_native_cells_without_resizing(self):

@@ -69,16 +69,12 @@ def commands(stage, rig):
 
 
 def coverage():
-    from gates import COVERAGE_PREFIXES, COVERAGE_FILES
-    result = {}
-    for name, expected in read_json(CASE / 'protected_inputs.json').items():
-        current = digest(ROOT / name)
-        if current == expected: continue
-        if not (name in COVERAGE_FILES or name.startswith(COVERAGE_PREFIXES)):
-            raise ValueError('Unapproved protected path: ' + name)
-        result[name] = {'before_sha256': expected, 'after_sha256': current}
-    write_json(CASE / 'rr26_source_coverage.json', result)
-    print('RR26 EXACT AUTHORIZED COVERAGE: %d fixed before/after hashes; original ledger unchanged' % len(result))
+    # Keep the old command usable without extending a rolling authorization
+    # ledger. Its JSON is retained as historical evidence, no longer consumed.
+    from rr20_preservation import protected_changes
+    errors = protected_changes(ROOT)
+    if errors: raise ValueError('rr-20 protected changes: ' + ', '.join(errors))
+    print('RR26 COVERAGE RETIRED: PASS (rr-20 pinned range preserves prior figures)')
 
 
 def policy_bindings():

@@ -11,6 +11,7 @@ from spec.art_identity.maquettes.blender.curate_delivery import sha
 from spec.art_identity.maquettes.blender.delivery_validation import validate_delivery
 from spec.art_identity.maquettes.blender.floor_contact import spec_contacts
 from tests.test_maquette_rear_turn import deliveries, observations
+from spec.art_identity.maquettes.hoarfrost_seer.rear_turn.preservation import protected_hash_changes
 
 
 def load(path):
@@ -68,7 +69,7 @@ def main():
         'joints_px.json', 'native_capture_manifest.json', 'provenance.json', 'recipe_proof.json',
         'solo_coverage.json', 'fit_overlay.png', 'regeneration.json', 'frozen_geometry.json'}
     protected = load(folder.parent / 'protected_sha256.json')
-    changed = [name for name, expected in protected.items() if not (PROJECT / name).is_file() or sha(PROJECT / name) != expected]
+    changed = protected_hash_changes(PROJECT, protected)
     unexpected = []
     for name in changed:
         path = Path(name)

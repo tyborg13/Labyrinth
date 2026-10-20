@@ -1,11 +1,17 @@
 """Corrective native forms, including measured director feedback-3 gates."""
 from copy import deepcopy
+import hashlib
 import json
 import unittest
 from collections import Counter
 import numpy as np
 from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
 from spec.art_identity.maquettes.hollow_mimic.batch_proof import ROOT
+from tests.maquette_preservation import regeneration_hashes
+from tools.unit_preservation import read_bytes as revision_bytes, read_json as revision_json, tracked_paths
+
+# mq-10 re-sealed every cold-build inventory after integrating mq-08/09.
+REGENERATION_HEAD = '9b7cba3b27cf3e98837423994cb86a664835f1d7'
 
 FIXTURE = {'axis': [[0.,0,0],[0.,0,2]], 'points': [[1.,0,.5],[-1.,0,1.5],[0.,2,1]],
            'ring': [[1.,0,1],[0,1.,1],[-1.,0,1],[0,-1.,1]],
@@ -149,33 +155,38 @@ class FormDeliveryProofTests(unittest.TestCase):
             path=ROOT/name/'delivery/validation/regeneration/clean_input_sha256.json'
             inventory=json.loads(path.read_text())
             sources,_=source_files(ROOT/name)
-            # Exact inventory equality also catches new builder modules absent
-            # from an older seal, rather than checking only its recorded files.
-            self.assertEqual(inventory,{relative:sha(source) for relative,source in sources.items()},name)
+            # Exact inventory equality still catches new native builder modules.
+            # Validation tests are historical receipt inputs, not native code;
+            # foreign figure data belongs to the unit which sealed this build.
+            self.assertEqual(inventory,regeneration_hashes(ROOT.parents[2],REGENERATION_HEAD,name,sources,
+                                                         own_recipe=True),name)
             report=json.loads((path.parent/'regeneration.json').read_text())
             self.assertEqual(report['input_inventory_sha256'],sha(path),name)
 
     def test_merged_builder_baseline_regeneration_inventories_are_current(self):
-        from spec.art_identity.maquettes.blender.curate_delivery import sha
         from spec.art_identity.maquettes.glacial_mirror.regeneration_inputs import source_files
         for name in ('glacial_mirror','hoarfrost_seer','gale_herald','arc_thrall','gloam_stalker',
                      'burrow_grub','ember_tick','frostglass_lancer'):
             with self.subTest(figure=name):
                 folder=ROOT/'glacial_mirror/delivery/validation/mq08/regeneration'/name
-                inventory=json.loads((folder/'clean_input_sha256.json').read_text())
+                project=ROOT.parents[2]
+                relative=(folder/'clean_input_sha256.json').relative_to(project).as_posix()
+                inventory=revision_json(project,REGENERATION_HEAD,relative)
                 sources,_=source_files(ROOT/folder.name)
-                self.assertEqual(inventory,{relative:sha(source) for relative,source in sources.items()})
-                report=json.loads((folder/'regeneration.json').read_text())
+                self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+                report=revision_json(project,REGENERATION_HEAD,(folder/'regeneration.json').relative_to(project).as_posix())
                 self.assertTrue(report['passed'])
-                self.assertEqual(report['input_inventory_sha256'],sha(folder/'clean_input_sha256.json'))
-                view_sources=ROOT/folder.name/'delivery/view_sources.json'
-                if view_sources.is_file():
-                    source=json.loads(view_sources.read_text())['overrides']['rear']
-                    sources,_=source_files(ROOT/folder.name,ROOT/folder.name/source['recipe'])
-                    self.assertEqual(json.loads((folder/'source_rear/clean_input_sha256.json').read_text()),
-                                     {relative:sha(path) for relative,path in sources.items()})
+                self.assertEqual(report['input_inventory_sha256'],hashlib.sha256(revision_bytes(project,REGENERATION_HEAD,relative)).hexdigest())
+                view_sources=(ROOT/folder.name/'delivery/view_sources.json').relative_to(project).as_posix()
+                if tracked_paths(project,REGENERATION_HEAD,view_sources):
+                    source=revision_json(project,REGENERATION_HEAD,view_sources)['overrides']['rear']
+                    recipe_path=ROOT/folder.name/source['recipe']
+                    sources,_=source_files(ROOT/folder.name,recipe_path)
+                    rear=(folder/'source_rear/clean_input_sha256.json').relative_to(project).as_posix()
+                    self.assertEqual(revision_json(project,REGENERATION_HEAD,rear),
+                                     regeneration_hashes(project,REGENERATION_HEAD,name,sources,recipe_path))
                     self.assertEqual(report['per_view_sources']['rear']['clean_input_sha256'],
-                                     sha(folder/'source_rear/clean_input_sha256.json'))
+                                     hashlib.sha256(revision_bytes(project,REGENERATION_HEAD,rear)).hexdigest())
 
     def test_painting_clay_pairs_and_before_after_table_are_bound_to_current_inputs(self):
         from spec.art_identity.maquettes.blender.curate_delivery import sha

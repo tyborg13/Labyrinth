@@ -1,6 +1,7 @@
 """Compare protected inputs with a pinned integration commit, including commits."""
 import hashlib
 import subprocess
+from tools.unit_preservation import read_bytes
 
 BASELINE_COMMIT = '521fa8f204f6f3b5d0aca1d09ec2494107c155d9'
 # rr-23's last commit: on integration the unit's range is pinned at both ends, so later units' director data never counts.
@@ -32,8 +33,12 @@ def protected_changes(project, baseline=BASELINE_COMMIT, approved_motion=None, e
     for name in sorted(set(changed)):
         if not name or not name.startswith(PROTECTED_PREFIXES) or name.startswith(OWNED_PREFIXES):
             continue
-        path = project/name
-        if name in approved and path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == approved[name]:
-            continue
+        if name in approved:
+            try:
+                actual = read_bytes(project, end, name)
+            except (FileNotFoundError, subprocess.CalledProcessError):
+                actual = None
+            if actual is not None and hashlib.sha256(actual).hexdigest() == approved[name]:
+                continue
         errors.append(name)
     return errors

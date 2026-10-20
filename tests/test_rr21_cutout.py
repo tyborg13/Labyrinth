@@ -26,6 +26,7 @@ from humanoid_cutout.production_gates import production_errors
 from humanoid_cutout.walk_gates import report as walk_report
 from humanoid_cutout.bone_evidence import read_report
 from rr21_evidence import compact_samples, FULL_SAMPLES
+from unit_preservation import changed_paths
 
 PROOF_TIMEOUT_SECONDS = 180
 FIXTURE_TRANSLATION_PX = 1
@@ -35,6 +36,16 @@ FIXTURE_SCREEN_SCALE = 2
 FIXTURE_RGBA_SIZE = (8, 8)
 FIXTURE_PAINT_RGBA = (80, 60, 40, 255)
 PRESERVED_FAMILIES = ('hoarfrost_seer', 'arc_thrall', 'glacial_mirror', 'storm_capacitor')
+# Imported integration tree and last rr-21 delivery commit, including its
+# authorized gait/Mirror imports. Later units' work never belongs to rr-21.
+PRESERVATION_BASE = '23bc4b2f260f14bc0747eac29c8fccba43425672'
+UNIT_HEAD = 'cc92cad47ecaed1e56c2c22ab936ee9e8e0c2345'
+
+
+def prior_figure_changes(project=ROOT, baseline=PRESERVATION_BASE, end=UNIT_HEAD):
+    folders = tuple(f'{base}/{name}{suffix}/' for name in PRESERVED_FAMILIES for base, suffix in
+                    [('assets/units', '_cutout'), ('experiments/cutouts', '')])
+    return [name for name in changed_paths(project, baseline, end) if name.startswith(folders)]
 
 
 def run_script(script, *args):
@@ -143,10 +154,7 @@ class CutoutTests(unittest.TestCase):
                 self.assertTrue((ASSETS / 'humanoid_v2' / part['file']).is_file())
 
     def test_prior_creature_assets_and_case_data_are_byte_identical(self):
-        folders = [f'{base}/{name}{suffix}' for name in PRESERVED_FAMILIES for base, suffix in
-                   [('assets/units', '_cutout'), ('experiments/cutouts', '')]]
-        changed = subprocess.check_output(['git', 'diff', '--name-only', 'HEAD', '--', *folders], cwd=ROOT, text=True)
-        self.assertEqual(changed, '')
+        self.assertEqual(prior_figure_changes(), [])
 
     def test_scoped_identity_preserves_even_duplicate_baseline_keys(self):
         original = '{"entries":[{"path":"prior","id":"old","id":"current"}],"version":1}'

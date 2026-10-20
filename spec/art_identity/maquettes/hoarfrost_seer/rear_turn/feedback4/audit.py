@@ -9,6 +9,7 @@ from spec.art_identity.maquettes.blender.compile_recipe import compile_recipe
 from spec.art_identity.maquettes.blender.floor_contact import spec_contacts
 from spec.art_identity.maquettes.blender.curate_delivery import sha
 from tests.test_maquette_rear_turn import deliveries, observations
+from spec.art_identity.maquettes.hoarfrost_seer.rear_turn.preservation import protected_hash_changes
 
 
 def write(path, value):
@@ -49,7 +50,7 @@ def main():
         'candidate_build_facing': native['geometry_details']['facing'],
         'production_staged': False})
     protected = json.loads((folder.parent / 'protected_sha256.json').read_text())
-    changed = [name for name, expected in protected.items() if sha(PROJECT / name) != expected]
+    changed = protected_hash_changes(PROJECT, protected)
     allowed = {'spec/art_identity/maquettes/blender/' + name for name in
         ('build.py', 'compile_recipe.py', 'curate_delivery.py', 'render.py', 'cloth.py', 'drape_collision.py')}
     baseline = json.loads((folder.parent / 'feedback3/baseline_recipe.json').read_text())
