@@ -222,6 +222,10 @@ func _assert(condition: bool, message: String) -> void:
 # MovieWriter records the root viewport at fixed 60 fps via ui03_movie_godot.sh.
 func _capture_movie(packed: PackedScene) -> void:
 	Engine.max_fps = CLIP_FPS
+	# Viewport stretch renders the root at exactly 1920x1080 whatever size a
+	# HiDPI desktop gives the window; MovieWriter records that root texture.
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.size = VIEWPORT_SIZE
 	root.content_scale_size = VIEWPORT_SIZE
 	root.content_scale_factor = 1.0
