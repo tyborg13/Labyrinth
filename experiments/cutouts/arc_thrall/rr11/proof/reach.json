@@ -240,10 +240,8 @@
     "screen_pixel_scale": 0.603514787262561
   },
   "rear": {
-    "ok": false,
-    "errors": [
-      "rear/tether/tube_tip: minimum reach 25.770794 px < 60.466233 px at 0.842910645"
-    ],
+    "ok": true,
+    "errors": [],
     "overreach": [
       "rear/death/hand_far: maximum reach 75.709362 px > 69.828303 px at 1.000000",
       "rear/move/foot_far: maximum reach 90.251330 px > 85.667876 px at 0.921000",
@@ -342,12 +340,12 @@
           44.10215414239989,
           100.56838751457045
         ],
-        "samples": 2967,
+        "samples": 1003,
         "allowed_minimum_px": 60.46623337217056,
         "allowed_maximum_px": 147.56395249010973,
-        "minimum_px": 25.770793547018958,
+        "minimum_px": 64.26628972821563,
         "maximum_px": 143.78108633690925,
-        "minimum_phase": 0.84291064453125,
+        "minimum_phase": 0.183,
         "maximum_phase": 0.0
       },
       {
@@ -362,7 +360,7 @@
           34.35147231196941,
           34.107648702307216
         ],
-        "samples": 2967,
+        "samples": 1003,
         "allowed_minimum_px": 4.2438236096621935,
         "allowed_maximum_px": 69.82830343456217,
         "minimum_px": 64.41173223877773,

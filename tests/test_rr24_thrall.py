@@ -70,10 +70,7 @@ class ThrallOwnerFixTests(unittest.TestCase):
             mesh['weights']={'head':mesh['weights']['pelvis']}
             self.assertIn('skirt chain differs',source_errors(view,mutant))
             self.assertEqual(original['joints'],read_json(BASELINE/f'layouts/{view}.json')['joints'])
-        # Director rr-27 feedback 2 authorizes only rear Tether's two channels.
-        from rr27_tether_identity import motion_is_exact
-        self.assertTrue(motion_is_exact(str((CASE/'compiled_motion.json').relative_to(PROJECT)),
-                                       (BASELINE/'compiled_motion.json').read_bytes()))
+        self.assertEqual((CASE/'compiled_motion.json').read_bytes(),(BASELINE/'compiled_motion.json').read_bytes())
 
     def test_green_rule_preserves_olive_and_uses_same_piece_donors(self):
         fixture=np.array([[FIXTURE_GREEN,FIXTURE_OLIVE,FIXTURE_SKIN]],dtype=np.uint8)

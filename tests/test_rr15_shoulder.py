@@ -1,5 +1,4 @@
 """Reopen the director's three native shoulder holes with the retained texture."""
-import json
 from pathlib import Path
 import sys
 import unittest
@@ -52,16 +51,9 @@ class ShoulderContinuationTests(unittest.TestCase):
         overrides = {p['name']: model.image(p['file']).copy() for p in model.layout['parts']}
         overrides['hidden_upper_near'] = np.asarray(Image.open(BEFORE).convert('RGBA'))
         samples = read_json(CASE / 'proof/samples.json')['samples']
-        # Director rr-27 feedback 2 changes rear Tether, so its old native
-        # holes sheet must retain the exact historical pose it captured.
-        # Current rear Tether is separately checked by the all-frame census.
-        from rr27_tether_identity import before_bytes
-        retained_tether = json.loads(before_bytes(
-            'experiments/cutouts/arc_thrall/rr11/proof/samples.json'))['samples']
         for (clip, frame), pixels in NATIVE_HOLES.items():
             with self.subTest(clip=clip, frame=frame):
-                selected = retained_tether if clip=='tether' else samples
-                pose = next(r for r in selected if r['view'] == 'rear' and r['kind'] == 'presented'
+                pose = next(r for r in samples if r['view'] == 'rear' and r['kind'] == 'presented'
                             and r['clip'] == clip and r['frame'] == frame)
                 after, before = frame_state(model, pose), frame_state(model, pose, overrides)
                 self.assertEqual(after[-1], [])

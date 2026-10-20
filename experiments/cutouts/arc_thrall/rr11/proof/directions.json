@@ -15,10 +15,10 @@
   "rear": {
     "ok": true,
     "errors": [],
-    "positive_checks": 480,
+    "positive_checks": 501,
     "clip_positive_checks": {
       "move": 119,
-      "tether": 66,
+      "tether": 87,
       "jab": 53,
       "hit": 30,
       "death": 212

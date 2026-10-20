@@ -47,15 +47,6 @@ def assert_preserved(test,relative):
     if relative in REMOVED_COPY_OUTPUTS or relative in REAR_LAYOUTS:
         assert_original_rear_delta(test,relative,baseline)
         return
-    from rr27_tether_identity import MOTION_PATHS, before_bytes, motion_is_exact
-    if relative in MOTION_PATHS:
-        # Director rr-27 feedback 2: preserve the original pin and authorize
-        # only its exact rear Tether channel replacement plus source digest.
-        original=before_bytes(relative)
-        import hashlib
-        test.assertEqual(hashlib.sha256(original).hexdigest(),baseline['files'][relative]['sha256'])
-        test.assertTrue(motion_is_exact(relative,original),relative)
-        return
     test.assertEqual(file_record(relative),baseline['files'][relative],relative)
 
 

@@ -378,13 +378,7 @@ class GaitTests(unittest.TestCase):
             for view in data['view_tracks']:
                 for clip in data['clips']:
                     if clip=='move':continue
-                    expected=old['view_tracks'][view][clip]
-                    if case.name=='rr11' and view=='rear' and clip=='tether':
-                        # Director rr-27 feedback 2: exact rear Tether repin;
-                        # front and every other rear clip retain their pins.
-                        from rr27_tether_identity import expected_tracks
-                        expected=expected_tracks(expected)
-                    self.assertEqual(data['view_tracks'][view][clip],expected)
+                    self.assertEqual(data['view_tracks'][view][clip],old['view_tracks'][view][clip])
                     self.assertEqual(data['clips'][clip],old['clips'][clip])
         changed=changed_paths()
         protected=('assets/units/protagonist_cutout/','scripts/protagonist_cutout/',

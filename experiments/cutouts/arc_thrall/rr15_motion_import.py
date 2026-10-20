@@ -13,7 +13,7 @@ DIRECTOR = PROJECT / 'spec/peer_benchmark/staged/rr-11/motion_tracks.json'
 ASSETS = PROJECT / 'assets/units/arc_thrall_cutout'
 
 
-def main(*, owned_only=False):
+def main():
     original = DIRECTOR.read_bytes()
     previous = read_json(CASE / 'compiled_motion.json')
     layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in previous['view_tracks']}
@@ -34,18 +34,7 @@ def main(*, owned_only=False):
     build = read_json(CASE / 'proof/build.json')
     build.update(director_sha256=digest(DIRECTOR), native_proof='pending director feedback-2 captures')
     write_json(CASE / 'proof/build.json', build)
-    if owned_only:
-        # rr-27 implementation ownership excludes the shared identity/density
-        # registries. Import the exact director data and refresh only our
-        # existing production closure; int-03/director owns shared records.
-        path = ASSETS / 'integration.json'
-        integration = read_json(path)
-        integration['director_sha256'] = digest(DIRECTOR)
-        integration['native_proof'] = 'pending director feedback-2 captures'
-        integration['files'] = {name:digest(ASSETS / name) for name in integration['files']}
-        write_json(path,integration)
-    else:
-        record(PROJECT, CASE, ASSETS)
+    record(PROJECT, CASE, ASSETS)
     if any(digest(p) != expected for p, expected in before.items()):
         raise ValueError('Motion import changed accepted paint/layouts')
     assert (CASE / 'director_motion.json').read_bytes() == original
@@ -54,8 +43,4 @@ def main(*, owned_only=False):
 
 
 if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--owned-only', action='store_true',
-        help='Import motion and owned closure hashes without shared registry writes')
-    main(owned_only=parser.parse_args().owned_only)
+    main()

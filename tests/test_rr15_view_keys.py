@@ -92,11 +92,10 @@ class ViewKeyTests(unittest.TestCase):
                  'lift_px': 59 if view == 'front' else 50},
                 {'clip': 'jab', 'phase': .65, 'forward_px': 85 if view == 'front' else 178,
                  'lift_px': 50 if view == 'front' else 43},
-                # Director rr-27 feedback 2: A rear hold, front unchanged.
-                {'clip': 'tether', 'phase': .35, 'forward_px': 125 if view == 'front' else 65,
-                 'lift_px': 92 if view == 'front' else 153},
-                {'clip': 'tether', 'phase': .8, 'forward_px': 125 if view == 'front' else 65,
-                 'lift_px': 92 if view == 'front' else 153}]
+                {'clip': 'tether', 'phase': .35, 'forward_px': 125 if view == 'front' else 206,
+                 'lift_px': 92 if view == 'front' else 63},
+                {'clip': 'tether', 'phase': .8, 'forward_px': 125 if view == 'front' else 206,
+                 'lift_px': 92 if view == 'front' else 63}]
         fixture = self.path / 'runtime.json'
         fixture.write_text(json.dumps({'thrall': read_json(THRALL / 'compiled_motion.json'),
             'release': release, 'release_phase': (base_release + rear_release) / 2, 'channels': channels}))

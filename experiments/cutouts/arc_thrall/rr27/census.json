@@ -3,16 +3,16 @@
   "native_pixels": false,
   "scope": "Canonical source_space.py plus independent rr24 joint-tear detection; no exceptions",
   "inputs": {
-    "compiled_motion.json": "ad7c56c7366335589479096c56df947aae4c4c8f0b5dda9fc911a420fe94b00d",
+    "compiled_motion.json": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e",
     "gate_exceptions.json": "37192c8c8f0f191d20d4237db4c13a6ceeeb27dbf2a05c2bfd137c5666f67a20",
     "mesh_registration.json": "716c783abd62cd7b32b932b9b6b4d159b5e49915c08ae5dae5dc0ce7b832dfa4",
     "edge_transfers.json": "b9c7f1480fe5951315fc5d98a99854b2468887a4e1533776e4263d93b344bb62",
-    "rr24_policy.json": "e3251268ab81491a0793604d6b2a197576580d7ca67bd230010ffdcaab6d5222",
+    "rr24_policy.json": "9eb1d284d19afc9eb9ea7480afac2535a68f56e7383caa34652174201d888c33",
     "rr15_design_todos.json": "f7767a721e58297f1888639be0ac69d0cabc6681a8a18e599ca92e4c9d40aafe",
     "inputs.json": "4b9bde5f8d882db8d5d94efe2bd9fc508ca0644bcae9f00abbcdaa7ea2035f2e",
     "joint_continuations.json": "fad3a15882b2578f93fd7a4659454e24b2c5a96be875edaa9b4760044b38548a",
     "gait_continuations.json": "0ab22f13d02ad2713e629a0451878bfed8964edfd39e3ff09a71f5104aaabee4",
-    "director_motion.json": "d406a530196d0dd3cfe2918acb15a5e2ff2138b409320b627e62fed1cdb1edf5",
+    "director_motion.json": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
     "continuation_alpha_cleanup.json": "f54211bba777cd074a77a4adc7cf260ff78b926f6357cfd16373d8472b3eaae1",
     "cutout.json": "5865432d85a19402028d06d8537135b57b4dc4243e260c2243d285824026d882",
     "anatomy.json": "500b2164e24edce7cea96611a283ea08f72a023ec4c4a6d0369fa8bd11ed119b",
@@ -384,9 +384,9 @@
     "runtime:tests/gait01/presented_stance.gd": "c2c24bab344964ceaf7670b924ccd9a5099ca526e1155ae805bf96e748cd29be",
     "runtime:tests/gait01/continuation_checks.gd": "3132eb2d6f899a08c5c6304974393fcd6f4b9d4c32af6d68ba430056e5d38e92",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear.json": "78f981f956abd45d1835286aee3758096ba65b4dd4b7af8f3058e7bb4d4a5578",
-    "production:assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json": "ad7c56c7366335589479096c56df947aae4c4c8f0b5dda9fc911a420fe94b00d",
+    "production:assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/front.json": "b54849dda8f99784d72ae82987b18817e676282b5d2ad09950d357afd7be882e",
-    "production:assets/units/arc_thrall_cutout/humanoid_v2/director_motion.json": "d406a530196d0dd3cfe2918acb15a5e2ff2138b409320b627e62fed1cdb1edf5",
+    "production:assets/units/arc_thrall_cutout/humanoid_v2/director_motion.json": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_tuck_torso.png": "74d10a94e08d46922bb1755c6dc5871cff9ebd2813f1998da44fc3a8ee91b773",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png": "ba537ae2017201eec3868de20eebd6c85067ddd00c32a9cd49f0a7b50723ef8b",
@@ -17364,6 +17364,28 @@
           "air_pockets": [
             {
               "bbox": [
+                203,
+                223,
+                236,
+                309
+              ],
+              "pixel_count": 1349,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                207,
+                311,
+                208,
+                313
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
                 286,
                 194,
                 287,
@@ -17384,12 +17406,12 @@
           "air_pockets": [
             {
               "bbox": [
-                211,
-                212,
-                214,
-                215
+                204,
+                219,
+                236,
+                292
               ],
-              "pixel_count": 7,
+              "pixel_count": 987,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -17417,10 +17439,32 @@
             },
             {
               "bbox": [
+                208,
+                218,
+                209,
+                219
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
                 214,
-                211,
+                293,
                 215,
-                212
+                294
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                213,
+                294,
+                214,
+                295
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17437,12 +17481,12 @@
           "air_pockets": [
             {
               "bbox": [
-                217,
-                206,
-                221,
-                208
+                204,
+                215,
+                236,
+                276
               ],
-              "pixel_count": 5,
+              "pixel_count": 699,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -17468,12 +17512,45 @@
           "air_pockets": [
             {
               "bbox": [
-                201,
-                202,
-                206,
-                207
+                214,
+                224,
+                236,
+                264
               ],
-              "pixel_count": 16,
+              "pixel_count": 388,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                205,
+                213,
+                210,
+                216
+              ],
+              "pixel_count": 11,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                213,
+                213,
+                214,
+                215
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                213,
+                234,
+                214,
+                236
+              ],
+              "pixel_count": 2,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -17490,10 +17567,21 @@
             },
             {
               "bbox": [
+                208,
+                218,
                 209,
-                205,
-                210,
-                206
+                219
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                207,
+                219,
+                208,
+                220
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17510,12 +17598,34 @@
           "air_pockets": [
             {
               "bbox": [
-                205,
-                198,
-                206,
-                200
+                223,
+                225,
+                236,
+                252
               ],
-              "pixel_count": 2,
+              "pixel_count": 177,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                211,
+                212,
+                215,
+                216
+              ],
+              "pixel_count": 11,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                230,
+                253,
+                231,
+                254
+              ],
+              "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             }
@@ -17530,12 +17640,54 @@
           "air_pockets": [
             {
               "bbox": [
-                232,
-                194,
-                233,
-                195
+                226,
+                226,
+                231,
+                235
               ],
-              "pixel_count": 1,
+              "pixel_count": 22,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                215,
+                206,
+                222,
+                211
+              ],
+              "pixel_count": 19,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                231,
+                236,
+                234,
+                239
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 11,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                219,
+                206,
+                222,
+                208
+              ],
+              "pixel_count": 5,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             }
@@ -17550,10 +17702,10 @@
           "air_pockets": [
             {
               "bbox": [
-                232,
-                194,
-                233,
-                195
+                294,
+                206,
+                295,
+                207
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17561,10 +17713,10 @@
             },
             {
               "bbox": [
-                294,
-                206,
-                295,
-                207
+                224,
+                236,
+                225,
+                237
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17596,6 +17748,17 @@
                 206,
                 295,
                 207
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                226,
+                231,
+                227,
+                232
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17632,43 +17795,10 @@
           "air_pockets": [
             {
               "bbox": [
-                209,
-                197,
-                224,
-                217
-              ],
-              "pixel_count": 88,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
                 206,
-                219,
-                208,
-                221
-              ],
-              "pixel_count": 3,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                211,
-                168,
-                212,
-                169
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                212,
-                169,
-                213,
-                170
+                233,
+                207,
+                234
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17693,17 +17823,6 @@
               "pixel_count": 4,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
-            },
-            {
-              "bbox": [
-                211,
-                204,
-                212,
-                205
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
             }
           ],
           "unmatched_components": [],
@@ -17722,6 +17841,17 @@
                 298
               ],
               "pixel_count": 4,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                302,
+                197,
+                303,
+                198
+              ],
+              "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -17755,39 +17885,6 @@
               "pixel_count": 4,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
-            },
-            {
-              "bbox": [
-                285,
-                203,
-                286,
-                204
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                207,
-                222,
-                208,
-                223
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                187,
-                224,
-                188,
-                225
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
             }
           ],
           "unmatched_components": [],
@@ -17815,15 +17912,35 @@
         },
         {
           "clip": "tether",
+          "frame": 21,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                309,
+                211,
+                310,
+                212
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
           "frame": 22,
           "failures": [],
           "air_pockets": [
             {
               "bbox": [
-                221,
-                239,
-                222,
-                241
+                288,
+                194,
+                289,
+                196
               ],
               "pixel_count": 2,
               "painted_or_tuck_pixels": 0,
@@ -17840,23 +17957,43 @@
           "air_pockets": [
             {
               "bbox": [
-                205,
-                163,
-                206,
-                164
+                288,
+                194,
+                289,
+                196
               ],
-              "pixel_count": 1,
+              "pixel_count": 2,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
             {
               "bbox": [
-                231,
-                188,
-                232,
-                189
+                308,
+                209,
+                309,
+                210
               ],
               "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 24,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                290,
+                192,
+                292,
+                193
+              ],
+              "pixel_count": 2,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             }
@@ -17871,10 +18008,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17891,10 +18050,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17911,10 +18092,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17931,10 +18134,32 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
                 188,
-                235,
-                189
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17951,10 +18176,32 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                292,
                 188,
-                235,
-                189
+                296,
+                192
+              ],
+              "pixel_count": 10,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                292,
+                193
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                208,
+                307,
+                209
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -17971,10 +18218,43 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                292,
                 188,
-                235,
-                189
+                296,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                297,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18002,9 +18282,53 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
               ],
               "pixel_count": 1,
@@ -18022,9 +18346,53 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
               ],
               "pixel_count": 1,
@@ -18042,10 +18410,246 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 34,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
+                188,
+                296,
+                189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 35,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
+                188,
+                296,
+                189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 36,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
+                188,
+                296,
+                189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18062,9 +18666,53 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
               ],
               "pixel_count": 1,
@@ -18082,10 +18730,32 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
                 188,
-                235,
-                189
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18102,10 +18772,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18122,10 +18814,32 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
                 188,
-                235,
-                189
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18142,10 +18856,182 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 42,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
+                188,
+                296,
+                189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 43,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
+                188,
+                296,
+                189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18162,9 +19048,53 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
               ],
               "pixel_count": 1,
@@ -18182,10 +19112,32 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
                 188,
-                235,
-                189
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18202,10 +19154,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18222,10 +19196,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18242,9 +19238,53 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
               ],
               "pixel_count": 1,
@@ -18262,10 +19302,118 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 50,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
+                188,
+                296,
+                189
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                307,
+                208,
+                308,
+                209
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18282,9 +19430,53 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                293,
+                189,
+                295,
+                190
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                207,
+                307,
+                209
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                298,
+                186,
+                299,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                300,
+                186,
+                301,
+                187
+              ],
+              "pixel_count": 1,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                295,
                 188,
-                235,
+                296,
                 189
               ],
               "pixel_count": 1,
@@ -18302,10 +19494,32 @@
           "air_pockets": [
             {
               "bbox": [
-                234,
+                292,
                 188,
-                235,
-                189
+                296,
+                192
+              ],
+              "pixel_count": 10,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                292,
+                193
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                306,
+                208,
+                307,
+                209
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18322,10 +19536,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18342,10 +19578,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18362,10 +19620,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18382,10 +19662,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18402,10 +19704,32 @@
           "air_pockets": [
             {
               "bbox": [
-                230,
-                254,
-                231,
-                255
+                297,
+                186,
+                301,
+                188
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                292,
+                188,
+                295,
+                191
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                192,
+                291,
+                193
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18422,21 +19746,32 @@
           "air_pockets": [
             {
               "bbox": [
-                205,
-                163,
-                206,
-                164
+                290,
+                192,
+                292,
+                194
               ],
-              "pixel_count": 1,
+              "pixel_count": 3,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
             {
               "bbox": [
-                231,
-                188,
-                232,
-                189
+                288,
+                194,
+                289,
+                196
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                290,
+                194,
+                291,
+                195
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18453,10 +19788,10 @@
           "air_pockets": [
             {
               "bbox": [
-                191,
-                168,
-                192,
-                169
+                309,
+                211,
+                310,
+                212
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18479,17 +19814,6 @@
                 297
               ],
               "pixel_count": 4,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                285,
-                203,
-                286,
-                204
-              ],
-              "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             }
@@ -18515,10 +19839,21 @@
             },
             {
               "bbox": [
-                285,
-                203,
-                286,
-                204
+                234,
+                248,
+                236,
+                249
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                233,
+                249,
+                234,
+                250
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18533,28 +19868,6 @@
           "frame": 63,
           "failures": [],
           "air_pockets": [
-            {
-              "bbox": [
-                215,
-                199,
-                223,
-                210
-              ],
-              "pixel_count": 25,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                211,
-                212,
-                214,
-                217
-              ],
-              "pixel_count": 9,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
             {
               "bbox": [
                 321,
@@ -18588,17 +19901,6 @@
             },
             {
               "bbox": [
-                209,
-                169,
-                210,
-                170
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
                 294,
                 206,
                 295,
@@ -18619,12 +19921,54 @@
           "air_pockets": [
             {
               "bbox": [
-                232,
-                194,
-                233,
-                195
+                215,
+                206,
+                222,
+                210
               ],
-              "pixel_count": 1,
+              "pixel_count": 18,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                228,
+                226,
+                230,
+                229
+              ],
+              "pixel_count": 4,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            }
+          ],
+          "unmatched_components": [],
+          "source_components": []
+        },
+        {
+          "clip": "tether",
+          "frame": 66,
+          "failures": [],
+          "air_pockets": [
+            {
+              "bbox": [
+                221,
+                225,
+                236,
+                254
+              ],
+              "pixel_count": 215,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": false
+            },
+            {
+              "bbox": [
+                210,
+                212,
+                215,
+                216
+              ],
+              "pixel_count": 13,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             }
@@ -18639,12 +19983,12 @@
           "air_pockets": [
             {
               "bbox": [
-                201,
-                202,
-                206,
-                207
+                204,
+                215,
+                236,
+                276
               ],
-              "pixel_count": 17,
+              "pixel_count": 699,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -18654,17 +19998,6 @@
                 194,
                 287,
                 195
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                209,
-                205,
-                210,
-                206
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,
@@ -18681,12 +20014,12 @@
           "air_pockets": [
             {
               "bbox": [
-                211,
-                212,
-                214,
-                215
+                203,
+                221,
+                236,
+                307
               ],
-              "pixel_count": 7,
+              "pixel_count": 1252,
               "painted_or_tuck_pixels": 0,
               "joint_tear": false
             },
@@ -18696,17 +20029,6 @@
                 194,
                 287,
                 195
-              ],
-              "pixel_count": 1,
-              "painted_or_tuck_pixels": 0,
-              "joint_tear": false
-            },
-            {
-              "bbox": [
-                214,
-                211,
-                215,
-                212
               ],
               "pixel_count": 1,
               "painted_or_tuck_pixels": 0,

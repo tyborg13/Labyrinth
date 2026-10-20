@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "arc_thrall",
-  "director_sha256": "d406a530196d0dd3cfe2918acb15a5e2ff2138b409320b627e62fed1cdb1edf5",
+  "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
   "projection": {
     "front": {
       "forward": [
@@ -2611,23 +2611,13 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.2,
-              "value": 0,
-              "interpolation": "smoothstep"
-            },
-            {
               "at": 0.35,
-              "value": 65,
+              "value": 206,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.8,
-              "value": 65,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.9,
-              "value": 0,
+              "value": 206,
               "interpolation": "smoothstep"
             },
             {
@@ -2649,23 +2639,13 @@
               "interpolation": "smoothstep"
             },
             {
-              "at": 0.2,
-              "value": 90,
-              "interpolation": "smoothstep"
-            },
-            {
               "at": 0.35,
-              "value": 153,
+              "value": 63,
               "interpolation": "smoothstep"
             },
             {
               "at": 0.8,
-              "value": 153,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.9,
-              "value": 90,
+              "value": 63,
               "interpolation": "smoothstep"
             },
             {

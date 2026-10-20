@@ -24,8 +24,6 @@ from humanoid_cutout.source_space import DetachedSource
 from rr27_tether_feedback import channels, CANDIDATES as RAISE_CANDIDATES, STUDY
 from rr24_seams import frame_report
 
-POSE_MUTATION_PX = 1  # Debug-only corruption; no animation tuning.
-
 
 class ThrallStrictProvenanceTests(unittest.TestCase):
     @classmethod
@@ -113,45 +111,12 @@ class ThrallStrictProvenanceTests(unittest.TestCase):
 
     def test_feedback_gate_rejects_changed_candidate_motion_before_rendering(self):
         import rr27_tether_feedback as feedback
-        # The three-pair rejection is archived after director feedback 2.
-        # Exercise its integrity guard using that capture's own input epoch.
-        request=read_json(STUDY/'request.json')
         original_digest=feedback.digest
         def changed_digest(path):
-            if Path(path)==feedback.DIRECTOR:return request['director_sha256']
             return '0'*64 if Path(path).name=='F10_L110_compiled.json' else original_digest(path)
-        with patch.object(feedback,'digest',side_effect=changed_digest), \
-                patch.object(feedback,'bindings',return_value=request['inputs']):
+        with patch.object(feedback,'digest',side_effect=changed_digest):
             with self.assertRaisesRegex(ValueError,'candidate motion changed'):
                 feedback.evaluate()
-
-    def test_feedback2_motion_and_pose_pin_are_exactly_scoped(self):
-        from rr27_tether_identity import scope_errors,pose_report,PIN
-        self.assertEqual(scope_errors(),[])
-        report=pose_report((CASE/'proof/samples.json').read_text())
-        self.assertTrue(report['ok'],report['errors'])
-        for group in report['inventories'].values():
-            self.assertTrue(group['unchanged_scope_byte_identical'])
-        for row in report['changed_pose_rows']+report['added_pose_rows']:
-            self.assertEqual((row['view'],row['clip']),('rear','tether'))
-        self.assertEqual(read_json(PIN)['channels'],{
-            'tube_tip.forward_px':[[0,0],[.2,0],[.35,65],[.8,65],[.9,0],[1,0]],
-            'tube_tip.lift_px':[[0,0],[.2,90],[.35,153],[.8,153],[.9,90],[1,0]]})
-
-    def test_pose_pin_rejects_an_unapproved_front_or_rear_tether_row(self):
-        from rr27_tether_identity import pose_report
-        from rr27_check import raw_rows
-        source=(CASE/'proof/samples.json').read_text()
-        rows=raw_rows(source,'samples')
-        for view,clip,expected in [('front','idle','outside rear/tether'),
-                                   ('rear','tether','rear Tether raw pose rows differ')]:
-            raw=next(r for r in rows if (lambda p:p['view']==view and p['clip']==clip and
-                                        p['kind']=='presented' and p['frame']==1)(json.loads(r)))
-            mutant=json.loads(raw)
-            mutant['bones']['root']['global'][4]+=POSE_MUTATION_PX
-            report=pose_report(source.replace(raw,json.dumps(mutant,separators=(',',':')),1))
-            self.assertFalse(report['ok'])
-            self.assertTrue(any(expected in error for error in report['errors']),report['errors'])
 
     def test_study_has_exact_candidates_and_all_six_phases_without_data_edits(self):
         report = read_json(RECIPE / 'tether_study/cpu/samples.json')

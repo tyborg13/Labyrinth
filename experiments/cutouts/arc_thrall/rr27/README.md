@@ -1,9 +1,9 @@
 # rr-27 implementation handoff
 
-**Current handoff: [feedback 2](FEEDBACK2.md).** The approved rear Tether
-path (0,90), with A's 65/153 hold, is installed. Strict census and pose scope
-pass; the unchanged minimum-reach gate fails. [Feedback 1](FEEDBACK1.md) and
-the rest of this document retain the historical repair/study evidence.
+**Superseded by [feedback 1](FEEDBACK1.md).** The director authorized and the
+worker applied the rear removals. Both-view strict census and the prescribed
+three-pair Tether results are recorded in that current handoff. The rest of
+this document retains the original handoff for historical context.
 
 Changes are uncommitted on `codex/rr-27`. No peer review, publication, queue
 edit, windowed run, density processing or shadow/registry change was made.
