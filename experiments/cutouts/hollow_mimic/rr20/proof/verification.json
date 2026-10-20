@@ -1,0 +1,677 @@
+{
+  "task": "rr-20",
+  "round": "director feedback 3",
+  "base_head": "c00205b71c540db53427456d1eb785d5827d4441",
+  "branch": "codex/rr-20",
+  "status": "headless_pass_native_pending",
+  "uncommitted": true,
+  "full_suite_run": false,
+  "windowed_run": false,
+  "peer_review_run": false,
+  "director_motion_sha256": "c0f1ef683f22cb63ef9ad1430560d88e6dd9da378828fca0e793add0ccea28ac",
+  "requirements": {
+    "1": {
+      "ok": true,
+      "director_copies_byte_identical": true,
+      "lift_px": 7,
+      "non_move_tracks_unchanged": true,
+      "walk": {
+        "front": {
+          "ok": true,
+          "swings": [
+            {
+              "side": "near",
+              "start": 0.0,
+              "end": 0.08000000000000002,
+              "from": 0.0,
+              "to": 0.2,
+              "peak_frame": 2,
+              "peak_bend_deg": 60.731606671045746,
+              "apex_frame": 2,
+              "apex_swing_bend_deg": 60.731606671045746,
+              "apex_stance_bend_deg": 31.23921488820876
+            },
+            {
+              "side": "far",
+              "start": 0.12,
+              "end": 0.28,
+              "from": 0.0,
+              "to": 0.4,
+              "peak_frame": 9,
+              "peak_bend_deg": 69.62356478616361,
+              "apex_frame": 9,
+              "apex_swing_bend_deg": 69.62356478616361,
+              "apex_stance_bend_deg": 35.74866675023919
+            },
+            {
+              "side": "near",
+              "start": 0.32,
+              "end": 0.48,
+              "from": 0.2,
+              "to": 0.6,
+              "peak_frame": 19,
+              "peak_bend_deg": 61.82140989004083,
+              "apex_frame": 19,
+              "apex_swing_bend_deg": 61.82140989004083,
+              "apex_stance_bend_deg": 28.657117456558133
+            },
+            {
+              "side": "far",
+              "start": 0.52,
+              "end": 0.68,
+              "from": 0.4,
+              "to": 0.8,
+              "peak_frame": 28,
+              "peak_bend_deg": 76.04896054123957,
+              "apex_frame": 28,
+              "apex_swing_bend_deg": 76.04896054123957,
+              "apex_stance_bend_deg": 32.646810284464586
+            },
+            {
+              "side": "near",
+              "start": 0.72,
+              "end": 0.88,
+              "from": 0.6,
+              "to": 1.0,
+              "peak_frame": 38,
+              "peak_bend_deg": 58.22437606309851,
+              "apex_frame": 38,
+              "apex_swing_bend_deg": 58.22437606309851,
+              "apex_stance_bend_deg": 31.32011822262528
+            },
+            {
+              "side": "far",
+              "start": 0.92,
+              "end": 1.0,
+              "from": 0.8,
+              "to": 1.0,
+              "peak_frame": 45,
+              "peak_bend_deg": 72.6972314522093,
+              "apex_frame": 45,
+              "apex_swing_bend_deg": 72.6972314522093,
+              "apex_stance_bend_deg": 23.720376058244597
+            }
+          ],
+          "maximum_fit_px": 0.8523502234309319,
+          "maximum_total_pelvis_drop_px": 2.0000000000000098
+        },
+        "rear": {
+          "ok": true,
+          "swings": [
+            {
+              "side": "near",
+              "start": 0.0,
+              "end": 0.08000000000000002,
+              "from": 0.0,
+              "to": 0.2,
+              "peak_frame": 2,
+              "peak_bend_deg": 92.14410908717227,
+              "apex_frame": 2,
+              "apex_swing_bend_deg": 92.14410908717227,
+              "apex_stance_bend_deg": 22.58769664233877
+            },
+            {
+              "side": "far",
+              "start": 0.12,
+              "end": 0.28,
+              "from": 0.0,
+              "to": 0.4,
+              "peak_frame": 9,
+              "peak_bend_deg": 58.72315489290582,
+              "apex_frame": 9,
+              "apex_swing_bend_deg": 58.72315489290582,
+              "apex_stance_bend_deg": 57.912940753851046
+            },
+            {
+              "side": "near",
+              "start": 0.32,
+              "end": 0.48,
+              "from": 0.2,
+              "to": 0.6,
+              "peak_frame": 19,
+              "peak_bend_deg": 87.86179655614575,
+              "apex_frame": 19,
+              "apex_swing_bend_deg": 87.86179655614575,
+              "apex_stance_bend_deg": 23.344010961577503
+            },
+            {
+              "side": "far",
+              "start": 0.52,
+              "end": 0.68,
+              "from": 0.4,
+              "to": 0.8,
+              "peak_frame": 28,
+              "peak_bend_deg": 58.0541263047023,
+              "apex_frame": 28,
+              "apex_swing_bend_deg": 58.0541263047023,
+              "apex_stance_bend_deg": 53.591225432227645
+            },
+            {
+              "side": "near",
+              "start": 0.72,
+              "end": 0.88,
+              "from": 0.6,
+              "to": 1.0,
+              "peak_frame": 39,
+              "peak_bend_deg": 83.16291044021807,
+              "apex_frame": 38,
+              "apex_swing_bend_deg": 78.96341724193587,
+              "apex_stance_bend_deg": 21.573723180925338
+            },
+            {
+              "side": "far",
+              "start": 0.92,
+              "end": 1.0,
+              "from": 0.8,
+              "to": 1.0,
+              "peak_frame": 45,
+              "peak_bend_deg": 52.76515596941583,
+              "apex_frame": 45,
+              "apex_swing_bend_deg": 52.76515596941583,
+              "apex_stance_bend_deg": 40.15752314633872
+            }
+          ],
+          "maximum_fit_px": 0.4906551098886496,
+          "maximum_total_pelvis_drop_px": 2.000000000000007
+        }
+      }
+    },
+    "2": {
+      "ok": true,
+      "source_component_owner": "head",
+      "source_texels": [
+        [
+          105,
+          48
+        ],
+        [
+          105,
+          49
+        ]
+      ],
+      "policy": "Exact source texels at independent rigid owner transform; no new exceptions."
+    },
+    "3": {
+      "ok": true,
+      "shared_module": "tools/humanoid_cutout/rest_space.py",
+      "native_integration": "tools/humanoid_cutout/gates.py",
+      "rule": "Every pixel, every immutable paint/tuck mask transported by the same geometry; any paint/tuck hit fails. Every passed pocket is bounded.",
+      "gait_fill_active": false,
+      "new_paint_or_continuations": false,
+      "new_exceptions": false,
+      "census": {
+        "ok": true,
+        "native_pixels": false,
+        "scope": "All presented frames; CPU estimates only",
+        "views": {
+          "mimic": {
+            "front": {
+              "ok": true,
+              "frames": 362,
+              "air_pockets": 1996,
+              "approved_detached_components": 355,
+              "retained_legacy_exception_frames": 0,
+              "failures": [],
+              "maximum_air_pocket_pixels": 514
+            },
+            "rear": {
+              "ok": true,
+              "frames": 362,
+              "air_pockets": 2655,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 0,
+              "failures": [],
+              "maximum_air_pocket_pixels": 359
+            }
+          },
+          "seer": {
+            "front": {
+              "ok": true,
+              "frames": 467,
+              "air_pockets": 3232,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 3,
+              "failures": [],
+              "maximum_air_pocket_pixels": 513
+            },
+            "rear": {
+              "ok": true,
+              "frames": 467,
+              "air_pockets": 4589,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 1,
+              "failures": [],
+              "maximum_air_pocket_pixels": 1022
+            }
+          },
+          "thrall": {
+            "front": {
+              "ok": true,
+              "frames": 335,
+              "air_pockets": 988,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 0,
+              "failures": [],
+              "maximum_air_pocket_pixels": 685
+            },
+            "rear": {
+              "ok": true,
+              "frames": 335,
+              "air_pockets": 922,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 0,
+              "failures": [],
+              "maximum_air_pocket_pixels": 1260
+            }
+          },
+          "mirror": {
+            "front": {
+              "ok": true,
+              "frames": 344,
+              "air_pockets": 374,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 0,
+              "failures": [],
+              "maximum_air_pocket_pixels": 1362
+            },
+            "rear": {
+              "ok": true,
+              "frames": 344,
+              "air_pockets": 1976,
+              "approved_detached_components": 0,
+              "retained_legacy_exception_frames": 0,
+              "failures": [],
+              "maximum_air_pocket_pixels": 958
+            }
+          }
+        },
+        "full_samples": {
+          "file": "logs/feedback3_passed_pockets.md",
+          "sha256": "e7c17c123674258db0019f7bbae602b1edc54588aa1cd2a9de1e41257acfc52e"
+        }
+      },
+      "full_pocket_index": {
+        "file": "logs/feedback3_passed_pockets.md",
+        "sha256": "e7c17c123674258db0019f7bbae602b1edc54588aa1cd2a9de1e41257acfc52e",
+        "bytes": 981764
+      }
+    },
+    "4": {
+      "headless_ok": true,
+      "native_status": "pending fresh director captures",
+      "exact_windowed_sequence": [
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh density",
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh rest",
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh native",
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh sheets",
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh idle",
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh production",
+        "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-20 && sh experiments/cutouts/hollow_mimic/proof.sh review"
+      ]
+    }
+  },
+  "tests": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-20 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr20_cutout tests.test_rr20_residue tests.test_rr20_feedback2 tests.test_rr20_rest_space tests.test_rr20_production",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 40 tests in 136.972s",
+        "OK",
+        "RR20 INHERITED RUNNERS: PASS (8 Godot invocations forced to rr-20)"
+      ],
+      "log": {
+        "file": "logs/feedback3_unit_tests_final.log",
+        "sha256": "cd2e3d17d1a2651bd5eb26b99eac4a08f8f91438e25bd929bf25b560d2d57e6e",
+        "bytes": 208
+      }
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-20 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_gait01 tests.test_rr10_humanoid tests.test_rr10_silhouette_gates tests.test_rr11_humanoid tests.test_rr13_continuations tests.test_rr14_anatomy tests.test_rr14_bone_guards tests.test_rr14_foundations tests.test_rr15_action_direction tests.test_rr15_reach tests.test_rr15_view_keys tests.test_rr16_review_fixes tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr17_production tests.test_rr17_feedback tests.test_rr19_overlap tests.test_rr18_humanoid tests.test_rr18_air_policy tests.test_rr18_materials tests.test_rr10_bone_evidence",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 183 tests in 308.560s",
+        "OK",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)",
+        "RR20 INHERITED RUNNERS: PASS (39 Godot invocations forced to rr-20)"
+      ],
+      "log": {
+        "file": "logs/feedback3_reference_tests.log",
+        "sha256": "549fd9bb4442ad1e4e7c98fb6760baecb42114c88e6c5f17c865d64fa72d9890",
+        "bytes": 599
+      }
+    }
+  ],
+  "headless_probes": [
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/gates.py",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH GATES: PASS (0 errors; both views)",
+        "RR20 FRONT SWING KNEES: PASS (6 swings; minimum peak 58.224 degrees)",
+        "RR20 FRONT WALK: PASS (6 swings; maximum fit 0.852 px; maximum total drop 2.000 px)",
+        "RR20 FRONT REACH: PASS (14 paths; 1000 intervals; 7 overreach reports)",
+        "RR20 FRONT DEATH BOOT CLAMP: ACCEPTED (maximum presented shift 1 px; motion unchanged)",
+        "RR20 REAR SWING KNEES: PASS (6 swings; minimum peak 52.765 degrees)",
+        "RR20 REAR WALK: PASS (6 swings; maximum fit 0.491 px; maximum total drop 2.000 px)",
+        "RR20 REAR REACH: PASS (14 paths; 1000 intervals; 6 overreach reports)",
+        "RR20 REAR DEATH BOOT CLAMP: ACCEPTED (maximum presented shift 1 px; motion unchanged)"
+      ],
+      "log": {
+        "file": "logs/feedback3_gates_final.log",
+        "sha256": "7bc205775983160debaf2a53e4c09e4e7314de8c130ce26d95fc1272861fef39",
+        "bytes": 699
+      }
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/samples.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 COMPACT SAMPLES: PASS (28 inventories; full transforms in ignored logs)",
+        "RR10 BONE SAMPLES: PASS (1008 poses; headless transforms only)"
+      ],
+      "log": {
+        "file": "logs/feedback3_mimic_samples_final.log",
+        "sha256": "84125de89bf802bed81698d7c91c0905324b1c457b881de4fecad43bb324d677",
+        "bytes": 1059
+      }
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/native_capture.gd -- --case res://experiments/cutouts/hollow_mimic/rr20 --output res://experiments/cutouts/hollow_mimic/rr20/proof/native --validate-only",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "logs/feedback3_native_load.log",
+        "sha256": "b92fd779c968c74a54d03e622c63e84fb9b319da3877f5d3b0058e7c5e02d641",
+        "bytes": 965
+      }
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr20/shadow_refresh.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+      ],
+      "log": {
+        "file": "logs/feedback3_shadow.log",
+        "sha256": "2f69c7e04803973e9036efc44e3e111d093e4ad5e2fa25f23830996393354309",
+        "bytes": 28238
+      }
+    },
+    {
+      "command": "python3 -B tools/test_registration_audit.py --json experiments/cutouts/hollow_mimic/rr20/proof/logs/feedback3_registration.json",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
+      ],
+      "log": {
+        "file": "logs/feedback3_registration.log",
+        "sha256": "e336d67a380d60d2a7a5216c5271e6e3bfd099775d5d114586fb6e5f5d8fbf14",
+        "bytes": 96
+      }
+    },
+    {
+      "command": "Protected-byte / sidecar / proof-ignore audit (see result lines)",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 GODOT SIDECARS: PASS (tracked plus uncommitted unit closure)",
+        "RR20 PROTECTED INPUTS: PASS (3528 files; authorized staged lift adoption only)",
+        "RR20 PRIOR RIG BYTES: PASS (Seer, Thrall, Mirror, Capacitor unchanged)",
+        "RR20 PROOF IGNORES: PASS (all requested capture/full-evidence paths)"
+      ],
+      "log": {
+        "file": "logs/feedback3_integrity.log",
+        "sha256": "9be5115f4d197e1ec6680de032ed86529acecc11db4068aab93e57bf1bb63eb4",
+        "bytes": 330
+      }
+    },
+    {
+      "command": "Actual playback outputs from tests.test_rr20_production; production.errors on all six logic_frames.json files.",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 PRODUCTION LOGIC front/whirlwind_slash: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC front/quick_stab: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC front/hurl_spear: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC rear/whirlwind_slash: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC rear/quick_stab: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC rear/hurl_spear: PASS (1316 frames; 0 errors)",
+        "RR20 PRODUCTION LOGIC: PASS (6 scenarios; 7896 frames; 0 errors)"
+      ],
+      "log": {
+        "file": "logs/feedback3_production_summary.log",
+        "sha256": "30809344abf05901e04e5a4bc6cf1f18754c0873f899075bcfe85a122a0e7feb",
+        "bytes": 486
+      }
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/cpu_proof.py --view front --output experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/feedback3_final/front",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 CPU FRONT: PASS (362 frames; 0 failing frames)"
+      ],
+      "log": {
+        "file": "logs/feedback3_cpu_front_final.log",
+        "sha256": "18289e414675554a059199cab3ec059f547607c7d3a66b91d7dcb88630088715",
+        "bytes": 166
+      }
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/cpu_proof.py --view rear --output experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/feedback3_final/rear",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 CPU REAR: PASS (362 frames; 0 failing frames)"
+      ],
+      "log": {
+        "file": "logs/feedback3_cpu_rear_final.log",
+        "sha256": "2fc119805d627668635aa24f469f9c2e4077dc8c2de600c153dd0700358ddf14",
+        "bytes": 162
+      }
+    },
+    {
+      "sampler_command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/hoarfrost_seer/rr10 --output res://experiments/cutouts/hollow_mimic/rr20/proof/logs/rest_space/seer_samples.json",
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/rest_space_proof.py --rig seer --samples experiments/cutouts/hollow_mimic/rr20/proof/logs/rest_space/seer_samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 REST SPACE SEER FRONT: PASS (467 frames; 3232 air pockets; 0 failing frames)",
+        "RR20 REST SPACE SEER REAR: PASS (467 frames; 4589 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "logs/feedback3_seer_rest_space_final.log",
+        "sha256": "27ba689289a0312387fdd6d6b86eb1cdb2ec46ce9586938675500f200f44c298",
+        "bytes": 559
+      }
+    },
+    {
+      "sampler_command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/hollow_mimic/rr20/proof/logs/rest_space/thrall_samples.json",
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/rest_space_proof.py --rig thrall --samples experiments/cutouts/hollow_mimic/rr20/proof/logs/rest_space/thrall_samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 REST SPACE THRALL FRONT: PASS (335 frames; 988 air pockets; 0 failing frames)",
+        "RR20 REST SPACE THRALL REAR: PASS (335 frames; 922 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "logs/feedback3_thrall_rest_space_final.log",
+        "sha256": "dcf7a624c5b1787a9f1b0fb3de4bc3d6ff1ddd56f17cd8efc7a6a1ea19119e9d",
+        "bytes": 474
+      }
+    },
+    {
+      "sampler_command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/glacial_mirror/rr18 --output res://experiments/cutouts/hollow_mimic/rr20/proof/logs/rest_space/mirror_samples.json",
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/hollow_mimic/rest_space_proof.py --rig mirror --samples experiments/cutouts/hollow_mimic/rr20/proof/logs/rest_space/mirror_samples.json",
+      "exit_code": 0,
+      "result_lines": [
+        "RR20 REST SPACE MIRROR FRONT: PASS (344 frames; 374 air pockets; 0 failing frames)",
+        "RR20 REST SPACE MIRROR REAR: PASS (344 frames; 1976 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "logs/feedback3_mirror_rest_space_final.log",
+        "sha256": "d87f41498704c2decfa646fecd896773902c83eb9a827b8e25cadeb6685f718b",
+        "bytes": 475
+      }
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ],
+      "log": {
+        "file": "logs/feedback3_sfx_0.log",
+        "sha256": "e971f7a931ce8fe94a8b996646c56b5798b4368d720129711df02cfa62c4794b",
+        "bytes": 5795
+      }
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ],
+      "log": {
+        "file": "logs/feedback3_sfx_1.log",
+        "sha256": "8a86aa407e2341829d72e755ddebb7db8f4513ae0309224f2719800d0a755df6",
+        "bytes": 1962
+      }
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-20 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ],
+      "log": {
+        "file": "logs/feedback3_sfx_2.log",
+        "sha256": "40787db5d7a57bb7a87298384c0b539cc419f4da86ef50fc0b22e910e938e707",
+        "bytes": 1373
+      }
+    }
+  ],
+  "TODO_DESIGN": {},
+  "chosen_defaults": {
+    "new_test_fixture_fields": {
+      "FIXTURE_SIZE_PX": 32,
+      "FIXTURE_COLOR": [
+        70,
+        60,
+        90,
+        255
+      ],
+      "FIXTURE_SHIFT_PX": 4,
+      "FIXTURE_TURN_RADIANS": 0.3
+    },
+    "cross_rig_progress_interval_frames": 100,
+    "retained_construction_fields": {
+      "PROOF_UV_MARGIN_PX": 1,
+      "RASTER_COVERAGE_MARGIN_PX": 1,
+      "MAX_CONSTRUCTION_PASSES": 16,
+      "FIXTURE_VALUE": 5
+    },
+    "diagnostic_environment": {
+      "OPENBLAS_NUM_THREADS": 1,
+      "VECLIB_MAXIMUM_THREADS": 1
+    }
+  },
+  "open_issues": [
+    "Fresh windowed native proof cannot run without macOS window-server access.",
+    "Density check exits 1 solely for the two pending native rest rebakes."
+  ],
+  "accepted_death_boot_clamp": {
+    "maximum_presented_shift_px": 1,
+    "views": [
+      "front",
+      "rear"
+    ],
+    "motion_changed": false
+  },
+  "prior_rigs": {
+    "byte_identical": true,
+    "names": [
+      "Seer",
+      "Thrall",
+      "Mirror",
+      "Capacitor"
+    ],
+    "protected_input_count": 3528,
+    "retained_seer_legacy_exception_frames": {
+      "front_move": [
+        11,
+        12,
+        15
+      ],
+      "rear_move": [
+        10
+      ]
+    }
+  },
+  "superseded_verification": {
+    "first_unit_batch": {
+      "result_lines": [
+        "Ran 40 tests in 128.512s",
+        "FAILED (failures=1)",
+        "RR20 INHERITED RUNNERS: FAIL (8 Godot invocations forced to rr-20)"
+      ],
+      "cause": "Production bindings rejected evidence produced while shared code was being finalized. Final stable-code batch resampled and passed.",
+      "log": {
+        "file": "logs/feedback3_unit_tests.log",
+        "sha256": "c5909c0c3d11f508a8d32efa543a5196be4e8163c7356aecaa243f0ccc024212",
+        "bytes": 1066
+      }
+    },
+    "first_cross_rig_census": "Rejected at final binding check after shared classifier edits; fresh samplers and census above supersede it."
+  },
+  "density_check": {
+    "command": "python3 -B tools/process_board_density.py --check --only hollow_mimic_cutout",
+    "exit_code": 1,
+    "result_lines": [
+      "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+      "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+    ],
+    "log": {
+      "file": "logs/feedback3_density.log",
+      "sha256": "68767d11230a64ce5e2231ad3007749b5f3791db97c8ea9fa0a6a92dfc004205",
+      "bytes": 229
+    }
+  },
+  "capture_paths": [
+    "experiments/cutouts/hollow_mimic/rr20/proof/native_rest/",
+    "experiments/cutouts/hollow_mimic/rr20/proof/native/",
+    "experiments/cutouts/hollow_mimic/rr20/proof/contact_sheets/",
+    "experiments/cutouts/hollow_mimic/rr20/proof/idle_native/",
+    "experiments/cutouts/hollow_mimic/rr20/proof/production_native/",
+    "experiments/cutouts/hollow_mimic/rr20/proof/hollow_mimic_review.mp4"
+  ],
+  "current_evidence_bindings_ok": true,
+  "files_changed": [
+    "assets/units/hollow_mimic_cutout/compiled_motion.json",
+    "assets/units/hollow_mimic_cutout/director_motion.json",
+    "assets/units/hollow_mimic_cutout/integration.json",
+    "experiments/cutouts/hollow_mimic/README.md",
+    "experiments/cutouts/hollow_mimic/case.py",
+    "experiments/cutouts/hollow_mimic/cpu_proof.py",
+    "experiments/cutouts/hollow_mimic/gait_coverage.py",
+    "experiments/cutouts/hollow_mimic/gates.py",
+    "experiments/cutouts/hollow_mimic/proof_records.py",
+    "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+    "experiments/cutouts/hollow_mimic/rr20/compiled_motion.json",
+    "experiments/cutouts/hollow_mimic/rr20/cutout.json",
+    "experiments/cutouts/hollow_mimic/rr20/director_motion.json",
+    "experiments/cutouts/hollow_mimic/rr20/inputs.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/build.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/gait_proposal.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/gates.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/native_gates.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/rest_space_summary.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/verification.json",
+    "experiments/cutouts/hollow_mimic/rr20/protected_inputs.json",
+    "tests/rr20_regression_runner.py",
+    "tests/test_rr20_feedback2.py",
+    "tests/test_rr20_rest_space.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/rest_space.py"
+  ]
+}

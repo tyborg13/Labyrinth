@@ -1,0 +1,100 @@
+{
+  "character_id": "hollow_mimic",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the hero's cut-out bob: torso, head and both free arms drop 2 px and return as one rigid group; pelvis, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.8,
+      "intents": [
+        "recede:move_away"
+      ],
+      "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; the arms swing 4 px opposite the stepping leg",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 7,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.0,
+          "down": 2.0,
+          "passing": 0.5,
+          "up": 0.0
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 4
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 4
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "bolt": {
+      "seconds": 0.8,
+      "contact": 0.45,
+      "intents": [
+        "shade_bolt:ranged"
+      ],
+      "note": "the leading arm (hand_far: the arm on the target's side in both 3/4 views) draws back, then thrusts open-palmed at the target as the shadow bolt leaves (contact), reaching out of the black silhouette so the gesture reads at board scale; the body leans 4 degrees into it; the near hand pulls back",
+      "release_at": {}
+    },
+    "mirror": {
+      "seconds": 0.9,
+      "contact": 0.5,
+      "intents": [
+        "mirror:mirror_last_attack"
+      ],
+      "note": "mirrors your last attack: it crouches with both hands drawn back, then thrusts both hands at the target (contact; the copied effect plays), the leading hand (hand_far) reaching furthest so the thrust leaves the black silhouette, mask tipped forward; recovers",
+      "release_at": {}
+    },
+    "block": {
+      "seconds": 0.8,
+      "contact": 0.4,
+      "intents": [
+        "recede:block"
+      ],
+      "note": "crosses both forearms in front of the mask and sinks 2 px behind them; holds; lowers",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.4,
+      "terminal": true,
+      "intents": [],
+      "note": "the knees give: the pelvis drops 20 px over planted boots, the torso pitches forward 22 degrees, the mask bows, the hands drop; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "direction_clips": [
+    "bolt",
+    "mirror"
+  ],
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

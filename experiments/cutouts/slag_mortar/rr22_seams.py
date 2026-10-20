@@ -5,12 +5,12 @@ from PIL import Image
 from rr22_case import CASE
 from cutout_pipeline.cases import read_json, write_json
 from rr22_cpu import CoveragePose as CpuPose
+from humanoid_cutout.bone_evidence import read_report
 from humanoid_cutout.gates import clean_metrics, bindings
 from humanoid_cutout.silhouette_gates import posed_owners, joint_holes
-from humanoid_cutout.native_exceptions import frame_errors
-from humanoid_cutout.source_space import PaintedComponents, pocket_report, apply_painted_components
+from humanoid_cutout.source_space import DetachedSource, pocket_report, gate_errors as frame_errors
 from maquette_motion.material_palette import rules
-from rr22_records import samples as read_samples, space_summary
+from rr22_records import space_summary
 
 PROGRESS_INTERVAL_FRAMES = 50
 
@@ -24,22 +24,23 @@ def frame_report(model, pose):
     spaces = pocket_report(layers, tears)
     defects = [{'bbox': r['bbox'], 'pixel_count': r['pixel_count']} for r in spaces['failures']]
     metrics = clean_metrics(layers, rules(CASE, model.layout['facing']))
-    detached = model.painted_components.report(layers, pose)
-    metrics = apply_painted_components(metrics, detached)
-    return layers, defects, metrics, owners, dict(spaces, painted_detached_components=detached)
+    detached = model.detached_source.report(layers, {name: part['transform'] for name, part in pose['parts'].items()})
+    metrics.update(detached['metrics'])
+    return layers, defects, metrics, owners, dict(spaces, source_components=detached['source_components'],
+                                               unmatched_components=detached['unmatched_components'])
 
 
 def report(layout, samples, clips=None):
     view = layout['facing']
     model = CpuPose(CASE, layout)
-    model.painted_components = PaintedComponents(CASE, layout)
+    model.detached_source = DetachedSource(CASE, layout)
     rows = [r for r in samples['samples'] if r['view'] == view and r['kind'] == 'presented'
             and (not clips or r['clip'] in clips)]
     errors, failures, passed = [], [], []
     print(f'RR22 {view.upper()} CPU COVERAGE: checking {len(rows)} frames', flush=True)
     for index, pose in enumerate(rows):
         layers, holes, metrics, _, spaces = frame_report(model, pose)
-        if spaces['air_pockets'] or spaces['painted_detached_components']:
+        if spaces['air_pockets'] or spaces['source_components']:
             passed.append(dict(clip=pose['clip'], frame=pose['frame'], **spaces))
         rejected = frame_errors((view, pose['clip'], pose['frame']), metrics, holes)
         if rejected:
@@ -62,7 +63,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--clips', nargs='*')
     args = parser.parse_args()
-    samples = read_samples()
+    samples = read_report(CASE)
     if samples['inputs'] != bindings(CASE): raise ValueError('Refresh samples before coverage diagnostics')
     result = {v: report(read_json(CASE / f'layouts/{v}.json'), samples, args.clips) for v in ('front', 'rear')}
     write_json(CASE / 'proof/logs/seams_full.json', result)

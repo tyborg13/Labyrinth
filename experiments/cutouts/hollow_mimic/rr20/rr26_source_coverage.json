@@ -1,0 +1,742 @@
+{
+  "assets/units/hoarfrost_seer_cutout/rear.json": {
+    "before_sha256": "ce38b23324e30aed28011b1d649248f329de3d01103bc0728ad05a4c4b627220",
+    "after_sha256": "d9f03580474bc4d2c292c7b2bd01848fac91eb14ae6604b452863ca605656280"
+  },
+  "assets/units/hoarfrost_seer_cutout/front.json": {
+    "before_sha256": "7b305cc98a7ddf3b9cabb15c868870b558978b9debd3353c13fd2ba361e627d4",
+    "after_sha256": "7616887d13630807aa8632120eed00fc19621f8778a359ba1355fbf64726224f"
+  },
+  "assets/units/hoarfrost_seer_cutout/integration.json": {
+    "before_sha256": "3eda5c1a36f628003c03711e7883cc54b1684ad4b8759559612f98c3d5d5da85",
+    "after_sha256": "b551eddf56c1fe99d337d1586c9ff9dbb5c20867eddba65086e85bebfd3d0f0e"
+  },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json": {
+    "before_sha256": "10e14513bb16a84260cbac2bd683b48987dc2793d4668265d5bc8d5911833360",
+    "after_sha256": "54825cde26729a63a7f41db030a9bea07705f920beb8da82c2e96fa06d276006"
+  },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/front.json": {
+    "before_sha256": "ad0d9e78085b23081c5139703d12294a8c4b70269faf8e95ee3ebbb5c2c3595e",
+    "after_sha256": "2e0155744eae46af120b8ca7b15bca7efc8170743a8d150184105da2607b9e93"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10_build.py": {
+    "before_sha256": "c8486d25e79822b0c5c1cb66564a391cda1e5e5f4aee0e3b8a0083d8f75a6ca4",
+    "after_sha256": "14f5accc23886b130f6522ca60a158c23296701272e4e01a03443e89c487d9b2"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10_proof.sh": {
+    "before_sha256": "c80a1eae41034dc37dad6049d7f1a64fdcc2056ed120bada464c7b8d11df9586",
+    "after_sha256": "d9a63b4d9bd4c039e1334d5989f052ac8a43af53e15afd48d39c98a75c5511fd"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/proof/seer_protagonist_idle.json": {
+    "before_sha256": "e18649f373137950455d9dd7ecdbc583329bda1d35a54af323511110688d7af8",
+    "after_sha256": "b08ad417e4aadd9b6748dd6da0610d6f41c5b4a1a499b295c3fbc23daa85d4fa"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json": {
+    "before_sha256": "ee4773bf07713d95ec03d4b151eea56f20f2263ed7c73440535bea337ea8a295",
+    "after_sha256": "d2efd90a231b7dcec74a60b7025d6ae8c70ce17bf086cc975852c92dd2cbbab3"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json": {
+    "before_sha256": "b162bf415b22b1a7f3c6bd0d90acf12a2da49f60806b5f1df11649651c3a0d0c",
+    "after_sha256": "ffdddf54b7790b73ab5de51d2de7c483565d324e9553877245480629a6e6fe07"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json": {
+    "before_sha256": "dd063dfe3bc6ef41c503af8c22671edbf96adb80d562f62271657588246296d7",
+    "after_sha256": "9feb102f9451ce273c4f395fbe6128f3c15741a56cf63c406b6aca5dd4a245d0"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json": {
+    "before_sha256": "878b6d203e34ec00a1d46297a1ecd177b75b0bd7aa869791ae42a09b0ef6b0df",
+    "after_sha256": "ed09aac51077756315dda786da5c60672ec7a4d95d71a488a12424fb72fa1d0c"
+  },
+  "assets/units/arc_thrall_cutout/rear.json": {
+    "before_sha256": "f67ce6b19fa310965a9e708b5877f16538dd220e9b5fb2f8ba691fb8190894e0",
+    "after_sha256": "9d9bd449db48643fd11f171a6d819048dde6893687408952a4d9ccc832549f73"
+  },
+  "assets/units/arc_thrall_cutout/front.json": {
+    "before_sha256": "4bc416af8603388f7304b8be2517a1229f6ee454a6c8fe6b1512c33042916863",
+    "after_sha256": "f57db0c648c9cd9e4d0fafe9ad5ff99020f662f97ef0b432a83432c89076b07b"
+  },
+  "assets/units/arc_thrall_cutout/integration.json": {
+    "before_sha256": "b45c6f908d9fc4335e96a50a951408e99845364f571f02b3637fd04d1506e6bf",
+    "after_sha256": "fe331cf12e9f340db203b0c1c15a1f3006111e8be2d5155d090da78ac77c55fe"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear.json": {
+    "before_sha256": "7147cb010ad0345f974bbd06905a79b01642d4192df6d7022b55629fc06ad46d",
+    "after_sha256": "45a3a3024435a65f1e1221b6f6f93ef55f90c61e9f6e9cece8b3cb27e49bb430"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front.json": {
+    "before_sha256": "76c5aca11678d9ff4827e2c107d398a4d007c7bd3274ca68bffb5187e3c5e36d",
+    "after_sha256": "ca4a9d6225b0bad880e668383bed5e5b35ca67d46ab684c9fce8e72d1baf2c69"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_loincloth.png": {
+    "before_sha256": "f8bc1201eb601c1e5bf663db5efc9e139439138553b97c4e5225698d8db8eac3",
+    "after_sha256": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/upper_near.png": {
+    "before_sha256": "f77349cb3ab316d28699b2b71d9039f57eae8317146e2fbfeb176e4ef1f35c06",
+    "after_sha256": "ba537ae2017201eec3868de20eebd6c85067ddd00c32a9cd49f0a7b50723ef8b"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_loincloth.png": {
+    "before_sha256": "619fe0c423f8c51623b7bfb795146dafa9cc7b86e31b1c00fa3eb5ceba6bd998",
+    "after_sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_near.png": {
+    "before_sha256": "60495c244269ab175566c5ba3423d14164258a4fbb42f1de1aa8c8ac091dc89a",
+    "after_sha256": "80ff7dd2d36d2fe7a801bb2f3f1bbf501df1e917842aa0552f4fbd65537cda9a"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_near.png": {
+    "before_sha256": "e850ffe855a92dc5ad0ad1decadec8a902488d569284594335d12994bce276c0",
+    "after_sha256": "6d436d5c779a827975a5fdadbee0e97420eb33804ddfc38f57c0db108c3dceca"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_near.png": {
+    "before_sha256": "456b7052915124fce9c94bab8a4d1f1c339a64d9b232e915cfb594128a03d4c6",
+    "after_sha256": "e06e70f29c27b3c2d092ce1a4946a3ad6d597fc384fcd820159f0fa0ab885d83"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/joint_extension_torso.png": {
+    "before_sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5",
+    "after_sha256": "c5f6d19ce2cc7cfbacb9a0e027da7e2b503921f707e5e86fc5f7ad050c07b9da"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_far.png": {
+    "before_sha256": "640e9dae4420ee97adc42e6cef189ca43383b588e17f28cad978c23a0fc71dcd",
+    "after_sha256": "42cc7edc93c3def5e218b34e725498641d58ff0178fa1c35b252a924e9237cb5"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_torso.png": {
+    "before_sha256": "18195a135c9ca15e50e2361a967e1875f083cdf39e3fa2a55f9c13fe3c34e6df",
+    "after_sha256": "f4235b45887a03bd96cd831c0e69fe3890838bc0b933cca6f83000b2feec29d0"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/loincloth.png": {
+    "before_sha256": "f1f38a953e88e5b385ace278d105ff08c360d32e4059315531f4a9e107883b4f",
+    "after_sha256": "c1ea586f050e1bb9d928389ba6b8d28f9191b5e5777e81ae7b732ccfd0d56cfb"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_foot_far.png": {
+    "before_sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7",
+    "after_sha256": "5c419b656ef532622dd7dc4ceda46d9f0b2d81c0cdef55253784413a32764931"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_upper_near.png": {
+    "before_sha256": "e90225389cd60cb5058a762525797b87dff97d3d3b1534b57c096ee891a24d95",
+    "after_sha256": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_leg_near.png": {
+    "before_sha256": "81eb062886c1603c9f472dce501e2bdb8d743fcda63bf508fad06375e3693264",
+    "after_sha256": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/foot_far.png": {
+    "before_sha256": "9ea6f0b66346b729f9c78ae058235dbc4876e2c47152dff436bbbc67a05986d9",
+    "after_sha256": "63cf41e72d3644c57bf3560145f8ec9827f0a34dbd01e1f972a0ed2833848f57"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/head.png": {
+    "before_sha256": "358b580b9952ba9696488be69d4a06342e8a3ff5ec875a21b36aa322c9b75cfb",
+    "after_sha256": "ad836f761f4e8ac3b7a5e38672d43dc0c01ce450ba9ea8469824a2914461033c"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_tube.png": {
+    "before_sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615",
+    "after_sha256": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/tube.png": {
+    "before_sha256": "140c5e5eb69e34d06d6b93107f01a9a485a6a8c679159a0f3a24ea80c9df66a7",
+    "after_sha256": "533abe25131d3f7aaf2136fc2fd76e415ed3155428d10c2f8d5b582af10a35c0"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_head.png": {
+    "before_sha256": "c420cc2ab6cde4dc6a94d2762ec9ce9865cf0cd3064c4677e42ef0908c85a978",
+    "after_sha256": "daa33867ecd9ba2f3cacf6564cc9db60f223589262d9bb686a781b90b7bd17bf"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_sleeve_far.png": {
+    "before_sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77",
+    "after_sha256": "768f88e695817b426ad5bb4eba00d9fed788f9da60ca1b2acbc25aaef8a191ae"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/leg_far.png": {
+    "before_sha256": "cbbb30f4b6210b0fc4f5de22dc26530c0f4d8444fbc1eb1e762fa2cf7e75905d",
+    "after_sha256": "69b9f149a97d96ad6eb9dc00fc4964d9b95bdc0b38095e294ea8cbac31ae362b"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/torso.png": {
+    "before_sha256": "e889d16499809d58075f9ef8ab609504a5bb4ad37c0951ce1b2b961ccd6f3bb7",
+    "after_sha256": "89f877e94201d031016afb27b96764c958ccd0a1da5d006ea38ce02ca105bf65"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/claw.png": {
+    "before_sha256": "767ef35732c4acd70ac5ef1efc960317316cabd6289a95d5a1d59f601a6a8693",
+    "after_sha256": "f82c7da63f8546c0e54a3e53494ae3ae44c5233e4363b6a4e44aef422f9ab072"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png": {
+    "before_sha256": "b96c7315999c1d6a36813e17ffd587742b600f3e38cf3fb49a6fa912d6085870",
+    "after_sha256": "9e0f72c929e470ac264550e63b9769f5101d10df559f4bd61e757608ff774371"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/hidden_claw.png": {
+    "before_sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8",
+    "after_sha256": "b33030e34b6ba095715b9740c3ec7eaa8d0c1307b6dbe430596e25bed386bfcd"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png": {
+    "before_sha256": "c05688c30f3e39e7a6e42b7df94d3200f46fb7bf9e15cb3985748018f86b87c1",
+    "after_sha256": "8eff3f8b995d202475426e082cf05d74815a2c1aaf6a7a2ff8526a2ba0e70d81"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/upper_near.png": {
+    "before_sha256": "35951ed45d0a2ade13b6ab26fff07123a9d6897502163fdee89708fa24580850",
+    "after_sha256": "f529ec2ef49a948dd3040c28d48ced2c5006718c97d48ed6d86824cdb8a55d07"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_near.png": {
+    "before_sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e",
+    "after_sha256": "0d94d1f321b7b77bc541ab4cd2b919b9cf7296310beb47bd1a5b635234b1d69d"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_near.png": {
+    "before_sha256": "d7cc6d41bdcb1a47f9dc41bd388039de394bfe9d6dca60a6dcdac5b4fa933902",
+    "after_sha256": "e63bc20ee07ee197301d7eee472a340e4c0092d49b7ad972194c8c43b481c439"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_far.png": {
+    "before_sha256": "a9f8c3c9729a727606c1d00aaa94bcff1fdd29b8489486b2e278f2c3745a00cb",
+    "after_sha256": "4a426cf9fccd99d21c94050fead97025d1417567345a7536c24379833afa6742"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_torso.png": {
+    "before_sha256": "6e32761177ccf114196ce0a2eeb22b74fa4ab4d6d681aea5ccdaeec50e2a5c9c",
+    "after_sha256": "bbcba2c47c9abcb077be68ad465ac5d66df22c5189d9e9e6563d8a178e77124c"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/loincloth.png": {
+    "before_sha256": "bbe3123f98c126de2d4dc17e896f47155ee904d905386c45e202ccd54ee94fa8",
+    "after_sha256": "d16a2ac21b33d844bd8951c62aa9cf5daaaff1df63ed17d403712e9427104a9d"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_foot_far.png": {
+    "before_sha256": "68d3f638ecc2c2509098af107f4d27d703ca3416752ba8b1183a6b6f2c2ca96f",
+    "after_sha256": "8244c1bc6cfc705e144f1cf3975d0e3f2171167ebd214cb67bc2a883d355fa0b"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_upper_near.png": {
+    "before_sha256": "af195e43bba56b9f2b1b7da6d5bb7ce17694ff245618a641a43ffd9ef9d6a896",
+    "after_sha256": "52934a8ba243560d4512ca1f6b7b074fd28e6db17dd679ccf8ba721b7aa0b46f"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_leg_near.png": {
+    "before_sha256": "583c7669cac4e3c1be0040a0a1ce7b403c489295a6d5f2178fce79672ac640cf",
+    "after_sha256": "b630f3721ae1d5c7046fc9a3dbeeededdb6dfe496ca62e88c9c8301fdb64d849"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png": {
+    "before_sha256": "472365a6d2954060f052816c45a437455a054381feda97d1488a06c3a4da63b0",
+    "after_sha256": "5c25be052f23b5f56f4a4098b2c8a756c860990a688b123c392f3ba807882051"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/head.png": {
+    "before_sha256": "881350dfb8e7e5c6fadac703c9f2c8ba6c38b0f03b501994b5b7ca130544d44f",
+    "after_sha256": "988d2373996af57d3da9c11f048a9e15e485e3d746c96af089f691ecf84b9afe"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_head.png": {
+    "before_sha256": "d5c78e42fc8b6a8ee364e124fdc18252d3c6bf059d2436fd19f797a10267d7a3",
+    "after_sha256": "fefce942682e7c1b02797b7030407192e66b0c621cf1562ad1959cf8f6f94e20"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/leg_far.png": {
+    "before_sha256": "1cd853f705195ad7c8876c084f5c8d23ac17340cfb580cd675bbc9753b5472be",
+    "after_sha256": "0f7bb9e8b0f4dde58cee052d08a099d15d7abc7a75e3b1d979e2f9101f37c3dd"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/torso.png": {
+    "before_sha256": "a6618864fe0ee1623b007cc0d2369c5c7da6845d212d9d31b4daa70d42aa6b78",
+    "after_sha256": "490c47d435e4798dc23bf992151fecd28b819318d78aabc45d66f9dc86116c0d"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png": {
+    "before_sha256": "3025383b060c2a10f994f396455d2910b2fb6bc6d064a99d6c0c96b17dc3c2db",
+    "after_sha256": "4768dc0f901104ee63afb3fb640aedf1fc6afa30f3778c7a5ddb8f79c3ce39d3"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/hidden_claw.png": {
+    "before_sha256": "9211bc13ebfa597c8fd82ca9368e9fbdb32b1c576b5e385d5215b79e67447f21",
+    "after_sha256": "362f15a08aaeda9cc962ac4589de3e9f8ecef5b8f1cf20401d5f34cbe1f71509"
+  },
+  "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png": {
+    "before_sha256": "af2574493847e32743167d2441bbb05457614e110cf96267a0c89366ad8947c3",
+    "after_sha256": "c09c584b6fa6fccb361099bd78ea0e29fd3df287bf75dad6234e27a7f713057f"
+  },
+  "experiments/cutouts/arc_thrall/README.md": {
+    "before_sha256": "0931e740bd09e33660d4f19415f6cf4bdf4fee5ffb52c8f46ee79b4e74caec66",
+    "after_sha256": "a8eb1e9cf5e08c4fbf6ff4b6a7d8e6c54be8ac80d3495d2670ec254319238212"
+  },
+  "experiments/cutouts/arc_thrall/rr11_proof.sh": {
+    "before_sha256": "5940f6c5b7c57fc26892def041739c9e217ce00099f702d8e4ebe9eacafab267",
+    "after_sha256": "049fa16dbb1d9977f9f4312878ba8499d02ca69fce0b978de5040be790068347"
+  },
+  "experiments/cutouts/arc_thrall/rr11_gates.py": {
+    "before_sha256": "7b92a7ec76d6efecdf66185f194b2629890396d77b08584625aefc6606851e94",
+    "after_sha256": "d1bab7aa84266aa5758d3085cb3b0f02411a5cacd66b50bdee206b55e4153868"
+  },
+  "experiments/cutouts/arc_thrall/rr11/inputs.json": {
+    "before_sha256": "f3e438c571ed0bfce2c3a16d475e04fdc0a88fe984bc9b2e5e3a0269536bc4b7",
+    "after_sha256": "4b9bde5f8d882db8d5d94efe2bd9fc508ca0644bcae9f00abbcdaa7ea2035f2e"
+  },
+  "experiments/cutouts/arc_thrall/rr11/anatomy.json": {
+    "before_sha256": "5185c4c2ba6c64e882f48316885886c6a08611f1160ac3d6fa0a90244043813e",
+    "after_sha256": "500b2164e24edce7cea96611a283ea08f72a023ec4c4a6d0369fa8bd11ed119b"
+  },
+  "experiments/cutouts/arc_thrall/rr11/proof/thrall_protagonist_idle.json": {
+    "before_sha256": "237c5f5652ec8349767f9c247cde8827382649e1c55afad8a050a92ecf4ffbc7",
+    "after_sha256": "87b1e904d734b52b0ea663508d60e96f0c4cd0effcc6222b50edcd734478bb4f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/proof/samples.json": {
+    "before_sha256": "85cc892ea4d6e4acd1bd9130e048f2e41640bed00fcad1a2f0421fc8721e8ccb",
+    "after_sha256": "3a51f4a137b760a769f2953f45c271b348992903b50877e51c884e0e95e1ea01"
+  },
+  "experiments/cutouts/arc_thrall/rr11/proof/arc_thrall_review.json": {
+    "before_sha256": "aee89c2eaab05863d9993b44670b628198d44696e2b67be27c5299096f6021a2",
+    "after_sha256": "eefd5e838becdccff8a2fdc77a2a41bb25536204f3afdf910dcb6326cac3181f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/proof/.gitignore": {
+    "before_sha256": "c42f6fe862ae9f04dd78513175fb3d20da499c55a09aabb1d013e3e19f5c0e94",
+    "after_sha256": "e86da8b7d836099ef4100b5d5e8295255f26e0c67ea0c935d1d77a5bb6d3f96d"
+  },
+  "experiments/cutouts/arc_thrall/rr11/proof/build.json": {
+    "before_sha256": "f04f0194fba7b44a4ba0c7e5d00de6b301059d2e9337b856c2d008fb9b72cc35",
+    "after_sha256": "c49732cff0cd9d16f6f5b674ab156e19d14bd76da3961f835db59901d6ff3858"
+  },
+  "experiments/cutouts/arc_thrall/rr11/proof/production_logic/logic_frames.json": {
+    "before_sha256": "30304c569ea070f60ef409734ec18a64ca76ea3d426478c100783f75ee4fb54a",
+    "after_sha256": "c092541284000aed11ab84e7deb8e6095505d080e32cb4b8e9b9074139f73ecd"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_upper_near.png": {
+    "before_sha256": "2d5bbc70e8e1f13d0714ee1463d7f09561df260396ed3e46857a9978a9b4ca23",
+    "after_sha256": "d6b894a7257ee9104edb268cb1b645bdaffe90d089d201ec0e70700577096e09"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_head.png": {
+    "before_sha256": "aa7cba4aab0b3f6d40bb09f7dbbc1256bcbbe608691785faa082e256656d52fb",
+    "after_sha256": "fa7a6da3f54d71f56623f1edd535a793b2859c2ae92b202c94d8837a1c8ee57f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_leg_far.png": {
+    "before_sha256": "1294fa6bca0cc827d93843538c4f73ef51a1036505a706679ddbb9308c9110e3",
+    "after_sha256": "caa91202dd580c1d89fe88e304f3d37ebc4f2c52b65db78f679dd0b9a7fc6e92"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_loincloth.png": {
+    "before_sha256": "14af2931ad80c6f8ad90da2421cde743e824109a1144abde8155ea8e972ea1fc",
+    "after_sha256": "3e090e0226ab6040d3a150e87edeb4ab99b27a7ed73f5f474035e790b729b132"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_leg_near.png": {
+    "before_sha256": "bf3ca3a716b928d387464893d593c647134db31052583e2bf9ea197ddbc0e8ec",
+    "after_sha256": "5f66613dc6fb799b98c498e458bb2ad8a55167dddf67ee8fd2e773168d1832d6"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_foot_near.png": {
+    "before_sha256": "a11c4f658139ce3aabea901f7108654c932ba95eed79b04e0b108961e298218d",
+    "after_sha256": "b0b1b2d2bd033fbadad1466bf53b51d43191e6a238cdb0683178ab04eda03722"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_sleeve_far.png": {
+    "before_sha256": "ee8f5418ad63ef646998172fad2e53e4dfe77a31a08ac7ca5bd2bc8ee32c454e",
+    "after_sha256": "d23438a6f8c9d57d7301229d361a5023d32230341c7555666f7eddce12f27b69"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_head.png": {
+    "before_sha256": "e118793bc6ce757ee8ccc85a2277eaf21a798da18e721a36190f3bb8bca1bc84",
+    "after_sha256": "7a91e1982e22a458552092f1091b67b82d3ab7eb6acc0dea5e2dcfadf736ee33"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_leg_far.png": {
+    "before_sha256": "83447b5a3f8da335da15bfba668c2bedf02a773323d42af19387e9c13307aa28",
+    "after_sha256": "eb6d213ce893d4ca71c842e49a2408865075f454c5e064587176632b59036b8d"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_loincloth.png": {
+    "before_sha256": "aa2583f8bc74665adc0092245510cfa3c51f7a72c65106a6c6756bd0ea1d3907",
+    "after_sha256": "5c80e5e6991bac8542a02c92fcde1daeec6e34d92c3d487b6eeaecc4d59f7fa8"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_leg_near.png": {
+    "before_sha256": "5432668e0bf1c3b654695bd759ebfa352890563dedee5ece7f456517fa23308e",
+    "after_sha256": "43eda11d7276e72a86de7e0f88526fbec3c95f7a7fd4dbc4aa789f2b5206c046"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_torso.png": {
+    "before_sha256": "fa511e58d164ff0324cc00e038007c7aa08b6b31f2a1554f46862ad1324a1450",
+    "after_sha256": "a8bfc98c17fad3103c7fa3c9738d8f3869f74b69b0391b782f9f05a2fc3fa28d"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_sleeve_far.png": {
+    "before_sha256": "123b05a258d9565306cc35dc2744929ce53e06c18869c10892ceba00922c9a57",
+    "after_sha256": "ea84f5545080f3a3bd4cd9a6f77767bf57972f9431d9dff60c1f3bb7e7545b06"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/front_foot_far.png": {
+    "before_sha256": "316e5ce5e2ad2e3d583f1ed0d0d21153705a5672a4fa6bab4d4694f09965c0d1",
+    "after_sha256": "28302f72aa29412fb35f637f9a6a785d2ea89c9ea9573e9bb48c0fce78e56382"
+  },
+  "experiments/cutouts/arc_thrall/rr11/tucks/rear_torso.png": {
+    "before_sha256": "efe91e6883933dc01ff68cadd3e3b09dad512a9bb918682d7d9396ab595ec155",
+    "after_sha256": "46890a986167f39aef14e7a559c086556531c22d80c6b60c290502388d4b3fbc"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_loincloth.png": {
+    "before_sha256": "8321ec9dbe4c0ee24e17d481bbafa766fec15bbd3ec81ceb1229d3a9d35bda25",
+    "after_sha256": "f63af87f6fedfa3e8367b118e3bac134db3aefcc1108eaa2b74cd439eafa206c"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/joint_extension_loincloth.png": {
+    "before_sha256": "d1eb3fbd85115ed638e1702604fcd7a53f51ce35a352392c75ca6f30afe98c60",
+    "after_sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/foot_near.png": {
+    "before_sha256": "792a2303a1a7373c6c1b1416d01a45dcabb7752ccacfb25915b67e7102102f23",
+    "after_sha256": "43ca15275ee5c5cc4372a97f0f7e1117b29433bf60585d06195224fcb34e9172"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_foot_near.png": {
+    "before_sha256": "696f608019128cc0ae288cd11ba0b60259737a3cd60eb5fbd9a41645740a253e",
+    "after_sha256": "6708f7e02822839b3a8526d56c6e4b966912340d43170646e49255f8edcfc787"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/leg_near.png": {
+    "before_sha256": "d73ba0ba38b5557d1d62c13eb83d7bb414d78bb992923e5b2adc1572fc404455",
+    "after_sha256": "f1ac00f28dbca42bcb718f4adb510a345e155cfebacbf0cf921bc43cc6256ab5"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_torso.png": {
+    "before_sha256": "c89d5a93c363a647048bb01d39077d71a863cc6f211ed4fb0accf35a709b1f7f",
+    "after_sha256": "b723cc866fa2cabfe2395743e5cd6656b00291bef271b97a51614e36bdb6f465"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/loincloth.png": {
+    "before_sha256": "34b33b2c5a787968cb07bf1437e8e3ffe64aea8514be93c96b09dc78305776d4",
+    "after_sha256": "19100f331fbd22a2bbf3a006552a380011923a89da0c192abf167fdb161debb0"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/foot_far.png": {
+    "before_sha256": "7592d7117d9187f40bf5aa3de116943f37b98a76b7921e34ca3c24a90253d4b8",
+    "after_sha256": "3cbe7ecd6a6976e3a04a3691b19d588889768472a078771d2f5f451943d5564b"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/head.png": {
+    "before_sha256": "681345e371d1ff21b1c473bf69441c98b597aa1dc194e6477c6ac17d43a6ffed",
+    "after_sha256": "5cf0581590d4fc5c7e598c4242c9a20e1dddc8d1ffe52eefe7188d61ed786d25"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/tube.png": {
+    "before_sha256": "0b9256bdfeffca56c77a848367cda232f39dee1bdc3feffd4844aa29378eac6f",
+    "after_sha256": "c72bcb0e26174d75ed82a7910d02f4554f3be9ee612ea9ebf92aa7aa28159536"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/hidden_head.png": {
+    "before_sha256": "f0d051a06f8211bddcc5fb14016c7145dce9cf3f4999df1da6f5a55bfe7753f0",
+    "after_sha256": "3889c6c98f282f8ac29e385b470b475aa50c21d2847444ce724b7287ed1685c5"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/leg_far.png": {
+    "before_sha256": "bb13c008e17f6b4fd55ee200cbb3ab27708359bfe4ec512c5d202d321e243839",
+    "after_sha256": "f95d70540d752eee8b47f004677b47fabc758be59481bb3d08eca9d80b55094e"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/torso.png": {
+    "before_sha256": "69ae1f0d91d3930905761db15b94ab3f9f9cf862b1501bd59c0055a0e775f025",
+    "after_sha256": "5b0c62f11684c09ee96aebb9c487756f328b8cf52878affd8ed2f2ee5ce6db0a"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/claw.png": {
+    "before_sha256": "8acf710b0e04feb85116fc043de7c803e335ba0d1548c158e5ba6d076f98e7f2",
+    "after_sha256": "0347116f295fa65e54efffc50d88a694bd18e83ef0fa8243856ebafa9adc086c"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/rear/sleeve_far.png": {
+    "before_sha256": "32dad65aafd20b0291873b2bd8de274dc999f47838f83006ae6a5ace7523eb7a",
+    "after_sha256": "ed3cc3c955f69ee29ca83f0bc4ce36842099deb2a4b7a814a8ab64eedd81cc69"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/upper_near.png": {
+    "before_sha256": "0a8953f43e896aa0bbea3217ac5b939cddde9f58118732db136fefcb4d47b11e",
+    "after_sha256": "2e37b8d687bd43966012e54452b2f5cf9c82de449204023ee0b1276d330ae2da"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/leg_near.png": {
+    "before_sha256": "10ed2edac52ef1224898dcd16f8783234e02be700730612e62a24feb2bb63597",
+    "after_sha256": "94baae6442d85fea6e52259b3bbb42f2371ba9983c0a4a4b813f8469c66d90dc"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_torso.png": {
+    "before_sha256": "a14611bf4db83b8d1a1babac3292ffd54e24ed417ced91316d29d3eab4b304f1",
+    "after_sha256": "9d59babc196ed04207bb044bb916f44a3c9c277c6b4afe62fee09a02993a431b"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/loincloth.png": {
+    "before_sha256": "efa32a9c2a648df3d911ae4dd88daf32123378677aceb9d08c9f2704c8865049",
+    "after_sha256": "7807b34c035b944b4c64acfff3118ac720ad28230bea76f11397957e647e528e"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_foot_far.png": {
+    "before_sha256": "ffe8f5d09c42c944f8a7026d03780aea0748591d41977c4dc05c6488f6a64fb3",
+    "after_sha256": "863a61037547a2a782e2f40e43a098a93b4920b3fc89943e371c3b5b8804a26e"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_leg_near.png": {
+    "before_sha256": "77b647d3baccb1a13cd19cdf603bec4faae69f6a6f68421da918be15db7dd356",
+    "after_sha256": "d37a738e06a52ae76445e5ffa3febadcf7ef3e78a79df8f6ed78aabc93b30330"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/foot_far.png": {
+    "before_sha256": "06626a1214d8fac18c8b218c99249df83cbbef6f486842237d244f5a15d1fcb7",
+    "after_sha256": "581214b1a7e46e3ee76be98fe05865029bf2f98f201df2a0048c2999cf15ccfc"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/head.png": {
+    "before_sha256": "c6a7f64b5f99696a88ae4f284dbff2a7e32b07118873e6474e346a269c14cf49",
+    "after_sha256": "9b6bac6cf76c48e7c7d6abc820c8e5dd19ad9adea6ceb7d8cbf7ad758247eb2f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/hidden_head.png": {
+    "before_sha256": "9084535dc8ff5df3b64c62d570ad8f4922fccb292130c169493eb75aad832003",
+    "after_sha256": "74de236b646f8d7ad8e3ccd8456dd046efce552dc73fe54077fddc53368d7907"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/leg_far.png": {
+    "before_sha256": "affbcce5a29fd679c96de883c8aa4013784dc9200b5b9982daa7cd7e1cd8ade4",
+    "after_sha256": "94509c9a558c747bdeeb34681cbddd6ababcbad2c73a91a079e7be6c9b9887d0"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/torso.png": {
+    "before_sha256": "33bc24f2e7a9a047270195a1872bb0f763145d38b0bf06790563cdffe3b7a42c",
+    "after_sha256": "6bb7ea7e5a823cb61919243131b9478e81e7034bb54dfc5ea1b9708078c92d8e"
+  },
+  "experiments/cutouts/arc_thrall/rr11/checks/front/sleeve_far.png": {
+    "before_sha256": "c3fca231f0082f6c9516096f534bae7d5727a6f93ff450e4004e9a693b489eb4",
+    "after_sha256": "901c40a4f009125111a72a5d8f69ff3dd7bcfc885672955b95cf37669e465114"
+  },
+  "experiments/cutouts/arc_thrall/rr11/source/rear/processed.json": {
+    "before_sha256": "02878522a41a6467e5266fd390d159e6d1b73806b473cd99c9527fb878ae8495",
+    "after_sha256": "8bd95f57cad0f157e55353f2f9ec8364880519ac6d7701581602a561a92c181e"
+  },
+  "experiments/cutouts/arc_thrall/rr11/source/rear/processed.png": {
+    "before_sha256": "85cbe7b84b259a054a9b9753c7481bfa9cba2bf9719f5a2548582ac17755ff0f",
+    "after_sha256": "9cdfe676cad158de07b979512f4fa1adcf2d912ef457cfe722e4caa03316f468"
+  },
+  "experiments/cutouts/arc_thrall/rr11/source/front/processed.json": {
+    "before_sha256": "9cc78facf6d38b617d81e81ce260ee4a8c8db7ebf1eb3d41d708c036369016af",
+    "after_sha256": "0a3ace68fdb8dc79a8456fae2452a04ed5eee1b5ff5a466f76671ccfb4ae8016"
+  },
+  "experiments/cutouts/arc_thrall/rr11/source/front/processed.png": {
+    "before_sha256": "09a2e41da86df9b272494f760106140d0df0b8c3022d130d5cd5ae7a437347a0",
+    "after_sha256": "0d5599290b76bab0cc3bc3317af5e4e54b74fcef53d411b4ad25dce04610d381"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_loincloth.png": {
+    "before_sha256": "f3a64518fd81cd0bdb5fdebbb491669ac1305da949a43f613ae8fe12296b3dc7",
+    "after_sha256": "e825c0361357f427708835025ef008bd7c086f4c37194eeaafc4e359e7d5c692"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/upper_near.png": {
+    "before_sha256": "e68ed5e76f502c64694efb60cfcf6cd98d49df9cf002f9f76f019aaa77449135",
+    "after_sha256": "46706d2ae5df8c2f8691a05ad575f8471cf6379c96c5450e2bda46f7a10e5c78"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_loincloth.png": {
+    "before_sha256": "619fe0c423f8c51623b7bfb795146dafa9cc7b86e31b1c00fa3eb5ceba6bd998",
+    "after_sha256": "fe7905f7b73caa25b03b086414debcbd58a2b84dc697b6e456af2714d824eda0"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/foot_near.png": {
+    "before_sha256": "ec645e87700aeb5028b35724426bf65b7d4fa5cb24e4d5e1053045a6434ce68b",
+    "after_sha256": "fe4f6d14424257441a52cf6759691df22ff4b0e1bac360788e1121265e6a8868"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_near.png": {
+    "before_sha256": "e850ffe855a92dc5ad0ad1decadec8a902488d569284594335d12994bce276c0",
+    "after_sha256": "6d436d5c779a827975a5fdadbee0e97420eb33804ddfc38f57c0db108c3dceca"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/leg_near.png": {
+    "before_sha256": "53db2d213944087dec02ea656379f3672ae4128c828153b615c4c1c84917a616",
+    "after_sha256": "8d8442592a502f4fd9bad4965a9d293004589c1301399fd8e2d4e68cb5a5e62b"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/joint_extension_torso.png": {
+    "before_sha256": "fa1ea3dc48bee332bd76f65fa155aa3fdec1f2fad2e1f8e2d4d83eb5596e4ff5",
+    "after_sha256": "c5f6d19ce2cc7cfbacb9a0e027da7e2b503921f707e5e86fc5f7ad050c07b9da"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_leg_far.png": {
+    "before_sha256": "640e9dae4420ee97adc42e6cef189ca43383b588e17f28cad978c23a0fc71dcd",
+    "after_sha256": "42cc7edc93c3def5e218b34e725498641d58ff0178fa1c35b252a924e9237cb5"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_torso.png": {
+    "before_sha256": "7d3711cc5679942dc83cdb55db1db526bfe1454bf056f6f5e971c4b04131c6f0",
+    "after_sha256": "e948fd9cb1a91f07148e2579d59911bf11a8d811a02023dc6fadbef96b9d3449"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/loincloth.png": {
+    "before_sha256": "e64cf1cc18b13e8cc775d0603ed1b4740d5b0e12c5cd9e9d06aa22d4110a215f",
+    "after_sha256": "8739f0caec036e309da2debc707e1e38f2dd479dbb32916913c9c49de66e7d2a"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_foot_far.png": {
+    "before_sha256": "c9ec4434f9e9b8803b9d6d7c28035c5cd7ee68598449acac62d12fb763902df7",
+    "after_sha256": "8ad10794f1ffbaed81f83e4b3d87a378a1d8df955b70647d7bddcd558828538d"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_upper_near.png": {
+    "before_sha256": "e90225389cd60cb5058a762525797b87dff97d3d3b1534b57c096ee891a24d95",
+    "after_sha256": "23a59e61e811a08ff55a395df1df19c0a2e0049a7d99c73e5215e4fbb2911223"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_leg_near.png": {
+    "before_sha256": "81eb062886c1603c9f472dce501e2bdb8d743fcda63bf508fad06375e3693264",
+    "after_sha256": "5c266db04f23b307ba382b47c690f40c8f52e03029fe32a45e23b54a9092b969"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/foot_far.png": {
+    "before_sha256": "f1fd18632f79cd1e2461af9c45b200d104b0bfdb1c2d33cf34f72dbaffb062b5",
+    "after_sha256": "87d2bfcbcd102acc0709490d756ac5195469c42a610a1ede8ea0fa3ae58ba935"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/head.png": {
+    "before_sha256": "306b4c1873fef54c230a4dafc7bbd52b557bd864a32d15d32af8ba6375707edb",
+    "after_sha256": "836fbd308547746f31b86ebb99aa0ccc32d26bc4adf13a34e7558902e12f0bb9"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_tube.png": {
+    "before_sha256": "827c61d65e37e3990ac89ad8e9148f5a3c80c3db7dc74d60b606d816c3ce5615",
+    "after_sha256": "b725ea741757db37e3026dcf7a87db5d351b2701da174a94766a5a4be9183fc5"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/tube.png": {
+    "before_sha256": "a80a2803b9b2b5c5eb96957868339136bc8baed06d93efc88963eb6ab5e080c2",
+    "after_sha256": "361e1eccd8a7e68c623f6c4fbef6e43f80d0473b072db845ad87b1eaf7747bf1"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_head.png": {
+    "before_sha256": "dd7606bd40d0091f05a6888607465b11d8215df0117c32431c684900ae47c68c",
+    "after_sha256": "daa33867ecd9ba2f3cacf6564cc9db60f223589262d9bb686a781b90b7bd17bf"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_sleeve_far.png": {
+    "before_sha256": "3195e50b38514549c042040906f36e54690292d96a2188cca9193e92046ddc77",
+    "after_sha256": "768f88e695817b426ad5bb4eba00d9fed788f9da60ca1b2acbc25aaef8a191ae"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/leg_far.png": {
+    "before_sha256": "005c7de1014052a644e3492733040711165d4bc273b3d81e29090d41379a5151",
+    "after_sha256": "3a3030b4d8898deb5dd05b895b23e464877d17ca3c1b9ea43b5d80b611d0f5f2"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/torso.png": {
+    "before_sha256": "2f61426289650fcf0798bc98e94f876a86e42047601e724293a7a0db28a2dedf",
+    "after_sha256": "d17074482b06726dc96ea26e56a5eee20c28a3aa49560e13d39f6ef0fbd55cc2"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/claw.png": {
+    "before_sha256": "f13593f35403d030ef6ddf0c8d97f9dbf356161bf6fb835b93ba1646f9ac756a",
+    "after_sha256": "f4f72ae3315e7e835dd5961ac1db8e4b60432b3b709a6db204ef5f8856681c2f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/hidden_claw.png": {
+    "before_sha256": "a9ad51b4bca3312c59330797f7398c248c82d64b238131a65359b41ccd8dd0b8",
+    "after_sha256": "b33030e34b6ba095715b9740c3ec7eaa8d0c1307b6dbe430596e25bed386bfcd"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/rear/sleeve_far.png": {
+    "before_sha256": "eb342a29a87d2fd3d29b66b21ddf0aef45841d164c26e35f107ed818332e745d",
+    "after_sha256": "ca7742bcf927892d795927ff4fa2ac1c328969c8eab733ca38626b3ee31daede"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/upper_near.png": {
+    "before_sha256": "a8734c486608856e6a3c94af10d7975787ec3f21fa5aaa2abcaca5576e28fd02",
+    "after_sha256": "35cd87b678c5d4cba3731e05264c6a52cc05300b8b969fa7e010c35661cf2dfd"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_near.png": {
+    "before_sha256": "faa3d2e6b7ae2041e2f8d95749da3e6fee8a04671277054206186f88d70bd59e",
+    "after_sha256": "10d743714f82415ff9e79651b73471e786ac76ee8125d1ab84130174aaa7f89d"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/leg_near.png": {
+    "before_sha256": "d56ab800e0098e19fdf58935eac02bb02e52d1da8aef0b7a489b1ba54847ca17",
+    "after_sha256": "d148ac151c136885eadc4560f2730770698d0ef41b5a8d85cd8dee89a14b2ce9"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_leg_far.png": {
+    "before_sha256": "a9f8c3c9729a727606c1d00aaa94bcff1fdd29b8489486b2e278f2c3745a00cb",
+    "after_sha256": "4a426cf9fccd99d21c94050fead97025d1417567345a7536c24379833afa6742"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_torso.png": {
+    "before_sha256": "bbb9641fd0c20f6abaebb2f215af81b97800926ca89adf649dc8dc279e9a0011",
+    "after_sha256": "126264215da400fb39ce66c98dc6a94fbc8856a341d197a0a96afcb627476c04"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/loincloth.png": {
+    "before_sha256": "e4e6054b6cff952316a4bd20a7b9c5a9205a07462b77fe4b20890fb452eab0b3",
+    "after_sha256": "b9c266b456e173dad34d802844187f8944a4766b71cc9c1b3e2deab8246c18a9"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_foot_far.png": {
+    "before_sha256": "68d3f638ecc2c2509098af107f4d27d703ca3416752ba8b1183a6b6f2c2ca96f",
+    "after_sha256": "8244c1bc6cfc705e144f1cf3975d0e3f2171167ebd214cb67bc2a883d355fa0b"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_upper_near.png": {
+    "before_sha256": "af195e43bba56b9f2b1b7da6d5bb7ce17694ff245618a641a43ffd9ef9d6a896",
+    "after_sha256": "52934a8ba243560d4512ca1f6b7b074fd28e6db17dd679ccf8ba721b7aa0b46f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_leg_near.png": {
+    "before_sha256": "583c7669cac4e3c1be0040a0a1ce7b403c489295a6d5f2178fce79672ac640cf",
+    "after_sha256": "b630f3721ae1d5c7046fc9a3dbeeededdb6dfe496ca62e88c9c8301fdb64d849"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/foot_far.png": {
+    "before_sha256": "245461c59a95d70ab25cdf7ea2812e867e9a4d0adba1244dd6f8b749a8fdc175",
+    "after_sha256": "b555db27126c8a8e84d78399240005442d99b76d39a02ec41abc704e53f9d49f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/head.png": {
+    "before_sha256": "46ae089364ac18c9c2a89cc8a2d8fb9f12a8b3a1b1ced413bf829948ab42fdee",
+    "after_sha256": "bd989c3f2d70228c23aec475982c93eb99487ff77ed1fc89aae3c79601c46af8"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_head.png": {
+    "before_sha256": "e9bde454beab01146a3adfbdba8f909944ad405da0d35e39d6691f8e44edcd46",
+    "after_sha256": "fefce942682e7c1b02797b7030407192e66b0c621cf1562ad1959cf8f6f94e20"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/leg_far.png": {
+    "before_sha256": "f978529af07a181d24e475923d5685f2fadc616beee6fff336b93d755d908947",
+    "after_sha256": "6461ca8f9a9f49bd244c5865f9466f1d3d0c67e51b3e15d9a3a559465d2afc64"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/torso.png": {
+    "before_sha256": "eda8de472c2ff5ad1498658dec1c609fb508360b22a6992394b2743aa0f9cb13",
+    "after_sha256": "e9b84c00798fec997cd71863fa197308d36bac28360d212eb07eccbbf5bd8a67"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/hidden_claw.png": {
+    "before_sha256": "1be08dbde9dbe29e9b038860493f844b0527775f8f67daf6cafcd19d2622c44e",
+    "after_sha256": "fc76f3346876e3c8ce00445918bce4ecc632af9ccc6456a39ad91d0b466ce347"
+  },
+  "experiments/cutouts/arc_thrall/rr11/pieces/front/sleeve_far.png": {
+    "before_sha256": "dd44f4cf00f4c241f77b65cafe8947764edb2368146542317b5959af82929e4d",
+    "after_sha256": "c332a60094b68e8cc82ea4230cadae06d49a164761d21327cd1696b40493ab92"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_head.png": {
+    "before_sha256": "c19134a40bf1544b7273accff669ab0b2cb1d0beaa91ae3e02236ae5fd75c8d2",
+    "after_sha256": "5b0e7d742182cc85592351a31595fd32c485d905af751feaf05188b557d939cf"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_leg_far.png": {
+    "before_sha256": "e897b878a05df43e0377982858f0db22b0ed325c0e38a1ff55713ee728d7b69e",
+    "after_sha256": "c056fa3a4db14831fd29cb7d02b98e4450056091e5867e60b6b158c018fb1de9"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_loincloth.png": {
+    "before_sha256": "ee672d3c9110b478c63fbb9d469d02b7f916067bd8816d0192b98683393fd310",
+    "after_sha256": "b948058fceee40927f2c02dd642ead04f726321cf9530c869a9338b882aa2893"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_sleeve_far_mesh.json": {
+    "before_sha256": "e6c0f2c84852993846a3027c5a9781f3d534becc1258d97d46437c0e3f7bd8c5",
+    "after_sha256": "ee1969fbceb46972315bd101f03ec8358bde85eee4e3e14fd31313fe2de538b4"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_leg_far_mesh.json": {
+    "before_sha256": "5f4d9b9bc995e4e7e66486f743f9edb326e6111eb81efe333f97b5260e9884e3",
+    "after_sha256": "5754d2681b508b8037e3ac7e9bb5c8d6268aeaf39cceb3f820605c9c9b7bcc3c"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_leg_near.png": {
+    "before_sha256": "a7fd5c1bc48f80c38895723d39b0f2f14d8fa3565fe0ae20702a927bca670325",
+    "after_sha256": "4da5e494ae16e75d816ddeac3b472b80ff0ead3469ea938fc80ae16a933beed2"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_sleeve_far_mesh.json": {
+    "before_sha256": "ca1a4cd0f1750d89301f25972c80826305d8611a2df6183b2c2e8af63df715a5",
+    "after_sha256": "37b4910299ae239197ecd9f890d7f49961a08451f26986194900f8a18c17be59"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_leg_near_mesh.json": {
+    "before_sha256": "1a325521a464ac8ab96c156c8c573e62ec7fbc06f231e04795a590fac8b4c80a",
+    "after_sha256": "749b62f112503e7f616808c4b09ca5d39715f8d0e6dd97e3dde2867dde8daa8f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_loincloth_mesh.json": {
+    "before_sha256": "5ae2b625dd9b95fbc7b5919ba78b5f1d08edae40d4e8e39a79abc00516fd0c71",
+    "after_sha256": "fff43a083aef091d62ca3d504f2f9cb145f0e1bba947e0073c708df6c806283a"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_foot_near.png": {
+    "before_sha256": "94831712cbff2019dc73474f6cac85cefe8ca09c708d8fef8f1c6820d9c734d0",
+    "after_sha256": "816b93b81d068eee9ddb259c920589bc80b89fccc411eaeafd8de4a5423be181"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_sleeve_far.png": {
+    "before_sha256": "3c3ee9adb610c99da96b5b8d4d34bf4f027aaed66668aead3cd9fb5128460dc4",
+    "after_sha256": "0a723601df290072f594427afe9d791b3647f18da016e0e4e51a2f4836905085"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_loincloth_mesh.json": {
+    "before_sha256": "e0a7586c26f291827ce848aa4e98201be6b1722580b2f8c996ca063e6f50ffbe",
+    "after_sha256": "eccc81f8d62b9b3e8625db9f358e1714cc7133feac26d435eba638b3fc972fcf"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_head.png": {
+    "before_sha256": "315a4240136980774fdd84904981d09eae38122a743f3975e4488ed4ab89a5c7",
+    "after_sha256": "3ba62036fce4cdb3216acdd2cfeae13d4317ae74daa43d3112fdfa84c252fe6a"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_tube.png": {
+    "before_sha256": "33ddb07487a0ae515de90729c5f3733edef38af1103737a228e39d5a40b9a744",
+    "after_sha256": "07bfafb6f6ea40cc20b92d6ac655472efe5a2bf0099693e81e197e9c19589c13"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_far.png": {
+    "before_sha256": "8a5320a3a8845d9e542ae78bce565508dd3b86799d9f63c80beb555ae7fd4c07",
+    "after_sha256": "2696afd3c1a366ff7db256027f4e98d68bb43fa41434d67e6cabae34bb8fc717"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_loincloth.png": {
+    "before_sha256": "994beb8f8d1520dad905de3733efba8f7cabf4801db81174bd7d14c46781aaef",
+    "after_sha256": "67c137af24dfea8ba3110854b8b392ce557ac83232aa7b6cd083c76ba65cbdfc"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_upper_near.png": {
+    "before_sha256": "7c4391b4473bf8ddbf053ae64728f9a774a377aadf3c34ae9360ded502634b02",
+    "after_sha256": "d515aeed41a88fd0aba048c9595fe88efdd5df7eeecd85947a0ef3100c09c0b1"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_near.png": {
+    "before_sha256": "ccda0b546808fca6298f2bd88b2527564fc44e26eedab8d6982fa5761f498ed7",
+    "after_sha256": "78fbcf941ee27fe0c9b53abad1d9baeabb66667b1d17731917b541262a958898"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_torso.png": {
+    "before_sha256": "b7a1a95ea18c8a6960d2e676bebbfd68e3deb7cb0075473f8bdde1e3f234980e",
+    "after_sha256": "248ef8648a0b22da4a2fb2bc58762beb34dd9e9742355020029d35b0ba81e74f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_near_mesh.json": {
+    "before_sha256": "6fd92836af4eaeacaad8609dfb339086cb36596ddd579ee0de7c93d25006417c",
+    "after_sha256": "af428f09870469a6c7e45e9d297685a8b0882ca5170c2414a0db1c0ed39a42d7"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_sleeve_far.png": {
+    "before_sha256": "1c7071b76648b57a454fcabc19192f7caa9cc3da5c9e49e464c651e1b2b0727b",
+    "after_sha256": "271a3a15db415ae37a3636b2dab938bb1bf13ce1d52f615305bf13ceba8be65f"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/front_foot_far.png": {
+    "before_sha256": "b14b51dea1ba91cd22bb8a0d631eaed833ad0a18af59b39973261d37be5d196e",
+    "after_sha256": "d9a9d96df24589bbcd952917751004c2fa196647266deaa83e7bdc847389a4d8"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_leg_far_mesh.json": {
+    "before_sha256": "d7db7cbd08fca8a5e486fca03707db5308f248486ae4c0930033b7e220eba1c6",
+    "after_sha256": "1f67b10c887e836828b053bc537a0184bd23392a3a5b9477046a4a7212ff98e2"
+  },
+  "experiments/cutouts/arc_thrall/rr11/seams/rear_torso.png": {
+    "before_sha256": "4ad971bab219fa6f82b512053441990971b18303091f7963ab0bba0c09a3cccf",
+    "after_sha256": "484cb87131245d5660378e1ee7aaa778897ec289e3db771731ea19208d990348"
+  },
+  "experiments/cutouts/arc_thrall/rr11/layouts/rear.json": {
+    "before_sha256": "5ea9f630cb92c5d70dfd23cb5a8fc98bab383634b7870361ee5423df27461d71",
+    "after_sha256": "3d4b9d88b8583d08aea7f47d1b6526bbc629020d503aeabfe48b3c3d089a1be7"
+  },
+  "experiments/cutouts/arc_thrall/rr11/layouts/front.json": {
+    "before_sha256": "28c452b39cb11d0ef19c0af34d4ce63fd7d20af2f91072a5b9f31122632bd950",
+    "after_sha256": "f13054cd20103d89c81b649ee0e2b4e24d1f0561766bd86057d60a05d1c5f519"
+  },
+  "experiments/cutouts/storm_capacitor/rr17_proof.sh": {
+    "before_sha256": "241163bc89c0de03cb71303759594f1ab9990e96e1d43e4e4abdce4a7597ecfa",
+    "after_sha256": "fded8b27eb28fc5c316ac522ddfca67d013237c05267fd2571fbc4a7455761d1"
+  },
+  "experiments/cutouts/storm_capacitor/mq5/proof/samples.json": {
+    "before_sha256": "c4ee4f448ddf820d02faac88dd718f21d4b745b223e9c1d60ae44db79521de04",
+    "after_sha256": "f3a6930c856d80523a59df2e3e2b2788f2965fd267739cfef82b6a99a86036a9"
+  },
+  "experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json": {
+    "before_sha256": "32adb8d24e9944a1c0f053675222e810a8795a2226315dee2efdff074e1b8d72",
+    "after_sha256": "009b7b5ab09204763f55f8dea67e3079647bdc5de9c31cf37e6808155a494880"
+  }
+}

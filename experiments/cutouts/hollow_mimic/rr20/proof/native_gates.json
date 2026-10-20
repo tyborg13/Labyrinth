@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "errors": [],
+  "native_pixels": true,
+  "pocket_failures": [],
+  "air_pocket_count": 4652,
+  "approved_detached_component_count": 355,
+  "sample_counts": {
+    "rest_space": 724
+  },
+  "full_samples": {
+    "file": "logs/native_gates.full.json",
+    "sha256": "3971ee7b93086a5e4e0888e0d217da9f3fe6357923e51961d020a322a3c0c649"
+  }
+}

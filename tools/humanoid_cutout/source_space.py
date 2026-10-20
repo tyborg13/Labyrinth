@@ -1,110 +1,119 @@
-"""Approved-paint negative space, using transported immutable paint/tuck masks.
+"""Spec §1: approved-source air and strict detached-component provenance.
 
-The check captures use the same rigid quads or skin triangles as the paint.
-Their red channel therefore answers the inverse-source occupancy question at
-each presented pixel, without approximating a skinned mesh by one bone.
-Joint tears remain failures; neither a rest-hole overlap nor nearby air can
-excuse a missing immutable texel. No creature, clip or frame exceptions live here.
+Transported immutable paint/tuck masks use the paint's own geometry. Exact
+source texels and independent rigid transforms certify detached components;
+size, darkness and nearby body paint never supply provenance.
 """
 import numpy as np
 from PIL import Image
 
 from maquette_motion import pixels
-from maquette_motion.features import source_pixels
 from maquette_motion.silhouette import components, holes
 
 
 def bounds(mask):
-    yy, xx = np.nonzero(mask)
-    return [int(xx.min()), int(yy.min()), int(xx.max()) + 1, int(yy.max()) + 1]
+    y, x = np.nonzero(mask)
+    return [int(x.min()), int(y.min()), int(x.max()) + 1, int(y.max()) + 1]
 
 
 def pocket_report(layers, joint_tears=()):
-    """Report every pocket; a single painted/tuck pixel makes it fail.
+    """Check every pocket pixel against every immutable piece and tuck.
 
-    Existing joint-boundary detection supplies independently identified tears.
-    Immutable masks also catch damage away from a named joint, including 1 px.
+    Independent joint tears always fail, even when masks alone suggest air.
+    A piece need not be visible on the rim to protect its painted surface.
     """
     occupied = np.logical_or.reduce([image[..., 3] > 0 for _, image, _ in layers])
-    painted = np.logical_or.reduce([(check[..., 0] > 0) & (check[..., 3] > 0)
-                                   for _, _, check in layers])
+    allowed = [(row.get('name', ''), (checks[..., 3] > 0) &
+                ((checks[..., 0] > 0) | (checks[..., 1] > 0)))
+               for row, _, checks in layers]
+    painted = np.logical_or.reduce([mask for _, mask in allowed])
     failures, air = [], []
     tear_bounds = {tuple(record['bbox']) for record in joint_tears}
     for pocket in holes(occupied):
         box = bounds(pocket)
-        blocked = int((pocket & painted).sum())
+        hits = {name: int((pocket & mask).sum()) for name, mask in allowed if (pocket & mask).any()}
         tear = tuple(box) in tear_bounds
         record = {'bbox': box, 'pixel_count': int(pocket.sum()),
-                  'painted_or_tuck_pixels': blocked, 'joint_tear': tear}
-        (failures if blocked or tear else air).append(record)
+                  'painted_or_tuck_pixels': int((pocket & painted).sum()), 'joint_tear': tear}
+        if hits: record['painted_or_tuck_pixels_by_piece'] = hits
+        (failures if hits or tear else air).append(record)
     return {'failures': failures, 'air_pockets': air}
 
 
-class PaintedComponents:
-    """Only components detached in the whole approved painting can pass.
+def gate_errors(key, metrics, failures, approved=()):
+    """Historical frame exceptions cannot waive a strict source-space failure."""
+    from .native_exceptions import frame_errors, DETACHED_RULE, JOINT_HOLE_RULE
+    remaining = [row for row in approved if row[3] not in (DETACHED_RULE, JOINT_HOLE_RULE)]
+    return frame_errors(key, metrics, failures, remaining)
 
-    A cut-induced island is not a painted speck. Certified source components
-    must have one rigid owner and follow that owner's sampled rigid transform.
-    Skinned owners never acquire a rigid-speck exemption.
+
+class DetachedSource:
+    """Detached approved paint passes only at its rigid owner's exact texels.
+
+    References come from disconnected components of the approved rest, never
+    from the presented image or an arbitrary component of an isolated piece.
+    A transformed bounding box or colour alone cannot authorize a stray.
     """
     def __init__(self, case, layout):
-        self.layout = layout
         source = np.asarray(Image.open(case / layout.get('raw_rest_source', layout['rest_source'])).convert('RGBA'))
-        labelled, groups = components(source[..., 3] > 0)
-        meshes = {mesh['name'] for mesh in layout.get('joint_meshes', [])}
-        self.certified = {}
-        for part in layout['parts']:
-            if part['name'] in meshes or part.get('hidden_material'):
-                continue
-            own = source_pixels(case, part)[..., 3] > 0
-            selected = np.zeros_like(own)
-            for label, _ in groups[1:]:
-                component = labelled == label
-                if np.all(own[component]):
-                    selected |= component
-            if selected.any():
-                x, y = part['offset']
-                with Image.open(case / part['file']) as image:
-                    width, height = image.size
-                image = np.zeros((height, width, 4), dtype=np.uint8)
-                image[selected[y:y+height, x:x+width]] = 255
-                self.certified[part['name']] = Image.fromarray(image)
-
-    def report(self, layers, pose):
-        if not self.certified:
-            return []
-        occupied = np.logical_or.reduce([image[..., 3] > 0 for _, image, _ in layers])
-        labels, groups = components(occupied)
-        if not groups:
-            return []
-        # Topmost ownership prevents another piece from borrowing a source speck.
-        owners = np.full(occupied.shape, '', dtype=object)
-        for part, image, _ in sorted(layers, key=lambda item: item[0]['z_index']):
-            owners[image[..., 3] > 0] = part['name']
-        accepted = []
-        references = {}
+        labels, groups = components(source[..., 3] > 0, 8)
+        skinned = {mesh['name'] for mesh in layout.get('joint_meshes', [])}
+        self.references = []
         for label, size in groups[1:]:
             component = labels == label
-            names = set(owners[component])
-            if len(names) != 1:
-                continue
-            name = names.pop()
-            if name not in self.certified:
-                continue
-            if name not in references:
-                transform = pixels.unpack(pose['parts'][name]['transform'])
-                references[name] = pixels.render(self.certified[name], transform)[..., 3] > 0
-            if np.all(references[name][component]):
-                accepted.append({'bbox': bounds(component), 'pixel_count': size, 'owner': name})
-        return accepted
+            for part in layout['parts']:
+                name = part['name']
+                if name in skinned or part.get('hidden_material'):
+                    continue
+                record = layout['proof_layers'][name]
+                checks = np.asarray(Image.open(case / record['mask']).convert('RGBA'))
+                x, y = record['mask_offset']
+                h, w = checks.shape[:2]
+                owned = np.zeros_like(component)
+                owned[y:y+h, x:x+w] = (checks[..., 0] > 0) & (checks[..., 3] > 0)
+                if not np.all(owned[component]):
+                    continue
+                paint = source.copy()
+                paint[~component] = 0
+                self.references.append({'piece': name, 'source_bbox': bounds(component),
+                    'source_pixel_count': size, 'texture': paint[y:y+h, x:x+w]})
 
-
-def apply_painted_components(metric, accepted):
-    """Remove certified components from strict, colour-independent totals."""
-    result = dict(metric)
-    if result.get('exempt_outline_components', 0):
-        raise ValueError('Source provenance requires strict detached metrics (allow_outline=False)')
-    result['stray_components'] -= len(accepted)
-    result['stray_pixels'] -= sum(r['pixel_count'] for r in accepted)
-    result['painted_detached_components'] = len(accepted)
-    return result
+    def report(self, layers, transforms):
+        visible = np.zeros_like(layers[0][1])
+        owner = np.full(visible.shape[:2], '', dtype=object)
+        for row, image, _ in sorted(layers, key=lambda item: item[0]['z_index']):
+            mask = image[..., 3] > 0
+            visible[mask] = image[mask]
+            owner[mask] = row['name']
+        labels, groups = components(visible[..., 3] > 0, 8)
+        passed, references, unmatched = [], [], []
+        if len(groups) > 1:
+            for record in self.references:
+                name = record['piece']
+                if name not in transforms:
+                    continue  # Missing independent rigid pose cannot earn a pass.
+                samples = pixels.render(record['texture'], pixels.unpack(transforms[name]), with_ties=True)
+                # Exact legal nearest-source tie choices only; no raster-error
+                # allowance is used to authorize detached source components.
+                matching = np.all(visible == samples.default, axis=-1) & (samples.default[..., 3] > 0)
+                for candidate in samples.candidates:
+                    matching |= samples.ties & np.all(visible == candidate, axis=-1) & (candidate[..., 3] > 0)
+                references.append((record, matching & (owner == name)))
+            for label, size in groups[1:]:
+                component = labels == label
+                for record, matching in references:
+                    if matching[component].all():
+                        passed.append({key: value for key, value in record.items() if key != 'texture'} |
+                                      {'bbox': bounds(component), 'pixel_count': size})
+                        break
+                else:
+                    y, x = np.nonzero(component)
+                    unmatched.append({'bbox': bounds(component), 'pixel_count': size,
+                                      'pixels': np.column_stack((x, y)).tolist()})
+        # §1 requires source provenance for every detached component. The
+        # legacy silhouette heuristic's tiny/dark outline allowance cannot
+        # authorize paint that was connected in the approved painting.
+        return {'metrics': {'stray_components': len(unmatched),
+                            'stray_pixels': sum(row['pixel_count'] for row in unmatched),
+                            'exempt_outline_components': 0},
+                'source_components': passed, 'unmatched_components': unmatched}

@@ -149,5 +149,6 @@
     "rear.json": "8b4b63fdc6ad4f6eb8577272f2c1421981b68256a6d6f6f5a37979c95b2f3255",
     "renderer.gd": "39315bf14edcec21064d6730416876c0c3a527f06d04723ff1ac66d32ba69417",
     "rig.gd": "eec178d9c047c8c247e9687e62652b10afca9fddb3976b2fb50effad58ef0c0e"
-  }
+  },
+  "action_adapter": "res://assets/units/glacial_mirror_cutout/actions.gd"
 }

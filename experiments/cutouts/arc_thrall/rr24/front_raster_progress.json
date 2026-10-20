@@ -1,4 +1,45 @@
 {
   "frames": 300,
-  "failures": []
+  "failures": [
+    {
+      "clip": "jab",
+      "frame": 22,
+      "holes": [
+        {
+          "bbox": [
+            282,
+            248,
+            283,
+            250
+          ],
+          "pixel_count": 2
+        }
+      ],
+      "unmatched_components": [],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'jab', 22): new joint-seam hole larger than 1px"
+      ]
+    },
+    {
+      "clip": "death",
+      "frame": 31,
+      "holes": [
+        {
+          "bbox": [
+            280,
+            252,
+            282,
+            256
+          ],
+          "pixel_count": 7
+        }
+      ],
+      "unmatched_components": [],
+      "green_residue_px": 0,
+      "errors": [
+        "('front', 'death', 31): new joint-seam hole larger than 1px"
+      ]
+    }
+  ]
 }

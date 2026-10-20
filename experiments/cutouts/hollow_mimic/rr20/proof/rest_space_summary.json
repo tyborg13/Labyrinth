@@ -1,0 +1,242 @@
+{
+  "ok": false,
+  "native_pixels": false,
+  "scope": "Seven-rig strict CPU census; native acceptance pending director",
+  "views": {
+    "seer": {
+      "front": {
+        "ok": true,
+        "frames": 467,
+        "unmatched_detached_components": 0,
+        "air_pockets": 3232,
+        "approved_detached_components": 0,
+        "failures": []
+      },
+      "rear": {
+        "ok": true,
+        "frames": 467,
+        "unmatched_detached_components": 0,
+        "air_pockets": 4601,
+        "approved_detached_components": 0,
+        "failures": []
+      }
+    },
+    "thrall": {
+      "front": {
+        "ok": true,
+        "frames": 335,
+        "unmatched_detached_components": 0,
+        "air_pockets": 1066,
+        "approved_detached_components": 0,
+        "failures": []
+      },
+      "rear": {
+        "ok": false,
+        "frames": 335,
+        "unmatched_detached_components": 2,
+        "air_pockets": 751,
+        "approved_detached_components": 0,
+        "failures": [
+          {
+            "clip": "move",
+            "frame": 14,
+            "holes": [],
+            "detached": {
+              "stray_components": 1,
+              "stray_pixels": 1,
+              "exempt_outline_components": 0
+            },
+            "unmatched_components": [
+              {
+                "bbox": [
+                  340,
+                  319,
+                  341,
+                  320
+                ],
+                "pixel_count": 1,
+                "pixels": [
+                  [
+                    340,
+                    319
+                  ]
+                ]
+              }
+            ],
+            "errors": [
+              "('rear', 'move', 14): detached opaque component outside outline exemption"
+            ]
+          },
+          {
+            "clip": "move",
+            "frame": 23,
+            "holes": [],
+            "detached": {
+              "stray_components": 1,
+              "stray_pixels": 1,
+              "exempt_outline_components": 0
+            },
+            "unmatched_components": [
+              {
+                "bbox": [
+                  323,
+                  269,
+                  324,
+                  270
+                ],
+                "pixel_count": 1,
+                "pixels": [
+                  [
+                    323,
+                    269
+                  ]
+                ]
+              }
+            ],
+            "errors": [
+              "('rear', 'move', 23): detached opaque component outside outline exemption"
+            ]
+          }
+        ]
+      }
+    },
+    "mirror": {
+      "front": {
+        "ok": true,
+        "frames": 344,
+        "unmatched_detached_components": 0,
+        "air_pockets": 393,
+        "approved_detached_components": 0,
+        "failures": []
+      },
+      "rear": {
+        "ok": true,
+        "frames": 344,
+        "unmatched_detached_components": 0,
+        "air_pockets": 2024,
+        "approved_detached_components": 0,
+        "failures": []
+      }
+    },
+    "mimic": {
+      "front": {
+        "ok": true,
+        "frames": 362,
+        "unmatched_detached_components": 0,
+        "air_pockets": 1996,
+        "approved_detached_components": 355,
+        "failures": []
+      },
+      "rear": {
+        "ok": true,
+        "frames": 362,
+        "unmatched_detached_components": 0,
+        "air_pockets": 2655,
+        "approved_detached_components": 0,
+        "failures": []
+      }
+    },
+    "capacitor": {
+      "front": {
+        "ok": true,
+        "frames": 348,
+        "unmatched_detached_components": 0,
+        "air_pockets": 0,
+        "approved_detached_components": 0,
+        "failures": []
+      },
+      "rear": {
+        "ok": true,
+        "frames": 348,
+        "unmatched_detached_components": 0,
+        "air_pockets": 0,
+        "approved_detached_components": 0,
+        "failures": []
+      }
+    },
+    "weaver": {
+      "front": {
+        "ok": true,
+        "frames": 395,
+        "unmatched_detached_components": 0,
+        "air_pockets": 5604,
+        "approved_detached_components": 0,
+        "failures": []
+      },
+      "rear": {
+        "ok": true,
+        "frames": 395,
+        "unmatched_detached_components": 0,
+        "air_pockets": 6025,
+        "approved_detached_components": 0,
+        "failures": []
+      }
+    },
+    "mortar": {
+      "front": {
+        "ok": true,
+        "frames": 431,
+        "unmatched_detached_components": 0,
+        "air_pockets": 2198,
+        "approved_detached_components": 0,
+        "failures": []
+      },
+      "rear": {
+        "ok": true,
+        "frames": 431,
+        "unmatched_detached_components": 0,
+        "air_pockets": 878,
+        "approved_detached_components": 0,
+        "failures": []
+      }
+    }
+  },
+  "rig_records": {
+    "seer": {
+      "full_samples": {
+        "file": "logs/rest_space/seer.json",
+        "sha256": "bec6fe0aec347526ee9fb4d221a3fb2c1b688017855fb413aa3064ba7c51bdca"
+      }
+    },
+    "thrall": {
+      "full_samples": {
+        "file": "logs/rest_space/thrall.json",
+        "sha256": "a8e495bb13145df422b5e7c72fd6a7b3690572689d0d97bfffea2c44e2d57d03"
+      }
+    },
+    "mirror": {
+      "full_samples": {
+        "file": "logs/rest_space/mirror.json",
+        "sha256": "be65c0e2aaa345d3c709f15809b7a2f9be61e2788094865ef7c7fd6a557b9efc"
+      }
+    },
+    "mimic": {
+      "full_samples": {
+        "file": "logs/rest_space/mimic.json",
+        "sha256": "269c1ba03c18be16176926372abd97e1c49102d4c09ef431002c03898b3b4371"
+      }
+    },
+    "capacitor": {
+      "full_samples": {
+        "file": "logs/rest_space/capacitor.json",
+        "sha256": "72062dc4b5f9d7c8b94bd0468740656a6d02ce84e1b0cdf670881bc6fa422579"
+      }
+    },
+    "weaver": {
+      "full_samples": {
+        "file": "logs/rest_space/weaver.json",
+        "sha256": "b1c50ad30d7b7944614808f303955f8bcf755e57ee8589f37553dd55385fd4c6"
+      }
+    },
+    "mortar": {
+      "full_samples": {
+        "file": "logs/rest_space/mortar.json",
+        "sha256": "9181d7716aca1952c0bcad698a2da42f5d10ac50acc7ba0388f211114db852bb"
+      }
+    }
+  },
+  "full_samples": {
+    "file": "logs/rest_space_summary.full.json",
+    "sha256": "2ac7ea815c24ef06c10d846c3b11acf406bafd83ff5eebe423dabd1467397345"
+  }
+}

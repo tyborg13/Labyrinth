@@ -127,7 +127,7 @@
     "rig.gd": "fc81943324ad21eb9cf0a80ab69fd78980c1a9f486d5b3b421eb25df740c2495"
   },
   "rig_directory": "humanoid_v2",
-  "action_script": "res://assets/units/briar_weaver_cutout/actions.gd",
+  "action_adapter": "res://assets/units/briar_weaver_cutout/actions.gd",
   "action_aliases": {
     "heal": "heal_ally"
   },

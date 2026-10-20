@@ -53,14 +53,18 @@ func _run() -> void:
 				rows.append(record(rig, view, clip, at, frame, "presented"))
 		rig.free()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output.get_base_dir()))
-	var file := FileAccess.open(output, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"ok": errors.is_empty(), "native_pixels": false, "fps": FPS,
+	write_report(output, {"ok": errors.is_empty(), "native_pixels": false, "fps": FPS,
 		"inputs": preload("bindings.gd").for_case(directory),
 		"compiled_sha256": FileAccess.get_sha256(directory.path_join("compiled_motion.json")),
 		"step_distance_px": geometry["step"], "screen_pixel_scale": geometry["scale"],
-		"samples": rows, "errors": errors}))
+		"samples": rows, "errors": errors})
 	print("RR10 BONE SAMPLES: %s (%d poses; headless transforms only)" % ["PASS" if errors.is_empty() else "FAIL", rows.size()])
 	quit(0 if errors.is_empty() else 1)
+
+func write_report(output: String, report: Dictionary) -> void:
+	var file := FileAccess.open(output, FileAccess.WRITE)
+	file.store_string(JSON.stringify(report))
+	file.close()
 
 func proof_geometry(_data: Dictionary) -> Dictionary:
 	return {"step": PROOF_STEP_PX, "scale": PROOF_SCALE}

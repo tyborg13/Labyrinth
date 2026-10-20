@@ -9,13 +9,13 @@ from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, 
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.walk_gates import report as walk_report, support_report, summary as walk_summary
-from humanoid_cutout.bone_evidence import load_samples
+from humanoid_cutout.bone_evidence import read_report
 from rr21_residue import source_report, outside_count, presented_feature_mask
 
 
 def evaluate(native=None, case=CASE):
     data, build = [read_json(case / p) for p in ('compiled_motion.json', 'proof/build.json')]
-    samples = load_samples(case)
+    samples = read_report(case)
     current = bindings(case)
     residues = source_report(case, ASSETS)
     errors, views = list(residues['errors']), {}

@@ -12,7 +12,7 @@ sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'experiments/cutouts/briar_weave
 from rr21_case import CASE, ASSETS
 from rr21_seams import state
 from cutout_pipeline.cases import read_json, write_json, digest
-from humanoid_cutout.bone_evidence import load_samples
+from humanoid_cutout.bone_evidence import read_report
 from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.gait_continuations import errors, texture
 from humanoid_cutout.gates import clean_metrics
@@ -29,15 +29,15 @@ class WalkTests(unittest.TestCase):
             case = Path(folder) / 'case'
             legacy = {'samples': [{'fixture': True}], 'ok': True}
             write_json(case / 'proof/samples.json', legacy)
-            self.assertEqual(load_samples(case), legacy)
+            self.assertEqual(read_report(case), legacy)
             full = case / 'proof/logs/samples.json'
             write_json(full, legacy)
             reference = {'file': 'logs/samples.json', 'sha256': digest(full)}
             write_json(case / 'proof/samples.json', {'full_samples': reference})
-            self.assertEqual(load_samples(case), legacy)
+            self.assertEqual(read_report(case), legacy)
             write_json(full, dict(legacy, ok=False))
             with self.assertRaisesRegex(ValueError, 'changed full sample'):
-                load_samples(case)
+                read_report(case)
             outside = Path(folder) / 'outside.json'
             write_json(outside, legacy)
             link = case / 'proof/logs/outside_link.json'
@@ -47,7 +47,7 @@ class WalkTests(unittest.TestCase):
                     reference = {'file': target, 'sha256': digest(outside)}
                     write_json(case / 'proof/samples.json', {'full_samples': reference})
                     with self.assertRaisesRegex(ValueError, 'changed full sample'):
-                        load_samples(case)
+                        read_report(case)
 
     def test_committed_reports_contain_no_full_frame_arrays(self):
         for name in ('samples', 'gates', 'native_gates'):
@@ -60,7 +60,7 @@ class WalkTests(unittest.TestCase):
                 for key in ('walk', 'supports'):
                     for field in ('frames', 'stance', 'rigid_air', 'jab'):
                         self.assertNotIn(field, view[key])
-        self.assertTrue(load_samples(CASE)['samples'])
+        self.assertTrue(read_report(CASE)['samples'])
 
     def test_gait_copies_are_same_piece_edge_texels_and_other_clips_keep_their_paint(self):
         for view in ('front', 'rear'):
@@ -83,7 +83,7 @@ class WalkTests(unittest.TestCase):
                     np.testing.assert_array_equal(original[unchanged], gait[unchanged])
 
     def test_removing_coverage_reopens_real_sampled_gaps(self):
-        samples = load_samples(CASE)
+        samples = read_report(CASE)
         for view, frame in REPAIR_FRAMES.items():
             layout = read_json(CASE / f'layouts/{view}.json')
             pose = next(r for r in samples['samples'] if r['view'] == view and r['clip'] == 'move'
@@ -96,7 +96,7 @@ class WalkTests(unittest.TestCase):
             self.assertTrue(unfilled[3] or clean_metrics(unfilled[0])['stray_components'])
 
     def test_each_leg_rejects_a_one_pixel_stance_slide(self):
-        samples = load_samples(CASE)
+        samples = read_report(CASE)
         data = read_json(CASE / 'compiled_motion.json')
         for view in ('front', 'rear'):
             layout = read_json(CASE / f'layouts/{view}.json')

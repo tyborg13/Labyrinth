@@ -10,16 +10,18 @@ const FPS: float = 60.0
 static func handles(type: String) -> bool:
 	return Presentation.handles(type)
 
-## Optional case-owned playback for existing special feedback paths. An absent
-## declaration preserves all existing dispatch and timing; the integration record
-## owns the resource path ("action_adapter", or rr-21's "action_script").
+## Case-owned playback takes priority over declared shared contact clips.
+## The integration record owns the resource path ("action_adapter").
 static func playback_adapter(step: Dictionary, actor: Dictionary) -> Script:
 	var type: String = str(actor.get("type", ""))
 	var integration: Dictionary = Presentation.integration_for(type)
-	var path: String = str(integration.get("action_adapter", integration.get("action_script", "")))
-	if path.is_empty(): return null
-	var adapter: Script = load(path) as Script
-	return adapter if adapter != null and adapter.handles(step, actor) else null
+	var path: String = str(integration.get("action_adapter", ""))
+	if not path.is_empty():
+		var adapter: Script = load(path) as Script
+		if adapter != null and adapter.handles(step, actor): return adapter
+	# Runtime loading avoids a preload cycle: contact_actions uses this clock.
+	var contact: Script = load("res://scripts/maquette_cutout_runtime/contact_actions.gd") as Script
+	return contact if contact.handles(step, actor) else null
 
 static func data_for(type: String) -> Dictionary:
 	if not handles(type): return {}
@@ -29,6 +31,11 @@ static func data_for(type: String) -> Dictionary:
 static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	var data: Dictionary = data_for(str(actor.get("type", "")))
 	if data.is_empty() or bool(effect.get("cancelled", false)): return ""
+	# Compound resolver steps keep their copied action_type. A case can map
+	# their existing marker to a clip without changing gameplay descriptors.
+	var selectors: Dictionary = Presentation.integration_for(str(actor.get("type", ""))).get("step_selectors", {})
+	for flag: String in selectors:
+		if bool(effect.get(flag, false)): return str(selectors[flag])
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
 	verb = str(Presentation.integration_for(str(actor.get("type", ""))).get("action_aliases", {}).get(verb, verb))

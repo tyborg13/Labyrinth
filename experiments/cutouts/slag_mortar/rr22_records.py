@@ -1,6 +1,7 @@
 """Compact tracked proof inventories; complete evidence stays in ignored logs."""
 import argparse
 from collections import Counter
+from pathlib import Path
 from rr22_case import CASE
 from cutout_pipeline.cases import digest, read_json, write_json
 
@@ -11,20 +12,12 @@ def compact_samples():
     full = read_json(CASE / FULL_SAMPLES)
     counts = Counter((r['view'], r['clip'], r['kind']) for r in full['samples'])
     result = {k: v for k, v in full.items() if k not in ('samples', 'inputs')}
-    result.update(full_report=FULL_SAMPLES, full_sha256=digest(CASE / FULL_SAMPLES),
+    result.update(full_samples={'file': str(Path(FULL_SAMPLES).relative_to('proof')), 'sha256': digest(CASE / FULL_SAMPLES)},
                   sample_count=len(full['samples']),
                   inventory=[dict(view=v, clip=c, kind=k, count=n) for (v, c, k), n in sorted(counts.items())])
     write_json(CASE / 'proof/samples.json', result)
     print(f'RR22 COMPACT SAMPLES: PASS ({result["sample_count"]} poses; full evidence in {FULL_SAMPLES})')
     return result
-
-
-def samples():
-    summary = read_json(CASE / 'proof/samples.json')
-    if 'samples' in summary:
-        raise ValueError('Run the sampler into proof/logs/samples_full.json and compact it first')
-    from humanoid_cutout.bone_evidence import read_report
-    return read_report(CASE)
 
 
 def summary(report):
@@ -43,7 +36,7 @@ def space_summary(rows):
     counts = Counter((tuple(p['bbox']), p['pixel_count']) for p in pockets)
     return dict(frames_with_passed_space=len(rows), air_pockets_passed=len(pockets),
                 maximum_air_pocket_pixels=max((p['pixel_count'] for p in pockets), default=0),
-                painted_detached_components_passed=sum(len(r['painted_detached_components']) for r in rows),
+                painted_detached_components_passed=sum(len(r['source_components']) for r in rows),
                 pocket_bounds=[dict(bbox=list(b), pixel_count=p, occurrences=n)
                                for (b, p), n in sorted(counts.items())])
 
@@ -60,7 +53,7 @@ def compact_production():
                        r['player_hp'] < rows[0]['player_hp'] if clip == 'land' else r['enemy_block'] > 0)]
             if changed: contacts[clip] = changed[0]['snapshot']['phase']
         result = {k: v for k, v in full.items() if k not in ('frames', 'inputs')}
-        result.update(full_report=str(path.relative_to(CASE)), full_sha256=digest(path),
+        result.update(full_samples={'file': str(path.relative_to(CASE / 'proof')), 'sha256': digest(path)},
                       frame_count=len(full['frames']), stage_counts=dict(counts), outcome_contacts=contacts)
         write_json(CASE / f'proof/{name}/logic_frames.json', result)
         print(f'RR22 COMPACT {name.upper()}: PASS ({result["frame_count"]} frames)')

@@ -44,7 +44,7 @@ def seal():
     entry = read_json(path)
     board = (PROJECT / 'scripts/combat_board_view.gd').read_text()
     import re
-    entry.update(rig_directory='humanoid_v2', action_script='res://assets/units/briar_weaver_cutout/actions.gd',
+    entry.update(rig_directory='humanoid_v2', action_adapter='res://assets/units/briar_weaver_cutout/actions.gd',
         action_aliases={'heal': 'heal_ally'}, idle_phase_seed='slot', death_timing={'clip_seconds': read_json(CASE / 'compiled_motion.json')['clips']['death']['seconds'],
             'dissolve_frames': int(re.search(r'const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = (\d+)', board)[1]),
             'dissolve_frame_seconds': float(re.search(r'const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = ([\d.]+)', board)[1])})

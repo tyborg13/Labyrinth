@@ -1,5 +1,6 @@
 """v2 structural, signed-bone and native-pixel gates (no CPU skin oracle)."""
 import math
+import os
 from pathlib import Path
 
 import numpy as np
@@ -59,8 +60,6 @@ def structure_errors(layout, build):
             errors.append('mesh: invalid grid or normalized weights: ' + mesh['name'])
         from .mesh import grid, weights_for
         vertices,uvs,triangles=grid(mesh['bbox'])
-        if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
-            errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
         garment=mesh.get('garment',mesh['name'])
         if mesh.get('hidden_material') and (garment not in meshes or mesh.get('weight_bounds') != meshes[garment]['bbox']):
             errors.append('mesh: hidden layer must share its garment field: '+mesh['name'])
@@ -68,7 +67,18 @@ def structure_errors(layout, build):
             errors.append('mesh: unknown garment: ' + garment)
             continue
         expected=weights_for(vertices,mesh.get('weight_bounds',mesh['bbox']),layout['joints'],anatomy['meshes'][garment])
-        if set(mesh['weights'])!=set(expected) or any(not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
+        if 'texel_attachments' in mesh:
+            from .texel_attachments import attach
+            try:
+                attached = attach({'bbox': mesh['bbox'], 'vertices': vertices, 'uvs': uvs,
+                                   'triangles': triangles, 'weights': expected}, mesh['texel_attachments'])
+                vertices, uvs, triangles, expected = [attached[key] for key in ('vertices', 'uvs', 'triangles', 'weights')]
+            except (ValueError, KeyError, TypeError) as error:
+                errors.append('mesh: invalid texel attachment: ' + mesh['name'] + ': ' + str(error))
+                continue
+        if mesh['vertices']!=vertices or mesh['uvs']!=uvs or mesh['triangles']!=triangles:
+            errors.append('mesh: source two-pixel grid differs: '+mesh['name'])
+        if set(mesh['weights'])!=set(expected) or any(len(mesh['weights'][name])!=len(values) or not np.allclose(mesh['weights'][name],values,atol=1e-12,rtol=0) for name,values in expected.items()):
             errors.append('mesh: director weight rule differs: '+mesh['name'])
     for tuck in build['tucks']:
         if tuck['minimum_px'] < 3 or tuck['missing_pixels'] or not tuck['required_pixels']:
@@ -110,6 +120,8 @@ def source_errors(case, layout, build):
             errors.append('piece source outside own silhouette/tuck: '+part['name'])
     approved = np.asarray(Image.open(case / layout['rest_source']).convert('RGBA'))
     if not np.array_equal(np.asarray(rest),approved): errors.append('rest: composed source mismatch')
+    from .texel_attachments import surface_errors as attachment_errors
+    errors += attachment_errors(layout, images, continuations)
     from .ownership import partition_errors
     errors += partition_errors(case,layout,build,images,continuations,approved)
     from .occluded_surface import source_errors as occluded_errors
@@ -297,26 +309,12 @@ def clean_metrics(layers, outline_rules=None):
     return result
 
 
-def unexplained_holes(occupied, references):
-    """One transported native rest hole may explain one deformed component."""
-    from maquette_motion.silhouette import holes
-    remaining=list(references)
-    unexplained=[]
-    for hole in holes(occupied):
-        size=int(hole.sum())
-        if size<=1: continue
-        overlaps=[int((hole & old).sum()) for old in remaining]
-        if overlaps and max(overlaps): remaining.pop(int(np.argmax(overlaps)))
-        else: unexplained.append(size)
-    return unexplained
-
-
 def native_errors(case, capture, failure_output=None, hole_details=None, space_details=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     anatomy = load(case)
     errors = list(manifest.get('errors', []))
-    from .native_exceptions import load as load_exceptions, frame_errors
+    from .native_exceptions import load as load_exceptions
     try:
         approved = load_exceptions(case)
     except ValueError as error:
@@ -336,8 +334,8 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
     from .rigid_air import for_case as air_policy_for_case
     air_policies = {view: air_policy_for_case(case, layout, anatomy) for view, layout in layouts.items()}
-    from .source_space import PaintedComponents, pocket_report, apply_painted_components
-    painted_components = {view: PaintedComponents(case, layout) for view, layout in layouts.items()}
+    from .source_space import DetachedSource, pocket_report, gate_errors as frame_errors
+    detached_sources = {view: DetachedSource(case, layout) for view, layout in layouts.items()}
     passed_spaces = []
     for layout in layouts.values():
         errors += source_errors(case,layout,read_json(case/'proof/build.json'))
@@ -423,26 +421,27 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         for row in seam_frames.get(key, []):
             seam |= np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3] > 0
         pose = expected_poses.get(key)
-        air_policy = air_policies[view]
+        space = pocket_report(layers)
         if pose is None:
             errors.append(str(key) + ': missing independent joint-boundary pose')
-            new_holes = []
         else:
             from maquette_motion.pixels import PROOF_DEFAULTS
             owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
+            air_policy = air_policies[view]
             if air_policy is None:
-                new_holes = joint_holes(occupied, seam, owners, references, pocket_details=True)
-                spaces = pocket_report(layers, new_holes)
-                new_holes = [{'bbox': r['bbox'], 'pixel_count': r['pixel_count']} for r in spaces['failures']]
+                tears = joint_holes(occupied, seam, owners, references, pocket_details=True)
+                space = pocket_report(layers, tears)
             else:
                 transforms = {name: part['transform'] for name, part in pose['parts'].items()}
-                spaces = air_policy.report(occupied, owners, transforms)
-                new_holes = spaces['failures']
-            detached = painted_components[view].report(layers, pose)
-            metric = apply_painted_components(metric, detached)
-            if spaces['air_pockets'] or detached:
-                passed_spaces.append({'view': view, 'clip': clip, 'frame': frame,
-                    'air_pockets': spaces['air_pockets'], 'painted_detached_components': detached})
+                space = air_policy.report(occupied, owners, transforms)
+            transforms = {name: part['transform'] for name, part in pose['parts'].items()}
+            detached = detached_sources[view].report(layers, transforms)
+            metric.update(detached['metrics'])
+            space.update(source_components=detached['source_components'],
+                         unmatched_components=detached['unmatched_components'])
+        new_holes = space['failures']
+        if space['air_pockets'] or new_holes or space.get('source_components') or space.get('unmatched_components'):
+            passed_spaces.append({'view': view, 'clip': clip, 'frame': frame, **space})
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -450,13 +449,12 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
             actual=np.asarray(Image.open(capture / native_frames[key]['file']).convert('RGBA'))
             from maquette_motion.pixels import changed
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
-        rejected = frame_errors(key, metric, new_holes if air_policy is None else [], approved)
+        signatures = [{field: hole[field] for field in ('bbox', 'pixel_count')} for hole in new_holes]
+        rejected = frame_errors(key, metric, signatures, approved)
         from .material_gates import colour_errors
         rejected += [str(key)+': '+error for error in colour_errors(np.asarray(composite),anatomy.get('material_policy',{}))]
-        if air_policy is not None and new_holes:
-            rejected.append(str(key) + ': pocket through rigid painted silhouette/tuck')
         errors += rejected
-        if hole_details is not None and new_holes and (air_policy is not None or str(key) + ': new joint-seam hole larger than 1px' in rejected):
+        if hole_details is not None and new_holes and str(key) + ': new joint-seam hole larger than 1px' in rejected:
             hole_details.append({'view': view, 'clip': clip, 'frame': frame,
                                  'pixel_counts': [hole['pixel_count'] for hole in new_holes],
                                  'pockets': new_holes})
@@ -477,8 +475,11 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
 
 
 def bindings(case):
-    paths = [p for p in case.rglob('*') if p.is_file() and p.suffix in ('.json','.png')
-             and 'proof' not in p.relative_to(case).parts]
+    paths = []
+    # Match the Godot binder: prune captures before traversal, not afterward.
+    for directory, children, files in os.walk(case):
+        children[:] = [name for name in children if name != 'proof']
+        paths.extend(Path(directory) / name for name in files if Path(name).suffix in ('.json', '.png'))
     result = {str(p.relative_to(case)): digest(p) for p in paths}
     project = Path(__file__).resolve().parents[2]
     integration = load(case)['integration']

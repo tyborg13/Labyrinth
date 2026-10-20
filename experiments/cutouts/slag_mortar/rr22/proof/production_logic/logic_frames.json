@@ -7,14 +7,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.390771770997959,
-      "presented_phase": 0.357142857142857,
+      "phase": 0.350424404756477,
+      "presented_phase": 0.238095238095238,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453376747755
+      "texture_id": -9223371444501600491
     },
     "hit": {
       "active": true,
@@ -29,7 +29,7 @@
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453376747755
+      "texture_id": -9223371444501600491
     },
     "land": {
       "active": true,
@@ -37,14 +37,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.283586585812773,
+      "phase": 0.243354563486636,
       "presented_phase": 0.238095238095238,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453376747755
+      "texture_id": -9223371444501600491
     },
     "lob": {
       "active": true,
@@ -52,14 +52,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.16891952232071,
+      "phase": 0.136284722216795,
       "presented_phase": 0.119047619047619,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453376747755
+      "texture_id": -9223371444501600491
     },
     "move": {
       "active": true,
@@ -67,14 +67,14 @@
       "clip": "idle",
       "facing": "front",
       "mirrored": true,
-      "phase": 0.068350963718818,
+      "phase": 0.0436421296242019,
       "presented_phase": 0.0,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453376747755
+      "texture_id": -9223371444501600491
     },
     "scatter": {
       "active": true,
@@ -82,14 +82,14 @@
       "clip": "idle",
       "facing": "rear",
       "mirrored": true,
-      "phase": 0.515325210151398,
-      "presented_phase": 0.476190476190476,
+      "phase": 0.457494246026319,
+      "presented_phase": 0.357142857142857,
       "reduced_motion": false,
       "rig_count": 2,
       "screen_pixel_scale": 0.627655328488817,
       "shown_clip": "idle",
       "step_distance_px": 0.0,
-      "texture_id": -9223371453376747755
+      "texture_id": -9223371444501600491
     }
   },
   "errors": [],
@@ -102,8 +102,10 @@
   ],
   "type": "slag_mortar",
   "ui_scale": 1.0,
-  "full_report": "proof/logs/production_logic/logic_frames.json",
-  "full_sha256": "bdd80cea0cf107407958fde5d42842abb6dcefa5fe8f3f8c9bd494ffea10f953",
+  "full_samples": {
+    "file": "logs/production_logic/logic_frames.json",
+    "sha256": "08e4659807d2803f090762d2a4481678318acd2bafabc39669a52e7854c7bfeb"
+  },
   "frame_count": 1516,
   "stage_counts": {
     "idle": 50,

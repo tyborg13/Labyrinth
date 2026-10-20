@@ -6,8 +6,10 @@
   "ok": true,
   "screen_pixel_scale": 0.627655328488817,
   "step_distance_px": 83.5248641967773,
-  "full_report": "proof/logs/samples_full.json",
-  "full_sha256": "807be8cd48a13287eef2c76a9a1c8b992ce2571995aa3dc771b660e4d0f07e2e",
+  "full_samples": {
+    "file": "logs/samples_full.json",
+    "sha256": "331646aa2d6bc6a89f316766f24e1a878c24aed30a9dfa09ef72da9628ed92db"
+  },
   "sample_count": 1214,
   "inventory": [
     {

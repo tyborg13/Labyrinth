@@ -10,8 +10,8 @@ from rr24_build import (PROJECT, CASE, RECIPE, BASELINE, PIECES, polygon,
                         read_json, write_json, source_pixels, residue, visible_layers, clean_residue)
 from tools.humanoid_cutout.cpu_pose import CpuPose, sprite_transform
 from tools.humanoid_cutout.gates import bindings, matrix
-from tools.humanoid_cutout.native_exceptions import load as exceptions, frame_errors
-from tools.humanoid_cutout.silhouette_gates import detached_metrics, joint_holes
+from tools.humanoid_cutout.native_exceptions import load as exceptions
+from tools.humanoid_cutout.source_space import DetachedSource, gate_errors as frame_errors
 from maquette_motion.pixels import render
 from maquette_motion.material_palette import interior_donors, rules
 from rr15_cpu_proof import frame_state
@@ -105,6 +105,7 @@ def hem_report(view, layout, samples):
 
 def raster_report(view, layout, samples):
     model = CpuPose(CASE, deepcopy(layout))
+    detached_source = DetachedSource(CASE, layout)
     approved = exceptions(CASE)
     policy = SkirtAirPolicy(CASE,layout)
     paint = np.asarray(Image.open(CASE/layout['raw_rest_source']).convert('RGBA'))
@@ -124,8 +125,9 @@ def raster_report(view, layout, samples):
         for _, image, _ in sorted(layers, key=lambda row: row[0]['z_index']):
             composite.alpha_composite(Image.fromarray(image))
         pixels = np.asarray(composite)
+        detached = detached_source.report(layers, {name: part['transform'] for name, part in pose['parts'].items()})
         metric = dict(outside_pixels=0, exposed_outline_pixels=0, dark_slab_blocks=0,
-                      outline_outside_pixels=0, **detached_metrics(pixels))
+                      outline_outside_pixels=0, **detached['metrics'])
         errors = frame_errors((view, pose['clip'], pose['frame']), metric, holes, approved)
         exposed = exposed_provenance(layers,palettes)
         provenance['exposed_pixels'] += sum(row['exposed_pixels'] for row in exposed)
@@ -138,6 +140,7 @@ def raster_report(view, layout, samples):
         if green: errors.append('green residue')
         if errors:
             failures.append({'clip': pose['clip'], 'frame': pose['frame'], 'holes': holes,
+                             'unmatched_components': detached['unmatched_components'],
                              'green_residue_px': green, 'errors': errors})
         count += 1
         if count % PROOF_PROGRESS_INTERVAL == 0:

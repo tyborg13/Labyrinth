@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/hollow_mimic/mq9_front",
+  "rear_job": "spec/art_identity/jobs/hollow_mimic/mq9_rear",
+  "front_delivery": "spec/art_identity/maquettes/hollow_mimic/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/hollow_mimic/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

@@ -1,6 +1,7 @@
 """Compact committed proof, with hash-bound full transforms in ignored logs."""
 from collections import Counter
 import argparse
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -27,7 +28,7 @@ def compact_samples(case=CASE):
 
 def refresh_samples(case=CASE):
     """Review must work without any ignored outputs from a prior checkout."""
-    subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-21', '--stream', '--',
+    subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', os.environ.get('LABYRINTH_TASK_ID', 'rr-21'), '--stream', '--',
         'godot', '--headless', '--path', '.', '--script', 'tests/rr21/samples.gd', '--',
         '--case', str(case), '--output', str(case / 'proof/logs/samples.json')], cwd=PROJECT, check=True)
     return compact_samples(case)

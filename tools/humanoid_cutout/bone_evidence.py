@@ -5,32 +5,18 @@ import math
 SAMPLE_FPS = 60
 
 
-def load_samples(case):
-    """Read legacy evidence or a compact record's hash-bound full diagnostics."""
+def read_report(case):
+    """Read a full inventory or its canonical proof-relative full_samples pointer."""
+    from pathlib import Path
     from cutout_pipeline.cases import read_json, digest
-    proof = (case / 'proof').resolve()
+    proof = (Path(case) / 'proof').resolve()
     record = read_json(proof / 'samples.json')
     if 'full_samples' not in record:
         return record
     reference = record['full_samples']
     path = (proof / reference['file']).resolve()
     if not path.is_relative_to(proof) or not path.is_file() or digest(path) != reference['sha256']:
-        raise ValueError('bone evidence: missing or changed full sample diagnostics; rerun sampler')
-    return read_json(path)
-
-
-def read_report(case):
-    """Legacy full inventories or hashed compact summaries with ignored data:
-    the rr-22 full_report/full_sha256 pair or the rr-21 full_samples reference."""
-    from cutout_pipeline.cases import read_json, digest
-    summary = read_json(case / 'proof/samples.json')
-    if 'full_samples' in summary: return load_samples(case)
-    if 'full_report' not in summary: return summary
-    path = (case / summary['full_report']).resolve()
-    if not path.is_relative_to((case / 'proof/logs').resolve()):
-        raise ValueError('Full bone evidence must stay in the case proof/logs directory')
-    if digest(path) != summary['full_sha256']:
-        raise ValueError('Full bone evidence changed; regenerate its compact summary')
+        raise ValueError('bone evidence changed: missing or changed full sample diagnostics; rerun sampler')
     return read_json(path)
 
 

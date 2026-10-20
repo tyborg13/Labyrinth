@@ -1,0 +1,15 @@
+{
+  "active": false,
+  "native_pixels": false,
+  "proposal": "gait_continuations.proposal.json",
+  "copied_texels": {
+    "front": 0,
+    "rear": 26
+  },
+  "rear_move_endpoint_alpha_mismatch_px": {
+    "first": 20,
+    "last": 20
+  },
+  "source": "own torso non-outline edge texels; protected motion unchanged",
+  "director_decision": "Feedback 3: inactive; transparent approved rest space remains air."
+}

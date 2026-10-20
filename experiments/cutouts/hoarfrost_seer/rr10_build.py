@@ -384,6 +384,11 @@ def build():
     layouts, reports, projections = {}, {}, {}
     for view in ('front', 'rear'):
         layouts[view], reports[view], projections[view] = build_view(view, inputs)
+        from rr26_underlaps import apply as edge_underlaps
+        layouts[view] = edge_underlaps(layouts[view])
+        from rr26_attachments import apply as hem_attachments
+        layouts[view] = hem_attachments(layouts[view])
+        write_json(CASE / f'layouts/{view}.json', layouts[view])
     compiled = compile_motion(DIRECTOR, 'hoarfrost_seer', layouts, projections)
     write_json(CASE / 'compiled_motion.json', compiled)
     write_json(CASE / 'cutout.json', {'character_id': 'hoarfrost_seer', 'rig': 'humanoid_v2',

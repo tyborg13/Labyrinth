@@ -3,12 +3,13 @@ import argparse
 import math
 from rr22_case import CASE, ASSETS, DIRECTOR
 from cutout_pipeline.cases import read_json, write_json
+from humanoid_cutout.bone_evidence import read_report
 from humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
 from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.gait import evaluate
 from humanoid_cutout.walk_gates import report as knee_report, support_report
-from rr22_records import samples as read_samples, summary, space_summary
+from rr22_records import summary, space_summary
 import rr22_residue_gate as residue
 import rr22_surface_gates as surfaces
 EPSILON = 0.0001
@@ -33,7 +34,7 @@ def lob_report(layout, data, samples):
 
 def run(native=None):
     data, build = [read_json(CASE / p) for p in ('compiled_motion.json', 'proof/build.json')]
-    samples = read_samples()
+    samples = read_report(CASE)
     errors, reports = [], {}
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
     errors += ['unresolved design placeholder: ' + name for name in placeholders]

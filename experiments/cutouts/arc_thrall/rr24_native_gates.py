@@ -8,7 +8,8 @@ from rr24_build import CASE, read_json, write_json, digest
 from rr24_seams import SkirtAirPolicy, head_ownership
 from tools.humanoid_cutout.gates import native_errors as shared_native_errors
 from tools.humanoid_cutout.anatomy import load
-from tools.humanoid_cutout.native_exceptions import load as exceptions, frame_errors, METRIC_RULES, JOINT_HOLE_RULE
+from tools.humanoid_cutout.native_exceptions import load as exceptions, METRIC_RULES, JOINT_HOLE_RULE
+from tools.humanoid_cutout.source_space import gate_errors as frame_errors
 from tools.humanoid_cutout.silhouette_gates import posed_owners
 from maquette_motion.pixels import PROOF_DEFAULTS
 from rr24_check import source_errors as thrall_source_errors

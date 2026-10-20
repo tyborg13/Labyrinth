@@ -10,19 +10,37 @@ from PIL import Image
 
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(PROJECT / 'tools')]
-from humanoid_cutout.source_space import PaintedComponents, pocket_report, apply_painted_components
+from humanoid_cutout.source_space import DetachedSource, pocket_report, gate_errors as frame_errors
 from humanoid_cutout.silhouette_gates import detached_metrics
 from humanoid_cutout.gates import clean_metrics
-from humanoid_cutout.native_exceptions import frame_errors, DETACHED_RULE
+from humanoid_cutout.native_exceptions import frame_errors as legacy_frame_errors, DETACHED_RULE, JOINT_HOLE_RULE, METRIC_RULES
 from maquette_motion import pixels
+from maquette_motion.silhouette import components
 
 FIXTURE_SIZE = 255
 FIXTURE_DISPLACEMENT_PX = 8
 FIXTURE_DARK_TIP_RGBA = [10, 10, 10, 255]
 FIXTURE_BRIGHT_TIP_RGBA = [100, 60, 40, 255]
+FIXTURE_GATE_FRAME = 0
+FIXTURE_GATE_POCKET = {'bbox': [2, 2, 4, 4], 'pixel_count': 4}
 
 
 class SourceSpaceTests(unittest.TestCase):
+    @staticmethod
+    def transforms(pose):
+        return {name: part['transform'] for name, part in pose['parts'].items()}
+
+    def test_legacy_frame_and_exact_pocket_entries_cannot_waive_source_failures(self):
+        key = ('front', 'idle', FIXTURE_GATE_FRAME)
+        metrics = dict.fromkeys(METRIC_RULES, 0) | {'stray_components': 1}
+        hole = FIXTURE_GATE_POCKET
+        signature = (tuple(hole['bbox']), hole['pixel_count'])
+        for entry in ((*key, JOINT_HOLE_RULE), (*key, JOINT_HOLE_RULE, signature)):
+            approved = {(*key, DETACHED_RULE), entry}
+            self.assertEqual(legacy_frame_errors(key, metrics, [hole], approved), [])
+            self.assertEqual(frame_errors(key, metrics, [hole], approved),
+                             [str(key) + ': ' + DETACHED_RULE, str(key) + ': ' + JOINT_HOLE_RULE])
+
     def test_review_connected_tip_cannot_detach_even_when_dark_or_skinned(self):
         for skinned in (False, True):
             with tempfile.TemporaryDirectory(prefix='rr25-detached-') as folder:
@@ -32,12 +50,16 @@ class SourceSpaceTests(unittest.TestCase):
                 paint[10, 25:27] = FIXTURE_DARK_TIP_RGBA
                 for name in ('rest.png', 'part.png'):
                     Image.fromarray(paint).save(root / name)
+                immutable = np.zeros_like(paint)
+                immutable[paint[..., 3] > 0] = [255, 0, 0, 255]
+                Image.fromarray(immutable).save(root / 'checks.png')
                 part = {'name': 'arm', 'file': 'part.png', 'offset': [0, 0],
                         'z_index': 0, 'bone': 'upper'}
                 layout = {'rest_source': 'rest.png', 'parts': [part],
-                          'joint_meshes': [{'name': 'arm'}] if skinned else []}
+                          'joint_meshes': [{'name': 'arm'}] if skinned else [],
+                          'proof_layers': {'arm': {'mask': 'checks.png', 'mask_offset': [0, 0]}}}
                 pose = {'parts': {'arm': {'transform': [1, 0, 0, 1, 0, 0]}}}
-                policy = PaintedComponents(root, layout)
+                policy = DetachedSource(root, layout)
                 checks = np.zeros_like(paint)
                 checks[paint[..., 3] > 0] = [255, 0, 0, 255]
                 checks = pixels.render(Image.fromarray(checks), np.eye(3))
@@ -47,17 +69,15 @@ class SourceSpaceTests(unittest.TestCase):
                         mutant[10, 25] = 0  # Remove the originally painted bridge.
                         mutant[10, 26] = rgba
                         layers = [(part, pixels.render(Image.fromarray(mutant), np.eye(3)), checks)]
-                        certified = policy.report(layers, pose)
-                        self.assertEqual(certified, [])
-                        metric = apply_painted_components(clean_metrics(layers), certified)
+                        certified = policy.report(layers, self.transforms(pose))
+                        self.assertEqual(certified['source_components'], [])
+                        metric = dict(clean_metrics(layers), **certified['metrics'])
                         self.assertEqual(metric['exempt_outline_components'], 0)
                         self.assertEqual(metric['stray_components'], 1)
                         self.assertEqual(metric['stray_pixels'], 1)
                         if rgba == FIXTURE_DARK_TIP_RGBA:
                             legacy = detached_metrics(layers[0][1])
                             self.assertEqual(legacy['exempt_outline_components'], 1)
-                            with self.assertRaisesRegex(ValueError, 'strict detached metrics'):
-                                apply_painted_components(legacy, certified)
                         spaces = pocket_report(layers)
                         errors = frame_errors(('front', 'death', 0), metric, spaces['failures'])
                         self.assertIn("('front', 'death', 0): " + DETACHED_RULE, errors)
@@ -102,6 +122,9 @@ class SourceSpaceTests(unittest.TestCase):
         if connected:
             paint[10, 25:34] = [100, 60, 40, 255]
         Image.fromarray(paint).save(root / 'rest.png')
+        checks = np.zeros_like(paint)
+        checks[paint[..., 3] > 0] = [255, 0, 0, 255]
+        Image.fromarray(checks).save(root / 'checks.png')
         # Source painting and source cuts are independent inputs. A mutant cut
         # may detach material that was connected in the approved painting.
         paint[10, 25:34] = 0
@@ -109,7 +132,8 @@ class SourceSpaceTests(unittest.TestCase):
         part = {'name': 'head', 'logical_part': 'head', 'file': 'part.png',
                 'offset': [0, 0], 'bone': 'head', 'z_index': 0}
         layout = {'rest_source': 'rest.png', 'parts': [part],
-                  'joint_meshes': [{'name': 'head'}] if skinned else []}
+                  'joint_meshes': [{'name': 'head'}] if skinned else [],
+                  'proof_layers': {'head': {'mask': 'checks.png', 'mask_offset': [0, 0]}}}
         transform = np.eye(3)
         transform[0, 2] = FIXTURE_DISPLACEMENT_PX
         pose = {'parts': {'head': {'transform': [1, 0, 0, 1, FIXTURE_DISPLACEMENT_PX, 0]}}}
@@ -120,23 +144,23 @@ class SourceSpaceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rr22-space-') as folder:
             root = Path(folder)
             layout, pose, layers = self.component_fixture(root)
-            policy = PaintedComponents(root, layout)
-            accepted = policy.report(layers, pose)
-            self.assertEqual(len(accepted), 1)
-            self.assertEqual(accepted[0]['owner'], 'head')
-            metric = apply_painted_components(detached_metrics(layers[0][1], allow_outline=False), accepted)
+            policy = DetachedSource(root, layout)
+            accepted = policy.report(layers, self.transforms(pose))
+            self.assertEqual(len(accepted['source_components']), 1)
+            self.assertEqual(accepted['source_components'][0]['piece'], 'head')
+            metric = dict(detached_metrics(layers[0][1], allow_outline=False), **accepted['metrics'])
             self.assertEqual(metric['stray_components'], 0)
             self.assertEqual(metric['stray_pixels'], 0)
             frozen = copy.deepcopy(pose)
             frozen['parts']['head']['transform'][4] = 0
-            self.assertEqual(policy.report(layers, frozen), [])
+            self.assertEqual(policy.report(layers, self.transforms(frozen))['source_components'], [])
 
     def test_cut_induced_component_and_skinned_island_fail(self):
         for options in ({'connected': True}, {'skinned': True}):
             with self.subTest(options=options), tempfile.TemporaryDirectory(prefix='rr22-space-') as folder:
                 root = Path(folder)
                 layout, pose, layers = self.component_fixture(root, **options)
-                self.assertEqual(PaintedComponents(root, layout).report(layers, pose), [])
+                self.assertEqual(DetachedSource(root, layout).report(layers, self.transforms(pose))['source_components'], [])
                 self.assertEqual(detached_metrics(layers[0][1], allow_outline=False)['stray_components'], 1)
 
     def test_unrelated_stray_does_not_borrow_certification(self):
@@ -144,11 +168,22 @@ class SourceSpaceTests(unittest.TestCase):
             root = Path(folder)
             layout, pose, layers = self.component_fixture(root)
             layers[0][1][170:174, 170:174] = [90, 50, 30, 255]
-            accepted = PaintedComponents(root, layout).report(layers, pose)
-            metric = apply_painted_components(detached_metrics(layers[0][1], allow_outline=False), accepted)
+            accepted = DetachedSource(root, layout).report(layers, self.transforms(pose))
+            metric = dict(detached_metrics(layers[0][1], allow_outline=False), **accepted['metrics'])
             self.assertEqual(metric['stray_components'], 1)
             self.assertEqual(metric['stray_pixels'], 16)
             self.assertEqual(metric['exempt_outline_components'], 0)
+
+    def test_repainted_speck_cannot_borrow_its_approved_silhouette(self):
+        with tempfile.TemporaryDirectory(prefix='rr26-source-colour-') as folder:
+            root = Path(folder)
+            layout, pose, layers = self.component_fixture(root)
+            image = layers[0][1]
+            labels, groups = components(image[..., 3] > 0)
+            image[labels == groups[1][0], :3] = FIXTURE_DARK_TIP_RGBA[:3]
+            report = DetachedSource(root, layout).report(layers, self.transforms(pose))
+            self.assertEqual(report['source_components'], [])
+            self.assertEqual(report['metrics']['stray_components'], 1)
 
     def test_painted_outline_is_not_subtracted_from_unrelated_stray(self):
         with tempfile.TemporaryDirectory(prefix='rr22-space-') as folder:
@@ -159,13 +194,16 @@ class SourceSpaceTests(unittest.TestCase):
                 paint[10:12, 34:36] = 0
                 paint[10:12, 26] = [30, 20, 10, 255]
                 Image.fromarray(paint).save(root / name)
+            checks = np.zeros_like(paint)
+            checks[paint[..., 3] > 0] = [255, 0, 0, 255]
+            Image.fromarray(checks).save(root / 'checks.png')
             transform = pixels.unpack(pose['parts']['head']['transform'])
             presented = pixels.render(Image.fromarray(paint), transform)
             presented[170:174, 170:174] = [90, 50, 30, 255]
             layers = [(layers[0][0], presented, presented.copy())]
-            accepted = PaintedComponents(root, layout).report(layers, pose)
-            self.assertEqual(len(accepted), 1)
-            metric = apply_painted_components(detached_metrics(presented, allow_outline=False), accepted)
+            accepted = DetachedSource(root, layout).report(layers, self.transforms(pose))
+            self.assertEqual(len(accepted['source_components']), 1)
+            metric = dict(detached_metrics(presented, allow_outline=False), **accepted['metrics'])
             self.assertEqual(metric['stray_components'], 1)
             self.assertEqual(metric['stray_pixels'], 16)
             self.assertEqual(metric['exempt_outline_components'], 0)

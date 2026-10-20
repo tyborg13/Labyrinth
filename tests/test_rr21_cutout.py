@@ -24,7 +24,7 @@ from humanoid_cutout.action_direction import report as direction_report
 from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.production_gates import production_errors
 from humanoid_cutout.walk_gates import report as walk_report
-from humanoid_cutout.bone_evidence import load_samples
+from humanoid_cutout.bone_evidence import read_report
 from rr21_evidence import compact_samples, FULL_SAMPLES
 
 PROOF_TIMEOUT_SECONDS = 180
@@ -54,7 +54,7 @@ class CutoutTests(unittest.TestCase):
         cls.build = read_json(CASE / 'proof/build.json')
         run_script('tests/rr21/samples.gd', '--case', CASE, '--output', FULL_SAMPLES)
         compact_samples()
-        cls.samples = load_samples(CASE)
+        cls.samples = read_report(CASE)
         cls.bound = bindings(CASE)
 
     def test_protected_import_compilation_and_native_delivery(self):

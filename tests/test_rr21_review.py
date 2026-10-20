@@ -17,7 +17,7 @@ sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'experiments/cutouts/briar_weave
 from rr21_case import CASE
 from rr21_evidence import native_current
 from cutout_pipeline.cases import read_json, write_json, digest
-from humanoid_cutout.bone_evidence import load_samples
+from humanoid_cutout.bone_evidence import read_report
 from humanoid_cutout.gates import bindings
 
 REVIEW_TIMEOUT_SECONDS = 180  # Existing rr-21 headless proof timeout.
@@ -66,14 +66,14 @@ if '--native-current' in sys.argv:
 
     def test_removing_containment_guard_is_caught_for_both_outside_paths(self):
         import tests.test_rr21_walk as walk_tests
-        tree = ast.parse(inspect.getsource(load_samples))
+        tree = ast.parse(inspect.getsource(read_report))
         guard = next(node for node in ast.walk(tree) if isinstance(node, ast.If)
                      and 'path.is_relative_to(proof)' in ast.unparse(node.test))
         guard.test.values = guard.test.values[1:]  # Keep existence and hash checks.
-        namespace = load_samples.__globals__.copy()
+        namespace = read_report.__globals__.copy()
         exec(compile(ast.fix_missing_locations(tree), '<removed containment guard>', 'exec'), namespace)
         result = unittest.TestResult()
-        with patch.object(walk_tests, 'load_samples', namespace['load_samples']):
+        with patch.object(walk_tests, 'read_report', namespace['read_report']):
             walk_tests.WalkTests('test_compact_evidence_loads_legacy_and_hash_bound_full_rows').run(result)
         self.assertEqual(result.errors, [])
         self.assertEqual(len(result.failures), 2)
@@ -93,8 +93,15 @@ if '--native-current' in sys.argv:
         (case / 'proof').mkdir()
         # Use the committed compact index, never the worker's ignored samples.
         relative = str(CASE.relative_to(ROOT) / 'proof/samples.json')
+        revision = 'HEAD'
+        present = subprocess.run(['git', 'cat-file', '-e', revision + ':' + relative],
+                                 cwd=ROOT, capture_output=True)
+        if present.returncode:
+            # A no-commit integration merge can introduce this case. Its
+            # incoming record is committed even though HEAD predates it.
+            revision = 'MERGE_HEAD'
         (case / 'proof/samples.json').write_bytes(subprocess.check_output(
-            ['git', 'show', 'HEAD:' + relative], cwd=ROOT))
+            ['git', 'show', revision + ':' + relative], cwd=ROOT))
         shutil.copyfile(CASE / 'proof/build.json', case / 'proof/build.json')
         self.assertFalse((case / 'proof/logs').exists())
         self.assertNotIn('samples', read_json(case / 'proof/samples.json'))
@@ -114,7 +121,7 @@ if '--native-current' in sys.argv:
         print(result.stdout, end='')
         compact = read_json(case / 'proof/samples.json')
         self.assertNotIn('samples', compact)
-        full = load_samples(case)
+        full = read_report(case)
         self.assertEqual(full['inputs'], bindings(case))
         self.assertEqual(compact['full_samples']['sha256'], digest(case / 'proof/logs/samples.json'))
         gate = read_json(case / 'proof/gates.json')
