@@ -225,3 +225,7 @@
   Follow-up already queued: re-key the rear Tether so the tube rises over the near shoulder (director data,
   staged/rr-11 view_keys.rear), folded into the record refresh after rr-26.
 - empower-built: APPROVED (2026-10-20 10:57). Seal, ember glow and tooltip stay as built (ui-03 + int-03 targeting fixes, merged). Next: three charge sounds for an owner audition.
+- empower-sound: APPROVED A (Kindle) (2026-10-20 13:48). Owner: "A, and yeah, let's play a softer and maybe slightly duller sound for toggling it off." Un-charge recipe authored (recipes_empower.json empower.uncharge).
+- weaver-rig: APPROVED (2026-10-20 13:54).
+- mimic-rig: NEEDS CHANGES (2026-10-20 13:54). Verbatim: "The hair is very wrong. The original is spiky anime-ish like our protag, the new is a weird peacock feather fan in the back. Also, the arms don't sway realistically during the walk animation, there's one animation where a hand in the front view gets drawn behind the body when it should be in front."
+- mortar-rig: NEEDS CHANGES (2026-10-20 13:57). Verbatim: "Generally he's looking pretty decent, but the loin cloth is very wrongly positioned. Doesn't match the perspective at all, like it's not even on him. And there's some noticeably wrong tearing and stretching during animations around his face and arms. We need to clean all that up."
