@@ -1,0 +1,26 @@
+extends "res://tools/generate_unit_shadow_cache.gd"
+
+## Director merge helper: rebuild only the records under SHADOW_PREFIX (env), retain every other entry.
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	var prefix: String = OS.get_environment("SHADOW_PREFIX")
+	assert(prefix.begins_with("res://assets/units/"), "SHADOW_PREFIX must name a unit directory")
+	var cache: Resource = (load(DEFAULT_OUTPUT_PATH) as Resource).duplicate(true)
+	var result: Dictionary = _build_cache()
+	var added: int = 0
+	for field: String in ["entries", "source_sha256"]:
+		var retained: Dictionary = {}
+		var values: Dictionary = cache.get(field)
+		for key: String in values.keys():
+			if key.begins_with(prefix): values.erase(key)
+			else: retained[key] = values[key]
+		for key: String in result[field]:
+			if key.begins_with(prefix):
+				values[key] = result[field][key]
+				added += 1
+		for key: String in retained:
+			assert(values[key] == retained[key], "Unrelated shadow record changed: " + key)
+		cache.set(field, values)
+	var error: Error = ResourceSaver.save(cache, DEFAULT_OUTPUT_PATH, ResourceSaver.FLAG_COMPRESS)
+	print("SHADOW PREFIX REFRESH: %s (%d records under %s)" % ["PASS" if error == OK else "FAIL", added, prefix])
+	quit(0 if error == OK else 1)

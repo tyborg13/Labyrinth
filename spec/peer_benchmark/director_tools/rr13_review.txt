@@ -1,0 +1,51 @@
+You are an adversarial PEER REVIEWER for one unit of the Godot 4 game "Escape the Umbra" (project rules: AGENTS.md in this
+checkout). Another engineer implemented it. Your working directory is a disposable detached copy at the commit under
+review: you may edit files here ONLY to run mutation tests or experiments, and must revert each mutation before the next.
+Never push, commit or touch any other checkout. Run headless Godot only via
+`python3 tools/godot_task_runner.py --task-id <unit>-review --stream -- godot ...`; never use an editor scan as a parser
+check; no windowed runs. Be concrete: every finding needs file:line evidence or a reproduction, a severity
+(Blocking/Medium/Low) and a concrete fix. Mutation-test the guards the change adds and report caught vs survived. Check the
+Windows typed-array rule in AGENTS.md, hard-coded tunables that belong in data, scope creep, dead code and stray files.
+End your final message with exactly one line: `SIGNOFF <full HEAD sha>` or `CHANGES REQUESTED`.
+
+
+## Review: rr-10 + rr-13 — Hoarfrost Seer on humanoid cutout rig v2 (both views), generic humanoid tools and runtime
+Range (exactly what would land on integration): `git diff 5b486cfb5c3f1b3c0a4635bf5b37f2a7605fae53..4c3f86339b162b9df8a59bd519c80a6df44c3745`. Commits: `git log --oneline 5b486cfb5c3f1b3c0a4635bf5b37f2a7605fae53..4c3f86339b162b9df8a59bd519c80a6df44c3745`.
+HEAD 4c3f86339b162b9df8a59bd519c80a6df44c3745. The last commit (4c3f86339) is a director sync of integration that took integration's copies of
+`spec/art_identity/maquettes/blender/delivery_validation.py` and `tests/test_maquette_rear_turn.py`; confirm nothing
+rr-10 needed from its interim copies was lost.
+Binding spec: `spec/peer_benchmark/humanoid_cutout_rig.md`. Briefs: `spec/peer_benchmark/briefs/rr-10.md`, `rr-13.md`.
+Case: `experiments/cutouts/hoarfrost_seer/rr10/` (README, feedback1-6, rr13*.md). The motion data, paintings and the
+director-reviewed `gate_exceptions` list are director decisions: don't review their taste, review that code honours them.
+The director already ran and inspected the windowed proof (native gates, sheets, review MP4, idle, density,
+production), so focus on code. Most of the 818k inserted lines are generated layouts, meshes and PNGs; sample them,
+don't read them.
+
+Specific questions:
+1. Spec conformance in code: idle as three rigid groups with no rotation or deformation; action limits (torso <=4 deg,
+   head <=6 deg, death 25/20; item angle_deg world-relative <=35); channels forward_px/lift_px/inward_px/lean_deg/
+   angle_deg/release_at/world_step; two-bone IK; knee-bend walk. Are these enforced by a test or gate, or only by data?
+2. Runtime blast radius: `scripts/maquette_cutout_runtime/*`, `scripts/combat_board_view.gd`,
+   `scripts/actor_presentation.gd`, and the `tests/rr07/runtime_test.gd` / `tests/test_rr07_production.py` edits.
+   Can any non-humanoid maquette creature (Burrow Grub, Ember Tick, Glacial Mirror, earlier rr-07 creatures) take a
+   different code path or render differently? Why did the rr07 tests need changing?
+3. Gate honesty: `tools/humanoid_cutout/gates.py`, `native_exceptions.py`, `production_gates.py`. Is the exception
+   list exact-match (a new flag at a new frame, or a changed error kind, must fail)? Do the hole and speck calibrations
+   (holes only where >=80% of the boundary is one joint pair, staff-bounded holes exempt, <=2 px outline specks within
+   2 px) admit a real seam gap? Mutation-test each.
+4. Clean-checkout robustness: does any committed test read ignored capture dirs (`proof/native/`, `native_rest/`,
+   `idle_native/`, `production_native/`, `contact_sheets/`, `logs/`, `feedback5/`, `guard_probe/`) and so fail or
+   silently skip on another machine? Run the focused tests from a state where those dirs don't exist.
+5. Duplication and drift: `assets/units/hoarfrost_seer_cutout/front.json`, `.../humanoid_v2/front.json` and
+   `experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json` (same for rear) are ~1.8 MB each. Which does the game
+   read? Is each copy necessary, and is drift between them caught by a test? Is the 4.8 MB `proof/samples.json` needed
+   in git?
+6. Reuse: rr-11 (Arc Thrall) is next on `tools/humanoid_cutout/` and `humanoid_*.gd`. List Seer-specific constants or
+   names hard-coded in the generic modules that would block or silently mis-handle a second humanoid.
+7. Usual checks: Windows typed-array rule in new .gd, tests that assert nothing, dead code, stray files.
+
+Run only focused tests: `python3 -m unittest tests.test_rr10_feedback tests.test_rr10_humanoid
+tests.test_rr10_native_exceptions tests.test_rr10_occluded_foot tests.test_rr10_rear tests.test_rr10_reveal_fills
+tests.test_rr10_rope tests.test_rr10_silhouette_gates tests.test_rr10_tucks tests.test_rr07_production
+tests.test_maquette_rear_turn` and the headless rr10/rr07 Godot runtime tests. Do NOT run the full Godot or Python
+suites; the director runs them at merge.

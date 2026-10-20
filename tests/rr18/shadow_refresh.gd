@@ -7,7 +7,9 @@ func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	if args.has("--check-baseline"):
-		_check_baseline(args[args.find("--check-baseline") + 1])
+		var unit_path: String = args[args.find("--check-unit") + 1] if args.has("--check-unit") else DEFAULT_OUTPUT_PATH
+		var source_root: String = args[args.find("--source-root") + 1] if args.has("--source-root") else "res://"
+		_check_baseline(args[args.find("--check-baseline") + 1], unit_path, source_root)
 		return
 	var previous: Resource = load(DEFAULT_OUTPUT_PATH)
 	var cache: Resource = previous.duplicate(true)
@@ -35,9 +37,9 @@ func _initialize() -> void:
 	print("RR18 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)")
 	quit()
 
-func _check_baseline(path: String) -> void:
+func _check_baseline(path: String, unit_path: String, source_root: String) -> void:
 	var baseline: Resource = load(path)
-	var current: Resource = load(DEFAULT_OUTPUT_PATH)
+	var current: Resource = load(unit_path)
 	var errors: Array[String]
 	for field: String in ["entries", "source_sha256"]:
 		var before: Dictionary = baseline.get(field)
@@ -49,7 +51,7 @@ func _check_baseline(path: String) -> void:
 		for key: String in after:
 			if key.begins_with(UNIT_SOURCE_PREFIX):
 				mirror_count += 1
-				if field == "source_sha256" and after[key] != FileAccess.get_sha256(key): errors.append("Stale Mirror shadow source: " + key)
+				if field == "source_sha256" and after[key] != FileAccess.get_sha256(source_root.path_join(key.trim_prefix("res://"))): errors.append("Stale Mirror shadow source: " + key)
 			elif not before.has(key): errors.append("Unrelated shadow added: " + key)
 		if mirror_count != 2: errors.append("Expected exactly two Mirror shadow records: " + field)
 	for error: String in errors: push_error(error)

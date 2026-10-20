@@ -183,7 +183,9 @@ static func _schema(engine: RefCounted, expect: Callable) -> void:
 	for type: String in ["briar_weaver", "slag_mortar"]:
 		var expected: Dictionary = staged[type].duplicate(true)
 		var presentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
-		if presentation.handles(type):
+		# rr-21 promotes the Weaver renderer while retaining its approved
+		# painting paths for still consumers; rr-25 promotes Mortar rest paths.
+		if presentation.handles(type) and type != "briar_weaver":
 			expected["art_path"] = presentation.asset_directory(type).path_join("front/rest.png")
 			expected["art_rear_path"] = presentation.asset_directory(type).path_join("rear/rest.png")
 		expect.call(production[type] == expected, "%s protected mechanics retained with registered production art" % type)

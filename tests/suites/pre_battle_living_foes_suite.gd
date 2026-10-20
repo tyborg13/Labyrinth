@@ -6,6 +6,9 @@ const Board = preload("res://scripts/combat_board_view.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Rules = preload("res://scripts/combat_objective_rules.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const Presentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+const ActorPresentation = preload("res://scripts/actor_presentation.gd")
+const CutoutContext = preload("res://scripts/cutout_context.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const EXPECTED_COPY: Dictionary = {
 	"kill_all": "Defeat every enemy.",
@@ -13,8 +16,6 @@ const EXPECTED_COPY: Dictionary = {
 	"survive": "Survive until the marked time.",
 	"reach_exit": "Reach a marked door to escape."
 }
-const EXPECTED_STATIC := ["gale_herald", "gloam_stalker", "hollow_mimic", "briar_weaver", "slag_mortar"]
-const MAQUETTE_FOES := ["bile_bloomer", "lightning_wisp", "hoarfrost_seer", "arc_thrall", "burrow_grub", "ember_tick", "storm_capacitor", "glacial_mirror"]
 const TEST_STAGE_SIZE := Vector2(206, 365)
 const PROCESS_FRAMES: int = 3
 const PHASE_EPSILON: float = 0.000001
@@ -22,26 +23,33 @@ const TEST_PHASE_SLOT: int = 2
 const TEST_SLOT_COUNT: int = 6
 const OBJECTIVE_TEST_SIZE := Vector2(1000, 100)
 
-# Independent oracle: board constants plus explicit maquette Scripts, never the
-# selector under test. Shared Guardian instances must also carry their identity.
-const EXPECTED_RENDERERS: Dictionary = {
-	"storm_capacitor": preload("res://assets/units/storm_capacitor_cutout/renderer.gd"),
-	"glacial_mirror": preload("res://assets/units/glacial_mirror_cutout/renderer.gd"),
-	"burrow_grub": preload("res://assets/units/burrow_grub_cutout/renderer.gd"),
-	"ember_tick": preload("res://assets/units/ember_tick_cutout/renderer.gd"),
-	"hoarfrost_seer": preload("res://assets/units/hoarfrost_seer_cutout/renderer.gd"),
-	"arc_thrall": preload("res://assets/units/arc_thrall_cutout/renderer.gd"),
-	"crawler": Board.CrawlerCutout, "acolyte": Board.AcolyteCutout,
-	"harrier": Board.HarrierCutout, "warden": Board.WardenCutout,
-	"cinder_ooze": Board.CinderOozeCutout, "cinder_droplet": Board.CinderDropletCutout,
-	"bile_bloomer": preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd"), "chainbound_gaoler": Board.GaolerCutout,
-	"grave_surgeon": Board.GraveSurgeonCutout, "frostglass_lancer": Board.FrostglassCutout,
-	"tharokh": Board.TharokhCutout, "vyraketh": Board.VyrakethCutout,
-	"vaeloryx": Board.VaeloryxCutout, "iskaldra": Board.IskaldraCutout,
-	"noctyrax": Board.NoctyraxCutout, "zekarion": Board.ZekarionCutout,
-	"veilbound_acolyte": Board.VeilboundAcolyteCutout,
-	"lightning_wisp": preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd"), "gust_shrike": Board.GustShrikeCutout
-}
+# Membership comes from the canonical declarations. Paths are reconstructed
+# independently: never call LiveActor.renderer_script, travel_renderer or
+# Presentation.renderer_script (the selectors this suite must check).
+static func _declared_rigs() -> Dictionary:
+	var rigs: Dictionary = {}
+	for identity: String in ActorPresentation.PROFILES: rigs[identity] = true
+	for identity: String in Board.GuardianCutout.ACTOR_IDS: rigs[identity] = true
+	for identity: String in Presentation.CREATURES: rigs[identity] = true
+	if Board.GustShrikeCutout.available(): rigs["gust_shrike"] = true
+	return rigs
+
+static func _declared_stills(rigs: Dictionary) -> Dictionary:
+	var stills: Dictionary = {}
+	for identity: String in CutoutContext.STATIC_ENEMY_TYPES:
+		# The optional Shrike rig also has a static reaction declaration.
+		if not rigs.has(identity): stills[identity] = true
+	return stills
+
+static func _expected_renderer_path(identity: String) -> String:
+	if Presentation.CREATURES.has(identity):
+		var creature: String = str(Presentation.CREATURES[identity])
+		var adapter: String = "res://assets/units/%s_cutout/renderer.gd" % creature
+		if FileAccess.file_exists(adapter): return adapter
+		return "res://scripts/maquette_cutout_runtime/%s_renderer.gd" % creature
+	if Board.GuardianCutout.ACTOR_IDS.has(identity): return "res://scripts/guardian_cutout/renderer.gd"
+	var directory: String = "stone_warden" if identity == "warden" else identity
+	return "res://scripts/%s_cutout/renderer.gd" % directory
 
 static func run(expect: Callable) -> void:
 	_test_objectives(expect)
@@ -112,10 +120,23 @@ static func _test_roster(expect: Callable) -> void:
 	tree.root.add_child(stage)
 	var actors: Dictionary = {}
 	var count: int = 0
+	var rigs: Dictionary = _declared_rigs()
+	var stills: Dictionary = _declared_stills(rigs)
+	var declared: Dictionary = rigs.duplicate()
+	declared.merge(stills)
+	var declared_ids: Array = declared.keys()
+	var enemy_ids: Array = Data.enemies().keys()
+	declared_ids.sort()
+	enemy_ids.sort()
+	expect.call(declared_ids == enemy_ids, "Canonical rig/static declarations cover exactly the enemy roster")
 	for identity: String in Data.enemies():
 		count += 1
-		var expected: Script = Board.GuardianCutout if Board.GuardianCutout.handles(identity) else EXPECTED_RENDERERS.get(identity)
-		expect.call((expected == null) == EXPECTED_STATIC.has(identity), "Independent 43-identity oracle covers " + identity)
+		var expected: Script
+		if rigs.has(identity):
+			var path: String = _expected_renderer_path(identity)
+			expect.call(FileAccess.file_exists(path), "Declared rig has its independent renderer path: " + identity)
+			expected = load(path) as Script
+		expect.call((expected == null) == stills.has(identity), "Independent renderer-path oracle covers " + identity)
 		var card: Control = View.build_foe(host, {"type": identity, "hp": 1}, TEST_STAGE_SIZE, false, TEST_PHASE_SLOT, TEST_SLOT_COUNT)
 		stage.add_child(card)
 		var live: Control = card.get_node("PreBattleEnemyLiveActor")
@@ -127,12 +148,12 @@ static func _test_roster(expect: Callable) -> void:
 			if expected == Board.GuardianCutout: expect.call(renderer.get("character_id") == identity, "Shared Guardian renderer carries character_id: " + identity)
 			var snapshot: Dictionary = renderer.call("snapshot")
 			expect.call(snapshot["facing"] == "front" and not bool(snapshot["mirrored"]) and snapshot.get("shown_clip", snapshot["clip"]) == "idle", "Board idle faces front: " + identity)
-			if identity in MAQUETTE_FOES:
+			if Presentation.CREATURES.has(identity):
 				expect.call(still.texture is AtlasTexture and (still.texture as AtlasTexture).atlas == renderer.call("texture"), "Source canvas shares the single live maquette renderer: " + identity)
 		expect.call(still.visible == (expected == null), "Only unrigged identities show the source still: " + identity)
 		var inspection: Control = host.call("_build_pre_battle_enemy_inspection_panel", {"type": identity, "hp": 1})
 		expect.call(inspection.find_child("PreBattleEnemyLiveActor", true, false) == null, "Inspection remains a cropped still: " + identity)
-		if identity in MAQUETTE_FOES:
+		if Presentation.CREATURES.has(identity):
 			var portrait_renderer: Node = inspection.find_child("MaquettePortraitRenderer", true, false)
 			expect.call(portrait_renderer != null and portrait_renderer.get_script() == expected, "Inspection resolves the maquette Script: " + identity)
 		inspection.free()
@@ -159,7 +180,7 @@ static func _test_roster(expect: Callable) -> void:
 	before = _clocks(actors)
 	await _frames(tree)
 	_assert_frozen(actors, before, expect, "Reduced-motion SceneTree idle stays frozen: ")
-	expect.call(count == 43 and actors.size() == 38, "Every identity is covered (38 cutouts / 5 stills)")
+	expect.call(count == declared.size() and actors.size() == rigs.size() and count - actors.size() == stills.size(), "Every declared identity is covered (%d cutouts / %d stills)" % [rigs.size(), stills.size()])
 	stage.free()
 	host.free()
 	Settings.apply_settings(saved_settings, null, false)

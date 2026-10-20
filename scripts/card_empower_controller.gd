@@ -88,8 +88,20 @@ static func toggle(scene: Node, index: int, source: String) -> void:
 	scene._analytics_store.write_event("empower_toggled", scene._analytics_context_from_states(scene._run_state, scene._combat_state), {"card_id": scene._card_id_for_hand_index(index), "on": scene._hand_card_empowered(index), "source": source, "phase": phase})
 	scene._refresh_controller_prompts()
 
+static func observe_targeting_pointer(scene: Node, event: InputEvent) -> void:
+	# Modal GUI ownership suspends the arrow, not knowledge of the pointer.
+	# Track motion before the scene's modal input guards can return early.
+	if scene._selected_card_index >= 0 and event is InputEventMouseMotion:
+		scene._card_targeting_pointer_position = (event as InputEventMouseMotion).position
+
 static func pointer_on_board(scene: Node, point: Vector2) -> bool:
 	var hovered: Control = scene.get_viewport().gui_get_hovered_control()
-	if hovered != null and hovered != scene.board_view and not scene.board_view.is_ancestor_of(hovered):
+	# The viewport hover cache can still name the hand/HUD during a release
+	# or modal handoff. Only a control at this endpoint can own it. The board's
+	# full-screen ancestors are layout containers, not competing HUD controls.
+	if (hovered != null and hovered != scene.board_view
+		and not hovered.is_ancestor_of(scene.board_view)
+		and not scene.board_view.is_ancestor_of(hovered)
+		and scene._control_visual_global_rect(hovered).has_point(point)):
 		return false
 	return scene._drag_board_tile_at(point).x >= 0
