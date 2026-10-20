@@ -1,4 +1,4 @@
-# int-01 — Integration repair after the rig wave and ui-03
+# int-03 — Integration repair after the rig wave and ui-03
 
 ## Header
 - Base: integration `f3852e68e`. It holds rr-23, rr-25, rr-24, rr-21, ui-03 and rr-26.
@@ -94,7 +94,7 @@
 ## Proof
 - Focused runs for each item first.
 - Then, because this unit's job is a green merge, **both full suites once at the end**:
-  - `python3 tools/godot_task_runner.py --task-id int-01 --timeout 1100 --stream -- godot --headless --script tests/run_tests.gd`
+  - `python3 tools/godot_task_runner.py --task-id int-03 --timeout 1100 --stream -- godot --headless --script tests/run_tests.gd`
   - `python3 -m unittest discover -s tests -p 'test_*.py'`
   - Report the exact result lines.
 - List any windowed command the director should run, for example a ui-03 still if A changes cursor or arrow visuals.
