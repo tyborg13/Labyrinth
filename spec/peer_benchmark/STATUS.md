@@ -19,6 +19,22 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-20 14:25 (Mimic/Mortar owner fixes):
+  - **mq-11.** The director authored the design data:
+    - the Mimic's 16-tuft mop, measured from the built skull (generator `staged/mq11/mimic_hair.py`);
+    - the Mortar's belt and flaps.
+  - Brief/gate corrections, all director decisions:
+    - the flap length is 1.25 thigh;
+    - the centre line is each flap's own attachment, judged on the median of the central rows, ±12 px at 1024.
+  - Native acceptance passed for both (director_04, 2e97131de). The Codex review requested changes: 3 Medium, 2 Low,
+    4 surviving mutations. Fix round 2 is running (feedback_2). Then the director reruns `workflow build` natively and
+    merges.
+  - **Paint-overs approved by the director:**
+    - Mimic hair, front and rear r2;
+    - Mortar belt and loincloth, front and rear, composited below y 560.
+    - Staged in `staged/mq11/paint/`; inbox item `mq11-paint` is open.
+  - **Next:** launch rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) after mq-11 merges. Briefs and motion data are
+    committed in 6868f0862.
 - 2026-10-20 afternoon:
   - Merged int-05 (6a188d45d) and sfx-05 (672b55f64; Codex SIGNOFF 2b4095104; Empower cues onset-trimmed by the
     director, blocked-health card.invalid). Godot PASS.
