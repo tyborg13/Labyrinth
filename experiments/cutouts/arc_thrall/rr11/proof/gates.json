@@ -1,6 +1,8 @@
 {
-  "ok": true,
-  "errors": [],
+  "ok": false,
+  "errors": [
+    "rear/tether/tube_tip: minimum reach 25.770794 px < 60.466233 px at 0.842910645"
+  ],
   "production_ready": false,
   "design_placeholders": {},
   "scope": "headless source and real Bone2D evidence"

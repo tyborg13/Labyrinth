@@ -51,7 +51,12 @@ def source_errors(view, layout):
     frozen = read_json(BASELINE / f'layouts/{view}.json')
     if layout['joints'] != frozen['joints']: errors.append('protected skeletal rest changed')
     if (CASE / 'compiled_motion.json').read_bytes() != (BASELINE / 'compiled_motion.json').read_bytes():
-        errors.append('protected compiled motion changed')
+        # Director rr-27 feedback 2 authorizes exactly the two rear Tether
+        # channels. Keep the frozen baseline and reject every other delta.
+        from rr27_tether_identity import motion_is_exact
+        if not motion_is_exact(str((CASE/'compiled_motion.json').relative_to(PROJECT)),
+                               (BASELINE/'compiled_motion.json').read_bytes()):
+            errors.append('protected compiled motion changed')
     for part in parts.values():
         if residue(source_pixels(CASE, part)).any(): errors.append('green residue: ' + part['name'])
     palettes = donor_palettes({name:clean_residue(image)[0] for name,image in expected.items()},rules(CASE,view))

@@ -1,0 +1,6 @@
+test_pose_pin_rejects_an_unapproved_front_or_rear_tether_row (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 0.813s
+
+OK

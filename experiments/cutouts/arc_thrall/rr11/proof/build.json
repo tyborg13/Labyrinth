@@ -386,9 +386,9 @@
       "source_sha256": "9cdfe676cad158de07b979512f4fa1adcf2d912ef457cfe722e4caa03316f468"
     }
   },
-  "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
+  "director_sha256": "d406a530196d0dd3cfe2918acb15a5e2ff2138b409320b627e62fed1cdb1edf5",
   "production_promoted": true,
-  "native_proof": "pending director mq7b captures",
+  "native_proof": "pending director feedback-2 captures",
   "rr24_derivation": {
     "builder_sha256": "757bc2487f774c4a860c7cd1e17dd2f5aa965b7e6ca8a3cf302dfe33da777aff",
     "ownership_sha256": "1e1471a60aa332fab5d8d3820bd368be8fad23fb55c156a3f5f26080cd97f8b1",

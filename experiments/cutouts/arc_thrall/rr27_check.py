@@ -38,22 +38,12 @@ def raw_rows(source, inventory):
 
 def preservation(samples):
     relative = str((CASE / 'proof/samples.json').relative_to(PROJECT))
-    before = committed(relative).decode()
     after = (PROJECT / relative).read_text()
-    inventories, changed = {}, []
-    for name in ('samples', 'authored', 'production_samples', 'production_authored'):
-        old, new = raw_rows(before, name), raw_rows(after, name)
-        if not old:
-            continue
-        if len(old) != len(new):
-            raise ValueError('Pose inventory length changed: ' + name)
-        for original, current in zip(old, new):
-            if original != current:
-                pose = json.loads(current)
-                changed.append({k: pose[k] for k in ('view', 'clip', 'frame', 'kind', 'phase')})
-        inventories[name] = {'rows': len(old), 'byte_identical': old == new,
-            'before_sha256': hashlib.sha256('\n'.join(old).encode()).hexdigest(),
-            'after_sha256': hashlib.sha256('\n'.join(new).encode()).hexdigest()}
+    # Director rr-27 feedback 2 repins exactly rear/tether. The complete raw
+    # row sequence outside that scope retains its original byte hash.
+    from rr27_tether_identity import pose_report, motion_is_exact
+    identity = pose_report(after)
+    inventories,changed = identity['inventories'],identity['changed_pose_rows']
     protected = {}
     for folder in (CASE, PROJECT / 'assets/units/arc_thrall_cutout'):
         for path in sorted(folder.rglob('*')):
@@ -68,16 +58,21 @@ def preservation(samples):
     changed_files = [p for p, row in protected.items() if row['before_sha256'] != row['after_sha256']]
     from rr27_preservation import copy_removal_is_exact
     authorized = [p for p in changed_files if copy_removal_is_exact(p,committed(p))]
-    unexpected = [p for p in changed_files if p not in authorized]
-    result = {'ok': not changed and not unexpected, 'base_revision': BASE_REVISION,
+    authorized_motion = [p for p in changed_files if motion_is_exact(p,committed(p))]
+    unexpected = [p for p in changed_files if p not in authorized+authorized_motion]
+    result = {'ok': identity['ok'] and not unexpected, 'base_revision': BASE_REVISION,
         'inventories': inventories, 'changed_pose_rows': changed, 'changed_protected_files': changed_files,
+        'added_pose_rows':identity['added_pose_rows'],'removed_pose_rows':identity['removed_pose_rows'],
+        'pose_identity_errors':identity['errors'],
         'authorized_continuation_removals':authorized,'unexpected_changes':unexpected,
+        'authorized_rear_tether_motion':authorized_motion,
         'protected_files': protected, 'inputs': samples['inputs']}
     write_json(RECIPE / 'preservation.json', result)
-    print('RR27 POSE ROW IDENTITY: %s (%d rows; %d changed raw rows)' %
-          ('PASS' if not changed else 'FAIL', sum(r['rows'] for r in inventories.values()), len(changed)))
-    print('RR27 PAINT/REST/MOTION IDENTITY: %s (%d protected files; %d authorized copy-removal outputs; %d unexpected)' %
-          ('PASS' if not unexpected else 'FAIL', len(protected), len(authorized), len(unexpected)))
+    print('RR27 POSE ROW IDENTITY: %s (%d other rows byte-identical; %d changed + %d added rear tether rows)' %
+          ('PASS' if identity['ok'] else 'FAIL',sum(r['unchanged_scope_rows'] for r in inventories.values()),
+           len(changed),len(identity['added_pose_rows'])))
+    print('RR27 PAINT/REST/MOTION IDENTITY: %s (%d protected files; %d copy-removal outputs; %d rear-tether motion outputs; %d unexpected)' %
+          ('PASS' if not unexpected else 'FAIL',len(protected),len(authorized),len(authorized_motion),len(unexpected)))
     return result
 
 

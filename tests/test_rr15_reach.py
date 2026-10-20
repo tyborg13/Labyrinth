@@ -1,11 +1,13 @@
 """Dense unclamped reach diagnostics and regressions for the old rear jab."""
 import copy
+import json
 from pathlib import Path
 import sys
 import unittest
 
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT / 'tools'))
+sys.path.insert(0, str(PROJECT / 'experiments/cutouts/arc_thrall'))
 from cutout_pipeline.cases import read_json
 from humanoid_cutout.reach import report
 
@@ -29,7 +31,10 @@ class ReachTests(unittest.TestCase):
 
     def test_new_rear_paths_clear_minimum_margin_and_maximum_in_dense_samples(self):
         rear = self.reach('rear')
-        for clip, expected_minimum in [('jab', 66.2), ('tether', 64.3)]:
+        # Director rr-27 feedback 2 changes this measured Tether minimum.
+        # Keep the independent allowed-minimum assertion: approved keys do
+        # not waive the existing reach gate, which currently fails.
+        for clip, expected_minimum in [('jab', 66.2), ('tether', 25.770793547018958)]:
             path = next(r for r in rear['paths'] if r['clip'] == clip and r['target'] == 'tube_tip')
             self.assertGreaterEqual(path['samples'], 1001)
             self.assertAlmostEqual(path['minimum_px'], expected_minimum, delta=MINIMUM_ROUNDING_TOLERANCE_PX)
@@ -51,7 +56,10 @@ class ReachTests(unittest.TestCase):
         self.assertLess(path['minimum_px'], OLD_CONTACT_REACH_PX)  # Independently traced contact distance.
 
     def test_overextended_target_is_reported_not_failed(self):
-        data = copy.deepcopy(self.data)
+        # Keep this maximum-reach mutation on the previously valid fixture;
+        # the new feedback-2 path independently fails minimum reach below.
+        from rr27_tether_identity import before_bytes
+        data = json.loads(before_bytes('experiments/cutouts/arc_thrall/rr11/compiled_motion.json'))
         track = next(t for t in data['view_tracks']['rear']['tether'] if t['source'] == 'tube_tip.forward_px')
         for row in track['keys']:
             row['value'] *= MAXIMUM_MUTATION_FACTOR

@@ -2,9 +2,9 @@
   "ready": false,
   "rig": "humanoid_v2",
   "case": "experiments/cutouts/arc_thrall/rr11",
-  "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
+  "director_sha256": "d406a530196d0dd3cfe2918acb15a5e2ff2138b409320b627e62fed1cdb1edf5",
   "design_placeholders": {},
-  "native_proof": "pending director rest/native/production/idle/review",
+  "native_proof": "pending director feedback-2 captures",
   "rest_identity": {
     "scope": "offline approved-source ownership, not native proof",
     "front": 0,
@@ -17,8 +17,8 @@
   },
   "files": {
     "front.json": "cc5714248e14bf595f4b8e619e0c19189ba9a34f88b9228e95f132116a6fcc60",
-    "humanoid_v2/compiled_motion.json": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e",
-    "humanoid_v2/director_motion.json": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
+    "humanoid_v2/compiled_motion.json": "ad7c56c7366335589479096c56df947aae4c4c8f0b5dda9fc911a420fe94b00d",
+    "humanoid_v2/director_motion.json": "d406a530196d0dd3cfe2918acb15a5e2ff2138b409320b627e62fed1cdb1edf5",
     "humanoid_v2/front/claw.png": "ee82229c874769006caba79cf9b1d39c3a44e471c6db8ad00dfcddefc56ca0f7",
     "humanoid_v2/front/claw.png.import": "c7d129df259feb5addb132a77ded322a6d94840a35e6112510cf7ff731f474bb",
     "humanoid_v2/front/foot_far.png": "5c25be052f23b5f56f4a4098b2c8a756c860990a688b123c392f3ba807882051",

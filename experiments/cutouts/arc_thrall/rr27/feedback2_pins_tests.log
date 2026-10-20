@@ -1,0 +1,22 @@
+test_all_three_holes_close_and_removing_the_cover_reopens_them (tests.test_rr15_shoulder.ShoulderContinuationTests) ... ok
+test_material_is_added_only_beneath_the_rest_torso (tests.test_rr15_shoulder.ShoulderContinuationTests) ... ok
+test_axis_crossing_distinguishes_socket_contact_from_interior (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_directed_copy_outputs_remove_only_the_declared_texel (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_feedback2_motion_and_pose_pin_are_exactly_scoped (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_feedback_candidates_use_only_the_directors_prescribed_channels (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_feedback_gate_rejects_changed_candidate_motion_before_rendering (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_joint_copies_use_own_treated_donors_and_only_the_two_clips (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_native_composer_rejects_cpu_evidence_and_stale_input (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_pose_pin_rejects_an_unapproved_front_or_rear_tether_row (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_raw_pose_rows_paint_rests_and_motion_are_exact (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_removing_joint_copies_reopens_both_reported_tears (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_replay_is_idempotent_and_production_recipes_match (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_restoring_each_removed_copy_reopens_its_detached_component (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+test_study_has_exact_candidates_and_all_six_phases_without_data_edits (tests.test_rr27_thrall.ThrallStrictProvenanceTests) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 11.237s
+
+OK
+RR27 POSE ROW IDENTITY: PASS (959 other rows byte-identical; 87 changed + 5 added rear tether rows)
+RR27 PAINT/REST/MOTION IDENTITY: PASS (440 protected files; 4 copy-removal outputs; 4 rear-tether motion outputs; 0 unexpected)

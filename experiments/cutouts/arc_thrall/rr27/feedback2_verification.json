@@ -1,0 +1,1099 @@
+{
+  "task": "rr-27",
+  "feedback": 2,
+  "branch": "codex/rr-27",
+  "starting_head": "64f394c7e1793b4899e7063cbfef90acf3c64331",
+  "committed": false,
+  "rear_repair": "previously accepted; unchanged; strict census passes both views",
+  "tether_pair_selected": [
+    0,
+    90
+  ],
+  "hold": [
+    65,
+    153
+  ],
+  "authorized_channels": {
+    "tube_tip.forward_px": [
+      [
+        0,
+        0
+      ],
+      [
+        0.2,
+        0
+      ],
+      [
+        0.35,
+        65
+      ],
+      [
+        0.8,
+        65
+      ],
+      [
+        0.9,
+        0
+      ],
+      [
+        1,
+        0
+      ]
+    ],
+    "tube_tip.lift_px": [
+      [
+        0,
+        0
+      ],
+      [
+        0.2,
+        90
+      ],
+      [
+        0.35,
+        153
+      ],
+      [
+        0.8,
+        153
+      ],
+      [
+        0.9,
+        90
+      ],
+      [
+        1,
+        0
+      ]
+    ]
+  },
+  "tether_director_data_changed": true,
+  "motion_scope": "exact two rear Tether channels; front and every other track preserved",
+  "pose_pin": "rear_tether_feedback2_pin.json",
+  "pose_inventories": {
+    "samples": {
+      "before_rows": 1050,
+      "after_rows": 1055,
+      "unchanged_scope_rows": 959,
+      "unchanged_scope_byte_identical": true,
+      "before_unchanged_sha256": "16d8eaeb92aeab0bbdcec03eb844e2d1af6d5e173180b9022fc15c4dbc0b55e8",
+      "after_unchanged_sha256": "16d8eaeb92aeab0bbdcec03eb844e2d1af6d5e173180b9022fc15c4dbc0b55e8",
+      "rear_tether_rows": 96,
+      "rear_tether_raw_sha256": "48df2f63f4d19cec76d680a3320987a85151966bda3c2cfcfd31ee696346fc13"
+    }
+  },
+  "changed_pose_rows": [
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.175,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.35,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.425,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.5,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.525,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.55,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.575,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.6,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.625,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.65,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.675,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.7,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.725,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.75,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.775,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.8,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.9,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 1,
+      "phase": 0.0140845070422535,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 2,
+      "phase": 0.028169014084507,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 3,
+      "phase": 0.0422535211267606,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 4,
+      "phase": 0.0563380281690141,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 5,
+      "phase": 0.0704225352112676,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 6,
+      "phase": 0.0845070422535211,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 7,
+      "phase": 0.0985915492957746,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 8,
+      "phase": 0.112676056338028,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 9,
+      "phase": 0.126760563380282,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 10,
+      "phase": 0.140845070422535,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 11,
+      "phase": 0.154929577464789,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 12,
+      "phase": 0.169014084507042,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 13,
+      "phase": 0.183098591549296,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 14,
+      "phase": 0.197183098591549,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 15,
+      "phase": 0.211267605633803,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 16,
+      "phase": 0.225352112676056,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 17,
+      "phase": 0.23943661971831,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 18,
+      "phase": 0.253521126760563,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 19,
+      "phase": 0.267605633802817,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 20,
+      "phase": 0.28169014084507,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 21,
+      "phase": 0.295774647887324,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 22,
+      "phase": 0.309859154929577,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 23,
+      "phase": 0.323943661971831,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 24,
+      "phase": 0.338028169014085,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 25,
+      "phase": 0.352112676056338,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 26,
+      "phase": 0.366197183098592,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 27,
+      "phase": 0.380281690140845,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 28,
+      "phase": 0.394366197183099,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 29,
+      "phase": 0.408450704225352,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 30,
+      "phase": 0.422535211267606,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 31,
+      "phase": 0.436619718309859,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 32,
+      "phase": 0.450704225352113,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 33,
+      "phase": 0.464788732394366,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 34,
+      "phase": 0.47887323943662,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 35,
+      "phase": 0.492957746478873,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 36,
+      "phase": 0.507042253521127,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 37,
+      "phase": 0.52112676056338,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 38,
+      "phase": 0.535211267605634,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 39,
+      "phase": 0.549295774647887,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 40,
+      "phase": 0.563380281690141,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 41,
+      "phase": 0.577464788732394,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 42,
+      "phase": 0.591549295774648,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 43,
+      "phase": 0.605633802816901,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 44,
+      "phase": 0.619718309859155,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 45,
+      "phase": 0.633802816901408,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 46,
+      "phase": 0.647887323943662,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 47,
+      "phase": 0.661971830985915,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 48,
+      "phase": 0.676056338028169,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 49,
+      "phase": 0.690140845070423,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 50,
+      "phase": 0.704225352112676,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 51,
+      "phase": 0.71830985915493,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 52,
+      "phase": 0.732394366197183,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 53,
+      "phase": 0.746478873239437,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 54,
+      "phase": 0.76056338028169,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 55,
+      "phase": 0.774647887323944,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 56,
+      "phase": 0.788732394366197,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 57,
+      "phase": 0.802816901408451,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 58,
+      "phase": 0.816901408450704,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 59,
+      "phase": 0.830985915492958,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 60,
+      "phase": 0.845070422535211,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 61,
+      "phase": 0.859154929577465,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 62,
+      "phase": 0.873239436619718,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 63,
+      "phase": 0.887323943661972,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 64,
+      "phase": 0.901408450704225,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 65,
+      "phase": 0.915492957746479,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 66,
+      "phase": 0.929577464788732,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 67,
+      "phase": 0.943661971830986,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 68,
+      "phase": 0.957746478873239,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 69,
+      "phase": 0.971830985915493,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "presented",
+      "frame": 70,
+      "phase": 0.985915492957746,
+      "inventory": "samples"
+    }
+  ],
+  "added_pose_rows": [
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.1,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.2,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.275,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.85,
+      "inventory": "samples"
+    },
+    {
+      "view": "rear",
+      "clip": "tether",
+      "kind": "authored",
+      "frame": -1,
+      "phase": 0.95,
+      "inventory": "samples"
+    }
+  ],
+  "removed_pose_rows": [],
+  "png_files_changed_since_start": [],
+  "focused_tests": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-27 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/arc_thrall/rr27_focused.py",
+      "exit_code": 1,
+      "log": "feedback2_tests_final.log",
+      "lines": [
+        "Ran 130 tests in 137.414s",
+        "FAILED (failures=2)"
+      ],
+      "failing_tests": [
+        "tests.test_rr15_reach.ReachTests.test_current_data_passes_with_documented_overreach",
+        "tests.test_rr15_reach.ReachTests.test_new_rear_paths_clear_minimum_margin_and_maximum_in_dense_samples"
+      ]
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-27 python3 -B -m unittest tests.test_rr15_shoulder tests.test_rr27_thrall -v",
+      "exit_code": 0,
+      "log": "feedback2_pins_tests.log",
+      "lines": [
+        "Ran 15 tests in 11.237s",
+        "OK"
+      ]
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-27 python3 -B -m unittest tests.test_rr27_thrall.ThrallStrictProvenanceTests.test_pose_pin_rejects_an_unapproved_front_or_rear_tether_row -v",
+      "exit_code": 0,
+      "log": "feedback2_mutation_final.log",
+      "lines": [
+        "Ran 1 test in 0.813s",
+        "OK"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr27_check.py",
+      "exit_code": 0,
+      "log": "feedback2_census.log",
+      "lines": [
+        "RR27 POSE ROW IDENTITY: PASS (959 other rows byte-identical; 87 changed + 5 added rear tether rows)",
+        "RR27 PAINT/REST/MOTION IDENTITY: PASS (440 protected files; 4 copy-removal outputs; 4 rear-tether motion outputs; 0 unexpected)",
+        "RR27 CENSUS front: 50 frames; 0 failing",
+        "RR27 CENSUS front: 100 frames; 0 failing",
+        "RR27 CENSUS front: 150 frames; 0 failing",
+        "RR27 CENSUS front: 200 frames; 0 failing",
+        "RR27 CENSUS front: 250 frames; 0 failing",
+        "RR27 CENSUS front: 300 frames; 0 failing",
+        "RR27 STRICT CENSUS FRONT: PASS (335 frames; 0 unmatched detached; 0 pocket failures)",
+        "RR27 CENSUS rear: 50 frames; 0 failing",
+        "RR27 CENSUS rear: 100 frames; 0 failing",
+        "RR27 CENSUS rear: 150 frames; 0 failing",
+        "RR27 CENSUS rear: 200 frames; 0 failing",
+        "RR27 CENSUS rear: 250 frames; 0 failing",
+        "RR27 CENSUS rear: 300 frames; 0 failing",
+        "RR27 STRICT CENSUS REAR: PASS (335 frames; 0 unmatched detached; 0 pocket failures)"
+      ]
+    },
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr24_check.py --raster",
+      "exit_code": 0,
+      "log": "feedback2_raster.log",
+      "lines": [
+        "RR24 FRONT SOURCE/RESIDUE: PASS (0 errors)",
+        "RR24 FRONT COLLAR OWNERSHIP: PASS (236 contact frames; 0 covered-head frames)",
+        "RR24 FRONT HEM: PASS (maximum 3.605543 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})",
+        "RR24 CPU front: 50 frames; 0 failing frames",
+        "RR24 CPU front: 100 frames; 0 failing frames",
+        "RR24 CPU front: 150 frames; 0 failing frames",
+        "RR24 CPU front: 200 frames; 0 failing frames",
+        "RR24 CPU front: 250 frames; 0 failing frames",
+        "RR24 CPU front: 300 frames; 0 failing frames",
+        "RR24 CPU FRONT SEAMS: PASS (335 frames; 0 failing frames; native acceptance pending)",
+        "RR24 REAR SOURCE/RESIDUE: PASS (0 errors)",
+        "RR24 REAR COLLAR OWNERSHIP: PASS (229 contact frames; 0 covered-head frames)",
+        "RR24 REAR HEM: PASS (maximum 3.605532 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})",
+        "RR24 CPU rear: 50 frames; 0 failing frames",
+        "RR24 CPU rear: 100 frames; 0 failing frames",
+        "RR24 CPU rear: 150 frames; 0 failing frames",
+        "RR24 CPU rear: 200 frames; 0 failing frames",
+        "RR24 CPU rear: 250 frames; 0 failing frames",
+        "RR24 CPU rear: 300 frames; 0 failing frames",
+        "RR24 CPU REAR SEAMS: PASS (335 frames; 0 failing frames; native acceptance pending)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr11_gates.py",
+      "exit_code": 1,
+      "log": "feedback2_gates.log",
+      "lines": [
+        "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR11 BONE/CUT/KNEE GATES: FAIL (1 errors)",
+        "RR15 FRONT ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 FRONT REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 FRONT SWING KNEES: PASS (6 swings; minimum peak 53.741 degrees)",
+        "GAIT FRONT: PASS (maximum fit 0.452544 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 FRONT SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524157/0.000061 px)",
+        "RR15 REAR ACTION DIRECTION: PASS (480 positive checks)",
+        "RR15 REAR REACH: FAIL (11 keyed paths; 1000 intervals; 1 errors)",
+        "RR11 REAR SWING KNEES: PASS (6 swings; minimum peak 47.116 degrees)",
+        "GAIT REAR: PASS (maximum fit 0.056471 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 REAR SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524156/0.000068 px)",
+        "rear/tether/tube_tip: minimum reach 25.770794 px < 60.466233 px at 0.842910645"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr15_motion_import.py --owned-only",
+      "exit_code": 0,
+      "lines": [
+        "RR15 MOTION IMPORT: PASS (director byte-identical; accepted paint/layouts unchanged)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+      "exit_code": 0,
+      "lines": [
+        "RR10 BONE SAMPLES: PASS (1055 poses; headless transforms only)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/rr11/runtime_checks.gd",
+      "exit_code": 0,
+      "lines": [
+        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr24_native_capture.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/native --validate-only",
+      "exit_code": 0,
+      "lines": [
+        "RR11 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "command": "In-memory compile of all changed Python source files",
+      "exit_code": 0,
+      "lines": [
+        "RR27 PYTHON SYNTAX: PASS (11 changed files; in-memory compile)"
+      ]
+    },
+    {
+      "command": "Owned-file, branch, HEAD and PNG diff checks",
+      "exit_code": 0,
+      "lines": [
+        "RR27 OWNERSHIP/BRANCH/PAINT: PASS"
+      ]
+    },
+    {
+      "command": "Compare current humanoid_cutout.gates.bindings to all four final records",
+      "exit_code": 0,
+      "lines": [
+        "rr11/proof/samples.json INPUT BINDINGS: PASS",
+        "rr27/census.json INPUT BINDINGS: PASS",
+        "rr27/preservation.json INPUT BINDINGS: PASS",
+        "rr24/checks.json INPUT BINDINGS: PASS"
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "current_binding_validation": {
+    "samples": true,
+    "census": true,
+    "preservation": true,
+    "rr24_checks": true
+  },
+  "evidence": {
+    "rr11/proof/build.json": {
+      "sha256": "e3387bf559c4ca51fa3bcb2dd28012c76a8fd15283df8625e7242560e96f7296"
+    },
+    "rr11/proof/samples.json": {
+      "sha256": "1c376bcaf8965af98b2f8220ab74603130762a54a473b89f8e15f812d30869b3"
+    },
+    "rr11/proof/gates.json": {
+      "sha256": "b622e8a1f28a016a1b8b1140fa802c856672e828eaaeffcc7c7d23855dbcb00e"
+    },
+    "rr11/proof/reach.json": {
+      "sha256": "7d4689f2a5be93a2f749fbb165b8f36c9461dc920832598a7416c2eaf1139054"
+    },
+    "rr11/proof/directions.json": {
+      "sha256": "db3e94b59721ed6e4d95a06d78c08e9670052dd832c30a460d09d1e9f101dbe4"
+    },
+    "rr11/proof/supports.json": {
+      "sha256": "6409906d6edd2b85e9409afbb6eb52b19c492b3d0d12f1e99674617bfd32cd0f"
+    },
+    "rr24/checks.json": {
+      "sha256": "2844b518cdc1217e1d87ff627e23ead24460e25d09406eaf1accd7bd03d41ce2"
+    },
+    "rr27/census.json": {
+      "sha256": "dac6d606d24a3abac44ac96224a70ea5144d92f169fd2b484bc467001eb8f0c0"
+    },
+    "rr27/preservation.json": {
+      "sha256": "376253bc91e11e4424ef9118116bb41437dab71206daf20a431ef9b41df17904"
+    },
+    "rr27/rear_tether_feedback2_pin.json": {
+      "sha256": "6c977acc0b59739e9fff7697309b16baa35096bc42a589c9dcf891366af5132e"
+    },
+    "rr27/feedback2_census.log": {
+      "sha256": "f8d9a3a655d6bfd79af27e89a2166e4c7c8336301b9a1cd7ae6b3ae1020d6cf3"
+    },
+    "rr27/feedback2_raster.log": {
+      "sha256": "461da2a865d01c2406d744d83b34194fab97fe3743fb591a300073480b114343"
+    },
+    "rr27/feedback2_gates.log": {
+      "sha256": "6c4c01f114819289f387daa6b659c0ac5efa4636d908f3a4a1d8bf1df2cd7939"
+    },
+    "rr27/feedback2_tests_final.log": {
+      "sha256": "540eebb459cf1d468a17e317ffa1b139fb847fc09cde3c5ae4e09394defae33c"
+    },
+    "rr27/feedback2_pins_tests.log": {
+      "sha256": "e5931876952c8b007c34d9304bf9fe5cac054d7ef6804330071ef928bd98bbbc"
+    },
+    "rr27/feedback2_mutation_final.log": {
+      "sha256": "c96f80a7805a40b6fd37b17eaa92e232f0a362bda3e44c62281a2e039ad86449"
+    }
+  },
+  "full_suite": "not run: focused-only restriction",
+  "windowed_runs": [],
+  "windowed_sequence_stages": [
+    "density",
+    "rest",
+    "native",
+    "crops",
+    "sheets",
+    "idle",
+    "production",
+    "review"
+  ],
+  "windowed_capture_root": "experiments/cutouts/arc_thrall/rr11/proof",
+  "design_placeholders": {
+    "TODO_DESIGN_REAR_TETHER_REACH_CONFLICT": {
+      "description": "Exact director-approved rear Tether keys fail the unchanged minimum-reach gate. No key, threshold, waiver or alternative was chosen.",
+      "error": "rear/tether/tube_tip: minimum reach 25.770794 px < 60.466233 px at 0.842910645",
+      "path": {
+        "clip": "tether",
+        "target": "tube_tip",
+        "chain": {
+          "first": "upper_near",
+          "second": "fore_near",
+          "target": "tube_tip"
+        },
+        "segment_lengths": [
+          44.10215414239989,
+          100.56838751457045
+        ],
+        "samples": 2967,
+        "allowed_minimum_px": 60.46623337217056,
+        "allowed_maximum_px": 147.56395249010973,
+        "minimum_px": 25.770793547018958,
+        "maximum_px": 143.78108633690925,
+        "minimum_phase": 0.84291064453125,
+        "maximum_phase": 0.0
+      }
+    }
+  },
+  "resolved_design_placeholders": [
+    "TODO_DESIGN_REAR_COMPONENT_REPAIR",
+    "TODO_DESIGN_REAR_TETHER_PATH"
+  ],
+  "chosen_defaults": {
+    "POSE_MUTATION_PX": {
+      "value": 1,
+      "scope": "debug-only synthetic row corruption test"
+    }
+  },
+  "shared_registries_density_and_shadow_cache": "untouched",
+  "native_proof": "pending director run; native gates retain reach failure",
+  "earlier_run": {
+    "log": "feedback2_tests.log",
+    "result": "130 tests, 3 failures; historical rear Tether shoulder fixture selected current pose after authorized motion edit; fixture now retains original captured pose. Reach assertions unchanged."
+  }
+}
