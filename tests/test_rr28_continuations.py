@@ -116,6 +116,44 @@ class JointContinuationTests(unittest.TestCase):
                             build('seer')
                         writes.assert_not_called()
 
+    def test_missing_rear_evidence_rejects_coherent_bolt_expansion_before_any_write(self):
+        case, assets, recipe = paths('seer')
+        definition_path = recipe / 'joint_continuations.json'
+        definitions = read_json(definition_path)
+        del definitions['rear']
+        # Model the director's exact mutation in all three rear layout copies
+        # without touching the files that the windowed capture is reading.
+        layouts = {}
+        for path in [case / 'layouts/rear.json', *production_layouts(assets, 'rear')]:
+            layouts[path] = read_json(path)
+            layouts[path]['gait_continuations']['torso']['clips'].append('bolt')
+        fixtures = {definition_path: definitions, **layouts}
+
+        def mutated_read(path):
+            return deepcopy(fixtures[path]) if path in fixtures else read_json(path)
+
+        with patch('rr28_build.read_json', side_effect=mutated_read), \
+                patch('rr28_build.write_json') as writes:
+            with self.assertRaisesRegex(ValueError, 'rear: missing tear evidence view'):
+                build('seer')
+            writes.assert_not_called()
+
+    def test_evidenced_clip_cannot_be_removed_before_any_output_write(self):
+        case, assets, recipe = paths('seer')
+        definitions = read_json(recipe / 'joint_continuations.json')
+        definition = definitions['front']['sleeve_far']
+        definition['clips'].remove('hit')
+        self.assertTrue(any(r['clip'] == 'hit' for r in definition['source_evidence']))
+        with tempfile.TemporaryDirectory(prefix='rr28-missing-clip-') as folder:
+            mutated_recipe = Path(folder)
+            write_json(mutated_recipe / 'joint_continuations.json', definitions)
+            with patch('rr28_build.paths', return_value=(case, assets, mutated_recipe)), \
+                    patch('rr28_build.write_json') as writes:
+                with self.assertRaisesRegex(ValueError,
+                        r'front\.sleeve_far.*evidenced clip hit is missing'):
+                    build('seer')
+                writes.assert_not_called()
+
     def test_clip_evidence_requires_matching_view_and_valid_presented_frame(self):
         case, _, recipe = paths('seer')
         original = read_json(recipe / 'joint_continuations.json')

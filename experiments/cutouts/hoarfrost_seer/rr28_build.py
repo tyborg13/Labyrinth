@@ -29,6 +29,8 @@ def clip_evidence_errors(case, layout, definitions):
     evidence = definitions.get(view, {})
     recipes = layout.get('gait_continuations', {})
     invalid = []
+    if recipes and view not in definitions:
+        invalid.append(f'{view}: missing tear evidence view')
     for name in sorted(set(evidence) | set(recipes)):
         tag = f'{view}.{name}'
         expected = set()
@@ -66,9 +68,11 @@ def build(name):
     definitions = read_json(recipe / 'joint_continuations.json')
     # Reject unsupported activation in any view before changing capture inputs.
     layouts = {view: apply(case, read_json(case / f'layouts/{view}.json'), definitions)
-               for view in ('front', 'rear') if view in definitions}
+               for view in ('front', 'rear')}
     counts = {}
     for view, layout in layouts.items():
+        if view not in definitions:
+            continue  # Recipe-free views validate too; preserve the write scope.
         write_json(case / f'layouts/{view}.json', layout)
         # Preserve the production-specific prefixes, fields and geometry.
         for path in production_layouts(assets, view):
