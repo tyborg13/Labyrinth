@@ -224,3 +224,4 @@
 - thrall-rig-v3: APPROVED (2026-10-20 00:59; low iron collar, wrapped skirt, two-legged walk). Merged 962950183.
   Follow-up already queued: re-key the rear Tether so the tube rises over the near shoulder (director data,
   staged/rr-11 view_keys.rear), folded into the record refresh after rr-26.
+- empower-built: APPROVED (2026-10-20 10:57). Seal, ember glow and tooltip stay as built (ui-03 + int-03 targeting fixes, merged). Next: three charge sounds for an owner audition.
