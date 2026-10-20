@@ -1,0 +1,35 @@
+{
+  "files_checked": 989,
+  "before_iou": {
+    "hollow_mimic": {
+      "front": 0.8156739099219834,
+      "rear": 0.770515330525162
+    },
+    "slag_mortar": {
+      "front": 0.7995989792198323,
+      "rear": 0.7727019721484903
+    }
+  },
+  "other_figure_delivery_bytes_unchanged": true,
+  "preservation_passed": true,
+  "design_todos": {
+    "hollow_mimic": [
+      "spec.skull: TODO_DESIGN_MIMIC_SKULL_LANDMARKS",
+      "spec.scalp: TODO_DESIGN_MIMIC_SCALP_PROFILE",
+      "spec.tufts: TODO_DESIGN_MIMIC_TUFT_LAYOUT"
+    ],
+    "slag_mortar": [
+      "spec.belt: TODO_DESIGN_MORTAR_BELT_PROFILE",
+      "spec.front.rows: TODO_DESIGN_MORTAR_FRONT_FLAP_CURVE",
+      "spec.rear.rows: TODO_DESIGN_MORTAR_REAR_FLAP_CURVE",
+      "spec.rear.front_length_ratio: TODO_DESIGN_MORTAR_REAR_LENGTH_RATIO"
+    ]
+  },
+  "ready_for_native_proof": false,
+  "native_acceptance_passed": null,
+  "native_proof": "pending director bridge run",
+  "after_iou": {
+    "hollow_mimic": null,
+    "slag_mortar": null
+  }
+}

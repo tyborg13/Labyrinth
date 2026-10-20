@@ -1,0 +1,411 @@
+test_belt_is_closed_and_follows_the_posed_hips (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_director_filled_candidates_compile_and_preserve_the_other_parts (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_each_candidate_reports_every_missing_design_field (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_flap_drafting_rotates_with_the_pelvis_and_has_no_camera_branch (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_flap_roots_are_centred_perpendicular_to_body_forward (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_front_uses_director_thigh_fraction_and_back_is_shorter (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_hair_preserves_every_non_hair_piece_and_does_not_mutate_input (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_invalid_rear_length_and_unowned_mutations_fail (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_mortar_has_one_body_two_flaps_shared_ownership_and_original_rag (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_no_shared_tuft_root_or_zero_length_segment (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_scalp_must_reach_ears_and_fringe_must_fall_forward (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_stale_base_and_non_owned_figure_fail (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_todos_stop_the_whole_batch_before_writes_or_native_submission (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_tuft_lengths_fringe_count_and_scalp_width_are_enforced (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_uniform_fan_and_detached_roots_fail_before_blender (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_before_iou_and_every_existing_delivery_remain_byte_identical (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_centreline_gate_is_inclusive_at_twelve_pixels_and_rejects_beyond (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_flap_centreline_uses_each_attachment_and_rejects_thirteen_pixel_shift (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_fringe_gate_rejects_hair_behind_the_mask (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_native_probe_import_and_entry_point_do_not_require_pil (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_native_triangle_projection_keeps_depth_for_fringe_occlusion (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_rr20_inventory_adapter_keeps_other_pins_live (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_rr20_inventory_extension_preserves_all_original_lines (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_sheet_keeps_native_cells_marks_joints_and_hashes_inputs (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_unresolved_status_uses_test_owned_design_files (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_detached_scalp_and_all_its_tufts_cannot_compile (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_mutated_unowned_accessory_is_rejected_independently_of_body_fields (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_reversed_or_duplicate_internal_flap_rows_fail (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_tuft_length_boundaries_allow_relative_roundoff_but_reject_outside_epsilon (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_crack_centre_must_remain_visible_on_every_middle_third_row (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_flaps_need_twelve_contiguous_central_rows (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_near_total_occlusion_rejects_the_old_one_visible_row_case (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_rear_height_boundary_allows_relative_roundoff_but_rejects_outside_epsilon (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_sixty_percent_of_lower_band_is_inclusive_and_less_fails (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_two_extreme_rows_cannot_cancel_into_a_passing_median (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_build_cannot_refresh_a_changed_snapshot_at_acceptance (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_prepare_snapshots_before_compiling_and_rejects_input_changes (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_verify_rejects_changed_dependencies_before_inspecting_cached_results (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_verify_rejects_receipt_rebound_to_different_preparation_inputs (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_complete_local_import_closure_includes_relative_conditional_and_package_modules (tests.test_mq11_freshness.DependencyInputTests) ... ok
+test_workflow_binds_raster_geometry_fit_and_rear_turn_dependencies (tests.test_mq11_freshness.DependencyInputTests) ... ok
+test_mesh_export_is_bound_to_the_spec_and_artifact_hashes (tests.test_mq11_freshness.NativeShapeBindingTests) ... ok
+test_shape_report_spec_binding_rejects_an_otherwise_current_report (tests.test_mq11_freshness.NativeShapeBindingTests) ... ok
+test_verify_recomputes_measurements_and_rejects_stale_passing_numbers (tests.test_mq11_freshness.NativeShapeBindingTests) ... ok
+test_all_four_review_mutations_are_caught_by_assertions (tests.test_mq11_guard_mutations.GuardMutationTests) ... ok
+test_all_recipes_recompile_without_changing_their_protected_sources (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_bridge_quick_result_needs_no_run_line (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_bridge_start_deadline_is_independent_of_execution_budget (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ11_MUTATION_CAUGHT: flap_row_ordering; errors=0
+MQ11_MUTATION_CAUGHT: unowned_accessory_preservation; errors=0
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ11_MUTATION_CAUGHT: acceptance_freshness; errors=0
+MQ11_MUTATION_CAUGHT: shape_report_spec_binding; errors=0
+BLENDER_BRIDGE_STARTED: long
+ok
+test_bridge_unstarted_job_stops_at_start_deadline (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_capture_assembly_rejects_stale_checks_after_failed_recapture (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_compiler_rear_authored_panel_is_still_one_common_mesh (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_corrective_shape_inverts_blended_native_skinning (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_gale_view_states_change_only_native_banner_cloth (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_hem_obeys_both_source_lower_contours (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_hollow_bell_has_closed_wall_and_open_lumen (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_incompatible_views_leave_observable_residual (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_measured_hood_tip_anchor_changes_only_its_cloth (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_occluded_profile_preserves_native_depth_while_fitting_observed_view (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_panel_preserves_measured_edges (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_raw_replay_proof_is_bound_to_current_spec_and_keeps_quality_separate (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_rear_source_panel_projects_in_rear_and_retains_body_space (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_registered_overlay_uses_fit_frame_not_canvas_size (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_side_labels_require_distinct_registered_parts (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_source_cage_uses_measured_scanline_bounds (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_source_ray_intersects_named_plane (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_spatial_plate_rejects_unpaired_source_corners (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_stereo_prop_path_retains_one_common_three_dimensional_model (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_tube_rejects_collapsed_lumen_and_path (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_two_view_triangulation_round_trip (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_whole_cloth_feature_ownership_does_not_split_glyphs_or_drips (spec.art_identity.maquettes.blender.test_source_recipe.SourceRecipeTests) ... ok
+test_canonical_png_strips_volatile_stamps_without_changing_clay (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_closed_cowl_has_one_hem_boundary_and_no_crown_or_seam_holes (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_curved_shell_preserves_rim_ridge_and_is_closed (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_deferred_cloth_obstacle_pair_rejects_missing_accessory (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_discard_records_the_actual_bytes_before_removing_proof (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_layered_shell_keeps_each_closed_plate_in_one_mesh (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_mask_packing_preserves_alpha_and_all_visible_samples (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_required_parts_reject_missing_zero_and_negative_solos (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_rigid_clearance_keeps_components_and_encloses_with_a_padding_cube (spec.art_identity.maquettes.blender.test_delivery.DeliveryTests) ... ok
+test_collision_and_ownership_details_cannot_hide_behind_true_summary (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_copied_thrall_mutation_exits_nonzero_in_both_delivery_tools (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_hash_binding_is_required_and_current (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_passed_and_check_field_rejects_false_or_missing_even_before_sealing (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_each_socket_detail_is_mandatory_before_sealing (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_every_report_is_required (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_required_part_rejection_is_exercised_directly (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_socket_proof_is_required_before_and_after_resealing (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_staging_preserves_native_png_bytes_including_stamps (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_valid_current_delivery (spec.art_identity.maquettes.blender.test_delivery_validation.DeliveryValidationTests) ... ok
+test_correct_clays_cannot_mask_missing_or_red_maps (spec.art_identity.maquettes.blender.test_delivery_validation.RegenerationRasterTests) ... ok
+test_board_facing_normalizes_asset_and_rest_rig_without_moving_pose_paths (tests.test_maquette_blender.NativeContractTests) ... ok
+test_bone_cycles_and_zero_length_fail_before_launch (tests.test_maquette_blender.NativeContractTests) ... ok
+test_bridge_protocol_is_atomic_and_returns_director_log (tests.test_maquette_blender.NativeContractTests) ... ok
+test_bridge_rejects_other_scripts_and_excessive_timeouts (tests.test_maquette_blender.NativeContractTests) ... ok
+test_collar_pattern_is_closed_and_symmetric_before_simulation (tests.test_maquette_blender.NativeContractTests) ... ok
+test_command_disables_autorun_and_selects_cpu_backend (tests.test_maquette_blender.NativeContractTests) ... ok
+test_fit_never_changes_accessory_design_or_joint_xy (tests.test_maquette_blender.NativeContractTests) ... ok
+test_heat_weight_regions_cover_each_face_or_fail (tests.test_maquette_blender.NativeContractTests) ... ok
+test_lancer_r3_contains_every_brief_piece_as_source_measured_proposal (tests.test_maquette_blender.NativeContractTests) ... ok
+test_mesh_hash_uses_coordinates_topology_and_ownership (tests.test_maquette_blender.NativeContractTests) ... ok
+test_real_blender_build_and_geometry_gates (tests.test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'
+test_real_lancer_cloth_cache_replay_has_identical_raw_hashes (tests.test_maquette_blender.NativeContractTests) ... skipped 'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge'
+test_render_adapter_rejects_stale_spec_hash (tests.test_maquette_blender.NativeContractTests) ... ok
+test_render_adapter_uses_solo_alpha_and_actual_joints (tests.test_maquette_blender.NativeContractTests) ... ok
+test_round2_conformance_and_preserved_director_features (tests.test_maquette_blender.NativeContractTests) ... ok
+test_seeded_rag_notches_only_change_the_hem_before_simulation (tests.test_maquette_blender.NativeContractTests) ... ok
+test_shared_authoring_rotations_do_not_turn_other_attachments (tests.test_maquette_blender.NativeContractTests) ... ok
+test_tabard_is_one_connected_pattern_with_four_lower_strips (tests.test_maquette_blender.NativeContractTests) ... ok
+test_v2_cannot_silently_use_v1_rasteriser (tests.test_maquette_blender.NativeContractTests) ... ok
+test_valid_contract_and_unknown_labels (tests.test_maquette_blender.NativeContractTests) ... ok
+test_contact_sheet_uses_current_overlays_and_native_scale_clays (tests.test_mq09_maquettes.DeliveryTests) ... ok
+test_curated_manifests_and_fresh_regeneration (tests.test_mq09_maquettes.DeliveryTests) ... ok
+test_current_deliveries_pass_hash_bound_fit_pose_and_native_gates (tests.test_mq09_maquettes.DeliveryTests) ... DELIVERY_STAGE: PASS; staged
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 5422881, "figure": "hollow_mimic", "files": 104}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3535279, "figure": "briar_weaver", "files": 77}
+COMMIT_CURATION: PASS; {"budget_bytes": 6000000, "bytes": 3880309, "figure": "slag_mortar", "files": 85}
+MQ09_FIT: PASS; hollow_mimic; front_iou=0.815673910; rear_iou=0.770515331
+MQ09_FIT: PASS; briar_weaver; front_iou=0.706400955; rear_iou=0.680170738
+MQ09_FIT: PASS; slag_mortar; front_iou=0.799598979; rear_iou=0.772701972
+ok
+test_mutated_passing_fit_cannot_reuse_the_delivery_seal (tests.test_mq09_maquettes.DeliveryTests) ... ok
+test_bridge_distinguishes_busy_service_from_idle (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_clean_standalone_compiler_supports_the_native_fist_recipe (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_closed_fingers_keep_palm_and_native_separation (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_corrective_relaxation_preserves_native_details_and_components (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_curve_seating_preserves_the_measured_tip (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_exact_labels_protected_art_and_real_anatomy (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_head_occlusion_ignores_nearest_colour_antialias_false_positives (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_level_shoulders_and_planted_true_turn_on_all_three_bodies (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_named_features_and_attachment_ownership (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_native_thumb_frames_preserve_lengths_and_handedness (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_new_sampling_and_attachment_fields_are_opt_in (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_rigid_origin_rebase_preserves_world_vertices (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_shaped_shell_seating_clears_support_without_changing_its_shape (tests.test_mq09_maquettes.RecipeTests) ... ok
+test_affine_core_keeps_native_samples_affine (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_briar_hood_and_mantle_are_shaped_meshes_with_sculpted_folds (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_folded_fabric_is_closed_thick_and_preserves_input (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_invalid_new_shape_controls_fail_before_native_jobs (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_mimic_has_large_tapered_locks_and_four_suit_segments (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_mortar_ratio_bands_and_apron_are_the_requested_forms (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_partial_leaf_patch_checks_its_explicit_placements (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_radial_sculpt_preserves_axial_positions_and_unowned_skin (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_raised_band_is_a_closed_solid_with_measurable_flat_face (tests.test_mq09_forms.CorrectiveFormsTests) ... ok
+test_clean_regeneration_inventory_is_the_current_builder_and_recipe (tests.test_mq09_forms.FormDeliveryProofTests) ... ok
+test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) ... ok
+test_mimic_has_at_least_eight_measured_front_silhouette_spike_tips (tests.test_mq09_forms.FormDeliveryProofTests) ... ok
+test_mortar_native_rim_ratio_and_two_visible_raised_bands (tests.test_mq09_forms.FormDeliveryProofTests) ... ok
+test_painting_clay_pairs_and_before_after_table_are_bound_to_current_inputs (tests.test_mq09_forms.FormDeliveryProofTests) ... ok
+test_weaver_native_rear_hood_top_matches_protected_painting (tests.test_mq09_forms.FormDeliveryProofTests) ... ok
+test_all_committed_deliveries_turn_feet_and_depth_order (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_biped_missing_a_foot_solo_fails_with_correct_or_incorrect_rear (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_documented_floor_exceptions_are_scoped_and_do_not_hide_heights (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_empty_floor_helper_input_is_rejected (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_floor_binding_requires_bone_names_not_region_labels (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_floor_correction_preserves_projection_and_guard_detects_lift (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_floor_inventory_comes_from_joints_and_view_pieces (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_hem_dependency_interpolation_obeys_fixed_boundary (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_minimum_ray_exit_uses_both_sides_and_reports_no_clear_interval (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_packed_delivery_reseals_without_changing_visible_pixels (tests.test_maquette_rear_turn.RearTurnTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_collar.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_skirt_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_silhouette.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_hand_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_upper_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_hand_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_head.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_upper_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_skirt_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_torso.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_fore_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_foot_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_parts.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_fore_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_staff_shaft.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_clay.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_staff_crystal.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hoarfrost_seer/delivery/rear_solo_foot_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_collar.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_skirt_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_silhouette.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_hand_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_upper_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_hand_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_head.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_upper_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_skirt_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_torso.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_fore_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_foot_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_parts.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_fore_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_staff_shaft.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_clay.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_staff_crystal.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0uvutkwq/delivery/rear_solo_foot_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_per_view_native_proofs_reject_stale_or_failed_reports (tests.test_maquette_rear_turn.RearTurnTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_collar.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_skirt_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_silhouette.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_hand_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_upper_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_hand_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_head.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_upper_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_skirt_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_torso.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_fore_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_foot_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_parts.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_fore_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_staff_shaft.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_clay.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_staff_crystal.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpf1oxwvpa/delivery/rear_solo_foot_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_real_crawlers_are_exempt_by_measurement_labels_and_reported_by_name (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_rear_only_pose_keeps_frozen_front_and_uses_real_leg_bones (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_rear_pan_preserves_scale_direction_and_margin (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_resealed_floor_reports_cannot_omit_required_contacts (tests.test_maquette_rear_turn.RearTurnTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_collar.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_skirt_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_silhouette.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_hand_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_upper_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_hand_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_head.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_upper_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_skirt_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_torso.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_fore_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_foot_near.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_parts.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_fore_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_staff_shaft.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_clay.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_staff_crystal.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/view_fit.py:57: ResourceWarning: unclosed file <_io.BufferedReader name='/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp51b9inrb/delivery/rear_solo_foot_far.png'>
+  width, height = Image.open(path).size
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_staged_rear_turn_and_native_floor_contacts (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_v2_union_gate_accepts_boundary_change_and_only_records_clay (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_view_sources_project_actual_staged_joints_without_changing_front (tests.test_maquette_rear_turn.RearTurnTests) ... ok
+test_approved_inputs_and_prior_figures_are_byte_identical (tests.test_rr20_cutout.HollowMimicTests) ... ok
+test_director_residue_cleanup_preserves_sources_and_resolves_placeholder (tests.test_rr20_cutout.HollowMimicTests) ... ok
+
+----------------------------------------------------------------------
+Ran 162 tests in 39.634s
+
+OK (skipped=2)
+MAQUETTE_REAR_TURN_EXEMPT: burrow_grub/delivery; crawler; measurements.json labels contain neither foot_near nor foot_far
+MAQUETTE_REAR_TURN_EXEMPT: ember_tick/delivery; crawler; measurements.json labels contain neither foot_near nor foot_far
+MAQUETTE_REAR_TURN: arc_thrall/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 7324}, "feet": {"far": [381.8912792931233, 766.4408759124087], "near": [650.9663096831772, 932.2087609698051]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6022, "near": 0}, "feet": {"far": [640.0060078267101, 957.5310588105606], "near": [365.31380597014925, 778.718407960199]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: briar_weaver/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 91}, "feet": {"far": [416.67600052833177, 856.8140272090873], "near": [629.6274303115483, 941.6047083626142]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 3694, "near": 0}, "feet": {"far": [614.6205017301038, 943.3117647058823], "near": [387.7181610005284, 864.3780165580412]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: frostglass_lancer/proof_r2; {"front": {"body_side_pixels_over_torso": {"far": 187, "near": 16542}, "feet": {"far": [393.8564532159591, 879.163850631833], "near": [592.9711770552321, 936.5219366747125]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 30227, "near": 419}, "feet": {"far": [629.1768214742224, 912.3647209203239], "near": [430.0423175234308, 855.0790968474865]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gale_herald/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 29652}, "feet": {"far": [358.0113908872902, 805.4586330935252], "near": [593.3348993974058, 932.537534470432]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 26684, "near": 17277}, "feet": {"far": [543.2776779026217, 932.0721348314606], "near": [295.37894736842105, 851.7421052631579]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: glacial_mirror/delivery; {"front": {"body_side_pixels_over_torso": {"far": 130, "near": 10655}, "feet": {"far": [377.86641299455835, 748.1117384722393], "near": [643.67326616223, 895.0453600972282]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 7100, "near": 19}, "feet": {"far": [642.8824913711954, 899.4059852525886], "near": [376.7757103767628, 755.3293201431278]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: gloam_stalker/delivery; {"front": {"body_side_pixels_over_torso": {"far": 5600, "near": 38937}, "feet": {"far": [395.11584340725324, 787.3172684332719], "near": [693.2576363345594, 928.6296977450824]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 47143, "near": 5702}, "feet": {"far": [627.3874012833169, 928.3783316880553], "near": [328.4305154142582, 774.1776252408478]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hoarfrost_seer/delivery; {"front": {"body_side_pixels_over_torso": {"far": 341, "near": 1107}, "feet": {"far": [423.7324824824825, 863.3228228228228], "near": [688.8261385199241, 950.7903225806451]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 4580, "near": 4170}, "feet": {"far": [598.7137254901961, 984.8564705882353], "near": [336.8793774319066, 934.2506485084306]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: hollow_mimic/delivery; {"front": {"body_side_pixels_over_torso": {"far": 0, "near": 4432}, "feet": {"far": [420.48188653451814, 804.2334244702665], "near": [620.8431866073519, 901.5471201123859]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 6184, "near": 0}, "feet": {"far": [597.9966266201101, 920.185062437119], "near": [395.28327469321204, 846.9659315197803]}, "lower_foot": "far", "lower_foot_right": true}}
+MAQUETTE_REAR_TURN: slag_mortar/delivery; {"front": {"body_side_pixels_over_torso": {"far": 882, "near": 3693}, "feet": {"far": [355.95605545383205, 860.7253465864504], "near": [650.1871435476075, 956.2407926534557]}, "lower_foot": "near", "lower_foot_right": true}, "rear": {"body_side_pixels_over_torso": {"far": 15246, "near": 0}, "feet": {"far": [668.0532365396249, 953.9786613870099], "near": [365.84287054409003, 863.3672607879924]}, "lower_foot": "far", "lower_foot_right": true}}
+DELIVERY_STAGE: PASS; tmp0uvutkwq
+DELIVERY_STAGE: PASS; tmpf1oxwvpa
+DELIVERY_STAGE: PASS; tmp51b9inrb

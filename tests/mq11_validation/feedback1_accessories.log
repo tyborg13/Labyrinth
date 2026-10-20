@@ -1,0 +1,38 @@
+test_belt_is_closed_and_follows_the_posed_hips (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_director_filled_candidates_compile_and_preserve_the_other_parts (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_each_candidate_reports_every_missing_design_field (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_flap_drafting_rotates_with_the_pelvis_and_has_no_camera_branch (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_flap_roots_are_centred_perpendicular_to_body_forward (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_front_reaches_nine_tenths_of_thigh_and_back_is_shorter (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_hair_preserves_every_non_hair_piece_and_does_not_mutate_input (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_invalid_rear_length_and_unowned_mutations_fail (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_mortar_has_one_body_two_flaps_shared_ownership_and_original_rag (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_no_shared_tuft_root_or_zero_length_segment (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_scalp_must_reach_ears_and_fringe_must_fall_forward (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_stale_base_and_non_owned_figure_fail (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_todos_stop_the_whole_batch_before_writes_or_native_submission (tests.test_mq11_accessories.AccessoryGeometryTests) ... FAIL
+test_tuft_lengths_fringe_count_and_scalp_width_are_enforced (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_uniform_fan_and_detached_roots_fail_before_blender (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_before_iou_and_every_existing_delivery_remain_byte_identical (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_centreline_gate_is_inclusive_at_four_pixels_and_rejects_beyond (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_flap_centreline_uses_each_attachment_and_rejects_five_pixel_shift (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_fringe_gate_rejects_hair_behind_the_mask (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_native_probe_import_and_entry_point_do_not_require_pil (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_native_triangle_projection_keeps_depth_for_fringe_occlusion (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_rr20_inventory_adapter_keeps_other_pins_live (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_rr20_inventory_extension_preserves_all_original_lines (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_sheet_keeps_native_cells_marks_joints_and_hashes_inputs (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_unresolved_status_uses_test_owned_design_files (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+
+======================================================================
+FAIL: test_todos_stop_the_whole_batch_before_writes_or_native_submission (tests.test_mq11_accessories.AccessoryGeometryTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq11_accessories.py", line 101, in test_todos_stop_the_whole_batch_before_writes_or_native_submission
+    self.assertFalse(workflow.output_folder('hollow_mimic', 'test_no_submission').exists())
+AssertionError: True is not false
+
+----------------------------------------------------------------------
+Ran 25 tests in 0.979s
+
+FAILED (failures=1)

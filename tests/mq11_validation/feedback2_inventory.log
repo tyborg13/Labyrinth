@@ -1,0 +1,87 @@
+test_clean_regeneration_inventory_is_the_current_builder_and_recipe (tests.test_mq09_forms.FormDeliveryProofTests) ... FAIL
+test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) ... 
+======================================================================
+FAIL: test_clean_regeneration_inventory_is_the_current_builder_and_recipe (tests.test_mq09_forms.FormDeliveryProofTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 161, in test_clean_regeneration_inventory_is_the_current_builder_and_recipe
+    self.assertEqual(inventory,regeneration_hashes(ROOT.parents[2],REGENERATION_HEAD,name,sources,
+AssertionError: {'spe[364 chars]ttes/shrike_spec.py': '106337118f9e3b6683395e4[16948 chars]160'} != {'spe[364 chars]ttes/remesh.py': '9f58fc3cc2d4e7b02ecc9faa5896[16948 chars]0fa'}
+Diff is 17921 characters long. Set self.maxDiff to None to see it. : hollow_mimic
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='glacial_mirror')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17294 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17294 chars]0fa'}
+Diff is 17923 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='hoarfrost_seer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17294 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17294 chars]0fa'}
+Diff is 17923 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='gale_herald')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17291 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17291 chars]0fa'}
+Diff is 17920 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='arc_thrall')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/arc_thrall/measurements.json': '10d2f5ac5[17290 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17290 chars]0fa'}
+Diff is 17919 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='gloam_stalker')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17293 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17293 chars]0fa'}
+Diff is 17922 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='burrow_grub')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17291 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17291 chars]0fa'}
+Diff is 17920 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='ember_tick')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17290 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17290 chars]0fa'}
+Diff is 17919 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_merged_builder_baseline_regeneration_inventories_are_current (tests.test_mq09_forms.FormDeliveryProofTests) (figure='frostglass_lancer')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq09_forms.py", line 176, in test_merged_builder_baseline_regeneration_inventories_are_current
+    self.assertEqual(inventory,regeneration_hashes(project,REGENERATION_HEAD,name,sources))
+AssertionError: {'spe[20 chars]ttes/blender/__init__.py': '0ea0f061a0118c6180[17162 chars]0fa'} != {'spe[20 chars]ttes/director_proof.py': '119dee0b06a195f12a5b[17162 chars]0fa'}
+Diff is 17788 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.152s
+
+FAILED (failures=9)

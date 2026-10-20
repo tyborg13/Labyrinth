@@ -1,0 +1,11 @@
+{
+  "sha256": {
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/design.json": "129d95f9d6bf14ff8fa5a6d0ae0529dbbecd5a3ba1cfb66ddb3f75c2fd301c89",
+    "spec/art_identity/maquettes/slag_mortar/owner_review/design.json": "ec815b8c71a18f7c928dc984a8d6cf0760c861085cd71858e6ce1f06f1de23b7",
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/candidate.py": "e0959d9eeedeb4f508503e5876e8ea395fd61ec0d136a6d8206f0dd91642d902"
+  },
+  "measurement_defaults": {
+    "epsilon": 1e-09,
+    "centre_rows_fraction": 0.6
+  }
+}

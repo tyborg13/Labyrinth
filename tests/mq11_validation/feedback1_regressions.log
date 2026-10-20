@@ -1,0 +1,12 @@
+test_native_probe_import_and_entry_point_do_not_require_pil (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_flap_centreline_uses_each_attachment_and_rejects_five_pixel_shift (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_centreline_gate_is_inclusive_at_four_pixels_and_rejects_beyond (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_unresolved_status_uses_test_owned_design_files (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_each_candidate_reports_every_missing_design_field (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_todos_stop_the_whole_batch_before_writes_or_native_submission (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_before_iou_and_every_existing_delivery_remain_byte_identical (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.452s
+
+OK

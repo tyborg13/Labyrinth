@@ -1,4 +1,5 @@
 # Paths relative to this figure; shared native builder: ../blender/*.py
+# mq-11 adds candidate authoring inputs; native scratch outputs live under tests/mq11_proof/.
 .gdignore
 COMMIT_MANIFEST.txt
 README.md
@@ -90,6 +91,16 @@ delivery/validation/shape_measurements.json
 discarded_proof_sha256.json
 measurements.json
 native_shape_probe.py
+owner_review/README.md
+owner_review/__init__.py
+owner_review/baseline.json
+owner_review/candidate.py
+owner_review/design.json
+owner_review/measurements.py
+owner_review/native_probe.py
+owner_review/preservation.py
+owner_review/proof.py
+owner_review/workflow.py
 shape_measurements.py
 shape_proof.py
 workflow.py

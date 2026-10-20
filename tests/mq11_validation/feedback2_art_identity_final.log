@@ -1,0 +1,30 @@
+....../Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+........................../Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:253: RuntimeWarning: divide by zero encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:253: RuntimeWarning: overflow encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tools/art_identity_gate.py:253: RuntimeWarning: invalid value encountered in matmul
+  c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+................................process.py:22: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+...............................................
+----------------------------------------------------------------------
+Ran 111 tests in 35.740s
+
+OK

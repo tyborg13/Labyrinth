@@ -1,0 +1,53 @@
+{
+  "protected_sha256": {
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/design.json": "129d95f9d6bf14ff8fa5a6d0ae0529dbbecd5a3ba1cfb66ddb3f75c2fd301c89",
+    "spec/art_identity/maquettes/slag_mortar/owner_review/design.json": "ec815b8c71a18f7c928dc984a8d6cf0760c861085cd71858e6ce1f06f1de23b7",
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/candidate.py": "e0959d9eeedeb4f508503e5876e8ea395fd61ec0d136a6d8206f0dd91642d902",
+    "spec/art_identity/maquettes/hollow_mimic/measurements.json": "61a8c3c63dcc62c9939a05b7d298413b44267fca81cf7deb13bf7992a2db8d67"
+  },
+  "median_function_byte_identical": true,
+  "lower_band_assignments_byte_identical": true,
+  "measurement_defaults": {
+    "epsilon": 1e-09,
+    "centre_rows_fraction": 0.6
+  },
+  "production_crack_feature": {
+    "part": "head",
+    "whole": true,
+    "views": [
+      "front"
+    ],
+    "geometry": false,
+    "source_path_px": [
+      [
+        113,
+        74
+      ],
+      [
+        123,
+        85
+      ],
+      [
+        121,
+        94
+      ]
+    ],
+    "rear_visibility": "At most the mask edge; crack is front only.",
+    "stroke_width_px": "TODO_DESIGN_VIOLET_CRACK_STROKE_WIDTH_SOURCE_PX"
+  },
+  "production_preservation": {
+    "passed": true,
+    "files_checked": 989,
+    "before_iou": {
+      "hollow_mimic": {
+        "front": 0.8156739099219834,
+        "rear": 0.770515330525162
+      },
+      "slag_mortar": {
+        "front": 0.7995989792198323,
+        "rear": 0.7727019721484903
+      }
+    },
+    "other_figure_delivery_bytes_unchanged": true
+  }
+}
