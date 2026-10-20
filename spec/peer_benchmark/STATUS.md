@@ -52,8 +52,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
      Native re-check under the canonical gate (fast captures, throwaway worktree native-check): Mirror, Weaver,
      Mortar, Thrall, Capacitor native PASS; Seer 31 joint tears; Mimic 73 joint tears (rear death 49, bolt 18, move/
      mirror/hit 2 each); Capacitor's proof-script shadow-preservation pins other figures (stale baseline).
-     rr-28 running: close the Seer/Mimic tears with clip-scoped own-piece continuations; scope the Capacitor check.
-     Evidence: /private/tmp/labyrinth_codex/rr28_evidence (614 MB; delete after rr-28).
+     rr-28: tears closed (Seer 25 / Mimic 36 own-piece texels); director windowed native gates PASS 0 errors for both;
+     Capacitor shadow preservation scoped (PASS). Fix round 1 running (recipe clips validated against tear evidence).
+     Mimic and Capacitor production captures hit a cap-01 bug (fixed crop planned from the first canvas; the actor's
+     canvas moves within a run) -> cap-02 running. Evidence: /private/tmp/labyrinth_codex/rr28_evidence (delete after).
   3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig. Master checkpoint only on the owner's word.
   4. Found by cap-01's director run (2026-10-20): under rr-26's canonical gate (joint tears can no longer pass as air;
      historical frame/pocket exceptions no longer waive source-space failures) the Seer's native gates fail with 31
