@@ -47,8 +47,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   1. **Integration green at e151882cd** (Godot PASS, Python OK): rr-23, rr-25, rr-24, rr-21, ui-03, rr-26 and int-03
      (integration repair: ui-03 targeting regressions fixed in product code, fixtures derived from canonical
      declarations, Mortar digests, density manifest, unit-scoped preservation pins, Empower glossary at 19 words).
-  2. rr-27 (Thrall strict census: front pockets closed by clip-scoped own-piece copies; two rear copied texels
-     removed) Codex SIGNOFF 780933a9c; windowed rr24_proof.sh sequence running; then merge with suites.
+  2. rr-27 merged e03fda6b9 (Thrall strict census clean; density source adopted). Godot PASS; Python 3 failures,
+     all cross-unit preservation pins (Mimic gate, rr-24 colour rebuild) -> int-04 running (scope + repo sweep).
+     cap-01 (fast proof captures) running.
      The rear Tether re-key was dropped (reverted 780933a9c): the near-side upright hold can't pass the 60.5 px
      minimum-reach gate (any path past the near shoulder comes within ~57 px); the fin goes to the backlog.
   3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig. Master checkpoint only on the owner's word.
