@@ -1,0 +1,232 @@
+{
+  "native_pixels": false,
+  "base_commit": "7cdcebb1e2e037f252d989627df4d70ade9003a0",
+  "views": {
+    "front": {
+      "raw_vs_presentation_pixels": 2,
+      "selected_rest_source": "source/front/presentation.png",
+      "collar_crop_metadata": {
+        "move": {
+          "root_relative_bounds": [
+            -54,
+            -170,
+            17,
+            -111
+          ],
+          "zoomed_size": [
+            142,
+            118
+          ],
+          "frames": 51
+        },
+        "jab": {
+          "root_relative_bounds": [
+            -58,
+            -171,
+            21,
+            -109
+          ],
+          "zoomed_size": [
+            158,
+            124
+          ],
+          "frames": 42
+        },
+        "death": {
+          "root_relative_bounds": [
+            -70,
+            -174,
+            19,
+            -78
+          ],
+          "zoomed_size": [
+            178,
+            192
+          ],
+          "frames": 90
+        }
+      }
+    },
+    "rear": {
+      "raw_vs_presentation_pixels": 5,
+      "selected_rest_source": "source/rear/presentation.png",
+      "collar_crop_metadata": {
+        "move": {
+          "root_relative_bounds": [
+            -4,
+            -172,
+            44,
+            -139
+          ],
+          "zoomed_size": [
+            96,
+            66
+          ],
+          "frames": 51
+        },
+        "jab": {
+          "root_relative_bounds": [
+            -9,
+            -172,
+            47,
+            -141
+          ],
+          "zoomed_size": [
+            112,
+            62
+          ],
+          "frames": 42
+        },
+        "death": {
+          "root_relative_bounds": [
+            -7,
+            -176,
+            61,
+            -108
+          ],
+          "zoomed_size": [
+            136,
+            136
+          ],
+          "frames": 90
+        }
+      }
+    }
+  },
+  "front_jab11_before": [
+    {
+      "piece": "mq7b_continuation_loincloth",
+      "garment": "loincloth",
+      "exposed_pixels": 98,
+      "foreign_pixels": 46
+    },
+    {
+      "piece": "mq7b_continuation_leg_near",
+      "garment": "leg_near",
+      "exposed_pixels": 10,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "mq7b_continuation_sleeve_far",
+      "garment": "sleeve_far",
+      "exposed_pixels": 36,
+      "foreign_pixels": 7
+    },
+    {
+      "piece": "hidden_leg_near",
+      "garment": "leg_near",
+      "exposed_pixels": 14,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_foot_near",
+      "garment": "foot_near",
+      "exposed_pixels": 4,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "joint_tuck_torso",
+      "garment": "torso",
+      "exposed_pixels": 2,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "mq7b_continuation_torso",
+      "garment": "torso",
+      "exposed_pixels": 29,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "joint_extension_torso",
+      "garment": "torso",
+      "exposed_pixels": 157,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_torso",
+      "garment": "torso",
+      "exposed_pixels": 202,
+      "foreign_pixels": 11
+    },
+    {
+      "piece": "hidden_claw",
+      "garment": "claw",
+      "exposed_pixels": 29,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_upper_near",
+      "garment": "upper_near",
+      "exposed_pixels": 32,
+      "foreign_pixels": 0
+    }
+  ],
+  "front_jab11_after": [
+    {
+      "piece": "mq7b_continuation_loincloth",
+      "garment": "loincloth",
+      "exposed_pixels": 98,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "mq7b_continuation_leg_near",
+      "garment": "leg_near",
+      "exposed_pixels": 10,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "mq7b_continuation_sleeve_far",
+      "garment": "sleeve_far",
+      "exposed_pixels": 36,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_leg_near",
+      "garment": "leg_near",
+      "exposed_pixels": 14,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_foot_near",
+      "garment": "foot_near",
+      "exposed_pixels": 4,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "joint_tuck_torso",
+      "garment": "torso",
+      "exposed_pixels": 2,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "mq7b_continuation_torso",
+      "garment": "torso",
+      "exposed_pixels": 29,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "joint_extension_torso",
+      "garment": "torso",
+      "exposed_pixels": 157,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_torso",
+      "garment": "torso",
+      "exposed_pixels": 202,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_claw",
+      "garment": "claw",
+      "exposed_pixels": 29,
+      "foreign_pixels": 0
+    },
+    {
+      "piece": "hidden_upper_near",
+      "garment": "upper_near",
+      "exposed_pixels": 32,
+      "foreign_pixels": 0
+    }
+  ]
+}

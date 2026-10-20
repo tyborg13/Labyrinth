@@ -1,0 +1,75 @@
+{
+  "authority": {
+    "repaint_commit": "4de3c0dc2d59a83246c6b36abfcada081ff1fdc0",
+    "director_data_commit": "80d5ec39bfa4b79c176835a02c6137044a7de75e",
+    "director_sha256": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
+    "paintings": {
+      "front": {
+        "path": "spec/art_identity/jobs/arc_thrall/mq7b_front/processed.png",
+        "sha256": "0d5599290b76bab0cc3bc3317af5e4e54b74fcef53d411b4ad25dce04610d381"
+      },
+      "rear": {
+        "path": "spec/art_identity/jobs/arc_thrall/mq7b_rear/processed.png",
+        "sha256": "9cdfe676cad158de07b979512f4fa1adcf2d912ef457cfe722e4caa03316f468"
+      }
+    }
+  },
+  "scope": "Only Thrall-owned paths and fixtures; no other-figure assertions changed. No thresholds or errors were waived.",
+  "tests": [
+    {
+      "test": "tests.test_rr15_action_direction.ActionDirectionTests.test_front_render_inputs_and_all_front_pose_rows_are_byte_identical",
+      "old_baseline": "tests/rr11/rr15/feedback1_front_before.json: mq7 protected files, front poses; gait preservation helper at 80d5ec39b",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: files + front_render_rows; density rest pins its adopted source, layout pins exclude only native rest fingerprint"
+    },
+    {
+      "test": "tests.test_rr15_native_cleanup.NativeCleanupTests.test_every_visible_source_texel_retains_its_exact_color_and_correct_owner",
+      "old_baseline": "rr11/{front,rear}_baseline categorical mq7 cut + edge_transfers.json",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: frozen rr24/raw/{front,rear} mq7b cuts, current director residue rule"
+    },
+    {
+      "test": "tests.test_rr15_native_cleanup.NativeCleanupTests.test_joint_continuations_close_holes_and_removal_reopens_them",
+      "old_baseline": "rr15 front jab 5 / legacy rear move 6 native hole and before-alpha fixtures",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: nape_removal_frames (rear death 43,44,45,46,56), four own-edge source continuation texels"
+    },
+    {
+      "test": "tests.test_rr15_native_cleanup.NativeCleanupTests.test_mq7b_torso_continuation_matches_repaint_baseline",
+      "old_baseline": "test_only_the_two_native_hip_speck_texels_are_removed_from_the_torso_seed: mq7 hidden torso seed, exact two-pixel alpha delta",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: mq7b torso pieces/hidden fills, both original specks still absent"
+    },
+    {
+      "test": "tests.test_rr15_native_cleanup.NativeCleanupTests.test_paint_motion_rest_and_visible_mesh_fields_are_unchanged",
+      "old_baseline": "tests/rr11/rr15/{protected.json,geometry_before.json}: mq7 source/crops and pre-gait geometry",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: mq7b file fingerprints + geometry; locked director and compiled motion retain exact bytes"
+    },
+    {
+      "test": "tests.test_rr15_shoulder.ShoulderContinuationTests.test_material_is_added_only_beneath_the_rest_torso",
+      "old_baseline": "rr15_shoulder_proof.BEFORE: mq7 hidden_upper_near before RGBA",
+      "new_baseline": "rr24/feedback1_shoulder_before.png: same retained alpha, current mq7b own-arm texels; baseline file hash pinned"
+    },
+    {
+      "test": "tests.test_rr15_shoulder.ShoulderContinuationTests.test_all_three_holes_close_and_removing_the_cover_reopens_them",
+      "old_baseline": "rr15_shoulder_proof.BEFORE: mq7 RGBA removal fixture",
+      "new_baseline": "rr24/feedback1_shoulder_before.png: mq7b removal fixture; original three native hole locations unchanged"
+    },
+    {
+      "test": "tests.test_gait01.GaitTests.test_thrall_projected_seams_close_and_removing_coverage_reopens_them",
+      "old_baseline": "fixed 13 front / 2 rear mq7 seam frames",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: gait_removal_frames; exact new pocket bounds/counts and immutable final gait masks"
+    },
+    {
+      "test": "tests.test_gait01.GaitTests.test_opaque_duplicate_and_out_of_bounds_targets_are_rejected",
+      "old_baseline": "first leg_far gait recipe target (retired recipe key)",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: explicit transparent target leg_far (0,0); same opaque target (1,37) and all six rejection cases"
+    },
+    {
+      "test": "tests.test_gait01.GaitTests.test_disabling_transparent_target_guard_is_caught",
+      "old_baseline": "first leg_far gait recipe target (retired recipe key)",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: same explicit valid/opaque targets; guard-removal mutation still must fail"
+    },
+    {
+      "test": "tests.test_gait01.GaitTests.test_non_move_tracks_and_out_of_scope_assets_remain_identical",
+      "old_baseline": "80d5ec39b director data / 4b3f74830209e1b1ddd3be53fbe91061a93def96 gait head, no PNG changes anywhere",
+      "new_baseline": "experiments/cutouts/arc_thrall/rr24/repaint_baseline.json: only Thrall-owned PNG paths may differ, and every one must match frozen repaint fingerprints; director and every other figure assertions remain unchanged"
+    }
+  ]
+}

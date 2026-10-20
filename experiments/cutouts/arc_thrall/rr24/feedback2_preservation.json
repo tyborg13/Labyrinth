@@ -1,0 +1,83 @@
+{
+  "base_commit": "7cdcebb1e2e037f252d989627df4d70ade9003a0",
+  "views": {
+    "front": {
+      "alpha_sha256": {
+        "hidden_head": "b7559d9d70fea8c990d57d7edb5fe6738df3e00b16d5f8a6f742eb1cf12ab446",
+        "head": "bce7be689f3d08e15d8c802679dfc4b08cd588833e8e0008db24bcd521eb367f",
+        "hidden_torso": "b7a2c002027f76ee11141adae4874aa8d0b6b53bb21303bbb1485d13912a113e",
+        "joint_extension_torso": "8bb8dd9092c131f4db988a38c723b48f11c503ef27b755e259711ec572f34460",
+        "torso": "7298055fcbf5752a54571264041621e5688ed56daefbaaa9d3758cb88216b7e6",
+        "hidden_upper_near": "bd84d5299730fadee2a7823bd3fecdd98edbe799832ab08dcb6a8e72615cb17a",
+        "upper_near": "0059616b355c679bf8abfec2639772989f6c0f96e5e8df53400c5282406895b0",
+        "hidden_tube": "f33046cb87cac2296bef059a92ce507662bda86a9ebcc9eb7dc4e8519acc2b90",
+        "tube": "7a0c822eddefe2d57d498f697a8713c1e2a74dcba6e7dc563f3eba65efdfc320",
+        "hidden_sleeve_far": "5fc1f3b5dfc3af9f4a3c54c77f448216c82908ce3953813f1e12695bb71271c8",
+        "sleeve_far": "d8f30abdf1367915b8e590aef9600033b5a70575f7e9d5edec15f9a8b67aa6d1",
+        "hidden_claw": "323de018185c203f082d9a88d8c8abb3eeaeb84389db5997988202ef4502c45b",
+        "claw": "b6385ea7caaa52a55bd5491ff36914bfdce5b29e25118d8411d163b45c7895d1",
+        "hidden_leg_near": "3e19a5141fda2afb1cc15e51f5abbafc24942ba55c938f5737539bd9f352c8a7",
+        "leg_near": "f912671da84be585df9967e77acc76224888fb7da397aee5155c1a69566d28da",
+        "hidden_leg_far": "8c78078646440113709a9110b11c9dd99058e3fbb6b68030ad1bfbce0cd8b646",
+        "leg_far": "ff8f1de052342d8d20b741f49fa5f094cd559b5c1b1e485b8b7bcf71626509ec",
+        "hidden_foot_near": "0b130ab39509bd88dd0d669826b53c1ee26d9cb558cac0788e721444f4864545",
+        "foot_near": "d534199db7a8dfb1dcee755fa96b6e7f8b81334c572f9fb24122db6be9909eca",
+        "hidden_foot_far": "6b4e368a6e6392181bdf2997fe236d4f9b76cc891016710b40c5df664b90d81e",
+        "foot_far": "b4cb3048bd456bf0ad4abfbf00aff25d0e7c70fe58eea1bac5612c092e7785d5",
+        "loincloth": "512e6671c3b95a38b0e665ab7cf27baf6b8718d45c9eb3ed5f6f8f40557fefd0",
+        "mq7b_continuation_head": "2f228407eb76f4afc5469e845cc1ad1f24500cb1b1abc86305911afcca793aa1",
+        "mq7b_continuation_torso": "e79cc2e51d48b3d951f5c89e75c015ab263ba127eec304b52b24795df9e30d2d",
+        "mq7b_continuation_sleeve_far": "8bcb0da6fa9f88c053dd6a65f9994f0557b932e75b059c74a7c4b31a789fa45f",
+        "mq7b_continuation_leg_near": "a26e79b847026ab6f0262d062411bd18348689964499d2a691e1c95ffc591d0f",
+        "mq7b_continuation_leg_far": "9d409ec4aa6ea20821325896d1bf82dd8d53f9fecdf7742dbfcbaf8f5b80bcd0",
+        "mq7b_continuation_loincloth": "cbc60e66fc5246f9ec8479065d87e1437bac35a07095a3aca6b7eb3dbb07f226",
+        "joint_tuck_torso": "ca2fd00fa001190744c15c317643ab092e7048ce086a243e2be9437c898de1bb"
+      },
+      "layout_without_colour_sha256": "6cd7d2c5d95b4d6f1533a2f89d124a089ce0305701f16c5f79ad90c83a66b3db",
+      "gait_target_positions_sha256": "3a25e4e3c0d98a17b62855398b69ecc3b3bb8922a05d5b4a2440fb90e360f254"
+    },
+    "rear": {
+      "alpha_sha256": {
+        "hidden_head": "27487302f8eb56f6967d45b20d452980d221467d3ac6e064233790bcea697c99",
+        "head": "8443b98452e4be780fcc379454fde15608496bf23e5266c96d958b273cd5b5d0",
+        "hidden_torso": "14ba80f79820c7bf703513eebf11ce5ec85c5c81c0e36051cad3f3c5463562f6",
+        "joint_extension_torso": "eb0cbc6128b5a14624848d92fb9525e0d5947a3f241f356baa7c7d1b943354aa",
+        "torso": "4c96e20e6f569a920cf2e66d140c28958ecf0a1b9052c1f33051e394a0da9e97",
+        "hidden_upper_near": "fd08a725ef8bf620de3e1b894dca834e8d533764329767edebab6c44b4bc502b",
+        "upper_near": "397b4804e122cce80bf7abc63c80ab81b39af77ba32583d17593e435a3bebb53",
+        "hidden_tube": "f34983be2c523f19a0e21f88b2b42c4d44cfd984d478efcca5f4e04ab3a6b0f3",
+        "tube": "fb0a4b71e418c8ab074b20680bb2194f8a772b0319ac9e9e5a7eef65b0735d97",
+        "hidden_sleeve_far": "4e6af7ec9a5db3116426a402f0503797e6b1eeae1346398f830bc608a9f0d1a9",
+        "sleeve_far": "639d7312d8254b5ad331c98a650daf038d85048704f973a80d952b1640cc9636",
+        "hidden_claw": "129db3f24b82bf506a0d5cdb4035f3d1249018652170d96db6adf6e33d0bd90c",
+        "claw": "eeec93d9b8049fe248d2bd9d44f04323df96ed5d6fe9c36c1be077d719666fe7",
+        "hidden_leg_near": "74dcfeffd7adae26d9cbba0ccb1a916fcedba4e44cb876db4d978e9abe9a2f95",
+        "leg_near": "85cb9662b3c06914e548adffa2457c85e6acb6fd6fcae2b4a27378980cde8d0d",
+        "hidden_leg_far": "7f9ea68a7e32c24f12287369757cc2359dbd991cebea5e6d00e4e884d7228971",
+        "leg_far": "cd84481e6100fd52088fa9cf6297e1df0061d8cd21b3e075c42d01eaaeb7f5a0",
+        "hidden_foot_near": "f38c0414d9d217ff87a05276b896a36251edd8c683339bf42c1be0d5f2b1af3b",
+        "foot_near": "2c77346a963aa3a9a6724c8e636f5665d588be202ee7c97f544d93bbfeeec7b5",
+        "hidden_foot_far": "49121b627510213214a605c2d332f913fb5c2109dbfbc6f0354116fdbf122d7e",
+        "foot_far": "749281d4fc7af87fe74b5a8a80c340127446eb8c0f833023eebcdef8d3511a64",
+        "hidden_loincloth": "381a546ffeee0aa2996312a3aac11e84071f60f2eb6ebfbe1811392ab70dbd57",
+        "joint_extension_loincloth": "5b6fb58e61fa475939767d68a446f97f1bff02c0e5935a3ea8bb51e6515783d8",
+        "loincloth": "577c6adbe26ce43cef7d5a02731453e834438dd552944daa2bb0fb776abfc0ee",
+        "mq7b_continuation_head": "a50c92cae241cf91a3cdfbbb18d6b89eebef26ac83c810bde61915c02d2a2dcd",
+        "mq7b_continuation_torso": "9747def57758e7a4f4cef3399a72904060582662b67988cdb6ce264f8443f5c9",
+        "mq7b_continuation_upper_near": "a87623cfcc74ccaaaa3e1984b99462a10a857ca671803ab4f0e75d078a0bf444",
+        "mq7b_continuation_sleeve_far": "2f6aa906efa6ae832ca630944f12180b1e9c227d2cf8fb4d08338e7c3c92f5f8",
+        "mq7b_continuation_leg_near": "6b9d3e3bda3ef3262d22a960862536229527d6a45dadd229708a4660b03d390f",
+        "mq7b_continuation_leg_far": "6c8a01479e546f5719e9627450e6f54cbb9112a013ca7047cc6539318fe90f2b",
+        "mq7b_continuation_loincloth": "f9b6e96cd9e0aaf890ac16e7ce5a1b9527e2b9e431e11eb244094477653c532c",
+        "joint_tuck_head": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+        "joint_tuck_torso": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89"
+      },
+      "layout_without_colour_sha256": "46367cf38c6f2af653cf148d03725ad82810839cfa0f53736abe64b3410cb97e",
+      "gait_target_positions_sha256": "9ef05a42fef625b4834e0077df55390ec93fb64d16685e23151b2a9956b34a34"
+    }
+  },
+  "omitted_colour_fields": [
+    "gait_continuations",
+    "proof_layers/*/source_sha256"
+  ]
+}

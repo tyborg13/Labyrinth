@@ -7,21 +7,21 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.13006213793142657,
+    "chroma": 0.13603215658537376,
     "edge_light_share": 0.0,
-    "feature_px": 5.736750416700334,
+    "feature_px": 5.684733105097413,
     "height": 217,
     "height_drawn": 217.0,
-    "orphan_share": 0.016700492896491736,
-    "regions": 524,
-    "run_length": 2.55708778173191,
-    "symmetry": 0.5193176783340718,
-    "thin_abs": 0.013569150478399572,
-    "thin_rel": 0.04378080603073353,
-    "value": 0.19533220495852732,
+    "orphan_share": 0.017505599434162442,
+    "regions": 525,
+    "run_length": 2.5489783653846154,
+    "symmetry": 0.5239168657860331,
+    "thin_abs": 0.014204880348933191,
+    "thin_rel": 0.04603324295650124,
+    "value": 0.19724923341492673,
     "width": 180
   },
-  "pixel_sha256": "a5a4c20fa0e0b55799b10632d097c4f4a677af63326e02817aa8f58a98c18243",
+  "pixel_sha256": "59dea0a3a15ef062f346b21f30302cb4f5713a0c544ce851a9598f579effc9f1",
   "placement": [
     38,
     29
@@ -47,10 +47,10 @@
         "space": "CIE Lab",
         "std_floor": 1e-06
       },
-      "pre_step_pixel_sha256": "bbfdb8557d09c02876fe521848bebb4309351993baba11cbcec88a8d64b57334",
+      "pre_step_pixel_sha256": "bdf2b4689a11732ea84172d28684f4877a38b69a3e1ffb7e731332e85551a29c",
       "protected_body_share": {
         "front": 0.0002524296352391771,
-        "rear": 0.0012269221780789904
+        "rear": 0.0013318803729265045
       },
       "reference_pixel_sha256": "509138b0af60170c209b557c1ee5055830f738de7ddb5b588a1a45f578fda9c4",
       "step": "palette_match"
@@ -66,11 +66,11 @@
           21
         ]
       },
-      "pre_step_pixel_sha256": "5b2c9d8348dc34c8d674511f56df80e26773af615f5eaa8b85119ab44f87db16",
+      "pre_step_pixel_sha256": "bf78198141a494305fdc586b6d39be87a2e68536d19a870161a398c264919597",
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "1198218cd255d5214d237379e423e11f851e964550525179017366bcc7c6af2e",
+  "raw_sha256": "540c97479fa59a31c34053cef720902db85aa671b314ade4d49d78afa1c7f30a",
   "shift": [
     0,
     0

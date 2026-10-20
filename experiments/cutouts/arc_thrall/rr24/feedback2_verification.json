@@ -1,0 +1,319 @@
+{
+  "task": "rr-24",
+  "feedback": 2,
+  "base_commit": "7cdcebb1e2e037f252d989627df4d70ade9003a0",
+  "branch": "codex/rr-24",
+  "all_changes_uncommitted": true,
+  "focused_checks_pass": true,
+  "native_calibration_complete": false,
+  "native_visual_acceptance_complete": false,
+  "full_suites_run": false,
+  "windowed_commands_attempted": false,
+  "peer_review_run": false,
+  "design_placeholders": {},
+  "checks": [
+    {
+      "name": "rebuild and density paint",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_build.py && python3 -B experiments/cutouts/arc_thrall/rr11_density.py --refresh-sources",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-build.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 FRONT MQ7B REST: PASS (0 px mismatch)",
+        "RR24 REAR MQ7B REST: PASS (0 px mismatch)",
+        "ADOPTED 16 source file(s)",
+        "PROCESSED 189 file(s)",
+        "RR11 DENSITY PAINT: PASS (both views adopted/processed; native rest records pending director)"
+      ]
+    },
+    {
+      "name": "fresh pose samples",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case experiments/cutouts/arc_thrall/rr11 --output experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-samples.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "explicit colour baseline refresh",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_baseline.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-baseline.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 REPAINT BASELINE: RECORDED (548 Thrall files; director 80d5ec39bfa4b79c176835a02c6137044a7de75e; mq7b both views)"
+      ]
+    },
+    {
+      "name": "targeted regressions",
+      "command": "python3 -B -m unittest tests.test_rr24_feedback2 tests.test_rr24_thrall tests.test_rr24_policies",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-targeted-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 27 tests in 14.032s",
+        "OK"
+      ]
+    },
+    {
+      "name": "focused directed sets",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_focused.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-focused.log",
+      "exit_code": 0,
+      "result_lines": [
+        "test_cache_and_receipt_reuse_are_reported_from_actual_execution (tests.test_glacial_mirror_regeneration.RegenerationInputTests) ... RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
+        "RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-x8zro07g/sheets)",
+        "RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)",
+        "RR16 SUPPORT MODES: PASS (4 views/configurations)",
+        "RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)",
+        "Ran 335 tests in 428.703s",
+        "OK"
+      ]
+    },
+    {
+      "name": "guard-removal mutations",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_mutations.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-mutations.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 MUTATION collar_attachment: CAUGHT",
+        "RR24 MUTATION skirt_depth: CAUGHT",
+        "RR24 MUTATION cloth_chain: CAUGHT",
+        "RR24 MUTATION own_skin: CAUGHT",
+        "RR24 MUTATION own_mq7b_donors: CAUGHT",
+        "RR24 MUTATION exposed_donor_provenance: CAUGHT",
+        "RR24 MUTATION hem_limit: CAUGHT",
+        "RR24 MUTATION head_ownership: CAUGHT",
+        "RR24 MUTATION paint_or_tuck: CAUGHT",
+        "RR24 MUTATION native_paint_or_tuck: CAUGHT",
+        "RR24 MUTATION air_scope: CAUGHT"
+      ]
+    },
+    {
+      "name": "source/reach/direction/gait gates",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr11_gates.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-gates.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)",
+        "RR15 FRONT ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 FRONT REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 FRONT SWING KNEES: PASS (6 swings; minimum peak 53.741 degrees)",
+        "GAIT FRONT: PASS (maximum fit 0.452544 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 FRONT SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524157/0.000061 px)",
+        "RR15 REAR ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 REAR REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 REAR SWING KNEES: PASS (6 swings; minimum peak 47.116 degrees)",
+        "GAIT REAR: PASS (maximum fit 0.056471 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 REAR SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524156/0.000043 px)"
+      ]
+    },
+    {
+      "name": "CPU seams/ownership/donor provenance",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_check.py --raster",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-checks.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 FRONT SOURCE/RESIDUE: PASS (0 errors)",
+        "RR24 FRONT COLLAR OWNERSHIP: PASS (236 contact frames; 0 covered-head frames)",
+        "RR24 FRONT HEM: PASS (maximum 3.605543 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})",
+        "RR24 CPU FRONT SEAMS: PASS (335 frames; 0 failing frames; native acceptance pending)",
+        "RR24 REAR SOURCE/RESIDUE: PASS (0 errors)",
+        "RR24 REAR COLLAR OWNERSHIP: PASS (229 contact frames; 0 covered-head frames)",
+        "RR24 REAR HEM: PASS (maximum 3.605532 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})",
+        "RR24 CPU REAR SEAMS: PASS (335 frames; 0 failing frames; native acceptance pending)"
+      ]
+    },
+    {
+      "name": "native probe load and layout rest selector",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr24_native_capture.gd -- --case experiments/cutouts/arc_thrall/rr11 --output experiments/cutouts/arc_thrall/rr11/proof/native --validate-only",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-probe-load.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 REST REFERENCE FRONT: source/front/presentation.png",
+        "RR24 REST REFERENCE REAR: source/rear/presentation.png",
+        "RR11 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "name": "Thrall runtime",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/rr11/runtime_checks.gd",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-runtime.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
+      ]
+    },
+    {
+      "name": "SFX sync 0",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd -- --assert-onsets",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-sfx0.log",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ]
+    },
+    {
+      "name": "SFX sync 1",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd -- --assert-onsets",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-sfx1.log",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ]
+    },
+    {
+      "name": "SFX sync 2",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd -- --assert-onsets",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-sfx2.log",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ]
+    },
+    {
+      "name": "art identity regressions",
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-art-identity.log",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 46.453s",
+        "OK"
+      ]
+    },
+    {
+      "name": "registration audit",
+      "command": "python3 -B tools/test_registration_audit.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-registration.log",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
+      ]
+    },
+    {
+      "name": "other figures/paint/motion preservation",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_preservation.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-preservation.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 PROTECTED IDENTITY: PASS (26355 files; unrelated registry records retained)"
+      ]
+    },
+    {
+      "name": "density native records pending",
+      "command": "python3 tools/process_board_density.py --check --only arc_thrall_cutout",
+      "log": "/private/tmp/labyrinth_codex/rr24-f2-density-check.log",
+      "exit_code": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/arc_thrall_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/arc_thrall_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+      ],
+      "pending_director_native_proof": true
+    }
+  ],
+  "views": {
+    "front": {
+      "cpu_frames": 335,
+      "cpu_failing_frames": 0,
+      "source_errors": [],
+      "hidden_provenance": {
+        "exposed_pixels": 106245,
+        "foreign_pixels": 0,
+        "failures": []
+      },
+      "contact_frames": 236,
+      "covered_head_frames": 0,
+      "hem": {
+        "maximum_follow_through_px": 3.605543022966602,
+        "end_frame_delta_px": {
+          "idle": 0.0,
+          "move": 0.0,
+          "tether": 0.0,
+          "jab": 0.0,
+          "hit": 0.0,
+          "death": 0.0
+        },
+        "ok": true
+      },
+      "raw_clean_different_pixels": 2,
+      "walk_collar_crop_size": [
+        142,
+        118
+      ]
+    },
+    "rear": {
+      "cpu_frames": 335,
+      "cpu_failing_frames": 0,
+      "source_errors": [],
+      "hidden_provenance": {
+        "exposed_pixels": 147700,
+        "foreign_pixels": 0,
+        "failures": []
+      },
+      "contact_frames": 229,
+      "covered_head_frames": 0,
+      "hem": {
+        "maximum_follow_through_px": 3.6055319830475385,
+        "end_frame_delta_px": {
+          "idle": 0.0,
+          "move": 0.0,
+          "tether": 0.0,
+          "jab": 0.0,
+          "hit": 0.0,
+          "death": 0.0
+        },
+        "ok": true
+      },
+      "raw_clean_different_pixels": 5,
+      "walk_collar_crop_size": [
+        96,
+        66
+      ]
+    }
+  },
+  "preservation": "feedback2_preservation.json",
+  "baseline_updates": "feedback2_repin.json",
+  "reproduction": "feedback2_reproduction.json",
+  "additional_observed_checks": [
+    {
+      "name": "shell syntax and whitespace",
+      "command": "sh -n experiments/cutouts/arc_thrall/rr11_proof.sh experiments/cutouts/arc_thrall/rr24_proof.sh && git diff --check",
+      "exit_code": 0
+    },
+    {
+      "name": "final input bindings, donor results, tracked/new sidecars, shared scope",
+      "result_line": "RR24 FEEDBACK 2 INTEGRITY: PASS (current evidence; complete sidecars; no shared code changes)",
+      "exit_code": 0
+    }
+  ],
+  "initial_targeted_attempt": {
+    "log": "/private/tmp/labyrinth_codex/rr24-f2-targeted.log",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 27 tests in 16.347s",
+      "FAILED (failures=1)"
+    ],
+    "failure": "New preservation fixture included changed source-colour fingerprints in geometry hash. It now excludes those hashes and gait donor recipes while independently pinning all alpha and gait target positions."
+  },
+  "windowed_sequence": [
+    "density",
+    "rest",
+    "native",
+    "crops",
+    "sheets",
+    "idle",
+    "production",
+    "review"
+  ],
+  "windowed_command_template": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-24 && sh experiments/cutouts/arc_thrall/rr24_proof.sh <stage>",
+  "intended_capture_root": "experiments/cutouts/arc_thrall/rr11/proof",
+  "limitations": [
+    "No renderer captures produced; native density/rest/shadow records and GPU/visual acceptance await the director.",
+    "The director re-runs the rr26 detached census after integration; this change preserves every part alpha and all gait target positions.",
+    "Incidental Godot macOS certificate/resource-shutdown messages remain in raw logs; observed exit codes are recorded."
+  ]
+}
