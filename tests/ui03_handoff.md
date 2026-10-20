@@ -5,6 +5,35 @@ branch change, peer review, publication, queue update or windowed launch was run
 Renderer inspection, peer review, the inspection fixture and publication belong
 to the design owner under this unit's workflow split.
 
+## Director feedback 3 (windowed review of 0fcaae41b)
+
+1. `_show_card_focus_tooltips` now checks the live seal hover before displaying
+   the card's keyword stack. This also covers charge-driven hand refreshes,
+   which do not emit another seal-enter event. The guard applies only to
+   pointer input; controller focus retains its existing stack behavior. The
+   existing body-hover path restores `EMPOWER · ACTIVE` and the modified entries.
+   No layouts, content, rules, animations or capture isolation changed.
+2. The routed regression hovers the real card body, moves onto the seal, clicks
+   to charge and holds without pointer motion. It counts native tooltip windows
+   and checks the stack on every frame of the hold, then moves back to the body
+   and checks the active title and modifier text. It also checks controller hand
+   focus after seal inspection. On `0fcaae41b`, the new test reported
+   `EMPOWER SEAL TOOLTIP TEST RESULT: FAIL` with
+   `EMPOWER TOOLTIP EXCLUSIVITY charged=false body_active=true body_modified=true`.
+   With the guard, all three values are true and the test passes. Stills and
+   movie now assert tooltip exclusivity before and after each visible hold.
+
+Files changed in this round: `scripts/run_scene.gd` (six-line guard),
+`tests/suites/empower_seal_tooltip_suite.gd`,
+`tests/card_keywords_visual_probe.gd`, and this handoff. Exact focused results
+and before/after logs: `output/ui03/feedback-3/RESULTS.md`. No full suites,
+windowed runs, commits or peer review were run. No design placeholders were
+added. The controller check uses the existing `xbox` fixture family, and the
+test reuses the director's 0.4-second hold.
+The same still/movie invocations below use fresh feedback-3 result manifests
+to retain the director's previous proof records. Renderer review remains the
+director's job.
+
 ## Director feedback 2 (windowed review of 4b15ff5ff)
 
 1. The scene now runs in a fixed 1920x1080 SubViewport displayed by a plain
@@ -45,7 +74,7 @@ New debug-only defaults: `FIXTURE_SEED = 60308`, `SETTLE_SECONDS = 0.25`,
 `POINTER_FOLLOW_EPSILON = 0.25`; `IDLE_POINTER = (1500, 650)` reuses the proof's
 rest position. The 0.4-second visible hold is director-specified. There are no
 remaining `TODO_DESIGN_` placeholders in this unit. Renderer confirmation of
-the revised stills/clip remains the director's work. Commands below use fresh
+the revised stills/clip remained the director's work. That round used fresh
 feedback-2 manifests to preserve the previous proof records.
 
 ## Director feedback 1 (review of 75fc0bdcc)
@@ -178,7 +207,7 @@ The probe forces windowed 1920x1080, 100% UI scale and deterministic input famil
 Required stills, plus controller and reduced-motion states:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower.json --result-manifest output/ui03/feedback-2/stills-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower.json --result-manifest output/ui03/feedback-3/stills-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03
 ```
 
 The probe prints the task-isolated absolute capture directory corresponding to
@@ -197,7 +226,7 @@ The 60 fps clip uses Godot's built-in MovieWriter, with no encoder dependency.
 The larger timeout accommodates fixed-frame movie writing:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --godot ./tests/ui03_movie_godot.sh --timeout 120 --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower_motion.json --result-manifest output/ui03/feedback-2/movie-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03 -- --movie
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --godot ./tests/ui03_movie_godot.sh --timeout 120 --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower_motion.json --result-manifest output/ui03/feedback-3/movie-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03 -- --movie
 ```
 
 Expected movie: `output/ui03/empower-interactions.avi`, 1920x1080 at 60 fps.

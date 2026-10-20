@@ -17778,6 +17778,12 @@ func _show_card_focus_tooltips(index: int) -> void:
 	if card_control == null or card_id.is_empty():
 		_card_focus_tooltip_stack.hide_stack()
 		return
+	# Hand refreshes also reach this path without a new seal-enter event.
+	# Keep pointer inspection owned by the seal until the pointer leaves it.
+	var seal: Button = card_control.get_node_or_null("EmpowerSeal") as Button
+	if not _controller_is_active() and seal != null and seal.is_hovered():
+		_card_focus_tooltip_stack.hide_stack()
+		return
 	var card: Dictionary = _card_def(card_id, _combat_state)
 	var display: Dictionary = _card_widget_display_for_index(index)
 	var leading_icons: Array = []

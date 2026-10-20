@@ -193,12 +193,15 @@ func _hold_seal_tooltip(viewport: SubViewport, seal: Button, expected: String) -
 		var popup: Window = TooltipProof.visible_tooltip(viewport, expected)
 		if popup != null:
 			_assert(popup.is_embedded() and viewport.get_embedded_subwindows().has(popup), "The player's real tooltip is embedded in the recorded texture")
+			var stack: Control = viewport.find_child("CardFocusTooltipStack", true, false) as Control
+			_assert(stack != null and TooltipProof.only_seal_tooltip(viewport, stack), "Only the seal tooltip is visible before its capture hold")
 			if not _input_only: await RenderingServer.frame_post_draw
 			if OS.get_cmdline_user_args().has("--movie") or _input_only:
 				await _hold(ceili(TOOLTIP_VISIBLE_SECONDS * CLIP_FPS))
 			else:
 				await create_timer(TOOLTIP_VISIBLE_SECONDS).timeout
 			_assert(TooltipProof.visible_tooltip(viewport, expected) != null, "The complete tooltip remains visible throughout its hold")
+			_assert(stack != null and TooltipProof.only_seal_tooltip(viewport, stack), "The keyword stack stays hidden throughout the seal tooltip hold")
 			print("UI03 TOOLTIP HOLD: %s" % expected.replace("\n", " / "))
 			return
 		await process_frame
