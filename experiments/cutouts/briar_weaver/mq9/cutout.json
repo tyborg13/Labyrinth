@@ -1,0 +1,98 @@
+{
+  "character_id": "briar_weaver",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "lash",
+    "thornwall"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the hero's cut-out bob, hunched: torso (with mantle and thorns), hood and both free arms drop 2 px and return as one rigid group; pelvis, tatters, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.9,
+      "intents": [],
+      "note": "a hunched creep on the protagonist's model: both legs step, six small steps per tile rest to rest, the near foot leading; 7 px lift (the hunch already bends the stance knee, so the swing must bend more); the pelvis settles 2.5 px after each landing; a 3 degree lean; the claws sway 3 px opposite the stepping leg; the leaf tatters trail 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 7,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.0,
+          "down": 2.5,
+          "passing": 0.5,
+          "up": 0.2
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 3
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 3
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "thornwall": {
+      "seconds": 1.1,
+      "contact": 0.55,
+      "intents": [
+        "thornwall:grow_bramble"
+      ],
+      "note": "rears back raising both claws high, then plunges them down to the floor ahead as the bramble wall erupts (contact); holds, claws dug in; rises",
+      "release_at": {}
+    },
+    "lash": {
+      "seconds": 0.75,
+      "contact": 0.45,
+      "intents": [
+        "lash_of_thorns:ranged"
+      ],
+      "note": "whips the near claw back and up, then snaps it forward and down at the target (contact; the thorn lash flies); the far claw swings back as a counterweight",
+      "release_at": {}
+    },
+    "mend": {
+      "seconds": 1.0,
+      "contact": 0.55,
+      "intents": [
+        "root_mend:heal_ally"
+      ],
+      "note": "draws both claws up to its chest and bows its hood, then presses them down and out toward the floor as roots reach the ally (contact); holds; eases back",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "sags forward into a heap of leaves: the pelvis drops 18 px, the torso pitches forward 25 degrees, the hood drops, the claws fall to the floor ahead, the tatters settle; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

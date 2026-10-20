@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/briar_weaver/mq9_front",
+  "rear_job": "spec/art_identity/jobs/briar_weaver/mq9_rear",
+  "front_delivery": "spec/art_identity/maquettes/briar_weaver/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/briar_weaver/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

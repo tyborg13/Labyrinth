@@ -1,0 +1,466 @@
+{
+  "task": "rr-21",
+  "round": "feedback 2",
+  "base_head": "90a377b787634bf82be5dd074ec83acc429295bf",
+  "branch": "codex/rr-21",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_runs": false,
+  "peer_review_run": false,
+  "director_sha256": "44906439aafd02f3fb0953f0c74ef2384b91f34fc6a6dbd2a1b47e9ccbbcecff",
+  "protected_import": "byte-identical case and production; non-move tracks unchanged",
+  "protected_art_changed": false,
+  "png_changes": [],
+  "reference_cases_and_assets_preserved": [
+    "hoarfrost_seer",
+    "arc_thrall",
+    "glacial_mirror",
+    "storm_capacitor"
+  ],
+  "feedback_acceptance": {
+    "1": "Shared gait adopted; only two Briar shadow records refreshed; all 70 existing shadow entries retained.",
+    "2": "Protected 6-step/.9s/7px/2.5px gait imported; 3px opposite claws and 2px tatters; retired leg_roles and stride/trailing gates.",
+    "3": "Own-edge continuation recipes close seams/components on existing surfaces; no exemptions. Both 395-frame CPU views pass. Native load/texture checks pass; fresh windowed native acceptance pending director.",
+    "4": "Three committed records contain metadata, counts, extrema and failures; full samples and reports live in ignored proof/logs.",
+    "5": "All final focused tests/gates pass; exact windowed sequence supplied; full suites not run."
+  },
+  "original_unit_acceptance": {
+    "1": "Original rigid head/torso/pelvis/hands/feet, five skinned garment/limb meshes, two-bone targets and per-view knee policy retained; both source rests still 0px mismatch; protected green-eye mask stays on front head.",
+    "2": "Authored idle unchanged; upper-body rigidity and stationary lower-body contracts pass.",
+    "3": "Data-driven production registration, portraits, pre-battle, move/action/hit/death clocks preserved; 243 runtime checks and real contact/pose captures pass both views.",
+    "4": "Source cuts, signed motion/direction, six-swing walk/supports, dense reach, residue and CPU clean/seam diagnostics pass. Native renderer acceptance remains windowed director proof."
+  },
+  "tests": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr21_cutout tests.test_rr21_residue tests.test_rr21_walk -q",
+      "result_lines": [
+        "Ran 26 tests in 56.613s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_cutout_test_final.log"
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr21_production -q",
+      "result_lines": [
+        "Ran 3 tests in 107.140s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_production_test_final.log"
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr10_humanoid tests.test_rr11_humanoid tests.test_rr18_humanoid tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr14_anatomy tests.test_rr15_view_keys tests.test_rr15_reach -q",
+      "result_lines": [
+        "Ran 87 tests in 143.924s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_reference_tests.log"
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr11_humanoid tests.test_rr18_humanoid -q",
+      "result_lines": [
+        "Ran 35 tests in 67.251s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_support_regression.log"
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_gait01 -q",
+      "result_lines": [
+        "Ran 22 tests in 74.769s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_gait01_final.log"
+    }
+  ],
+  "sfx": [
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "result_line": "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)",
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_sfx_0.log"
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "result_line": "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)",
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_sfx_1.log"
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "result_line": "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)",
+      "log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_sfx_2.log"
+    }
+  ],
+  "production": {
+    "front": {
+      "result_lines": [
+        "RR21 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+        "RR21 PRODUCTION FRONT MOVE GATES: PASS (0 errors)"
+      ],
+      "frames": 1263,
+      "capture": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json",
+      "motion": {
+        "ok": true,
+        "errors": [],
+        "view": "front",
+        "walk": {
+          "ok": true,
+          "errors": [],
+          "swings": [
+            {
+              "side": "near",
+              "start": 0.0,
+              "end": 0.08000000000000002,
+              "from": 0.0,
+              "to": 0.2,
+              "peak_frame": 2,
+              "peak_bend_deg": 65.59692805042427,
+              "apex_frame": 2,
+              "apex_swing_bend_deg": 65.59692805042427,
+              "apex_stance_bend_deg": 58.157542740014804
+            },
+            {
+              "side": "far",
+              "start": 0.12,
+              "end": 0.28,
+              "from": 0.0,
+              "to": 0.4,
+              "peak_frame": 10,
+              "peak_bend_deg": 93.59159968001264,
+              "apex_frame": 11,
+              "apex_swing_bend_deg": 90.60527261784915,
+              "apex_stance_bend_deg": 31.905075573319966
+            },
+            {
+              "side": "near",
+              "start": 0.32,
+              "end": 0.48,
+              "from": 0.2,
+              "to": 0.6,
+              "peak_frame": 21,
+              "peak_bend_deg": 67.21287730577217,
+              "apex_frame": 21,
+              "apex_swing_bend_deg": 67.21287730577217,
+              "apex_stance_bend_deg": 58.28417937804489
+            },
+            {
+              "side": "far",
+              "start": 0.52,
+              "end": 0.68,
+              "from": 0.4,
+              "to": 0.8,
+              "peak_frame": 32,
+              "peak_bend_deg": 93.4893249057964,
+              "apex_frame": 32,
+              "apex_swing_bend_deg": 93.4893249057964,
+              "apex_stance_bend_deg": 31.905075573319966
+            },
+            {
+              "side": "near",
+              "start": 0.72,
+              "end": 0.88,
+              "from": 0.6,
+              "to": 1.0,
+              "peak_frame": 43,
+              "peak_bend_deg": 66.50693457233497,
+              "apex_frame": 42,
+              "apex_swing_bend_deg": 65.23538601933484,
+              "apex_stance_bend_deg": 58.28417937804489
+            },
+            {
+              "side": "far",
+              "start": 0.92,
+              "end": 1.0,
+              "from": 0.8,
+              "to": 1.0,
+              "peak_frame": 51,
+              "peak_bend_deg": 92.6324348689865,
+              "apex_frame": 51,
+              "apex_swing_bend_deg": 92.6324348689865,
+              "apex_stance_bend_deg": 22.583045916522334
+            }
+          ],
+          "minimum_peak_bend_deg": 65.59692805042427,
+          "maximum_fit_px": 0.07332040078497926,
+          "maximum_total_pelvis_drop_px": 2.49813031055608,
+          "maximum_rigid_air_px": 0.0,
+          "maximum_stance_frame_change_px": 0.0,
+          "maximum_stance_target_error_px": 0.5825669595003472,
+          "sample_counts": {
+            "frames": 108,
+            "stance": 132,
+            "rigid_air": 0
+          },
+          "rigid_air_failures": []
+        },
+        "supports": {
+          "front": {
+            "errors": [],
+            "maximum_jab_frame_change_px": 0.0,
+            "maximum_jab_target_error_px": 0.0,
+            "ok": true,
+            "sample_counts": {
+              "jab": 954
+            },
+            "rigid_air_failures": []
+          },
+          "rear": {
+            "errors": [],
+            "maximum_jab_frame_change_px": 0.0,
+            "maximum_jab_target_error_px": 0.0,
+            "ok": true,
+            "sample_counts": {
+              "jab": 160
+            },
+            "rigid_air_failures": []
+          }
+        },
+        "measured_step_distance_px": 83.5249328613281,
+        "measured_screen_pixel_scale": 0.603514787262561,
+        "design_placeholders": {}
+      }
+    },
+    "rear": {
+      "result_lines": [
+        "RR21 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+        "RR21 PRODUCTION REAR MOVE GATES: PASS (0 errors)"
+      ],
+      "frames": 1263,
+      "capture": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json",
+      "motion": {
+        "ok": true,
+        "errors": [],
+        "view": "rear",
+        "walk": {
+          "ok": true,
+          "errors": [],
+          "swings": [
+            {
+              "side": "near",
+              "start": 0.0,
+              "end": 0.08000000000000002,
+              "from": 0.0,
+              "to": 0.2,
+              "peak_frame": 2,
+              "peak_bend_deg": 93.53894236861551,
+              "apex_frame": 2,
+              "apex_swing_bend_deg": 93.53894236861551,
+              "apex_stance_bend_deg": 39.0525889118239
+            },
+            {
+              "side": "far",
+              "start": 0.12,
+              "end": 0.28,
+              "from": 0.0,
+              "to": 0.4,
+              "peak_frame": 10,
+              "peak_bend_deg": 74.28626366282153,
+              "apex_frame": 11,
+              "apex_swing_bend_deg": 73.87562316630473,
+              "apex_stance_bend_deg": 41.17246037610135
+            },
+            {
+              "side": "near",
+              "start": 0.32,
+              "end": 0.48,
+              "from": 0.2,
+              "to": 0.6,
+              "peak_frame": 22,
+              "peak_bend_deg": 94.9252181135716,
+              "apex_frame": 21,
+              "apex_swing_bend_deg": 88.87230299001055,
+              "apex_stance_bend_deg": 42.954591511112774
+            },
+            {
+              "side": "far",
+              "start": 0.52,
+              "end": 0.68,
+              "from": 0.4,
+              "to": 0.8,
+              "peak_frame": 32,
+              "peak_bend_deg": 73.54732581985381,
+              "apex_frame": 32,
+              "apex_swing_bend_deg": 73.54732581985381,
+              "apex_stance_bend_deg": 48.19589230042546
+            },
+            {
+              "side": "near",
+              "start": 0.72,
+              "end": 0.88,
+              "from": 0.6,
+              "to": 1.0,
+              "peak_frame": 43,
+              "peak_bend_deg": 92.2100253619717,
+              "apex_frame": 42,
+              "apex_swing_bend_deg": 79.02000315358404,
+              "apex_stance_bend_deg": 42.95462577917495
+            },
+            {
+              "side": "far",
+              "start": 0.92,
+              "end": 1.0,
+              "from": 0.8,
+              "to": 1.0,
+              "peak_frame": 51,
+              "peak_bend_deg": 69.55311709076982,
+              "apex_frame": 51,
+              "apex_swing_bend_deg": 69.55311709076982,
+              "apex_stance_bend_deg": 40.05216970275783
+            }
+          ],
+          "minimum_peak_bend_deg": 69.55311709076982,
+          "maximum_fit_px": 0.06300553522845576,
+          "maximum_total_pelvis_drop_px": 2.498130310556106,
+          "maximum_rigid_air_px": 0.0,
+          "maximum_stance_frame_change_px": 0.0,
+          "maximum_stance_target_error_px": 0.5825665883588365,
+          "sample_counts": {
+            "frames": 108,
+            "stance": 132,
+            "rigid_air": 0
+          },
+          "rigid_air_failures": []
+        },
+        "supports": {
+          "rear": {
+            "errors": [],
+            "maximum_jab_frame_change_px": 0.0,
+            "maximum_jab_target_error_px": 0.0,
+            "ok": true,
+            "sample_counts": {
+              "jab": 1114
+            },
+            "rigid_air_failures": []
+          }
+        },
+        "measured_step_distance_px": 83.5248718261719,
+        "measured_screen_pixel_scale": 0.603514787262561,
+        "design_placeholders": {}
+      }
+    }
+  },
+  "headless_gate_result_lines": [
+    "RR21 FRONT CUT: PASS (0 errors)",
+    "RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+    "RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)",
+    "RR21 FRONT REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 8 overreach reports)",
+    "RR21 REAR CUT: PASS (0 errors)",
+    "RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+    "RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)",
+    "RR21 REAR REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 5 overreach reports)",
+    "RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)",
+    "RR21 HEADLESS GATES: PASS (0 errors)"
+  ],
+  "cpu_result_lines": [
+    "RR21 FRONT CPU SEAMS/CLEAN: PASS (395 frames; 0 failures)",
+    "RR21 REAR CPU SEAMS/CLEAN: PASS (395 frames; 0 failures)"
+  ],
+  "cpu": {
+    "front": {
+      "ok": true,
+      "frames": 395,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "a2b0f862ac27b3949eb598ea81605623d74f4f5a279125557ebf72f1f19c8968"
+    },
+    "rear": {
+      "ok": true,
+      "frames": 395,
+      "failures": [],
+      "native_pixels": false,
+      "samples_sha256": "a2b0f862ac27b3949eb598ea81605623d74f4f5a279125557ebf72f1f19c8968"
+    }
+  },
+  "additional_results": [
+    "RR21 CONTINUATION TEXTURES: PASS (3072 full-image checks; source/production, paint/masks, both views, repeated transitions)",
+    "RR21 RUNTIME: PASS (243 checks; headless registration and action clocks)",
+    "RR21 NATIVE PROBE LOAD: PASS",
+    "RR21 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+    "RR17 SHADOW PRESERVATION: PASS (70 existing entries unchanged)",
+    "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)",
+    "CHECK-OK",
+    "RR21 SIDECAR INVENTORY: PASS (tracked plus untracked deliverables; no staging)",
+    "git diff --check: exit 0",
+    "sh -n experiments/cutouts/briar_weaver/rr21_proof.sh: exit 0"
+  ],
+  "compact_records": {
+    "samples": {
+      "path": "experiments/cutouts/briar_weaver/mq9/proof/samples.json",
+      "bytes": 50203
+    },
+    "gates": {
+      "path": "experiments/cutouts/briar_weaver/mq9/proof/gates.json",
+      "bytes": 56323
+    },
+    "native_gates": {
+      "path": "experiments/cutouts/briar_weaver/mq9/proof/native_gates.json",
+      "bytes": 463
+    }
+  },
+  "generic_extensions": [
+    "scripts/maquette_cutout_runtime/humanoid_continuations.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd",
+    "tools/humanoid_cutout/bone_evidence.py",
+    "tools/humanoid_cutout/cpu_pose.py",
+    "tools/humanoid_cutout/gait_continuations.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/walk_gates.py"
+  ],
+  "design_placeholders": {},
+  "chosen_defaults": {
+    "construction_pass_limit": 16,
+    "raster_coverage_margin_px": 1,
+    "construction_source": "gait-01 reference defaults",
+    "component_bridge": "shortest squared-distance endpoints, row/column tie order",
+    "compact_record_test_budget_bytes": 100000,
+    "proof_texture_phase": 0.37,
+    "proof_texture_transition_passes": 2,
+    "mutation_stance_slide_px": 1,
+    "repair_fixture_frames": {
+      "front": 5,
+      "rear": 2
+    }
+  },
+  "open_issues": [
+    "Fresh density/rest/native/sheets/idle/production/review proof requires director windowed renderer. No worker native pixel success is claimed."
+  ],
+  "windowed_sequence": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh review"
+  ],
+  "capture_paths": [
+    "experiments/cutouts/briar_weaver/mq9/proof/native_rest",
+    "experiments/cutouts/briar_weaver/mq9/proof/native",
+    "experiments/cutouts/briar_weaver/mq9/proof/contact_sheets",
+    "experiments/cutouts/briar_weaver/mq9/proof/idle_native",
+    "experiments/cutouts/briar_weaver/mq9/proof/production_native/front",
+    "experiments/cutouts/briar_weaver/mq9/proof/production_native/rear",
+    "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_protagonist_idle.mp4",
+    "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_review.mp4"
+  ],
+  "full_data_paths": [
+    "experiments/cutouts/briar_weaver/mq9/proof/logs/samples.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/logs/gates.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/logs/cpu_seams.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json"
+  ],
+  "inspection_fixture": "No worker command requested in unit brief; director prepares the fixture.",
+  "files_changed": "experiments/cutouts/briar_weaver/rr21_feedback2_files_changed.txt",
+  "additional_commands": [
+    "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/rr21/shadow_refresh.gd",
+    "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow_check.gd -- --baseline res://experiments/cutouts/briar_weaver/mq9/proof/logs/shadow_baseline.res",
+    "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/rr21/continuation_checks.gd",
+    "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/rr21/runtime_checks.gd",
+    "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/rr21/native_capture.gd -- --case experiments/cutouts/briar_weaver/mq9 --output experiments/cutouts/briar_weaver/mq9/proof/logs/native_validate --validate-only",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/briar_weaver/rr21_gates.py",
+    "PYTHONPATH=tools python3 -B experiments/cutouts/briar_weaver/rr21_seams.py",
+    "python3 -B tools/test_registration_audit.py --json experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_registration.json --markdown experiments/cutouts/briar_weaver/mq9/proof/logs/feedback2_registration.md",
+    "python3 tools/process_board_density.py --check --only briar_weaver_cutout",
+    "git diff --check",
+    "sh -n experiments/cutouts/briar_weaver/rr21_proof.sh"
+  ]
+}

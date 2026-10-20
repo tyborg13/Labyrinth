@@ -1,0 +1,11 @@
+{
+  "front": [
+    {
+      "name": "green_eye",
+      "piece": "head",
+      "mask": "features/front_eye.png",
+      "sha256": "dac225509371feee2d6af13addf91b80c0758ea94ff4d88383260cfad54d34e2"
+    }
+  ],
+  "rear": []
+}

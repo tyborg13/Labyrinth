@@ -115,7 +115,8 @@ class CpuPose:
             name = part['name']
             source = self.image(part['file']) if source_overrides is None else source_overrides[name]
             check = self.image(self.layout['proof_layers'][name]['mask'])
-            if name in self.layout.get('gait_continuations', {}):
+            from .gait_continuations import active_recipe
+            if active_recipe(self.layout, name, gait=pose['clip'] == 'move', clip=pose['clip']) is not None:
                 from .gait_continuations import texture
                 if source_overrides is None:
                     source = texture(self.case, self.layout, part, gait=pose['clip'] == 'move', clip=pose['clip'])

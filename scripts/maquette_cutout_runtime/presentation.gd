@@ -4,7 +4,7 @@ const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp",
 	"hoarfrost_seer": "hoarfrost_seer", "arc_thrall": "arc_thrall",
 	"burrow_grub": "burrow_grub", "ember_tick": "ember_tick", "storm_capacitor": "storm_capacitor", "glacial_mirror": "glacial_mirror",
-	"slag_mortar": "slag_mortar"}
+	"slag_mortar": "slag_mortar", "briar_weaver": "briar_weaver"}
 static var _integration_cache: Dictionary = {}
 
 # Optional case-owned contact adapter. Existing action dispatch remains intact.
@@ -42,8 +42,8 @@ static func renderer_roster() -> Dictionary:
 ## instantiate its concrete runtime adapter, including future maquette rigs.
 static func renderer_script(type: String) -> Script:
 	if not handles(type): return null
-	if ResourceLoader.exists("res://assets/units/%s_cutout/renderer.gd" % type):
-		return load("res://assets/units/%s_cutout/renderer.gd" % type) as Script
+	var adapter: String = "res://assets/units/%s_cutout/renderer.gd" % CREATURES[type]
+	if ResourceLoader.exists(adapter): return load(adapter) as Script
 	return load("res://scripts/maquette_cutout_runtime/%s_renderer.gd" % CREATURES[type]) as Script
 
 static func sync(board: Control, type: String, renderers: Dictionary) -> void:

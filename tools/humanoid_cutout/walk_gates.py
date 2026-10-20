@@ -190,10 +190,9 @@ def view_tag(layout,row,joint):
     return f'{layout["facing"]}/move/frame {row["frame"]}/{joint}'
 
 
-def support_report(layout,data,samples):
-    """Walk plus unchanged non-move planted supports, shared by both cases."""
-    result=report(layout,data,samples)
-    result['errors']=[e for e in result['errors'] if 'knee' not in e and 'swing lift' not in e]
+def planted_support_report(layout,samples):
+    """Unchanged action supports, including captures that change facing on hit."""
+    result={'errors':[]}
     result['jab']=[]
     from .leg_roles import resolve_bone
     anatomy=for_layout(layout)
@@ -217,6 +216,17 @@ def support_report(layout,data,samples):
             previous[key]={'frame':row['frame'],'actual':actual}
     result['maximum_jab_frame_change_px']=max((r['frame_change_px'] for r in result['jab']),default=0.)
     result['maximum_jab_target_error_px']=max((r['target_error_px'] for r in result['jab']),default=0.)
+    result['ok']=not result['errors']
+    return result
+
+
+def support_report(layout,data,samples):
+    """Walk plus unchanged non-move planted supports, shared by all cases."""
+    result=report(layout,data,samples)
+    result['errors']=[e for e in result['errors'] if 'knee' not in e and 'swing lift' not in e]
+    actions=planted_support_report(layout,samples)
+    result['errors']+=actions['errors']
+    result.update({k:v for k,v in actions.items() if k not in ('errors','ok')})
     result['maximum_target_error_px']=max(result['maximum_stance_target_error_px'],result['maximum_jab_target_error_px'])
     result['maximum_frame_change_px']=max(result['maximum_stance_frame_change_px'],result['maximum_jab_frame_change_px'])
     result['ok']=not result['errors']

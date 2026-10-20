@@ -10,10 +10,13 @@ const FPS: float = 60.0
 static func handles(type: String) -> bool:
 	return Presentation.handles(type)
 
-## Optional case-owned playback for existing special feedback paths.
+## Optional case-owned playback for existing special feedback paths. An absent
+## declaration preserves all existing dispatch and timing; the integration record
+## owns the resource path ("action_adapter", or rr-21's "action_script").
 static func playback_adapter(step: Dictionary, actor: Dictionary) -> Script:
 	var type: String = str(actor.get("type", ""))
-	var path: String = str(Presentation.integration_for(type).get("action_adapter", ""))
+	var integration: Dictionary = Presentation.integration_for(type)
+	var path: String = str(integration.get("action_adapter", integration.get("action_script", "")))
 	if path.is_empty(): return null
 	var adapter: Script = load(path) as Script
 	return adapter if adapter != null and adapter.handles(step, actor) else null
@@ -28,6 +31,7 @@ static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 	if data.is_empty() or bool(effect.get("cancelled", false)): return ""
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
+	verb = str(Presentation.integration_for(str(actor.get("type", ""))).get("action_aliases", {}).get(verb, verb))
 	# The existing Kindle resolver emits a status snapshot. Normalize only its
 	# presentation selector; preserve the resolver step and protected clip data.
 	if str(actor.get("type", "")) == "ember_tick" and intent == "kindle" and verb == "status" and effect.has("enemy_after"):

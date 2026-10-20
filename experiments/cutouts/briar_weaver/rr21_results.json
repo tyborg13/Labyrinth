@@ -1,0 +1,208 @@
+{
+  "task": "rr-21",
+  "branch": "codex/rr-21",
+  "base_head": "dcbbf60c725d3b395f4f37fa1f460e1bea7741e9",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_commands_run": false,
+  "peer_review_run": false,
+  "acceptance": {
+    "1_cut": "source rest exact both views; five logical meshes; certified joints and knee policies",
+    "2_idle": "headless rigid upper/lower groups pass; native every-pixel proof pending",
+    "3_production": "all seven clips captured; front/rear source-versus-production bones and painted transforms pass; existing contacts/sounds/outcomes pass; density rest pending director",
+    "4_gates": "source/direction/inside-minimum reach/rear knees/supports pass; front knees/supports fail; green eye conflicts with strict green gate; native gates pending"
+  },
+  "results": [
+    {
+      "name": "focused",
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr21_cutout tests.test_rr21_production -q",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/focused.txt",
+      "result_lines": [
+        "Ran 18 tests in 88.208s",
+        "OK"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "references",
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr10_humanoid tests.test_rr10_rear tests.test_rr10_bone_evidence tests.test_rr11_humanoid tests.test_rr14_anatomy tests.test_rr14_bone_guards tests.test_rr14_foundations tests.test_rr15_view_keys tests.test_rr15_action_direction tests.test_rr15_reach tests.test_rr17_cutout tests.test_rr17_integration tests.test_rr17_production tests.test_rr19_overlap -q",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/references.txt",
+      "result_lines": [
+        "Ran 107 tests in 189.273s",
+        "FAILED (failures=1)",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "RR19 SHARED CLOCK MUTATION: CAUGHT (Tick frame 20 instead of 53 at 0.900 s)"
+      ],
+      "status": "initial compatibility failure; fixed and rerun"
+    },
+    {
+      "name": "compatibility_rerun",
+      "command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr17_integration -q",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/compatibility_rerun.txt",
+      "result_lines": [
+        "Ran 5 tests in 5.883s",
+        "OK"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "art_identity",
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/art_identity.txt",
+      "result_lines": [
+        "Ran 111 tests in 55.183s",
+        "OK"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "audit",
+      "command": "python3 -B tools/test_registration_audit.py",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/audit.txt",
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "final_source_gates",
+      "command": "python3 -B experiments/cutouts/briar_weaver/rr21_gates.py",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/final_source_gates.txt",
+      "result_lines": [
+        "RR21 FRONT CUT: PASS (0 errors)",
+        "RR21 FRONT DIRECTION: PASS (569 positive checks; lash/thornwall required)",
+        "RR21 FRONT KNEES: FAIL (2 swings; minimum peak 46.906 degrees)",
+        "RR21 REAR CUT: PASS (0 errors)",
+        "RR21 REAR DIRECTION: PASS (569 positive checks; lash/thornwall required)",
+        "RR21 REAR KNEES: PASS (2 swings; minimum peak 60.445 degrees)",
+        "RR21 HEADLESS GATES: FAIL (2 errors)"
+      ],
+      "status": "known design rejection"
+    },
+    {
+      "name": "sfx_0",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/sfx_0.txt",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "sfx_1",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/sfx_1.txt",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "sfx_2",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-21 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/sfx_2.txt",
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "final_front_production_gates",
+      "command": "python3 -B experiments/cutouts/briar_weaver/rr21_production.py --input experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/final_front_production_gates.txt",
+      "result_lines": [
+        "RR21 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+        "RR21 PRODUCTION FRONT MOVE GATES: FAIL (6 errors)"
+      ],
+      "status": "known design rejection"
+    },
+    {
+      "name": "final_rear_production_gates",
+      "command": "python3 -B experiments/cutouts/briar_weaver/rr21_production.py --input experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/final_rear_production_gates.txt",
+      "result_lines": [
+        "RR21 PRODUCTION CONTACTS/POSES: PASS (0 errors)",
+        "RR21 PRODUCTION REAR MOVE GATES: PASS (0 errors)"
+      ],
+      "status": "pass"
+    },
+    {
+      "name": "front_production_capture",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1263 frames)"
+      ],
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/transcript.txt",
+      "status": "pass"
+    },
+    {
+      "name": "rear_production_capture",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1263 frames)"
+      ],
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/transcript.txt",
+      "status": "pass"
+    },
+    {
+      "name": "runtime",
+      "status": "pass",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/runtime.txt",
+      "result_lines": [
+        "RR21 RUNTIME: PASS (243 checks; headless registration and action clocks)"
+      ]
+    },
+    {
+      "name": "probe_load",
+      "status": "pass",
+      "transcript": "experiments/cutouts/briar_weaver/mq9/proof/logs/probe_load.txt",
+      "result_lines": [
+        "RR21 NATIVE PROBE LOAD: PASS"
+      ]
+    }
+  ],
+  "design_placeholders": {
+    "TODO_DESIGN_green_eye_gate": "23 protected front green-dominant head/eye texels versus zero-green requirement",
+    "TODO_DESIGN_front_move_knee_apex": "both front swings bend less than trailing knee at apex",
+    "TODO_DESIGN_front_move_supports": "real board front stance misses inherited radius and moves 1 px; see production gates"
+  },
+  "open_issues": [
+    "Director must resolve the three supplied-design conflicts, then run native proof.",
+    "Glacial Mirror / rr-18 case, assets and tests are absent from this checkout.",
+    "Two native density rest rebake records remain pending."
+  ],
+  "capture_paths": {
+    "headless_samples": "experiments/cutouts/briar_weaver/mq9/proof/samples.json",
+    "headless_production": [
+      "experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json",
+      "experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json"
+    ],
+    "windowed_pending": [
+      "experiments/cutouts/briar_weaver/mq9/proof/native_rest",
+      "experiments/cutouts/briar_weaver/mq9/proof/native",
+      "experiments/cutouts/briar_weaver/mq9/proof/contact_sheets",
+      "experiments/cutouts/briar_weaver/mq9/proof/idle_native",
+      "experiments/cutouts/briar_weaver/mq9/proof/production_native",
+      "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_review.mp4",
+      "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_protagonist_idle.mp4"
+    ]
+  },
+  "additional_observed_result_lines": [
+    "RR21 FRONT BUILD: PASS (rest mismatch: 0 px; 5 skinned meshes; protected tracks byte-identical)",
+    "RR21 REAR BUILD: PASS (rest mismatch: 0 px; 5 skinned meshes; protected tracks byte-identical)",
+    "RR21 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)",
+    "RR17 SHADOW PRESERVATION: PASS (68 existing entries unchanged)",
+    "RR21 WORKTREE SIDECARS: PASS (tracked plus deliverable inventory)",
+    "RR21 PYTHON SYNTAX: PASS"
+  ],
+  "proof_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh review"
+  ],
+  "final_consistency": "Protected imports and production compilation match; final source and both production bindings match current files."
+}
