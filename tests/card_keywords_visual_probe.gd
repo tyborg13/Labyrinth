@@ -9,11 +9,15 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const CardKeywordsSuite = preload("res://tests/suites/card_keywords_suite.gd")
+const CaptureViewport = preload("res://tests/helpers/ui03_capture_viewport.gd")
+const TooltipProof = preload("res://tests/suites/empower_seal_tooltip_suite.gd")
 
 const OUTPUT_DIR: String = "user://probes/ui03/1920x1080_ui100"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const REST_POINTER := Vector2(1500, 650)
-const TOOLTIP_WAIT_SECONDS: float = 0.8
+const TOOLTIP_VISIBLE_SECONDS: float = 0.4
+const TOOLTIP_TIMEOUT_FRAMES: int = 240
+const POINTER_FOLLOW_EPSILON: float = 0.25
 const CLIP_FPS: int = 60
 const HOLD_FRAMES: int = 30
 const POINTER_TRAVEL_FRAMES: int = 36
@@ -28,8 +32,11 @@ const ART_BY_FIXTURE := {
 }
 
 var _failed: bool = false
+var _capture_host
+var _input_only: bool = false
 
 func _initialize() -> void:
+	_input_only = OS.get_cmdline_user_args().has("--verify-input")
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://card_keywords_probe_progression.json")
 	ProgressionStore.set_run_storage_path("user://card_keywords_probe_run.save")
@@ -49,9 +56,12 @@ func _initialize() -> void:
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_assert(packed != null, "RunScene loads for the card keyword proof")
 	if packed != null:
+		# CursorFeedback creates its production glyph during autoload _ready().
+		await process_frame
 		await _capture(packed)
 	CardKeywordsSuite.remove_fixtures()
-	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	if not _input_only: print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	else: print("UI03 CAPTURE INPUT: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
 func _install_fixture_cards() -> void:
@@ -69,17 +79,13 @@ func _install_fixture_cards() -> void:
 	(cards["kwtest_empower_block"] as Dictionary)["name"] = "Braced Guard"
 
 func _capture(packed: PackedScene) -> void:
-	if OS.get_cmdline_user_args().has("--movie"):
+	if OS.get_cmdline_user_args().has("--movie") or _input_only:
 		await _capture_movie(packed)
 	else:
 		await _capture_stills(packed)
 
 func _capture_stills(packed: PackedScene) -> void:
-	var viewport := SubViewport.new()
-	viewport.size = VIEWPORT_SIZE
-	viewport.gui_embed_subwindows = true
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	root.add_child(viewport)
+	var viewport: SubViewport = _create_capture_viewport()
 	var instance: Node = packed.instantiate()
 	viewport.add_child(instance)
 	await _settle()
@@ -87,19 +93,17 @@ func _capture_stills(packed: PackedScene) -> void:
 	_install_combat(instance)
 	await _settle()
 	_hide_log(instance)
-	instance.call("_on_card_hover_started", 1)
-	await _settle()
+	var hovered_card: Control = instance.call("_hand_card_control", 1)
+	await _pointer(viewport, hovered_card.get_global_transform_with_canvas() * (hovered_card.size * 0.5))
 	var seal: Button = _seal(instance, 1)
 	_assert(seal.visible and not bool(seal.get("charged")), "Hover offers an unlit seal")
 	_save(viewport, "hover_unlit.png")
-	var seal_point: Vector2 = seal.get_global_transform_with_canvas() * (seal.size * 0.5)
-	await _pointer(viewport, seal_point)
-	await create_timer(TOOLTIP_WAIT_SECONDS).timeout
-	_assert(seal.is_hovered(), "Real pointer hovers the seal for its tooltip")
+	await _hold_seal_tooltip(viewport, seal, TooltipProof.OFFERED_TEXT)
 	_save(viewport, "seal_hover_tooltip.png")
-	await _pointer(viewport, seal_point, true)
-	await _settle()
+	await _pointer(viewport, _seal_point(seal), true)
 	_assert(bool(instance.call("_hand_card_empowered", 1)), "Seal click charges the hovered hand card")
+	await _hold_seal_tooltip(viewport, seal, TooltipProof.CHARGED_TEXT)
+	_save(viewport, "charged_seal_tooltip.png")
 	await _pointer(viewport, REST_POINTER)
 	instance.call("_on_card_hover_ended", 1)
 	await _settle()
@@ -145,27 +149,60 @@ func _capture_stills(packed: PackedScene) -> void:
 	_assert(_seal(instance, 1).scale == Vector2.ONE, "Reduced motion charges without a scale animation")
 	_save(viewport, "charged_reduced_motion.png")
 	instance.queue_free()
-	viewport.queue_free()
+	_capture_host.close()
+	_capture_host.queue_free()
 	await process_frame
 
 func _seal(instance: Node, index: int) -> Button:
 	return (instance.call("_hand_card_control", index) as Node).get_node("EmpowerSeal") as Button
 
-func _pointer(viewport: Viewport, point: Vector2, click: bool = false) -> void:
+func _create_capture_viewport() -> SubViewport:
+	_capture_host = CaptureViewport.new()
+	root.add_child(_capture_host)
+	_capture_host.setup(root)
+	return _capture_host.viewport
+
+func _motion(viewport: Viewport, point: Vector2, buttons: int = 0) -> void:
+	_assert(viewport == _capture_host.viewport, "Synthetic input belongs only to the isolated viewport")
 	var motion := InputEventMouseMotion.new()
 	motion.position = point
 	motion.global_position = point
-	viewport.push_input(motion, true)
+	motion.relative = point - viewport.get_mouse_position()
+	motion.button_mask = buttons
+	_capture_host.route(motion)
+
+func _pointer(viewport: Viewport, point: Vector2, click: bool = false) -> void:
+	_motion(viewport, point)
 	await _settle()
 	if click:
 		for pressed: bool in [true, false]:
-			var button := InputEventMouseButton.new()
-			button.button_index = MOUSE_BUTTON_LEFT
-			button.position = point
-			button.global_position = point
-			button.pressed = pressed
-			viewport.push_input(button, true)
+			await _send_button(viewport, point, pressed)
 			await _settle()
+
+func _seal_point(seal: Control) -> Vector2:
+	return seal.get_global_transform_with_canvas() * (seal.size * 0.5)
+
+func _hold_seal_tooltip(viewport: SubViewport, seal: Button, expected: String) -> void:
+	# Follow layout/charge motion without moving the OS mouse. Once settled,
+	# leave the synthetic pointer still so Godot's real tooltip timer can fire.
+	_motion(viewport, _seal_point(seal))
+	for frame: int in range(TOOLTIP_TIMEOUT_FRAMES):
+		var point: Vector2 = _seal_point(seal)
+		if viewport.get_mouse_position().distance_to(point) > POINTER_FOLLOW_EPSILON:
+			_motion(viewport, point)
+		var popup: Window = TooltipProof.visible_tooltip(viewport, expected)
+		if popup != null:
+			_assert(popup.is_embedded() and viewport.get_embedded_subwindows().has(popup), "The player's real tooltip is embedded in the recorded texture")
+			if not _input_only: await RenderingServer.frame_post_draw
+			if OS.get_cmdline_user_args().has("--movie") or _input_only:
+				await _hold(ceili(TOOLTIP_VISIBLE_SECONDS * CLIP_FPS))
+			else:
+				await create_timer(TOOLTIP_VISIBLE_SECONDS).timeout
+			_assert(TooltipProof.visible_tooltip(viewport, expected) != null, "The complete tooltip remains visible throughout its hold")
+			print("UI03 TOOLTIP HOLD: %s" % expected.replace("\n", " / "))
+			return
+		await process_frame
+	_assert(false, "The real seal tooltip must appear before capture: " + expected)
 
 func _install_combat(instance: Node) -> void:
 	instance.call("_cancel_drag_play")
@@ -230,8 +267,9 @@ func _capture_movie(packed: PackedScene) -> void:
 	root.content_scale_size = VIEWPORT_SIZE
 	root.content_scale_factor = 1.0
 	root.gui_embed_subwindows = true
+	var viewport: SubViewport = _create_capture_viewport()
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	viewport.add_child(instance)
 	await _settle()
 	root.size = VIEWPORT_SIZE
 	root.content_scale_size = VIEWPORT_SIZE
@@ -242,25 +280,22 @@ func _capture_movie(packed: PackedScene) -> void:
 	_hide_log(instance)
 	await _hold(HOLD_FRAMES)
 	var card: Control = instance.call("_hand_card_control", 1)
-	await _pointer(root, card.get_global_transform_with_canvas() * (card.size * 0.5))
+	await _pointer(viewport, card.get_global_transform_with_canvas() * (card.size * 0.5))
 	instance.call("_on_card_hover_started", 1)
 	await _hold(HOLD_FRAMES)
 	var seal: Button = _seal(instance, 1)
-	await _pointer(root, seal.get_global_transform_with_canvas() * (seal.size * 0.5), true)
+	await _hold_seal_tooltip(viewport, seal, TooltipProof.OFFERED_TEXT)
+	await _pointer(viewport, _seal_point(seal), true)
 	_assert(bool(instance.call("_hand_card_empowered", 1)), "Clip: first seal click charges")
-	await _hold(HOLD_FRAMES)
+	await _hold_seal_tooltip(viewport, seal, TooltipProof.CHARGED_TEXT)
 	card = instance.call("_hand_card_control", 1)
 	var start: Vector2 = card.get_global_transform_with_canvas() * (card.size * 0.5)
 	var target: Vector2 = _tile_global_position(instance, Vector2i(3, 4))
-	_send_button(start, true)
+	await _send_button(viewport, start, true)
 	for frame: int in range(1, POINTER_TRAVEL_FRAMES + 1):
-		var motion := InputEventMouseMotion.new()
-		motion.position = start.lerp(target, float(frame) / float(POINTER_TRAVEL_FRAMES))
-		motion.global_position = motion.position
-		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
-		root.push_input(motion, true)
+		_motion(viewport, start.lerp(target, float(frame) / float(POINTER_TRAVEL_FRAMES)), MOUSE_BUTTON_MASK_LEFT)
 		await process_frame
-	_send_button(target, false)
+	await _send_button(viewport, target, false)
 	await _hold(PLAY_SETTLE_FRAMES)
 	_assert(not bool(instance.call("_hand_card_empowered", 1)), "Clip: first charged card is played")
 	_assert(int((instance.get("_combat_state") as Dictionary).get("player_turn_time_spent", 0)) == 6, "Clip: drag-play committed Empower")
@@ -269,34 +304,42 @@ func _capture_movie(packed: PackedScene) -> void:
 	await _settle()
 	_hide_log(instance)
 	card = instance.call("_hand_card_control", 1)
-	await _pointer(root, card.get_global_transform_with_canvas() * (card.size * 0.5), true)
+	await _pointer(viewport, card.get_global_transform_with_canvas() * (card.size * 0.5), true)
 	await _hold(HOLD_FRAMES)
-	await _pointer(root, target)
+	await _pointer(viewport, target)
 	instance.call("_sync_click_targeting_arrow", target)
 	await _hold(HOLD_FRAMES)
 	_assert(int(instance.get("_selected_card_index")) == 1, "Clip: second card click enters targeting")
 	seal = _seal(instance, 1)
-	await _pointer(root, seal.get_global_transform_with_canvas() * (seal.size * 0.5), true)
+	await _hold_seal_tooltip(viewport, seal, TooltipProof.OFFERED_TEXT)
+	await _pointer(viewport, _seal_point(seal), true)
 	_assert(bool(instance.call("_selected_card_empowered")), "Clip: seal charges during targeting")
-	await _hold(HOLD_FRAMES)
-	await _pointer(root, target, true)
+	await _hold_seal_tooltip(viewport, seal, TooltipProof.CHARGED_TEXT)
+	await _pointer(viewport, target, true)
 	await _hold(PLAY_SETTLE_FRAMES)
 	_assert(int((instance.get("_combat_state") as Dictionary).get("player_turn_time_spent", 0)) == 6, "Clip: click-target play committed Empower")
-	RenderingServer.force_draw()
-	var final_image: Image = root.get_texture().get_image()
-	_assert(final_image.get_size() == VIEWPORT_SIZE, "Movie proof uses 1920x1080")
-	final_image.save_png("%s/clip_complete.png" % OUTPUT_DIR)
-	print("UI03 MOVIE: 1920x1080 at 60 fps; output/ui03/empower-interactions.avi")
-	instance.queue_free()
-	await process_frame
+	if not _input_only:
+		RenderingServer.force_draw()
+		var final_image: Image = root.get_texture().get_image()
+		_assert(final_image.get_size() == VIEWPORT_SIZE, "Movie proof uses 1920x1080")
+		final_image.save_png("%s/clip_complete.png" % OUTPUT_DIR)
+		print("UI03 MOVIE: 1920x1080 at 60 fps; output/ui03/empower-interactions.avi")
+	if _input_only:
+		_capture_host.close()
+		_capture_host.queue_free()
+		await process_frame
+	# Keep the final recorded scene mounted until _initialize quits.
 
-func _send_button(point: Vector2, pressed: bool) -> void:
+func _send_button(viewport: Viewport, point: Vector2, pressed: bool) -> void:
+	if pressed:
+		_motion(viewport, point)
+		await process_frame
 	var button := InputEventMouseButton.new()
 	button.position = point
 	button.global_position = point
 	button.button_index = MOUSE_BUTTON_LEFT
 	button.pressed = pressed
-	root.push_input(button, true)
+	_capture_host.route(button)
 
 func _hold(frames: int) -> void:
 	for frame: int in range(frames): await process_frame

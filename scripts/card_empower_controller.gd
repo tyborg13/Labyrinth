@@ -38,7 +38,12 @@ static func tooltip(scene: Node, index: int) -> String:
 	if blocked > 0: return "Not enough health: Empower costs %d HP." % blocked
 	var card: Dictionary = scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)
 	var spec: Dictionary = card.get("empower", {}) as Dictionary
-	var bonus: String = "repeat this card's first action" if bool(spec.get("repeat_first", false)) else Icons.plain_text_for_tokens(Icons.tokens_for_keyword_bonus(card.get("actions", []) as Array, spec))
+	var bonus_tokens: Array = Icons.tokens_for_keyword_bonus(card.get("actions", []) as Array, spec)
+	for token: Dictionary in bonus_tokens:
+		# Bonus values are increments: "Stagger +4", "Melee +4".
+		if str(token.get("value", "")).is_valid_int() and int(token["value"]) > 0:
+			token["value"] = "+%d" % int(token["value"])
+	var bonus: String = "repeat this card's first action" if bool(spec.get("repeat_first", false)) else Icons.plain_text_for_tokens(bonus_tokens)
 	var controller: bool = scene.is_inside_tree() and scene._controller_is_active()
 	var charged: bool = scene._hand_card_empowered(index)
 	var instruction: String = ("Charged. Press RS to cancel." if controller else "Charged. Click to cancel.") if charged else ("Press RS" if controller else "Click the seal or press E")

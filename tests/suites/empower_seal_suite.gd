@@ -17,6 +17,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var original_size: Vector2i = tree.root.size
 	tree.root.size = PROOF_SIZE
 	_test_instances(expect)
+	await preload("res://tests/suites/empower_seal_tooltip_suite.gd").run_live(tree, expect, fixtures)
 	await _mouse_and_persistence(tree, expect, fixtures)
 	await _drag(tree, expect, fixtures)
 	await _uncharged_drag(tree, expect, fixtures)

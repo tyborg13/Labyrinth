@@ -1,9 +1,52 @@
 # ui-03 implementation handoff
 
-Implementation is complete and uncommitted on `codex/ui-03`. No commit, push,
+This follow-up is uncommitted on `codex/ui-03`. No commit, push,
 branch change, peer review, publication, queue update or windowed launch was run.
 Renderer inspection, peer review, the inspection fixture and publication belong
 to the design owner under this unit's workflow split.
+
+## Director feedback 2 (windowed review of 4b15ff5ff)
+
+1. The scene now runs in a fixed 1920x1080 SubViewport displayed by a plain
+   full-window TextureRect with `MOUSE_FILTER_IGNORE`. Every synthetic event
+   enters that SubViewport. The existing cursor glyph is temporarily drawn
+   there and follows only the synthetic pointer; desktop polling/input on its
+   singleton is suspended for the capture. A regression sends root-only mouse
+   motion over another card and verifies that neither captured hover nor cursor
+   changes. No real mouse warp is used. Every press first routes pointer motion
+   to its press point. MovieWriter still records the root. Director commits
+   `61d02eaa6` (`--windowed` adapter) and `4b15ff5ff` (root viewport stretch) are
+   preserved.
+2. Routed pointer motion on the real RunScene root showed both native tooltips
+   before the capture change: `hovered=true popup=true`. Their copy was missing
+   the required plus sign (`Stagger 4`). The new exact-copy assertions failed
+   before the fix; the seal now says `Empower: +2 Time · Stagger +4`, with the
+   exact offered/charged instruction. Shared tooltip title capitalization stays
+   unchanged. The capture waits for the actual embedded native popup and its
+   rendered text, then a rendered frame and 0.4 seconds of visibility before
+   continuing. Both gestures hold the offered and charged tooltips. Stills now
+   include `charged_seal_tooltip.png` as well as `seal_hover_tooltip.png`.
+3. Gameplay, approved assets, animation, root stretch, movie adapter and the
+   other proof states are unchanged. The only production edit is the seal's
+   positive Stagger bonus text.
+
+Files changed in this round: `scripts/card_empower_controller.gd`,
+`tests/card_keywords_visual_probe.gd`, `tests/proof_contracts/ui03_empower.json`,
+`tests/suites/empower_seal_suite.gd`, new
+`tests/suites/empower_seal_tooltip_suite.gd`, new
+`tests/empower_seal_tooltip_test.gd`, new
+`tests/helpers/ui03_capture_viewport.gd`, and this handoff. Logs and exact focused
+results are in `output/ui03/feedback-2/RESULTS.md`. No full suites or windowed
+commands were run. Headless `--verify-input` exercises the complete movie
+choreography and native tooltip holds without rendering or writing captures.
+
+New debug-only defaults: `FIXTURE_SEED = 60308`, `SETTLE_SECONDS = 0.25`,
+`TOOLTIP_TIMEOUT_SECONDS = 3.0`, `TOOLTIP_TIMEOUT_FRAMES = 240`,
+`POINTER_FOLLOW_EPSILON = 0.25`; `IDLE_POINTER = (1500, 650)` reuses the proof's
+rest position. The 0.4-second visible hold is director-specified. There are no
+remaining `TODO_DESIGN_` placeholders in this unit. Renderer confirmation of
+the revised stills/clip remains the director's work. Commands below use fresh
+feedback-2 manifests to preserve the previous proof records.
 
 ## Director feedback 1 (review of 75fc0bdcc)
 
@@ -135,7 +178,7 @@ The probe forces windowed 1920x1080, 100% UI scale and deterministic input famil
 Required stills, plus controller and reduced-motion states:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower.json --result-manifest output/ui03/stills-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower.json --result-manifest output/ui03/feedback-2/stills-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03
 ```
 
 The probe prints the task-isolated absolute capture directory corresponding to
@@ -143,6 +186,7 @@ The probe prints the task-isolated absolute capture directory corresponding to
 
 - `hover_unlit.png`
 - `seal_hover_tooltip.png`
+- `charged_seal_tooltip.png`
 - `charged_hand.png`
 - `charged_targeting.png`
 - `blocked.png`
@@ -153,7 +197,7 @@ The 60 fps clip uses Godot's built-in MovieWriter, with no encoder dependency.
 The larger timeout accommodates fixed-frame movie writing:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --godot ./tests/ui03_movie_godot.sh --timeout 120 --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower_motion.json --result-manifest output/ui03/movie-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03 -- --movie
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --godot ./tests/ui03_movie_godot.sh --timeout 120 --expect-size 1920x1080 --proof-contract tests/proof_contracts/ui03_empower_motion.json --result-manifest output/ui03/feedback-2/movie-manifest.json tests/card_keywords_visual_probe.gd --task-id ui-03 -- --movie
 ```
 
 Expected movie: `output/ui03/empower-interactions.avi`, 1920x1080 at 60 fps.
@@ -179,7 +223,7 @@ Only implementation/debug/proof values were selected:
 - `FIXTURE_SEEDS`: 60301–60306; existing keyword fixture cards plus debug-only
   two-target and rotatable-area fixtures.
 - `SETTLE_FRAMES = 5`: headless GUI settling; original window size is restored.
-- Proof data: `REST_POINTER = (1500, 650)`, `TOOLTIP_WAIT_SECONDS = 0.8`,
+- Proof data: `REST_POINTER = (1500, 650)`,
   `HOLD_FRAMES = 30`, `POINTER_TRAVEL_FRAMES = 36`,
   `PLAY_SETTLE_FRAMES = CLIP_FPS * 3`; all describe capture choreography only.
 - Contract `regions`: hand area `[450, 650, 1050, 420]`, minimum luma range 65,
@@ -187,7 +231,7 @@ Only implementation/debug/proof values were selected:
 
 ## Open issues / owner work
 
-- Resolve the two `TODO_DESIGN_` animation details.
+- The director resolved the two animation details with the design values above.
 - Run and inspect both renderer commands, including the five required states,
   controller state, reduced motion and the interaction clip.
 - Perform the owner-assigned independent visual identity judgement, peer review,
