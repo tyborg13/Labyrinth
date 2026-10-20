@@ -221,3 +221,6 @@
   control).
 
 - empower-redesign: APPROVED (direction, 2026-10-19 21:12). ui-03 builds it; a real-renderer clip goes to the inbox next.
+- thrall-rig-v3: APPROVED (2026-10-20 00:59; low iron collar, wrapped skirt, two-legged walk). Merged 962950183.
+  Follow-up already queued: re-key the rear Tether so the tube rises over the near shoulder (director data,
+  staged/rr-11 view_keys.rear), folded into the record refresh after rr-26.
