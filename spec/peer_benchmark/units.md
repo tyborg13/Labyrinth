@@ -116,5 +116,8 @@
 | rr-27 | Arc Thrall strict provenance census clean (front pockets, rear copied texels); rear Tether study (re-key dropped: reach gate) | merged e03fda6b9 (Codex SIGNOFF 780933a9c; windowed proofs PASS; density source adopted for the rear leg copy); Godot PASS, Python 3 cross-unit pin failures -> int-04 |
 | int-04 | Scope the remaining cross-unit preservation pins (Mimic gate, rr-24 colour rebuild) and sweep for the rest | merged 70818f8c0 (Codex SIGNOFF 4d404935a); integration green: Godot PASS, Python 1401 OK |
 | cap-01 | Fast proof captures: crop to the actor, fast lossless encoding (owner-approved) | merged dedfcb10d + post-merge fixes 1fd63e03c (Codex SIGNOFF aa02f1230; director equivalence PASS 20/20; Seer 4.3 min/0.58 GB, Mortar 9.2 min/1.33 GB); integration green: Godot PASS, Python 1458 OK |
-| rr-28 | Seer and Mimic joint tears under the canonical gate (clip-scoped own-piece continuations); Capacitor shadow-preservation pin scoped | r0 60cf6c5da + records 791191550 (windowed native PASS: Seer, Mimic); fix round 1 running |
-| cap-02 | Production crop plan covers the whole run (cap-01 follow-up: Mimic/Capacitor canvases escaped the fixed crop) | running |
+| rr-28 | Seer and Mimic joint tears under the canonical gate (clip-scoped own-piece continuations); Capacitor shadow-preservation pin scoped | merged c9f41cef0 (Codex SIGNOFF 94911ca47; windowed native PASS Seer/Mimic); post-merge repairs 84406a34a |
+| cap-02 | Production crop plan covers the whole run (cap-01 follow-up: Mimic/Capacitor canvases escaped the fixed crop) | merged 972658f68 (Codex SIGNOFF 6bf619a5b; windowed Mimic production PASS) |
+| int-05 | Scope the last re-pinned cross-unit identity pins (rr-14 Seer identity) and sweep | running |
+| sfx-05 | Empower charge (A Kindle, -24 LUFS) and un-charge (-30 LUFS) cues, wired to the toggle | running |
+| mq-11 | Maquette fixes: Mimic hero-style hair; Mortar loincloth on the hip line | running |

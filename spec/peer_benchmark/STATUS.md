@@ -43,7 +43,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
-- **PAUSED 2026-10-20 10:24 (owner: quiet machine for a video meeting). Nothing running, nothing queued.**
+- Resumed 2026-10-20 11:52: int-05, sfx-05 and mq-11 launched from ee03daf93 (Blender bridge running for mq-11); Capacitor windowed re-check running in throwaway worktree cap-check. Earlier pause note kept below for its checklist.
+- (Paused 2026-10-20 10:24 for the owner's video meeting.)
   Resume checklist, in order:
   1. Launch int-05 (scope test_rr14_seer_identity to rr-14's range + re-pinned-guard sweep; the only red test on
      integration), sfx-05 (Empower charge/un-charge cues: A at -24 LUFS, un-charge -30), and mq-11 (Mimic hero-style
