@@ -19,6 +19,13 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-20 19:00:
+  - rr-29: round 2 committed feffbfb06. Windowed rest/native/sheets/idle PASS. Production stalled once (frames stopped,
+    900 s timeout; most likely a hidden window). Production + review are rerunning, now progressing. Then: judge the
+    visuals and identity sheets, Codex re-review of the round-2 delta, merge, inbox clip.
+  - rr-30: round 2 committed 407ca1d9a (rear re-processed from the toned raw a9bf0b7e5: chroma 0.1988, certified and
+    judged by the director; skinned declared scale; sway and strain mutation tests; own density probe at 1920x1080).
+    Windowed density→review are queued under the lock after rr-29. Then: re-review, merge, inbox clip.
 - 2026-10-20 15:40:
   - mq-11 merged (56de97dfb). Codex SIGNOFF a3fc15b69, native acceptance director_06, integration green at 300f8277b.
   - rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) launched from 7adad7e92.
