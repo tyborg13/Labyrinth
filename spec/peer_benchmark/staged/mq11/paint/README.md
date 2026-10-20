@@ -16,3 +16,8 @@ Final raws (these are what the rig units cut from):
   - Prompt: `slag_mortar_rear_mq11b.md`.
   - References: `refs_slag_mortar_rear_mq11b/`.
 `refs_hollow_mimic_front/` and `refs_slag_mortar_rear/` hold the round-1 references, kept for history.
+
+Director tone step (2026-10-20, rr-30): the round-2 rear's new flap pushed the rear identity chroma to 0.2004, over the
+0.2 limit. The flap's pixels (those changed from the round-1 rear, below y 560) were desaturated toward their grey by
+15%, which is `g + (c - g) * 0.85`. That is the same kind of deterministic tone-down as the Gaoler's tabard. Nothing
+else changed.
