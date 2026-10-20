@@ -1,0 +1,4 @@
+RR27 TETHER PAIR [10, 110]: FAIL (raise/lower crossing samples 17/12; bend flips 6/4)
+RR27 TETHER PAIR [0, 90]: FAIL (raise/lower crossing samples 11/8; bend flips 2/2)
+RR27 TETHER PAIR [20, 130]: FAIL (raise/lower crossing samples 21/13; bend flips 4/4)
+RR27 TETHER FEEDBACK SELECTION: NONE (all prescribed pairs fail; director data retained)

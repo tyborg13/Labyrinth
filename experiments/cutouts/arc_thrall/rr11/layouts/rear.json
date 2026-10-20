@@ -180833,7 +180833,7 @@
       "z_index": -2,
       "source": "pieces/rear/mq7b_continuation_leg_far.png",
       "rigid": false,
-      "source_sha256": "db586dc91e129bfa9becf550ff158e01a7c79b98aa7f7c2e951555cd27861783"
+      "source_sha256": "095f77977f7e0f5137dd3d13d8a252c56c0fee9fb4de2123dab3eed7fb264bea"
     },
     "mq7b_continuation_loincloth": {
       "mask": "checks/rear/mq7b_continuation_loincloth.png",
@@ -181747,12 +181747,6 @@
         ],
         [
           15,
-          60,
-          29,
-          60
-        ],
-        [
-          17,
           60,
           29,
           60

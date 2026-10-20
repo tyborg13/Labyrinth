@@ -325,7 +325,7 @@
             "foot_far"
           ],
           "required_mask": "tucks/rear_leg_far.png",
-          "required_pixels": 231,
+          "required_pixels": 230,
           "missing_pixels": 0
         },
         {

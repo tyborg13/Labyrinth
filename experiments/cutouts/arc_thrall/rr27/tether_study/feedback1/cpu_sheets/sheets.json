@@ -1,0 +1,18 @@
+{
+  "zoom": 3,
+  "crop_bounds": [
+    159,
+    136,
+    350,
+    379
+  ],
+  "native_pixels": false,
+  "files": {
+    "F0_L90_lower_3x.png": "164456ebba90f3b119cffb6b879493da7b597b3da69f2c5256f0a25b2091c187",
+    "F0_L90_raise_3x.png": "20ae6e379789e82eb3a8e7f9934a21800b288673b72445a6575ce1440e35d680",
+    "F10_L110_lower_3x.png": "892ec367e7a5bae6c9d8169196f1c531c98b1aba812d94c3772fdc2c5d10be55",
+    "F10_L110_raise_3x.png": "4479dd1e396d501659353d1ee614f12d106336fd049a6bf5604fc037d43fb145",
+    "F20_L130_lower_3x.png": "d1195b38f99b3db53c6afa19b6d53539105273ae4dd31874e9bdc44848dabedd",
+    "F20_L130_raise_3x.png": "eb29b3340fcf14f68caf89bd7e9d693dc373d9ef81803105636203573d11b607"
+  }
+}

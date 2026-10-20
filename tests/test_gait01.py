@@ -298,9 +298,15 @@ class GaitTests(unittest.TestCase):
                 part=next(p for p in layout['parts'] if p['name']==name)
                 before=np.asarray(Image.open(case/part['file']).convert('RGBA'))
                 np.testing.assert_array_equal(continuation_texture(case,layout,part),before)
-                filled=continuation_texture(case,layout,part,gait=True)
+                # rr-27's upper-arm recipe is explicitly jab/death-only.
+                # Default recipes retain the original gait-only contract.
+                active_clip=recipe.get('clips',['move'])[0]
+                filled=continuation_texture(case,layout,part,gait=active_clip=='move',clip=active_clip)
                 self.assertEqual(np.count_nonzero(np.any(before!=filled,axis=2)),len(recipe['texels']))
                 np.testing.assert_array_equal(filled[before[...,3]>0],before[before[...,3]>0])
+                for clip in ('rest','idle','move','jab','death','tether','hit'):
+                    if clip in recipe.get('clips',['move']):continue
+                    np.testing.assert_array_equal(continuation_texture(case,layout,part,gait=clip=='move',clip=clip),before)
             for base in (ROOT/'assets/units/arc_thrall_cutout',ROOT/'assets/units/arc_thrall_cutout/humanoid_v2'):
                 self.assertEqual(read_json(base/f'{view}.json')['gait_continuations'],recipes[view])
             mutant=copy.deepcopy(layout)

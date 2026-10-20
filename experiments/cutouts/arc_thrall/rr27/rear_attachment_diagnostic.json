@@ -1,0 +1,156 @@
+{
+  "native_pixels": false,
+  "rows": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "piece": "mq7b_continuation_leg_far",
+      "texel": [
+        171,
+        218
+      ],
+      "neighbour": [
+        170,
+        218
+      ],
+      "texel_weights": {
+        "thigh_far": 0.0,
+        "shin_far": 1.0
+      },
+      "neighbour_weights": {
+        "thigh_far": 0.0,
+        "shin_far": 1.0
+      },
+      "attachment_trial": [
+        {
+          "texel": [
+            170,
+            218
+          ],
+          "neighbour": [
+            169,
+            218
+          ]
+        },
+        {
+          "texel": [
+            171,
+            218
+          ],
+          "neighbour": [
+            170,
+            218
+          ]
+        }
+      ],
+      "before_unmatched": [
+        {
+          "bbox": [
+            340,
+            319,
+            341,
+            320
+          ],
+          "pixel_count": 1,
+          "pixels": [
+            [
+              340,
+              319
+            ]
+          ]
+        }
+      ],
+      "after_unmatched": [
+        {
+          "bbox": [
+            340,
+            319,
+            341,
+            320
+          ],
+          "pixel_count": 1,
+          "pixels": [
+            [
+              340,
+              319
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "piece": "mq7b_continuation_leg_near",
+      "texel": [
+        109,
+        179
+      ],
+      "neighbour": [
+        108,
+        178
+      ],
+      "texel_weights": {
+        "thigh_near": 0.0,
+        "shin_near": 1.0
+      },
+      "neighbour_weights": {
+        "thigh_near": 0.0,
+        "shin_near": 1.0
+      },
+      "attachment_trial": [
+        {
+          "texel": [
+            109,
+            179
+          ],
+          "neighbour": [
+            108,
+            178
+          ]
+        }
+      ],
+      "before_unmatched": [
+        {
+          "bbox": [
+            323,
+            269,
+            324,
+            270
+          ],
+          "pixel_count": 1,
+          "pixels": [
+            [
+              323,
+              269
+            ]
+          ]
+        }
+      ],
+      "after_unmatched": [
+        {
+          "bbox": [
+            323,
+            269,
+            324,
+            270
+          ],
+          "pixel_count": 1,
+          "pixels": [
+            [
+              323,
+              269
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "director_resolution": {
+    "authority": "rr-27 feedback 1",
+    "status": "resolved; two copied continuation texels removed",
+    "historical_attachment_trials": true
+  }
+}

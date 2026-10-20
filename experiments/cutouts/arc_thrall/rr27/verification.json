@@ -1,0 +1,137 @@
+{
+  "task_id": "rr-27",
+  "complete": false,
+  "changes_committed": false,
+  "full_suite": "not run: unit brief explicitly requires focused proof only",
+  "windowed_runs": [],
+  "results": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-27 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/arc_thrall/rr27_focused.py",
+      "exit_code": 0,
+      "log": "focused_tests_final.log",
+      "lines": [
+        "Ran 124 tests in 157.261s",
+        "OK"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+      "exit_code": 0,
+      "log": "samples.log",
+      "lines": [
+        "RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr11_gates.py",
+      "exit_code": 0,
+      "log": "gates.log"
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/rr11/runtime_checks.gd",
+      "exit_code": 0,
+      "lines": [
+        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/gait01/continuation_checks.gd",
+      "exit_code": 0,
+      "lines": [
+        "GAIT CONTINUATION TEXTURES: PASS (1404 own-edge/clip-selection checks; case and production)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr24_native_capture.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/native --validate-only",
+      "exit_code": 0,
+      "lines": [
+        "RR11 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr27_check.py",
+      "exit_code": 1,
+      "log": "census.log",
+      "lines": [
+        "RR27 STRICT CENSUS FRONT: PASS (335 frames; 0 unmatched detached; 0 pocket failures)",
+        "RR27 STRICT CENSUS REAR: FAIL (335 frames; 2 unmatched detached; 0 pocket failures)"
+      ]
+    },
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr24_check.py --raster",
+      "exit_code": 1,
+      "log": "rr24_check_final.log",
+      "lines": [
+        "RR24 CPU FRONT SEAMS: PASS (335 frames; 0 failing frames; native acceptance pending)",
+        "RR24 CPU REAR SEAMS: FAIL (335 frames; 2 failing frames; native acceptance pending)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr27_tether_study.gd -- --logic-only",
+      "exit_code": 0,
+      "log": "tether_logic.log",
+      "lines": [
+        "RR27 TETHER STUDY LOGIC: PASS (30 poses; in-memory keys only)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr27_tether_sheets.py --cpu",
+      "exit_code": 0,
+      "lines": [
+        "RR27 TETHER CPU ESTIMATE SHEETS: PASS (1 hold sheet; 5 six-frame strips; 3x nearest)"
+      ]
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr27_rear_diagnostic.py",
+      "exit_code": 0,
+      "lines": [
+        "RR27 REAR ATTACHMENT 14: NO-OP",
+        "RR27 REAR ATTACHMENT 23: NO-OP"
+      ]
+    },
+    {
+      "command": "in-memory removal counterfactual (same algorithm retained as rr27_rear_diagnostic.py --removal-proposal)",
+      "exit_code": 0,
+      "lines": [
+        "RR27 REMOVAL PROPOSAL: PASS (335 rear frames; 0 failing; not applied)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr27_tether_study.gd -- --write-uid",
+      "exit_code": 0,
+      "lines": [
+        "RR27 STUDY SIDECAR: PASS"
+      ]
+    },
+    {
+      "command": "in-memory Python compile() for rr27 Python files",
+      "exit_code": 0,
+      "lines": [
+        "RR27 PYTHON SYNTAX: PASS (6 files; no external cache writes)"
+      ]
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "open_issues": [
+    "TODO_DESIGN_REAR_COMPONENT_REPAIR: attachment is a no-op; removal exception extension awaits director",
+    "Native renderer images require the director window server"
+  ],
+  "earlier_runs": [
+    {
+      "log": "focused_tests.log",
+      "result": "Ran 124 tests in 147.269s; FAILED (failures=2, errors=1); fixed and rerun without changing original baseline values or the canonical test assertions"
+    },
+    {
+      "log": "rr24_check.log",
+      "result": "Rejected stale bindings after test helper changed; resampled and rerun as rr24_check_final.log"
+    },
+    {
+      "command": "python3 -m py_compile",
+      "result": "System Python cache write denied; replaced with in-memory compile()"
+    }
+  ],
+  "superseded_by": "feedback1_verification.json"
+}

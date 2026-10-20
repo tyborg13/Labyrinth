@@ -153,7 +153,19 @@ class ActionDirectionTests(unittest.TestCase):
         self.assertEqual(canonical(rows),baseline['front_render_rows']['sha256'])
         before = read_json(PROJECT/'tests/rr11/rr15/feedback1_front_before.json')
         for path in before['protected_files']:
-            assert_repaint_preserved(self,path)
+            if path in ('experiments/cutouts/arc_thrall/rr11/layouts/front.json',
+                        'assets/units/arc_thrall_cutout/front.json',
+                        'assets/units/arc_thrall_cutout/humanoid_v2/front.json'):
+                # rr-27 changes only this clip-scoped continuation table;
+                # preserve the rr-24 baseline itself and every other field.
+                from rr27_build import apply_front
+                data=read_json(PROJECT/path)
+                addition=data['gait_continuations'].pop('upper_near')
+                self.assertEqual(addition,apply_front(copy.deepcopy(self.layouts['thrall']['front']))['gait_continuations']['upper_near'])
+                data.pop('rest_source_sha256',None)
+                self.assertEqual(canonical(data),baseline['files'][path]['canonical_layout_sha256'],path)
+            else:
+                assert_repaint_preserved(self,path)
 
     def test_all_fresh_thrall_and_seer_pose_rows_match_retained_renderer_inputs(self):
         for name, case in CASES.items():

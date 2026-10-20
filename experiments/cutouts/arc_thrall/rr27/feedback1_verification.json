@@ -1,0 +1,157 @@
+{
+  "task": "rr-27",
+  "feedback": 1,
+  "branch": "codex/rr-27",
+  "starting_head": "adcd87fc5a78691835f680d9b55898e421af8435",
+  "committed": false,
+  "rear_repair": "applied; both views clean under strict census; no exemptions",
+  "tether_pair_selected": null,
+  "tether_director_data_changed": false,
+  "changed_pose_rows": [],
+  "focused_tests": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-27 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B experiments/cutouts/arc_thrall/rr27_focused.py",
+      "exit_code": 0,
+      "log": "feedback1_tests.log",
+      "lines": [
+        "Ran 127 tests in 138.543s",
+        "OK"
+      ]
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-27 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B -m unittest tests.test_rr27_thrall -v",
+      "exit_code": 0,
+      "log": "feedback1_thrall_final.log",
+      "lines": [
+        "Ran 11 tests in 6.204s",
+        "OK"
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr27_check.py",
+      "exit_code": 0,
+      "log": "feedback1_census.log"
+    },
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr24_check.py --raster",
+      "exit_code": 0,
+      "log": "feedback1_raster_final.log"
+    },
+    {
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr11_gates.py",
+      "exit_code": 0,
+      "lines": [
+        "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/rr11/runtime_checks.gd",
+      "exit_code": 0,
+      "lines": [
+        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+      "exit_code": 0,
+      "lines": [
+        "RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr24_native_capture.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/native --validate-only",
+      "exit_code": 0,
+      "lines": [
+        "RR11 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "command": "python3 tools/godot_task_runner.py --task-id rr-27 --stream -- godot --headless --path . --script experiments/cutouts/arc_thrall/rr27_tether_study.gd -- --feedback-1 --logic-only",
+      "exit_code": 0,
+      "lines": [
+        "RR27 TETHER STUDY LOGIC: PASS (252 poses; in-memory keys only)"
+      ]
+    },
+    {
+      "command": "python3 -u -B experiments/cutouts/arc_thrall/rr27_tether_feedback.py evaluate",
+      "exit_code": 1,
+      "expected_rejected_candidates": true,
+      "log": "feedback1_tether.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    }
+  ],
+  "evidence": {
+    "rr11/proof/samples.json": {
+      "sha256": "308d640e461b49562bee474247ead2faf9222ffda90ba495f27d9347fd814366"
+    },
+    "rr27/census.json": {
+      "sha256": "23171af16b656dbe96f69c35225cdbb7c5705be75d0e370be44a5ffec6810712"
+    },
+    "rr27/preservation.json": {
+      "sha256": "a951b78e304ea914169b91cfb201769070f233c3889e2ab899e13f8030f19571"
+    },
+    "rr24/checks.json": {
+      "sha256": "531c2967efc10c39fa98df25932d20740b5e92189b9249fb834058fb318ddfde"
+    },
+    "rr27/tether_study/feedback1/request.json": {
+      "sha256": "c96af050e78f04b1e00aac51e7ebec3124a235fdcf3100989ed756bcd92a2e81"
+    },
+    "rr27/tether_study/feedback1/cpu/samples.json": {
+      "sha256": "2e7d1cfc644288664437434631a85d57e0eab0d177fa33c8811673ef4c30b9d1"
+    },
+    "rr27/tether_study/feedback1/cpu_sheets/result.json": {
+      "sha256": "bc61e6d2707cb9d9b018bbfed40cbe263636f0bac0ff5120cb6424feec72024f"
+    }
+  },
+  "candidate_summary": {
+    "F10_L110": {
+      "pair": [
+        10,
+        110
+      ],
+      "qualifies": false,
+      "raise_crossings": 17,
+      "lower_crossings": 12,
+      "raise_snapped_bend_flips": 6,
+      "lower_snapped_bend_flips": 4
+    },
+    "F0_L90": {
+      "pair": [
+        0,
+        90
+      ],
+      "qualifies": false,
+      "raise_crossings": 11,
+      "lower_crossings": 8,
+      "raise_snapped_bend_flips": 2,
+      "lower_snapped_bend_flips": 2
+    },
+    "F20_L130": {
+      "pair": [
+        20,
+        130
+      ],
+      "qualifies": false,
+      "raise_crossings": 21,
+      "lower_crossings": 13,
+      "raise_snapped_bend_flips": 4,
+      "lower_snapped_bend_flips": 4
+    }
+  },
+  "full_suite": "not run: focused-only restriction",
+  "windowed_runs": [],
+  "design_placeholders": {
+    "TODO_DESIGN_REAR_TETHER_PATH": "All three prescribed intermediate pairs fail the supplied conditions. No other value was selected and the director motion file is unchanged."
+  },
+  "shared_registries_density_and_shadow_cache": "untouched",
+  "earlier_invalidated_run": {
+    "log": "feedback1_raster.log",
+    "reason": "Concurrent test temporary runtime fixture changed a bound folder; final raster run after tests passes."
+  }
+}
