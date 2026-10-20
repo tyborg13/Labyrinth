@@ -1,34 +1,39 @@
-"""Hash the protected figures/paint/motion; permit only Thrall registry records."""
-import hashlib
-import json
-from pathlib import Path
+"""Protect rr-24's historical scope and the live approved Thrall inputs."""
 import subprocess
 
-from rr24_build import PROJECT, RECIPE, read_json, write_json
+from rr24_build import PROJECT, RECIPE, write_json
+from unit_preservation import changed_paths, read_bytes, read_json as revision_json, tracked_paths
+
+BASELINE_COMMIT = '521fa8f204f6f3b5d0aca1d09ec2494107c155d9'
+UNIT_HEAD = '288107b25febff414c267e058c5fb2857f23294b'
+OWN_INPUT_PREFIX = 'spec/art_identity/jobs/arc_thrall/'
+OWN_DIRECTOR = 'spec/peer_benchmark/staged/rr-11/motion_tracks.json'
+SHARED_RECORDS = ('spec/art_identity/registry.json','spec/assets/board_pixel_density/registry.json',
+                  'spec/assets/board_pixel_density/outputs.json')
 
 
 def protected(path):
     return (path.startswith(('assets/units/','experiments/cutouts/'))
             and not path.startswith(('assets/units/arc_thrall_cutout/','experiments/cutouts/arc_thrall/'))
-            or path.startswith('spec/art_identity/jobs/arc_thrall/')
-            or path=='spec/peer_benchmark/staged/rr-11/motion_tracks.json')
+            or path.startswith(OWN_INPUT_PREFIX) or path==OWN_DIRECTOR)
 
 
-def main():
-    paths=subprocess.check_output(['git','ls-files'],cwd=PROJECT,text=True).splitlines()
-    current={p:hashlib.sha256((PROJECT/p).read_bytes()).hexdigest()
-             for p in paths if protected(p) and (PROJECT/p).is_file()}
-    digest=hashlib.sha256()
-    for name,value in sorted(current.items()): digest.update((name+'\0'+value+'\n').encode())
-    expected=read_json(RECIPE/'protected.json')
-    errors=[]
-    if len(current)!=expected['files'] or digest.hexdigest()!=expected['sha256']:
-        errors.append('Protected figures/paint/motion differ')
+def preservation_errors(project=PROJECT, baseline=BASELINE_COMMIT, end=UNIT_HEAD):
+    # The aggregate protected.json remains historical evidence. A range diff
+    # also catches added/deleted files without pinning later units' output.
+    errors=['Protected figures/paint/motion differ: '+p
+            for p in changed_paths(project,baseline,end) if protected(p)]
+    # Own approved jobs and director bytes keep their live preservation guard.
+    original=set(tracked_paths(project,baseline,OWN_INPUT_PREFIX)+tracked_paths(project,baseline,OWN_DIRECTOR))
+    live=subprocess.check_output(['git','ls-files','-z','--',OWN_INPUT_PREFIX,OWN_DIRECTOR],cwd=project).decode().split('\0')
+    for name in sorted(original | {p for p in live if p}):
+        path=project/name
+        if name not in original or not path.is_file() or path.read_bytes()!=read_bytes(project,baseline,name):
+            errors.append('Protected Thrall input changed: '+name)
     # Shared JSON files are owned only at the Thrall entry/key level.
-    for relative in ('spec/art_identity/registry.json','spec/assets/board_pixel_density/registry.json',
-                     'spec/assets/board_pixel_density/outputs.json'):
-        before=json.loads(subprocess.check_output(['git','show','HEAD:'+relative],cwd=PROJECT))
-        after=read_json(PROJECT/relative)
+    for relative in SHARED_RECORDS:
+        before=revision_json(project,baseline,relative)
+        after=revision_json(project,end,relative)
         if 'entries' in before:
             for value in (before,after):
                 value['entries']=[e for e in value['entries'] if e.get('id') not in ('arc_thrall','arc_thrall_cutout')]
@@ -38,9 +43,14 @@ def main():
             before={k:v for k,v in before.items() if '/arc_thrall_cutout/' not in k}
             after={k:v for k,v in after.items() if '/arc_thrall_cutout/' not in k}
         if before!=after: errors.append('Unrelated registry record changed: '+relative)
-    write_json(RECIPE/'preservation.json',{'ok':not errors,'files':len(current),
-        'sha256':digest.hexdigest(),'errors':errors})
-    print(f'RR24 PROTECTED IDENTITY: {"FAIL" if errors else "PASS"} ({len(current)} files; unrelated registry records retained)')
+    return errors
+
+
+def main():
+    errors=preservation_errors()
+    write_json(RECIPE/'preservation.json',{'ok':not errors,'base_commit':BASELINE_COMMIT,
+        'unit_head':UNIT_HEAD,'errors':errors})
+    print(f'RR24 PROTECTED IDENTITY: {"FAIL" if errors else "PASS"} (pinned unit range; unrelated registry records retained)')
     for error in errors: print(error)
     return int(bool(errors))
 

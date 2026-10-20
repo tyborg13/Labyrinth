@@ -18,28 +18,18 @@ from residue import count as green_pixels, feature_mask, clean_piece
 import proof_records
 from humanoid_cutout.bone_evidence import read_report
 from continuations import derivation_errors as continuation_errors
+from rr20_preservation import prior_figure, protected_changes
 
 EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
-COVERAGE_PREFIXES = ('assets/units/hoarfrost_seer_cutout/', 'experiments/cutouts/hoarfrost_seer/',
-                     'assets/units/arc_thrall_cutout/', 'experiments/cutouts/arc_thrall/',
-                     'experiments/cutouts/storm_capacitor/mq5/proof/')
-COVERAGE_FILES = ('experiments/cutouts/storm_capacitor/rr17_proof.sh',)
 
 
 def protected_errors():
-    errors = []
-    coverage_path = CASE / 'rr26_source_coverage.json'
-    coverage = read_json(coverage_path) if coverage_path.exists() else {}
+    errors = ['Protected/baseline bytes changed in rr-20: ' + name
+              for name in protected_changes(ROOT)]
     for name, expected in read_json(CASE / 'protected_inputs.json').items():
-        actual = digest(ROOT / name)
-        change = coverage.get(name, {})
-        # Director feedback 1/2 authorizes Seer; feedback 3 integrates rr-24's
-        # Thrall and refreshes headless records. Preserve the original ledger
-        # and require exact old/new bytes for each explicitly recorded path.
-        authorized_path = name in COVERAGE_FILES or name.startswith(COVERAGE_PREFIXES)
-        authorized = (authorized_path and change.get('before_sha256') == expected and
-                      change.get('after_sha256') == actual)
-        if actual != expected and not authorized:
+        # Own approved paint/director inputs remain live byte pins. Prior
+        # figures are checked above at both ends of rr-20's committed range.
+        if not prior_figure(name) and digest(ROOT / name) != expected:
             errors.append('Protected/baseline bytes changed: ' + name)
     if (CASE / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('Protected director copy changed')
     layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}

@@ -19,9 +19,14 @@ from spec.art_identity.maquettes.raster import project
 from spec.art_identity.maquettes.glacial_mirror import guards, shoulder_revision, proof
 from spec.art_identity.maquettes.blender import capture_manifest
 from spec.art_identity.maquettes.blender.delivery_validation import validate_delivery
+from tools.unit_preservation import read_json as revision_json
+from tests.maquette_preservation import foreign_maquette_changes, historical_compiler
 
 ROOT = Path(__file__).resolve().parents[1]
 FIGURE = ROOT / 'spec/art_identity/maquettes/glacial_mirror'
+UNIT_HEAD = '8da12090193678c4705affb590202b0ad286b719'  # mq-08 signoff
+BASELINE_COMMIT = '76b75ad3a57104e4fc0855f5bf1c5094b86c5006'
+OWNED_FIGURES = ('glacial_mirror',)
 TEST_DEFAULTS = {'decimal_places': 12, 'array_tolerance': 1e-12,
                  'euler_cases': [[0, 0, 0], [.2, -.4, .6], [-.5, .3, -1.2]],
                  'selection_labels': ['head', 'torso', 'hand'], 'selection': ['hand', 'head'],
@@ -186,14 +191,16 @@ class GlacialMirrorShoulderTests(unittest.TestCase):
                 selected_solos(labels, bad)
 
     def test_every_other_compiled_recipe_matches_its_unchanged_delivery(self):
-        for name in ('hoarfrost_seer', 'gale_herald', 'arc_thrall', 'gloam_stalker', 'burrow_grub', 'ember_tick'):
-            folder = FIGURE.parent / name
-            spec = compile_recipe(json.loads((folder / 'measurements.json').read_text()))
-            report = json.loads((folder / 'delivery/build_report.json').read_text())
-            self.assertEqual(digest(spec), report['spec_hash'], name)
-        lancer = json.loads((FIGURE.parent / 'frostglass_lancer/spec_r3.json').read_text())
-        reference = FIGURE.parent / 'burrow_grub/delivery/validation/feedback_2/baselines/frostglass_lancer/regeneration.json'
-        self.assertEqual(digest(lancer), json.loads(reference.read_text())['compiled_spec_hash'])
+        self.assertEqual(foreign_maquette_changes(ROOT, BASELINE_COMMIT, UNIT_HEAD, OWNED_FIGURES), [])
+        with historical_compiler(ROOT, UNIT_HEAD) as compile_historical:
+            for name in ('hoarfrost_seer', 'gale_herald', 'arc_thrall', 'gloam_stalker', 'burrow_grub', 'ember_tick'):
+                relative = 'spec/art_identity/maquettes/' + name
+                spec = compile_historical(revision_json(ROOT, UNIT_HEAD, relative + '/measurements.json'))
+                report = revision_json(ROOT, UNIT_HEAD, relative + '/delivery/build_report.json')
+                self.assertEqual(digest(spec), report['spec_hash'], name)
+        lancer = revision_json(ROOT, UNIT_HEAD, 'spec/art_identity/maquettes/frostglass_lancer/spec_r3.json')
+        reference = 'spec/art_identity/maquettes/burrow_grub/delivery/validation/feedback_2/baselines/frostglass_lancer/regeneration.json'
+        self.assertEqual(digest(lancer), revision_json(ROOT, UNIT_HEAD, reference)['compiled_spec_hash'])
 
     def test_native_sheet_cells_and_historical_clays_match_bound_pixels(self):
         from html.parser import HTMLParser

@@ -1,6 +1,7 @@
 """Own-paint continuations, layout rest selection and root-relative proof crops."""
 from copy import deepcopy
 import hashlib
+from io import BytesIO
 import math
 from pathlib import Path
 import subprocess
@@ -24,10 +25,31 @@ from rr11_gates import source_errors as case_source_errors
 from maquette_motion.material_palette import rules
 from tools.humanoid_cutout.cpu_pose import CpuPose
 from tests.test_rr24_thrall import FIXTURE_FOREIGN_FILL_RGBA
+from rr24_preservation import UNIT_HEAD, preservation_errors
+from unit_preservation import read_bytes as revision_bytes, read_json as revision_json
 
 WALK_WIDTHS={'front':{'old':382,'stabilised':142},'rear':{'old':338,'stabilised':96}}
 JAB11_EXPOSURE={'mq7b_continuation_loincloth':98,'mq7b_continuation_sleeve_far':36,'hidden_torso':202}
 RAW_CLEAN_DIFFERENCES={'front':2,'rear':5}
+
+
+def assert_colour_rebuild_preserved(test, end=UNIT_HEAD, project=PROJECT):
+    # Check all original fields/alpha at rr-24's head, before rr-27's authorized
+    # recipe and copy-removal edits. Exempting fields would weaken this guard.
+    before=read_json(RECIPE/'feedback2_preservation.json')
+    for view in ('front','rear'):
+        layout=revision_json(project,end,str((CASE/f'layouts/{view}.json').relative_to(PROJECT)))
+        old=before['views'][view]
+        geometry=deepcopy(layout);geometry.pop('gait_continuations')
+        for layer in geometry['proof_layers'].values():layer.pop('source_sha256')
+        test.assertEqual(canonical(geometry),old['layout_without_colour_sha256'])
+        targets={name:[row[:2]for row in recipe['texels']]for name,recipe in layout['gait_continuations'].items()}
+        test.assertEqual(canonical(targets),old['gait_target_positions_sha256'])
+        test.assertEqual({p['name']for p in layout['parts']},set(old['alpha_sha256']))
+        for part in layout['parts']:
+            blob=revision_bytes(project,end,str((CASE/part['file']).relative_to(PROJECT)))
+            alpha=np.asarray(Image.open(BytesIO(blob)).convert('RGBA'))[...,3]
+            test.assertEqual(hashlib.sha256(alpha.tobytes()).hexdigest(),old['alpha_sha256'][part['name']],(view,part['name']))
 
 
 class Feedback2Tests(unittest.TestCase):
@@ -52,18 +74,10 @@ class Feedback2Tests(unittest.TestCase):
             self.assertEqual(source_errors(view,layout),[])
 
     def test_colour_rebuild_preserves_every_alpha_and_layout_field(self):
-        before=read_json(RECIPE/'feedback2_preservation.json')
-        for view,layout in self.layouts.items():
-            old=before['views'][view]
-            geometry=deepcopy(layout);geometry.pop('gait_continuations')
-            for layer in geometry['proof_layers'].values():layer.pop('source_sha256')
-            self.assertEqual(canonical(geometry),old['layout_without_colour_sha256'])
-            targets={name:[row[:2]for row in recipe['texels']]for name,recipe in layout['gait_continuations'].items()}
-            self.assertEqual(canonical(targets),old['gait_target_positions_sha256'])
-            self.assertEqual({p['name']for p in layout['parts']},set(old['alpha_sha256']))
-            for part in layout['parts']:
-                alpha=np.asarray(Image.open(CASE/part['file']).convert('RGBA'))[...,3]
-                self.assertEqual(hashlib.sha256(alpha.tobytes()).hexdigest(),old['alpha_sha256'][part['name']],(view,part['name']))
+        assert_colour_rebuild_preserved(self)
+
+    def test_protected_figures_and_shared_records_at_rr24_head(self):
+        self.assertEqual(preservation_errors(),[])
 
     def test_foreign_skirt_colour_is_rejected_in_both_views(self):
         for view,layout in self.layouts.items():
