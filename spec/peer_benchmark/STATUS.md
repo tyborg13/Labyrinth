@@ -43,19 +43,17 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
-- Next (in order), 2026-10-19 evening:
-  1. Merged on integration (suites NOT yet run on these merges): rr-23 Mirror (6a94789d3), rr-25 Mortar (1fcb68232),
-     rr-24 Thrall (962950183), rr-21 Weaver (6077f772d). The rr-21 merge unified the parallel continuation rules
-     (`gait_continuations.active_recipe`), record readers and action adapters (see its merge message).
-     Every merged unit's committed proof records bind runtime/tool hashes that these merges changed, so they are stale
-     until the record refresh in step 3. Don't run full suites before then.
-  2. Running: rr-26 round 3 (feedback 3) finishes the in-progress merge of integration into rr-26 by consolidating
-     the detached-provenance classifier (source_space.py), one compact record format (`full_samples`) and one action
-     dispatch (`integration.json` "action_adapter" + shared contact adapter). ui-03 round 2 (feedback 2): isolate the
-     clip from the desktop mouse; prove the seal tooltip. ui-03 stills reviewed OK.
-  3. After rr-26: director commits the merge in rr-26, merges rr-26 into integration, runs every unit's windowed
-     record refresh (the sequences rr-26 lists), then ONE full-suite pass, then inbox items (Mortar, Weaver, Mimic;
-     Thrall v3 is posted and open). Then ui-03 merge + inbox clip.
+- Next (in order), 2026-10-19 late:
+  1. Integration f3852e68e+ holds rr-23, rr-25, rr-24, rr-21, ui-03 and rr-26 (consolidated tooling: one classifier,
+     one record format, one action dispatch; 7,628 pose rows byte-identical). Full suites there: Godot 12 failures
+     (ui-03's card-drag program regression, static/en04/pre-battle fixtures), Python 15 failures + 2 errors (pins,
+     density manifest, the Mortar's art-registry digest, the Empower glossary copy).
+  2. Running: int-03 (integration repair, brief int-03) and rr-27 (Thrall strict census: rear move 14/23, front
+     jab/22 and death/31; rear Tether pose study A-D). Both from 0e8b6e8d7.
+  3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig (reels from the pre-consolidation windowed runs;
+     poses byte-identical since). Thrall v3 approved.
+  4. After int-03: windowed check of click-targeting if it changed; merge; full suites green. After rr-27: pick the
+     Tether candidate (director data edit), then the Thrall's rr24_proof.sh windowed sequence and merge.
   4. Backlog from today: the Mirror's feet and fists revisit (owner: "not totally sold"); unify the two detached
      provenance classifiers (rest_space.py from rr-26, source_space.py from rr-25) with differential tests (rr-26 review Low);
      rr-26 Low: a sum-preserving canonical-weight regression; rr-21 Low: path-containment test fixture.
