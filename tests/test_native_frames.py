@@ -1,6 +1,10 @@
 """Crop geometry, legacy IO, codecs, consumer metrics and evidence mutations."""
 import copy
 import hashlib
+import importlib.util
+from contextlib import ExitStack
+from types import SimpleNamespace
+from unittest.mock import patch
 import json
 import os
 from pathlib import Path
@@ -24,8 +28,11 @@ from humanoid_cutout.source_space import pocket_report
 
 PROOF_TASK_ID = os.environ.get('LABYRINTH_TASK_ID', 'cap-01')
 PROOF_TIMEOUT_SECONDS = 180
+CAPTURE_STORAGE_SCRIPT = os.environ.get('CAP01_STORAGE_TEST_SCRIPT', 'tests/maquette_cutout/capture_storage_test.gd')
 TEST_SIZE = (64, 48)
 TEST_CROP = (12, 8, 32, 32)
+TEST_PATTERN_MODULUS = (251, 253, 256)
+TEST_BLUE_FACTORS = (7, 11)
 
 
 def save_json(path, value):
@@ -53,7 +60,7 @@ class NativeFramesTests(unittest.TestCase):
         if codec == 'rgba':
             actual.write_bytes(RAW_HEADER.pack(RAW_MAGIC, w, h) + cropped.tobytes())
         else:
-            cropped.save(actual)
+            cropped.save(actual, **({'lossless': True, 'exact': True} if codec == 'webp' else {}))
         record = {'size': list(TEST_SIZE), 'crop': list(TEST_CROP), 'stored_file': actual.name}
         if reference:
             self.image.save(folder / 'full_idle.png')
@@ -86,7 +93,7 @@ class NativeFramesTests(unittest.TestCase):
         self.assertEqual(load_frame(path).tobytes(), self.image.tobytes())
 
     def test_png_and_raw_restore_coordinates_and_bytes(self):
-        for codec in ('png', 'rgba'):
+        for codec in ('png', 'webp', 'rgba'):
             with self.subTest(codec=codec):
                 path = self.crop_capture(self.root / codec, codec=codec)
                 self.assertEqual(load_frame(path).tobytes(), self.image.tobytes())
@@ -168,6 +175,75 @@ class NativeFramesTests(unittest.TestCase):
         self.assertEqual(load_frame(exported).tobytes(), self.image.tobytes())
         self.assertEqual(export_frame(path, self.root / 'scratch'), exported)
 
+    def module(self, relative):
+        path = PROJECT / relative
+        spec = importlib.util.spec_from_file_location('cap01_' + path.stem + str(len(str(path))), path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
+
+    def test_actual_bird_and_gaoler_reader_paths_all_codecs(self):
+        for relative in ('gust_shrike/mq2/probes/motion_gates.py', 'chainbound_gaoler/mq3/probes/motion_gates.py'):
+            module = self.module('experiments/cutouts/' + relative)
+            for codec in ('png', 'webp', 'rgba'):
+                with self.subTest(reader=relative, codec=codec):
+                    path = self.crop_capture(self.root / relative.split('/')[0] / codec, codec=codec)
+                    self.assertEqual(module.rgba(str(path)).shape, (48, 64, 4))
+                    np.testing.assert_array_equal(module.rgba(str(path)), self.pixels)
+
+    def test_actual_briar_feature_reader_path_all_codecs(self):
+        module = self.module('experiments/cutouts/briar_weaver/rr21_residue.py')
+        self.image.save(self.root / 'paint.png')
+        layout = {'facing': 'front', 'parts': [{'name': 'head', 'bbox': [0, 0, 255, 255], 'file': 'paint.png'}]}
+        # UV rendering is independent of the reader under test; retain the real
+        # feature consumer's dimension check and pixel-colour comparison.
+        projection = SimpleNamespace(candidates=[self.pixels])
+        with patch.object(module, 'feature_definitions', return_value=[{'piece': 'head', 'name': 'test'}]), \
+             patch.object(module, 'feature_mask', return_value=np.ones((255, 255), dtype=bool)), \
+             patch('maquette_motion.pixels.render', return_value=projection):
+            for codec in ('png', 'webp', 'rgba'):
+                path = self.crop_capture(self.root / 'briar' / codec, codec=codec)
+                row = {'name': 'head', 'absolute_file': str(path), 'transform': [1, 0, 0, 1, 0, 0]}
+                actual = module.presented_feature_mask(self.root, layout, [row], (48, 64))
+                np.testing.assert_array_equal(actual, self.pixels[..., 3] > 0)
+
+    def test_native_gate_rest_loader_all_codecs(self):
+        from humanoid_cutout import gates
+        case = self.root / 'case'
+        (case / 'layouts').mkdir(parents=True)
+        (case / 'proof').mkdir()
+        data = {'view_tracks': {'front': {}}, 'clips': {'idle': {'seconds': 1 / 60}}}
+        save_json(case / 'compiled_motion.json', data)
+        save_json(case / 'layouts/front.json', {'parts': [], 'rest_source': 'source.png'})
+        save_json(case / 'proof/build.json', {})
+        self.image.save(case / 'source.png')
+        manifest = {'ok': True, 'errors': [], 'native_pixels': True, 'size': [1920, 1080],
+                    'ui_scale': 1, 'inputs': {'test': 'binding'}, 'frames': []}
+        with ExitStack() as stack:
+            for target, value in ((gates.__name__ + '.load', {}), (gates.__name__ + '.bindings', manifest['inputs']),
+                    (gates.__name__ + '.source_errors', []), ('humanoid_cutout.native_exceptions.load', frozenset()),
+                    ('humanoid_cutout.bone_evidence.read_report', {'inputs': manifest['inputs'], 'samples': []}),
+                    ('humanoid_cutout.bone_evidence.evidence_errors', []), ('humanoid_cutout.rigid_air.for_case', None),
+                    ('humanoid_cutout.source_space.DetachedSource', None), ('maquette_motion.material_palette.rules', {})):
+                stack.enter_context(patch(target, return_value=value))
+            legacy = self.root / 'native_legacy'; legacy.mkdir()
+            self.image.save(legacy / 'front_rest.png')
+            save_json(legacy / 'frames.json', manifest)
+            expected = gates.native_errors(case, legacy)
+            self.assertNotIn('front: native rest mismatch', expected)
+            for codec in ('png', 'webp', 'rgba'):
+                folder = self.root / 'native_rest' / codec
+                self.crop_capture(folder, codec=codec)
+                index = json.loads((folder / 'native_storage.json').read_text())
+                record = index['files'].pop('frame.png')
+                actual = 'front_rest.' + codec
+                (folder / record['stored_file']).rename(folder / actual)
+                record['stored_file'] = actual
+                index['files']['front_rest.png'] = record
+                save_json(folder / 'native_storage.json', index)
+                save_json(folder / 'frames.json', manifest)
+                self.assertEqual(gates.native_errors(case, folder), expected)
+
     def test_encoding_benchmark_loads_headless_through_task_runner(self):
         command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream', '--',
                    'godot', '--headless', '--path', '.', '--script', 'tests/maquette_cutout/encoding_benchmark.gd',
@@ -178,11 +254,18 @@ class NativeFramesTests(unittest.TestCase):
 
     def test_godot_storage_roundtrips_through_task_runner(self):
         command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream', '--',
-                   'godot', '--headless', '--path', '.', '--script', 'tests/maquette_cutout/capture_storage_test.gd',
+                   'godot', '--headless', '--path', '.', '--script', CAPTURE_STORAGE_SCRIPT,
                    '--', '--output', str(self.root / 'godot')]
         result = subprocess.run(command, cwd=PROJECT, text=True, capture_output=True, timeout=PROOF_TIMEOUT_SECONDS)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('CAPTURE STORAGE: PASS (0 failures)', result.stdout)
+        y, x = np.indices((1080, 1920))
+        expected = np.stack((x % TEST_PATTERN_MODULUS[0], y % TEST_PATTERN_MODULUS[1],
+            (x * TEST_BLUE_FACTORS[0] + y * TEST_BLUE_FACTORS[1]) % TEST_PATTERN_MODULUS[2],
+            np.full_like(x, 255)), axis=-1).astype(np.uint8)
+        for codec in ('png', 'webp', 'rgba'):
+            actual = np.asarray(load_frame(self.root / 'godot' / ('board_' + codec + '.png')))
+            np.testing.assert_array_equal(actual, expected, err_msg=codec + ' writer-to-Python reconstruction')
 
 
 if __name__ == '__main__': unittest.main()

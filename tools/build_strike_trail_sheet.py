@@ -7,6 +7,7 @@ import argparse
 import json
 from pathlib import Path
 from PIL import Image, ImageDraw
+from humanoid_cutout.native_frames import load_frame
 
 
 def main():
@@ -39,7 +40,7 @@ def main():
         sheet = Image.new("RGB", (columns * cell, rows * (cell + header)), (22, 20, 18))
         draw = ImageDraw.Draw(sheet)
         for index, capture in enumerate(captures):
-            with Image.open(capture_dir / capture["file"]) as frame:
+            with load_frame(capture_dir / capture["file"]) as frame:
                 if frame.size != (1920, 1080):
                     raise SystemExit("Wrong capture size: " + capture["file"])
                 x, y, w, h = capture["crop"]

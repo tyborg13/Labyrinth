@@ -3,6 +3,8 @@ extends SceneTree
 const Storage = preload("capture_storage.gd")
 const TEST_SIZE := Vector2i(96, 72)
 const TEST_BOUNDS := Rect2(30.25, 24.75, 12.5, 8.25)
+const TEST_PATTERN_MODULUS := Vector3i(251, 253, 256)
+const TEST_BLUE_FACTORS := Vector2i(7, 11)
 const CAPTURE_SCRIPT_PATHS := [
 	"res://experiments/cutouts/arc_thrall/rr24_native_capture.gd",
 	"res://tests/gait01/move_capture.gd",
@@ -75,15 +77,27 @@ func _run() -> void:
 	Storage.finish()
 	_check(not Storage.file_hash(output.path_join("frame.png")).is_empty(), "Encoded hash")
 	_check(FileAccess.file_exists(Storage.proof_png(output.path_join("frame.png"))), "PNG proof export")
-	# The real board readback can be RGB8 while stored crops are RGBA8.
-	var board: Image = Image.create(1920, 1080, false, Image.FORMAT_RGB8)
-	board.fill(Color(0.1, 0.2, 0.3))
+	# Non-uniform RGB readback catches a shifted crop even when its recorded
+	# coordinates remain unchanged. Python independently reconstructs every byte.
+	var board_bytes := PackedByteArray()
+	board_bytes.resize(1920 * 1080 * 3)
+	for y: int in range(1080):
+		for x: int in range(1920):
+			var index: int = (y * 1920 + x) * 3
+			board_bytes[index] = x % TEST_PATTERN_MODULUS.x
+			board_bytes[index + 1] = y % TEST_PATTERN_MODULUS.y
+			board_bytes[index + 2] = (x * TEST_BLUE_FACTORS.x + y * TEST_BLUE_FACTORS.y) % TEST_PATTERN_MODULUS.z
+	var board := Image.create_from_data(1920, 1080, false, Image.FORMAT_RGB8, board_bytes)
 	Storage.set_crop(Rect2(700, 400, 100, 120), Vector2i(1920, 1080))
-	Storage.save(board, output.path_join("board.png"), "idle")
-	var proof: Image = Image.load_from_file(Storage.proof_png(output.path_join("board.png")))
-	board.convert(Image.FORMAT_RGBA8)
-	proof.convert(Image.FORMAT_RGBA8)
-	_check(proof.get_data() == board.get_data(), "RGB board full-reference restoration")
+	for codec: String in ["png", "webp", "rgba"]:
+		Storage.encoding = codec
+		var logical: String = output.path_join("board_" + codec + ".png")
+		Storage.save(board, logical, "idle_" + codec)
+		var proof: Image = Image.load_from_file(Storage.proof_png(logical))
+		var expected: Image = board.duplicate()
+		expected.convert(Image.FORMAT_RGBA8)
+		proof.convert(Image.FORMAT_RGBA8)
+		_check(proof.get_data() == expected.get_data(), codec + " RGB board full-reference restoration")
 	Storage.finish()
 	for error: String in failures: push_error(error)
 	print("CAPTURE STORAGE: %s (%d failures)" % ["PASS" if failures.is_empty() else "FAIL", failures.size()])

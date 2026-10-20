@@ -1,5 +1,8 @@
 """Lay out every native asset sample for full-cycle inspection; no new poses."""
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+from humanoid_cutout.native_frames import load_frame, frame_digest
 import argparse
 import hashlib
 import json
@@ -35,8 +38,8 @@ for facing in ["front", "rear"]:
             inputs = {}
             for index, sample in enumerate(samples):
                 path = args.assets / (sample["label"] + ".png")
-                inputs[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
-                image = Image.open(path).convert("RGBA").crop(crop).resize(size, Image.Resampling.LANCZOS)
+                inputs[path.name] = frame_digest(path)
+                image = load_frame(path).convert("RGBA").crop(crop).resize(size, Image.Resampling.LANCZOS)
                 x, y = (index % 6) * 228, (index // 6) * 244 + 32
                 sheet.paste(image, (x + (228 - size[0]) // 2, y + (220 - size[1]) // 2), image)
                 draw.text((x + 6, y + 224), f"{index:02d}  phase {sample['phase']:.3f}", fill="#c5d9d7")

@@ -10,17 +10,17 @@ import json
 import os
 from pathlib import Path
 import shlex
-import shutil
+import tempfile
 import subprocess
 import sys
 import time
 
 from cutout_pipeline.cases import read_json
-from humanoid_cutout.capture_equivalence import compare
-from humanoid_cutout.production_gates import production_errors
+from humanoid_cutout.capture_equivalence import compare, json_bytes
+from humanoid_cutout.bone_evidence import read_report
+from capture_inventory import CASES, validate, exit_sets
 
 PROJECT = Path(__file__).resolve().parents[1]
-CASES = {'seer': ('hoarfrost_seer', 'rr10'), 'mortar': ('slag_mortar', 'rr22')}
 CAPTURE_TIMEOUT_SECONDS = 3600  # Existing Seer native proof budget.
 PRODUCTION_TIMEOUT_SECONDS = 3600  # Before baseline can take 30–50 minutes.
 TASK_ID = 'cap-01'
@@ -41,16 +41,15 @@ def command_plan(output, phase, encoder_report=None):
                     '--expect-size', '1920x1080', '--proof-contract', contract,
                     '--result-manifest', str(destination.parent / (destination.name + '-result.json')),
                     script, '--', '--case', str(case), '--output', str(destination), *arguments, *storage]
-        samples = case / ('proof/samples.json' if name == 'seer' else 'proof/logs/samples_full.json')
+        samples = target / 'samples.json'
         commands.append(headless(f'tests/{number}/samples.gd', ['--case', str(case), '--output', str(samples)]))
-        if name == 'mortar':
-            commands.append([sys.executable, f'experiments/cutouts/{creature}/{number}_records.py', 'samples'])
         commands.append(visual(f'tests/{number}/native_capture.gd', f'tests/{number}/render_contract.json', target / 'native'))
-        commands.append([sys.executable, f'experiments/cutouts/{creature}/{number}_gates.py', '--native', str(target / 'native')])
+        commands.append(gate_command(case, target, samples, target / 'native', creature, number))
         commands.append(visual(f'tests/{number}/native_capture.gd', f'tests/{number}/idle_contract.json', target / 'idle_native', ['--idle-comparison']))
         for mode, capture, filename in [('review', 'native', 'review.mp4'), ('idle', 'idle_native', 'idle.mp4'), ('sheets', 'native', 'contact_sheets')]:
-            commands.append([sys.executable, '-m', 'humanoid_cutout.proof', mode, '--case', str(case),
-                             '--capture', str(target / capture), '--output', str(target / filename)])
+            commands.append([sys.executable, 'tools/capture_review.py', mode, '--case', str(case),
+                             '--capture', str(target / capture), '--output', str(target / filename),
+                             '--gate-report', str(target / 'native_gates.json')])
         for view in (('front', 'rear') if name == 'mortar' else ('front',)):
             commands.append(visual(f'tests/{number}/production_capture.gd', f'tests/{number}/production_contract.json',
                                    target / 'production' / view, ['--type', creature] + (['--opposite'] if view == 'rear' else []), PRODUCTION_TIMEOUT_SECONDS))
@@ -74,24 +73,107 @@ def benchmark_plan(before, output):
          '--output', str(output)]]
 
 
-def collect(output):
+def gate_command(case, target, samples, native, creature, number):
+    return [sys.executable, 'tools/capture_gate_runner.py', '--case', str(case),
+            '--output', str(target), '--samples', str(samples), '--native', str(native),
+            '--script', str(PROJECT / f'experiments/cutouts/{creature}/{number}_gates.py')]
+
+
+def execute(command, env):
+    """A completed gate with errors is evidence; a missing report is an error."""
+    is_gate = 'tools/capture_gate_runner.py' in command
+    result = subprocess.run(command, cwd=PROJECT, env=env, check=not is_gate)
+    if is_gate:
+        target = Path(command[command.index('--output') + 1])
+        prefix = 'production' if '--production' in command else 'native'
+        report = read_json(target / (prefix + '_gates.json'))
+        if (result.returncode == 0) != report['ok']:
+            raise ValueError('Gate process/JSON outcome differs: ' + str(target / (prefix + '_gates.json')))
+        (target / (prefix + '_gate_exit.json')).write_text(json.dumps({'exit_code': result.returncode}) + '\n')
+    return result
+
+
+def collect(output, env):
     for name, (creature, number) in CASES.items():
         case = PROJECT / 'experiments/cutouts' / creature / number
         target = output / name
-        for relative in ('native_gates.json', 'logs/native_gates_full.json'):
-            source = case / 'proof' / relative
-            if source.is_file():
-                destination = target / relative
-                destination.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copyfile(source, destination)
-        compiled = read_json(case / 'compiled_motion.json')
-        for folder in sorted((target / 'production').iterdir()):
-            if not folder.is_dir(): continue
+        for view in (('front', 'rear') if name == 'mortar' else ('front',)):
+            folder = target / 'production' / view
             manifest = read_json(folder / 'frames.json')
-            errors = production_errors(case, manifest, compiled)
-            report = {'ok': not errors, 'errors': errors}
-            (folder / 'production_gates.json').write_text(json.dumps(report, indent=2) + '\n')
-            if errors: raise ValueError('Production gates failed: ' + str(errors))
+            if manifest.get('ok') is not True or manifest.get('errors'):
+                raise ValueError('Capture/manifest error: ' + str(folder / 'frames.json'))
+            execute(production_gate_command(case, folder, folder), env)
+
+
+def production_gate_command(case, capture, output):
+    return [sys.executable, 'tools/capture_gate_runner.py', '--production', '--case', str(case),
+            '--native', str(capture), '--output', str(output)]
+
+
+def complete_legacy_gate_exits(root, env):
+    """Recover observed process exits for the director's r0 capture snapshots.
+
+    Run the same canonical gates headlessly against unchanged source bindings,
+    with private proof records. Require byte-equivalent JSON to the saved r0
+    reports before adding the previously unrecorded exit status. Never infer an
+    exit code from ok=true/false, rebind a capture, or touch case proof records.
+    """
+    for name, (creature, number) in CASES.items():
+        target = root / name
+        case = PROJECT / 'experiments/cutouts' / creature / number
+        if not (target / 'native_gate_exit.json').is_file():
+            recover_native_exit(root, target, case, creature, number, env)
+        for view in (('front', 'rear') if name == 'mortar' else ('front',)):
+            folder = target / 'production' / view
+            status = folder / 'production_gate_exit.json'
+            if status.is_file(): continue
+            with tempfile.TemporaryDirectory(prefix='cap01-production-gate-', dir=root.parent) as temporary:
+                evaluation = Path(temporary)
+                execute(production_gate_command(case, folder, evaluation), env)
+                if json_bytes(folder / 'production_gates.json', ()) != json_bytes(evaluation / 'production_gates.json', ()):
+                    raise ValueError('Re-evaluated gate JSON differs: ' + str(folder / 'production_gates.json'))
+                status.write_bytes((evaluation / 'production_gate_exit.json').read_bytes())
+
+
+def recover_native_exit(root, target, case, creature, number, env):
+    with tempfile.TemporaryDirectory(prefix='cap01-gate-', dir=root.parent) as temporary:
+        evaluation = Path(temporary)
+        samples = evaluation / 'samples.json'
+        try:
+            sampled = read_report(case)
+        except (OSError, ValueError):
+            sampled = {}
+        if sampled.get('inputs') == read_json(target / 'native/frames.json').get('inputs'):
+            samples.write_text(json.dumps(sampled))
+        else:
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', TASK_ID, '--stream', '--',
+                       'godot', '--headless', '--path', '.', '--script', f'tests/{number}/samples.gd', '--',
+                       '--case', str(case), '--output', str(samples)]
+            execute(command, env)
+        execute(gate_command(case, evaluation, samples, target / 'native', creature, number), env)
+        for relative in ('native_gates.json', *(['logs/native_gates_full.json'] if number == 'rr22' else [])):
+            if json_bytes(target / relative, (root.resolve(), evaluation.resolve())) != json_bytes(evaluation / relative, (root.resolve(), evaluation.resolve())):
+                raise ValueError('Re-evaluated gate JSON differs: ' + str(target / relative))
+        (target / 'native_gate_exit.json').write_bytes((evaluation / 'native_gate_exit.json').read_bytes())
+
+
+def compare_complete(before, after, output):
+    captures, reports, reels = validate(before, PROJECT, gate_exits=False, decode_reels=True)
+    validate(after, PROJECT, gate_exits=False, decode_reels=True)
+    env = dict(os.environ, PYTHONPATH=str(PROJECT / 'tools'), LABYRINTH_TASK_ID=TASK_ID)
+    for root in (before, after):
+        performance = root / 'capture_performance.json'
+        if performance.is_file() and read_json(performance).get('gate_evidence_version') == 2:
+            validate(root, PROJECT)
+        else:
+            complete_legacy_gate_exits(root, env)
+        validate(root, PROJECT)
+    reports |= exit_sets()
+    result = compare(before, after, reports=sorted(reports), reels=sorted(reels), captures=sorted(captures))
+    result['gate_exit_codes'] = {relative: read_json(before / relative)['exit_code'] for relative in sorted(exit_sets())}
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, indent=2) + '\n')
+    return result
 
 
 def main():
@@ -105,21 +187,13 @@ def main():
     args = parser.parse_args()
     if args.phase == 'compare':
         if not args.before or not args.after: parser.error('compare needs --before and --after')
-        def reports(root):
-            return {str(p.relative_to(root)) for p in root.rglob('*.json')
-                    if 'gates' in p.stem or p.name == 'source_space_pockets.json'}
-        old, new = reports(args.before), reports(args.after)
-        if old != new: raise ValueError('Gate report sets differ: ' + str(old ^ new))
-        if not old: raise ValueError('No gate reports found')
-        captures = {str(p.parent.relative_to(args.before)) for p in args.before.rglob('frames.json')}
-        after_captures = {str(p.parent.relative_to(args.after)) for p in args.after.rglob('frames.json')}
-        reels = {str(p.relative_to(args.before)) for p in args.before.rglob('*.mp4')}
-        after_reels = {str(p.relative_to(args.after)) for p in args.after.rglob('*.mp4')}
-        if captures != after_captures or reels != after_reels:
-            raise ValueError('Capture or reel sets differ')
-        result = compare(args.before, args.after, reports=sorted(old), reels=sorted(reels), captures=sorted(captures))
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(result, indent=2) + '\n')
+        try:
+            result = compare_complete(args.before.resolve(), args.after.resolve(), args.output.resolve())
+        except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
+            result = {'ok': False, 'errors': [str(error)]}
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps(result, indent=2) + '\n')
+        for error in result.get('errors', []): print(error)
         print('CAPTURE EQUIVALENCE: ' + ('PASS' if result['ok'] else 'FAIL'))
         return int(not result['ok'])
     if args.phase == 'benchmark' and not args.before:
@@ -138,7 +212,7 @@ def main():
     timings = []
     for command in commands:
         start = time.perf_counter()
-        subprocess.run(command, cwd=PROJECT, env=env, check=True)
+        execute(command, env)
         seconds = time.perf_counter() - start
         if any('production_capture.gd' in part for part in command):
             folder = Path(command[command.index('--output') + 1])
@@ -147,14 +221,15 @@ def main():
             timings.append({'capture': str(folder.relative_to(args.output.resolve())), 'seconds': seconds,
                             'GB': size / 1_000_000_000, 'frames_per_second': count / seconds,
                             'frames': count, 'bytes': size})
-    collect(args.output)
+    collect(args.output, env)
+    validate(args.output, PROJECT, decode_reels=True)
     production = {}
     for name in CASES:
         rows = [r for r in timings if r['capture'].startswith(name + '/')]
         seconds, size = sum(r['seconds'] for r in rows), sum(r['bytes'] for r in rows)
         production[name] = {'seconds': seconds, 'GB': size / 1_000_000_000,
                             'target_met': seconds < 480 and size < 1_000_000_000}
-    (args.output / 'capture_performance.json').write_text(json.dumps({'phase': args.phase, 'runs': timings,
+    (args.output / 'capture_performance.json').write_text(json.dumps({'phase': args.phase, 'gate_evidence_version': 2, 'runs': timings,
         'per_rig_production': production, 'size_scope': 'all production files, including full references and proof exports'}, indent=2) + '\n')
     if args.phase == 'after' and not all(row['target_met'] for row in production.values()):
         print('CAPTURE DIRECTOR AFTER: FAIL (production time/size target; see capture_performance.json)')

@@ -16,6 +16,7 @@ CASE = Path(__file__).resolve().parent
 PROJECT = CASE.parents[3]
 sys.path.insert(0, str(PROJECT / "tools"))
 sys.path.insert(0, str(CASE))
+from humanoid_cutout.native_frames import load_frame
 import maquette_cutout as maquette
 from cutout_pipeline.cases import CutoutError, digest, read_json, write_json
 from cutout_pipeline.validation import validate
@@ -25,6 +26,14 @@ JOBS = PROJECT / "spec/art_identity/jobs/gust_shrike"
 RENDER_SIZE = 1024
 PARTS = ["body", "head", "beak", "mask", "wing_near", "wing_far", "tail", "legs"]
 ORIGINAL_REGISTRATION = maquette.registration
+
+
+def copy_native_rest(source, destination):
+    image = load_frame(source)
+    if source.is_file() and load_frame(source, cropped=True).size == image.size:
+        shutil.copyfile(source, destination)
+    else:
+        image.save(destination)
 
 
 def render_registration(raw: Path, record: dict) -> maquette.Registration:
@@ -151,7 +160,7 @@ def promote(native_output: Path) -> dict:
             Path(str(target) + ".import").write_text('[remap]\n\nimporter="keep"\n')
         rest = destination / view / "rest.png"
         rest.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(native_output / f"{view}_rest.png", rest)
+        copy_native_rest(native_output / f"{view}_rest.png", rest)
         Path(str(rest) + ".import").write_text('[remap]\n\nimporter="keep"\n')
         layout["rest_source"] = f"{view}/rest.png"
         write_json(destination / f"{view}.json", layout)

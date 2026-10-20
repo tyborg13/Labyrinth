@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from humanoid_cutout.native_frames import load_frame
 
 RESIDUE_DELTA = 12
 RESIDUE_RATIO_NUMERATOR = 3
@@ -121,7 +122,7 @@ def presented_feature_mask(case, layout, pieces, image_shape):
         image = Image.fromarray(rgba).crop(tuple(part['bbox']))
         projected = render(image, unpack(row['transform']), with_ties=True)
         paint = render(Image.open(Path(case) / part['file']).convert('RGBA'), unpack(row['transform']), with_ties=True)
-        actual = np.asarray(Image.open(row['absolute_file']).convert('RGBA'))
+        actual = np.asarray(load_frame(row['absolute_file']).convert('RGBA'))
         if actual.shape[:2] != image_shape: raise ValueError('Native feature owner dimensions differ')
         for feature_pixels, paint_pixels in zip(projected.candidates, paint.candidates):
             mask |= (feature_pixels[..., 3] > 0) & np.all(actual == paint_pixels, axis=-1)
