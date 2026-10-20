@@ -14,37 +14,37 @@
     ],
     "raw_crop": [
       279,
-      115,
+      107,
       747,
       979
     ],
     "reduced_size": [
       117,
-      216
+      218
     ],
     "trim": [
       0,
       0,
       117,
-      216
+      218
     ],
     "before_fit": [
       117,
-      216
+      218
     ],
     "after_fit": [
       117,
-      216
+      218
     ],
     "final_trim": [
       0,
       0,
       117,
-      216
+      218
     ],
     "placement": [
       70,
-      30
+      28
     ],
     "render_size": 1024,
     "render_to_raw_scale": 1.0

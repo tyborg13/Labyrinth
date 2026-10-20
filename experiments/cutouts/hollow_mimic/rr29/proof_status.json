@@ -1,10 +1,6 @@
 {
-  "native_pixels": false,
+  "design_followups": {},
+  "maquette_receipt": "Front: supplied director_08 native acceptance; rear: unchanged round-1-r2 painting and director_06 registration.",
   "native_pending": "Director density rebake, rest, native, idle, production and review MP4 at 1920x1080 / 100% UI scale",
-  "design_followups": {
-    "TODO_DESIGN_pendulum_travel": "Protected director angles and lag yield front/near and rear/far hand travel below 2.5x the measured rr20 slide. No motion values changed to hide the failure.",
-    "TODO_DESIGN_pendulum_terminal_lag": "At phase 1 the delayed forearm still follows its phase 0.9125 upper-arm pose. A terminal recovery policy is absent from the protected data; exact 0.07 s delay retained.",
-    "TODO_DESIGN_mq11_prompt_source": "Brief requires staged prompts moved into owned jobs. Existing maquette registry validator requires prompt_source under spec/art_identity/maquettes/. Truthful staged provenance retained; no fabricated source or exemption."
-  },
-  "maquette_receipt": "The brief's director_04 is absent. director_06 is the supplied accepted native capture and matches staged mq11 part-reference foreground RGB exactly; used without modifying it."
+  "native_pixels": false
 }

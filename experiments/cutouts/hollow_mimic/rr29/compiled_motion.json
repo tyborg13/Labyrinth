@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "hollow_mimic",
-  "director_sha256": "eb44c4db9c2786eb6f7333a8ece2cc1df7e9f4ec82f9720f30a9d2ec352dd294",
+  "director_sha256": "5a482d5cbb687d1ddea4739319c59228d4c91c98598d63143064ab86e3a763d9",
   "projection": {
     "front": {
       "forward": [
@@ -52,7 +52,7 @@
           "_doc": "Director (owner 2026-10-20: 'the arms don't sway realistically during the walk'). The upper arm rotates about the shoulder joint in screen space toward the facing direction (forward) and away from it (back), opposite the same-side leg; the forearm follows the upper arm with a time lag and bends more on the backswing; the hand is rigid with the forearm. Replaces the 4 px hand-target slide.",
           "phase": "opposite_same_side_leg",
           "near": {
-            "upper_deg": 14,
+            "upper_deg": 16,
             "forearm_lag_s": 0.07,
             "forearm_bend_deg": {
               "forward": 3,
@@ -60,12 +60,17 @@
             }
           },
           "far": {
-            "upper_deg": 12,
+            "upper_deg": 14,
             "forearm_lag_s": 0.07,
             "forearm_bend_deg": {
               "forward": 3,
               "back": 10
             }
+          },
+          "envelope": {
+            "ramp_fraction": 0.12,
+            "ease": "smoothstep",
+            "_doc": "Director rr-29 fb1: swing amplitude and forearm lag ramp in over the first and out over the last 12% of the clip, so the walk starts and ends exactly at rest."
           }
         },
         "max_fit_px": 6

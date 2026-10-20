@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dsiamhnbmatq5"
-path="res://.godot/imported/03_current_painting_front.png-cbecd31eaa1a95831a111521e448918d.ctex"
+uid="uid://blnsb3hly6j71"
+path="res://.godot/imported/03_current_painting_front.png-6ce48784559ff4ee7bd6ef95e2c5c407.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/03_current_painting_front.png"
-dest_files=["res://.godot/imported/03_current_painting_front.png-cbecd31eaa1a95831a111521e448918d.ctex"]
+source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/03_current_painting_front.png"
+dest_files=["res://.godot/imported/03_current_painting_front.png-6ce48784559ff4ee7bd6ef95e2c5c407.ctex"]
 
 [params]
 

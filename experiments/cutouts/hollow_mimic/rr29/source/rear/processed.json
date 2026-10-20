@@ -7,21 +7,21 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.018110049849470188,
+    "chroma": 0.018320185427328595,
     "edge_light_share": 0.004524886877828055,
-    "feature_px": 5.879623674582191,
+    "feature_px": 5.864719661574691,
     "height": 215,
     "height_drawn": 215.0,
-    "orphan_share": 0.04924186662741057,
-    "regions": 393,
-    "run_length": 2.899274434485702,
+    "orphan_share": 0.04902105108199617,
+    "regions": 395,
+    "run_length": 2.898037542662116,
     "symmetry": 0.6841124976718197,
     "thin_abs": 0.015015457088178974,
     "thin_rel": 0.05991461798910647,
-    "value": 0.1641822594192984,
+    "value": 0.16408744641975734,
     "width": 114
   },
-  "pixel_sha256": "eb610ec364ab13bf0bc5697c294f181ae95efbaa3cf081e65334e472be160a54",
+  "pixel_sha256": "d1baa2e3637583aed53b62626cab4abd394d996fb9b8aba1313c6902a56f82a3",
   "placement": [
     71,
     31
@@ -30,7 +30,7 @@
     {
       "match_reference": {
         "job_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
-        "pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1"
+        "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2"
       },
       "parameters": {
         "accent_hue_bin_deg": 15,
@@ -52,8 +52,112 @@
         "front": 0.0,
         "rear": 0.000368052999631947
       },
-      "reference_pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1",
+      "reference_pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2",
       "step": "palette_match"
+    },
+    {
+      "corrections": [
+        {
+          "after": [
+            12,
+            10,
+            12,
+            255
+          ],
+          "before": [
+            11,
+            25,
+            11,
+            255
+          ],
+          "neighbours": [
+            {
+              "pixel": [
+                155,
+                65
+              ],
+              "rgba": [
+                24,
+                21,
+                23,
+                255
+              ]
+            },
+            {
+              "pixel": [
+                156,
+                64
+              ],
+              "rgba": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "pixel": [
+            156,
+            65
+          ]
+        },
+        {
+          "after": [
+            16,
+            14,
+            15,
+            255
+          ],
+          "before": [
+            14,
+            42,
+            22,
+            255
+          ],
+          "neighbours": [
+            {
+              "pixel": [
+                142,
+                93
+              ],
+              "rgba": [
+                33,
+                27,
+                30,
+                255
+              ]
+            },
+            {
+              "pixel": [
+                141,
+                94
+              ],
+              "rgba": [
+                0,
+                0,
+                0,
+                255
+              ]
+            }
+          ],
+          "pixel": [
+            141,
+            93
+          ]
+        }
+      ],
+      "pixels": [
+        [
+          156,
+          65
+        ],
+        [
+          141,
+          93
+        ]
+      ],
+      "pre_step_pixel_sha256": "f571784d009b129a7af57965a34a7fc0444efcc0eb06fa34dd5b022738534df8",
+      "step": "key_residue_4_neighbour_mean"
     }
   ],
   "raw_sha256": "3cf4c02c0f961c95d239c3d2fff0faae7844d38127b7893021bb1744222a2fae",

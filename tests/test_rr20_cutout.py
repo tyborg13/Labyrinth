@@ -21,6 +21,8 @@ from humanoid_cutout.bone_contracts import leg_bend_side
 from humanoid_cutout.anatomy import for_layout
 from maquette_motion.features import source_pixels
 from tests.mq11_preservation import rr20_inventory_context
+from tests.rr29_historical_mimic import production_bytes, snapshot
+from unittest.mock import patch
 
 PROOF_TIMEOUT_SECONDS = 180
 MUTATION_OFFSET_PX = 4
@@ -46,7 +48,7 @@ class HollowMimicTests(unittest.TestCase):
     def test_approved_inputs_and_prior_figures_are_byte_identical(self):
         self.assertEqual(rr20.protected_errors(), [])
         self.assertEqual((CASE/'director_motion.json').read_bytes(), DIRECTOR.read_bytes())
-        self.assertEqual((ASSETS/'director_motion.json').read_bytes(), DIRECTOR.read_bytes())
+        self.assertEqual(production_bytes('rr20',ASSETS/'director_motion.json'), DIRECTOR.read_bytes())
         self.assertEqual(compile_motion(DIRECTOR, 'hollow_mimic', self.layouts, self.data['projection']), self.data)
         self.assertEqual(self.data['TODO_DESIGN'], {})
 
@@ -103,7 +105,9 @@ class HollowMimicTests(unittest.TestCase):
             self.assertEqual((CASE/f'source/{view}/processed.png').read_bytes(),
                              (ROOT/f'spec/art_identity/jobs/hollow_mimic/mq9_{view}/processed.png').read_bytes())
         self.assertEqual(Image.open(ROOT/'spec/art_identity/jobs/hollow_mimic/mq9_rear/processed.png').getpixel((125,54)), (0,26,7,255))
-        report = rr20.headless(self.samples)
+        with snapshot('rr20',['assets/units/hollow_mimic_cutout']) as previous, \
+                patch.object(rr20,'ASSETS',previous/'assets/units/hollow_mimic_cutout'):
+            report = rr20.headless(self.samples)
         self.assertTrue(report['ok'], report['errors'])
         self.assertEqual(report['errors'], [])
 
@@ -156,7 +160,24 @@ class HollowMimicTests(unittest.TestCase):
         self.assertEqual(rr20.green_pixels(mutant), 1)
 
     def test_density_sources_are_exact_and_native_certification_is_pending(self):
+        # Run the original density/source assertions on rr-20's own shipped
+        # tree. Later Mimic units own their density registrations and painting.
+        with snapshot('rr20',['assets/units/hollow_mimic_cutout',
+                'experiments/cutouts/hollow_mimic/rr20',
+                'spec/assets/board_pixel_density']) as previous:
+            self._assert_historical_density(previous)
+
+    def _assert_historical_density(self, previous):
         import process_board_density as density
+        with patch.object(density,'ROOT',previous), \
+                patch.object(density,'REGISTRY',previous/'spec/assets/board_pixel_density/registry.json'), \
+                patch.object(density,'SOURCES',previous/'spec/assets/board_pixel_density/sources'), \
+                patch.object(density,'MANIFEST',previous/'spec/assets/board_pixel_density/outputs.json'):
+            self._assert_density_payload(density,previous)
+
+    def _assert_density_payload(self,density,previous):
+        ASSETS=previous/'assets/units/hollow_mimic_cutout'
+        CASE=previous/'experiments/cutouts/hollow_mimic/rr20'
         entry = next(e for e in density.load_registry()['entries'] if e['id']=='hollow_mimic_cutout')
         manifest = read_json(density.MANIFEST)
         self.assertEqual(density.paint_errors([entry], manifest), [])
@@ -164,10 +185,11 @@ class HollowMimicTests(unittest.TestCase):
         # after the director completes the density stage at merge.
         self.assertEqual(density.rest_errors([entry], manifest),
                          read_json(ASSETS/'integration.json')['density']['native_rest_pending'])
-        for view, layout in self.layouts.items():
+        for view in VIEWS:
+            layout=read_json(CASE/f'layouts/{view}.json')
             prod = read_json(ASSETS/(view+'.json'))
             for source, target in zip(layout['parts'], prod['parts']):
-                self.assertEqual((CASE/source['file']).read_bytes(), (density.SOURCES/ASSETS.relative_to(ROOT)/target['file']).read_bytes())
+                self.assertEqual((CASE/source['file']).read_bytes(), (density.SOURCES/ASSETS.relative_to(previous)/target['file']).read_bytes())
         self.assertFalse(read_json(ASSETS/'integration.json')['ready'])
 
     def test_registry_patch_retains_unrelated_duplicate_keys_byte_for_byte(self):

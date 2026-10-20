@@ -109,6 +109,10 @@ static func arm_wave(gait: Dictionary, side: String, phase: float) -> float:
 static func shoulder_pendulum(world: Dictionary, joints: Dictionary, gait: Dictionary, seconds: float, phase: float, forward: Vector2) -> void:
 	var arms: Dictionary = gait.get("arm_swing", {})
 	if arms.get("model", "") != "shoulder_pendulum": return
+	var envelope: float = 1.0
+	if arms.has("envelope"):
+		var ramp: float = float(arms["envelope"]["ramp_fraction"])
+		envelope = smoothstep(0.0, ramp, phase) * smoothstep(0.0, ramp, 1.0 - phase)
 	for side: String in ["near", "far"]:
 		if not arms.has(side): continue
 		var arm: Dictionary = arms[side]
@@ -122,8 +126,8 @@ static func shoulder_pendulum(world: Dictionary, joints: Dictionary, gait: Dicti
 		var base_angle: float = shoulder.get_rotation()
 		# Positive wave moves the downward arm toward projected facing.
 		var direction: float = signf((c - a).cross(forward))
-		var wave: float = arm_wave(gait, side, phase)
-		var delayed: float = arm_wave(gait, side, phase - float(arm["forearm_lag_s"]) / seconds)
+		var wave: float = arm_wave(gait, side, phase) * envelope
+		var delayed: float = arm_wave(gait, side, phase - float(arm["forearm_lag_s"]) * envelope / seconds) * envelope
 		var upper_angle: float = base_angle + deg_to_rad(float(arm["upper_deg"]) * wave * direction)
 		var bend_side: float = signf((b - a).cross(c - b))
 		var bend: float = float(arm["forearm_bend_deg"]["forward" if delayed >= 0.0 else "back"]) * absf(delayed)

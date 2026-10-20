@@ -18,7 +18,10 @@ from residue import count as green_pixels, feature_mask, clean_piece
 import proof_records
 from humanoid_cutout.bone_evidence import read_report
 from continuations import derivation_errors as continuation_errors
-from rr20_preservation import prior_figure, protected_changes
+from rr20_preservation import protected_changes, own_input_errors, UNIT_HEAD
+from unit_preservation import read_bytes as historical_bytes
+import json
+import tempfile
 from humanoid_cutout.native_frames import load_frame, frame_digest
 
 EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
@@ -27,16 +30,17 @@ EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
 def protected_errors():
     errors = ['Protected/baseline bytes changed in rr-20: ' + name
               for name in protected_changes(ROOT)]
-    for name, expected in read_json(CASE / 'protected_inputs.json').items():
-        # Own approved paint/director inputs remain live byte pins. Prior
-        # figures are checked above at both ends of rr-20's committed range.
-        if not prior_figure(name) and digest(ROOT / name) != expected:
-            errors.append('Protected/baseline bytes changed: ' + name)
-    if (CASE / 'director_motion.json').read_bytes() != DIRECTOR.read_bytes(): errors.append('Protected director copy changed')
-    layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}
-    data = read_json(CASE / 'compiled_motion.json')
-    if compile_motion(DIRECTOR, 'hollow_mimic', layouts, data['projection']) != data: errors.append('Compiled director channels differ')
-    if read_json(ASSETS / 'compiled_motion.json') != data: errors.append('Production director channels differ')
+    errors += own_input_errors(ROOT)
+    at = lambda path: historical_bytes(ROOT, UNIT_HEAD, str(path.relative_to(ROOT)))
+    if at(CASE/'director_motion.json') != at(DIRECTOR): errors.append('Protected director copy changed')
+    data = json.loads(at(CASE/'compiled_motion.json'))
+    layouts = {v:json.loads(at(CASE/f'layouts/{v}.json')) for v in VIEWS}
+    with tempfile.TemporaryDirectory(prefix='rr20-director-history-') as folder:
+        source=Path(folder)/'director_motion.json';source.write_bytes(at(DIRECTOR))
+        if compile_motion(source,'hollow_mimic',layouts,data['projection']) != data:
+            errors.append('Compiled director channels differ')
+    production = historical_bytes(ROOT,UNIT_HEAD,'assets/units/hollow_mimic_cutout/compiled_motion.json')
+    if json.loads(production) != data: errors.append('Production director channels differ')
     return errors
 
 

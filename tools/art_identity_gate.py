@@ -992,6 +992,10 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
         post_steps.append({"step": "clean_outline", "parameters": OUTLINE_PARAMETERS,
                            "pre_step_pixel_sha256": pixel_digest(canvas)})
         canvas = clean_outline(canvas)
+    if "processed_post_steps" in kit:
+        from art_identity_post_steps import apply
+        canvas, corrections = apply(canvas, kit["processed_post_steps"], pixel_digest)
+        post_steps.extend(corrections)
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(out)
     record = {**raw_binding, "pixel_sha256": pixel_digest(canvas), "K": factor,
@@ -1066,6 +1070,15 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
     if processed.get("raw_steps") != kit.get("raw_steps"):
         raise ValueError("processed raw_steps mismatched")
     if "raw_steps" not in kit:
+        if "processed_post_steps" in kit:
+            # Opt-in corrections bind the original raw and replay the complete
+            # process, including the palette match, before certifying the job.
+            with tempfile.TemporaryDirectory(prefix="art-identity-correction-") as folder:
+                replay = process_raw(repo_path(kit_path.parent, kit["raw_path"]),
+                    kit_path, Path(folder)/"processed.png", root,
+                    outline=any(s.get("step") == "clean_outline" for s in steps))
+            if replay != processed or pixel_digest(rgba(source)) != replay["pixel_sha256"]:
+                raise ValueError("replayed identity correction differs")
         return []
     raw = replay_raw_steps(kit_path, allow_missing=not require_inputs)
     if processed.get("raw_pixel_sha256") != kit["raw_steps"][-1]["output_raw_pixel_sha256"]:

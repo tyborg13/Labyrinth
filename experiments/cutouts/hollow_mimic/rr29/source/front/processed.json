@@ -2,29 +2,29 @@
   "K": 4,
   "drawn_size": [
     117,
-    216
+    218
   ],
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.02286933983839,
-    "edge_light_share": 0.01722488038277512,
-    "feature_px": 6.061773506096684,
-    "height": 216,
-    "height_drawn": 216.0,
-    "orphan_share": 0.0699801799054734,
-    "regions": 357,
-    "run_length": 2.9379619260918255,
-    "symmetry": 0.6523329129886507,
-    "thin_abs": 0.017609391675560304,
-    "thin_rel": 0.0484067693245922,
-    "value": 0.16680887569542227,
+    "chroma": 0.02253785473996074,
+    "edge_light_share": 0.01975540921919097,
+    "feature_px": 5.985538126740709,
+    "height": 218,
+    "height_drawn": 218.0,
+    "orphan_share": 0.07517677707480462,
+    "regions": 375,
+    "run_length": 2.8542596133418314,
+    "symmetry": 0.6533201921892324,
+    "thin_abs": 0.017342761443989607,
+    "thin_rel": 0.054037960550800124,
+    "value": 0.16597812795084538,
     "width": 117
   },
-  "pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1",
+  "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2",
   "placement": [
     70,
-    30
+    28
   ],
   "post_steps": [
     {
@@ -47,7 +47,7 @@
         "space": "CIE Lab",
         "std_floor": 1e-06
       },
-      "pre_step_pixel_sha256": "b93f883e1112b819ff5367b4fc4bfe4508f3b3dd7747b86737976db7473a8124",
+      "pre_step_pixel_sha256": "0f552cc2271839b9fbb129a21a1de7f8889300499c3f4f6a1c977a3de881357e",
       "protected_body_share": {
         "front": 0.0004009944662763654,
         "rear": 0.0
@@ -56,7 +56,7 @@
       "step": "palette_match"
     }
   ],
-  "raw_sha256": "dd6f61f24637db67fa5e64992184d865bf7b52e9abe398c7c67788f724db01cc",
+  "raw_sha256": "b942a1d4036f2234dbea4f94444492531b89c76db082edc91295228f403fc150",
   "shift": [
     0,
     0

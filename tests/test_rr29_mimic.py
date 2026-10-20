@@ -12,14 +12,15 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'tools'),str(ROOT/'experiments/cutouts/hollow_mimic')]
 from rr29_build import CASE,BASE,ASSETS,DIRECTOR,read_json
-from rr29_measure import wave,arm_report,draw_report,camera_sides,depths
+from rr29_measure import wave,envelope_at,arm_report,draw_report,camera_sides,depths
 from humanoid_cutout.gait import validate,expand
 from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.gait_continuations import errors as continuation_errors
 from humanoid_cutout.gates import structure_errors,source_errors
 from art_identity_gate import pixel_digest,process_raw
 
-TEST_DEFAULTS={'timeout_s':180,'mutation_angle_deg':5,'mutation_frame':20}
+TEST_DEFAULTS={'timeout_s':180,'mutation_angle_deg':5,'mutation_frame':20,
+    'residue_fixture_size_px':2,'residue_channel_mutation':1}
 
 
 def godot(script,*args):
@@ -38,7 +39,8 @@ class MimicRevisionTests(unittest.TestCase):
             result=godot('tests/rr29/samples.gd','--case',CASE,'--output',path)
             if result.returncode:raise AssertionError(result.stdout+result.stderr)
             cls.samples=read_json(path)
-        cls.before=read_json(CASE/'proof/before_samples.json')
+            from rr29_baseline import sample
+            cls.before=sample(Path(temporary)/'before.json')
 
     def test_protected_director_and_other_clips_are_exact(self):
         for p in (CASE,ASSETS):self.assertEqual((p/'director_motion.json').read_bytes(),DIRECTOR.read_bytes())
@@ -64,8 +66,7 @@ class MimicRevisionTests(unittest.TestCase):
             generated=expand(gait,layout,'move')
             self.assertFalse(any(key.startswith('hand_') for key in generated))
         report=arm_report(self.samples,self.before)
-        # Travel shortfalls are design-owner findings, not waived acceptance.
-        self.assertFalse(any('FK differs' in e for e in report['errors']),report['errors'])
+        self.assertTrue(report['ok'],report['errors'])
         for view in report['views'].values():
             for arm in view.values():self.assertTrue(all(v>0 for v in arm['step_arc_departure_px']))
 
@@ -90,6 +91,21 @@ class MimicRevisionTests(unittest.TestCase):
             with self.assertRaises(ValueError):validate(changed,'move')
         changed=copy.deepcopy(gait);changed['arm_swing']['near']['forearm_lag_s']=-1
         with self.assertRaises(ValueError):validate(changed,'move')
+        for envelope in ({'ramp_fraction':0,'ease':'smoothstep'}, {'ramp_fraction':.12,'ease':'linear'},
+                         {'ramp_fraction':float('nan'),'ease':'smoothstep'}):
+            changed=copy.deepcopy(gait);changed['arm_swing']['envelope']=envelope
+            with self.assertRaises(ValueError):validate(changed,'move')
+
+    def test_envelope_ramps_amplitude_and_lag_and_endpoints_are_rest(self):
+        gait=self.data['clips']['move']['gait'];ramp=gait['arm_swing']['envelope']['ramp_fraction']
+        for phase,expected in ((0,0),(ramp/2,.5),(ramp,1),(1-ramp,1),(1-ramp/2,.5),(1,0)):
+            self.assertAlmostEqual(envelope_at(gait,phase),expected)
+        report=arm_report(self.samples,self.before)
+        self.assertFalse(any('endpoint' in e for e in report['errors']),report['errors'])
+        mutant=copy.deepcopy(self.samples)
+        row=next(r for r in mutant['samples'] if (r['kind'],r['view'],r['clip'],r['phase'])==('presented','front','move',1))
+        row['bones']['hand_near']['global'][4]+=TEST_DEFAULTS['mutation_angle_deg']
+        self.assertTrue(any('endpoint' in e for e in arm_report(mutant,self.before)['errors']))
 
     def test_per_frame_draw_order_and_restoration_both_views(self):
         report=draw_report(self.samples)
@@ -118,8 +134,33 @@ class MimicRevisionTests(unittest.TestCase):
                 out=Path(temporary)/'processed.png'
                 process_raw(job/'refs/raw_approved.png',job/'kit.json',out)
                 self.assertEqual(pixel_digest(Image.open(out)),read_json(job/'processed.json')['pixel_sha256'])
-            original=subprocess.check_output(['git','show','HEAD:'+kit['prompt_source']],cwd=ROOT)
+            original=(ROOT/kit['prompt_source']).read_bytes()
             self.assertEqual((job/'prompt.md').read_bytes(),original)
+        front=ROOT/'spec/art_identity/maquettes/hollow_mimic/prompt_front_mq11b.md'
+        self.assertEqual(front.read_bytes(),(ROOT/'spec/peer_benchmark/staged/paintovers/hollow_mimic_front_mq11b.md').read_bytes())
+        for name in ('hollow_mimic_rear_mq11.md','hollow_mimic_rear_mq11_r2.md'):
+            original=subprocess.check_output(['git','show','681868048^:spec/peer_benchmark/staged/paintovers/'+name],cwd=ROOT)
+            self.assertEqual((ROOT/'spec/art_identity/maquettes/hollow_mimic'/name.replace('hollow_mimic_','prompt_')).read_bytes(),original)
+
+    def test_recorded_rear_residue_correction_replays_and_rejects_tampering(self):
+        from art_identity_gate import verify_job_recipe
+        from art_identity_post_steps import apply
+        from unittest.mock import patch
+        job=ROOT/'spec/art_identity/jobs/hollow_mimic/mq11_rear';processed=read_json(job/'processed.json')
+        self.assertEqual(verify_job_recipe(job/'kit.json',require_inputs=True),[])
+        corrections=processed['post_steps'][-1]['corrections']
+        self.assertEqual(processed['post_steps'][-1]['pixels'],[[156,65],[141,93]])
+        self.assertEqual([r['after'] for r in corrections],[[12,10,12,255],[16,14,15,255]])
+        self.assertTrue(all(r['after'][1]<=max(r['after'][0],r['after'][2]) for r in corrections))
+        changed=copy.deepcopy(processed)
+        changed['post_steps'][-1]['corrections'][0]['after'][0]+=TEST_DEFAULTS['residue_channel_mutation']
+        import art_identity_gate as gate
+        original_read=gate.read_json
+        with patch.object(gate,'read_json',side_effect=lambda p: changed if Path(p)==job/'processed.json' else original_read(p)):
+            with self.assertRaisesRegex(ValueError,'correction differs'):verify_job_recipe(job/'kit.json')
+        with self.assertRaisesRegex(ValueError,'not green-dominant'):
+            size=TEST_DEFAULTS['residue_fixture_size_px']
+            apply(Image.new('RGBA',(size,size)),[{'step':'key_residue_4_neighbour_mean','pixels':[[0,0]]}],pixel_digest)
 
     def test_native_capture_load_only(self):
         with tempfile.TemporaryDirectory(prefix='rr29-native-load-') as temporary:

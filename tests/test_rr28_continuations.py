@@ -19,6 +19,7 @@ from humanoid_cutout.source_space import DetachedSource
 from cutout_pipeline.cases import read_json, write_json
 from humanoid_cutout.gait_continuations import active_recipe, errors, texture
 from maquette_motion.pixels import rest_identity
+from tests.rr29_historical_mimic import production_bytes, snapshot
 
 PROOF_TIMEOUT_SECONDS = 90
 
@@ -51,14 +52,20 @@ class JointContinuationTests(unittest.TestCase):
                 self.assertEqual(clip_evidence_errors(case, layout, definitions), [])
                 self.assertEqual(apply(case, deepcopy(layout), definitions), layout)
                 for path in [case / f'layouts/{view}.json', *production_layouts(assets, view)]:
-                    production = read_json(path)
+                    production = (__import__('json').loads(production_bytes('rr28',path))
+                        if path.is_relative_to(assets) else read_json(path))
                     self.assertEqual(production.get('gait_continuations'), layout.get('gait_continuations'))
                     production.pop('gait_continuations', None)
                     self.assertEqual(production, __import__('json').loads(committed(path)))
 
     def test_clip_scope_and_exact_own_donor_rgba_including_density_treated_production(self):
+        with snapshot('rr28',['assets/units/hollow_mimic_cutout','assets/units/hoarfrost_seer_cutout']) as previous:
+            self._assert_clip_scope(previous)
+
+    def _assert_clip_scope(self,previous):
         for name in RIGS:
             case, assets, recipe_folder = paths(name)
+            assets=previous/assets.relative_to(ROOT)
             definitions = read_json(recipe_folder / 'joint_continuations.json')
             clips = ['rest', *read_json(case / 'compiled_motion.json')['clips']]
             for view in ('front', 'rear'):

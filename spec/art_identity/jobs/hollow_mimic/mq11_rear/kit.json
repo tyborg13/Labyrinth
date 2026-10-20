@@ -8,16 +8,32 @@
   "kit_version": "04657f5350e58faf51cc678d5090cd547b2e85d0893b05bc5ee9f9552742f962",
   "match_reference": {
     "job_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
-    "pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1"
+    "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2"
   },
   "method": "mq-11 maquette paint-over (hair only); director edit of the approved mq9 painting",
   "peers": [
     "hero_front",
     "hollow_mimic_front"
   ],
+  "processed_post_steps": [
+    {
+      "pixels": [
+        [
+          156,
+          65
+        ],
+        [
+          141,
+          93
+        ]
+      ],
+      "step": "key_residue_4_neighbour_mean"
+    }
+  ],
   "prompt_path": "prompt.md",
   "prompt_sha256": "d12d225dd81a927c5951e3ad452f3fff04c53634c2d2870eca086b52fc203fee",
-  "prompt_source": "spec/peer_benchmark/staged/paintovers/hollow_mimic_rear_mq11.md",
+  "prompt_source": "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11.md",
+  "raw_path": "refs/raw_approved.png",
   "refs": [
     {
       "canon_id": "01_maquette_rear_parts_mq11",
@@ -57,7 +73,7 @@
   ],
   "revision_prompt_path": "prompt_r2.md",
   "revision_prompt_sha256": "c37c155d96146285f74063795bfba222a3e8696cbf0d7163c96353520814c1c6",
-  "revision_prompt_source": "spec/peer_benchmark/staged/paintovers/hollow_mimic_rear_mq11_r2.md",
+  "revision_prompt_source": "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11_r2.md",
   "size_class": "medium",
   "target_h": 203,
   "view": "creature_rear"

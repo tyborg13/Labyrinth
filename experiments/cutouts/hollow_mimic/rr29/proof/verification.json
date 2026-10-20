@@ -1,328 +1,623 @@
 {
   "task_id": "rr-29",
+  "feedback": 1,
   "branch": "codex/rr-29",
-  "head_unchanged": "7adad7e9232e276e3f18bd57afc6b38cc0a4f575",
-  "uncommitted": true,
+  "base_head": "d7fc5ff34f8b966cffbb9511cd778e6e3d29b537",
+  "task_git_metadata_changed": false,
+  "feedback_changes_uncommitted": true,
+  "phase": "awaiting_director_inventory_scope",
   "native_renderer_attempted": false,
   "peer_review_attempted": false,
+  "implementation_complete": false,
   "acceptance_ready": false,
-  "design_followups": {
-    "TODO_DESIGN_pendulum_travel": "Protected director angles and lag yield front/near and rear/far hand travel below 2.5x the measured rr20 slide. No motion values changed to hide the failure.",
-    "TODO_DESIGN_pendulum_terminal_lag": "At phase 1 the delayed forearm still follows its phase 0.9125 upper-arm pose. A terminal recovery policy is absent from the protected data; exact 0.07 s delay retained.",
-    "TODO_DESIGN_mq11_prompt_source": "Brief requires staged prompts moved into owned jobs. Existing maquette registry validator requires prompt_source under spec/art_identity/maquettes/. Truthful staged provenance retained; no fabricated source or exemption.",
-    "TODO_DESIGN_mq11_rear_residue": "The approved mq11 rear contains two green residue texels in the rigid head. Exact rest identity preserves it; removing or recolouring it needs director data."
-  },
+  "design_followups": {},
   "acceptance": {
-    "identity_jobs": "processed K=4, both sheets built and registered; director PASS transcribed 2026-10-20; registry source-path gate FAIL (2)",
-    "source_rest_mismatch_px": {
-      "front": 0,
-      "rear": 0
+    "1_identity_jobs": {
+      "status": "PASS headless; director sheet re-judgment pending",
+      "front_native_input": "director_08",
+      "rear_native_input": "director_06; raw round-1-r2 unchanged",
+      "K": 4,
+      "sheets": [
+        "spec/art_identity/jobs/hollow_mimic/mq11_front/sheet_pair.png",
+        "spec/art_identity/jobs/hollow_mimic/mq11_rear/sheet_pair.png"
+      ]
     },
-    "canonical_tear": {
-      "front": {
-        "frames": 362,
-        "failing_frames": 0,
-        "air_pockets": 1820
+    "2_recut_and_derivations": {
+      "status": "PASS",
+      "rest_mismatch_pixels": {
+        "front": 0,
+        "rear": 0
       },
-      "rear": {
-        "frames": 362,
-        "failing_frames": 0,
-        "air_pockets": 2517
-      }
+      "rigid_head": true,
+      "provenance_exemptions": [],
+      "density_native_rebakes": "pending director"
     },
-    "arm_measurements": {
-      "ok": false,
-      "errors": [
-        "front/near: travel below 2.5x rr20",
-        "rear/far: travel below 2.5x rr20"
-      ],
+    "3_pendulum": {
+      "ok": true,
+      "errors": [],
       "views": {
         "front": {
           "near": {
-            "peak_to_peak_px": 20.615528128088304,
+            "peak_to_peak_px": 23.4094206798507,
             "rr20_slide_px": 8.94427190999916,
-            "ratio": 2.3048861143232218,
-            "step_arc_departure_px": [
-              0.2906626516382151,
-              0.4493225081454679,
-              0.7835446068924954
+            "ratio": 2.6172527977017754,
+            "endpoints": [
+              {
+                "frame": 0,
+                "phase": 0.0,
+                "maximum_rest_error": 2.1972655986246536e-05
+              },
+              {
+                "frame": 47,
+                "phase": 1.0,
+                "maximum_rest_error": 2.1972656014668246e-05
+              }
             ],
-            "screen_pixel_scale": 0.603514787262561,
-            "peak_to_peak_screen_px": 12.441776072528556,
-            "rr20_slide_screen_px": 5.398000358981643
+            "step_arc_departure_px": [
+              0.16282963185673244,
+              0.587622577255751,
+              0.8838576307410877
+            ],
+            "screen_pixel_scale": 0.603514787262561
           },
           "far": {
-            "peak_to_peak_px": 17.464261428615384,
+            "peak_to_peak_px": 18.788281233781955,
             "rr20_slide_px": 6.082767547431625,
-            "ratio": 2.871104524779918,
-            "step_arc_departure_px": [
-              0.7230020531730544,
-              0.5666260203279303,
-              0.3895401222646484
+            "ratio": 3.0887718603869847,
+            "endpoints": [
+              {
+                "frame": 0,
+                "phase": 0.0,
+                "maximum_rest_error": 2.1972655986246536e-05
+              },
+              {
+                "frame": 47,
+                "phase": 1.0,
+                "maximum_rest_error": 3.417968700603069e-05
+              }
             ],
-            "screen_pixel_scale": 0.603514787262561,
-            "peak_to_peak_screen_px": 10.539940020788563,
-            "rr20_slide_screen_px": 3.671040162355807
+            "step_arc_departure_px": [
+              0.5323819821818527,
+              0.5412750973601512,
+              0.1495202444041583
+            ],
+            "screen_pixel_scale": 0.603514787262561
           }
         },
         "rear": {
           "near": {
-            "peak_to_peak_px": 20.6155281280883,
+            "peak_to_peak_px": 23.40940503602897,
             "rr20_slide_px": 7.28010988928052,
-            "ratio": 2.8317605697742696,
-            "step_arc_departure_px": [
-              0.29066128277449965,
-              0.520471143359825,
-              0.8827281813302599
+            "ratio": 3.21552907745222,
+            "endpoints": [
+              {
+                "frame": 0,
+                "phase": 0.0,
+                "maximum_rest_error": 2.1972655986246536e-05
+              },
+              {
+                "frame": 47,
+                "phase": 1.0,
+                "maximum_rest_error": 6.713866895324827e-06
+              }
             ],
-            "screen_pixel_scale": 0.603514787262561,
-            "peak_to_peak_screen_px": 12.441776072528553,
-            "rr20_slide_screen_px": 4.3936539710772
+            "step_arc_departure_px": [
+              0.2056326555071682,
+              0.45167409808073455,
+              0.7236084630138033
+            ],
+            "screen_pixel_scale": 0.603514787262561
           },
           "far": {
-            "peak_to_peak_px": 20.615584380260827,
+            "peak_to_peak_px": 23.40943371624398,
             "rr20_slide_px": 8.944292381906545,
-            "ratio": 2.3048871280152023,
-            "step_arc_departure_px": [
-              0.46081220695215774,
-              0.32342051120407356,
-              0.480480223270267
+            "ratio": 2.617248264781577,
+            "endpoints": [
+              {
+                "frame": 0,
+                "phase": 0.0,
+                "maximum_rest_error": 2.502441398632982e-05
+              },
+              {
+                "frame": 47,
+                "phase": 1.0,
+                "maximum_rest_error": 9.765624795932126e-06
+              }
             ],
-            "screen_pixel_scale": 0.603514787262561,
-            "peak_to_peak_screen_px": 12.44181002154649,
-            "rr20_slide_screen_px": 5.3980127140804735
+            "step_arc_departure_px": [
+              0.482669550513102,
+              0.5586642174141465,
+              0.3712059734485421
+            ],
+            "screen_pixel_scale": 0.603514787262561
           }
         }
       },
       "units": "source px; screen px = source px * screen_pixel_scale"
     },
-    "draw_order": {
-      "frames_checked": 724,
-      "affected_clip": "block",
-      "view": "front",
-      "side": "near",
-      "frames": [
-        9,
-        10,
-        11,
-        12,
-        13,
-        14,
-        15,
-        16,
-        17,
-        18,
-        19,
-        20,
-        21,
-        22,
-        23,
-        24,
-        25,
-        26,
-        27,
-        28,
-        29,
-        30,
-        31,
-        32,
-        33,
-        34,
-        35,
-        36,
-        37,
-        38,
-        39,
-        40,
-        41
-      ],
-      "presented_sprite_box_equivalence_differences": 0,
-      "rr20_original_crops": 33
+    "4_front_depth": {
+      "status": "PASS",
+      "clips": {
+        "block": {
+          "side": "near",
+          "zero_based_frames": [
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41
+          ]
+        }
+      },
+      "presented_frames_checked": 724,
+      "original_rr20_crops": "experiments/cutouts/hollow_mimic/rr29/proof/rr20_before_crops.json",
+      "findings": "experiments/cutouts/hollow_mimic/rr29/proof/draw_order_findings.json"
     },
-    "production": [
-      {
-        "view": "front",
-        "card": "hurl_spear",
-        "frames": 1316,
-        "native_pixels": false
+    "5_all_gates_and_preservation": {
+      "status": "PASS headless; native renderer proof pending",
+      "canonical_tear": {
+        "front": {
+          "ok": true,
+          "frames": 362,
+          "failing": 0
+        },
+        "rear": {
+          "ok": true,
+          "frames": 362,
+          "failing": 0
+        }
       },
-      {
-        "view": "front",
-        "card": "quick_stab",
-        "frames": 1316,
-        "native_pixels": false
+      "provenance_exemptions": [],
+      "other_figures": {
+        "ok": true,
+        "errors": [],
+        "checks": {
+          "identity_other_entries_identical": true,
+          "density_other_entries_identical": true,
+          "density_other_exclusions_identical": true,
+          "density_other_outputs_identical": true,
+          "other_figure_files_byte_identical": true
+        },
+        "other_figure_changes": []
       },
-      {
-        "view": "front",
-        "card": "whirlwind_slash",
-        "frames": 1316,
-        "native_pixels": false
-      },
-      {
-        "view": "rear",
-        "card": "hurl_spear",
-        "frames": 1316,
-        "native_pixels": false
-      },
-      {
-        "view": "rear",
-        "card": "quick_stab",
-        "frames": 1316,
-        "native_pixels": false
-      },
-      {
-        "view": "rear",
-        "card": "whirlwind_slash",
-        "frames": 1316,
-        "native_pixels": false
+      "presented_frames_per_clip": {
+        "front": {
+          "idle": 50,
+          "move": 48,
+          "bolt": 48,
+          "mirror": 54,
+          "block": 48,
+          "hit": 30,
+          "death": 84
+        },
+        "rear": {
+          "idle": 50,
+          "move": 48,
+          "bolt": 48,
+          "mirror": 54,
+          "block": 48,
+          "hit": 30,
+          "death": 84
+        }
       }
-    ],
-    "other_figures": {
-      "ok": true,
-      "errors": [],
-      "checks": {
-        "identity_other_entries_identical": true,
-        "density_other_entries_identical": true,
-        "density_other_exclusions_identical": true,
-        "density_other_outputs_identical": true,
-        "other_figure_files_byte_identical": true
-      },
-      "other_figure_changes": []
     }
+  },
+  "feedback_requirements": {
+    "1": "Front recut on mq11b/director_08; raw/prompt/reference bytes preserved; rear raw unchanged; both rests 0 px.",
+    "2": "Protected 16/14-degree data imported exactly; every hand exceeds 2.5x legacy slide.",
+    "3": "Director 0.12 smoothstep envelope multiplies amplitude and delay time; frame 0/47 root-translated rest passes 0.0001 serialized-float tolerance.",
+    "4": "Three authorized prompt source copies added byte-identically; kit prompt_source paths use them; identity certification PASS.",
+    "5": {
+      "corrections": [
+        {
+          "after": [
+            12,
+            10,
+            12,
+            255
+          ],
+          "before": [
+            11,
+            25,
+            11,
+            255
+          ],
+          "neighbours": [
+            {
+              "pixel": [
+                155,
+                65
+              ],
+              "rgba": [
+                24,
+                21,
+                23,
+                255
+              ]
+            },
+            {
+              "pixel": [
+                156,
+                64
+              ],
+              "rgba": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ],
+          "pixel": [
+            156,
+            65
+          ]
+        },
+        {
+          "after": [
+            16,
+            14,
+            15,
+            255
+          ],
+          "before": [
+            14,
+            42,
+            22,
+            255
+          ],
+          "neighbours": [
+            {
+              "pixel": [
+                142,
+                93
+              ],
+              "rgba": [
+                33,
+                27,
+                30,
+                255
+              ]
+            },
+            {
+              "pixel": [
+                141,
+                94
+              ],
+              "rgba": [
+                0,
+                0,
+                0,
+                255
+              ]
+            }
+          ],
+          "pixel": [
+            141,
+            93
+          ]
+        }
+      ],
+      "pixels": [
+        [
+          156,
+          65
+        ],
+        [
+          141,
+          93
+        ]
+      ],
+      "pre_step_pixel_sha256": "f571784d009b129a7af57965a34a7fc0444efcc0eb06fa34dd5b022738534df8",
+      "step": "key_residue_4_neighbour_mean"
+    },
+    "6": {
+      "rr20_end": "901d327897650870b05f9208e2d028df8ad6efdf",
+      "rr26_end": "b366242914b76f8b20fecf1ab1b88fc7dc0dd580",
+      "rr28_baseline": "370ab4b13b298b4a32bc1670f4c36916541850da",
+      "rr28_end": "94911ca47d2ecb4c9abd59cf9360179e39c7ad7c",
+      "real_committed_mutations": [
+        "Ran 2 tests in 2.021s",
+        "OK",
+        "RR29 RR20 RANGE MUTATION: PASS (in-range input caught; later commits and working bytes ignored)",
+        "RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)",
+        "RR29 PYTHON FOCUSED: PASS (0 Godot invocations forced to rr-29)"
+      ]
+    },
+    "7": "179 focused checks passed; full Godot PASS once; full Python ran once (4 failures, 1 error, 66 skips); three guard failures fixed and pass a three-test recheck. Density awaits native rests; maquette inventory awaits director scope decision."
   },
   "tests": {
-    "focused_rr29": [
-      "Ran 9 tests in 12.759s",
-      "OK"
-    ],
-    "focused_expanded": [
-      "Ran 41 tests in 137.141s",
-      "FAILED (failures=2)"
-    ],
-    "full_godot": [
-      "MAIN BODY RUNTIME: 257.207 seconds",
-      "MAIN BODY ASSERTIONS: 378990",
-      "FULL SUITE RUNTIME: 494.912 seconds (budget 900 seconds)",
-      "TEST RESULT: PASS"
-    ],
-    "full_python": [
-      "Ran 1543 tests in 1634.532s",
-      "FAILED (failures=37, skipped=66)",
-      "RR29 PYTHON FULL SUITE: FAIL (110 Godot invocations forced to rr-29)"
-    ],
-    "full_python_failures": [
-      "test_committed_registry_has_no_pending_warnings_even_in_strict_mode (test_art_identity_gate.GateTests)",
-      "test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)",
-      "test_colour_snapshot_rejects_geometry_targets_and_alpha_mutations (test_int04_preservation.PreservationTests)",
-      "test_compiled_foreign_spec_mutation_at_unit_head_is_rejected (test_int04_preservation.PreservationTests)",
-      "test_coordinated_foreign_recipe_and_report_mutations_are_rejected (test_int04_preservation.PreservationTests)",
-      "test_exact_hash_exception_uses_unit_head_even_after_later_edits (test_int04_preservation.PreservationTests)",
-      "test_foreign_maquette_additions_and_shared_floor_entries_are_guarded (test_int04_preservation.PreservationTests)",
-      "test_hash_table_reads_foreign_unit_snapshot_and_keeps_own_live_pin (test_int04_preservation.PreservationTests)",
-      "test_live_lancer_change_cannot_affect_any_historical_maquette_check (test_int04_preservation.PreservationTests)",
-      "test_mq09_foreign_recipe_deletion_is_rejected (test_int04_preservation.PreservationTests)",
-      "test_original_history_and_retired_coverage_are_enforced (test_int04_preservation.PreservationTests)",
-      "test_pinned_ranges_reject_foreign_edits_and_ignore_later_units (test_int04_preservation.PreservationTests)",
-      "test_regeneration_receipts_keep_native_and_own_recipe_guards (test_int04_preservation.PreservationTests)",
-      "test_rr24_keeps_exact_own_live_bytes_and_historical_foreign_records (test_int04_preservation.PreservationTests)",
-      "test_binding_object_alone_may_change (test_int05_preservation.PreservationTests)",
-      "test_listed_deletion_and_rename_are_caught (test_int05_preservation.PreservationTests)",
-      "test_missing_or_non_object_bindings_are_rejected (test_int05_preservation.PreservationTests)",
-      "test_non_binding_serialization_bytes_remain_protected (test_int05_preservation.PreservationTests)",
-      "test_rebinding_uses_historical_payload_after_hash_pin_removal (test_int05_preservation.PreservationTests)",
-      "test_seer_change_inside_rr14_range_is_caught_despite_later_repairs (test_int05_preservation.PreservationTests)",
-      "test_changed_integration_blocks_repeated_push_until_reauthorized (test_parallel_task.ParallelTaskTests)",
-      "test_integrate_without_memento_in_a_legacy_checkout (test_parallel_task.ParallelTaskTests)",
-      "test_integration_preserves_approval_when_task_patch_is_unchanged (test_parallel_task.ParallelTaskTests)",
-      "test_preflight_proves_and_restores_git_index (test_parallel_task.ParallelTaskTests)",
-      "test_preflight_rejects_dirty_and_non_task_worktrees (test_parallel_task.ParallelTaskTests)",
-      "test_preflight_reports_stale_task_branch (test_parallel_task.ParallelTaskTests)",
-      "test_prepare_worker_creates_branch_at_requested_base (test_parallel_task.ParallelTaskTests)",
-      "test_push_requires_authorization_for_exact_head (test_parallel_task.ParallelTaskTests)",
-      "test_manifest_preserves_all_existing_children_and_order (test_program_suite_runner.ProgramSuiteRunnerTests)",
-      "test_committed_protected_mutation_is_caught (test_rr18_humanoid.MirrorTests)",
-      "test_approved_inputs_and_prior_figures_are_byte_identical (test_rr20_cutout.HollowMimicTests)",
-      "test_density_sources_are_exact_and_native_certification_is_pending (test_rr20_cutout.HollowMimicTests)",
-      "test_director_residue_cleanup_preserves_sources_and_resolves_placeholder (test_rr20_cutout.HollowMimicTests)",
-      "test_new_director_import_gait_and_readable_leading_hand (test_rr20_feedback2.FeedbackTwoTests)",
-      "test_original_paint_rest_motion_and_other_geometry_are_unchanged (test_rr26_fragments.FragmentTests)",
-      "test_clip_scope_and_exact_own_donor_rgba_including_density_treated_production (test_rr28_continuations.JointContinuationTests)",
-      "test_replay_is_idempotent_and_only_recipes_change_in_all_layout_copies (test_rr28_continuations.JointContinuationTests)"
-    ],
-    "fixture_git_write_failures": [
-      "test_colour_snapshot_rejects_geometry_targets_and_alpha_mutations (test_int04_preservation.PreservationTests)",
-      "test_compiled_foreign_spec_mutation_at_unit_head_is_rejected (test_int04_preservation.PreservationTests)",
-      "test_coordinated_foreign_recipe_and_report_mutations_are_rejected (test_int04_preservation.PreservationTests)",
-      "test_exact_hash_exception_uses_unit_head_even_after_later_edits (test_int04_preservation.PreservationTests)",
-      "test_foreign_maquette_additions_and_shared_floor_entries_are_guarded (test_int04_preservation.PreservationTests)",
-      "test_hash_table_reads_foreign_unit_snapshot_and_keeps_own_live_pin (test_int04_preservation.PreservationTests)",
-      "test_live_lancer_change_cannot_affect_any_historical_maquette_check (test_int04_preservation.PreservationTests)",
-      "test_mq09_foreign_recipe_deletion_is_rejected (test_int04_preservation.PreservationTests)",
-      "test_original_history_and_retired_coverage_are_enforced (test_int04_preservation.PreservationTests)",
-      "test_pinned_ranges_reject_foreign_edits_and_ignore_later_units (test_int04_preservation.PreservationTests)",
-      "test_regeneration_receipts_keep_native_and_own_recipe_guards (test_int04_preservation.PreservationTests)",
-      "test_rr24_keeps_exact_own_live_bytes_and_historical_foreign_records (test_int04_preservation.PreservationTests)",
-      "test_binding_object_alone_may_change (test_int05_preservation.PreservationTests)",
-      "test_listed_deletion_and_rename_are_caught (test_int05_preservation.PreservationTests)",
-      "test_missing_or_non_object_bindings_are_rejected (test_int05_preservation.PreservationTests)",
-      "test_non_binding_serialization_bytes_remain_protected (test_int05_preservation.PreservationTests)",
-      "test_rebinding_uses_historical_payload_after_hash_pin_removal (test_int05_preservation.PreservationTests)",
-      "test_seer_change_inside_rr14_range_is_caught_despite_later_repairs (test_int05_preservation.PreservationTests)",
-      "test_changed_integration_blocks_repeated_push_until_reauthorized (test_parallel_task.ParallelTaskTests)",
-      "test_integrate_without_memento_in_a_legacy_checkout (test_parallel_task.ParallelTaskTests)",
-      "test_integration_preserves_approval_when_task_patch_is_unchanged (test_parallel_task.ParallelTaskTests)",
-      "test_preflight_proves_and_restores_git_index (test_parallel_task.ParallelTaskTests)",
-      "test_preflight_rejects_dirty_and_non_task_worktrees (test_parallel_task.ParallelTaskTests)",
-      "test_preflight_reports_stale_task_branch (test_parallel_task.ParallelTaskTests)",
-      "test_prepare_worker_creates_branch_at_requested_base (test_parallel_task.ParallelTaskTests)",
-      "test_push_requires_authorization_for_exact_head (test_parallel_task.ParallelTaskTests)",
-      "test_committed_protected_mutation_is_caught (test_rr18_humanoid.MirrorTests)"
-    ],
-    "art_identity_tests": [
-      "Ran 111 tests in 37.056s",
-      "FAILED (failures=1)"
-    ],
-    "canonical": [
-      "RR29 CANONICAL TEAR FRONT: PASS (362 frames; 0 failing)",
-      "RR29 CANONICAL TEAR REAR: PASS (362 frames; 0 failing)",
-      "RR29 CANONICAL TEAR GATES: PASS (0 errors)"
-    ],
-    "headless_gate_lines": [
-      "RR29 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH/ARM/DEPTH GATES: FAIL (4 errors)",
-      "front/near: travel below 2.5x rr20",
-      "hollow_mimic_cutout/rear/head: chroma-key residue",
-      "rear/far: travel below 2.5x rr20",
-      "rr29/rear/head: chroma-key residue"
-    ],
-    "identity_registry": "ART IDENTITY CHECK: FAIL (2 failures, 0 pending_reart warnings, 0 skipped replays)",
-    "density": "exit 1: rest rebake needed for front and rear",
-    "manifest_after_fix": [
-      "Ran 1 test in 0.002s",
-      "OK"
-    ],
-    "registration": "TEST REGISTRATION AUDIT: PASS (763 scripts; full suite=415, quarantined=29, windowed probe=319)",
-    "full_python_failure_categories": {
-      "fixture_git_writes_refused": 27,
-      "identity_policy": 1,
-      "native_density_rest_pending": 1,
-      "historical_mimic_production_pins": 7,
-      "manifest_order_fixed_after_full_run": 1
+    "focused": {
+      "result": [
+        "RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)",
+        "Ran 179 tests in 179.940s",
+        "OK",
+        "RR29 PYTHON FOCUSED: PASS (26 Godot invocations forced to rr-29)"
+      ],
+      "exit_code": 0
+    },
+    "full_godot": {
+      "result": [
+        "TEST REGISTRATION AUDIT: PASS (763 scripts; full suite=415, quarantined=29, windowed probe=319)",
+        "MAIN BODY ASSERTIONS: 378990",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 board hover input-batch coalescing",
+        "TEST RESULT: PASS board surface presentation",
+        "TEST RESULT: PASS migrated presentation probe scripts",
+        "TEST RESULT: PASS card presentation cache 35 raw and imported byte-identical images, source and algorithm invalidation",
+        "TEST RESULT: PASS \u2014 bounded card proxy reuse and reset semantics",
+        "TEST RESULT: PASS \u2014 42 analytics-context/boundary comparisons (0 failures)",
+        "TEST RESULT: PASS Dragon exchange presentation []",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 2470 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 7978 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 2200 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 3910 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS \u2014 868 forced-movement query comparisons (0 failures)",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu input and startup transitions",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 profile read and repair equivalence (0 failures)",
+        "TEST RESULT: PASS \u2014 save pipeline compatibility and cleanup",
+        "TEST RESULT: PASS \u2014 committed save/resume boundary matrix",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS",
+        "TEST RESULT: PASS surface analytics batch and partial append recovery",
+        "TEST RESULT: PASS ui_components_gallery_fixture",
+        "FULL SUITE RUNTIME: 425.785 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ],
+      "exit_code": 0,
+      "runs_this_feedback": 1
+    },
+    "full_python": {
+      "result": [
+        "COMMIT_CURATION: PASS; {\"budget_bytes\": 6000000, \"bytes\": 3535279, \"figure\": \"briar_weaver\", \"files\": 77}",
+        "COMMIT_CURATION: PASS; {\"budget_bytes\": 6000000, \"bytes\": 3880309, \"figure\": \"slag_mortar\", \"files\": 85}",
+        "Ran 1547 tests in 1520.350s",
+        "FAILED (failures=4, errors=1, skipped=66)",
+        "RR29 RR20 RANGE MUTATION: PASS (in-range input caught; later commits and working bytes ignored)",
+        "RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)",
+        "RR29 PYTHON FULL SUITE: FAIL (111 Godot invocations forced to rr-29)"
+      ],
+      "exit_code": 1,
+      "runs_this_feedback": 1,
+      "failures": [
+        "test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)",
+        "test_changed_integration_blocks_repeated_push_until_reauthorized (test_parallel_task.ParallelTaskTests)",
+        "test_push_requires_authorization_for_exact_head (test_parallel_task.ParallelTaskTests)",
+        "test_committed_protected_mutation_is_caught (test_rr18_humanoid.MirrorTests)"
+      ],
+      "errors": [
+        "test_curated_manifests_and_fresh_regeneration (test_mq09_maquettes.DeliveryTests) (figure='hollow_mimic')"
+      ],
+      "runner_note": "Full discovery retained its initially loaded guard. The three disposable-repository guard failures are fixed in the final wrapper and pass the targeted recheck; full discovery was not repeated.",
+      "resolved_failures": [
+        "test_changed_integration_blocks_repeated_push_until_reauthorized (test_parallel_task.ParallelTaskTests)",
+        "test_push_requires_authorization_for_exact_head (test_parallel_task.ParallelTaskTests)",
+        "test_committed_protected_mutation_is_caught (test_rr18_humanoid.MirrorTests)"
+      ],
+      "remaining_failure": "test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)",
+      "manifest_error": "Pending director scope decision; three-entry metadata patch preview passes full maquette curation without changing the protected inventory."
+    },
+    "gates": {
+      "result": [
+        "RR29 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH/ARM/DEPTH GATES: PASS (0 errors)"
+      ],
+      "exit_code": 0
+    },
+    "census": {
+      "result": [
+        "RR29 CPU front: 100 frames; 0 failing",
+        "RR29 CPU front: 300 frames; 0 failing",
+        "RR29 CANONICAL TEAR FRONT: PASS (362 frames; 0 failing)",
+        "RR29 CPU rear: 100 frames; 0 failing",
+        "RR29 CPU rear: 300 frames; 0 failing",
+        "RR29 CANONICAL TEAR REAR: PASS (362 frames; 0 failing)",
+        "RR29 CANONICAL TEAR GATES: PASS (0 errors)"
+      ],
+      "exit_code": 0
+    },
+    "production": {
+      "result": [
+        "RR29 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR29 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR29 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR29 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR29 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)",
+        "RR29 PRODUCTION LOGIC: PASS (1316 frames; 0 errors)"
+      ],
+      "scenarios": [
+        {
+          "path": "experiments/cutouts/hollow_mimic/rr29/proof/production_logic_feedback1/front/hurl_spear/verification.json",
+          "ok": true,
+          "errors": [],
+          "frames": 1316,
+          "native_pixels": false
+        },
+        {
+          "path": "experiments/cutouts/hollow_mimic/rr29/proof/production_logic_feedback1/front/quick_stab/verification.json",
+          "ok": true,
+          "errors": [],
+          "frames": 1316,
+          "native_pixels": false
+        },
+        {
+          "path": "experiments/cutouts/hollow_mimic/rr29/proof/production_logic_feedback1/front/whirlwind_slash/verification.json",
+          "ok": true,
+          "errors": [],
+          "frames": 1316,
+          "native_pixels": false
+        },
+        {
+          "path": "experiments/cutouts/hollow_mimic/rr29/proof/production_logic_feedback1/rear/hurl_spear/verification.json",
+          "ok": true,
+          "errors": [],
+          "frames": 1316,
+          "native_pixels": false
+        },
+        {
+          "path": "experiments/cutouts/hollow_mimic/rr29/proof/production_logic_feedback1/rear/quick_stab/verification.json",
+          "ok": true,
+          "errors": [],
+          "frames": 1316,
+          "native_pixels": false
+        },
+        {
+          "path": "experiments/cutouts/hollow_mimic/rr29/proof/production_logic_feedback1/rear/whirlwind_slash/verification.json",
+          "ok": true,
+          "errors": [],
+          "frames": 1316,
+          "native_pixels": false
+        }
+      ],
+      "total_frames": 7896,
+      "exit_code": 0
+    },
+    "identity": {
+      "result": [
+        "ART IDENTITY CHECK: PASS (0 failures, 0 pending_reart warnings, 0 skipped replays)"
+      ],
+      "exit_code": 0
+    },
+    "icons": {
+      "result": [
+        "Ran 7 tests in 0.065s",
+        "OK"
+      ],
+      "exit_code": 0
+    },
+    "density": {
+      "exit_code": 1,
+      "result": [
+        "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: rest pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: rest pixels changed since recorded rebake"
+      ],
+      "reason": "Windowed native rest rebakes required; paint outputs are current."
+    },
+    "native_probe_load_only": "PASS in focused test; no windowed native render attempted",
+    "test_registration": "TEST REGISTRATION AUDIT: PASS (763 scripts; full suite=415, quarantined=29, windowed probe=319)",
+    "transient_diagnostics": {
+      "feedback1_focused_initial.log": "Fixed historical snapshot paths and the proof-only non-collinearity threshold.",
+      "feedback1_focused.log": "One fixture attempted to archive rr28 recipes before they existed; fixed and re-tested.",
+      "feedback1_focused_final.log": "All 179 focused checks passed."
+    },
+    "fixture_guard_regression": {
+      "result": [
+        "Ran 3 tests in 7.319s",
+        "OK",
+        "RR29 PYTHON FOCUSED: PASS (1 Godot invocations forced to rr-29)"
+      ],
+      "exit_code": 0
+    },
+    "fixture_default_names": {
+      "result": [
+        "Ran 11 tests in 19.994s",
+        "OK",
+        "RR29 PYTHON FOCUSED: PASS (3 Godot invocations forced to rr-29)"
+      ],
+      "exit_code": 0
+    },
+    "git_guard_probe": {
+      "result": [
+        "RR29 GIT GUARD: PASS (task init/add blocked; explicit temp bare destination allowed; no write executed)"
+      ],
+      "exit_code": 0
+    },
+    "inventory_adapter": {
+      "result": [
+        "Ran 2 tests in 0.012s",
+        "OK",
+        "RR29 PYTHON FOCUSED: PASS (0 Godot invocations forced to rr-29)"
+      ],
+      "exit_code": 0
+    },
+    "manifest_preview": {
+      "result": [
+        "COMMIT_CURATION: PASS; {\"budget_bytes\": 6000000, \"bytes\": 5430557, \"figure\": \"hollow_mimic\", \"files\": 107}",
+        "RR29 MAQUETTE INVENTORY PREVIEW: PASS (three proposed entries; protected manifest unchanged)"
+      ],
+      "exit_code": 0
     }
   },
+  "chosen_defaults": {
+    "crop_zoom": 4,
+    "crop_padding_px": 8,
+    "arc_noncollinearity_precision_px": 0.0001,
+    "fk_endpoint_tolerance": 0.0001,
+    "census_progress_frames": 100,
+    "sampler_timeout_s": 180,
+    "mutation_angle_or_offset": 5,
+    "mutation_frame": 20,
+    "historical_position_mutation_px": 1,
+    "max_dictionary_diff_repr_chars": 4000,
+    "sheet_peers": [
+      "hero_front",
+      "hollow_mimic_front"
+    ],
+    "residue_fixture_size_px": 2,
+    "residue_channel_mutation": 1
+  },
   "verification_notes": [
-    "The full Python run used the no-Git-write wrapper, so fixture Git-write failures are reported separately.",
-    "The extra standalone samples registration and manifest sorting were removed after the full run; the original manifest bytes and order are restored and its focused test passes. The sampler is exercised by the Python unit tests.",
-    "The full suite refreshed Briar Weaver proof/samples.json; the refreshed copy was retained in this proof/logs and the original receipt bytes were restored.",
-    "Initial expanded focused tests inherited legacy task labels; the final expanded run was repeated with 20 real Godot invocations forced to rr-29.",
-    "git mv failed on the shared index lock (Operation not permitted); checkout moves retain all supplied bytes, unstaged.",
-    "director_04 is absent; director_06 foreground pixels exactly match the staged mq11 part references. Observed untracked director_06/director_08 native-input folders were preserved untouched."
+    "The old arbitrary 0.25 source-px arc floor was replaced by non-collinearity at existing Bone2D precision. Director envelope end arcs have minimum line departure 0.1495202444 px; FK and straight-path negative controls remain.",
+    "Rear RGB neighbour means include transparent non-green neighbours, read simultaneously from the pre-step image; nearest-even quantization matches the processing pipeline; alpha is preserved.",
+    "Disposable test repositories may run required Git fixtures. The wrapper forbids mutations reaching the implementation worktree common Git directory.",
+    "The supplied native director_06/director_08 folders are inputs, remain untouched/untracked, and are excluded from the worker change inventory.",
+    "The reference move is a filesystem rename preserving bytes because the shared Git metadata is read-only; the director stages it."
   ],
   "changed_files": [
     "assets/generated/unit_shadow_cache.res",
     "assets/units/hollow_mimic_cutout/compiled_motion.json",
     "assets/units/hollow_mimic_cutout/director_motion.json",
-    "assets/units/hollow_mimic_cutout/draw_order.gd",
-    "assets/units/hollow_mimic_cutout/draw_order.gd.uid",
     "assets/units/hollow_mimic_cutout/front.json",
     "assets/units/hollow_mimic_cutout/front/foot_far.png",
     "assets/units/hollow_mimic_cutout/front/foot_far_hidden.png",
@@ -372,666 +667,230 @@
     "assets/units/hollow_mimic_cutout/rear/sleeve_near_hidden.png",
     "assets/units/hollow_mimic_cutout/rear/torso.png",
     "assets/units/hollow_mimic_cutout/rear/torso_hidden.png",
-    "assets/units/hollow_mimic_cutout/rig.gd",
-    "experiments/cutouts/hollow_mimic/build.py",
-    "experiments/cutouts/hollow_mimic/continuations.py",
-    "experiments/cutouts/hollow_mimic/cpu_proof.py",
-    "experiments/cutouts/hollow_mimic/density.py",
-    "experiments/cutouts/hollow_mimic/rr29/.gitignore",
+    "experiments/cutouts/hollow_mimic/gates.py",
+    "experiments/cutouts/hollow_mimic/rr20_preservation.py",
     "experiments/cutouts/hollow_mimic/rr29/README.md",
-    "experiments/cutouts/hollow_mimic/rr29/anatomy.json",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/foot_near_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_far_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/hand_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/head_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/head_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/leg_near_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/pelvis.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/pelvis_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/pelvis_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/sleeve_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/front/torso_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/front/torso_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_far_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/foot_near_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_far_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/hand_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/rear/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/head_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/head_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/leg_near_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/pelvis.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/pelvis_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/pelvis_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_far_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/sleeve_near_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/torso.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/torso_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/checks/rear/torso_hidden.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/clip_continuation_targets.json",
     "experiments/cutouts/hollow_mimic/rr29/compiled_motion.json",
     "experiments/cutouts/hollow_mimic/rr29/cutout.json",
     "experiments/cutouts/hollow_mimic/rr29/director_motion.json",
     "experiments/cutouts/hollow_mimic/rr29/features/front_violet_crack.png",
-    "experiments/cutouts/hollow_mimic/rr29/features/front_violet_crack.png.import",
     "experiments/cutouts/hollow_mimic/rr29/features/front_violet_crack_native.png",
-    "experiments/cutouts/hollow_mimic/rr29/features/front_violet_crack_native.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/derivation.json",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/layouts/front.json",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/foot_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/foot_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/fore_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/fore_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/fore_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/fore_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/hand_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/shin_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/shin_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/shin_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/shin_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/thigh_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/thigh_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/thigh_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/thigh_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/upper_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/upper_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/upper_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/pieces/front/upper_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_parts.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_parts.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_registration.json",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_fore_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_fore_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_fore_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_fore_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_head.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_pelvis.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_shin_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_shin_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_shin_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_shin_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_thigh_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_thigh_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_thigh_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_thigh_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_torso.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_upper_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_upper_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_upper_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/registered/front_solo_upper_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/source/front/processed.json",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/source/front/processed.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/source/front/processed.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/source/front/raw.png",
-    "experiments/cutouts/hollow_mimic/rr29/front_baseline/source/front/raw.png.import",
     "experiments/cutouts/hollow_mimic/rr29/front_baseline/source/spec_native.json",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_00.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_00.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_01.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_01.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_02.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_02.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_03.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_03.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/front_sleeve_near_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_00.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_00.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_01.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_01.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_02.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_02.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_03.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_03.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_04.png",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_04.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/holes/rear_sleeve_near_mesh.json",
     "experiments/cutouts/hollow_mimic/rr29/inputs.json",
-    "experiments/cutouts/hollow_mimic/rr29/joint_continuations.json",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/foot_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/foot_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/hand_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/leg_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/leg_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/sleeve_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/front/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/front/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/foot_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/foot_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/hand_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/leg_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/leg_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/sleeve_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/joint_source/rear/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/layouts/front.json",
     "experiments/cutouts/hollow_mimic/rr29/layouts/rear.json",
+    "experiments/cutouts/hollow_mimic/rr29/maquette_inventory.patch",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/foot_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/hand_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/head_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/head_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/leg_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/pelvis_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/pelvis_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/sleeve_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/front/torso_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/front/torso_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/foot_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/hand_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/head_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/head_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/leg_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/pelvis_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/pelvis_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/sleeve_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/pieces/rear/torso_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/pieces/rear/torso_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/presentation/front/rest.png",
-    "experiments/cutouts/hollow_mimic/rr29/presentation/front/rest.png.import",
     "experiments/cutouts/hollow_mimic/rr29/presentation/rear/rest.png",
-    "experiments/cutouts/hollow_mimic/rr29/presentation/rear/rest.png.import",
     "experiments/cutouts/hollow_mimic/rr29/proof/arm_measurements.json",
     "experiments/cutouts/hollow_mimic/rr29/proof/build.json",
-    "experiments/cutouts/hollow_mimic/rr29/proof/draw_order_findings.json",
     "experiments/cutouts/hollow_mimic/rr29/proof/verification.json",
     "experiments/cutouts/hollow_mimic/rr29/proof_status.json",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/derivation.json",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/layouts/rear.json",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/foot_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/foot_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/fore_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/fore_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/fore_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/fore_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/hand_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/head.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/head.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/shin_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/shin_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/shin_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/shin_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/thigh_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/thigh_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/thigh_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/thigh_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/upper_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/upper_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/upper_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/pieces/rear/upper_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_parts.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_parts.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_registration.json",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_fore_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_fore_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_fore_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_fore_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_hand_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_head.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_pelvis.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_shin_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_shin_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_shin_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_shin_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_thigh_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_thigh_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_thigh_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_thigh_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_torso.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_upper_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_upper_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_upper_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/registered/rear_solo_upper_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/source/rear/processed.json",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/source/rear/processed.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/source/rear/processed.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/source/rear/raw.png",
-    "experiments/cutouts/hollow_mimic/rr29/rear_baseline/source/rear/raw.png.import",
     "experiments/cutouts/hollow_mimic/rr29/rear_baseline/source/spec_native.json",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/foot_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/hand_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/head_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/head_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/head_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/head_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/leg_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/pelvis_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/pelvis_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/pelvis_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/pelvis_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/sleeve_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/torso_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/torso_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/front/torso_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/front/torso_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/foot_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/hand_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/head_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/head_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/head_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/head_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/leg_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/pelvis_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/pelvis_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/pelvis_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/pelvis_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_far_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_far_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_far_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_far_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_near_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_near_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_near_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/sleeve_near_visible.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/torso_hidden.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/torso_hidden.png.import",
     "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/torso_visible.png",
-    "experiments/cutouts/hollow_mimic/rr29/residue_source/rear/torso_visible.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/seams/front_head.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_leg_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_leg_far_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_leg_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_leg_near_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/seams/front_sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/seams/front_sleeve_far_mesh.json",
     "experiments/cutouts/hollow_mimic/rr29/seams/front_sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_sleeve_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_sleeve_near_mesh.json",
     "experiments/cutouts/hollow_mimic/rr29/seams/front_torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/front_torso.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_hand_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_head.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_leg_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_leg_far_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_leg_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_leg_near_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_pelvis.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_sleeve_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_sleeve_far_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_sleeve_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_sleeve_near_mesh.json",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/seams/rear_torso.png.import",
     "experiments/cutouts/hollow_mimic/rr29/source/front/processed.json",
     "experiments/cutouts/hollow_mimic/rr29/source/front/processed.png",
-    "experiments/cutouts/hollow_mimic/rr29/source/front/processed.png.import",
     "experiments/cutouts/hollow_mimic/rr29/source/rear/processed.json",
     "experiments/cutouts/hollow_mimic/rr29/source/rear/processed.png",
-    "experiments/cutouts/hollow_mimic/rr29/source/rear/processed.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/source_underlaps.json",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_hand_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/tucks/front_head.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_leg_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_leg_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_pelvis.png.import",
     "experiments/cutouts/hollow_mimic/rr29/tucks/front_sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_sleeve_far.png.import",
     "experiments/cutouts/hollow_mimic/rr29/tucks/front_sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_sleeve_near.png.import",
     "experiments/cutouts/hollow_mimic/rr29/tucks/front_torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/front_torso.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_foot_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_foot_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_foot_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_foot_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_hand_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_hand_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_hand_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_hand_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_head.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_head.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_leg_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_leg_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_leg_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_leg_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_pelvis.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_pelvis.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_sleeve_far.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_sleeve_far.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_sleeve_near.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_sleeve_near.png.import",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_torso.png",
-    "experiments/cutouts/hollow_mimic/rr29/tucks/rear_torso.png.import",
-    "experiments/cutouts/hollow_mimic/rr29_before.py",
+    "experiments/cutouts/hollow_mimic/rr29_baseline.py",
     "experiments/cutouts/hollow_mimic/rr29_build.py",
-    "experiments/cutouts/hollow_mimic/rr29_continuations.py",
     "experiments/cutouts/hollow_mimic/rr29_gates.py",
-    "experiments/cutouts/hollow_mimic/rr29_identity.py",
     "experiments/cutouts/hollow_mimic/rr29_measure.py",
-    "experiments/cutouts/hollow_mimic/rr29_preservation.py",
-    "experiments/cutouts/hollow_mimic/rr29_production.py",
-    "experiments/cutouts/hollow_mimic/rr29_proof.sh",
-    "experiments/cutouts/hollow_mimic/rr29_source.py",
-    "experiments/cutouts/hollow_mimic/underlaps.py",
     "scripts/maquette_cutout_runtime/humanoid_gait.gd",
-    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/director_verdict.md",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/landmarks.json",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/match_reference.json",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/processed.json",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/processed.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/processed.png.import",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/prompt.md",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/01_maquette_front_parts_mq11.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/01_maquette_front_parts_mq11.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/02_maquette_front_clay_mq11.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/02_maquette_front_clay_mq11.png.import",
+    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/01_maquette_front_parts_mq11b.png",
+    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/01_maquette_front_parts_mq11b.png.import",
+    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/02_maquette_front_clay_mq11b.png",
+    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/02_maquette_front_clay_mq11b.png.import",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/03_current_painting_front.png",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/03_current_painting_front.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/03_hero_front.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/03_hero_front.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/04_original_mimic_front.png",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/04_original_mimic_front.png.import",
+    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/05_hero_front.png",
+    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/05_hero_front.png.import",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/raw_approved.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/raw_approved.png.import",
     "spec/art_identity/jobs/hollow_mimic/mq11_front/sheet_pair.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_front/sheet_pair.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/director_verdict.md",
     "spec/art_identity/jobs/hollow_mimic/mq11_rear/kit.json",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/landmarks.json",
     "spec/art_identity/jobs/hollow_mimic/mq11_rear/match_reference.json",
     "spec/art_identity/jobs/hollow_mimic/mq11_rear/processed.json",
     "spec/art_identity/jobs/hollow_mimic/mq11_rear/processed.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/processed.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/prompt.md",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/prompt_r2.md",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/01_maquette_rear_parts_mq11.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/01_maquette_rear_parts_mq11.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/02_maquette_rear_clay_mq11.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/02_maquette_rear_clay_mq11.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/03_current_painting_rear.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/03_current_painting_rear.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/04_approved_front_mq11.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/04_approved_front_mq11.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/04_original_mimic_rear.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/04_original_mimic_rear.png.import",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/raw_approved.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/raw_approved.png.import",
     "spec/art_identity/jobs/hollow_mimic/mq11_rear/sheet_pair.png",
-    "spec/art_identity/jobs/hollow_mimic/mq11_rear/sheet_pair.png.import",
+    "spec/art_identity/maquettes/hollow_mimic/prompt_front_mq11b.md",
+    "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11.md",
+    "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11_r2.md",
     "spec/art_identity/registry.json",
     "spec/assets/board_pixel_density/outputs.json",
     "spec/assets/board_pixel_density/registry.json",
@@ -1081,268 +940,135 @@
     "spec/assets/board_pixel_density/sources/assets/units/hollow_mimic_cutout/rear/sleeve_near_hidden.png",
     "spec/assets/board_pixel_density/sources/assets/units/hollow_mimic_cutout/rear/torso.png",
     "spec/assets/board_pixel_density/sources/assets/units/hollow_mimic_cutout/rear/torso_hidden.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/01_maquette_front_parts_mq11.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/01_maquette_front_parts_mq11.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/02_maquette_front_clay_mq11.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/02_maquette_front_clay_mq11.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/03_current_painting_front.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/03_current_painting_front.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/03_hero_front.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/03_hero_front.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/04_original_mimic_front.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/04_original_mimic_front.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/01_maquette_rear_parts_mq11.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/01_maquette_rear_parts_mq11.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/02_maquette_rear_clay_mq11.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/02_maquette_rear_clay_mq11.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/03_current_painting_rear.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/03_current_painting_rear.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_approved_front_mq11.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_approved_front_mq11.png.import",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_original_mimic_rear.png",
-    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_original_mimic_rear.png.import",
-    "spec/peer_benchmark/staged/paintovers/hollow_mimic_front_mq11.md",
-    "spec/peer_benchmark/staged/paintovers/hollow_mimic_rear_mq11.md",
-    "spec/peer_benchmark/staged/paintovers/hollow_mimic_rear_mq11_r2.md",
-    "tests/rr29/native_probe.gd",
-    "tests/rr29/native_probe.gd.uid",
-    "tests/rr29/production_probe.gd",
-    "tests/rr29/production_probe.gd.uid",
-    "tests/rr29/samples.gd",
-    "tests/rr29/samples.gd.uid",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/01_maquette_front_parts_mq11b.png",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/01_maquette_front_parts_mq11b.png.import",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/02_maquette_front_clay_mq11b.png",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/02_maquette_front_clay_mq11b.png.import",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/03_current_painting_front.png",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/03_current_painting_front.png.import",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/04_original_mimic_front.png",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/04_original_mimic_front.png.import",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/05_hero_front.png",
+    "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/05_hero_front.png.import",
+    "tests/mq11_preservation.py",
+    "tests/rr29_historical_mimic.py",
     "tests/rr29_python_suite.py",
+    "tests/test_rr20_cutout.py",
+    "tests/test_rr20_feedback2.py",
+    "tests/test_rr26_fragments.py",
+    "tests/test_rr28_continuations.py",
+    "tests/test_rr29_historical_ranges.py",
     "tests/test_rr29_mimic.py",
-    "tests/windowed_test_allowlist.json",
+    "tools/art_identity_gate.py",
+    "tools/art_identity_post_steps.py",
     "tools/humanoid_cutout/gait.py"
   ],
-  "provided_native_input_files_not_changed_or_staged": [
-    "tests/mq11_proof/director_06/hollow_mimic/capture/build_report.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/capture_checks.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/capture_manifest.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/facing_report.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_clay.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_parts.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_silhouette.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_foot_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_foot_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_fore_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_fore_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_hand_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_hand_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_head.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_pelvis.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_shin_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_shin_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_thigh_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_thigh_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_torso.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_upper_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_solo_upper_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_torso.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/front_torso_frontal_control.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/joints_px.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/mq11_fit.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/mq11_meshes.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/mq11_native_validation.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/mq11_shape.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/ownership_validation.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_clay.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_parts.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_silhouette.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_foot_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_foot_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_fore_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_fore_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_hand_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_hand_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_head.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_pelvis.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_shin_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_shin_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_thigh_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_thigh_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_torso.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_upper_far.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/rear_solo_upper_near.png",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/solo_coverage.json",
-    "tests/mq11_proof/director_06/hollow_mimic/capture/source_spec.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/build_report.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/capture_checks.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/capture_manifest.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/facing_report.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_clay.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_parts.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_silhouette.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_foot_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_foot_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_fore_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_fore_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_hand_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_hand_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_head.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_pelvis.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_shin_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_shin_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_thigh_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_thigh_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_torso.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_upper_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_solo_upper_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_torso.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/front_torso_frontal_control.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/joints_px.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/mq11_fit.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/mq11_meshes.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/mq11_native_validation.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/mq11_shape.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/ownership_validation.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_clay.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_parts.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_silhouette.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_foot_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_foot_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_fore_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_fore_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_hand_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_hand_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_head.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_pelvis.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_shin_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_shin_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_thigh_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_thigh_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_torso.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_upper_far.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/rear_solo_upper_near.png",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/solo_coverage.json",
-    "tests/mq11_proof/director_08/hollow_mimic/capture/source_spec.json"
+  "owner_proof_commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh density",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh rest",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh native",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh sheets",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh idle",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh production",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh review"
+  ],
+  "owner_capture_paths": [
+    "experiments/cutouts/hollow_mimic/rr29/proof/native_rest",
+    "experiments/cutouts/hollow_mimic/rr29/proof/native",
+    "experiments/cutouts/hollow_mimic/rr29/proof/contact_sheets",
+    "experiments/cutouts/hollow_mimic/rr29/proof/idle_native",
+    "experiments/cutouts/hollow_mimic/rr29/proof/production_native",
+    "experiments/cutouts/hollow_mimic/rr29/proof/hollow_mimic_review.mp4"
+  ],
+  "inspection_fixture": "Probes construct fixtures; no inspection_fixture.py command requested by brief. Saved fixture is director-owned.",
+  "open_issues": [
+    "Director windowed native/density/rest/idle/production captures, review MP4 and sheet re-judgment remain pending.",
+    "Protected maquette COMMIT_MANIFEST.txt lacks the three authorized prompt copies; exact three-entry patch prepared and curation preview passes; awaiting director scope decision."
   ],
   "logs": {
-    "art_identity_tests.log": {
-      "file": "proof/art_identity_tests.log",
-      "sha256": "4a2299c24962a968522c8dfe14c2ae0b1c9156b06fcb6bc22dc06d9d58ac7716"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_all_fixture_guards_fixed.log": {
+      "sha256": "b5f8249f14def30eef0456d2b2eead4124101ee974e4bd7c332fe3c4a1c0417f"
     },
-    "before_crops.log": {
-      "file": "proof/before_crops.log",
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_before_crops.log": {
       "sha256": "df11c9d737852c365c0554164049656afb377d8c3a24a6e634b4364042dbc5ae"
     },
-    "census.log": {
-      "file": "proof/census.log",
-      "sha256": "640eacdd425d0058d183b8ea5c5abad615dfd25ad53ad5e0d091a13efbd5bebb"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_build.log": {
+      "sha256": "f5bc7ccbabbbd45a7ac534bab73a61c33adccf58bbe961dd5306575bb2cb722c"
     },
-    "census_final.log": {
-      "file": "proof/census_final.log",
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_census.log": {
       "sha256": "01751232e7ea081dbd2cf86968b4b328ece41cdd9e4eb9fb57ebc73600945b78"
     },
-    "density_check.log": {
-      "file": "proof/density_check.log",
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_density.log": {
       "sha256": "c1acddc98f9ca1df92fccd8acfe5ca6bf7f2cff69d027edef75dae2c3cff062a"
     },
-    "focused.log": {
-      "file": "proof/focused.log",
-      "sha256": "1a0320fc4a170ed58cde7a0bc6fca899f30833caa1a346e8604244f7cfa6f694"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_fixture_guard_fixed.log": {
+      "sha256": "4d200b726172ddffaa3f5b4db3c0f618095f862060c0276414cc4dac7dd4bf7b"
     },
-    "focused_final.log": {
-      "file": "proof/focused_final.log",
-      "sha256": "5571e2137e58764d80d6266d614441f8ea1ffaa190cfd3bfb86a9211a7278fb9"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_fixture_guard_repro.log": {
+      "sha256": "81b925f3b255467a5bc6066f09d811957215c33b35c6f7f86b9d68ab3d403145"
     },
-    "focused_rr29.log": {
-      "file": "proof/focused_rr29.log",
-      "sha256": "6e776c64e71caadf57a426b40005984278552e779f5692e20850a0e1a50814c2"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_focused.log": {
+      "sha256": "55441d7c2c905d7e7360f7c196d65ca096110575e81cafacf8c5ab8c25ec3b3e"
     },
-    "focused_rr29_final.log": {
-      "file": "proof/focused_rr29_final.log",
-      "sha256": "1e40c85f5b42c5ff0f22081f04427a739aba30228c44cef2a7a44af4e38cd248"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_focused_final.log": {
+      "sha256": "551e271d2c25654637fd5eb17b476020ca15ec4702740956e651afda9a9e2495"
     },
-    "full_godot.log": {
-      "file": "proof/full_godot.log",
-      "sha256": "4329560253b60c247b28869b3565929444b5f5aa30c5093daf50a06029e3f81e"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_focused_initial.log": {
+      "sha256": "a7ebe0fb5652e05f1dc5cab9373288d54e240dbab5472d1e633a3a897295a299"
     },
-    "full_python.log": {
-      "file": "proof/full_python.log",
-      "sha256": "bdbaceb183a14b1460511f54330fa0ed53f71076adf1c3b6cab9844e06c41206"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_full_godot.log": {
+      "sha256": "125608c05f1549a9fec7d5c90450f9e81d71c0ab63dfceb2dcff904a57779974"
     },
-    "gates_final.log": {
-      "file": "proof/gates_final.log",
-      "sha256": "5f43ff707aae4dcc9a71b977930181e8d36b27419e622db2d22f019d27e3058a"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_full_python.log": {
+      "sha256": "327d773c327ed6ee116c88485c9bcd064d2027edc1b74323dab8da95362df43b"
     },
-    "identity_check.log": {
-      "file": "proof/identity_check.log",
-      "sha256": "f3f7f4685afe2826b8a1c8736c4c388e761ed64e928aacc6b578af2bff757709"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_gates.log": {
+      "sha256": "cc63d60b43c687c07ceee5e762a6a233acca4dd39c47a450a1c02ed3aeaca525"
     },
-    "identity_register.log": {
-      "file": "proof/identity_register.log",
-      "sha256": "0213fa0c2914ff567a310c8c0de9dd524417a0a8e30c47bbf4377950e9a01913"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_git_guard_probe.log": {
+      "sha256": "c6a6e24fb39cc9af350bd3ab59301d035656935909e40c16e7b8bf40e89bf787"
     },
-    "manifest_focus.log": {
-      "file": "proof/manifest_focus.log",
-      "sha256": "97d8d3f87384db4caadc400e0c2f9f567f1704d6a35df09f51bb226fab2e40e3"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_icons.log": {
+      "sha256": "90e01f19a641ee129f67d2048724400e42e6eb671a8f528320cf3f6eeedba223"
     },
-    "production.log": {
-      "file": "proof/production.log",
-      "sha256": "42d3f5139e25446280692327448a67ed816d5291b9ffcc569cb2facf9428a019"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_identity.log": {
+      "sha256": "fe3eb05d7698c1f526e2a04583303887147ee43118e74f94ec0545298c5f983a"
     },
-    "production_final.log": {
-      "file": "proof/production_final.log",
-      "sha256": "3fa5c732d59113964681200ba1036a2b92de402dfcb0c78973b8dd0f1023c963"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_inventory_adapter.log": {
+      "sha256": "f01558fb0690f2e6903469d098d10007b5d27e1cb695411d12e8eadd7cd54284"
     },
-    "registration.log": {
-      "file": "proof/registration.log",
-      "sha256": "11f9c5cdc8f6711afdd84afe6683957da9bff410835290128303ee1ba66252cb"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_manifest_preview.log": {
+      "sha256": "59d962d06b8f3c7573dbc55c8529ba3f8197b2eabc931ac01b70002797a8d5ac"
     },
-    "samples.log": {
-      "file": "proof/samples.log",
-      "sha256": "9bf192f47ecbefff41f115a5aad3153bd3ab0cfc0139b6f549e584d50df805ea"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_named_fixture_check.log": {
+      "sha256": "4c44cb7deea937f9f874321b86a59f9a69da4747b58ad6dc2c8e3ffbf299bbb2"
     },
-    "shadow.log": {
-      "file": "proof/shadow.log",
-      "sha256": "153ec915d0703b0a6a1161fdcd126b152e56284bb55d208fc35c2b37eede592b"
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_production.log": {
+      "sha256": "9d02d8935014f56932cb6c7ae4675da074893d1bc5c84a3df897e19ca6cfca31"
+    },
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_range_mutations.log": {
+      "sha256": "f4b661f6b1bc1e4fde0ac28a9fb74220cf6f6f7bff0f248bc16129b17427e3c5"
+    },
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_samples.log": {
+      "sha256": "9463bedec786a2ae87363d5c07d2b45ebf0c0e5fefc0d397bc4e34c603e4ebfd"
+    },
+    "experiments/cutouts/hollow_mimic/rr29/proof/feedback1_shadows.log": {
+      "sha256": "ee931f45f79acb8afcdcfc030661731bbedd4df76ffce9db34fa985767fdf56e"
     }
   },
-  "owner_proof_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh <density|rest|native|sheets|idle|production|review>",
-  "owner_capture_paths": [
-    "proof/native_rest/",
-    "proof/native/",
-    "proof/contact_sheets/",
-    "proof/idle_native/",
-    "proof/production_native/",
-    "proof/hollow_mimic_review.mp4"
-  ],
+  "head_unchanged": true,
+  "uncommitted": true,
+  "restored_test_receipt": {
+    "path": "experiments/cutouts/briar_weaver/mq9/proof/samples.json",
+    "restored_sha256": "a497ee7b2083088f4e032564ad42066a4119ae909aafb572be2b49c45b8c2ceb",
+    "generated_sha256": "3cfbaf1a66b055b6531fe9b7baf75d48c04a47adfb89d8dadf43fbc7827d2abc",
+    "generated_receipt_copy": "experiments/cutouts/hollow_mimic/rr29/proof/logs/feedback1_briar_weaver_samples.json"
+  },
+  "authorized_work_complete": true,
   "checks": {
-    "git_diff_check": "PASS",
-    "density_module_load": "PASS",
-    "original_test_manifest_bytes_restored": true,
-    "director_motion_unchanged": true,
-    "rear_revision_prompt_bytes_preserved": true
-  },
-  "chosen_defaults": {
-    "proof": {
-      "crop_zoom": 4,
-      "crop_padding_px": 8,
-      "arc_departure_min_px": 0.25,
-      "matrix_tolerance": 0.0001,
-      "progress_frames": 100,
-      "sheet_peers": [
-        "hero_front",
-        "hollow_mimic_front"
-      ]
-    },
-    "test": {
-      "timeout_s": 180,
-      "mutation_angle_deg": 5,
-      "mutation_frame": 20,
-      "max_dictionary_diff_repr_chars": 4000
-    }
-  },
-  "commands": {
-    "focused_rr29": "python3 -m unittest tests.test_rr29_mimic -v",
-    "focused_expanded": "python3 tests/rr29_python_suite.py tests.test_rr29_mimic tests.test_gait01 tests.test_rr28_continuations tests.test_rr28_shadow",
-    "full_godot": "python3 tools/godot_task_runner.py --task-id rr-29 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
-    "full_python": "python3 tests/rr29_python_suite.py",
-    "headless_gates": "PYTHONPATH=tools python3 experiments/cutouts/hollow_mimic/rr29_gates.py",
-    "canonical": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 PYTHONPATH=tools python3 experiments/cutouts/hollow_mimic/rr29_gates.py --census",
-    "identity": "python3 tools/art_identity_gate.py check",
-    "identity_tests": "python3 tests/test_art_identity_gate.py",
-    "density": "python3 tools/process_board_density.py --check --only hollow_mimic_cutout"
+    "task_head_unchanged": true,
+    "index_unstaged": true,
+    "provided_manifest_unchanged": true,
+    "other_figures": true
   }
 }

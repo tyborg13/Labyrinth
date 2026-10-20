@@ -44,10 +44,17 @@ def validate(gait, clip):
     arms = gait['arm_swing']
     pendulum = arms.get('model') == 'shoulder_pendulum'
     if 'model' in arms and not pendulum: raise ValueError('gait: unknown arm model')
-    if set(arms) - set(SIDES) - ({'model', '_doc', 'phase'} if pendulum else set()):
+    if set(arms) - set(SIDES) - ({'model', '_doc', 'phase', 'envelope'} if pendulum else set()):
         raise ValueError('gait: unknown arm side')
     if pendulum and arms.get('phase') != 'opposite_same_side_leg':
         raise ValueError('gait: unknown pendulum phase')
+    if pendulum and 'envelope' in arms:
+        envelope = arms['envelope']
+        if (set(envelope) - {'ramp_fraction', 'ease', '_doc'} or
+                envelope.get('ease') != 'smoothstep' or
+                type(envelope.get('ramp_fraction')) not in (int, float) or
+                not 0 < envelope['ramp_fraction'] <= .5):
+            raise ValueError('gait: invalid pendulum envelope')
     arm_numbers = []
     for side in SIDES:
         if side not in arms: continue

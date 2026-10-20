@@ -5364,14 +5364,14 @@
       "facings": {
         "front": {
           "measurement_path": "assets/units/hollow_mimic_cutout/front/rest.png",
-          "orphan_share": 0.0699801799054734,
-          "t": 1.099900899527367,
-          "grid": 1.1,
+          "orphan_share": 0.07517677707480462,
+          "t": 1.1258838853740232,
+          "grid": 1.13,
           "mode": "clean"
         },
         "rear": {
           "measurement_path": "assets/units/hollow_mimic_cutout/rear/rest.png",
-          "orphan_share": 0.04924186662741057,
+          "orphan_share": 0.04902105108199617,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"

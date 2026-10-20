@@ -1,8 +1,9 @@
 """Keep rr-20's original inventory pinned while mq-11 adds authoring inputs.
 
 The new authoring files are checked by the live maquette manifest test. This
-adapter removes only mq-11's explicitly named additions before checking the
-older rr-20 receipt. Every original line and every paint/source pin stays live.
+adapter removes mq-11's named additions and rr-29's three authorized canonical
+prompt copies before checking the older receipt. rr-29 separately checks every
+prompt byte against its supplied source. Every original inventory line remains.
 """
 from contextlib import contextmanager
 import hashlib
@@ -20,11 +21,13 @@ MQ11_LINES = frozenset({
     'owner_review/candidate.py', 'owner_review/design.json', 'owner_review/measurements.py',
     'owner_review/native_probe.py', 'owner_review/preservation.py', 'owner_review/proof.py',
     'owner_review/workflow.py'})
+RR29_PROMPT_LINES = frozenset({'prompt_front_mq11b.md', 'prompt_rear_mq11.md',
+    'prompt_rear_mq11_r2.md'})
 
 
 def inherited_inventory(blob):
     return b''.join(line for line in blob.splitlines(keepends=True)
-                    if line.rstrip(b'\r\n').decode('utf-8') not in MQ11_LINES)
+                    if line.rstrip(b'\r\n').decode('utf-8') not in MQ11_LINES | RR29_PROMPT_LINES)
 
 
 @contextmanager

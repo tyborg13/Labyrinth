@@ -1,12 +1,8 @@
 {
   "front_job": "spec/art_identity/jobs/hollow_mimic/mq11_front",
   "rear_job": "spec/art_identity/jobs/hollow_mimic/mq11_rear",
-  "front_delivery": "tests/mq11_proof/director_06/hollow_mimic/capture",
+  "front_delivery": "tests/mq11_proof/director_08/hollow_mimic/capture",
   "rear_delivery": "tests/mq11_proof/director_06/hollow_mimic/capture",
   "fused_occlusion": true,
-  "design_placeholders": {
-    "TODO_DESIGN_pendulum_travel": "Protected director angles and lag yield front/near and rear/far hand travel below 2.5x the measured rr20 slide. No motion values changed to hide the failure.",
-    "TODO_DESIGN_pendulum_terminal_lag": "At phase 1 the delayed forearm still follows its phase 0.9125 upper-arm pose. A terminal recovery policy is absent from the protected data; exact 0.07 s delay retained.",
-    "TODO_DESIGN_mq11_prompt_source": "Brief requires staged prompts moved into owned jobs. Existing maquette registry validator requires prompt_source under spec/art_identity/maquettes/. Truthful staged provenance retained; no fabricated source or exemption."
-  }
+  "design_placeholders": {}
 }

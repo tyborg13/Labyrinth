@@ -27,7 +27,8 @@ def build():
     inputs['design_placeholders'] = read_json(CASE/'proof_status.json')['design_followups']
     for view in VIEWS:
         inputs[view+'_job'] = f'spec/art_identity/jobs/hollow_mimic/mq11_{view}'
-        inputs[view+'_delivery'] = 'tests/mq11_proof/director_06/hollow_mimic/capture'
+        receipt = 'director_08' if view == 'front' else 'director_06'
+        inputs[view+'_delivery'] = f'tests/mq11_proof/{receipt}/hollow_mimic/capture'
     write_json(CASE/'inputs.json', inputs)
     # Same declared geometric domains; donors and all texels are re-derived.
     for name in ('joint_continuations.json', 'source_underlaps.json'):

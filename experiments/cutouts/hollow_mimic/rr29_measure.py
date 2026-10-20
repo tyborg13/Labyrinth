@@ -7,7 +7,9 @@ from humanoid_cutout.gait import schedule
 from humanoid_cutout.gates import matrix
 from humanoid_cutout.cpu_pose import CpuPose
 
-PROOF = {'crop_zoom':4, 'crop_padding_px':8, 'arc_departure_min_px':0.25,
+# Test non-collinearity at serialized-bone precision. The director's terminal
+# ramp shortens the first/last arcs; no minimum visible curvature was authored.
+PROOF = {'crop_zoom':4, 'crop_padding_px':8, 'arc_departure_min_px':0.0001,
          'matrix_tolerance':0.0001}
 
 
@@ -28,6 +30,14 @@ def wave(gait, side, phase):
 def diameter(points):
     points=np.asarray(points)
     return float(np.linalg.norm(points[:,None]-points[None,:],axis=2).max())
+
+
+def envelope_at(gait, phase):
+    envelope = gait['arm_swing'].get('envelope')
+    if envelope is None: return 1.
+    ramp = envelope['ramp_fraction']
+    smooth = lambda value: (lambda u: u*u*(3-2*u))(min(1.,max(0.,value/ramp)))
+    return smooth(phase)*smooth(1-phase)
 
 
 def arm_report(samples, before):
@@ -63,7 +73,9 @@ def arm_report(samples, before):
             # Independently derive the exact authored FK from director angles.
             for row in samples['samples']:
                 if row['view']!=view or row['clip']!='move' or row['kind']!='authored':continue
-                phase=row['phase'];w=wave(gait,side,phase);lag=wave(gait,side,phase-settings['forearm_lag_s']/clip['seconds'])
+                phase=row['phase'];envelope=envelope_at(gait,phase)
+                w=wave(gait,side,phase)*envelope
+                lag=wave(gait,side,phase-settings['forearm_lag_s']*envelope/clip['seconds'])*envelope
                 base=matrix(row['bones']['torso']['global']);base_angle=math.atan2(base[1,0],base[0,0])
                 cross=lambda a,b: a[0]*b[1]-a[1]*b[0]
                 direction=np.sign(cross(c-a,forward));bend_side=np.sign(cross(b-a,c-b))
@@ -75,7 +87,14 @@ def arm_report(samples, before):
                     actual=matrix(row['bones'][name]['global'])
                     if not np.allclose(actual[:2,:2],rot(angle),atol=PROOF['matrix_tolerance'],rtol=0) or not np.allclose(actual[:2,2],position,atol=PROOF['matrix_tolerance'],rtol=0):
                         errors.append(f'{view}/{side}/{phase}: pendulum FK differs from director model');break
-            result[view][side]={'peak_to_peak_px':travel,'rr20_slide_px':slide,'ratio':travel/slide,
+            endpoints=[]
+            for row in (rows[0],rows[-1]):
+                root=np.array(row['bones']['root']['global'][4:])-layout['joints']['root']['position']
+                delta=max(float(np.max(np.abs(matrix(row['bones'][name]['global'])[:2,:2]-np.eye(2)))) for name in names)
+                delta=max(delta,max(float(np.max(np.abs(np.array(row['bones'][name]['global'][4:])-root-layout['joints'][name]['position']))) for name in names))
+                endpoints.append({'frame':row['frame'],'phase':row['phase'],'maximum_rest_error':delta})
+                if delta>PROOF['matrix_tolerance']:errors.append(f'{view}/{side}/{row["frame"]}: endpoint differs from root-translated rest')
+            result[view][side]={'peak_to_peak_px':travel,'rr20_slide_px':slide,'ratio':travel/slide,'endpoints':endpoints,
                 'step_arc_departure_px':residuals, 'screen_pixel_scale':samples['screen_pixel_scale']}
     return {'ok':not errors,'errors':sorted(set(errors)),'views':result,'units':'source px; screen px = source px * screen_pixel_scale'}
 

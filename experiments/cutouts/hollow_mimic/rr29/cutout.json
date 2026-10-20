@@ -38,7 +38,7 @@
           "_doc": "Director (owner 2026-10-20: 'the arms don't sway realistically during the walk'). The upper arm rotates about the shoulder joint in screen space toward the facing direction (forward) and away from it (back), opposite the same-side leg; the forearm follows the upper arm with a time lag and bends more on the backswing; the hand is rigid with the forearm. Replaces the 4 px hand-target slide.",
           "phase": "opposite_same_side_leg",
           "near": {
-            "upper_deg": 14,
+            "upper_deg": 16,
             "forearm_lag_s": 0.07,
             "forearm_bend_deg": {
               "forward": 3,
@@ -46,12 +46,17 @@
             }
           },
           "far": {
-            "upper_deg": 12,
+            "upper_deg": 14,
             "forearm_lag_s": 0.07,
             "forearm_bend_deg": {
               "forward": 3,
               "back": 10
             }
+          },
+          "envelope": {
+            "ramp_fraction": 0.12,
+            "ease": "smoothstep",
+            "_doc": "Director rr-29 fb1: swing amplitude and forearm lag ramp in over the first and out over the last 12% of the clip, so the walk starts and ends exactly at rest."
           }
         },
         "max_fit_px": 6
@@ -103,11 +108,7 @@
     "bolt",
     "mirror"
   ],
-  "design_placeholders": {
-    "TODO_DESIGN_pendulum_travel": "Protected director angles and lag yield front/near and rear/far hand travel below 2.5x the measured rr20 slide. No motion values changed to hide the failure.",
-    "TODO_DESIGN_pendulum_terminal_lag": "At phase 1 the delayed forearm still follows its phase 0.9125 upper-arm pose. A terminal recovery policy is absent from the protected data; exact 0.07 s delay retained.",
-    "TODO_DESIGN_mq11_prompt_source": "Brief requires staged prompts moved into owned jobs. Existing maquette registry validator requires prompt_source under spec/art_identity/maquettes/. Truthful staged provenance retained; no fabricated source or exemption."
-  },
+  "design_placeholders": {},
   "runtime_paths": [
     "scripts/maquette_cutout_runtime/humanoid_motion.gd",
     "scripts/maquette_cutout_runtime/humanoid_presentation.gd",

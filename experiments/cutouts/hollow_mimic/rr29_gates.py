@@ -23,11 +23,12 @@ from residue import count as residue_count,feature_mask
 from maquette_motion.features import source_pixels
 
 PROOF = {'progress_frames':100}
-DESIGN_FOLLOWUPS = {'TODO_DESIGN_mq11_rear_residue':
-    'The approved mq11 rear contains two green residue texels in the rigid head. Exact rest identity preserves it; removing or recolouring it needs director data.'}
+DESIGN_FOLLOWUPS = {}
 
 
 def headless(samples):
+    from rr29_baseline import sample
+    before=sample(CASE/'proof/before_samples.json')
     data=read_json(CASE/'compiled_motion.json');build=read_json(CASE/'proof/build.json');bound=bindings(CASE)
     layouts={v:read_json(CASE/f'layouts/{v}.json') for v in VIEWS}
     errors=[];views={}
@@ -51,7 +52,7 @@ def headless(samples):
         errors+=source+bones+direction['errors']+knee['errors']+support['errors']+target['errors']
         views[v]={'source_errors':source,'bone_errors':bones,'direction_errors':direction['errors'],
             'walk':knee,'supports':support,'reach':target}
-    arms=arm_report(samples,read_json(CASE/'proof/before_samples.json'));draw=draw_report(samples,crops=True)
+    arms=arm_report(samples,before);draw=draw_report(samples,crops=True)
     errors+=arms['errors']+draw['errors']
     write_json(CASE/'proof/arm_measurements.json',arms)
     write_json(CASE/'proof/draw_order_findings.json',draw)

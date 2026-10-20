@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://5fuym8fhnxid"
-path="res://.godot/imported/04_original_mimic_front.png-8b4b5670ce8e69f0fb35a07726c2c9e1.ctex"
+uid="uid://dkrbc2332fwnc"
+path="res://.godot/imported/04_original_mimic_front.png-6c894e1ffd5fd87828ded44c2310dee1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/04_original_mimic_front.png"
-dest_files=["res://.godot/imported/04_original_mimic_front.png-8b4b5670ce8e69f0fb35a07726c2c9e1.ctex"]
+source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/04_original_mimic_front.png"
+dest_files=["res://.godot/imported/04_original_mimic_front.png-6c894e1ffd5fd87828ded44c2310dee1.ctex"]
 
 [params]
 
