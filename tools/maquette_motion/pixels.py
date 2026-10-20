@@ -6,6 +6,7 @@ from cutout_pipeline.cases import read_json
 from maquette_motion.gates import expected_bones, bindings_match, unpack
 from maquette_motion.raster import nearest_quad, SUBTEXEL_TIE_EPSILON
 from maquette_motion import native_ties
+from humanoid_cutout.native_frames import load_frame
 
 # Held frames have an exact zero tolerance; at most 1% of a part's occupied pixels
 # may show unexplained temporal change at raster boundaries (director, rr-05 fb 9).
@@ -22,10 +23,10 @@ def rest_identity(case):
     views = {}
     for view in ('front', 'rear'):
         layout = read_json(case / f'layouts/{view}.json')
-        approved = Image.open(case / layout['rest_source']).convert('RGBA')
+        approved = load_frame(case / layout['rest_source']).convert('RGBA')
         composed = Image.new('RGBA', approved.size)
         for part in sorted(layout['parts'], key=lambda p: p['z_index']):
-            composed.alpha_composite(Image.open(case / part['file']).convert('RGBA'), tuple(part['offset']))
+            composed.alpha_composite(load_frame(case / part['file']).convert('RGBA'), tuple(part['offset']))
         difference = np.any(np.asarray(composed) != np.asarray(approved), axis=2)
         views[view] = {'different_pixels': int(difference.sum()), 'pixel_identical': not difference.any()}
         views[view]['pixel_identical'] = bool(views[view]['pixel_identical'])
@@ -200,7 +201,7 @@ def shimmer(case, report, native=None):
             continue
         bone_samples = {r['frame']: expected_bones(data, layout, view, 'idle', phase_for(data['clips']['idle'], r['phase']), report['step_distance_px']) for r in rows}
         for part in layout['parts']:
-            image = Image.open(case / part['file']).convert('RGBA')
+            image = load_frame(case / part['file']).convert('RGBA')
             # One conservative fixed ROI per part and complete loop. This is
             # an acceleration of the same fixed-canvas count, never per-frame
             # fitting or removal of edge pixels from the residual metric.
@@ -244,8 +245,8 @@ def shimmer(case, report, native=None):
                         failures.append(f'{view}/{part["name"]}: missing native part frame {row["frame"]}')
                         continue
                     entry = native_rows[key]
-                    actual = np.asarray(Image.open(native['directory'] / entry['after']).convert('RGBA'))
-                    baseline = np.asarray(Image.open(native['directory'] / entry['before']).convert('RGBA'))
+                    actual = np.asarray(load_frame(native['directory'] / entry['after']).convert('RGBA'))
+                    baseline = np.asarray(load_frame(native['directory'] / entry['before']).convert('RGBA'))
                     if actual.shape != (512, 512, 4) or baseline.shape != (512, 512, 4):
                         failures.append('Wrong isolated native part dimensions')
                         continue

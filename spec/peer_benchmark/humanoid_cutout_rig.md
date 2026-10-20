@@ -60,6 +60,26 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
 - **Proof:** in every presented idle frame, every visible pixel equals its group's rest pixel shifted by a whole-pixel
   offset. The mismatch count is 0.
 
+Native proof still renders at 1920×1080 and 100% UI scale. Disk frames use one fixed run-wide rectangle covering
+the projected full action canvas in both views and all clip positions, padded by 16 screen pixels and clamped to
+the frame; `size` retains the original space and `crop` records `[x,y,w,h]`. Isolated rig surfaces already span
+their full action canvas. The shared native-frame loader restores coordinates for gates, contact sheets and
+reels, and production captures retain `full_<clip>.png` for board/floor samples outside the crop. The director
+approved lossless WebP from the Seer production benchmark; its report drives capture encoding directly. The
+benchmark compares cropped PNG, lossless WebP and headered RGBA without new dependencies, and
+verifies every RGBA byte (including hidden RGB), while the headless equivalence harness compares gate JSON,
+renderer texture hashes and exact decoded reel frames. Real-renderer timing and Seer/Mortar before/after proof
+remain director-run checks. Native captures keep exact inventories. Real-time production counts are reported,
+while non-looping production frames match by capture view, stage and renderer `presented_phase` (raw `phase`
+when absent), retaining repeated phase occurrences. Matched texture hashes must be identical; each non-looping
+clip may have at most two unmatched frames per side across the case's views, all listed in the comparison.
+Clips marked `loop: true` instead require identical nonempty sets of distinct renderer pixel hashes per view,
+independent of sampling order or frequency; `idle` uses this rule only when no explicit `loop` flag is present.
+Production gates receive the combined views once per case; verdicts, errors and observed process exits must
+agree between runs. Performance reports record and print seconds and GB for every production run and each
+rig's aggregate. The under-eight-minute and under-1-GB targets apply per run and are advisory; valid captures
+and manifests succeed even when a target is missed.
+
 ## 3. Actions, move, hit and death: translation-led
 - The body acts by moving, not by spinning. Translations of `torso` and `pelvis` carry the action.
   - Torso lean: at most 4° from rest. Head nod: at most 6° relative to the torso.

@@ -16,6 +16,7 @@ from rr24_check import source_errors as thrall_source_errors
 from rr24_build import visible_layers, clean_residue
 from rr24_materials import donor_palettes, exposed_provenance
 from maquette_motion.material_palette import rules
+from humanoid_cutout.native_frames import frame_digest, load_frame
 
 
 def errors(case,capture,failure_output=None,hole_details=None):
@@ -30,7 +31,7 @@ def errors(case,capture,failure_output=None,hole_details=None):
     palettes = {}
     for view,layout in layouts.items():
         result += thrall_source_errors(view,layout)
-        paint = np.asarray(Image.open(case/layout['raw_rest_source']).convert('RGBA'))
+        paint = np.asarray(load_frame(case/layout['raw_rest_source']).convert('RGBA'))
         palettes[view] = donor_palettes({n:clean_residue(im)[0] for n,im in visible_layers(view,paint).items()},rules(case,view))
     policies = {view:SkirtAirPolicy(case,layout) for view,layout in layouts.items()}
     anatomy = load(case); approved = exceptions(case)
@@ -47,12 +48,12 @@ def errors(case,capture,failure_output=None,hole_details=None):
         layout,pose = layouts[view],poses[key]
         layers,allowed = [],{}
         for row in rows:
-            if any(name not in row or digest(capture/row[field])!=row[name]
+            if any(name not in row or frame_digest(capture/row[field])!=row[name]
                    for field,name in [('file','sha256'),('checks','checks_sha256')]):
                 result.append(str(key)+': missing/changed native policy evidence hashes')
             part = next(p for p in layout['parts'] if p['name']==row['name'])
-            image = np.asarray(Image.open(capture/row['file']).convert('RGBA'))
-            checks = np.asarray(Image.open(capture/row['checks']).convert('RGBA'))
+            image = np.asarray(load_frame(capture/row['file']).convert('RGBA'))
+            checks = np.asarray(load_frame(capture/row['checks']).convert('RGBA'))
             layers.append((part,image,checks)); allowed[part['name']] = checks[...,0] > 0
         if len(layers)!=len(layout['parts']): continue
         exposed = exposed_provenance(layers,palettes[view])
@@ -67,11 +68,11 @@ def errors(case,capture,failure_output=None,hole_details=None):
         if not ownership['ok']: result.append(str(key)+': collar covers rendered head')
         occupied = np.logical_or.reduce([image[...,3]>0 for _,image,_ in layers])
         owners = posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'],anatomy['ownership'])
-        references = [np.asarray(Image.open(capture/r['file']).convert('RGBA'))[...,3]>0
+        references = [np.asarray(load_frame(capture/r['file']).convert('RGBA'))[...,3]>0
                       for r in grouped['rest_holes'].get(key,[])]
         seam = np.zeros_like(occupied)
         for row in grouped['joint_seams'].get(key,[]):
-            seam |= np.asarray(Image.open(capture/row['file']).convert('RGBA'))[...,3] > 0
+            seam |= np.asarray(load_frame(capture/row['file']).convert('RGBA'))[...,3] > 0
         classified = policies[view].report(occupied,owners,seam,references,pose,{},allowed)
         air.extend(dict(view=view,clip=clip,frame=frame,**p) for p in classified['air_pockets'])
         zero_metric = dict.fromkeys(METRIC_RULES,0)

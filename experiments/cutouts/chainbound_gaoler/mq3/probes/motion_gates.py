@@ -13,6 +13,7 @@ from PIL import Image
 
 sys.path.insert(0, str(Path.cwd() / "tools"))
 from cutout_pipeline.cases import CutoutError, digest, read_json, write_json
+from humanoid_cutout.native_frames import load_frame, frame_digest
 from maquette_cutout import MAGENTA, bbox, components8, to_lab, label_core
 
 CANVAS_SIZE = 512
@@ -27,7 +28,7 @@ LEG_PARTS = ["thigh_far", "thigh_near", "shin_far", "shin_near"]
 
 @lru_cache(maxsize=512)
 def rgba(path: str):
-    return np.array(Image.open(path).convert("RGBA"))
+    return np.array(load_frame(path).convert("RGBA"))
 
 
 def tree_order(layout):
@@ -471,7 +472,7 @@ def native_gates(root, output):
     if not (capture / "sha256.json").is_file():
         raise CutoutError("Native motion capture is incomplete; run --capture-native successfully before collecting proof")
     for path, expected in read_json(capture / "sha256.json").items():
-        if digest(capture / path) != expected:
+        if frame_digest(capture / path) != expected:
             raise CutoutError("Changed native output: " + path)
     manifest = read_json(capture / "native_motion_manifest.json")
     if not manifest["ok"] or not manifest["inputs"]:

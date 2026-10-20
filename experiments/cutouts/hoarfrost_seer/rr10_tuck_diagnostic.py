@@ -18,6 +18,7 @@ from humanoid_cutout.silhouette_gates import posed_owners
 from humanoid_cutout.anatomy import load as load_anatomy
 from maquette_motion.pixels import PROOF_DEFAULTS
 from rr10_seam_fixtures import CASE,RIGID_TUCKS
+from humanoid_cutout.native_frames import load_frame
 
 
 def main():
@@ -34,12 +35,12 @@ def main():
     failures=[]
     for key,pose in poses.items():
         rows=grouped['pieces'][key]
-        layers=[(r,np.asarray(Image.open(capture/r['file']).convert('RGBA')),None) for r in rows if r['name'] not in RIGID_TUCKS]
+        layers=[(r,np.asarray(load_frame(capture/r['file']).convert('RGBA')),None) for r in rows if r['name'] not in RIGID_TUCKS]
         owners=posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'], load_anatomy(CASE)['ownership'])
-        seam=np.logical_or.reduce([np.asarray(Image.open(capture/r['file']).convert('RGBA'))[...,3]>0 for r in grouped['joint_seams'][key]])
+        seam=np.logical_or.reduce([np.asarray(load_frame(capture/r['file']).convert('RGBA'))[...,3]>0 for r in grouped['joint_seams'][key]])
         references=np.zeros(owners.shape,dtype=np.uint8)
         for index,row in enumerate(grouped['rest_holes'][key]):
-            references[np.asarray(Image.open(capture/row['file']).convert('RGBA'))[...,3]>0] |= 1<<index
+            references[np.asarray(load_frame(capture/row['file']).convert('RGBA'))[...,3]>0] |= 1<<index
         found=seam_holes(CASE,layout,pose,{'owners':owners,'seam':seam,'rest_holes':references},RIGID_TUCKS)
         if found:failures.append({'view':key[0],'clip':key[1],'frame':key[2],'hole_sizes':found})
     result={'ok':not failures,'fresh_capture':False,'native_pixels':False,'accepted':False,

@@ -8,6 +8,7 @@ import numpy as np
 from PIL import Image
 from rr12_inputs import VIEWS, read_json
 from maquette_motion import silhouette
+from humanoid_cutout.native_frames import load_frame
 
 MAX_STRAY_PIXELS = 8  # rr-12 brief, not a tunable allowance.
 
@@ -22,7 +23,7 @@ def report(case, samples, native=None):
     native_rows = {(r['view'], r['clip'], r['frame']): r for r in manifest['frames']} if manifest else {}
     for view in VIEWS:
         layout = read_json(case / f'layouts/{view}.json')
-        images = {p['name']: Image.open(case / p['file']).convert('RGBA') for p in layout['parts']}
+        images = {p['name']: load_frame(case / p['file']).convert('RGBA') for p in layout['parts']}
         cache = {}
         for row in samples['samples']:
             if row['view'] != view:
@@ -33,7 +34,7 @@ def report(case, samples, native=None):
                 if key not in native_rows:
                     errors.append('/'.join(map(str, key)) + ': missing native frame')
                     continue
-                mask = np.asarray(Image.open(native / native_rows[key]['file']).convert('RGBA'))[..., 3] > 0
+                mask = np.asarray(load_frame(native / native_rows[key]['file']).convert('RGBA'))[..., 3] > 0
                 sizes = small_components(mask)
             else:
                 if signature not in cache:

@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw
 from rr18_case import CASE
 from cutout_pipeline.cases import read_json, write_json, digest
 from humanoid_cutout.gates import bindings
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 PROOF_SIZE=(1920,1080)
 PROOF_BACKGROUND=(30,30,36)
@@ -33,18 +34,18 @@ def compose(capture, output, contract_only=False):
     def crop(view,clip,frame,names):
         row=next(r for r in manifest['frames'] if (r['view'],r['clip'],r['frame'])==(view,clip,frame))
         source=capture/row['file']
-        if digest(source)!=row['sha256']:raise ValueError('Changed native capture: '+str(source))
+        if frame_digest(source)!=row['sha256']:raise ValueError('Changed native capture: '+str(source))
         bounds=None
         for part in manifest['pieces']:
             if (part['view'],part['clip'],part['frame'])!=(view,clip,frame) or part['name'] not in names:continue
-            box=Image.open(capture/part['file']).getbbox()
+            box=load_frame(capture/part['file']).getbbox()
             if box:
                 bounds=list(box) if bounds is None else [min(bounds[0],box[0]),min(bounds[1],box[1]),max(bounds[2],box[2]),max(bounds[3],box[3])]
         if bounds is None:raise ValueError('Missing native parts: '+str(names))
         bounds=[max(0,bounds[0]-PROOF_MARGIN_PX),max(0,bounds[1]-PROOF_MARGIN_PX),
                 min(512,bounds[2]+PROOF_MARGIN_PX),min(512,bounds[3]+PROOF_MARGIN_PX)]
         records.append({'view':view,'clip':clip,'frame':frame,'native_file':row['file'],'native_sha256':row['sha256'],'crop':bounds})
-        return Image.open(source).convert('RGBA').crop(bounds)
+        return load_frame(source).convert('RGBA').crop(bounds)
     def sheet(name,cells,columns):
         canvas=Image.new('RGB',PROOF_SIZE,PROOF_BACKGROUND)
         draw=ImageDraw.Draw(canvas)

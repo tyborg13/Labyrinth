@@ -17,6 +17,7 @@ from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.silhouette_gates import posed_owners
 from maquette_motion.pixels import PROOF_DEFAULTS
 from maquette_motion.features import source_pixels
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 CASE = PROJECT / 'experiments/cutouts/hoarfrost_seer/rr10'
 
@@ -31,7 +32,7 @@ def main():
     for part in layout['parts']:
         full = source_pixels(CASE, part)
         baseline = PROJECT / 'tests/rr10/rr13_f3' / ('front_' + part['name'] + '_before_alpha.png')
-        with Image.open(baseline) as image:
+        with load_frame(baseline) as image:
             before = np.asarray(image) > 0
         full[before] = 0
         x, y, right, bottom = part['bbox']
@@ -51,9 +52,9 @@ def main():
             body = [layer for layer in layers if layer[0]['name'] not in manifest['rigid_tucks']]
             added = posed_owners(body, layout['parts'], row['bones'], PROOF_DEFAULTS['source_offset'])
             original = record['files']['historical_owners']
-            if digest(folder / original['file']) != original['sha256']:
+            if frame_digest(folder / original['file']) != original['sha256']:
                 raise ValueError('Changed historical native body')
-            with Image.open(folder / original['file']) as image:
+            with load_frame(folder / original['file']) as image:
                 owners = np.asarray(image).copy()
             owners[(owners == 0) & (added > 0)] = added[(owners == 0) & (added > 0)]
             path = folder / record['files']['owners']['file']

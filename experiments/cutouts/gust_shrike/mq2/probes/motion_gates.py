@@ -14,6 +14,7 @@ import numpy as np
 from PIL import Image
 sys.path.insert(0, str(Path.cwd() / "tools"))
 from cutout_pipeline.cases import CutoutError, digest, read_json, write_json
+from humanoid_cutout.native_frames import load_frame, frame_digest, frame_exists
 from maquette_cutout import MAGENTA, components8, rest_identity, to_lab
 CANVAS_SIZE = 512
 POSE_OFFSET = 128
@@ -27,7 +28,7 @@ def bound_inputs(root, inputs):
     if not inputs:
         raise CutoutError("Missing input hashes")
     for path, expected in inputs.items():
-        if not (root / path).is_file() or digest(root / path) != expected:
+        if not frame_exists(root / path) or frame_digest(root / path) != expected:
             raise CutoutError("Stale proof input: " + path)
 
 
@@ -299,7 +300,7 @@ def native_gates(root, output, samples_path=None):
 
 @lru_cache(maxsize=512)
 def rgba(path: str):
-    return np.array(Image.open(path).convert("RGBA"))
+    return np.array(load_frame(path).convert("RGBA"))
 
 
 def tree_order(layout):

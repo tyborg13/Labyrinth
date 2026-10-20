@@ -11,6 +11,7 @@ from unittest.mock import patch
 from cutout_pipeline.cases import CutoutError, baseline, digest, read_json, write_json
 from maquette_motion import features, pixels, silhouette, joint_seams, seam_pose, hidden_material, certificates
 from maquette_motion.gates import bindings_match, verification_bindings
+from humanoid_cutout.native_frames import frame_digest, frame_exists
 
 
 def derive(case, task_id='rr-05'):
@@ -188,13 +189,13 @@ def gate(case, sample_file, native=None):
         for row in native_report['frames']:
             for kind in ('before', 'after'):
                 path = native / row[kind]
-                if not path.is_file() or digest(path) != row[kind + '_sha256']:
+                if not frame_exists(path) or frame_digest(path) != row[kind + '_sha256']:
                     errors.append('Changed native part frame: ' + str(path))
         full_native = read_json(native / 'frames.json')
         if not full_native.get('ok') or not full_native.get('native_pixels') or not bindings_match(case, full_native.get('inputs')):
             errors.append('Stale or incomplete native silhouette inputs')
         for row in full_native['frames']:
-            if digest(native / row['file']) != row['sha256']:
+            if frame_digest(native / row['file']) != row['sha256']:
                 errors.append('Changed native silhouette: ' + row['file'])
         full_native['directory'] = native
         native_silhouette = silhouette.pose_report(case, report, full_native)
@@ -208,7 +209,7 @@ def gate(case, sample_file, native=None):
             errors.append('Native seam layer coverage differs')
         for row in layers['frames']:
             for kind in ('parts', 'seams', 'rest', 'interior'):
-                if digest(native / row[kind + '_file']) != row[kind + '_sha256']:
+                if frame_digest(native / row[kind + '_file']) != row[kind + '_sha256']:
                     errors.append('Changed native seam layer: ' + row[kind + '_file'])
         layers['directory'] = native
         errors.extend(seam_pose.native_consistency_errors(layers, full_native))

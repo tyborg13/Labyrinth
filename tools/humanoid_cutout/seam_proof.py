@@ -10,14 +10,15 @@ from cutout_pipeline.cases import digest
 from maquette_motion.pixels import render, unpack
 from .silhouette_gates import joint_holes
 from .anatomy import load, owner_ids
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 
 def fixture_masks(folder, record):
     result={}
     for name,row in record['files'].items():
         path=folder/row['file']
-        if digest(path)!=row['sha256']:raise ValueError('Changed native seam fixture: '+str(path))
-        result[name]=np.asarray(Image.open(path)).copy()
+        if frame_digest(path)!=row['sha256']:raise ValueError('Changed native seam fixture: '+str(path))
+        result[name]=np.asarray(load_frame(path)).copy()
     return result
 
 
@@ -32,7 +33,7 @@ def seam_holes(case, layout, pose, masks, rigid_tucks, replacement=None):
         if replacement is not None and name in replacement:
             opaque=replacement[name]>0
         else:
-            image=Image.open(case/part['file']).convert('RGBA')
+            image=load_frame(case/part['file']).convert('RGBA')
             opaque=render(image,unpack(pose['parts'][name]['transform']))[...,3]>0
         owners[opaque & ~body]=ids[part['logical_part']]
     references=[(masks['rest_holes']&(1<<index))>0 for index in range(8)]

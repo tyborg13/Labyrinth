@@ -5,6 +5,10 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+import tempfile
+import sys
+sys.path.insert(0, str(Path.cwd() / "tools"))
+from humanoid_cutout.native_frames import frame_digest, export_frame
 from production_coverage import verify
 
 REQUIRED_CLIPS = {"idle", "move", "dive", "talon_rake", "hover", "hit", "death"}
@@ -36,20 +40,23 @@ def pack(capture):
     concat = capture / "production.ffconcat"
     video = capture / "production_reel.mp4"
     if video.exists(): raise ValueError("Refusing to replace a production reel")
-    lines = ["ffconcat version 1.0"]
     hashes = {}
-    for index, frame in enumerate(frames):
-        path = capture / frame["file"]
-        if path.parent != capture or not path.name.startswith("frame_") or path.suffix != ".png":
-            raise ValueError("Unexpected capture filename")
-        hashes[path.name] = hashlib.sha256(path.read_bytes()).hexdigest()
-        duration = frames[index + 1]["seconds"] - frame["seconds"] if index + 1 < len(frames) else LAST_FRAME_SECONDS
-        if duration <= 0: raise ValueError("Nonmonotonic capture timestamps")
-        lines += ["file '" + path.name + "'", "duration %.9f" % duration]
-    lines.append("file '" + frames[-1]["file"] + "'")
-    concat.write_text("\n".join(lines) + "\n")
-    subprocess.run(["ffmpeg", "-v", "error", "-f", "concat", "-safe", "1", "-i", str(concat),
-        "-an", "-vf", "fps=60", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(video)], check=True)
+    with tempfile.TemporaryDirectory(prefix='native_reel_frames_', dir=capture) as temporary:
+        scratch = Path(temporary)
+        lines = ["ffconcat version 1.0"]
+        for index, frame in enumerate(frames):
+            path = capture / frame["file"]
+            if path.parent != capture or not path.name.startswith("frame_") or path.suffix != ".png":
+                raise ValueError("Unexpected capture filename")
+            hashes[path.name] = frame_digest(path)
+            duration = frames[index + 1]["seconds"] - frame["seconds"] if index + 1 < len(frames) else LAST_FRAME_SECONDS
+            if duration <= 0: raise ValueError("Nonmonotonic capture timestamps")
+            exported = export_frame(path, scratch).relative_to(capture).as_posix()
+            lines += ["file '" + exported + "'", "duration %.9f" % duration]
+        lines.append("file '" + exported + "'")
+        concat.write_text("\n".join(lines) + "\n")
+        subprocess.run(["ffmpeg", "-v", "error", "-f", "concat", "-safe", "1", "-i", str(concat),
+            "-an", "-vf", "fps=60", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(video)], check=True)
     subprocess.run(["ffmpeg", "-v", "error", "-i", str(video), "-f", "null", "-"], check=True)
     (capture / "production_reel_proof.json").write_text(json.dumps({"ok": True,
         "frames_sha256": hashes, "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),

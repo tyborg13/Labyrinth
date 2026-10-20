@@ -9,6 +9,7 @@ from PIL import Image
 from cutout_pipeline.cases import digest, read_json, write_json
 from maquette_motion.contract import expected as director_contract, phases as sample_phases, evaluate, approved_source
 from cutout_pipeline.cases import CutoutError
+from humanoid_cutout.native_frames import load_frame, frame_digest, frame_exists
 
 PROJECT = Path(__file__).resolve().parents[2]
 SOURCE = PROJECT / 'spec/peer_benchmark/staged/rr-04/motion_tracks.json'
@@ -95,7 +96,7 @@ def production_errors(manifest, compiled):
     if manifest.get('completions',{}).get('hit',{}).get('clip')!='idle':failures.append('hit: missing return to idle')
     return failures
 
-RUNTIME_PATHS = ['scripts/maquette_cutout_runtime/motion.gd', 'scripts/maquette_cutout_runtime/rig.gd',
+RUNTIME_PATHS = ['tests/maquette_cutout/capture_storage.gd', 'tools/humanoid_cutout/native_frames.py', 'scripts/maquette_cutout_runtime/motion.gd', 'scripts/maquette_cutout_runtime/rig.gd',
     'scripts/maquette_cutout_runtime/pixel_presentation.gd', 'tools/maquette_motion/features.py', 'tools/maquette_motion/pixels.py', 'tools/maquette_motion/raster.py',
     'tools/maquette_motion/material_palette.py', 'tools/maquette_motion/hidden_material.py', 'tools/maquette_motion/material_provenance.py', 'tools/maquette_motion/support_seeds.py', 'tools/maquette_motion/hidden_support.py', 'tools/maquette_motion/socket_edit.py',
     'tools/maquette_motion/joint_seams.py', 'tools/maquette_motion/seam_pose.py', 'tools/maquette_motion/seam_builder.py', 'tools/maquette_motion/silhouette.py', 'tools/maquette_motion/continuity.py', 'tools/maquette_motion/bleed.py', 'tools/maquette_motion/seam_support.py', 'tools/maquette_motion/contract.py', 'tools/maquette_motion/continuity_limits.py', 'tools/maquette_motion/feature_builder.py',
@@ -161,8 +162,8 @@ def native_errors(case, capture):
     if manifest.get('compiled_sha256')!=digest(case/'compiled_motion.json'): failures.append('Stale native motion capture')
     expected_frames=0
     for view in ('front','rear'):
-        approved=Image.open(case/f'source/{view}/processed.png').convert('RGBA')
-        actual=Image.open(capture/f'{view}_rest.png').convert('RGBA')
+        approved=load_frame(case/f'source/{view}/processed.png').convert('RGBA')
+        actual=load_frame(capture/f'{view}_rest.png').convert('RGBA')
         if approved.size!=actual.size or approved.tobytes()!=actual.tobytes():failures.append(view+': native rest differs')
         for clip,definition in compiled['clips'].items():
             count=round(definition['seconds']*60)
@@ -175,8 +176,8 @@ def native_errors(case, capture):
             hashes=[]
             for row in rows:
                 path=capture/row['file']
-                if not path.is_file() or digest(path)!=row['sha256']:failures.append('Changed native frame: '+str(path));continue
-                image=np.asarray(Image.open(path).convert('RGBA'))
+                if not frame_exists(path) or frame_digest(path)!=row['sha256']:failures.append('Changed native frame: '+str(path));continue
+                image=np.asarray(load_frame(path).convert('RGBA'))
                 if image.shape[:2] != POSE_SIZE:
                     failures.append('Wrong native pose dimensions: '+str(path));continue
                 opaque=image[...,3]>0
@@ -189,7 +190,7 @@ def native_errors(case, capture):
     if len(pairs)*2!=expected_frames:failures.append('Missing native pair frames')
     for pair in pairs:
         path=capture/pair['file']
-        if not path.is_file() or digest(path)!=pair['sha256']:failures.append('Changed native pair: '+str(path))
+        if not frame_exists(path) or frame_digest(path)!=pair['sha256']:failures.append('Changed native pair: '+str(path))
     return failures
 
 def main():

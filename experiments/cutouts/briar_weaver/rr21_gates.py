@@ -11,6 +11,7 @@ from humanoid_cutout.reach import report as reach_report
 from humanoid_cutout.walk_gates import report as walk_report, support_report, summary as walk_summary
 from humanoid_cutout.bone_evidence import read_report
 from rr21_residue import source_report, outside_count, presented_feature_mask
+from humanoid_cutout.native_frames import load_frame
 
 
 def evaluate(native=None, case=CASE):
@@ -40,7 +41,7 @@ def evaluate(native=None, case=CASE):
             key = (piece['view'], piece['clip'], piece['frame'])
             native_pieces.setdefault(key, []).append(dict(piece, absolute_file=str(native / piece['file'])))
         for row in manifest['frames']:
-            image = Image.open(native / row['file']).convert('RGBA')
+            image = load_frame(native / row['file']).convert('RGBA')
             layout = read_json(case / f'layouts/{row["view"]}.json')
             key = (row['view'], row['clip'], row['frame'])
             try:

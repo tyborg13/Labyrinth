@@ -7,6 +7,7 @@ import argparse
 from pathlib import Path
 from PIL import Image, ImageDraw
 from rr12_inputs import read_json, write_json, digest
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 PROOF_DEFAULTS = {'columns': 6, 'label_height_px': 24, 'crop_margin_px': 3}
 ZOOM = 3  # rr-12 required proof scale.
@@ -25,15 +26,15 @@ def compose(capture, output):
         bounds = []
         for row in rows:
             path = capture / row['file']
-            if digest(path) != row['sha256']:
+            if frame_digest(path) != row['sha256']:
                 raise ValueError('Changed captured frame: ' + str(path))
-            box = Image.open(path).convert('RGBA').getbbox()
+            box = load_frame(path).convert('RGBA').getbbox()
             if box:
                 bounds.append(box)
         if not bounds:
             raise ValueError('No painted pixels in clip ' + clip)
         margin = PROOF_DEFAULTS['crop_margin_px']
-        size = Image.open(capture / rows[0]['file']).size
+        size = load_frame(capture / rows[0]['file']).size
         box = (max(0, min(b[0] for b in bounds) - margin),
                max(0, min(b[1] for b in bounds) - margin),
                min(size[0], max(b[2] for b in bounds) + margin),
@@ -50,7 +51,7 @@ def compose(capture, output):
             draw.text((x, y), f'{clip} {frame:04d} | front / rear', fill='white')
             for side, view in enumerate(('front', 'rear')):
                 row = lookup[(view, frame)]
-                image = Image.open(capture / row['file']).convert('RGBA').crop(box)
+                image = load_frame(capture / row['file']).convert('RGBA').crop(box)
                 image = image.resize((image.width * ZOOM, image.height * ZOOM), Image.Resampling.NEAREST)
                 sheet.paste(image, (x + side * image.width, y + PROOF_DEFAULTS['label_height_px']), image)
         target = output / (clip + '_all_frames_3x.png')

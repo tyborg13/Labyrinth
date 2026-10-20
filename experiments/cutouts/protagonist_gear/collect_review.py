@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT.parents[2] / "tools"))
+from humanoid_cutout.native_frames import load_frame
 from cutout_pipeline.cases import digest
 from cutout_pipeline.proof import verify_render
 
@@ -18,7 +19,7 @@ def contact_sheet(review, clip, records):
     poses = {}
     bounds = None
     for key in records:
-        pose = Image.open(review / (key["file"] + "_pose.png")).convert("RGBA")
+        pose = load_frame(review / (key["file"] + "_pose.png")).convert("RGBA")
         box = pose.getbbox()
         if not box:
             raise ValueError("Empty key pose: " + key["file"])
@@ -51,6 +52,16 @@ def contact_sheet(review, clip, records):
     sheet.save(review / (clip + "_contact_sheet.png"))
 
 
+def copy_native(source, destination, size):
+    with load_frame(source) as image:
+        if image.size != size:
+            raise ValueError("Wrong native capture resolution: " + str(source))
+        if source.is_file() and load_frame(source, cropped=True).size == image.size:
+            shutil.copyfile(source, destination)
+        else:
+            image.save(destination)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--keys", type=Path, required=True, help="Successful key_pose_probe user://probes/protagonist_gear_keys directory")
@@ -77,10 +88,7 @@ def main():
         for key in keys:
             for suffix, size in [("_pose.png", (512, 512)), ("_board.png", (1920, 1080))]:
                 source = args.keys / case.name / (key["file"] + suffix)
-                with Image.open(source) as image:
-                    if image.size != size:
-                        raise ValueError("Wrong native capture resolution: " + str(source))
-                shutil.copyfile(source, review / source.name)
+                copy_native(source, review / source.name, size)
         for clip in dict.fromkeys(key["clip"] for key in keys):
             contact_sheet(review, clip, [key for key in keys if key["clip"] == clip])
         (review / "key_manifest.json").write_text(json.dumps({"source_sha256": manifest["source_sha256"], "keys": keys}, indent=2) + "\n")

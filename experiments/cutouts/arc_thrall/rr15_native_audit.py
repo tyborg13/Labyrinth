@@ -13,6 +13,7 @@ from cutout_pipeline.cases import read_json, write_json, digest
 from humanoid_cutout.underlays import native_order
 from maquette_motion.pixels import changed, render, unpack
 from maquette_motion.native_ties import select
+from humanoid_cutout.native_frames import load_frame
 
 CASE = PROJECT / 'experiments/cutouts/arc_thrall/rr11'
 SCRATCH = Path('/private/tmp/labyrinth_codex/rr-15')
@@ -35,13 +36,13 @@ def main():
               for view in ('front', 'rear')}
     original_failures, corrected_failures, focus = [], [], {}
     for key, rows in pieces.items():
-        layers = [(row, Image.open(args.capture / row['file']).convert('RGBA')) for row in rows]
+        layers = [(row, load_frame(args.capture / row['file']).convert('RGBA')) for row in rows]
         original, corrected = Image.new('RGBA', (512, 512)), Image.new('RGBA', (512, 512))
         for row, image in sorted(layers, key=lambda item: item[0]['z_index']):
             original.alpha_composite(image)
         for row, image in sorted(layers, key=lambda item: (item[0]['z_index'], orders[key[0]][item[0]['name']])):
             corrected.alpha_composite(image)
-        actual = np.asarray(Image.open(args.capture / frames[key]['file']).convert('RGBA'))
+        actual = np.asarray(load_frame(args.capture / frames[key]['file']).convert('RGBA'))
         wrong = changed(actual, np.asarray(original))
         fixed = changed(actual, np.asarray(corrected))
         if wrong.any(): original_failures.append(dict(key=key, pixels=int(wrong.sum())))
@@ -55,8 +56,8 @@ def main():
     fixtures = PROJECT / 'tests/rr11/rr15'
     rigid = []
     for row in read_json(fixtures / 'rigid_before.json'):
-        actual = np.asarray(Image.open(fixtures / f'rear_{row["clip"]}{row["frame"]}_hidden_tube_native.png').convert('RGBA'))
-        source = Image.open(fixtures / 'rear_hidden_tube_before.png').convert('RGBA')
+        actual = np.asarray(load_frame(fixtures / f'rear_{row["clip"]}{row["frame"]}_hidden_tube_native.png').convert('RGBA'))
+        source = load_frame(fixtures / 'rear_hidden_tube_before.png').convert('RGBA')
         samples = render(source, unpack(row['transform']), with_ties=True)
         matched, invalid = select(actual, samples)
         rigid.append({'clip': row['clip'], 'frame': row['frame'], 'default_difference_px': int(changed(actual, samples.default).sum()),

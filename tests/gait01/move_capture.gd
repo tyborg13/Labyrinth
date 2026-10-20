@@ -1,5 +1,7 @@
 extends SceneTree
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Director-only native board-scale frames. Headless --validate-only checks all
 ## resources and every sampling phase without making any renderer claim.
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
@@ -26,6 +28,7 @@ func _run() -> void:
 		push_error("Use -- --case CASE --output DIRECTORY [--validate-only]")
 		quit(1)
 		return
+	CaptureStorage.setup(output)
 	var data: Dictionary = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
 	var validate: bool = args.has("--validate-only")
 	if not validate and DisplayServer.get_name() == "headless":
@@ -44,6 +47,13 @@ func _run() -> void:
 	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(viewport)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output))
+	var bounds := Rect2()
+	for view: String in data["view_tracks"]:
+		var forward: Vector2 = Motion.point(data["projection"][view]["forward"])
+		for phase: float in [0.0, 1.0]:
+			var canvas := Rect2(PROOF_ORIGIN - forward * step * phase - Vector2(128, 128) * scale, Vector2(512, 512) * scale)
+			bounds = bounds.merge(canvas) if bounds.has_area() else canvas
+	CaptureStorage.set_crop(bounds, SIZE)
 	var sampler := Samples.new()
 	for view: String in data["view_tracks"]:
 		var rig := Rig.new()
@@ -72,14 +82,17 @@ func _run() -> void:
 				await process_frame
 				await RenderingServer.frame_post_draw
 				var path: String = output.path_join(row["file"])
-				viewport.get_texture().get_image().save_png(path)
-				row["sha256"] = FileAccess.get_sha256(path)
+				CaptureStorage.save(viewport.get_texture().get_image(), path, "move")
+				row["sha256"] = CaptureStorage.file_hash(path)
+				print(ProjectSettings.globalize_path(CaptureStorage.proof_png(path)))
 			rows.append(row)
 		rig.free()
 	sampler.free()
 	var manifest: Dictionary = {"ok": true, "native_pixels": not validate, "size": [1920,1080], "ui_scale": 1.0,
 		"board_scale": scale, "step_distance_px": step, "screen_pixel_scale": scale,
 		"inputs": Bindings.for_case(directory), "frames": rows}
+	manifest.merge(CaptureStorage.metadata())
+	CaptureStorage.finish()
 	FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE).store_string(JSON.stringify(manifest))
 	print("GAIT MOVE PROBE %s: PASS (24 frames; 12 per view)" % ("LOAD" if validate else "NATIVE"))
 	quit()

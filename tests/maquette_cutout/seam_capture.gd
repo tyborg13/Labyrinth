@@ -1,5 +1,7 @@
 extends RefCounted
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Native, independent layers for the interior-tear/underlay-protrusion gates in every pose.
 ## These surfaces never appear in the review composition.
 const Samples = preload("pixel_samples.gd")
@@ -77,12 +79,12 @@ func capture(view: String, clip: String, frame: int) -> void:
 		var path: String = output.path_join(relative)
 		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
 		var viewport: SubViewport = surfaces[view][kind]["viewport"]
-		viewport.get_texture().get_image().save_png(path)
+		CaptureStorage.save(viewport.get_texture().get_image(), path)
 		viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 		row[kind + "_file"] = relative
-		row[kind + "_sha256"] = FileAccess.get_sha256(path)
+		row[kind + "_sha256"] = CaptureStorage.file_hash(path)
 	frames.append(row)
 
 func finish(inputs: Dictionary) -> void:
 	var file := FileAccess.open(output.path_join("seam_frames.json"), FileAccess.WRITE)
-	file.store_string(JSON.stringify({"native_pixels": true, "inputs": inputs, "frames": frames}))
+	file.store_string(JSON.stringify(CaptureStorage.annotate({"native_pixels": true, "inputs": inputs, "frames": frames}, SIZE)))

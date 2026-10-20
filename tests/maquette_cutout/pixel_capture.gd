@@ -1,5 +1,7 @@
 extends RefCounted
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Isolated native part surfaces measure shimmer without occlusion being counted
 ## as resampling noise. These are data, never generic screenshot evidence.
 const Samples = preload("pixel_samples.gd")
@@ -55,12 +57,12 @@ func capture(view: String, frame: int) -> void:
 			var path: String = output.path_join(relative)
 			DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
 			var viewport: SubViewport = surfaces[view][name][kind]["viewport"]
-			viewport.get_texture().get_image().save_png(path)
+			CaptureStorage.save(viewport.get_texture().get_image(), path)
 			viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 			row[kind] = relative
-			row[kind + "_sha256"] = FileAccess.get_sha256(path)
+			row[kind + "_sha256"] = CaptureStorage.file_hash(path)
 		frames.append(row)
 
 func finish(inputs: Dictionary) -> void:
 	var file := FileAccess.open(output.path_join("pixel_frames.json"), FileAccess.WRITE)
-	file.store_string(JSON.stringify({"native_pixels": true, "inputs": inputs, "frames": frames, "samples": samples}))
+	file.store_string(JSON.stringify(CaptureStorage.annotate({"native_pixels": true, "inputs": inputs, "frames": frames, "samples": samples}, SIZE)))

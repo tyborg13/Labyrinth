@@ -10,6 +10,7 @@ from rr17_build import write, PRODUCTION, compile_motion
 from maquette_motion import pixels, silhouette, native_ties
 from maquette_motion import material_palette
 from maquette_motion.gates import unpack, bindings_match, production_bindings
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 
 def coverage(report, field='samples'):
@@ -51,16 +52,16 @@ def asset_errors():
         if layout['joints'] != expected_joints: errors.append(view + ': hierarchy/pivot differs')
         rest = Image.new('RGBA', (255, 255))
         for part in layout['parts']:
-            image = Image.open(CASE / part['file']).convert('RGBA')
+            image = load_frame(CASE / part['file']).convert('RGBA')
             box = paints[part['name']].getbbox()
             expected = paints[part['name']].crop(box)
             if part['offset'] != list(box[:2]) or not np.array_equal(image, expected): errors.append(view + '/' + part['name'] + ': partition differs')
             rest.alpha_composite(image, tuple(part['offset']))
-        if not np.array_equal(rest, Image.open(PAINTING).convert('RGBA')): errors.append(view + ': rest identity differs')
+        if not np.array_equal(rest, load_frame(PAINTING).convert('RGBA')): errors.append(view + ': rest identity differs')
         column = paints['column'].crop(paints['column'].getbbox())
         for level in range(-2, 3):
             expected = expected_glow(column, level)
-            if not np.array_equal(Image.open(CASE / layout['glow_textures'][str(level)]).convert('RGBA'), expected):
+            if not np.array_equal(load_frame(CASE / layout['glow_textures'][str(level)]).convert('RGBA'), expected):
                 errors.append(f'{view}: glow {level} changes arc/non-arc/alpha pixels incorrectly')
     return errors
 
@@ -136,15 +137,15 @@ def native_contacts(capture, native):
                 transform = pixels.presented(bones(clip, phase, view)[name]['global'], part, layout, {})
                 sampled = pixels.render(expected, transform, with_ties=True)
                 info = row['layers'][name]
-                actual = np.asarray(Image.open(native / info['file']).convert('RGBA'))
-                if digest(native / info['file']) != info['sha256'] or actual.shape != (512, 512, 4):
+                actual = np.asarray(load_frame(native / info['file']).convert('RGBA'))
+                if frame_digest(native / info['file']) != info['sha256'] or actual.shape != (512, 512, 4):
                     errors.append(f'{view}/{clip}/{name}: native contact checksum/size differs')
                     continue
                 match = np.array_equal(actual, sampled.default) if name == 'column' else pixels.native_frame_matches(actual, sampled.default, sampled)
                 if not match: errors.append(f'{view}/{clip}/{name}: native contact pixels differ')
                 full.alpha_composite(Image.fromarray(actual))
-            actual = Image.open(native / row['file']).convert('RGBA')
-            if digest(native / row['file']) != row['sha256'] or not np.array_equal(actual, full): errors.append(f'{view}/{clip}: native contact assembly differs')
+            actual = load_frame(native / row['file']).convert('RGBA')
+            if frame_digest(native / row['file']) != row['sha256'] or not np.array_equal(actual, full): errors.append(f'{view}/{clip}: native contact assembly differs')
     return errors
 
 
@@ -189,8 +190,8 @@ def pixel_gate(report, native=None):
                     continue
                 layer = info['layers'][name]
                 path = native / layer['file']
-                actual = np.asarray(Image.open(path).convert('RGBA'))
-                if digest(path) != layer['sha256'] or actual.shape != (512, 512, 4):
+                actual = np.asarray(load_frame(path).convert('RGBA'))
+                if frame_digest(path) != layer['sha256'] or actual.shape != (512, 512, 4):
                     errors.append(f'{identifier}/{name}: checksum/size differs')
                     continue
                 # Column has no rotation: every arc, non-arc and alpha pixel is exact.
@@ -210,8 +211,8 @@ def pixel_gate(report, native=None):
         actual = np.asarray(assembled)
         if capture and (view, clip, row['frame']) in native_rows:
             info = native_rows[(view, clip, row['frame'])]
-            full = np.asarray(Image.open(native / info['file']).convert('RGBA'))
-            if digest(native / info['file']) != info['sha256'] or not np.array_equal(actual, full): errors.append(f'{key}: native assembly differs from isolated layers')
+            full = np.asarray(load_frame(native / info['file']).convert('RGBA'))
+            if frame_digest(native / info['file']) != info['sha256'] or not np.array_equal(actual, full): errors.append(f'{key}: native assembly differs from isolated layers')
         stray = small_components(actual)
         if stray: errors.append(f'{key}/{row["frame"]}: detached components <=8px: {stray}')
         # All non-vent pixels have exact approved visible-paint provenance. Any

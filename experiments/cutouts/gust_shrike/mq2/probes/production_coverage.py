@@ -4,6 +4,7 @@ import json
 import math
 from pathlib import Path
 from PIL import Image
+from humanoid_cutout.native_frames import load_frame, frame_exists
 
 ACTIONS = ['move', 'dive', 'talon_rake', 'hover', 'hit', 'death']
 # Existing production clocks (FloatingCombatText / CutoutContext), not tuning.
@@ -48,13 +49,13 @@ def verify(capture, manifest):
     failures = errors(manifest, director)
     for frame in manifest['frames']:
         pose = capture / frame.get('pose_file', '')
-        if pose.parent != capture or not pose.is_file():
+        if pose.parent != capture or not frame_exists(pose):
             failures.append('Missing local pose PNG')
             continue
-        with Image.open(pose) as image:
+        with load_frame(pose) as image:
             rgba = image.convert('RGBA')
             if rgba.size != (512, 512) or not rgba.getchannel('A').getbbox(): failures.append('Empty or wrong-size pose PNG')
             if hashlib.sha256(rgba.tobytes()).hexdigest() != frame.get('pose_sha256'): failures.append('Pose pixel hash differs')
-        with Image.open(capture / frame['file']) as board:
+        with load_frame(capture / frame['file']) as board:
             if board.size != (1920, 1080): failures.append('Wrong-size board frame')
     if failures: raise ValueError('\n'.join(failures))

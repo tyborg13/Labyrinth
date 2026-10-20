@@ -13,6 +13,7 @@ from maquette_motion.features import source_pixels
 from maquette_motion.pixels import PROOF_DEFAULTS
 from maquette_motion.silhouette import dilate
 from humanoid_cutout.bone_evidence import read_report
+from humanoid_cutout.native_frames import load_frame
 
 RASTER_COVERAGE_MARGIN_PX = 1  # Pixel-square coverage on both sides, as rr-15/gait-01.
 
@@ -50,13 +51,13 @@ def trace(view, poses, capture=None):
     for pose in poses:
         layers, maps, owners, defects = state(model, pose)
         if capture is not None:
-            layers=[(row,np.asarray(Image.open(capture/row['file']).convert('RGBA')),
-                     np.asarray(Image.open(capture/row['checks']).convert('RGBA')))
+            layers=[(row,np.asarray(load_frame(capture/row['file']).convert('RGBA')),
+                     np.asarray(load_frame(capture/row['checks']).convert('RGBA')))
                     for row in native_rows[(pose['view'],pose['clip'],pose['frame'])]]
             owners=posed_owners(layers,layout['parts'],pose['bones'],PROOF_DEFAULTS['source_offset'],anatomy['ownership'])
             key=(pose['view'],pose['clip'],pose['frame'])
-            seam=np.logical_or.reduce([np.asarray(Image.open(capture/row['file']))[...,3]>0 for row in manifest['joint_seams'] if (row['view'],row['clip'],row['frame'])==key])
-            references=[np.asarray(Image.open(capture/row['file']))[...,3]>0 for row in manifest['rest_holes'] if (row['view'],row['clip'],row['frame'])==key]
+            seam=np.logical_or.reduce([np.asarray(load_frame(capture/row['file']))[...,3]>0 for row in manifest['joint_seams'] if (row['view'],row['clip'],row['frame'])==key])
+            references=[np.asarray(load_frame(capture/row['file']))[...,3]>0 for row in manifest['rest_holes'] if (row['view'],row['clip'],row['frame'])==key]
             defects=joint_holes(owners>0,seam,owners,references,pocket_details=True)
         for defect in defects:
             left,top,right,bottom = defect['bbox']
@@ -143,8 +144,8 @@ def derivation_errors(layout):
     hidden = {}
     for name in PIECES:
         source = CASE / 'residue_source' / layout['facing']
-        visible[name] = np.asarray(Image.open(source / (name + '_visible.png')).convert('RGBA'))
-        hidden[name] = np.asarray(Image.open(CASE / 'joint_source' / layout['facing'] / (name + '.png')).convert('RGBA')).copy()
+        visible[name] = np.asarray(load_frame(source / (name + '_visible.png')).convert('RGBA'))
+        hidden[name] = np.asarray(load_frame(CASE / 'joint_source' / layout['facing'] / (name + '.png')).convert('RGBA')).copy()
     recipes = read_json(CASE / 'joint_continuations.json')[layout['facing']]
     joins = {name:{'covers':[other for other in PIECES if other!=name],'source_points':points} for name,points in recipes.items()}
     for name,target in domains(visible, hidden, joins, **anatomy['joint_continuations']).items():
@@ -155,7 +156,7 @@ def derivation_errors(layout):
     source_underlaps(visible, hidden, layout['facing'])
     errors=[]
     for name in PIECES:
-        actual=np.asarray(Image.open(CASE/'residue_source'/layout['facing']/(name+'_hidden.png')).convert('RGBA'))
+        actual=np.asarray(load_frame(CASE/'residue_source'/layout['facing']/(name+'_hidden.png')).convert('RGBA'))
         if not np.array_equal(actual,hidden[name]): errors.append(layout['facing']+'/'+name+': joint continuation differs from own edge texels')
     return errors
 

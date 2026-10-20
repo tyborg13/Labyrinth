@@ -12,10 +12,11 @@ sys.path.insert(0, str(Path.cwd() / "tools"))
 from cutout_pipeline.cases import CutoutError, digest, load_case, read_json, write_json
 from cutout_pipeline.proof import verify_render
 from maquette_cutout import PROOF_DEFAULTS, contact_sheet
+from humanoid_cutout.native_frames import load_frame
 
 
 def transform_mask(root, part, layout, bones, mesh=None):
-    mask = Image.open(root / part["file"]).convert("RGBA").getchannel("A")
+    mask = load_frame(root / part["file"]).convert("RGBA").getchannel("A")
     weighted = {part["bone"]: 1.0}
     if mesh:
         # Constant single-bone fields are rigid. Reject a deforming field
@@ -103,7 +104,7 @@ def exposure(root, samples_path):
     index["samples_sha256"] = digest(samples_path)
     write_json(root / "hidden_requests/index.json", index)
     contact_sheet([(f"{r['view']}/{r['part']}\n" + (f"hidden={r['hidden_pixel_count']} peak={r['max_exposed_pixels']}" if r["status"] == "measured" else "UNKNOWN: MISSING SOLO"),
-                    Image.open(root / r["image"]).convert("RGBA")) for r in index["requests"]], root / "hidden_requests/contact_sheet.png")
+                    load_frame(root / r["image"]).convert("RGBA")) for r in index["requests"]], root / "hidden_requests/contact_sheet.png")
     paint_plan(root, index)
     print(f"MAQUETTE_EXPOSURE: PASS ({len(index['requests'])} requests; {sum(r['status'] != 'measured' for r in index['requests'])} unknown solos)")
 
@@ -145,8 +146,8 @@ def native(root, output):
     if not result["ok"]:
         raise CutoutError(str(result))
     for view in read_json(root / "cutout.json")["layouts"]:
-        actual = Image.open(output / f"{view}_rest.png").convert("RGBA")
-        expected = Image.open(root / "source" / view / "processed.png").convert("RGBA")
+        actual = load_frame(output / f"{view}_rest.png").convert("RGBA")
+        expected = load_frame(root / "source" / view / "processed.png").convert("RGBA")
         if actual.size != expected.size or actual.tobytes() != expected.tobytes():
             raise CutoutError(f"Native {view} rest does not equal the approved painting")
     manifest = read_json(output / "render_manifest.json")
@@ -157,7 +158,7 @@ def native(root, output):
     for clip in manifest["clips"]:
         count = clip["cycle_frames"]
         indices = np.rint(np.linspace(0, count - 1, PROOF_DEFAULTS["keyframes_per_clip"])).astype(int)
-        items = [(f"{clip['facing']}/{clip['clip']} frame {i}", Image.open(output / clip["folder"] / f"pose_{i:04d}.png").convert("RGBA")) for i in indices]
+        items = [(f"{clip['facing']}/{clip['clip']} frame {i}", load_frame(output / clip["folder"] / f"pose_{i:04d}.png").convert("RGBA")) for i in indices]
         contact_sheet(items, root / "proof/native_keyframes" / f"{clip['folder']}_8frames.png", columns=4)
     write_json(root / "proof/native_keyframes/verification.json", {"ok": True, "capture": str(output), "render_verification": result,
                "rest_identity": "both approved RGBA paintings equal native rest", "proof_manifest_sha256": digest(output / "proof_sha256.json"),

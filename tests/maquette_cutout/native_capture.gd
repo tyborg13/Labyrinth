@@ -1,5 +1,7 @@
 extends SceneTree
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Windowed, fixed 1920x1080 proof; sequential native 60fps samples, never CPU art.
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
 const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
@@ -36,6 +38,7 @@ func _run() -> void:
 		return
 	directory = args[args.find("--case") + 1].trim_suffix("/cutout.json")
 	output = args[args.find("--output") + 1]
+	CaptureStorage.setup(output)
 	var data: Dictionary = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
 	if args.has("--validate-only"):
 		for facing: String in ["front", "rear"]:
@@ -94,8 +97,9 @@ func _run() -> void:
 		var approved: Image = Image.load_from_file(directory.path_join("source/" + view + "/processed.png"))
 		approved.convert(Image.FORMAT_RGBA8)
 		if image.get_data() != approved.get_data(): failures.append(view + ": native rest differs from approved art")
-		image.save_png(output.path_join(view + "_rest.png"))
-	_canvas.get_texture().get_image().save_png(output.path_join("rest_pair.png"))
+		CaptureStorage.save(image, output.path_join(view + "_rest.png"))
+	CaptureStorage.plan_review(_canvas)
+	CaptureStorage.save(_canvas.get_texture().get_image(), output.path_join("rest_pair.png"))
 	if not args.has("--rest-only"):
 		for clip: String in data["clips"]:
 			_label.text = clip
@@ -118,13 +122,14 @@ func _run() -> void:
 					var path: String = view + "_" + clip + "/pose_%04d.png" % frame
 					if clip == "idle": _pixels.capture(view, frame)
 					_seams.capture(view, clip, frame)
-					(_views[view] as SubViewport).get_texture().get_image().save_png(output.path_join(path))
-					records.append({"view": view, "clip": clip, "frame": frame, "phase": phase, "file": path, "sha256": FileAccess.get_sha256(output.path_join(path))})
+					CaptureStorage.save((_views[view] as SubViewport).get_texture().get_image(), output.path_join(path))
+					records.append({"view": view, "clip": clip, "frame": frame, "phase": phase, "file": path, "sha256": CaptureStorage.file_hash(output.path_join(path))})
 				var pair_file: String = "pair_" + clip + "/frame_%04d.png" % frame
-				_canvas.get_texture().get_image().save_png(output.path_join(pair_file))
-				pairs.append({"clip": clip, "frame": frame, "file": pair_file, "sha256": FileAccess.get_sha256(output.path_join(pair_file))})
+				CaptureStorage.save(_canvas.get_texture().get_image(), output.path_join(pair_file))
+				pairs.append({"clip": clip, "frame": frame, "file": pair_file, "sha256": CaptureStorage.file_hash(output.path_join(pair_file))})
+	CaptureStorage.finish()
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
-	file.store_string(JSON.stringify({"ok": failures.is_empty(), "size": [1920, 1080], "ui_scale": 1.0, "fps": FPS, "native_pixels": true, "compiled_sha256": FileAccess.get_sha256(directory.path_join("compiled_motion.json")), "frames": records, "pairs": pairs, "inputs": preload("proof_inputs.gd").bindings(directory), "errors": failures}))
+	file.store_string(JSON.stringify(CaptureStorage.annotate({"ok": failures.is_empty(), "size": [1920, 1080], "ui_scale": 1.0, "fps": FPS, "native_pixels": true, "compiled_sha256": FileAccess.get_sha256(directory.path_join("compiled_motion.json")), "frames": records, "pairs": pairs, "inputs": preload("proof_inputs.gd").bindings(directory), "errors": failures})))
 	if not args.has("--rest-only"):
 		_pixels.finish(preload("proof_inputs.gd").bindings(directory))
 		_seams.finish(preload("proof_inputs.gd").bindings(directory))
@@ -132,13 +137,13 @@ func _run() -> void:
 	print("Saved " + ProjectSettings.globalize_path(output))
 	# The generic screenshot runner validates opaque pair views. Transparent
 	# raw terminal frames (authored alpha=0) are checked by the native gate.
-	for path: String in ["rest_pair.png", "front_rest.png", "rear_rest.png"]: print(ProjectSettings.globalize_path(output.path_join(path)))
+	for path: String in ["rest_pair.png", "front_rest.png", "rear_rest.png"]: print(ProjectSettings.globalize_path(CaptureStorage.proof_png(output.path_join(path))))
 	if not args.has("--rest-only"):
 		for clip: String in data["clips"]:
 			var count: int = roundi(float(data["clips"][clip]["seconds"]) * FPS)
 			for sample: int in range(PROOF_REPRESENTATIVES):
 				var frame: int = roundi(float(sample) * (count - 1) / (PROOF_REPRESENTATIVES - 1))
-				print(ProjectSettings.globalize_path(output.path_join("pair_" + clip + "/frame_%04d.png" % frame)))
+				print(ProjectSettings.globalize_path(CaptureStorage.proof_png(output.path_join("pair_" + clip + "/frame_%04d.png" % frame))))
 	quit(0 if failures.is_empty() else 1)
 
 func viewport(dimensions: Vector2i, transparent: bool) -> SubViewport:
