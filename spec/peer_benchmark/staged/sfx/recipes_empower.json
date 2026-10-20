@@ -7,21 +7,23 @@
         {
           "take": "c1eaafba3746#1",
           "trim": [
-            0.0,
-            0.42
+            0.09,
+            0.45
           ],
           "gain_db": -4,
           "lowpass_hz": 7000,
-          "fade_out_ms": 120
+          "fade_out_ms": 120,
+          "fade_in_ms": 6
         },
         {
           "take": "69b703317050#56",
           "gain_db": -12,
-          "offset_ms": 60,
+          "offset_ms": 0,
           "lowpass_hz": 9000,
           "fade_out_ms": 100
         }
-      ]
+      ],
+      "onset_note": "Director 2026-10-20: the flame's first 90 ms is a -29..-11 dB pre-roll that put the perceived onset at 110 ms (sfx-04 cap 40). Trimmed: perceived onset 20 ms, first peak 25 ms. The crackle now lands with the flame."
     },
     "B": {
       "note": "Seal: a muted low stamp with a small iron latch click on top, like pressing a seal into warm wax.",
@@ -75,15 +77,17 @@
         {
           "take": "c1eaafba3746#1",
           "trim": [
-            0.0,
-            0.32
+            0.1,
+            0.42
           ],
           "pitch": 0.85,
           "gain_db": -4,
           "lowpass_hz": 2400,
-          "fade_out_ms": 140
+          "fade_out_ms": 140,
+          "fade_in_ms": 6
         }
-      ]
+      ],
+      "onset_note": "Director 2026-10-20: same pre-roll trim (100 ms of source); perceived onset 12 ms, first peak 17.5 ms."
     }
   }
 }
