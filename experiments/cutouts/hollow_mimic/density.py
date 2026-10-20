@@ -39,7 +39,7 @@ def replace_owned_entries(text, records):
     return text
 
 
-def record():
+def record(case=CASE):
     identity_path = ROOT / 'spec/art_identity/registry.json'
     scale = read_json(ROOT / 'data/enemies.json')['hollow_mimic']['art_scale']
     records = []
@@ -51,36 +51,37 @@ def record():
         write_json(layout_path, layout)
         relative = str(rest.relative_to(ROOT))
         entry = {'path': relative}
-        job = ROOT / f'spec/art_identity/jobs/hollow_mimic/mq9_{view}'
+        job = ROOT / read_json(case/'inputs.json')[view+'_job']
         kit = read_json(job / 'kit.json')
         entry.update(id='hollow_mimic', kind='creature', entry_kind='legacy', anatomy=kit['anatomy'],
             boss=False, art_scale=scale, size_class=kit['size_class'], pixel_sha256=pixel_digest(Image.open(rest)),
             metrics=measure(rest, scale, 'creature', kit['anatomy']),
             source_path=str(job.relative_to(ROOT) / 'processed.png'), source_pixel_sha256=read_json(job/'processed.json')['pixel_sha256'],
-            owner_approval='rr-20 supplied approved mq9 paintings; native certification pending director.')
+            owner_approval=('rr-20 supplied approved mq9 paintings; native certification pending director.'
+                if case == CASE else read_json(case/'anatomy.json')['integration']['owner_approval']))
         records.append(entry)
     identity_path.write_text(replace_owned_entries(identity_path.read_text(), records))
     entry = next(e for e in density.load_registry()['entries'] if e['id'] == ID)
     pending = density.rest_errors([entry], read_json(density.MANIFEST))
     board = (ROOT / 'scripts/combat_board_view.gd').read_text()
     write_json(ASSETS / 'integration.json', {
-        'ready': False, 'rig': 'humanoid_v2', 'case': str(CASE.relative_to(ROOT)),
-        'director_sha256': digest(CASE / 'director_motion.json'),
-        'design_placeholders': read_json(CASE / 'inputs.json')['design_placeholders'],
+        'ready': False, 'rig': 'humanoid_v2', 'case': str(case.relative_to(ROOT)),
+        'director_sha256': digest(case / 'director_motion.json'),
+        'design_placeholders': read_json(case / 'inputs.json')['design_placeholders'],
         'idle_phase_seed': 'slot', 'step_selectors': {'en06_mirror': 'mirror'},
         'contact_playback_clips': ['bolt', 'mirror', 'block'],
-        'death_timing': {'clip_seconds': read_json(CASE/'compiled_motion.json')['clips']['death']['seconds'],
+        'death_timing': {'clip_seconds': read_json(case/'compiled_motion.json')['clips']['death']['seconds'],
             'dissolve_frames': int(re.search(r'const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = (\d+)', board)[1]),
             'dissolve_frame_seconds': float(re.search(r'const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = ([\d.]+)', board)[1])},
         'native_proof': 'pending director density/rest/native/production/idle/review',
-        'rest_identity': {view: read_json(CASE/'proof/build.json')['views'][view]['rest_mismatch_pixels'] for view in VIEWS},
+        'rest_identity': {view: read_json(case/'proof/build.json')['views'][view]['rest_mismatch_pixels'] for view in VIEWS},
         'density': {'entry': ID, 'native_rest_pending': pending},
         'files': {str(p.relative_to(ASSETS)): digest(p) for p in sorted(ASSETS.rglob('*'))
                   if p.is_file() and p.suffix in ('.gd', '.json', '.png') and p.name != 'integration.json'}})
     return pending
 
 
-def register(refresh_sources=False):
+def register(refresh_sources=False, case=CASE):
     registry = read_json(density.REGISTRY)
     paths = sorted(str(p.relative_to(ROOT)) for view in VIEWS for p in (ASSETS / view).glob('*.png') if p.name != 'rest.png')
     scale = read_json(ROOT/'data/enemies.json')['hollow_mimic']['art_scale']
@@ -103,6 +104,10 @@ def register(refresh_sources=False):
             'expression': 'unit width 1.03 / 255 * art_scale / hero reference (1.03 / 255)'},
         'facings': facings, 'rest_paths': rests,
         'derivation_note': 'rr-20 approved mq9 source partition; feedback-1 residue cleanup and feedback-2 own-edge joint continuations; native rest recertification pending director.'}
+    if case.name == 'rr29':
+        entry['derivation_note'] = 'rr-29 approved mq11 source partition; exact rest identity; rr20 cuts and recomputed own-piece joint/rr28 continuations; native rest recertification pending director.'
+        for rest in rests.values():
+            registry['excluded_paths'][rest[0]]['reason'] = 'Derived rr-29 rest; separately certified by native rest_paths.'
     existing = next((e for e in registry['entries'] if e['id'] == ID), None)
     if existing is None: registry['entries'].append(entry)
     else: existing.update(entry)
@@ -119,7 +124,7 @@ def register(refresh_sources=False):
         subprocess.run([sys.executable, 'tools/process_board_density.py', '--adopt', *changed, '--force-adopt'], cwd=ROOT, check=True)
     if missing: subprocess.run([sys.executable, 'tools/process_board_density.py', '--adopt', *missing], cwd=ROOT, check=True)
     subprocess.run([sys.executable, 'tools/process_board_density.py', '--only', ID], cwd=ROOT, check=True)
-    record()
+    record(case)
     print('RR20 DENSITY PAINT: PASS (both views adopted/processed; native rest pending director)')
 
 

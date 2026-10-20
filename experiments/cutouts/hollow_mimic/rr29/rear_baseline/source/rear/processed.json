@@ -1,0 +1,64 @@
+{
+  "K": 4,
+  "drawn_size": [
+    114,
+    215
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.018110049849470188,
+    "edge_light_share": 0.004524886877828055,
+    "feature_px": 5.879623674582191,
+    "height": 215,
+    "height_drawn": 215.0,
+    "orphan_share": 0.04924186662741057,
+    "regions": 393,
+    "run_length": 2.899274434485702,
+    "symmetry": 0.6841124976718197,
+    "thin_abs": 0.015015457088178974,
+    "thin_rel": 0.05991461798910647,
+    "value": 0.1641822594192984,
+    "width": 114
+  },
+  "pixel_sha256": "eb610ec364ab13bf0bc5697c294f181ae95efbaa3cf081e65334e472be160a54",
+  "placement": [
+    71,
+    31
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
+        "pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "eb28818df4e0d2bf8c8ae2b5a51f0d012b2b1bc8a69d6484e4e43a9b82c25b8b",
+      "protected_body_share": {
+        "front": 0.0,
+        "rear": 0.000368052999631947
+      },
+      "reference_pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1",
+      "step": "palette_match"
+    }
+  ],
+  "raw_sha256": "3cf4c02c0f961c95d239c3d2fff0faae7844d38127b7893021bb1744222a2fae",
+  "shift": [
+    0,
+    0
+  ]
+}

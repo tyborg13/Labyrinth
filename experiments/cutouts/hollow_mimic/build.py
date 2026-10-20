@@ -47,7 +47,7 @@ def recipe_for(_creature, _spec):
             'parts': {label: BONES[name] for name, labels in PIECES.items() for label in labels}}
 
 
-def store(image, folder, name, bounds=None):
+def store(image, folder, name, bounds=None, case=CASE):
     if bounds is None:
         ys, xs = np.nonzero(image[..., 3])
         if not len(xs): raise ValueError('Empty piece: ' + name)
@@ -55,53 +55,54 @@ def store(image, folder, name, bounds=None):
     path = folder / (name + '.png')
     path.parent.mkdir(parents=True, exist_ok=True)
     Image.fromarray(image).crop(bounds).save(path)
-    return {'name': name, 'file': str(path.relative_to(CASE)), 'offset': bounds[:2], 'bbox': bounds}
+    return {'name': name, 'file': str(path.relative_to(case)), 'offset': bounds[:2], 'bbox': bounds}
 
 
-def proof_masks(layout, paint, visible, hidden, material_rules, anatomy):
+def proof_masks(layout, paint, visible, hidden, material_rules, anatomy, case=CASE):
     view = layout['facing']
     meshes = {m['name']: m for m in layout['joint_meshes']}
     checks = {}
     for part in layout['parts']:
         name, piece = part['name'], part['logical_part']
-        image = source_pixels(CASE, part)
+        image = source_pixels(case, part)
         allowed = image[..., 3] > 0
         mask = np.zeros_like(image)
         mask[allowed] = [255, 0, 0, 255]
-        continuation = (hidden[piece][..., 3] > 0) & allowed
+        # A covered copy does not turn its original visible donor into fill.
+        continuation = (hidden[piece][..., 3] > 0) & allowed & bool(part.get('hidden_material'))
         mask[continuation, 1] = 255
         mask[allowed & outline_class(image, material_rules), 2] = 255
-        record = store(mask, CASE / 'checks' / view, name, part['bbox'])
+        record = store(mask, case / 'checks' / view, name, part['bbox'], case=case)
         checks[name] = {'mask': record['file'], 'mask_offset': record['offset'],
             'z_index': part['z_index'], 'source': part['file'], 'rigid': name not in meshes,
-            'source_sha256': digest(CASE / part['file'])}
+            'source_sha256': digest(case / part['file'])}
     layout['proof_layers'] = checks
     rest_holes = []
     for index, hole in enumerate(holes(paint[..., 3] > 0)):
         if int(hole.sum()) <= 1: continue
         rim = dilate(hole, 1) & ~hole
         owner = max(PIECES, key=lambda n: int((rim & (visible[n][..., 3] > 0)).sum()))
-        path = CASE / f'holes/{view}_{index:02d}.png'
+        path = case / f'holes/{view}_{index:02d}.png'
         path.parent.mkdir(exist_ok=True)
         image = np.zeros_like(paint)
         image[hole] = 255
         Image.fromarray(image).save(path)
-        record = {'name': f'RestHole{index:02d}', 'owner': owner, 'file': str(path.relative_to(CASE)), 'bone': BONES[owner]}
+        record = {'name': f'RestHole{index:02d}', 'owner': owner, 'file': str(path.relative_to(case)), 'bone': BONES[owner]}
         if owner in anatomy['meshes']:
             vertices, uvs, triangles = grid([0, 0, 255, 255])
-            template = CASE / f'holes/{view}_{owner}_mesh.json'
+            template = case / f'holes/{view}_{owner}_mesh.json'
             write_json(template, {'vertices': vertices, 'uvs': uvs, 'triangles': triangles,
                 'weights': weights_for(vertices, meshes[owner]['bbox'], layout['joints'], anatomy['meshes'][owner]), 'z_index': 0})
-            record['mesh_template'] = str(template.relative_to(CASE))
+            record['mesh_template'] = str(template.relative_to(case))
         rest_holes.append(record)
     layout['proof_rest_holes'] = rest_holes
-    layout['proof_joint_seams'] = build_masks(CASE, layout, visible, anatomy)
+    layout['proof_joint_seams'] = build_masks(case, layout, visible, anatomy)
 
 
-def build_view(view, inputs, anatomy):
-    base, original, seeds, delivery = prepare(ROOT, CASE, inputs, view, PIECES,
+def build_view(view, inputs, anatomy, case=CASE, director=DIRECTOR, clean_residue=True, prepare_source=prepare):
+    base, original, seeds, delivery = prepare_source(ROOT, case, inputs, view, PIECES,
         registered_transform, label_palette, native_depths, recipe_for, bind_layout)
-    source = CASE / 'source' / view
+    source = case / 'source' / view
     source.mkdir(parents=True, exist_ok=True)
     for name in ('processed.png', 'processed.json'):
         shutil.copyfile(ROOT / inputs[view + '_job'] / name, source / name)
@@ -128,19 +129,19 @@ def build_view(view, inputs, anatomy):
         donors[hidden[name][..., 3] > 0] = hidden[name][hidden[name][..., 3] > 0]
         continuation = edge_texels(donors, missing, material_rules)
         hidden[name][missing] = continuation[missing]
-        path = CASE / f'tucks/{view}_{name}.png'
+        path = case / f'tucks/{view}_{name}.png'
         path.parent.mkdir(exist_ok=True)
         Image.fromarray(required.astype('uint8') * 255).save(path)
         reports.append({'piece': name, 'minimum_px': recipe['depth_px'], 'cover': recipe['covers'],
-            'required_mask': str(path.relative_to(CASE)), 'required_pixels': int(required.sum()),
+            'required_mask': str(path.relative_to(case)), 'required_pixels': int(required.sum()),
             'missing_pixels': int((required & (hidden[name][..., 3] == 0)).sum())})
     # rr-15 joint continuations: original visible paint is immutable, and
     # added paint is a nearest own-surface edge copy beneath declared covers.
-    baseline_folder = CASE / 'joint_source' / view
+    baseline_folder = case / 'joint_source' / view
     baseline_folder.mkdir(parents=True, exist_ok=True)
     for name in visible:
         Image.fromarray(hidden[name]).save(baseline_folder / (name + '.png'))
-    continuation_file = CASE / 'joint_continuations.json'
+    continuation_file = case / 'joint_continuations.json'
     recipes = read_json(continuation_file)[view] if continuation_file.exists() else {}
     joins = {name: {'covers': [other for other in PIECES if other != name], 'source_points': points}
              for name, points in recipes.items()}
@@ -164,33 +165,34 @@ def build_view(view, inputs, anatomy):
         crack = (paint[..., 3] > 0) & (rgb[..., 0] > rgb[..., 1] + PROOF_FEATURE_CHROMA_MARGIN) & (rgb[..., 2] > rgb[..., 1] + PROOF_FEATURE_CHROMA_MARGIN)
         if np.any(crack & (visible['head'][..., 3] == 0)):
             raise ValueError('Violet crack ownership escapes head')
-        path = CASE / 'features/front_violet_crack.png'
+        path = case / 'features/front_violet_crack.png'
         path.parent.mkdir(exist_ok=True)
         Image.fromarray(crack.astype('uint8') * 255).save(path)
-        native_path = CASE / 'features/front_violet_crack_native.png'
+        native_path = case / 'features/front_violet_crack_native.png'
         native_mask = np.zeros_like(paint)
         native_mask[crack] = 255
         Image.fromarray(native_mask).save(native_path)
-        features.append({'name': 'violet_crack', 'piece': 'head', 'mask': str(path.relative_to(CASE)),
-            'native_mask': {'name': 'FeatureVioletCrack', 'bone': 'head', 'file': str(native_path.relative_to(CASE))}})
-    source_underlaps(visible, hidden, view)
+        features.append({'name': 'violet_crack', 'piece': 'head', 'mask': str(path.relative_to(case)),
+            'native_mask': {'name': 'FeatureVioletCrack', 'bone': 'head', 'file': str(native_path.relative_to(case))}})
+    source_underlaps(visible, hidden, view, case=case)
     cleanup = {}
     for name in visible:
-        source_folder = CASE / 'residue_source' / view
+        source_folder = case / 'residue_source' / view
         source_folder.mkdir(parents=True, exist_ok=True)
         for kind, image in (('visible', visible[name]), ('hidden', hidden[name])):
             Image.fromarray(image).save(source_folder / f'{name}_{kind}.png')
-        exemption = feature_mask(CASE, {'canvas_size': [255, 255], 'features': features}, name)
-        visible[name], hidden[name], cleanup[name] = clean_piece(visible[name], hidden[name], exemption)
+        exemption = feature_mask(case, {'canvas_size': [255, 255], 'features': features}, name)
+        if clean_residue:
+            visible[name], hidden[name], cleanup[name] = clean_piece(visible[name], hidden[name], exemption)
     parts, meshes = [], []
     for name, image in visible.items():
-        part = store(image, CASE / 'pieces' / view, name)
+        part = store(image, case / 'pieces' / view, name, case=case)
         part.update(bone=BONES[name], z_index=depths[name], logical_part=name)
         if name in anatomy['meshes']:
             meshes.append(layer(part, name, part['bbox'], joints, depths[name], recipe=anatomy['meshes'][name]))
         parts.append(part)
         if hidden[name][..., 3].any():
-            under = store(hidden[name], CASE / 'pieces' / view, name + '_hidden')
+            under = store(hidden[name], case / 'pieces' / view, name + '_hidden', case=case)
             under.update(bone=BONES[name], z_index=-1, logical_part=name, hidden_material=True)
             if name in anatomy['meshes']:
                 meshes.append(layer(under, name, part['bbox'], joints, -1, True, recipe=anatomy['meshes'][name]))
@@ -205,18 +207,18 @@ def build_view(view, inputs, anatomy):
         'joints': joints, 'parts': parts, 'joint_meshes': meshes, 'idle_groups': GROUPS,
         'held_items': {}, 'planted_bones': anatomy['planted_bones'], 'planted_during_death': True,
         'source_labels': PIECES, 'features': features, 'rest_source': f'presentation/{view}/rest.png',
-        'motion_data': 'res://' + str(CASE.relative_to(ROOT) / 'compiled_motion.json')}
-    layout['gait_leg_scale_max'] = read_json(DIRECTOR)['hollow_mimic']['clips']['move']['gait']['leg_scale_max']
-    gait_coverage = CASE / 'gait_continuations.json'
+        'motion_data': 'res://' + str(case.relative_to(ROOT) / 'compiled_motion.json')}
+    layout['gait_leg_scale_max'] = read_json(director)['hollow_mimic']['clips']['move']['gait']['leg_scale_max']
+    gait_coverage = case / 'gait_continuations.json'
     if gait_coverage.exists(): layout['gait_continuations'] = read_json(gait_coverage)[view]
     distinct_depths(layout)
-    proof_masks(layout, paint, visible, hidden, material_rules, anatomy)
+    proof_masks(layout, paint, visible, hidden, material_rules, anatomy, case=case)
     rest = Image.new('RGBA', (255, 255))
-    for part in sorted(parts, key=lambda p: p['z_index']): rest.alpha_composite(Image.fromarray(source_pixels(CASE, part)))
-    rest_path = CASE / layout['rest_source']
+    for part in sorted(parts, key=lambda p: p['z_index']): rest.alpha_composite(Image.fromarray(source_pixels(case, part)))
+    rest_path = case / layout['rest_source']
     rest_path.parent.mkdir(parents=True, exist_ok=True)
     rest.save(rest_path)
-    write_json(CASE / f'layouts/{view}.json', layout)
+    write_json(case / f'layouts/{view}.json', layout)
     presentation_changes = int(np.any(np.asarray(rest) != paint, axis=-1).sum())
     spec = read_json(base / 'source/spec_native.json')
     origin = np.asarray(projected(spec, [0, 0, 0], view))

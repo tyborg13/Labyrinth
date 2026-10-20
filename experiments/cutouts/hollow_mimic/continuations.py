@@ -18,18 +18,18 @@ from humanoid_cutout.native_frames import load_frame
 RASTER_COVERAGE_MARGIN_PX = 1  # Pixel-square coverage on both sides, as rr-15/gait-01.
 
 
-def trace(view, poses, capture=None):
-    layout = read_json(CASE / f'layouts/{view}.json')
-    anatomy = load(CASE)
-    model = CpuPose(CASE, layout)
-    visible = {p['logical_part']: source_pixels(CASE, p)[...,3] > 0 for p in layout['parts'] if not p.get('hidden_material')}
+def trace(view, poses, capture=None, case=CASE, canonical_tear=False):
+    layout = read_json(case / f'layouts/{view}.json')
+    anatomy = load(case)
+    model = CpuPose(case, layout)
+    visible = {p['logical_part']: source_pixels(case, p)[...,3] > 0 for p in layout['parts'] if not p.get('hidden_material')}
     covers = {name: np.logical_or.reduce([visible[b if a == name else a] for a,b in anatomy['seam_joins'] if name in (a,b)]) for name in PIECES}
     local_covers = covers
     covers = {name:np.logical_or.reduce([mask for other,mask in visible.items() if other!=name]) for name in PIECES}
     virtual = {}
     eligible_source = {}
     for name in PIECES:
-        base=np.logical_or.reduce([source_pixels(CASE,part)[...,3]>0 for part in layout['parts'] if part['logical_part']==name])
+        base=np.logical_or.reduce([source_pixels(case,part)[...,3]>0 for part in layout['parts'] if part['logical_part']==name])
         eligible_source[name]=covers[name] & ~visible[name] & dilate(base,2*anatomy['joint_continuations']['depth_px'],grid_distance=True)
     for part in layout['parts']:
         logical=part['logical_part']
@@ -50,6 +50,11 @@ def trace(view, poses, capture=None):
             native_rows.setdefault((row['view'],row['clip'],row['frame']),[]).append(row)
     for pose in poses:
         layers, maps, owners, defects = state(model, pose)
+        if canonical_tear:
+            from humanoid_cutout.silhouette_gates import joint_holes
+            seams = np.logical_or.reduce(model.masks(pose, layout["proof_joint_seams"], maps))
+            references = model.masks(pose, layout["proof_rest_holes"], maps)
+            defects = joint_holes(owners > 0, seams, owners, references, pocket_details=True)
         if capture is not None:
             layers=[(row,np.asarray(load_frame(capture/row['file']).convert('RGBA')),
                      np.asarray(load_frame(capture/row['checks']).convert('RGBA')))
@@ -133,30 +138,30 @@ def main():
 
 
 
-def derivation_errors(layout):
+def derivation_errors(layout, case=CASE):
     """Verify every added joint texel against the exact rr-15 donor/domain rule."""
     from humanoid_cutout.joint_continuations import domains
     from maquette_motion.bleed import edge_texels
     from maquette_motion.material_palette import rules
     from residue import clean_piece, feature_mask
-    anatomy = load(CASE)
+    anatomy = load(case)
     visible = {}
     hidden = {}
     for name in PIECES:
-        source = CASE / 'residue_source' / layout['facing']
+        source = case / 'residue_source' / layout['facing']
         visible[name] = np.asarray(load_frame(source / (name + '_visible.png')).convert('RGBA'))
-        hidden[name] = np.asarray(load_frame(CASE / 'joint_source' / layout['facing'] / (name + '.png')).convert('RGBA')).copy()
-    recipes = read_json(CASE / 'joint_continuations.json')[layout['facing']]
+        hidden[name] = np.asarray(load_frame(case / 'joint_source' / layout['facing'] / (name + '.png')).convert('RGBA')).copy()
+    recipes = read_json(case / 'joint_continuations.json')[layout['facing']]
     joins = {name:{'covers':[other for other in PIECES if other!=name],'source_points':points} for name,points in recipes.items()}
     for name,target in domains(visible, hidden, joins, **anatomy['joint_continuations']).items():
         missing=target & (hidden[name][...,3]==0)
-        replacement=edge_texels(visible[name],missing,rules(CASE,layout['facing']))
+        replacement=edge_texels(visible[name],missing,rules(case,layout['facing']))
         hidden[name][missing]=replacement[missing]
     from underlaps import apply as source_underlaps
-    source_underlaps(visible, hidden, layout['facing'])
+    source_underlaps(visible, hidden, layout['facing'], case=case)
     errors=[]
     for name in PIECES:
-        actual=np.asarray(load_frame(CASE/'residue_source'/layout['facing']/(name+'_hidden.png')).convert('RGBA'))
+        actual=np.asarray(load_frame(case/'residue_source'/layout['facing']/(name+'_hidden.png')).convert('RGBA'))
         if not np.array_equal(actual,hidden[name]): errors.append(layout['facing']+'/'+name+': joint continuation differs from own edge texels')
     return errors
 

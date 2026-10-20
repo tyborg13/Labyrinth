@@ -1,0 +1,212 @@
+{
+  "rear": {
+    "bolt": {
+      "torso_hidden": {
+        "local_targets": [
+          [
+            37,
+            6
+          ],
+          [
+            38,
+            6
+          ],
+          [
+            36,
+            7
+          ],
+          [
+            37,
+            7
+          ],
+          [
+            38,
+            7
+          ],
+          [
+            36,
+            8
+          ],
+          [
+            37,
+            8
+          ],
+          [
+            38,
+            8
+          ]
+        ],
+        "source_evidence": [
+          {
+            "view": "rear",
+            "clip": "bolt",
+            "frame": 39,
+            "pocket": {
+              "bbox": [
+                270,
+                224,
+                273,
+                227
+              ],
+              "pixel_count": 6,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          },
+          {
+            "view": "rear",
+            "clip": "bolt",
+            "frame": 17,
+            "pocket": {
+              "bbox": [
+                270,
+                224,
+                271,
+                226
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          },
+          {
+            "view": "rear",
+            "clip": "bolt",
+            "frame": 37,
+            "pocket": {
+              "bbox": [
+                272,
+                224,
+                273,
+                226
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          },
+          {
+            "view": "rear",
+            "clip": "bolt",
+            "frame": 38,
+            "pocket": {
+              "bbox": [
+                272,
+                224,
+                273,
+                226
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          }
+        ]
+      }
+    },
+    "death": {
+      "torso_hidden": {
+        "local_targets": [
+          [
+            37,
+            6
+          ],
+          [
+            38,
+            6
+          ],
+          [
+            36,
+            7
+          ],
+          [
+            37,
+            7
+          ],
+          [
+            38,
+            7
+          ],
+          [
+            36,
+            8
+          ],
+          [
+            37,
+            8
+          ],
+          [
+            38,
+            8
+          ]
+        ],
+        "source_evidence": [
+          {
+            "view": "rear",
+            "clip": "death",
+            "frame": 40,
+            "pocket": {
+              "bbox": [
+                277,
+                236,
+                279,
+                238
+              ],
+              "pixel_count": 3,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          },
+          {
+            "view": "rear",
+            "clip": "death",
+            "frame": 41,
+            "pocket": {
+              "bbox": [
+                277,
+                236,
+                279,
+                238
+              ],
+              "pixel_count": 3,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          },
+          {
+            "view": "rear",
+            "clip": "death",
+            "frame": 54,
+            "pocket": {
+              "bbox": [
+                279,
+                239,
+                282,
+                242
+              ],
+              "pixel_count": 5,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          },
+          {
+            "view": "rear",
+            "clip": "death",
+            "frame": 22,
+            "pocket": {
+              "bbox": [
+                272,
+                224,
+                273,
+                226
+              ],
+              "pixel_count": 2,
+              "painted_or_tuck_pixels": 0,
+              "joint_tear": true
+            }
+          }
+        ]
+      }
+    }
+  }
+}

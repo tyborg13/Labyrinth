@@ -1,0 +1,378 @@
+{
+  "facing": "rear",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "position": [
+        129.0,
+        231.46
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        128.5,
+        153.0
+      ],
+      "parent": "root"
+    },
+    "torso": {
+      "position": [
+        130.5,
+        119.0
+      ],
+      "parent": "pelvis"
+    },
+    "head": {
+      "position": [
+        133.0,
+        103.0
+      ],
+      "parent": "torso"
+    },
+    "upper_near": {
+      "position": [
+        103.0,
+        104.0
+      ],
+      "parent": "torso"
+    },
+    "fore_near": {
+      "position": [
+        89.0,
+        136.0
+      ],
+      "parent": "upper_near"
+    },
+    "hand_near": {
+      "position": [
+        86.0,
+        159.0
+      ],
+      "parent": "fore_near"
+    },
+    "thigh_near": {
+      "position": [
+        114.0,
+        164.0
+      ],
+      "parent": "pelvis"
+    },
+    "shin_near": {
+      "position": [
+        105.0,
+        192.0
+      ],
+      "parent": "thigh_near"
+    },
+    "foot_near": {
+      "position": [
+        94.5,
+        206.0
+      ],
+      "parent": "shin_near"
+    },
+    "upper_far": {
+      "position": [
+        151.0,
+        111.2
+      ],
+      "parent": "torso"
+    },
+    "fore_far": {
+      "position": [
+        163.0,
+        143.0
+      ],
+      "parent": "upper_far"
+    },
+    "hand_far": {
+      "position": [
+        175.5,
+        173.0
+      ],
+      "parent": "fore_far"
+    },
+    "thigh_far": {
+      "position": [
+        141.5,
+        168.0
+      ],
+      "parent": "pelvis"
+    },
+    "shin_far": {
+      "position": [
+        148.5,
+        198.0
+      ],
+      "parent": "thigh_far"
+    },
+    "foot_far": {
+      "position": [
+        145.5,
+        231.0
+      ],
+      "parent": "shin_far"
+    }
+  },
+  "parts": [
+    {
+      "name": "head",
+      "logical_part": "head",
+      "bone": "head",
+      "file": "pieces/rear/head.png",
+      "offset": [
+        88,
+        31
+      ],
+      "bbox": [
+        88,
+        31,
+        166,
+        102
+      ],
+      "z_index": 14
+    },
+    {
+      "name": "torso",
+      "logical_part": "torso",
+      "bone": "torso",
+      "file": "pieces/rear/torso.png",
+      "offset": [
+        107,
+        98
+      ],
+      "bbox": [
+        107,
+        98,
+        143,
+        128
+      ],
+      "z_index": 12
+    },
+    {
+      "name": "pelvis",
+      "logical_part": "pelvis",
+      "bone": "pelvis",
+      "file": "pieces/rear/pelvis.png",
+      "offset": [
+        108,
+        122
+      ],
+      "bbox": [
+        108,
+        122,
+        151,
+        167
+      ],
+      "z_index": 8
+    },
+    {
+      "name": "upper_near",
+      "logical_part": "upper_near",
+      "bone": "upper_near",
+      "file": "pieces/rear/upper_near.png",
+      "offset": [
+        79,
+        91
+      ],
+      "bbox": [
+        79,
+        91,
+        117,
+        143
+      ],
+      "z_index": 10
+    },
+    {
+      "name": "fore_near",
+      "logical_part": "fore_near",
+      "bone": "upper_near",
+      "file": "pieces/rear/fore_near.png",
+      "offset": [
+        72,
+        133
+      ],
+      "bbox": [
+        72,
+        133,
+        101,
+        162
+      ],
+      "z_index": 6
+    },
+    {
+      "name": "hand_near",
+      "logical_part": "hand_near",
+      "bone": "hand_near",
+      "file": "pieces/rear/hand_near.png",
+      "offset": [
+        71,
+        155
+      ],
+      "bbox": [
+        71,
+        155,
+        103,
+        184
+      ],
+      "z_index": 2
+    },
+    {
+      "name": "upper_far",
+      "logical_part": "upper_far",
+      "bone": "upper_far",
+      "file": "pieces/rear/upper_far.png",
+      "offset": [
+        126,
+        105
+      ],
+      "bbox": [
+        126,
+        105,
+        168,
+        148
+      ],
+      "z_index": 13
+    },
+    {
+      "name": "fore_far",
+      "logical_part": "fore_far",
+      "bone": "upper_far",
+      "file": "pieces/rear/fore_far.png",
+      "offset": [
+        150,
+        140
+      ],
+      "bbox": [
+        150,
+        140,
+        179,
+        176
+      ],
+      "z_index": 11
+    },
+    {
+      "name": "hand_far",
+      "logical_part": "hand_far",
+      "bone": "hand_far",
+      "file": "pieces/rear/hand_far.png",
+      "offset": [
+        154,
+        166
+      ],
+      "bbox": [
+        154,
+        166,
+        185,
+        192
+      ],
+      "z_index": 9
+    },
+    {
+      "name": "thigh_near",
+      "logical_part": "thigh_near",
+      "bone": "thigh_near",
+      "file": "pieces/rear/thigh_near.png",
+      "offset": [
+        95,
+        149
+      ],
+      "bbox": [
+        95,
+        149,
+        124,
+        193
+      ],
+      "z_index": 4
+    },
+    {
+      "name": "shin_near",
+      "logical_part": "shin_near",
+      "bone": "thigh_near",
+      "file": "pieces/rear/shin_near.png",
+      "offset": [
+        84,
+        181
+      ],
+      "bbox": [
+        84,
+        181,
+        115,
+        212
+      ],
+      "z_index": 1
+    },
+    {
+      "name": "foot_near",
+      "logical_part": "foot_near",
+      "bone": "foot_near",
+      "file": "pieces/rear/foot_near.png",
+      "offset": [
+        82,
+        204
+      ],
+      "bbox": [
+        82,
+        204,
+        123,
+        224
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "thigh_far",
+      "logical_part": "thigh_far",
+      "bone": "thigh_far",
+      "file": "pieces/rear/thigh_far.png",
+      "offset": [
+        119,
+        152
+      ],
+      "bbox": [
+        119,
+        152,
+        159,
+        192
+      ],
+      "z_index": 7
+    },
+    {
+      "name": "shin_far",
+      "logical_part": "shin_far",
+      "bone": "thigh_far",
+      "file": "pieces/rear/shin_far.png",
+      "offset": [
+        131,
+        190
+      ],
+      "bbox": [
+        131,
+        190,
+        161,
+        221
+      ],
+      "z_index": 5
+    },
+    {
+      "name": "foot_far",
+      "logical_part": "foot_far",
+      "bone": "foot_far",
+      "file": "pieces/rear/foot_far.png",
+      "offset": [
+        131,
+        216
+      ],
+      "bbox": [
+        131,
+        216,
+        177,
+        246
+      ],
+      "z_index": 3
+    }
+  ]
+}

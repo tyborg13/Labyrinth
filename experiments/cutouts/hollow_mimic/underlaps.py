@@ -6,8 +6,8 @@ from maquette_motion.bleed import edge_texels
 from maquette_motion.material_palette import rules
 
 
-def apply(visible, hidden, view):
-    path = CASE / 'source_underlaps.json'
+def apply(visible, hidden, view, case=CASE):
+    path = case / 'source_underlaps.json'
     if not path.exists(): return
     for name, points in read_json(path).get(view, {}).items():
         target = np.zeros(visible[name].shape[:2], dtype=bool)
@@ -17,5 +17,5 @@ def apply(visible, hidden, view):
             target[y, x] = True
         # The common garment field stays unchanged. Its covered draw layer
         # carries the same surface across a differently sampled mesh edge.
-        continuation = edge_texels(visible[name], target, rules(CASE, view))
+        continuation = edge_texels(visible[name], target, rules(case, view))
         hidden[name][target] = continuation[target]

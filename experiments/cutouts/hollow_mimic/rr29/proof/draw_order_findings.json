@@ -1,0 +1,404 @@
+{
+  "ok": true,
+  "errors": [],
+  "frames_checked": 724,
+  "findings": [
+    {
+      "clip": "block",
+      "frame": 9,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_009_near_before.png",
+      "after_crop": "proof/draw_order/block_009_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 10,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_010_near_before.png",
+      "after_crop": "proof/draw_order/block_010_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 11,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_011_near_before.png",
+      "after_crop": "proof/draw_order/block_011_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 12,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_012_near_before.png",
+      "after_crop": "proof/draw_order/block_012_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 13,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_013_near_before.png",
+      "after_crop": "proof/draw_order/block_013_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 14,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_014_near_before.png",
+      "after_crop": "proof/draw_order/block_014_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 15,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_015_near_before.png",
+      "after_crop": "proof/draw_order/block_015_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 16,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_016_near_before.png",
+      "after_crop": "proof/draw_order/block_016_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 17,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_017_near_before.png",
+      "after_crop": "proof/draw_order/block_017_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 18,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_018_near_before.png",
+      "after_crop": "proof/draw_order/block_018_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 19,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_019_near_before.png",
+      "after_crop": "proof/draw_order/block_019_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 20,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_020_near_before.png",
+      "after_crop": "proof/draw_order/block_020_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 21,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_021_near_before.png",
+      "after_crop": "proof/draw_order/block_021_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 22,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_022_near_before.png",
+      "after_crop": "proof/draw_order/block_022_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 23,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_023_near_before.png",
+      "after_crop": "proof/draw_order/block_023_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 24,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_024_near_before.png",
+      "after_crop": "proof/draw_order/block_024_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 25,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_025_near_before.png",
+      "after_crop": "proof/draw_order/block_025_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 26,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_026_near_before.png",
+      "after_crop": "proof/draw_order/block_026_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 27,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_027_near_before.png",
+      "after_crop": "proof/draw_order/block_027_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 28,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_028_near_before.png",
+      "after_crop": "proof/draw_order/block_028_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 29,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_029_near_before.png",
+      "after_crop": "proof/draw_order/block_029_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 30,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_030_near_before.png",
+      "after_crop": "proof/draw_order/block_030_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 31,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_031_near_before.png",
+      "after_crop": "proof/draw_order/block_031_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 32,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_032_near_before.png",
+      "after_crop": "proof/draw_order/block_032_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 33,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_033_near_before.png",
+      "after_crop": "proof/draw_order/block_033_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 34,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_034_near_before.png",
+      "after_crop": "proof/draw_order/block_034_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 35,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_035_near_before.png",
+      "after_crop": "proof/draw_order/block_035_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 36,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_036_near_before.png",
+      "after_crop": "proof/draw_order/block_036_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 37,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_037_near_before.png",
+      "after_crop": "proof/draw_order/block_037_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 38,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_038_near_before.png",
+      "after_crop": "proof/draw_order/block_038_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 39,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_039_near_before.png",
+      "after_crop": "proof/draw_order/block_039_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 40,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_040_near_before.png",
+      "after_crop": "proof/draw_order/block_040_near_after.png"
+    },
+    {
+      "clip": "block",
+      "frame": 41,
+      "side": "near",
+      "before_behind": [
+        "sleeve_near",
+        "hand_near"
+      ],
+      "after_above": true,
+      "before_crop": "proof/draw_order/block_041_near_before.png",
+      "after_crop": "proof/draw_order/block_041_near_after.png"
+    }
+  ],
+  "crop_scope": "CPU diagnostic of mq11 paint, rr20 static depths vs corrected depths; not native capture"
+}

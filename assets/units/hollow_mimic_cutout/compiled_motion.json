@@ -2,7 +2,7 @@
   "rig": "humanoid_v2",
   "units": "source_px",
   "creature": "hollow_mimic",
-  "director_sha256": "c0f1ef683f22cb63ef9ad1430560d88e6dd9da378828fca0e793add0ccea28ac",
+  "director_sha256": "eb44c4db9c2786eb6f7333a8ece2cc1df7e9f4ec82f9720f30a9d2ec352dd294",
   "projection": {
     "front": {
       "forward": [
@@ -32,7 +32,7 @@
       "intents": [
         "recede:move_away"
       ],
-      "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; the arms swing 4 px opposite the stepping leg",
+      "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; each arm swings from the shoulder like a pendulum, opposite its same-side leg, and the forearm trails the upper arm",
       "gait": {
         "model": "protagonist_walk",
         "steps_per_tile": 6,
@@ -48,13 +48,24 @@
           "up": 0.0
         },
         "arm_swing": {
+          "model": "shoulder_pendulum",
+          "_doc": "Director (owner 2026-10-20: 'the arms don't sway realistically during the walk'). The upper arm rotates about the shoulder joint in screen space toward the facing direction (forward) and away from it (back), opposite the same-side leg; the forearm follows the upper arm with a time lag and bends more on the backswing; the hand is rigid with the forearm. Replaces the 4 px hand-target slide.",
+          "phase": "opposite_same_side_leg",
           "near": {
-            "bone": "hand_near",
-            "px": 4
+            "upper_deg": 14,
+            "forearm_lag_s": 0.07,
+            "forearm_bend_deg": {
+              "forward": 3,
+              "back": 11
+            }
           },
           "far": {
-            "bone": "hand_far",
-            "px": 4
+            "upper_deg": 12,
+            "forearm_lag_s": 0.07,
+            "forearm_bend_deg": {
+              "forward": 3,
+              "back": 10
+            }
           }
         },
         "max_fit_px": 6
@@ -597,92 +608,6 @@
             {
               "at": 0.976,
               "value": -0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 1.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            }
-          ],
-          "forward_mode": "pixels"
-        },
-        {
-          "source": "hand_near.forward_px",
-          "bone": "hand_near",
-          "channel": "forward_px",
-          "keys": [
-            {
-              "at": 0.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.08000000000000002,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.28,
-              "value": 4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.48,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 1.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            }
-          ],
-          "forward_mode": "pixels"
-        },
-        {
-          "source": "hand_far.forward_px",
-          "bone": "hand_far",
-          "channel": "forward_px",
-          "keys": [
-            {
-              "at": 0.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.08000000000000002,
-              "value": 2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.28,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.48,
-              "value": 4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": 4.0,
               "interpolation": "smoothstep"
             },
             {
@@ -2331,92 +2256,6 @@
             {
               "at": 0.976,
               "value": -0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 1.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            }
-          ],
-          "forward_mode": "pixels"
-        },
-        {
-          "source": "hand_near.forward_px",
-          "bone": "hand_near",
-          "channel": "forward_px",
-          "keys": [
-            {
-              "at": 0.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.08000000000000002,
-              "value": -2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.28,
-              "value": 4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.48,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": 4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 1.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            }
-          ],
-          "forward_mode": "pixels"
-        },
-        {
-          "source": "hand_far.forward_px",
-          "bone": "hand_far",
-          "channel": "forward_px",
-          "keys": [
-            {
-              "at": 0.0,
-              "value": 0.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.08000000000000002,
-              "value": 2.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.28,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.48,
-              "value": 4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.68,
-              "value": -4.0,
-              "interpolation": "smoothstep"
-            },
-            {
-              "at": 0.88,
-              "value": 4.0,
               "interpolation": "smoothstep"
             },
             {

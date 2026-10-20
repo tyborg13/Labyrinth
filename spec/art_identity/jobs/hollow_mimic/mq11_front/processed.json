@@ -1,0 +1,64 @@
+{
+  "K": 4,
+  "drawn_size": [
+    117,
+    216
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.02286933983839,
+    "edge_light_share": 0.01722488038277512,
+    "feature_px": 6.061773506096684,
+    "height": 216,
+    "height_drawn": 216.0,
+    "orphan_share": 0.0699801799054734,
+    "regions": 357,
+    "run_length": 2.9379619260918255,
+    "symmetry": 0.6523329129886507,
+    "thin_abs": 0.017609391675560304,
+    "thin_rel": 0.0484067693245922,
+    "value": 0.16680887569542227,
+    "width": 117
+  },
+  "pixel_sha256": "084243a631094e585eae70b3bcb898ae8d11e247692ea12401f727fdc1009fc1",
+  "placement": [
+    70,
+    30
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/hollow_mimic/front/kit.json",
+        "pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "b93f883e1112b819ff5367b4fc4bfe4508f3b3dd7747b86737976db7473a8124",
+      "protected_body_share": {
+        "front": 0.0004009944662763654,
+        "rear": 0.0
+      },
+      "reference_pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3",
+      "step": "palette_match"
+    }
+  ],
+  "raw_sha256": "dd6f61f24637db67fa5e64992184d865bf7b52e9abe398c7c67788f724db01cc",
+  "shift": [
+    0,
+    0
+  ]
+}

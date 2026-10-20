@@ -1,0 +1,58 @@
+{
+  "ok": false,
+  "errors": [
+    "front/near: travel below 2.5x rr20",
+    "rear/far: travel below 2.5x rr20"
+  ],
+  "views": {
+    "front": {
+      "near": {
+        "peak_to_peak_px": 20.615528128088304,
+        "rr20_slide_px": 8.94427190999916,
+        "ratio": 2.3048861143232218,
+        "step_arc_departure_px": [
+          0.2906626516382151,
+          0.4493225081454679,
+          0.7835446068924954
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      },
+      "far": {
+        "peak_to_peak_px": 17.464261428615384,
+        "rr20_slide_px": 6.082767547431625,
+        "ratio": 2.871104524779918,
+        "step_arc_departure_px": [
+          0.7230020531730544,
+          0.5666260203279303,
+          0.3895401222646484
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      }
+    },
+    "rear": {
+      "near": {
+        "peak_to_peak_px": 20.6155281280883,
+        "rr20_slide_px": 7.28010988928052,
+        "ratio": 2.8317605697742696,
+        "step_arc_departure_px": [
+          0.29066128277449965,
+          0.520471143359825,
+          0.8827281813302599
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      },
+      "far": {
+        "peak_to_peak_px": 20.615584380260827,
+        "rr20_slide_px": 8.944292381906545,
+        "ratio": 2.3048871280152023,
+        "step_arc_departure_px": [
+          0.46081220695215774,
+          0.32342051120407356,
+          0.480480223270267
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      }
+    }
+  },
+  "units": "source px; screen px = source px * screen_pixel_scale"
+}
