@@ -53,6 +53,13 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
      The rear Tether re-key was dropped (reverted 780933a9c): the near-side upright hold can't pass the 60.5 px
      minimum-reach gate (any path past the near shoulder comes within ~57 px); the fin goes to the backlog.
   3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig. Master checkpoint only on the owner's word.
+  4. Found by cap-01's director run (2026-10-20): under rr-26's canonical gate (joint tears can no longer pass as air;
+     historical frame/pocket exceptions no longer waive source-space failures) the Seer's native gates fail with 31
+     joint tears of 2-3 px (front move 7, bolt 20, hit 4/8/9, death 27-30/62; rear mark 10, 27-46). Same failures on
+     integration code, so it isn't cap-01. Plan: land cap-01, then re-capture native proofs for every rig with the fast
+     path (Seer, Thrall, Mirror, Mimic, Weaver, Mortar, Capacitor) and give each failing rig a fix unit (clip-scoped
+     own-piece continuations, as for the Thrall's front pockets). Hole list: scratchpad seer_holes.json (re-derive with
+     native_errors(..., hole_details=[])).
   4. Backlog from today: the Mirror's feet and fists revisit (owner: "not totally sold"); unify the two detached
      provenance classifiers (rest_space.py from rr-26, source_space.py from rr-25) with differential tests (rr-26 review Low);
      rr-26 Low: a sum-preserving canonical-weight regression; rr-21 Low: path-containment test fixture.
