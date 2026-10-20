@@ -123,10 +123,9 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/int-04 && LABYRINTH_TASK_ID=i
   tests, rr-20/21/24, mq-05/07/08/09 and all regeneration inventory assertions.
   The added regeneration pattern reports `INT04 REGENERATION MUTATIONS: PASS`.
 
-In accordance with the brief's once-only full-suite instruction, the full Python
-suite was not repeated after the inventory fix. A passing full Python run on
-the final patch has therefore **not been observed**; the both-full-suites-pass
-acceptance criterion remains unverified for the design owner.
+At the initial handoff, the full Python suite had not been repeated after the
+inventory fix, so a final full-suite pass was unverified. Feedback 1 below
+requests both full suites again and supersedes that handoff's proof limitation.
 
 The intermediate 116-test focused run had `FAILED (errors=1)` from the new
 coverage test importing script-local `case`; it now invokes the actual CLI.
@@ -138,3 +137,68 @@ No existing master assertion was rewritten.
 The supplied pre-task Python log reports `Ran 1388 tests in 1506.195s` /
 `FAILED (failures=3, skipped=63)`, naming exactly the two rr-20 tests and the
 rr-24 colour-preservation test from the brief.
+
+## Feedback 1: historical inputs and preservation independent of receipts
+
+The four maquette checks retain their compilation/hash assertions. The
+`historical_compiler` test context supplies the owning head's exact Lancer blob
+to both `compile_recipe.PROJECT` and `creature_recipe.PROJECT`, including the
+`compile_solids` path. It writes only a disposable input fixture; production
+compiler code, approved Lancer data and native builder receipts stay unchanged.
+
+Each check first compares a pinned range across all foreign maquette namespaces,
+including additions and deletions. A matching endpoint recipe/report pair can
+no longer authorize a foreign edit.
+
+| Owning unit | Pinned base | Pinned head | Owned figures |
+| --- | --- | --- | --- |
+| mq-05 | `3fcc62690` | `7bde1e145` | Grub, Tick, Mirror |
+| mq-07 | `78d87f474` | `c1ecf9f22` | Thrall |
+| mq-08 | `76b75ad3a` | `8da120901` | Mirror |
+| mq-09 | `87bd64903` | `2f64d5905` | Mimic, Weaver, Mortar |
+
+mq-07's base is its imported integration tree, including authorized mq-05/06
+deliveries. Its own Thrall floor exception lives in Seer's shared floor ledger:
+the guard compares all metadata and every other figure's entry, while allowing
+only the owning figure's entry to change. Shared builder/base-mesh/proof folders
+are outside figure ownership, as before.
+
+| Mutation | Check exercised | Observed result |
+| --- | --- | --- |
+| Live Lancer `target[0] += 0.01` | mq-05/07/08/09; direct poisoned cloth/solid compilation is a negative control | All four historical checks pass; both historical input paths are isolated |
+| Seer head scales doubled and `spec_hash` recomputed to match | Original mq-05/07/08/09 assertions on disposable committed ranges | All four reject the coordinated edit, despite endpoint self-consistency |
+| Seer recipe deleted from the endpoint inventory | Original mq-09 assertion | Rejected by the range guard before enumeration can omit it |
+| Foreign figure added | Range guards for all four units | All four reject the addition |
+| Thrall's own shared floor entry changed, then Seer's entry changed | Shared-record portion of the range guard | Own entry allowed; foreign entry rejected |
+
+Initial focused mutation result: `Ran 12 tests in 10.394s` / `OK`
+(`/private/tmp/int04-f1-mutations.log`). The original four positive checks also
+passed: `Ran 4 tests in 1.033s` / `OK`
+(`/private/tmp/int04-f1-historical-fixed.log`). An earlier focused run caught the
+legitimate Thrall floor-ledger update; the field-scoped comparison above fixes
+that without excluding Seer's folder or changing the record.
+
+Combined focused result on the feedback-1 executable patch:
+`Ran 136 tests in 69.408s` / `OK`; exit 0
+(`/private/tmp/int04-f1-focused.log`). This includes all affected maquette tests,
+all int-04 negative controls, regeneration receipts and cold-input boundaries,
+and the earlier rr-20/21/24 preservation checks.
+
+Feedback-1 Godot full suite, run once:
+`FULL SUITE RUNTIME: 405.825 seconds (budget 900 seconds)`;
+`TEST RESULT: PASS`; exit 0 (`/private/tmp/int04-f1-godot-full.log`).
+
+Feedback-1 Python full suite, run once:
+`Ran 1401 tests in 1425.447s` / `OK (skipped=63)`; exit 0
+(`/private/tmp/int04-f1-python-full.log`). Both full suites passed on the
+feedback-1 executable patch; the original green-merge acceptance criterion is
+now verified. No production code, approved data, art, motion or records changed.
+
+Feedback-1 files: `tests/maquette_preservation.py`,
+`spec/art_identity/maquettes/blender/test_creature.py`,
+`tests/test_arc_thrall_maquette_r2.py`, `tests/test_glacial_mirror_shoulder.py`,
+`tests/test_mq09_maquettes.py`, `tests/test_int04_preservation.py` and this report.
+No TODO_DESIGN placeholders or player-facing defaults were added. The new
+numeric mutation values (0.01 and 2) are prescribed by the director; only
+disposable fixture names/paths were selected. No windowed proof or inspection
+fixture applies. Changes are left uncommitted for the design owner.

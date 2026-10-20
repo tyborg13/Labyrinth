@@ -16,6 +16,7 @@ from spec.art_identity.maquettes.blender.delivery_validation import validate_del
 from spec.art_identity.maquettes.hollow_mimic.batch_proof import FIGURES, ROOT, pose_gates, inspect
 from spec.art_identity.maquettes.hollow_mimic.acceptance import validate as validate_acceptance
 from tools.unit_preservation import read_json as revision_json, tracked_paths
+from tests.maquette_preservation import foreign_maquette_changes, historical_compiler
 
 
 HUMANOID = {'head', 'torso', 'pelvis'} | {
@@ -24,6 +25,7 @@ HUMANOID = {'head', 'torso', 'pelvis'} | {
 EXTRAS = {'hollow_mimic': set(), 'briar_weaver': {'tatters'}, 'slag_mortar': {'mortar', 'apron'}}
 TEST_DEFAULTS = {'invalid_levels': [-1, 3, True, 1.5], 'shoulder_mutation_m': .1}
 UNIT_HEAD = '2f64d590571a107473cc5423716d68b261b664c7'  # mq-09 signoff
+BASELINE_COMMIT = '87bd64903f2a1fde12e4e397492932b36d01b949'
 OCCLUSION_FIXTURE = {'label_linear': [.6, .35, .05],
                      'pixels': [[[203, 160, 63, 255], [200, 158, 60, 255]]]}
 
@@ -171,16 +173,18 @@ class RecipeTests(unittest.TestCase):
 
     def test_new_sampling_and_attachment_fields_are_opt_in(self):
         project=ROOT.parents[2]
-        for relative in tracked_paths(project,UNIT_HEAD,'spec/art_identity/maquettes/'):
-            recipe_path=Path(relative)
-            if recipe_path.name!='measurements.json' or len(recipe_path.parts)!=5:
-                continue
-            if recipe_path.parent.name in FIGURES:
-                continue
-            with self.subTest(figure=recipe_path.parent.name):
-                recipe = revision_json(project,UNIT_HEAD,relative)
-                report = revision_json(project,UNIT_HEAD,str(recipe_path.parent/'delivery/build_report.json'))
-                self.assertEqual(digest(compile_recipe(recipe)), report['spec_hash'])
+        self.assertEqual(foreign_maquette_changes(project,BASELINE_COMMIT,UNIT_HEAD,FIGURES),[])
+        with historical_compiler(project,UNIT_HEAD) as compile_historical:
+            for relative in tracked_paths(project,UNIT_HEAD,'spec/art_identity/maquettes/'):
+                recipe_path=Path(relative)
+                if recipe_path.name!='measurements.json' or len(recipe_path.parts)!=5:
+                    continue
+                if recipe_path.parent.name in FIGURES:
+                    continue
+                with self.subTest(figure=recipe_path.parent.name):
+                    recipe = revision_json(project,UNIT_HEAD,relative)
+                    report = revision_json(project,UNIT_HEAD,(recipe_path.parent/'delivery/build_report.json').as_posix())
+                    self.assertEqual(digest(compile_historical(recipe)), report['spec_hash'])
         recipe = json.loads((ROOT / 'hollow_mimic/measurements.json').read_text())
         for level in TEST_DEFAULTS['invalid_levels']:
             wrong = deepcopy(recipe)

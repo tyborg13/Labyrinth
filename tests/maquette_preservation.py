@@ -1,12 +1,58 @@
 """Keep cold-build receipts useful without binding later units' validation/data."""
 import hashlib
+from contextlib import contextmanager
+import importlib
 from pathlib import Path
+import tempfile
+from unittest.mock import patch
 
-from tools.unit_preservation import read_bytes, tracked_paths
+from tools.unit_preservation import changed_paths, read_bytes, read_json, tracked_paths
 
 PREFIX = 'spec/art_identity/maquettes/'
 BUILDER = PREFIX + 'blender/'
 FOREIGN_HELPERS = (PREFIX + 'gust_shrike.py', PREFIX + 'shrike_spec.py')
+LANCER_INPUT = PREFIX + 'frostglass_lancer/spec_r3.json'
+SHARED_FOLDERS = {'blender', 'base_meshes', 'proof_mq02'}
+FLOOR_EXCEPTIONS = PREFIX + 'hoarfrost_seer/rear_turn/feedback2/floor_guard_exceptions.json'
+
+
+def foreign_maquette_changes(project, baseline, end, owned_figures):
+    """An endpoint receipt can agree with an unauthorized edit; compare trees too."""
+    allowed = SHARED_FOLDERS | set(owned_figures)
+    errors = []
+    for relative in changed_paths(project, baseline, end):
+        if relative == FLOOR_EXCEPTIONS:
+            # mq-07 clears Thrall's own floor exception in this shared ledger.
+            # Every other figure's entry and all metadata remain protected.
+            before, after = [read_json(project, revision, relative) for revision in (baseline, end)]
+            for data in (before, after):
+                data['figures'] = {name: value for name, value in data['figures'].items()
+                                   if name not in owned_figures}
+            if before != after:
+                errors.append(relative)
+        elif relative in FOREIGN_HELPERS or (relative.startswith(PREFIX) and len(Path(relative).parts) > 4
+                                             and Path(relative).parts[3] not in allowed):
+            errors.append(relative)
+    return errors
+
+
+@contextmanager
+def historical_compiler(project, revision):
+    """Supply the unit's Lancer registration to both measured compiler paths.
+
+    Only the test context changes; production compilation and its native input
+    closure stay untouched. Both modules read PROJECT solely for this input.
+    """
+    compiler = importlib.import_module('spec.art_identity.maquettes.blender.compile_recipe')
+    solids = importlib.import_module('spec.art_identity.maquettes.blender.creature_recipe')
+    blob = read_bytes(project, revision, LANCER_INPUT)
+    with tempfile.TemporaryDirectory(prefix='int04-lancer-', dir=project) as folder:
+        root = Path(folder)
+        target = root / LANCER_INPUT
+        target.parent.mkdir(parents=True)
+        target.write_bytes(blob)
+        with patch.object(compiler, 'PROJECT', root), patch.object(solids, 'PROJECT', root):
+            yield compiler.compile_recipe
 
 
 def validation_source(relative):

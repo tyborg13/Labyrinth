@@ -19,10 +19,12 @@ from .facing import axis_report, board_spec
 from .solid_review import silhouette_fit, inspect_figure
 from ..raster import Raster, project
 from tools.unit_preservation import read_json as revision_json
+from tests.maquette_preservation import foreign_maquette_changes, historical_compiler
 
 ROOT = Path(__file__).resolve().parents[1]
 FIGURES = ('burrow_grub','ember_tick','glacial_mirror')
 UNIT_HEAD = '7bde1e145cd9360afad86d63bf76868fca118815'  # mq-05 signoff
+BASELINE_COMMIT = '3fcc626902244612530a98eb8d5a112400164375'
 TEST_DEFAULTS = {'mask_size': 64, 'test_alpha_rectangle': (10,5,54,60)}
 
 
@@ -60,12 +62,15 @@ class CreatureContractTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256((ROOT.parents[2]/path).read_bytes()).hexdigest(),data['source_sha256'][view])
 
     def test_batch_a_compiles_to_unchanged_delivery_hashes(self):
-        for name in ('hoarfrost_seer','gale_herald','arc_thrall','gloam_stalker'):
-            with self.subTest(figure=name):
-                relative='spec/art_identity/maquettes/'+name
-                spec=compile_recipe(revision_json(ROOT.parents[2],UNIT_HEAD,relative+'/measurements.json'))
-                old=revision_json(ROOT.parents[2],UNIT_HEAD,relative+'/delivery/build_report.json')
-                self.assertEqual(digest(spec),old['spec_hash'])
+        project=ROOT.parents[2]
+        self.assertEqual(foreign_maquette_changes(project,BASELINE_COMMIT,UNIT_HEAD,FIGURES),[])
+        with historical_compiler(project,UNIT_HEAD) as compile_historical:
+            for name in ('hoarfrost_seer','gale_herald','arc_thrall','gloam_stalker'):
+                with self.subTest(figure=name):
+                    relative='spec/art_identity/maquettes/'+name
+                    spec=compile_historical(revision_json(project,UNIT_HEAD,relative+'/measurements.json'))
+                    old=revision_json(project,UNIT_HEAD,relative+'/delivery/build_report.json')
+                    self.assertEqual(digest(spec),old['spec_hash'])
 
     def test_round_trip_cracks_lie_on_shell_and_retain_the_source_stroke(self):
         spec=compile_recipe(recipe('ember_tick'))

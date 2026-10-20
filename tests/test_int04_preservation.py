@@ -1,6 +1,7 @@
 """Committed mutations in disposable histories; no production bytes are edited."""
 from copy import deepcopy
 import hashlib
+import importlib
 from io import BytesIO
 import json
 from pathlib import Path
@@ -16,12 +17,17 @@ from PIL import Image
 
 from tools import unit_preservation
 from tests import test_arc_thrall_maquette_r2 as thrall_specs
+from tests import test_glacial_mirror_shoulder as mirror_specs
+from tests import test_mq09_maquettes as batch_specs
+from spec.art_identity.maquettes.blender import test_creature as creature_specs
 from tests import test_rr24_feedback2 as colours
 from tests.test_rr21_cutout import prior_figure_changes
 from experiments.cutouts.hollow_mimic.rr20_preservation import protected_changes, BASELINE_COMMIT, UNIT_HEAD
 from spec.art_identity.maquettes.hoarfrost_seer.rear_turn import preservation as mq06
 from experiments.cutouts.glacial_mirror import rr23_preservation as mirror_scope
-from tests.maquette_preservation import regeneration_hashes, PREFIX, BUILDER
+from tests.maquette_preservation import (regeneration_hashes, PREFIX, BUILDER, LANCER_INPUT,
+    FLOOR_EXCEPTIONS, foreign_maquette_changes, historical_compiler)
+from spec.art_identity.maquettes.blender.contract import digest as spec_digest
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_FOREIGN_PATH = 'assets/units/arc_thrall_cutout/front.json'
@@ -34,6 +40,18 @@ FIXTURE_OFFSET_PX = 1
 FIXTURE_ALPHA_XOR = 1
 FIXTURE_EMPTY_REGISTRY = {'entries': []}
 FIXTURE_FOREIGN_REGISTRY = {'entries': [{'id': FIXTURE_SPEC_ID}]}
+FIXTURE_LANCER_TARGET_OFFSET = 0.01  # Director's live-input mutation.
+FIXTURE_HEAD_SCALE_MULTIPLIER = 2  # Director's coordinated recipe/report mutation.
+LANCER_REFERENCE = PREFIX+'burrow_grub/delivery/validation/feedback_2/baselines/frostglass_lancer/regeneration.json'
+MAQUETTE_CHECKS = (
+    ('mq-05', creature_specs, creature_specs.CreatureContractTests.test_batch_a_compiles_to_unchanged_delivery_hashes,
+     creature_specs.FIGURES),
+    ('mq-07', thrall_specs, thrall_specs.ThrallRevisionTests.test_other_figure_spec_hashes_remain_their_delivered_values,
+     thrall_specs.OWNED_FIGURES),
+    ('mq-08', mirror_specs, mirror_specs.GlacialMirrorShoulderTests.test_every_other_compiled_recipe_matches_its_unchanged_delivery,
+     mirror_specs.OWNED_FIGURES),
+    ('mq-09', batch_specs, batch_specs.RecipeTests.test_new_sampling_and_attachment_fields_are_opt_in,
+     batch_specs.FIGURES))
 
 
 class PreservationTests(unittest.TestCase):
@@ -41,6 +59,9 @@ class PreservationTests(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory(prefix='int04-preservation-', dir=ROOT/'tests')
         self.addCleanup(self.temporary.cleanup)
         self.project = Path(self.temporary.name)
+        self.initialize_repository()
+
+    def initialize_repository(self):
         self.git('init', '-q')
         self.git('config', 'user.name', 'Preservation fixture')
         self.git('config', 'user.email', 'fixture@example.invalid')
@@ -69,6 +90,22 @@ class PreservationTests(unittest.TestCase):
                     originals[member.name] = tar.extractfile(member).read()
                     self.write(member.name, originals[member.name])
         return originals
+
+    def copy_maquette_inputs(self, revision):
+        paths=[]
+        for relative in unit_preservation.tracked_paths(ROOT,revision,PREFIX):
+            path=Path(relative)
+            if (relative in (LANCER_INPUT,LANCER_REFERENCE) or
+                    len(path.parts)==5 and path.name=='measurements.json' or
+                    len(path.parts)==6 and relative.endswith('/delivery/build_report.json')):
+                paths.append(relative)
+        return self.copy_snapshot(revision,paths)
+
+    def assert_maquette_check(self, module, method, baseline, end):
+        root=self.project if module is mirror_specs else self.project/PREFIX
+        with patch.object(module,'ROOT',root), patch.object(module,'BASELINE_COMMIT',baseline), \
+                patch.object(module,'UNIT_HEAD',end):
+            method(unittest.TestCase())
 
     def test_pinned_ranges_reject_foreign_edits_and_ignore_later_units(self):
         self.write(FIXTURE_FOREIGN_PATH, FIXTURE_ORIGINAL_BYTES)
@@ -149,7 +186,7 @@ class PreservationTests(unittest.TestCase):
     def test_compiled_foreign_spec_mutation_at_unit_head_is_rejected(self):
         paths = [f'spec/art_identity/maquettes/{name}/{file}' for name in
                  ('hoarfrost_seer', 'gale_herald', 'gloam_stalker') for file in
-                 ('measurements.json', 'delivery/build_report.json')]
+                 ('measurements.json', 'delivery/build_report.json')]+[LANCER_INPUT]
         originals = self.copy_snapshot(thrall_specs.UNIT_HEAD, paths)
         unit = self.commit_fixture()
         path = paths[0]
@@ -162,10 +199,86 @@ class PreservationTests(unittest.TestCase):
         # TestCase so an expected failure cannot be swallowed by subTest.
         case = thrall_specs.ThrallRevisionTests()
         with patch.object(thrall_specs, 'ROOT', self.project/'spec/art_identity/maquettes'):
-            with patch.object(thrall_specs, 'UNIT_HEAD', unit): method(case)
-            with patch.object(thrall_specs, 'UNIT_HEAD', mutant):
-                with self.assertRaises(AssertionError): method(case)
+            with patch.object(thrall_specs, 'BASELINE_COMMIT', unit):
+                with patch.object(thrall_specs, 'UNIT_HEAD', unit): method(case)
+                with patch.object(thrall_specs, 'UNIT_HEAD', mutant):
+                    with self.assertRaises(AssertionError): method(case)
         print('INT04 COMPILED SPEC MUTATION: PASS (foreign unit-head recipe change caught)')
+
+    def test_live_lancer_change_cannot_affect_any_historical_maquette_check(self):
+        compiler=importlib.import_module('spec.art_identity.maquettes.blender.compile_recipe')
+        solids=importlib.import_module('spec.art_identity.maquettes.blender.creature_recipe')
+        lancer=unit_preservation.read_json(ROOT,None,LANCER_INPUT)
+        lancer['target'][0]+=FIXTURE_LANCER_TARGET_OFFSET
+        self.write(LANCER_INPUT,json.dumps(lancer).encode())
+        with patch.object(compiler,'PROJECT',self.project), patch.object(solids,'PROJECT',self.project):
+            for name in ('hoarfrost_seer','burrow_grub'):
+                relative=PREFIX+name
+                recipe=unit_preservation.read_json(ROOT,mirror_specs.UNIT_HEAD,relative+'/measurements.json')
+                expected=unit_preservation.read_json(ROOT,mirror_specs.UNIT_HEAD,relative+'/delivery/build_report.json')['spec_hash']
+                self.assertNotEqual(spec_digest(compiler.compile_recipe(recipe)),expected,name)
+            for unit,module,method,_ in MAQUETTE_CHECKS:
+                with self.subTest(unit=unit):method(unittest.TestCase())
+                print('INT04 LIVE LANCER MUTATION: PASS ('+unit+'; cloth and solids use historical input)')
+
+    def test_coordinated_foreign_recipe_and_report_mutations_are_rejected(self):
+        parent=self.project
+        recipe_path=PREFIX+'hoarfrost_seer/measurements.json'
+        report_path=PREFIX+'hoarfrost_seer/delivery/build_report.json'
+        for unit,module,method,_ in MAQUETTE_CHECKS:
+            with self.subTest(unit=unit):
+                self.project=parent/unit;self.project.mkdir();self.initialize_repository()
+                originals=self.copy_maquette_inputs(module.UNIT_HEAD)
+                baseline=self.commit_fixture()
+                self.assert_maquette_check(module,method,baseline,baseline)
+                recipe=json.loads(originals[recipe_path])
+                recipe['bone_scales']['head']=[v*FIXTURE_HEAD_SCALE_MULTIPLIER for v in recipe['bone_scales']['head']]
+                report=json.loads(originals[report_path])
+                with historical_compiler(self.project,baseline) as compile_historical:
+                    report['spec_hash']=spec_digest(compile_historical(recipe))
+                self.write(recipe_path,json.dumps(recipe).encode())
+                self.write(report_path,json.dumps(report).encode())
+                mutant=self.commit_fixture()
+                with historical_compiler(self.project,mutant) as compile_historical:
+                    self.assertEqual(spec_digest(compile_historical(recipe)),report['spec_hash'])
+                with self.assertRaisesRegex(AssertionError,'hoarfrost_seer'):
+                    self.assert_maquette_check(module,method,baseline,mutant)
+                print('INT04 COORDINATED EDIT MUTATION: PASS ('+unit+'; matching spec_hash cannot authorize foreign edits)')
+
+    def test_mq09_foreign_recipe_deletion_is_rejected(self):
+        self.copy_maquette_inputs(batch_specs.UNIT_HEAD)
+        baseline=self.commit_fixture()
+        self.assert_maquette_check(batch_specs,MAQUETTE_CHECKS[-1][2],baseline,baseline)
+        relative=PREFIX+'hoarfrost_seer/measurements.json'
+        (self.project/relative).unlink()
+        mutant=self.commit_fixture()
+        self.assertNotIn(relative,unit_preservation.tracked_paths(self.project,mutant,PREFIX))
+        with self.assertRaisesRegex(AssertionError,'hoarfrost_seer/measurements.json'):
+            self.assert_maquette_check(batch_specs,MAQUETTE_CHECKS[-1][2],baseline,mutant)
+        print('INT04 RECIPE DELETION MUTATION: PASS (mq-09; omitted inventory entry is rejected)')
+
+    def test_foreign_maquette_additions_and_shared_floor_entries_are_guarded(self):
+        foreign=PREFIX+'hoarfrost_seer/measurements.json'
+        original={'figures':{'arc_thrall':['fixture exception'],'hoarfrost_seer':[]}}
+        self.write(foreign,FIXTURE_ORIGINAL_BYTES)
+        self.write(FLOOR_EXCEPTIONS,json.dumps(original).encode())
+        baseline=self.commit_fixture()
+        added=PREFIX+'new_foreign_figure/measurements.json'
+        self.write(added,FIXTURE_MUTATION_BYTES)
+        mutant=self.commit_fixture()
+        for unit,_,_,owned in MAQUETTE_CHECKS:
+            with self.subTest(unit=unit):
+                self.assertEqual(foreign_maquette_changes(self.project,baseline,baseline,owned),[])
+                self.assertEqual(foreign_maquette_changes(self.project,baseline,mutant,owned),[added])
+        original['figures']['arc_thrall']=[]
+        self.write(FLOOR_EXCEPTIONS,json.dumps(original).encode())
+        own=self.commit_fixture()
+        self.assertEqual(foreign_maquette_changes(self.project,mutant,own,('arc_thrall',)),[])
+        original['figures']['hoarfrost_seer']=[FIXTURE_SPEC_ID]
+        self.write(FLOOR_EXCEPTIONS,json.dumps(original).encode())
+        other=self.commit_fixture()
+        self.assertEqual(foreign_maquette_changes(self.project,own,other,('arc_thrall',)),[FLOOR_EXCEPTIONS])
+        print('INT04 FOREIGN ADDITION MUTATION: PASS (all four units; only owned floor entries may change)')
 
     def test_colour_snapshot_rejects_geometry_targets_and_alpha_mutations(self):
         paths = []

@@ -18,10 +18,14 @@ from spec.art_identity.maquettes.blender.socket_tuck import boundary_loop, tuck_
 from spec.art_identity.maquettes.blender.view_states import view_parts
 from spec.art_identity.maquettes.arc_thrall.r2.proof import joints, pose_gates, review_sheet
 from tools.unit_preservation import read_json as revision_json
+from tests.maquette_preservation import foreign_maquette_changes, historical_compiler
 
 
 ROOT = Path(__file__).resolve().parents[1] / 'spec/art_identity/maquettes'
 UNIT_HEAD = 'c1ecf9f226f632b3298f29576e967cfa73afa1b1'  # mq-07 signoff
+# Integration imported by mq-07 includes the authorized mq-05/06 deliveries.
+BASELINE_COMMIT = '78d87f47460559d074e500bd857a03d739101aa6'
+OWNED_FIGURES = ('arc_thrall',)
 TEST_DEFAULTS = {'cylinder_start': [0, 0, 0], 'cylinder_tip': [0, 0, 3],
                  'cylinder_radius': .5, 'sides': 16, 'cap_rings': 4,
                  'scale_mutation_multiplier': 2,
@@ -158,12 +162,15 @@ class ThrallRevisionTests(unittest.TestCase):
         self.assertAlmostEqual(report['dimensions']['dome_height_front_px'], 23.8)
 
     def test_other_figure_spec_hashes_remain_their_delivered_values(self):
-        for name in ('hoarfrost_seer', 'gale_herald', 'gloam_stalker'):
-            with self.subTest(name=name):
-                relative = 'spec/art_identity/maquettes/' + name
-                recipe = revision_json(ROOT.parents[2], UNIT_HEAD, relative + '/measurements.json')
-                report = revision_json(ROOT.parents[2], UNIT_HEAD, relative + '/delivery/build_report.json')
-                self.assertEqual(digest(compile_recipe(recipe)), report['spec_hash'])
+        project = ROOT.parents[2]
+        self.assertEqual(foreign_maquette_changes(project, BASELINE_COMMIT, UNIT_HEAD, OWNED_FIGURES), [])
+        with historical_compiler(project, UNIT_HEAD) as compile_historical:
+            for name in ('hoarfrost_seer', 'gale_herald', 'gloam_stalker'):
+                with self.subTest(name=name):
+                    relative = 'spec/art_identity/maquettes/' + name
+                    recipe = revision_json(project, UNIT_HEAD, relative + '/measurements.json')
+                    report = revision_json(project, UNIT_HEAD, relative + '/delivery/build_report.json')
+                    self.assertEqual(digest(compile_historical(recipe)), report['spec_hash'])
 
     def test_review_sheet_copies_native_cells_without_resizing(self):
         with tempfile.TemporaryDirectory() as temporary:
