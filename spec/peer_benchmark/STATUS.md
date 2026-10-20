@@ -43,21 +43,21 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
-- Next (in order), 2026-10-19 late:
-  1. Integration f3852e68e+ holds rr-23, rr-25, rr-24, rr-21, ui-03 and rr-26 (consolidated tooling: one classifier,
-     one record format, one action dispatch; 7,628 pose rows byte-identical). Full suites there: Godot 12 failures
-     (ui-03's card-drag program regression, static/en04/pre-battle fixtures), Python 15 failures + 2 errors (pins,
-     density manifest, the Mortar's art-registry digest, the Empower glossary copy).
-  2. Running: int-03 (integration repair, brief int-03) and rr-27 (Thrall strict census: rear move 14/23, front
-     jab/22 and death/31; rear Tether pose study A-D). Both from 0e8b6e8d7.
-  3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig (reels from the pre-consolidation windowed runs;
-     poses byte-identical since). Thrall v3 approved.
-  4. After int-03: windowed check of click-targeting if it changed; merge; full suites green. After rr-27: pick the
-     Tether candidate (director data edit), then the Thrall's rr24_proof.sh windowed sequence and merge.
+- Next (in order), 2026-10-19 night:
+  1. **Integration green at e151882cd** (Godot PASS, Python OK): rr-23, rr-25, rr-24, rr-21, ui-03, rr-26 and int-03
+     (integration repair: ui-03 targeting regressions fixed in product code, fixtures derived from canonical
+     declarations, Mortar digests, density manifest, unit-scoped preservation pins, Empower glossary at 19 words).
+  2. rr-27 (Thrall strict census: front pockets closed by clip-scoped own-piece copies; two rear copied texels
+     removed) Codex SIGNOFF 780933a9c; windowed rr24_proof.sh sequence running; then merge with suites.
+     The rear Tether re-key was dropped (reverted 780933a9c): the near-side upright hold can't pass the 60.5 px
+     minimum-reach gate (any path past the near shoulder comes within ~57 px); the fin goes to the backlog.
+  3. Inbox open: empower-built, mortar-rig, weaver-rig, mimic-rig. Master checkpoint only on the owner's word.
   4. Backlog from today: the Mirror's feet and fists revisit (owner: "not totally sold"); unify the two detached
      provenance classifiers (rest_space.py from rr-26, source_space.py from rr-25) with differential tests (rr-26 review Low);
      rr-26 Low: a sum-preserving canonical-weight regression; rr-21 Low: path-containment test fixture.
-     Thrall rear tether (director data, staged/rr-11 view_keys.rear; owner approved thrall-rig-v3 2026-10-20): the rear
+     Thrall rear tether fin (low priority; rr-27 study in experiments/cutouts/arc_thrall/rr27/tether_study and stash
+     "rr-27 r3 tether lowering study"): candidate A (65/153) holds well but every raise/lower path tried folds the arm
+     under the reach gate; a fix needs a wide outward arc or a gate rule for brief swings. Original notes: the rear
      hold target (forward 206, lift 63 from rest tip 44,204.75; forward = (+0.866,-0.5), lift = -y) puts the cap near
      (222,39), past the far shoulder (170,83) and head (156,49), so the upper arm crosses the back. Plan: render rear
      hold poses for cap targets A (100,20) f65/l153, B (85,60) f47/l121, C (95,130) f59/l46, D (60,95) f19/l101 and
