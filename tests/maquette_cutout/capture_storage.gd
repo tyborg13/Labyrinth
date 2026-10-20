@@ -11,6 +11,10 @@ static var directory: String
 static var encoding: String = DEFAULT_ENCODING
 static var legacy: bool = false
 static var board_crop: Rect2i
+static var production_planning: bool = false
+static var production_bounds: Rect2
+static var production_fixture_bounds: Rect2
+static var production_board_transforms: Array[Transform2D]
 static var entries: Dictionary = {}
 static var references: Dictionary = {}
 
@@ -19,6 +23,10 @@ static func setup(output: String) -> void:
 	entries = {}
 	references = {}
 	board_crop = Rect2i()
+	production_planning = false
+	production_bounds = Rect2()
+	production_fixture_bounds = Rect2()
+	production_board_transforms.clear()
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	legacy = args.has("--legacy-full-frames")
 	encoding = DEFAULT_ENCODING
@@ -38,6 +46,40 @@ static func clamp_crop(bounds: Rect2, size: Vector2i) -> Rect2i:
 	end = end.clamp(start, size)
 	assert(end.x > start.x and end.y > start.y, "Action canvas outside frame")
 	return Rect2i(start, end - start)
+
+static func begin_production() -> void:
+	assert(entries.is_empty(), "Production crop must be planned before writing frames")
+	production_planning = true
+	production_bounds = Rect2()
+	production_fixture_bounds = Rect2()
+	production_board_transforms.clear()
+	board_crop = Rect2i()
+
+static func include_production_board_position(board: Control, position: Vector2) -> void:
+	assert(production_planning, "Production crop is already fixed")
+	if not position.is_finite(): return
+	# Scene recreation can sample the room-to-combat centering tween earlier
+	# than the logic pass. Reserve its existing room endpoint, not an estimated
+	# duration or a larger margin. The cubic easing stays between its endpoints.
+	var parent_transform: Transform2D = board.get_global_transform_with_canvas() * board.get_transform().affine_inverse()
+	var local: Transform2D = board.get_transform()
+	local.origin += position - board.position
+	production_board_transforms.append(parent_transform * local)
+
+static func record_production_canvas(board: Control, unit: Dictionary) -> void:
+	assert(production_planning, "Production crop is already fixed")
+	var bounds: Rect2 = production_canvas(board, unit)
+	production_bounds = production_bounds.merge(bounds) if production_bounds.has_area() else bounds
+	if production_fixture_bounds.has_area():
+		# The fixture envelope is board-local too: an entrance/pan transform
+		# must not strand even its unused facing bounds at the first position.
+		production_bounds = production_bounds.merge(board.get_global_transform_with_canvas() * production_fixture_bounds)
+
+static func finish_production(size: Vector2i) -> void:
+	assert(production_planning and production_bounds.has_area(), "Missing production action canvas")
+	assert(entries.is_empty(), "Production crop must be fixed before writing frames")
+	board_crop = clamp_crop(production_bounds, size)
+	production_planning = false
 
 static func plan_production(board: Control, _actor_type: String, data: Dictionary, make_fixture: Callable, contact_tile: Vector2i) -> void:
 	if legacy: return
@@ -66,7 +108,13 @@ static func plan_production(board: Control, _actor_type: String, data: Dictionar
 				moved["pos"] += delta
 				bounds = _include_unit(board, moved, bounds)
 	assert(bounds.has_area(), "Missing production action canvas")
-	board_crop = clamp_crop(bounds, Vector2i(1920, 1080))
+	# Keep cap-01's conservative fixture envelope, including unused facings.
+	# It is only a seed: the complete capture pass adds the real screen canvas
+	# at every frame, including board entrance motion and texture-origin travel.
+	production_fixture_bounds = board.get_global_transform_with_canvas().affine_inverse() * bounds
+	production_bounds = production_bounds.merge(bounds) if production_bounds.has_area() else bounds
+	for transform: Transform2D in production_board_transforms:
+		production_bounds = production_bounds.merge(transform * production_fixture_bounds)
 
 static func _include_unit(board: Control, unit: Dictionary, bounds: Rect2) -> Rect2:
 	var center: Vector2 = board.world_position_for_unit_origin(unit, unit["pos"])
@@ -94,6 +142,7 @@ static func rect_values(rect: Rect2i) -> Array:
 	return [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
 
 static func save(image: Image, path: String, clip: String = "") -> void:
+	assert(not production_planning, "Cannot write frames before completing the production crop plan")
 	if legacy:
 		_check_write(image.save_png(path), path)
 		return
@@ -182,16 +231,25 @@ static func annotate(manifest: Dictionary, size: Vector2i = Vector2i(1920, 1080)
 		manifest["encoding"] = encoding
 	return manifest
 
-static func check_production_canvas(board: Control, unit: Dictionary) -> void:
-	if legacy or not board_crop.has_area(): return
-	var bounds: Rect2 = board._unit_texture_draw_rect(unit, board._unit_center(unit))
-	bounds = board.get_global_transform_with_canvas() * bounds
+static func production_canvas(board: Control, unit: Dictionary) -> Rect2:
+	return board.get_global_transform_with_canvas() * board._unit_texture_draw_rect(unit, board._unit_center(unit))
+
+static func production_canvas_error(bounds: Rect2, scenario: String, clip: String, frame: int) -> String:
+	var context: String = "scenario=%s clip=%s frame=%d" % [scenario, clip, frame]
+	if not board_crop.has_area(): return "Missing production crop plan: " + context
 	# Verify the current full canvas is contained, not just the painted bbox.
 	var start := Vector2i(floori(bounds.position.x), floori(bounds.position.y)).clamp(Vector2i.ZERO, Vector2i(1920, 1080))
 	var end := Vector2i(ceili(bounds.end.x), ceili(bounds.end.y)).clamp(start, Vector2i(1920, 1080))
 	if not board_crop.encloses(Rect2i(start, end - start)):
-		push_error("Production action canvas escaped the fixed run crop")
-		assert(false, "Incomplete production crop plan")
+		return "Production action canvas escaped the fixed run crop: %s canvas=%s crop=%s" % [context, bounds, board_crop]
+	return ""
+
+static func check_production_canvas(board: Control, unit: Dictionary, scenario: String, clip: String, frame: int) -> bool:
+	if legacy: return true
+	var error: String = production_canvas_error(production_canvas(board, unit), scenario, clip, frame)
+	if error.is_empty(): return true
+	push_error(error)
+	return false
 
 static func plan_review(canvas: SubViewport) -> void:
 	if legacy: return

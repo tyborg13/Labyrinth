@@ -26,11 +26,11 @@ const IDLE_SAMPLE_SECONDS: float = 1.0 / 60.0
 var _type: String
 var _output: String
 var _scene: Control
+var _logic: bool
+var _frames: Array[Dictionary]
 var _viewport: SubViewport
 var _stage: String
 var _opposite: bool
-var _logic: bool
-var _frames: Array[Dictionary]
 var _failures: Array[String]
 var _data: Dictionary
 
@@ -65,60 +65,10 @@ func _run() -> void:
 	Settings.save_settings(settings)
 	Settings.apply_settings(settings, root, false)
 	_viewport = CaptureViewport.create(root)
-	_scene = load("res://scenes/run_scene.tscn").instantiate()
-	_scene.set_script(CaptureScene)
-	_scene.proof_actor_type = _type
-	_scene.proof_capture = _capture
-	_viewport.add_child(_scene)
-	await settle()
-	_scene._load_run_state(Run.new().create_new_run(Fixtures.TEST_SEED, Store.default_data()))
-	await settle()
+	await _create_capture_scene()
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(_output))
-	await capture_prebattle()
-	for clip: String in _data["clips"]:
-		_stage = clip
-		var state: Dictionary = fixture("lob_slag")
-		if clip == "idle":
-			await install(state)
-			var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": _type, "id": 1})
-			# Idle advances with production _process, not a sought proof phase.
-			var count: int = roundi(float(_data["clips"]["idle"]["seconds"]) * 60.0)
-			for frame: int in range(count):
-				await _capture()
-				await create_timer(IDLE_SAMPLE_SECONDS).timeout
-			continue
-		if clip in ["hit", "death"]:
-			state["enemies"][0]["pos"] = (PROOF_OPPOSITE_NEAR_ORIGIN if _opposite else PROOF_NEAR_ORIGIN)
-			if clip == "death": state["enemies"][0]["hp"] = 1
-			else:
-				state["enemies"][0]["hp"] = HIT_PROOF_HP
-				state["enemies"][0]["max_hp"] = HIT_PROOF_HP
-			await install(state)
-			var engine := Combat.new()
-			var action: Dictionary = Data.card_def("quick_stab")["actions"][0]
-			var target: Vector2i = state["enemies"][0]["pos"]
-			var after: Dictionary = engine.apply_player_action(state, action, target)
-			await _scene.record_action(clip, func() -> void: await _scene._animate_player_action_step(state, after, "quick_stab", action, target))
-			if clip == "hit":
-				var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": _type, "id": 1})
-				while renderer != null and renderer.snapshot()["clip"] == "hit":
-					await _capture()
-					await create_timer(IDLE_SAMPLE_SECONDS).timeout
-				_scene.proof_completions[clip] = renderer.snapshot() if renderer != null else {}
-			continue
-		var selector: String = str(_data["clips"][clip]["intents"][0])
-		var fields: PackedStringArray = selector.split(":")
-		state = fixture(fields[0])
-		if clip == "scatter": state["enemies"][0]["pos"] = (PROOF_OPPOSITE_NEAR_ORIGIN if _opposite else PROOF_NEAR_ORIGIN)
-		await install(state)
-		var action: Dictionary = {}
-		for item: Dictionary in state["enemies"][0]["intent"]["actions"]:
-			if fields.size() == 1 or str(item["type"]) == fields[1]: action = item
-		var engine := Combat.new()
-		var context: Dictionary = engine.enemy_intent_plan(state, 0)
-		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
-		var step: Dictionary = engine._enemy_action_step(state, after, 0, action, context)
-		await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), [step]))
+	await _prepare_production_crop()
+	await _run_clips()
 	for clip: String in ["lob", "land", "brace"]:
 		var contact: float = float(_data["clips"][clip]["contact"])
 		var rows: Array = _frames.filter(func(row: Dictionary) -> bool: return row["stage"] == clip)
@@ -169,6 +119,79 @@ func capture_prebattle() -> void:
 	panel.queue_free()
 	await process_frame
 
+func _prepare_production_crop() -> void:
+	if CaptureStorage.legacy or (_logic and not OS.get_cmdline_user_args().has("--validate-crop")): return
+	var capture_logic: bool = _logic
+	_logic = true
+	CaptureStorage.begin_production()
+	CaptureStorage.include_production_board_position(_scene.board_view, _scene._board_centering_target)
+	await _run_clips()
+	CaptureStorage.finish_production(SIZE)
+	# Replay in a fresh scene so planning clocks, cues and renderer state cannot
+	# leak into the real capture. Keep any failures observed during planning.
+	_scene.queue_free()
+	await process_frame
+	_frames.clear()
+	_logic = capture_logic
+	await _create_capture_scene()
+
+func _create_capture_scene() -> void:
+	_scene = load("res://scenes/run_scene.tscn").instantiate()
+	_scene.set_script(CaptureScene)
+	_scene.proof_actor_type = _type
+	_scene.proof_capture = _capture
+	_viewport.add_child(_scene)
+	await settle()
+	_scene._load_run_state(Run.new().create_new_run(Fixtures.TEST_SEED, Store.default_data()))
+	await settle()
+
+func _run_clips() -> void:
+	await capture_prebattle()
+	for clip: String in _data["clips"]:
+		_stage = clip
+		var state: Dictionary = fixture("lob_slag")
+		if clip == "idle":
+			await install(state)
+			var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": _type, "id": 1})
+			# Idle advances with production _process, not a sought proof phase.
+			var count: int = roundi(float(_data["clips"]["idle"]["seconds"]) * 60.0)
+			for frame: int in range(count):
+				await _capture()
+				await create_timer(IDLE_SAMPLE_SECONDS).timeout
+			continue
+		if clip in ["hit", "death"]:
+			state["enemies"][0]["pos"] = (PROOF_OPPOSITE_NEAR_ORIGIN if _opposite else PROOF_NEAR_ORIGIN)
+			if clip == "death": state["enemies"][0]["hp"] = 1
+			else:
+				state["enemies"][0]["hp"] = HIT_PROOF_HP
+				state["enemies"][0]["max_hp"] = HIT_PROOF_HP
+			await install(state)
+			var engine := Combat.new()
+			var action: Dictionary = Data.card_def("quick_stab")["actions"][0]
+			var target: Vector2i = state["enemies"][0]["pos"]
+			var after: Dictionary = engine.apply_player_action(state, action, target)
+			await _scene.record_action(clip, func() -> void: await _scene._animate_player_action_step(state, after, "quick_stab", action, target))
+			if clip == "hit":
+				var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": _type, "id": 1})
+				while renderer != null and renderer.snapshot()["clip"] == "hit":
+					await _capture()
+					await create_timer(IDLE_SAMPLE_SECONDS).timeout
+				_scene.proof_completions[clip] = renderer.snapshot() if renderer != null else {}
+			continue
+		var selector: String = str(_data["clips"][clip]["intents"][0])
+		var fields: PackedStringArray = selector.split(":")
+		state = fixture(fields[0])
+		if clip == "scatter": state["enemies"][0]["pos"] = (PROOF_OPPOSITE_NEAR_ORIGIN if _opposite else PROOF_NEAR_ORIGIN)
+		await install(state)
+		var action: Dictionary = {}
+		for item: Dictionary in state["enemies"][0]["intent"]["actions"]:
+			if fields.size() == 1 or str(item["type"]) == fields[1]: action = item
+		var engine := Combat.new()
+		var context: Dictionary = engine.enemy_intent_plan(state, 0)
+		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
+		var step: Dictionary = engine._enemy_action_step(state, after, 0, action, context)
+		await _scene.record_action(clip, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), [step]))
+
 func _capture() -> void:
 	await process_frame
 	await process_frame
@@ -180,7 +203,12 @@ func _capture() -> void:
 		return
 	var snapshot: Dictionary = renderer.snapshot()
 	if snapshot["clip"] != _stage: return
-	CaptureStorage.check_production_canvas(_scene.board_view, _scene.board_view.combat_state["enemies"][0])
+	if CaptureStorage.production_planning:
+		CaptureStorage.record_production_canvas(_scene.board_view, _scene.board_view.combat_state["enemies"][0])
+	elif not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
+		if not CaptureStorage.check_production_canvas(_scene.board_view, _scene.board_view.combat_state["enemies"][0], _output, _stage, _frames.size()):
+			quit(1)
+			return
 	var rig: Node = renderer.rigs[snapshot["facing"]]
 	var pose: Array = []
 	for bone: String in rig.bones:
@@ -229,7 +257,7 @@ func install(state: Dictionary) -> void:
 	Fixtures.install(_scene, state)
 	_scene._render_board_state(state, {})
 	await settle()
-	if (not _logic or OS.get_cmdline_user_args().has("--validate-crop")) and not CaptureStorage.board_crop.has_area():
+	if CaptureStorage.production_planning and not CaptureStorage.production_bounds.has_area():
 		CaptureStorage.plan_production(_scene.board_view, _type, _data, fixture, (PROOF_OPPOSITE_NEAR_ORIGIN if _opposite else PROOF_NEAR_ORIGIN))
 
 func settle() -> void:
