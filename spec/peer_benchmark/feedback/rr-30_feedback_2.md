@@ -17,6 +17,11 @@ merged integration into your branch.
    - Check freshly sampled runtime flap motion in both views. Disabling the Godot sway must fail.
    - Add `report()` fixtures that must fail for rigid strain and for skinned strain. Disabling either rejection branch
      must fail.
-4. **High: native acceptance.** The director runs the windowed density, rest, native, sheets, walk, idle, production
+4. **High: the density stage can't pass.** `rr30_proof.sh density` calls the probe with `--expect-size 1920x1080`, but
+   `density_rebake.gd` emits per-view rests and `rr22_density_pair.png` at other sizes. The director's run failed with
+   "Expected a 1920x1080 screenshot, but no emitted image had that exact size". Match the size the contract actually
+   requires, as rr-22 did, and prove the stage's exact command line headless as far as possible. The director set aside the
+   partial density outputs from that run; regenerate them in order.
+5. **High: native acceptance.** The director runs the windowed density, rest, native, sheets, walk, idle, production
    and review captures after this round. Don't attempt them. Keep the bindings refreshable.
-5. Focused tests only.
+6. Focused tests only.
