@@ -9712,7 +9712,7 @@
     "kind": "rest",
     "id": "hoarfrost_seer_cutout",
     "pixel_sha256": "2d0bc055ddfda60fb8d05b07b38463cb6cb90709c1ec2c3795191529d70e2893",
-    "parts_pixel_sha256": "38002dcb303af219734193936ea8f02ea7ff30d223452cb3187f3afb93580427"
+    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1"
   },
   "assets/units/hoarfrost_seer_cutout/hidden/front/collar.png": {
     "pixel_sha256": "56cba8266ff458e8ec32eb0eb5610c3ea37de51231f068a7e2915891e52962b1",
@@ -10062,7 +10062,7 @@
     "kind": "rest",
     "id": "hoarfrost_seer_cutout",
     "pixel_sha256": "8a4166c0461318bc1dc6234a4d9b302eb85e2c2735ee31906cf7ef23fafa032d",
-    "parts_pixel_sha256": "38002dcb303af219734193936ea8f02ea7ff30d223452cb3187f3afb93580427"
+    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/front/robe.png": {
     "pixel_sha256": "9f2159b2b2271a17de0139ccb1e623918d80c584d1a813b9ef9bc11d00405e08",
@@ -10212,7 +10212,7 @@
     "kind": "rest",
     "id": "hoarfrost_seer_cutout",
     "pixel_sha256": "801a9f25627204b4b48788035f294789b146a5469f49c89a2a0ffabd1937c0e0",
-    "parts_pixel_sha256": "38002dcb303af219734193936ea8f02ea7ff30d223452cb3187f3afb93580427"
+    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1"
   },
   "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear/robe.png": {
     "pixel_sha256": "1004d42cbdf2bce6439fa2d64390aaa7532d223ba79688815ea2a357765b1ff8",
@@ -10258,7 +10258,7 @@
     "kind": "rest",
     "id": "hoarfrost_seer_cutout",
     "pixel_sha256": "454957527e05d3a6179f16c377318892d10c5ec7d571fa9f1d27e343f234627f",
-    "parts_pixel_sha256": "38002dcb303af219734193936ea8f02ea7ff30d223452cb3187f3afb93580427"
+    "parts_pixel_sha256": "dbd53e2553ab267c30e1fc78999928aa9b60e79008a5ad03aa276d4c3feba2e1"
   },
   "assets/units/hoarfrost_seer_cutout/seams/front/seam_collar_component_02_torso.png": {
     "pixel_sha256": "2b2d1488e90c59266d19e2a1e4219a7ef7965986d74102429ee01d11eb9a1a57",
@@ -11208,7 +11208,7 @@
     "kind": "rest",
     "id": "hollow_mimic_cutout",
     "pixel_sha256": "48bf6ea474b5e7b561c90b0044e55c6e09b2de37966046e1cda07c4248115a84",
-    "parts_pixel_sha256": "fcb13071a387f23d271b42c3da6dd99c7ce6e449833f10958aa748eb2a0a8237"
+    "parts_pixel_sha256": "387f7d2de1c793f270f48b62f393acce8f2af34ed101b8fff1ff796787ba2d82"
   },
   "assets/units/hollow_mimic_cutout/front/sleeve_far.png": {
     "pixel_sha256": "bec34250739888b43e2ab57814dba7a067c590384812f71ace1a0b0da6f95a49",
@@ -11390,7 +11390,7 @@
     "kind": "rest",
     "id": "hollow_mimic_cutout",
     "pixel_sha256": "6c3042ac1a4d5bed756ab24ae184cf239dea3498d3e22ec33af110eea01d1d3d",
-    "parts_pixel_sha256": "fcb13071a387f23d271b42c3da6dd99c7ce6e449833f10958aa748eb2a0a8237"
+    "parts_pixel_sha256": "387f7d2de1c793f270f48b62f393acce8f2af34ed101b8fff1ff796787ba2d82"
   },
   "assets/units/hollow_mimic_cutout/rear/sleeve_far.png": {
     "pixel_sha256": "78b30a105b614cb31a7e8b03a4b12dc028bab17662f3052ade401d28bd69b364",

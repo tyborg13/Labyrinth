@@ -25,10 +25,7 @@
   },
   "density": {
     "entry": "hollow_mimic_cutout",
-    "native_rest_pending": [
-      "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: rig part pixels changed since recorded rebake",
-      "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
-    ]
+    "native_rest_pending": []
   },
   "files": {
     "compiled_motion.json": "33d41730cea68af609899fc97a8c4c63b449926b9784d1fedc9dc850cad6d8c4",

@@ -1,14 +1,15 @@
 {
-  "ok": false,
-  "status": "pending_director_capture",
-  "native_pixels": false,
-  "errors": [
-    "Fresh windowed density/rest/native/sheets/idle/production/review proof is pending; historical captures are stale."
-  ],
-  "headless_case_gates_ok": true,
-  "headless_pixel_estimates_ok": true,
+  "ok": true,
+  "errors": [],
+  "native_pixels": true,
+  "pocket_failures": [],
+  "air_pocket_count": 4652,
+  "approved_detached_component_count": 355,
+  "sample_counts": {
+    "rest_space": 724
+  },
   "full_evidence": {
     "file": "logs/native_gates.full.json",
-    "sha256": "6ab78e21ba8c84bba1d314292c5a45de5427095715587b4eb40d3aa996cc958d"
+    "sha256": "3971ee7b93086a5e4e0888e0d217da9f3fe6357923e51961d020a322a3c0c649"
   }
 }
