@@ -34,7 +34,10 @@ def record(project, case, assets):
     pending=density.rest_errors([entry],read_json(density.MANIFEST))
     live=[p for p in (assets/config['rig_directory']).rglob('*') if p.is_file()]
     live += [assets/n for n in config['production_files']]
-    write_json(assets/'integration.json',{'ready':False,'rig':'humanoid_v2',
+    integration_path = assets / 'integration.json'
+    declarations = read_json(integration_path) if integration_path.exists() else {}
+    action_adapter = {key: declarations[key] for key in ('action_adapter',) if key in declarations}
+    write_json(integration_path,{'ready':False,'rig':'humanoid_v2', **action_adapter,
         'case':str(case.relative_to(project)),'director_sha256':source['director_sha256'],
         'design_placeholders':inputs.get('design_placeholders',{}),
         'native_proof':'pending director rest/native/production/idle/review',

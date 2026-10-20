@@ -1,0 +1,280 @@
+{
+  "scope": "test fixtures and proof presentation only; no production tuning chosen",
+  "headless_samples": {
+    "fps": 60,
+    "step_distance_px": 96,
+    "screen_pixel_scale": 2,
+    "source_origin_px": [
+      128,
+      128
+    ],
+    "basis": "legacy proof-only fallback; rr22 gait uses actual board geometry from tests/gait01/board_geometry.gd"
+  },
+  "runtime_test": {
+    "idle_seed": 0.37,
+    "action_phase": 0.6
+  },
+  "production_fixture": {
+    "lob_origin": [
+      1,
+      4
+    ],
+    "opposite_lob_origin": [
+      7,
+      4
+    ],
+    "move_origin": [
+      2,
+      4
+    ],
+    "opposite_move_origin": [
+      6,
+      4
+    ],
+    "near_origin": [
+      5,
+      4
+    ],
+    "opposite_near_origin": [
+      3,
+      4
+    ],
+    "hit_hp": 30,
+    "panel_center_ratio": 0.5,
+    "settle_frames": 8
+  },
+  "density_proof": {
+    "paint_scale": 2,
+    "background": "#1e1e24"
+  },
+  "source_cut_sheet": {
+    "columns": 4,
+    "rows": 2,
+    "source_cell_px": 255,
+    "zoom": 3,
+    "boundary_rgba": [
+      255,
+      255,
+      255,
+      255
+    ],
+    "boundary_width_source_px": 1
+  },
+  "timeouts_seconds": {
+    "python_bone_subprocess": 180,
+    "rest": 120,
+    "density": 180,
+    "idle": 180,
+    "native": 900,
+    "production": 900
+  },
+  "mutation": {
+    "slide_px": 2,
+    "green_rgba": [
+      0,
+      255,
+      0,
+      255
+    ],
+    "transparent_green_rgba": [
+      0,
+      255,
+      0,
+      0
+    ]
+  },
+  "cpu_coverage": {
+    "uv_guard_px": 1,
+    "progress_interval_frames": 50,
+    "scope": "proof-only conservative UV support; raster, paint and motion unchanged"
+  },
+  "feedback2_source_diagnostics": {
+    "old_failure_sheet": {
+      "columns": 6,
+      "rows": 3,
+      "cell_px": [
+        220,
+        240
+      ],
+      "source_crop": [
+        170,
+        145,
+        380,
+        360
+      ],
+      "image_offset_px": [
+        5,
+        20
+      ],
+      "label_offset_px": [
+        4,
+        4
+      ],
+      "background_rgba": [
+        30,
+        30,
+        36,
+        255
+      ]
+    },
+    "hole_crops": {
+      "padding_source_px": 20,
+      "zoom": 6
+    },
+    "rear_head_comparison": {
+      "columns": 4,
+      "rows": 1,
+      "source_cell_px": 255,
+      "zoom": 2,
+      "background_rgba": [
+        30,
+        30,
+        36,
+        255
+      ]
+    }
+  },
+  "source_space_mutation_fixture": {
+    "canvas_size": 255,
+    "rigid_displacement_px": 8,
+    "body_bbox": [
+      10,
+      10,
+      25,
+      25
+    ],
+    "painted_speck_bbox": [
+      34,
+      10,
+      36,
+      12
+    ],
+    "connected_paint_bridge_bbox": [
+      25,
+      10,
+      34,
+      11
+    ],
+    "pocket_canvas_size": 12,
+    "ring_bbox": [
+      2,
+      2,
+      10,
+      10
+    ],
+    "air_bbox": [
+      4,
+      4,
+      7,
+      7
+    ],
+    "missing_surface_texel": [
+      5,
+      5
+    ],
+    "unrelated_stray_bbox": [
+      170,
+      170,
+      174,
+      174
+    ],
+    "scope": "synthetic tests only; no presentation defaults or production tuning",
+    "outline_speck_bbox": [
+      26,
+      10,
+      27,
+      12
+    ],
+    "paint_rgba": [
+      100,
+      60,
+      40,
+      255
+    ],
+    "outline_rgba": [
+      30,
+      20,
+      10,
+      255
+    ],
+    "unrelated_stray_rgba": [
+      90,
+      50,
+      30,
+      255
+    ]
+  },
+  "rr25_donor_mutation_fixture": {
+    "size_px": 4,
+    "pot_rgba": [
+      70,
+      70,
+      70,
+      255
+    ],
+    "skin_rgba": [
+      110,
+      60,
+      30,
+      255
+    ],
+    "scope": "synthetic own-piece donor mutation only"
+  },
+  "rr25_cpu_inspection_frames": [
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 31
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "frame": 8
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 38
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 19
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 24
+    }
+  ],
+  "feedback1_review_fixture": {
+    "body_bbox": [
+      10,
+      10,
+      25,
+      25
+    ],
+    "bridge_xy": [
+      25,
+      10
+    ],
+    "tip_xy": [
+      26,
+      10
+    ],
+    "dark_rgba": [
+      10,
+      10,
+      10,
+      255
+    ],
+    "bright_rgba": [
+      100,
+      60,
+      40,
+      255
+    ],
+    "walk_duration_mutation_seconds": 1.25,
+    "scope": "synthetic regression/process-local cache mutation only"
+  }
+}

@@ -24508,8 +24508,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			continue
 		var case_actor: Dictionary = _animation_actor_unit(animated_state, str(step.get("source_actor_key", step.get("actor_key", ""))))
-		var case_actions: Script = MaquetteAction.Presentation.action_script(str(case_actor.get("type", "")))
-		if case_actions != null and case_actions.handles(step, case_actor):
+		var case_actions: Script = MaquetteAction.playback_adapter(step, case_actor)
+		if case_actions != null:
 			await case_actions.animate(self, animated_state, step, case_actor)
 			await _combat_pacing.after_step(step)
 			continue
@@ -24521,11 +24521,6 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		if step.has("en04_mechanic"):
 			if str(step["en04_mechanic"]).begins_with("lob"): await preload("res://scripts/enemy_mechanics/lob_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/bramble_view.gd").animate(self, animated_state, step)
-			await _combat_pacing.after_step(step)
-			continue
-		var contact_actor: Dictionary = MaquetteAction.actor_for(animated_state, str(step.get("actor_key", "")))
-		if preload("res://scripts/maquette_cutout_runtime/contact_actions.gd").handles(step, contact_actor):
-			await preload("res://scripts/maquette_cutout_runtime/contact_actions.gd").animate(self, animated_state, step, contact_actor)
 			await _combat_pacing.after_step(step)
 			continue
 		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):

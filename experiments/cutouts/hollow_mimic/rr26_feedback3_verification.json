@@ -1,0 +1,2551 @@
+{
+  "task": "rr-26",
+  "round": "director feedback 3",
+  "head": "c20cf94a7ec4a92c3ad36b260e4f614e77710089",
+  "integration": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+  "status": "Consolidated; strict Thrall failures and missing Mirror committed-record proof remain",
+  "git_writes": false,
+  "uncommitted": true,
+  "director_still_owns_merge_index": true,
+  "full_suite_run": false,
+  "peer_review_run": false,
+  "windowed_run": false,
+  "acceptance": {
+    "1": "One strict source_space classifier and native gate path; rigid_air preserved",
+    "2": "Canonical full_samples writers and one read_report reader; containment mutation remains meaningful",
+    "3": "One declared-case/contact dispatch site; integration-owned adapters; existing fallback paths retained",
+    "4": "Continuations and all layout/paint/motion data untouched in this round",
+    "5": "7628 original raw pose rows identical; 188 view/clip/kind groups; six committed records and explicitly labelled Mirror committed-source replay",
+    "6": "All current samples/headless gates/16 production scenarios/strict census refreshed; native/review proof pending director; historical feedback evidence retained",
+    "7": "FAIL: Thrall rear move 14 pixel (340,319) and move 23 pixel (323,269); all six other rigs zero in both views/all clips",
+    "8": "Focused tests/probes only; preserved historical/integration assertion failures and one prohibited Git-writing fixture skipped"
+  },
+  "worker_files_changed": [
+    "assets/units/briar_weaver_cutout/integration.json",
+    "assets/units/glacial_mirror_cutout/integration.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/production_logic/logic_frames.json",
+    "experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+    "experiments/cutouts/arc_thrall/rr11/rr24_policy.json",
+    "experiments/cutouts/arc_thrall/rr24/checks.json",
+    "experiments/cutouts/arc_thrall/rr24/front_raster_progress.json",
+    "experiments/cutouts/arc_thrall/rr24/rear_raster_progress.json",
+    "experiments/cutouts/arc_thrall/rr24_check.py",
+    "experiments/cutouts/arc_thrall/rr24_native_gates.py",
+    "experiments/cutouts/arc_thrall/rr24_proof.sh",
+    "experiments/cutouts/briar_weaver/mq9/proof/samples.json",
+    "experiments/cutouts/briar_weaver/rr21_density.py",
+    "experiments/cutouts/briar_weaver/rr21_evidence.py",
+    "experiments/cutouts/briar_weaver/rr21_gates.py",
+    "experiments/cutouts/briar_weaver/rr21_proof.sh",
+    "experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json",
+    "experiments/cutouts/hollow_mimic/README.md",
+    "experiments/cutouts/hollow_mimic/continuations.py",
+    "experiments/cutouts/hollow_mimic/cpu_proof.py",
+    "experiments/cutouts/hollow_mimic/gait_coverage.py",
+    "experiments/cutouts/hollow_mimic/gates.py",
+    "experiments/cutouts/hollow_mimic/proof_records.py",
+    "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+    "experiments/cutouts/hollow_mimic/rr20/proof/gates.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/native_gates.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/rest_space_summary.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/samples.json",
+    "experiments/cutouts/hollow_mimic/rr20/proof/verification.json",
+    "experiments/cutouts/hollow_mimic/rr20/rr26_source_coverage.json",
+    "experiments/cutouts/hollow_mimic/rr26_feedback3.md",
+    "experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.csv",
+    "experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.json",
+    "experiments/cutouts/hollow_mimic/rr26_feedback3_verification.json",
+    "experiments/cutouts/hollow_mimic/rr26_pose_hashes.py",
+    "experiments/cutouts/hollow_mimic/rr26_refresh.py",
+    "experiments/cutouts/hollow_mimic/rr26_review_detached_repro.py",
+    "experiments/cutouts/slag_mortar/rr22/proof/production_logic/logic_frames.json",
+    "experiments/cutouts/slag_mortar/rr22/proof/production_logic_rear/logic_frames.json",
+    "experiments/cutouts/slag_mortar/rr22/proof/samples.json",
+    "experiments/cutouts/slag_mortar/rr22_gates.py",
+    "experiments/cutouts/slag_mortar/rr22_proof.sh",
+    "experiments/cutouts/slag_mortar/rr22_records.py",
+    "experiments/cutouts/slag_mortar/rr22_seams.py",
+    "experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json",
+    "experiments/cutouts/storm_capacitor/mq5/proof/samples.json",
+    "experiments/cutouts/storm_capacitor/rr17_proof.sh",
+    "scripts/maquette_cutout_runtime/action.gd",
+    "scripts/maquette_cutout_runtime/presentation.gd",
+    "scripts/run_scene.gd",
+    "tests/rr18/runtime_test.gd",
+    "tests/rr20/samples.gd",
+    "tests/rr20_regression_runner.py",
+    "tests/rr26/action_dispatch.gd",
+    "tests/rr26/canonical_record.gd",
+    "tests/test_rr20_feedback2.py",
+    "tests/test_rr20_rest_space.py",
+    "tests/test_rr21_cutout.py",
+    "tests/test_rr21_review.py",
+    "tests/test_rr21_walk.py",
+    "tests/test_rr22_source_space.py",
+    "tests/test_rr26_consolidation.py",
+    "tests/test_rr26_fragments.py",
+    "tests/test_rr26_hem_attachments.py",
+    "tools/humanoid_cutout/bone_evidence.py",
+    "tools/humanoid_cutout/gates.py",
+    "tools/humanoid_cutout/integration.py",
+    "tools/humanoid_cutout/rest_space.py",
+    "tools/humanoid_cutout/source_space.py"
+  ],
+  "merge_start_files_preserved": {
+    "assets/generated/unit_shadow_cache.res": "75f8808dcc54342d43b78a1b81eb451eef7e4972488063e909be60a1923675e8",
+    "scripts/cutout_context.gd": "eef75ecd6d551c8b2caf9d065a4bdef870469b65e220600ccc535b9f3ebe1805",
+    "scripts/maquette_cutout_runtime/humanoid_continuations.gd": "0c566fdb629c53ac4c1ba9de6859e0092ed862a1b188d2b7ccc449a3a1ac2d30",
+    "spec/art_identity/registry.json": "2fbf86a87e36d04cb1008df0d443c337a709bbf4d3394d2522a6a3ce113b78f0",
+    "spec/assets/board_pixel_density/registry.json": "4d2ad51b1e8b80953c644ac6b8ec71ed275509e7ece77b06422ef64c08819df6",
+    "tools/humanoid_cutout/gait_continuations.py": "ba7856e31c56adc67b5360a888b6ec5808a087b734649a21b05454e2ff273974"
+  },
+  "tests": [
+    {
+      "set": "seer",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr10_bone_evidence tests.test_rr10_feedback tests.test_rr10_humanoid tests.test_rr10_layout_parity tests.test_rr10_native_exceptions tests.test_rr10_occluded_foot tests.test_rr10_rear tests.test_rr10_reveal_fills tests.test_rr10_rope tests.test_rr10_silhouette_gates tests.test_rr10_tucks",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 63 tests in 51.109s",
+        "OK",
+        "RR10 SHEETS: PASS (1 frames; /var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/rr10-sheet-fixture-ok1kpxfg/sheets)",
+        "RR10 ATTACHMENT TRANSFORMS: PASS (629 poses; max wrist snap separation 1.368480 px)",
+        "RR20 INHERITED RUNNERS: PASS (5 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/seer_tests.log",
+        "sha256": "a1d75f91ae9cf57ad95c3641faaa0a1bd78bc6cbf945e42b0f791af9f946d249"
+      }
+    },
+    {
+      "set": "thrall",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr11_humanoid tests.test_rr24_feedback2 tests.test_rr24_policies tests.test_rr24_thrall",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 41 tests in 21.761s",
+        "OK",
+        "RR20 INHERITED RUNNERS: PASS (2 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/thrall_tests.log",
+        "sha256": "05334cdc8e755822826dbb20e2eee61f98c9ae699dd5aa25845383f4cdb78aca"
+      }
+    },
+    {
+      "set": "mortar",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr22_humanoid tests.test_rr22_source_space tests.test_rr25_mortar_finish",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 31 tests in 15.119s",
+        "OK",
+        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)",
+        "RR20 INHERITED RUNNERS: PASS (1 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mortar_tests.log",
+        "sha256": "675581d031231e3f80ab6dd4afe4a77a9cae6aeb020fd4928c2def2878eaf9b1"
+      }
+    },
+    {
+      "set": "mirror",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py --read-only-git tests.test_rr18_air_policy tests.test_rr18_humanoid tests.test_rr18_materials tests.test_rr23_owner_fixes",
+      "observed_exit_code": 1,
+      "results": [
+        "FAIL: test_shadows_retain_every_other_figure_against_pinned_baseline (tests.test_rr23_owner_fixes.OwnerFixTests)",
+        "RR23 SHADOW PRESERVATION: FAIL (only 2 Mirror views may change; other records match pinned baseline)",
+        "FAIL: test_shared_records_retain_every_other_figure (tests.test_rr23_owner_fixes.OwnerFixTests)",
+        "Ran 47 tests in 52.259s",
+        "FAILED (failures=2, skipped=1)",
+        "RR20 INHERITED RUNNERS: FAIL (5 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mirror_tests.log",
+        "sha256": "a33281f10b870775bfbe5a5347a4abd4b4c41c061e0a63ab9e884e7219c5b03b"
+      }
+    },
+    {
+      "set": "mimic",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr20_cutout tests.test_rr20_feedback2 tests.test_rr20_production tests.test_rr20_residue tests.test_rr20_rest_space tests.test_rr26_fragments tests.test_rr26_hem_attachments",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 51 tests in 140.754s",
+        "OK",
+        "RR20 INHERITED RUNNERS: PASS (10 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mimic_tests.log",
+        "sha256": "01358c4f923adb5603775c011010846f0a1240edf2c147c3772eb3569d4a4f70"
+      }
+    },
+    {
+      "set": "weaver",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr21_cutout tests.test_rr21_production tests.test_rr21_residue tests.test_rr21_review tests.test_rr21_walk",
+      "observed_exit_code": 1,
+      "results": [
+        "FAIL: test_prior_creature_assets_and_case_data_are_byte_identical (tests.test_rr21_cutout.CutoutTests)",
+        "Ran 33 tests in 125.075s",
+        "FAILED (failures=1)",
+        "RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)",
+        "RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)",
+        "RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)",
+        "RR21 FRONT CUT: PASS (0 errors)",
+        "RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+        "RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)",
+        "RR21 REAR CUT: PASS (0 errors)",
+        "RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+        "RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)",
+        "RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)",
+        "RR21 HEADLESS GATES: PASS (0 errors)",
+        "RR21 REVIEW PREFLIGHT: PASS (headless evidence; native pixels and encoding not run)",
+        "RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)",
+        "RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)",
+        "RR21 FRONT CUT: PASS (0 errors)",
+        "RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+        "RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)",
+        "RR21 REAR CUT: PASS (0 errors)",
+        "RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+        "RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)",
+        "RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)",
+        "RR21 HEADLESS GATES: PASS (0 errors)",
+        "RR21 REVIEW PREFLIGHT: PASS (headless evidence; native pixels and encoding not run)",
+        "RR20 INHERITED RUNNERS: FAIL (5 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/weaver_tests.log",
+        "sha256": "11a8bd3b12eec5bead3ec021c5a8420cfe9b63d1ca932b5508c1338520010564"
+      }
+    },
+    {
+      "set": "capacitor",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py tests.test_rr17_cutout tests.test_rr17_feedback tests.test_rr17_integration tests.test_rr17_production",
+      "observed_exit_code": 1,
+      "results": [
+        "FAIL: test_shadow_baseline_is_explicit_and_portable (tests.test_rr17_feedback.FeedbackTests)",
+        "RR17 SHADOW PRESERVATION: FAIL (67 existing entries unchanged)",
+        "Ran 31 tests in 81.727s",
+        "FAILED (failures=1)",
+        "RR20 INHERITED RUNNERS: FAIL (8 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/capacitor_tests.log",
+        "sha256": "e0a1d0f687338f06e33d757fbaa5e1b66d557a1f1702da831e7a3b82a830561a"
+      }
+    },
+    {
+      "set": "final_thrall_mortar_tests",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py --read-only-git tests.test_rr11_humanoid tests.test_rr24_feedback2 tests.test_rr24_policies tests.test_rr24_thrall tests.test_rr22_humanoid tests.test_rr22_source_space tests.test_rr25_mortar_finish",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 73 tests in 39.778s",
+        "OK",
+        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)",
+        "RR20 INHERITED RUNNERS: PASS (3 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/final_thrall_mortar_tests.log",
+        "sha256": "84b315acfe9f9f00daf96b22575ca65b6fe8b2f4eaedf3675f0870913c6d493e"
+      }
+    },
+    {
+      "set": "shared_tests",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py --read-only-git tests.test_rr14_anatomy tests.test_rr14_bone_guards tests.test_rr14_foundations",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 17 tests in 2.876s",
+        "OK",
+        "RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR20 INHERITED RUNNERS: PASS (6 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/shared_tests.log",
+        "sha256": "f308a8e4537d3cda83ee5b8ca036a02171d9066e0c81e047f984f9a830b2c521"
+      }
+    },
+    {
+      "set": "final_source_gate_tests",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py --read-only-git tests.test_rr26_consolidation tests.test_rr20_rest_space tests.test_rr22_source_space tests.test_rr10_native_exceptions tests.test_rr21_review.ReviewTests.test_removing_containment_guard_is_caught_for_both_outside_paths",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 29 tests in 1.898s",
+        "OK",
+        "RR20 INHERITED RUNNERS: PASS (3 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/final_source_gate_tests.log",
+        "sha256": "e16abfa2f934478ce75cbfebd8bf3aa0a209e5aab1858b6df5f49d91f63bd592"
+      }
+    },
+    {
+      "set": "final_source_constants_tests",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py --read-only-git tests.test_rr22_source_space",
+      "observed_exit_code": 0,
+      "results": [
+        "Ran 10 tests in 0.237s",
+        "OK",
+        "RR20 INHERITED RUNNERS: PASS (0 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/final_source_constants_tests.log",
+        "sha256": "5868c03689860901093a33c1272d9e52546fc31552ebc743e52b4467eb0115f5"
+      }
+    },
+    {
+      "set": "identity_domain_tests",
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -B tests/rr20_regression_runner.py --read-only-git tests.test_rr14_seer_identity tests.test_rr14_continuation_domains",
+      "observed_exit_code": 1,
+      "results": [
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/front.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/humanoid_v2/front.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/integration.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/rear.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/proof/seer_protagonist_idle.json')",
+        "FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json')",
+        "Ran 4 tests in 0.038s",
+        "FAILED (failures=9)",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
+        "RR20 INHERITED RUNNERS: FAIL (0 Godot invocations forced to rr-26)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/identity_domain_tests.log",
+        "sha256": "93573bdd6fe63c19c59aabd22e9fdf7967fb905d0985586797e8133bd8fdb9e5"
+      }
+    }
+  ],
+  "runtime_checks": [
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr10/runtime_checks.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR10 RUNTIME: PASS (10 checks; headless logic only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/seer_runtime.log",
+        "sha256": "061f03479e3a58c3cb20ae0586ae7507e260dbcb79801fdf31b8a2aa1513aef2"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr11/runtime_checks.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/thrall_runtime.log",
+        "sha256": "7818313cb6cc3da6d87dc4cfb9e1c72963d6098229a455937ec1100aaa5b9209"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr18/runtime_test.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR18 RUNTIME: PASS (5964 checks; headless logic only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mirror_runtime.log",
+        "sha256": "08a6464f03113336593908def49c996d5dc8b9558a7a158e5f35d0f697cb9bb1"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr20/runtime_checks.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR20 RUNTIME: PASS (5323 checks; headless logic only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mimic_runtime.log",
+        "sha256": "cfdd35f52d4c2dfabd179f812bf37f5e2b5d3b0c859b15d86e019e5dc2d00dee"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr17/runtime_test.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR17 RUNTIME: PASS (58 checks, 0 failures; headless logic only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/capacitor_runtime.log",
+        "sha256": "243971dbc81f7c6c633fc8208a75b1311e874148e604305546a40082b6a64951"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr21/runtime_checks.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR21 RUNTIME: PASS (243 checks; headless registration and action clocks)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/weaver_runtime.log",
+        "sha256": "eb6614483469ce68636d68fee5cc5864e104e8867323430675ff424445dd7b76"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr22/runtime_checks.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR22 RUNTIME: PASS (478 checks; headless logic only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mortar_runtime.log",
+        "sha256": "3501ee054993da4bbb91811b8b7c932cbc6c2f424c4be52a88a7086054ae5d36"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr26/action_dispatch.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR26 ACTION DISPATCH: PASS (10 checks; case priority, contact fallback and unchanged existing paths)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/action_runtime.log",
+        "sha256": "af8c56de4cca0d261c95e521b67709db822fce3350d21a08f6ae261498162947"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr21/continuation_checks.gd"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR21 CONTINUATION TEXTURES: PASS (3072 full-image checks; source/production, paint/masks, both views, repeated transitions)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/weaver_continuations.log",
+        "sha256": "e0b5b30d9c5029e62ce93e5c4594447e3433990aba4a12223a312b56efa04290"
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "experiments/cutouts/storm_capacitor/rr17_shadow_check.gd",
+        "--",
+        "--baseline",
+        "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/director_resolved_shadow_cache.res"
+      ],
+      "observed_exit_code": 0,
+      "results": [
+        "RR17 SHADOW PRESERVATION: PASS (76 existing entries unchanged)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/merged_shadow_check.log",
+        "sha256": "479766808261635c6da00f2a983afff26245e457a3d564d3234b77c90e4c1b61"
+      }
+    }
+  ],
+  "probe_load_checks": [
+    {
+      "unit": "seer",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr10/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/hoarfrost_seer/rr10",
+        "--output",
+        "res://experiments/cutouts/hoarfrost_seer/rr10/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR10 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/seer_probe_load.log",
+        "sha256": "41133961c466c3d343db7cf38187234304c65a53a2b2414b967729c4a6522c90"
+      }
+    },
+    {
+      "unit": "thrall",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr10/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/arc_thrall/rr11",
+        "--output",
+        "res://experiments/cutouts/arc_thrall/rr11/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR10 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/thrall_probe_load.log",
+        "sha256": "4e3bbd770d51393ac2ab2b70e736eac31bab9797822827776fe3be3e61217fd8"
+      }
+    },
+    {
+      "unit": "mirror",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr18/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/glacial_mirror/rr18",
+        "--output",
+        "res://experiments/cutouts/glacial_mirror/rr18/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR18 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mirror_probe_load.log",
+        "sha256": "158acde90b4eb2295358f573c7c964554182f965acb75def0b02c753b9064789"
+      }
+    },
+    {
+      "unit": "mimic",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr20/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/hollow_mimic/rr20",
+        "--output",
+        "res://experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR20 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mimic_probe_load.log",
+        "sha256": "a7e6584e370aae48cc12bf3268561074f5562765e5bd05f77b4c7bd2f8844a22"
+      }
+    },
+    {
+      "unit": "capacitor",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr17/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/storm_capacitor/mq5",
+        "--output",
+        "res://experiments/cutouts/storm_capacitor/mq5/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR17 NATIVE CAPTURE PARSE: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/capacitor_probe_load.log",
+        "sha256": "a509e3006dbcf93861a220e37f0e01866b9d43571aaaaab758cb1f6b85c839bd"
+      }
+    },
+    {
+      "unit": "weaver",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr21/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/briar_weaver/mq9",
+        "--output",
+        "res://experiments/cutouts/briar_weaver/mq9/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR21 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/weaver_probe_load.log",
+        "sha256": "ea5d86d8b29cd7141ba5a91b5507adbb0cc10e98773f85b89fbeb2a35e8e6737"
+      }
+    },
+    {
+      "unit": "mortar",
+      "command": [
+        "python3",
+        "tools/godot_task_runner.py",
+        "--task-id",
+        "rr-26",
+        "--stream",
+        "--",
+        "godot",
+        "--headless",
+        "--path",
+        ".",
+        "--script",
+        "tests/rr22/native_capture.gd",
+        "--",
+        "--case",
+        "res://experiments/cutouts/slag_mortar/rr22",
+        "--output",
+        "res://experiments/cutouts/slag_mortar/rr22/proof/logs/rr26f3_probe_load",
+        "--validate-only"
+      ],
+      "observed_exit_code": 0,
+      "native_capture": false,
+      "results": [
+        "RR22 NATIVE PROBE LOAD: PASS"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mortar_probe_load.log",
+        "sha256": "3b29325f0cf3ef5588ed41e41ddd142582e609ac10dddbf75d03795be796b5e7"
+      }
+    }
+  ],
+  "headless_refreshes": [
+    {
+      "unit": "seer",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr10/samples.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hoarfrost_seer/rr10",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR10 BONE SAMPLES: PASS (1258 poses; headless transforms only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_seer.log",
+        "sha256": "56668d69eb02a1afbfb3f523d6c52cc0206cda79aed38725badffd26ed62ae9d"
+      }
+    },
+    {
+      "unit": "seer",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/hoarfrost_seer/rr10_gates.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR10 BONE/CUT GATES: PASS (0 errors)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_seer.log",
+        "sha256": "7f245cd2dd662e64a94ce30454d476fb700d82ab339dba09b208f148765d2df1"
+      }
+    },
+    {
+      "unit": "seer",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr10/production_capture.gd",
+            "--",
+            "--type",
+            "hoarfrost_seer",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hoarfrost_seer/rr10/proof/logs/rr26f3_production_front",
+            "--logic-only"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1441 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_seer.log",
+        "sha256": "80c34c57ac4b3ba0e3c6929dba48b7972af4723b8c0813745778a05f4b224360"
+      }
+    },
+    {
+      "unit": "seer",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "seer",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hoarfrost_seer/rr10/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE SEER FRONT: PASS (467 frames; 3232 air pockets; 0 failing frames)",
+        "RR20 REST SPACE SEER REAR: PASS (467 frames; 4601 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_seer.log",
+        "sha256": "c11be653e5d2c1fc2e0976f0ea4ecdb53c884cc741a5c54684cc9c5d1fb003d7"
+      }
+    },
+    {
+      "unit": "thrall",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr11/action_direction.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/arc_thrall/rr11",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/arc_thrall/rr11/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_thrall.log",
+        "sha256": "866681656aed1356219038ecd32870f15e9680f04235a8e23de1ffc13e8052c6"
+      }
+    },
+    {
+      "unit": "thrall",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/arc_thrall/rr11_gates.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)",
+        "RR15 FRONT ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 FRONT REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 FRONT SWING KNEES: PASS (6 swings; minimum peak 53.741 degrees)",
+        "GAIT FRONT: PASS (maximum fit 0.452544 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 FRONT SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524157/0.000061 px)",
+        "RR15 REAR ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 REAR REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 REAR SWING KNEES: PASS (6 swings; minimum peak 47.116 degrees)",
+        "GAIT REAR: PASS (maximum fit 0.056471 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 REAR SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524156/0.000043 px)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_thrall.log",
+        "sha256": "74e6a5808cb8067be36e5c8efe48dc6a43b2e8dcb0f2d0152703706e6d2320e6"
+      }
+    },
+    {
+      "unit": "thrall",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr11/production_capture.gd",
+            "--",
+            "--type",
+            "arc_thrall",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/arc_thrall/rr11/proof/production_logic",
+            "--logic-only",
+            "--view",
+            "front"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr11/production_capture.gd",
+            "--",
+            "--type",
+            "arc_thrall",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/arc_thrall/rr11/proof/logs/rr26f3_production_rear",
+            "--logic-only",
+            "--view",
+            "rear"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (923 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (923 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_thrall.log",
+        "sha256": "0efd7abdc6d3ebe36b09b71bc4303d720ac23a5caea6196b8c1e72b49847c9ab"
+      }
+    },
+    {
+      "unit": "thrall",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "thrall",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/arc_thrall/rr11/proof/samples.json"
+          ],
+          "exit_code": 1
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE THRALL FRONT: PASS (335 frames; 1066 air pockets; 0 failing frames)",
+        "RR20 REST SPACE THRALL REAR: FAIL (335 frames; 751 air pockets; 2 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_thrall.log",
+        "sha256": "6e0ffda2028e0c12a0ca548e2afb6ae22ed5bd441c0ed5ee5e6ce68680c8f705"
+      }
+    },
+    {
+      "unit": "mirror",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr18/action_direction.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/glacial_mirror/rr18",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/glacial_mirror/rr18/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR10 BONE SAMPLES: PASS (968 poses; headless transforms only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_mirror.log",
+        "sha256": "030ec2cb51b3fae3cd35f4c81508e0cc8a4e482fd0d606de5c70e37e148a9773"
+      }
+    },
+    {
+      "unit": "mirror",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/glacial_mirror/rr18_gates.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "GAIT FRONT: PASS (maximum fit 2.716829 px; total drop 4.715247 px; rigid air 0.000000 px)",
+        "RR18 FRONT KNEES: PASS (0 errors)",
+        "RR18 FRONT SUPPORTS: PASS (0 errors)",
+        "RR18 FRONT DIRECTIONS: PASS (0 errors)",
+        "RR18 FRONT REACH: PASS (0 errors)",
+        "RR18 FRONT PRODUCTION_REST: PASS (0 errors)",
+        "RR18 FRONT SEAMS: PASS (0 errors)",
+        "RR18 FRONT MATERIALS: PASS (0 errors)",
+        "RR18 FRONT RAW_IDENTITY: PASS (0 errors)",
+        "GAIT REAR: PASS (maximum fit 0.158067 px; total drop 3.500000 px; rigid air 0.000000 px)",
+        "RR18 REAR KNEES: PASS (0 errors)",
+        "RR18 REAR SUPPORTS: PASS (0 errors)",
+        "RR18 REAR DIRECTIONS: PASS (0 errors)",
+        "RR18 REAR REACH: PASS (0 errors)",
+        "RR18 REAR PRODUCTION_REST: PASS (0 errors)",
+        "RR18 REAR SEAMS: PASS (0 errors)",
+        "RR18 REAR MATERIALS: PASS (0 errors)",
+        "RR18 REAR RAW_IDENTITY: PASS (0 errors)",
+        "RR18 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR18 ALL GATES: PASS (0 unique errors)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_mirror.log",
+        "sha256": "eb336b4c8342c9e5cdadc58289cb858badee139b0b141f61fc5c5f7d86dae32f"
+      }
+    },
+    {
+      "unit": "mirror",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr18/production_capture.gd",
+            "--",
+            "--type",
+            "glacial_mirror",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/glacial_mirror/rr18/proof/logs/rr26f3_production_front",
+            "--logic-only",
+            "--view",
+            "front"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr18/production_capture.gd",
+            "--",
+            "--type",
+            "glacial_mirror",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/glacial_mirror/rr18/proof/logs/rr26f3_production_rear",
+            "--logic-only",
+            "--view",
+            "rear"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (949 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (949 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_mirror.log",
+        "sha256": "a2489562dbf8e1a5f2845099a6e7882c33c0d944d27185ab7c89de8e849b6251"
+      }
+    },
+    {
+      "unit": "mirror",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "mirror",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/glacial_mirror/rr18/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE MIRROR FRONT: PASS (344 frames; 393 air pockets; 0 failing frames)",
+        "RR20 REST SPACE MIRROR REAR: PASS (344 frames; 2024 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_mirror.log",
+        "sha256": "78b634fff0b7201ecef0a0f505e60012566dd260fc471a45aee2d2e6a2f28fdc"
+      }
+    },
+    {
+      "unit": "mimic",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/samples.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 COMPACT SAMPLES: PASS (28 inventories; full transforms in ignored logs)",
+        "RR10 BONE SAMPLES: PASS (1008 poses; headless transforms only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_mimic.log",
+        "sha256": "5b3689ef902dfc4af6e55e37004789736f9036a518aadcd80a8f92a7a53b9f52"
+      }
+    },
+    {
+      "unit": "mimic",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/hollow_mimic/gates.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH GATES: PASS (0 errors; both views)",
+        "RR20 FRONT SWING KNEES: PASS (6 swings; minimum peak 58.224 degrees)",
+        "RR20 FRONT WALK: PASS (6 swings; maximum fit 0.852 px; maximum total drop 2.000 px)",
+        "RR20 FRONT REACH: PASS (14 paths; 1000 intervals; 7 overreach reports)",
+        "RR20 REAR SWING KNEES: PASS (6 swings; minimum peak 52.765 degrees)",
+        "RR20 REAR WALK: PASS (6 swings; maximum fit 0.491 px; maximum total drop 2.000 px)",
+        "RR20 REAR REACH: PASS (14 paths; 1000 intervals; 6 overreach reports)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_mimic.log",
+        "sha256": "7bc205775983160debaf2a53e4c09e4e7314de8c130ce26d95fc1272861fef39"
+      }
+    },
+    {
+      "unit": "mimic",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/production_capture.gd",
+            "--",
+            "--type",
+            "hollow_mimic",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/whirlwind_slash",
+            "--logic-only",
+            "--view",
+            "front",
+            "--mirror-card",
+            "whirlwind_slash"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/production_capture.gd",
+            "--",
+            "--type",
+            "hollow_mimic",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/quick_stab",
+            "--logic-only",
+            "--view",
+            "front",
+            "--mirror-card",
+            "quick_stab"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/production_capture.gd",
+            "--",
+            "--type",
+            "hollow_mimic",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/hurl_spear",
+            "--logic-only",
+            "--view",
+            "front",
+            "--mirror-card",
+            "hurl_spear"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/production_capture.gd",
+            "--",
+            "--type",
+            "hollow_mimic",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/whirlwind_slash",
+            "--logic-only",
+            "--view",
+            "rear",
+            "--mirror-card",
+            "whirlwind_slash"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/production_capture.gd",
+            "--",
+            "--type",
+            "hollow_mimic",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/quick_stab",
+            "--logic-only",
+            "--view",
+            "rear",
+            "--mirror-card",
+            "quick_stab"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr20/production_capture.gd",
+            "--",
+            "--type",
+            "hollow_mimic",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/hurl_spear",
+            "--logic-only",
+            "--view",
+            "rear",
+            "--mirror-card",
+            "hurl_spear"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1316 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1316 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1316 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1316 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1316 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1316 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_mimic.log",
+        "sha256": "7598561b985d860107a2e355ea4ab4c7766c7c505edb3876b218c07882b108aa"
+      }
+    },
+    {
+      "unit": "mimic",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "mimic",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/logs/samples.full.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE MIMIC FRONT: PASS (362 frames; 1996 air pockets; 0 failing frames)",
+        "RR20 REST SPACE MIMIC REAR: PASS (362 frames; 2655 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_mimic.log",
+        "sha256": "49a7547e62b2a9cb052fa4f8574558197a2f41ccff146802b484201085a1f5ed"
+      }
+    },
+    {
+      "unit": "capacitor",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr17/samples.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/storm_capacitor/mq5",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/storm_capacitor/mq5/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR17 SAMPLES: PASS (328 authored bone poses; 696 sequential poses; headless transforms only)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_capacitor.log",
+        "sha256": "5c476ef9cc1f76ee6f978439fada469db6a655e1334b1018323a3a560625eaf5"
+      }
+    },
+    {
+      "unit": "capacitor",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/storm_capacitor/rr17_gates.py",
+            "headless"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR17 HEADLESS GATES: PASS (0 errors)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_capacitor.log",
+        "sha256": "327c252074aec5cc8a0b1320b5fa2cebcd299e656e32cf7ed9a545f1656d4b57"
+      }
+    },
+    {
+      "unit": "capacitor",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr17/production_capture.gd",
+            "--",
+            "--type",
+            "storm_capacitor",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/storm_capacitor/mq5/proof/production_logic",
+            "--logic-only"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1011 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_capacitor.log",
+        "sha256": "6bafa13ded005d7170a9df2f8cff23a1353d28e7c2af2e58e8d24142e33c4757"
+      }
+    },
+    {
+      "unit": "capacitor",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "capacitor",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/storm_capacitor/mq5/proof/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE CAPACITOR FRONT: PASS (348 frames; 0 air pockets; 0 failing frames)",
+        "RR20 REST SPACE CAPACITOR REAR: PASS (348 frames; 0 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_capacitor.log",
+        "sha256": "fab5048a5a7a8efcac45a449bc3f07938df28680ad3a8ee97a607e961f48d556"
+      }
+    },
+    {
+      "unit": "weaver",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr21/samples.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/briar_weaver/mq9",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/briar_weaver/mq9/proof/logs/samples.json"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/briar_weaver/rr21_evidence.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR10 BONE SAMPLES: PASS (1106 poses; headless transforms only)",
+        "RR21 COMPACT SAMPLES: PASS (1106 poses; full transforms in ignored logs)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_weaver.log",
+        "sha256": "e28769dc5457f43f9d08bb2b19d5226b58ebfa574fa748c5d4c33cd369bc5f02"
+      }
+    },
+    {
+      "unit": "weaver",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/briar_weaver/rr21_gates.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR21 FRONT CUT: PASS (0 errors)",
+        "RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+        "RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)",
+        "RR21 REAR CUT: PASS (0 errors)",
+        "RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+        "RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)",
+        "RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)",
+        "RR21 HEADLESS GATES: PASS (0 errors)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_weaver.log",
+        "sha256": "c60a95c6b7f03baad79a9ac823a6230c7a746abb7631d466d8f40a881c4a79e0"
+      }
+    },
+    {
+      "unit": "weaver",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr21/production_capture.gd",
+            "--",
+            "--type",
+            "briar_weaver",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/briar_weaver/mq9/proof/logs/production/front",
+            "--logic-only"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr21/production_capture.gd",
+            "--",
+            "--type",
+            "briar_weaver",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear",
+            "--logic-only",
+            "--rear"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1263 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1263 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_weaver.log",
+        "sha256": "2d52fe255d2d1fe9429606e143a8e5bc6b7efae08bd7ab75e1aa80c6f79c7332"
+      }
+    },
+    {
+      "unit": "weaver",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "weaver",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/briar_weaver/mq9/proof/logs/samples.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE WEAVER FRONT: PASS (395 frames; 5604 air pockets; 0 failing frames)",
+        "RR20 REST SPACE WEAVER REAR: PASS (395 frames; 6025 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_weaver.log",
+        "sha256": "0530bb605b9e40402300dad05ed12c187f5382358cff526a6e6b15ce66fa2c92"
+      }
+    },
+    {
+      "unit": "mortar",
+      "stage": "samples",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr22/samples.gd",
+            "--",
+            "--case",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/slag_mortar/rr22",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/slag_mortar/rr22/proof/logs/samples_full.json"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/slag_mortar/rr22_records.py",
+            "samples"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR10 BONE SAMPLES: PASS (1214 poses; headless transforms only)",
+        "RR22 COMPACT SAMPLES: PASS (1214 poses; full evidence in proof/logs/samples_full.json)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/samples_mortar.log",
+        "sha256": "bd49d5aaef6ffcdbe63425743af113cba35c8ca6d398ff84badb87f9a4847163"
+      }
+    },
+    {
+      "unit": "mortar",
+      "stage": "gates",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/slag_mortar/rr22_gates.py"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR22 SOURCE/BONE/KNEE GATES: PASS (0 errors; both views)",
+        "RR22 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
+        "RR22 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/gates_mortar.log",
+        "sha256": "4568d1f8139d7875dd5259600c557632dc0816aeb721c125de71066d8c4ada8e"
+      }
+    },
+    {
+      "unit": "mortar",
+      "stage": "production",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr22/production_capture.gd",
+            "--",
+            "--type",
+            "slag_mortar",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic",
+            "--logic-only"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "tools/godot_task_runner.py",
+            "--task-id",
+            "rr-26",
+            "--stream",
+            "--",
+            "godot",
+            "--headless",
+            "--path",
+            ".",
+            "--script",
+            "tests/rr22/production_capture.gd",
+            "--",
+            "--type",
+            "slag_mortar",
+            "--output",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic_rear",
+            "--logic-only",
+            "--opposite"
+          ],
+          "exit_code": 0
+        },
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-B",
+            "experiments/cutouts/slag_mortar/rr22_records.py",
+            "production"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)",
+        "MAQUETTE PRODUCTION LOGIC: PASS (1516 frames)",
+        "RR22 COMPACT PRODUCTION_LOGIC: PASS (1516 frames)",
+        "RR22 COMPACT PRODUCTION_LOGIC_REAR: PASS (1516 frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/production_mortar.log",
+        "sha256": "d168cbb8081b7b5e0485dfbffca0947e85de5427f7985517ccdda1a647d13f07"
+      }
+    },
+    {
+      "unit": "mortar",
+      "stage": "census",
+      "commands": [
+        {
+          "command": [
+            "/Library/Developer/CommandLineTools/usr/bin/python3",
+            "-u",
+            "-B",
+            "experiments/cutouts/hollow_mimic/rest_space_proof.py",
+            "--rig",
+            "mortar",
+            "--samples",
+            "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/slag_mortar/rr22/proof/logs/samples_full.json"
+          ],
+          "exit_code": 0
+        }
+      ],
+      "results": [
+        "RR20 REST SPACE MORTAR FRONT: PASS (431 frames; 2198 air pockets; 0 failing frames)",
+        "RR20 REST SPACE MORTAR REAR: PASS (431 frames; 878 air pockets; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/census_mortar.log",
+        "sha256": "add942db4635532b75b0088dc64eb85d9b4ba21e9a579dc085576f86903072b6"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 PYTHONPATH=tools python3 -u -B experiments/cutouts/arc_thrall/rr24_check.py --raster",
+      "observed_exit_code": 1,
+      "results": [
+        "RR24 FRONT SOURCE/RESIDUE: PASS (0 errors)",
+        "RR24 FRONT COLLAR OWNERSHIP: PASS (236 contact frames; 0 covered-head frames)",
+        "RR24 FRONT HEM: PASS (maximum 3.605543 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})",
+        "RR24 CPU FRONT SEAMS: FAIL (335 frames; 2 failing frames; native acceptance pending)",
+        "RR24 REAR SOURCE/RESIDUE: PASS (0 errors)",
+        "RR24 REAR COLLAR OWNERSHIP: PASS (229 contact frames; 0 covered-head frames)",
+        "RR24 REAR HEM: PASS (maximum 3.605532 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})",
+        "RR24 CPU REAR SEAMS: FAIL (335 frames; 2 failing frames; native acceptance pending)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/strict_rr24_check.log",
+        "sha256": "9775909ad69740cc23827be359bb49effa35ce986d5c7a586ea1923df5c58f1e"
+      }
+    },
+    {
+      "command": "LABYRINTH_TASK_ID=rr-26 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 PYTHONPATH=tools python3 -u -B experiments/cutouts/slag_mortar/rr22_seams.py",
+      "observed_exit_code": 0,
+      "results": [
+        "RR22 FRONT CPU COVERAGE GATES: PASS (431 frames; 0 errors)",
+        "RR22 REAR CPU COVERAGE GATES: PASS (431 frames; 0 errors)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mortar_seams.log",
+        "sha256": "bed12917c75b1b97dc62cecf550f9503ddb04696c6104c5c62f60ebd7ce05c37"
+      }
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -u -B experiments/cutouts/hollow_mimic/cpu_proof.py --view front --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/front",
+      "observed_exit_code": 0,
+      "results": [
+        "RR20 CPU FRONT: PASS (362 frames; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mimic_cpu_front.log",
+        "sha256": "18289e414675554a059199cab3ec059f547607c7d3a66b91d7dcb88630088715"
+      }
+    },
+    {
+      "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 python3 -u -B experiments/cutouts/hollow_mimic/cpu_proof.py --view rear --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/seam_cpu/rear",
+      "observed_exit_code": 0,
+      "results": [
+        "RR20 CPU REAR: PASS (362 frames; 0 failing frames)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/mimic_cpu_rear.log",
+        "sha256": "2fc119805d627668635aa24f469f9c2e4077dc8c2de600c153dd0700358ddf14"
+      }
+    },
+    {
+      "command": "python3 -B experiments/cutouts/hollow_mimic/rest_space_proof.py --summary",
+      "observed_exit_code": 1,
+      "results": [
+        "RR26 STRICT CENSUS SEER FRONT: 0 unmatched / 467 frames",
+        "RR26 STRICT CENSUS SEER REAR: 0 unmatched / 467 frames",
+        "RR26 STRICT CENSUS THRALL FRONT: 0 unmatched / 335 frames",
+        "RR26 STRICT CENSUS THRALL REAR: 2 unmatched / 335 frames",
+        "RR26 STRICT CENSUS MIRROR FRONT: 0 unmatched / 344 frames",
+        "RR26 STRICT CENSUS MIRROR REAR: 0 unmatched / 344 frames",
+        "RR26 STRICT CENSUS MIMIC FRONT: 0 unmatched / 362 frames",
+        "RR26 STRICT CENSUS MIMIC REAR: 0 unmatched / 362 frames",
+        "RR26 STRICT CENSUS CAPACITOR FRONT: 0 unmatched / 348 frames",
+        "RR26 STRICT CENSUS CAPACITOR REAR: 0 unmatched / 348 frames",
+        "RR26 STRICT CENSUS WEAVER FRONT: 0 unmatched / 395 frames",
+        "RR26 STRICT CENSUS WEAVER REAR: 0 unmatched / 395 frames",
+        "RR26 STRICT CENSUS MORTAR FRONT: 0 unmatched / 431 frames",
+        "RR26 STRICT CENSUS MORTAR REAR: 0 unmatched / 431 frames"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/strict_census_summary.log",
+        "sha256": "a648bb45da99790d2825721291fe1c28de17e6cbf960285815ee639272227e3e"
+      }
+    },
+    {
+      "command": "python3 -B experiments/cutouts/hollow_mimic/rr26_pose_hashes.py",
+      "observed_exit_code": 0,
+      "results": [
+        "RR26 POSE IDENTITY SEER: PASS (1258 rows; raw row bytes identical; committed record; 4340a4b6d04cfe67601467eb4f6882217ba9cf5db71821f8c39a8a13039b829d)",
+        "RR26 POSE IDENTITY THRALL: PASS (1050 rows; raw row bytes identical; committed record; 39502590d701f2aecfc7e216075602856a61cf4e130f7bd0071d99bfb459b066)",
+        "RR26 POSE IDENTITY MIRROR: PASS (968 rows; raw row bytes identical; committed-source replay; d1cf5cc80a3d3443e695ebd0f1e873b3a130f4b3ed16388bfc149679412fdff9)",
+        "RR26 POSE IDENTITY MIMIC: PASS (1008 rows; raw row bytes identical; committed record; 48129fa8d69b8fd02faa943efd96b111e681bed4d1a1445e103128b1afdf5a37)",
+        "RR26 POSE IDENTITY WEAVER: PASS (1106 rows; raw row bytes identical; committed record; fcdc48131b1be5a426460fa5a935cf6921be3b28a825301f102968d9a78374a8)",
+        "RR26 POSE IDENTITY MORTAR: PASS (1214 rows; raw row bytes identical; committed record; b9f957a8a8154d4db27ff1251af505bf59cc846bb81a8729d82975eb32e31d13)",
+        "RR26 POSE IDENTITY CAPACITOR: PASS (1024 rows; raw row bytes identical; committed record; fa86daf888ac7b53c7d296dfd6de1c2b463aefa851d51521f622f0eb6190c966)"
+      ],
+      "log": {
+        "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/pose_hashes.log",
+        "sha256": "6dbb7dba9903ce783851cc1e886fb8235305aaa2cfa1272599cb2118910977d0"
+      }
+    }
+  ],
+  "sample_census_binding_audit": [
+    {
+      "unit": "seer",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 327,
+      "sample_index_sha256": "d2efd90a231b7dcec74a60b7025d6ae8c70ce17bf086cc975852c92dd2cbbab3",
+      "census_sha256": "bec6fe0aec347526ee9fb4d221a3fb2c1b688017855fb413aa3064ba7c51bdca"
+    },
+    {
+      "unit": "thrall",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 450,
+      "sample_index_sha256": "3a51f4a137b760a769f2953f45c271b348992903b50877e51c884e0e95e1ea01",
+      "census_sha256": "a8e495bb13145df422b5e7c72fd6a7b3690572689d0d97bfffea2c44e2d57d03"
+    },
+    {
+      "unit": "mirror",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 860,
+      "sample_index_sha256": "b222d0dbb150e9c1d114125855c33866e025cac89ccff47ee9499b088065c0c7",
+      "census_sha256": "be65c0e2aaa345d3c709f15809b7a2f9be61e2788094865ef7c7fd6a557b9efc"
+    },
+    {
+      "unit": "mimic",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 461,
+      "sample_index_sha256": "0f9904ce43d6a7e56ea3650c4481582102f56a2482fa5893e4e8afcb5ff4d193",
+      "census_sha256": "269c1ba03c18be16176926372abd97e1c49102d4c09ef431002c03898b3b4371"
+    },
+    {
+      "unit": "capacitor",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 75,
+      "sample_index_sha256": "f3a6930c856d80523a59df2e3e2b2788f2965fd267739cfef82b6a99a86036a9",
+      "census_sha256": "72062dc4b5f9d7c8b94bd0468740656a6d02ce84e1b0cdf670881bc6fa422579"
+    },
+    {
+      "unit": "weaver",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 408,
+      "sample_index_sha256": "80d0696db8dacaa198cf4fd330ef99162959b3ddf7d2a16749bdb0073b525fa4",
+      "census_sha256": "b1c50ad30d7b7944614808f303955f8bcf755e57ee8589f37553dd55385fd4c6"
+    },
+    {
+      "unit": "mortar",
+      "sample_inputs_current": true,
+      "census_inputs_current": true,
+      "input_count": 468,
+      "sample_index_sha256": "169ca7de74aa43df457e3033f613daa02766c2be5372e0726adb572ddd9b71d2",
+      "census_sha256": "9181d7716aca1952c0bcad698a2da42f5d10ac50acc7ba0388f211114db852bb"
+    }
+  ],
+  "production_binding_audit": [
+    {
+      "unit": "seer",
+      "file": "experiments/cutouts/hoarfrost_seer/rr10/proof/logs/rr26f3_production_front/logic_frames.json",
+      "sha256": "33280e73b18034ce58d46e820e4ced0f0b66ffdafe17835a1e725fca3912daf3",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1441
+    },
+    {
+      "unit": "thrall",
+      "file": "experiments/cutouts/arc_thrall/rr11/proof/production_logic/logic_frames.json",
+      "sha256": "c092541284000aed11ab84e7deb8e6095505d080e32cb4b8e9b9074139f73ecd",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 923
+    },
+    {
+      "unit": "thrall",
+      "file": "experiments/cutouts/arc_thrall/rr11/proof/logs/rr26f3_production_rear/logic_frames.json",
+      "sha256": "6acc1b407693ba861c5a76369512e9f642ead4fb1f23f19d4b15292dc5e2f9b3",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 923
+    },
+    {
+      "unit": "mirror",
+      "file": "experiments/cutouts/glacial_mirror/rr18/proof/logs/rr26f3_production_front/logic_frames.json",
+      "sha256": "f6953e60b35266bac5532f1f55a8fd0390143112ff922add138a62785e2fbb4b",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 949
+    },
+    {
+      "unit": "mirror",
+      "file": "experiments/cutouts/glacial_mirror/rr18/proof/logs/rr26f3_production_rear/logic_frames.json",
+      "sha256": "bb446a64398e8622d61ced2e3db0df1f90f221602009c0cb6cbd1c3b38b0f068",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 949
+    },
+    {
+      "unit": "mimic",
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/whirlwind_slash/logic_frames.json",
+      "sha256": "33e468f34afa4a2597aaf65b09c11aa880055f9dc2f4decfcf193dfbdfd4401d",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1316
+    },
+    {
+      "unit": "mimic",
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/quick_stab/logic_frames.json",
+      "sha256": "214c511fe656910c7b4a5eb63ef22634815b11d580f6095ae577a5ac3674f34f",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1316
+    },
+    {
+      "unit": "mimic",
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/front/hurl_spear/logic_frames.json",
+      "sha256": "a287b079939af6c4adab946b5cbd1971f9c5a79641bcf033c1052f7e7c604fe1",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1316
+    },
+    {
+      "unit": "mimic",
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/whirlwind_slash/logic_frames.json",
+      "sha256": "7993f62d7fb5ce522b73fdc3e7fab6e7c270f66b401a1aefb18d5e3c830fb246",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1316
+    },
+    {
+      "unit": "mimic",
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/quick_stab/logic_frames.json",
+      "sha256": "4e63071cb0fdcb9ee067a0d3d0b19e7759eb00946f83ea18b0c5ca685056f517",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1316
+    },
+    {
+      "unit": "mimic",
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/production_logic/rear/hurl_spear/logic_frames.json",
+      "sha256": "61ce9561e9de931f1e6a7a9e747966a393653b0a7882b23f60cb94a9c7e21ea6",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1316
+    },
+    {
+      "unit": "capacitor",
+      "file": "experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json",
+      "sha256": "009b7b5ab09204763f55f8dea67e3079647bdc5de9c31cf37e6808155a494880",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1011
+    },
+    {
+      "unit": "weaver",
+      "file": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/front/logic_frames.json",
+      "sha256": "a998b288fc104dc5a9f304d30847420583859fe2ecefb7eca84607e61d86fb2e",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1263
+    },
+    {
+      "unit": "weaver",
+      "file": "experiments/cutouts/briar_weaver/mq9/proof/logs/production/rear/logic_frames.json",
+      "sha256": "4e91057effc8ed337a46cef61dc8b380aaa97ce6aede02d3e819591cd55c1bef",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1263
+    },
+    {
+      "unit": "mortar",
+      "file": "experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic/logic_frames.json",
+      "sha256": "08e4659807d2803f090762d2a4481678318acd2bafabc39669a52e7854c7bfeb",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1516
+    },
+    {
+      "unit": "mortar",
+      "file": "experiments/cutouts/slag_mortar/rr22/proof/logs/production_logic_rear/logic_frames.json",
+      "sha256": "4964e339f0646af29243ef545858771ae1f4fc4e969a94c73396e736f7ddcc95",
+      "inputs_current": true,
+      "ok": true,
+      "frames": 1516
+    }
+  ],
+  "pose_hash_csv": {
+    "file": "experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.csv",
+    "sha256": "50b13553e955586fa5a667227be300fddd1561bc7e54c5dfb6057a3bbed51499"
+  },
+  "pose_hash_json": {
+    "file": "experiments/cutouts/hollow_mimic/rr26_feedback3_pose_hashes.json",
+    "sha256": "d6dc0904d924eab0c38a935953065afbcb27fccf1993bc6a8e95e360becc97ad"
+  },
+  "committed_baseline_provenance": {
+    "seer": {
+      "revision": "c20cf94a7ec4a92c3ad36b260e4f614e77710089",
+      "case": "experiments/cutouts/hoarfrost_seer/rr10",
+      "available": true,
+      "committed_record_available": true
+    },
+    "thrall": {
+      "revision": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+      "case": "experiments/cutouts/arc_thrall/rr11",
+      "available": true,
+      "committed_record_available": true
+    },
+    "mirror": {
+      "revision": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+      "case": "experiments/cutouts/glacial_mirror/rr18",
+      "available": true,
+      "reason": "No committed samples record",
+      "file": "before_mirror_replay.json",
+      "baseline_kind": "committed-source replay; no committed full sample record",
+      "committed_record_available": false
+    },
+    "mimic": {
+      "revision": "c20cf94a7ec4a92c3ad36b260e4f614e77710089",
+      "case": "experiments/cutouts/hollow_mimic/rr20",
+      "expected_full_sha256": "c27a3c4618f84b8e7d79a9111fa476f6921f9fc15d426838f9b15f482d203c97",
+      "available": true,
+      "committed_record_available": true
+    },
+    "weaver": {
+      "revision": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+      "case": "experiments/cutouts/briar_weaver/mq9",
+      "expected_full_sha256": "d73f68da90a69afdcacdf9bbaeffcf7809e66e6bcf9edce5056527a76e6428cd",
+      "available": true,
+      "reconstructed": "Exact full file SHA256 matches committed full_samples reference",
+      "committed_record_available": true
+    },
+    "mortar": {
+      "revision": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+      "case": "experiments/cutouts/slag_mortar/rr22",
+      "expected_full_sha256": "807be8cd48a13287eef2c76a9a1c8b992ce2571995aa3dc771b660e4d0f07e2e",
+      "available": true,
+      "reconstructed": "Exact full file SHA256 matches committed full_report/full_sha256 reference; inputs restored from a1615e5673bec4730c3d36032fa36dcc2ac0aa5a",
+      "committed_record_available": true
+    },
+    "capacitor": {
+      "revision": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+      "case": "experiments/cutouts/storm_capacitor/mq5",
+      "available": true,
+      "committed_record_available": true
+    }
+  },
+  "mirror_replay": {
+    "revision": "6077f772d61bc8289ade51bc39ac0f8833c2c33c",
+    "scope": "Committed-source replay; no committed full samples record exists; hidden root agent/config files excluded",
+    "files": 50234,
+    "restored_blobs": 53,
+    "native_pixels": false
+  },
+  "thrall_unmatched_owners": [
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 14,
+      "pixels": [
+        [
+          340,
+          319
+        ]
+      ],
+      "owner": "mq7b_continuation_leg_far",
+      "file": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_leg_far.png",
+      "source_texels": [
+        [
+          171,
+          218
+        ]
+      ],
+      "rgba": [
+        0,
+        0,
+        4,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 23,
+      "pixels": [
+        [
+          323,
+          269
+        ]
+      ],
+      "owner": "mq7b_continuation_leg_near",
+      "file": "experiments/cutouts/arc_thrall/rr11/pieces/rear/mq7b_continuation_leg_near.png",
+      "source_texels": [
+        [
+          109,
+          179
+        ]
+      ],
+      "rgba": [
+        15,
+        5,
+        6,
+        255
+      ]
+    }
+  ],
+  "historical_seer_identity_failures": [
+    {
+      "file": "assets/units/hoarfrost_seer_cutout/front.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "7616887d13630807aa8632120eed00fc19621f8778a359ba1355fbf64726224f",
+      "after_sha256": "7616887d13630807aa8632120eed00fc19621f8778a359ba1355fbf64726224f"
+    },
+    {
+      "file": "assets/units/hoarfrost_seer_cutout/humanoid_v2/front.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "2e0155744eae46af120b8ca7b15bca7efc8170743a8d150184105da2607b9e93",
+      "after_sha256": "2e0155744eae46af120b8ca7b15bca7efc8170743a8d150184105da2607b9e93"
+    },
+    {
+      "file": "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "54825cde26729a63a7f41db030a9bea07705f920beb8da82c2e96fa06d276006",
+      "after_sha256": "54825cde26729a63a7f41db030a9bea07705f920beb8da82c2e96fa06d276006"
+    },
+    {
+      "file": "assets/units/hoarfrost_seer_cutout/integration.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "b551eddf56c1fe99d337d1586c9ff9dbb5c20867eddba65086e85bebfd3d0f0e",
+      "after_sha256": "b551eddf56c1fe99d337d1586c9ff9dbb5c20867eddba65086e85bebfd3d0f0e"
+    },
+    {
+      "file": "assets/units/hoarfrost_seer_cutout/rear.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "d9f03580474bc4d2c292c7b2bd01848fac91eb14ae6604b452863ca605656280",
+      "after_sha256": "d9f03580474bc4d2c292c7b2bd01848fac91eb14ae6604b452863ca605656280"
+    },
+    {
+      "file": "experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "ed09aac51077756315dda786da5c60672ec7a4d95d71a488a12424fb72fa1d0c",
+      "after_sha256": "ed09aac51077756315dda786da5c60672ec7a4d95d71a488a12424fb72fa1d0c"
+    },
+    {
+      "file": "experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "9feb102f9451ce273c4f395fbe6128f3c15741a56cf63c406b6aca5dd4a245d0",
+      "after_sha256": "9feb102f9451ce273c4f395fbe6128f3c15741a56cf63c406b6aca5dd4a245d0"
+    },
+    {
+      "file": "experiments/cutouts/hoarfrost_seer/rr10/proof/seer_protagonist_idle.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "b08ad417e4aadd9b6748dd6da0610d6f41c5b4a1a499b295c3fbc23daa85d4fa",
+      "after_sha256": "b08ad417e4aadd9b6748dd6da0610d6f41c5b4a1a499b295c3fbc23daa85d4fa"
+    },
+    {
+      "file": "experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json",
+      "same_as_feedback2_HEAD": true,
+      "before_sha256": "ffdddf54b7790b73ab5de51d2de7c483565d324e9553877245480629a6e6fe07",
+      "after_sha256": "ffdddf54b7790b73ab5de51d2de7c483565d324e9553877245480629a6e6fe07"
+    }
+  ],
+  "shadow_fixture": {
+    "source": "assets/generated/unit_shadow_cache.res",
+    "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/director_resolved_shadow_cache.res",
+    "sha256": "75f8808dcc54342d43b78a1b81eb451eef7e4972488063e909be60a1923675e8",
+    "scope": "Exact director-resolved cache at feedback-3 merge start; no worker rebake"
+  },
+  "test_registration": {
+    "command": "python3 tools/test_registration_audit.py --json /Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/test_registration.json --markdown /Users/borgerding/workspace/Labyrinth.worktrees/rr-26/experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/test_registration.md",
+    "result": "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)",
+    "record": {
+      "file": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/test_registration.json",
+      "sha256": "67393a54f842ac344f512c21ea5d815115309ddfbdb88f5a0d4cae9021c4de24"
+    }
+  },
+  "other_observed_checks": [
+    "RR26 CHANGED PYTHON PARSE: PASS (31 files)",
+    "RR26 MERGED EXCLUSIONS: PASS (6 merge-start files byte-identical)",
+    "RR26 FINAL PRODUCTION BINDINGS: PASS (16 scenarios; all inputs current; all errors empty)",
+    "RR26 RAW POSE TABLE: PASS (7628 original rows; 188 before/after groups)",
+    "GIT_OPTIONAL_LOCKS=0 git diff --check: exit 0; no output"
+  ],
+  "todo_design": {},
+  "chosen_defaults": {
+    "PROOF_TIMEOUT_SECONDS": 180,
+    "FIXTURE_TINY_BONE_NUMBER": "0.000000000465661287307739",
+    "FIXTURE_GATE_FRAME": 0,
+    "FIXTURE_GATE_POCKET": {
+      "bbox": [
+        2,
+        2,
+        4,
+        4
+      ],
+      "pixel_count": 4
+    },
+    "baseline_manifest": "experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/baseline_manifest.json"
+  },
+  "proof_for_design_owner": {
+    "cwd": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-26",
+    "environment": {
+      "LABYRINTH_TASK_ID": "rr-26"
+    },
+    "size": [
+      1920,
+      1080
+    ],
+    "ui_scale": 1.0,
+    "executed": false,
+    "per_unit_sequences": [
+      {
+        "unit": "seer",
+        "commands": [
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh density",
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh rest",
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh native",
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh sheets",
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh idle",
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh production",
+          "sh experiments/cutouts/hoarfrost_seer/rr10_proof.sh review"
+        ]
+      },
+      {
+        "unit": "thrall",
+        "commands": [
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh density",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh rest",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh native",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh sheets",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh idle",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh production",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh review",
+          "sh experiments/cutouts/arc_thrall/rr24_proof.sh crops"
+        ]
+      },
+      {
+        "unit": "mirror",
+        "commands": [
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh density",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh rest",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh native",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh sheets",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh move",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh contacts",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh idle",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh production",
+          "sh experiments/cutouts/glacial_mirror/rr18_proof.sh review"
+        ]
+      },
+      {
+        "unit": "weaver",
+        "commands": [
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh density",
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh rest",
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh native",
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh sheets",
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh idle",
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh production",
+          "sh experiments/cutouts/briar_weaver/rr21_proof.sh review"
+        ]
+      },
+      {
+        "unit": "mortar",
+        "commands": [
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh density",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh rest",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh native",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh sheets",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh walk",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh idle",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh production",
+          "sh experiments/cutouts/slag_mortar/rr22_proof.sh review"
+        ]
+      },
+      {
+        "unit": "mimic",
+        "commands": [
+          "sh experiments/cutouts/hollow_mimic/proof.sh density",
+          "sh experiments/cutouts/hollow_mimic/proof.sh rest",
+          "sh experiments/cutouts/hollow_mimic/proof.sh native",
+          "sh experiments/cutouts/hollow_mimic/proof.sh sheets",
+          "sh experiments/cutouts/hollow_mimic/proof.sh idle",
+          "sh experiments/cutouts/hollow_mimic/proof.sh production",
+          "sh experiments/cutouts/hollow_mimic/proof.sh review"
+        ]
+      },
+      {
+        "unit": "capacitor",
+        "commands": [
+          "RR17_SHADOW_BASELINE=\"$PWD/experiments/cutouts/hollow_mimic/rr20/proof/logs/rr26f3/director_resolved_shadow_cache.res\" sh experiments/cutouts/storm_capacitor/rr17_proof.sh"
+        ]
+      }
+    ],
+    "ordering": "Reference records settle first; refresh exact rr26_source_coverage before Mimic native stage. Repeat headless refresh after density seals, with Mimic last. Never rebind native capture inputs.",
+    "inspection_fixture": "Director-owned; no command requested by this brief"
+  },
+  "limits": [
+    "Two Thrall unmatched detached CPU components; no exemptions or paint/continuation fix authorized",
+    "Two independent Thrall front joint-pocket CPU findings (jab 22: 2 pixels; death 31: 7 pixels)",
+    "Mirror has no committed full sample record; committed-source replay is explicitly labelled",
+    "Historical/integration preservation assertions left failing and unchanged",
+    "Mirror disposable Git-commit fixture skipped due director prohibition",
+    "All native/density-rest/idle-video/review proof pending director window server"
+  ],
+  "handoff": "experiments/cutouts/hollow_mimic/rr26_feedback3.md"
+}

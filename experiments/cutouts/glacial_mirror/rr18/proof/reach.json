@@ -6,7 +6,7 @@
       "front/death/hand_far: maximum reach 81.893718 px > 67.987678 px at 0.900000",
       "front/death/hand_near: maximum reach 102.164549 px > 93.977127 px at 0.900000",
       "front/move/foot_far: maximum reach 41.721683 px > 37.419401 px at 0.679000",
-      "front/move/foot_near: maximum reach 69.467286 px > 66.260490 px at 0.878000",
+      "front/move/foot_near: maximum reach 62.967291 px > 59.729739 px at 0.878000",
       "front/move/hand_far: maximum reach 68.871756 px > 67.987678 px at 0.480000"
     ],
     "paths": [
@@ -40,14 +40,14 @@
         },
         "segment_lengths": [
           32.57299494980466,
-          32.38826948140329
+          25.985572920372565
         ],
         "samples": 1014,
-        "allowed_minimum_px": 4.184725468401368,
-        "allowed_maximum_px": 66.26048971983211,
-        "minimum_px": 54.23542986833706,
-        "maximum_px": 69.46728598966534,
-        "minimum_phase": 0.366,
+        "allowed_minimum_px": 10.587422029432094,
+        "allowed_maximum_px": 59.72973922758077,
+        "minimum_px": 48.00166533369098,
+        "maximum_px": 62.967291208668264,
+        "minimum_phase": 0.371,
         "maximum_phase": 0.878
       },
       {
@@ -264,7 +264,7 @@
     "overreach": [
       "rear/death/hand_far: maximum reach 91.676124 px > 85.052195 px at 0.900000",
       "rear/death/hand_near: maximum reach 76.894134 px > 75.941822 px at 0.900000",
-      "rear/move/foot_far: maximum reach 77.301735 px > 72.353470 px at 0.921000",
+      "rear/move/foot_far: maximum reach 67.935416 px > 62.675660 px at 0.921000",
       "rear/move/foot_near: maximum reach 55.831498 px > 51.472289 px at 0.728000"
     ],
     "paths": [
@@ -285,7 +285,7 @@
         "allowed_maximum_px": 75.94182249843912,
         "minimum_px": 71.11415639820973,
         "maximum_px": 75.75471443924113,
-        "minimum_phase": 0.28,
+        "minimum_phase": 0.68,
         "maximum_phase": 0.48
       },
       {
@@ -324,9 +324,9 @@
         "allowed_minimum_px": 5.954304483476172,
         "allowed_maximum_px": 85.05219537456335,
         "minimum_px": 82.8891022193836,
-        "maximum_px": 83.98421374439708,
+        "maximum_px": 83.98421374439705,
         "minimum_phase": 0.48,
-        "maximum_phase": 0.68
+        "maximum_phase": 0.28
       },
       {
         "clip": "move",
@@ -338,14 +338,14 @@
         },
         "segment_lengths": [
           35.90264614203248,
-          35.03212811120672
+          25.544079548889602
         ],
         "samples": 1014,
-        "allowed_minimum_px": 4.870518030825764,
-        "allowed_maximum_px": 72.35346973830399,
-        "minimum_px": 61.266458701299285,
-        "maximum_px": 77.30173515512291,
-        "minimum_phase": 0.628,
+        "allowed_minimum_px": 14.358566593142879,
+        "allowed_maximum_px": 62.675660204740524,
+        "minimum_px": 51.9653041584215,
+        "maximum_px": 67.93541635317393,
+        "minimum_phase": 0.626,
         "maximum_phase": 0.921
       },
       {

@@ -12,7 +12,7 @@ from humanoid_cutout.silhouette_gates import JOINT_BOUNDARY_FRACTION
 from maquette_motion.features import source_pixels
 from maquette_motion.pixels import PROOF_DEFAULTS
 from maquette_motion.silhouette import dilate
-import proof_records
+from humanoid_cutout.bone_evidence import read_report
 
 RASTER_COVERAGE_MARGIN_PX = 1  # Pixel-square coverage on both sides, as rr-15/gait-01.
 
@@ -110,7 +110,7 @@ def main():
     parser.add_argument('--historical-native',type=__import__('pathlib').Path)
     parser.add_argument('--samples',type=__import__('pathlib').Path)
     args=parser.parse_args()
-    samples=read_json(args.samples) if args.samples else proof_records.samples()
+    samples=read_json(args.samples) if args.samples else read_report(CASE)
     recipes,uncovered={},{}
     for view in VIEWS:
         poses=[r for r in samples['samples'] if r['view']==view and r['kind']=='presented']

@@ -430,7 +430,7 @@
     "identity_registry": "spec/art_identity/registry.json",
     "identity_id": "arc_thrall",
     "density_id": "arc_thrall_cutout",
-    "owner_approval": "rr-11 supplied approved mq7 front/rear painting; derived rest snapshot, native proof pending director.",
+    "owner_approval": "rr-24 supplied final identity-gate-PASS mq7b front/rear painting; raw ownership identity exact, native density/rest/action proof pending director.",
     "identity_kind": "creature",
     "identity_entry_kind": "legacy",
     "identity_boss": false

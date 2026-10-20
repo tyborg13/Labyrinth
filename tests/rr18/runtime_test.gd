@@ -53,7 +53,7 @@ func _run() -> void:
 	check(is_equal_approx(float(renderer.snapshot()["phase"]), PROOF_IDLE_SEED), "idle actor seed")
 	check(not preload("res://scripts/static_enemy_facing.gd").handles("glacial_mirror"), "removed from static facing")
 	check(preload("res://scripts/cutout_context.gd").family_key("glacial_mirror") == "glacial_mirror_motion", "reaction family")
-	check(preload("res://scripts/maquette_cutout_runtime/presentation.gd").action_script("arc_thrall") == null, "existing Thrall dispatch retained")
+	check(Action.playback_adapter({}, {"type": "arc_thrall"}) == null, "existing Thrall dispatch retained")
 	var data: Dictionary = Action.data_for("glacial_mirror")
 	for clip: String in data["clips"]:
 		for selector: String in data["clips"][clip].get("intents", []):

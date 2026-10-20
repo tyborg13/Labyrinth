@@ -1,4 +1,6 @@
-Current feedback 2 results, complete pose inventory and both owner sequences:
+Current integration consolidation, seven-rig pose hashes, strict failures and
+all seven owner sequences: [rr26_feedback3.md](rr26_feedback3.md).
+Feedback 2 results and the hem attachment inventory:
 [rr26_feedback2.md](rr26_feedback2.md). Historical coverage investigation:
 [rr26_feedback1.md](rr26_feedback1.md).
 

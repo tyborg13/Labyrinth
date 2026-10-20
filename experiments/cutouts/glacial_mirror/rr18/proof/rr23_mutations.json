@@ -1,0 +1,37 @@
+{
+  "ok": true,
+  "mutations": [
+    {
+      "guard": "committed protection",
+      "regression": "test_committed_protected_mutation_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "scope": "in-memory only"
+    },
+    {
+      "guard": "all-clip ankle attachment",
+      "regression": "test_disconnected_non_walk_ankle_mutation_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "scope": "in-memory only"
+    },
+    {
+      "guard": "front guard depth",
+      "regression": "test_wrong_front_guard_depth_mutation_is_caught",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "scope": "in-memory only"
+    },
+    {
+      "guard": "rest order stop",
+      "regression": "test_order_change_that_alters_rest_stops_with_design_placeholder",
+      "caught": true,
+      "failures": 1,
+      "errors": 0,
+      "scope": "in-memory only"
+    }
+  ]
+}

@@ -120,7 +120,7 @@
         "fist_far"
       ],
       "required_mask": "tucks/front_fore_far.png",
-      "required_pixels": 309,
+      "required_pixels": 293,
       "missing_pixels": 0
     },
     {
@@ -130,7 +130,7 @@
         "fore_far"
       ],
       "required_mask": "tucks/front_fist_far.png",
-      "required_pixels": 170,
+      "required_pixels": 162,
       "missing_pixels": 0
     },
     {
@@ -152,7 +152,7 @@
         "foot_far"
       ],
       "required_mask": "tucks/front_shin_far.png",
-      "required_pixels": 412,
+      "required_pixels": 398,
       "missing_pixels": 0
     },
     {
@@ -162,7 +162,7 @@
         "shin_far"
       ],
       "required_mask": "tucks/front_foot_far.png",
-      "required_pixels": 216,
+      "required_pixels": 202,
       "missing_pixels": 0
     }
   ],
@@ -259,18 +259,23 @@
     },
     {
       "piece": "upper_far",
-      "added_pixels": 0,
-      "retextured_pixels": 681,
+      "added_pixels": 6,
+      "retextured_pixels": 687,
       "green_before": 0,
       "green_after": 0,
-      "source_points": [],
+      "source_points": [
+        [
+          65,
+          101
+        ]
+      ],
       "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
       "surface": "nearest eligible non-green own-boulder visible texel"
     },
     {
       "piece": "fore_far",
       "added_pixels": 0,
-      "retextured_pixels": 732,
+      "retextured_pixels": 716,
       "green_before": 0,
       "green_after": 0,
       "source_points": [],
@@ -280,7 +285,7 @@
     {
       "piece": "fist_far",
       "added_pixels": 0,
-      "retextured_pixels": 544,
+      "retextured_pixels": 538,
       "green_before": 0,
       "green_after": 0,
       "source_points": [],
@@ -300,7 +305,7 @@
     {
       "piece": "shin_far",
       "added_pixels": 0,
-      "retextured_pixels": 792,
+      "retextured_pixels": 778,
       "green_before": 0,
       "green_after": 0,
       "source_points": [],
@@ -310,7 +315,7 @@
     {
       "piece": "foot_far",
       "added_pixels": 0,
-      "retextured_pixels": 838,
+      "retextured_pixels": 835,
       "green_before": 0,
       "green_after": 0,
       "source_points": [],
@@ -318,24 +323,77 @@
       "surface": "nearest eligible non-green own-boulder visible texel"
     }
   ],
+  "terminal_registration": {
+    "foot_near": {
+      "maquette_pivot": [
+        164.0,
+        216.0
+      ],
+      "painted_overlap_pivot": [
+        164.0,
+        209.5
+      ],
+      "overlap_pixels": 647
+    },
+    "fist_near": {
+      "maquette_pivot": [
+        208.5,
+        163.0
+      ],
+      "painted_overlap_pivot": [
+        208.5,
+        163.0
+      ],
+      "overlap_pixels": 216
+    },
+    "foot_far": {
+      "maquette_pivot": [
+        91.5,
+        186.0
+      ],
+      "painted_overlap_pivot": [
+        91.5,
+        186.0
+      ],
+      "overlap_pixels": 1064
+    },
+    "fist_far": {
+      "maquette_pivot": [
+        44.9575,
+        122.97
+      ],
+      "painted_overlap_pivot": [
+        44.9575,
+        122.97
+      ],
+      "overlap_pixels": 701
+    }
+  },
+  "guard_order": {
+    "rest_order_mismatch_pixels": 0,
+    "above_torso_and_head": [
+      "fore_near",
+      "fist_near"
+    ]
+  },
   "raw_authoring": {
     "ok": true,
     "errors": [],
     "mismatch_pixels": 0,
     "scope": "exact pre-cleanup source partition against protected painting"
   },
-  "presentation_delta_pixels": 1,
+  "presentation_delta_pixels": 7,
   "visible_green_corrections": [
     {
       "piece": "head",
       "source_xy": [
-        124,
+        123,
         18
       ],
       "raw_rgba": [
         52,
-        95,
-        62,
+        94,
+        61,
         255
       ],
       "presentation_rgba": [
@@ -366,7 +424,7 @@
     "front_solo_foot_far.png": "3a7886435e84303753c58810108142093aee4ee0f18ffcff4e67f967f69c9106"
   },
   "source_ownership": "experiments/cutouts/glacial_mirror/rr18/front_baseline/layouts/front.json",
-  "source_ownership_sha256": "ab43a584931d4339005dbf9c6cab2ba1bdbbc07597e27d8a5365d4ba77441913",
+  "source_ownership_sha256": "d61497ad64b918b5f39153973492136e1a49c8dd32bf0b0be796ed345314471f",
   "views": {
     "front": {
       "front_rest_mismatch_pixels": 0,
@@ -490,7 +548,7 @@
             "fist_far"
           ],
           "required_mask": "tucks/front_fore_far.png",
-          "required_pixels": 309,
+          "required_pixels": 293,
           "missing_pixels": 0
         },
         {
@@ -500,7 +558,7 @@
             "fore_far"
           ],
           "required_mask": "tucks/front_fist_far.png",
-          "required_pixels": 170,
+          "required_pixels": 162,
           "missing_pixels": 0
         },
         {
@@ -522,7 +580,7 @@
             "foot_far"
           ],
           "required_mask": "tucks/front_shin_far.png",
-          "required_pixels": 412,
+          "required_pixels": 398,
           "missing_pixels": 0
         },
         {
@@ -532,7 +590,7 @@
             "shin_far"
           ],
           "required_mask": "tucks/front_foot_far.png",
-          "required_pixels": 216,
+          "required_pixels": 202,
           "missing_pixels": 0
         }
       ],
@@ -629,18 +687,23 @@
         },
         {
           "piece": "upper_far",
-          "added_pixels": 0,
-          "retextured_pixels": 681,
+          "added_pixels": 6,
+          "retextured_pixels": 687,
           "green_before": 0,
           "green_after": 0,
-          "source_points": [],
+          "source_points": [
+            [
+              65,
+              101
+            ]
+          ],
           "shape": "connected Euclidean own-edge continuation, including the uncovered seam air",
           "surface": "nearest eligible non-green own-boulder visible texel"
         },
         {
           "piece": "fore_far",
           "added_pixels": 0,
-          "retextured_pixels": 732,
+          "retextured_pixels": 716,
           "green_before": 0,
           "green_after": 0,
           "source_points": [],
@@ -650,7 +713,7 @@
         {
           "piece": "fist_far",
           "added_pixels": 0,
-          "retextured_pixels": 544,
+          "retextured_pixels": 538,
           "green_before": 0,
           "green_after": 0,
           "source_points": [],
@@ -670,7 +733,7 @@
         {
           "piece": "shin_far",
           "added_pixels": 0,
-          "retextured_pixels": 792,
+          "retextured_pixels": 778,
           "green_before": 0,
           "green_after": 0,
           "source_points": [],
@@ -680,7 +743,7 @@
         {
           "piece": "foot_far",
           "added_pixels": 0,
-          "retextured_pixels": 838,
+          "retextured_pixels": 835,
           "green_before": 0,
           "green_after": 0,
           "source_points": [],
@@ -688,24 +751,77 @@
           "surface": "nearest eligible non-green own-boulder visible texel"
         }
       ],
+      "terminal_registration": {
+        "foot_near": {
+          "maquette_pivot": [
+            164.0,
+            216.0
+          ],
+          "painted_overlap_pivot": [
+            164.0,
+            209.5
+          ],
+          "overlap_pixels": 647
+        },
+        "fist_near": {
+          "maquette_pivot": [
+            208.5,
+            163.0
+          ],
+          "painted_overlap_pivot": [
+            208.5,
+            163.0
+          ],
+          "overlap_pixels": 216
+        },
+        "foot_far": {
+          "maquette_pivot": [
+            91.5,
+            186.0
+          ],
+          "painted_overlap_pivot": [
+            91.5,
+            186.0
+          ],
+          "overlap_pixels": 1064
+        },
+        "fist_far": {
+          "maquette_pivot": [
+            44.9575,
+            122.97
+          ],
+          "painted_overlap_pivot": [
+            44.9575,
+            122.97
+          ],
+          "overlap_pixels": 701
+        }
+      },
+      "guard_order": {
+        "rest_order_mismatch_pixels": 0,
+        "above_torso_and_head": [
+          "fore_near",
+          "fist_near"
+        ]
+      },
       "raw_authoring": {
         "ok": true,
         "errors": [],
         "mismatch_pixels": 0,
         "scope": "exact pre-cleanup source partition against protected painting"
       },
-      "presentation_delta_pixels": 1,
+      "presentation_delta_pixels": 7,
       "visible_green_corrections": [
         {
           "piece": "head",
           "source_xy": [
-            124,
+            123,
             18
           ],
           "raw_rgba": [
             52,
-            95,
-            62,
+            94,
+            61,
             255
           ],
           "presentation_rgba": [
@@ -736,7 +852,7 @@
         "front_solo_foot_far.png": "3a7886435e84303753c58810108142093aee4ee0f18ffcff4e67f967f69c9106"
       },
       "source_ownership": "experiments/cutouts/glacial_mirror/rr18/front_baseline/layouts/front.json",
-      "source_ownership_sha256": "ab43a584931d4339005dbf9c6cab2ba1bdbbc07597e27d8a5365d4ba77441913"
+      "source_ownership_sha256": "d61497ad64b918b5f39153973492136e1a49c8dd32bf0b0be796ed345314471f"
     },
     "rear": {
       "front_rest_mismatch_pixels": 0,
@@ -1072,13 +1188,62 @@
           "surface": "nearest eligible non-green own-boulder visible texel"
         }
       ],
+      "terminal_registration": {
+        "foot_near": {
+          "maquette_pivot": [
+            92.0,
+            188.0
+          ],
+          "painted_overlap_pivot": [
+            92.0,
+            188.0
+          ],
+          "overlap_pixels": 1252
+        },
+        "fist_near": {
+          "maquette_pivot": [
+            47.5,
+            127.0
+          ],
+          "painted_overlap_pivot": [
+            47.5,
+            127.0
+          ],
+          "overlap_pixels": 784
+        },
+        "foot_far": {
+          "maquette_pivot": [
+            164.5,
+            217.0
+          ],
+          "painted_overlap_pivot": [
+            164.5,
+            207.5
+          ],
+          "overlap_pixels": 348
+        },
+        "fist_far": {
+          "maquette_pivot": [
+            211.0425,
+            156.7125
+          ],
+          "painted_overlap_pivot": [
+            211.0425,
+            156.7125
+          ],
+          "overlap_pixels": 197
+        }
+      },
+      "guard_order": {
+        "policy": "unchanged as cut"
+      },
       "raw_authoring": {
         "ok": true,
         "errors": [],
         "mismatch_pixels": 0,
         "scope": "exact pre-cleanup source partition against protected painting"
       },
-      "presentation_delta_pixels": 28,
+      "presentation_delta_pixels": 32,
       "visible_green_corrections": [
         {
           "piece": "upper_near",
@@ -1088,7 +1253,7 @@
           ],
           "raw_rgba": [
             0,
-            15,
+            13,
             0,
             255
           ],
@@ -1100,21 +1265,97 @@
           ]
         },
         {
+          "piece": "fist_near",
+          "source_xy": [
+            66,
+            130
+          ],
+          "raw_rgba": [
+            0,
+            28,
+            0,
+            255
+          ],
+          "presentation_rgba": [
+            0,
+            0,
+            0,
+            255
+          ]
+        },
+        {
+          "piece": "fist_near",
+          "source_xy": [
+            69,
+            139
+          ],
+          "raw_rgba": [
+            0,
+            27,
+            0,
+            255
+          ],
+          "presentation_rgba": [
+            4,
+            4,
+            4,
+            255
+          ]
+        },
+        {
+          "piece": "fist_near",
+          "source_xy": [
+            69,
+            140
+          ],
+          "raw_rgba": [
+            0,
+            26,
+            0,
+            255
+          ],
+          "presentation_rgba": [
+            18,
+            28,
+            39,
+            255
+          ]
+        },
+        {
           "piece": "upper_far",
           "source_xy": [
             172,
             109
           ],
           "raw_rgba": [
-            20,
-            33,
-            20,
+            19,
+            32,
+            19,
             255
           ],
           "presentation_rgba": [
-            15,
-            23,
-            23,
+            13,
+            22,
+            21,
+            255
+          ]
+        },
+        {
+          "piece": "fist_far",
+          "source_xy": [
+            231,
+            178
+          ],
+          "raw_rgba": [
+            0,
+            13,
+            0,
+            255
+          ],
+          "presentation_rgba": [
+            2,
+            5,
+            5,
             255
           ]
         }

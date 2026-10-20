@@ -10,16 +10,16 @@ import sys
 import numpy as np
 from PIL import Image
 
-from case import ROOT, CASE, read_json, write_json
+from case import ROOT, CASE, read_json, write_json, digest
 from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.gates import bindings
-from humanoid_cutout.rest_space import DetachedSource, pockets
-from humanoid_cutout.native_exceptions import load as exceptions, frame_errors, METRIC_RULES, DETACHED_RULE
+from humanoid_cutout.source_space import DetachedSource, pocket_report as pockets, gate_errors as frame_errors
+from humanoid_cutout.native_exceptions import load as exceptions, METRIC_RULES
 from maquette_motion import pixels
 
 RIGS = {'seer': 'hoarfrost_seer/rr10', 'thrall': 'arc_thrall/rr11',
         'mirror': 'glacial_mirror/rr18', 'mimic': 'hollow_mimic/rr20',
-        'capacitor': 'storm_capacitor/mq5'}
+        'capacitor': 'storm_capacitor/mq5', 'weaver': 'briar_weaver/mq9', 'mortar': 'slag_mortar/rr22'}
 PROGRESS_INTERVAL_FRAMES = 100
 
 
@@ -58,13 +58,18 @@ def census(name, samples):
         current_bindings = bindings
     current = current_bindings(case)
     if samples['inputs'] != current: raise ValueError('Stale cross-rig pose evidence')
-    # Report strict detached failures even in legacy exception frames. Keep
-    # the old files untouched; they cannot supply missing source provenance.
-    approved = [row for row in exceptions(case) if row[3] != DETACHED_RULE]
+    # Retain historical files, but the canonical source-space gate does not
+    # let their frame entries supply missing source provenance or surfaces.
+    approved = exceptions(case)
     views = {}
     for view in ('front', 'rear'):
         layout = read_json(case / f'layouts/{view}.json')
-        model = CapacitorPose(case, layout) if name == 'capacitor' else CpuPose(case, layout)
+        if name == 'mortar':
+            sys.path.insert(0, str(ROOT / 'experiments/cutouts/slag_mortar'))
+            from rr22_cpu import CoveragePose
+            model = CoveragePose(case, layout)
+        else:
+            model = CapacitorPose(case, layout) if name == 'capacitor' else CpuPose(case, layout)
         detached = DetachedSource(case, layout)
         failures, records, retained_exceptions, count = [], [], [], 0
         for pose in samples['samples']:
@@ -103,9 +108,38 @@ def census(name, samples):
     return result
 
 
+def summary():
+    """Keep compact counts and exact hash-bound per-rig diagnostics."""
+    reports, views = {}, {}
+    for name in RIGS:
+        path = CASE / f'proof/logs/rest_space/{name}.json'
+        report = read_json(path)
+        reports[name] = {'file': str(path.relative_to(CASE / 'proof')), 'sha256': digest(path)}
+        views[name] = {}
+        for view, row in report['views'].items():
+            unmatched = sum(len(frame['unmatched_components']) for frame in row['rest_space'])
+            views[name][view] = {'ok': row['ok'], 'frames': row['frames'],
+                'unmatched_detached_components': unmatched, 'air_pockets': row['air_pocket_count'],
+                'approved_detached_components': row['approved_detached_component_count'],
+                'failures': row['failures']}
+            print(f'RR26 STRICT CENSUS {name.upper()} {view.upper()}: {unmatched} unmatched / {row["frames"]} frames')
+    result = {'ok': all(v['ok'] for rig in views.values() for v in rig.values()),
+        'native_pixels': False, 'scope': 'Seven-rig strict CPU census; native acceptance pending director',
+        'views': views, 'rig_records': {name: {'full_samples': reference} for name, reference in reports.items()}}
+    import proof_records
+    proof_records.write('rest_space_summary', result)
+    return result
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--rig', choices=RIGS, required=True)
-    parser.add_argument('--samples', type=Path, required=True)
+    parser.add_argument('--rig', choices=RIGS)
+    parser.add_argument('--samples', type=Path)
+    parser.add_argument('--summary', action='store_true')
     args = parser.parse_args()
-    raise SystemExit(int(not census(args.rig, read_json(args.samples))['ok']))
+    if args.summary:
+        result = summary()
+    else:
+        if not args.rig or not args.samples: parser.error('--rig and --samples are required for a census')
+        result = census(args.rig, read_json(args.samples))
+    raise SystemExit(int(not result['ok']))

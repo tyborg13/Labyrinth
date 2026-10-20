@@ -1,0 +1,24 @@
+{
+  "min_images": 3,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "rr22_density_pair.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            100,
+            100,
+            800,
+            850
+          ],
+          "min_luma_range": 8
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "rear": {
+    "head": {
+      "cover": "torso",
+      "source_points": [
+        [
+          134,
+          52
+        ],
+        [
+          135,
+          51
+        ],
+        [
+          135,
+          52
+        ],
+        [
+          136,
+          51
+        ]
+      ],
+      "reason": "Covered nape continuation at the collar corner; inverse-projected rear death seam. Own head edge texels, under the painted torso at rest."
+    }
+  },
+  "registered_tucks": {
+    "front": [
+      {
+        "name": "joint_tuck_torso",
+        "garment": "torso",
+        "anchor_joint": "root",
+        "source_points": [
+          [
+            100,
+            134
+          ],
+          [
+            101,
+            134
+          ]
+        ],
+        "reason": "Waist continuation registered to the existing board root; source texels are covered by the belt at rest. Shares torso motion and uses torso edge texels."
+      }
+    ],
+    "rear": [
+      {
+        "name": "joint_tuck_head",
+        "garment": "head",
+        "anchor_joint": "head",
+        "source_points": [
+          [
+            164,
+            64
+          ]
+        ],
+        "reason": "Nape corner registered at the actual head joint, covered by the head at rest; own head edge texel."
+      },
+      {
+        "name": "joint_tuck_torso",
+        "garment": "torso",
+        "anchor_joint": "torso",
+        "source_points": [
+          [
+            159,
+            66
+          ]
+        ],
+        "reason": "Collar corner registered at the torso joint, covered by torso paint at rest; own torso edge texel."
+      }
+    ]
+  }
+}

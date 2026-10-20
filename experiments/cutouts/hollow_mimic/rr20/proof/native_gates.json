@@ -8,7 +8,7 @@
   "sample_counts": {
     "rest_space": 724
   },
-  "full_evidence": {
+  "full_samples": {
     "file": "logs/native_gates.full.json",
     "sha256": "3971ee7b93086a5e4e0888e0d217da9f3fe6357923e51961d020a322a3c0c649"
   }

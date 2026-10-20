@@ -3295,7 +3295,7 @@
     "base_initiative": 14,
     "reward_embers": 13,
     "accent": "#e8722c",
-    "art_path": "res://assets/art/enemies/slag_mortar.png",
+    "art_path": "res://assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png",
     "intents": [
       {
         "id": "lob_slag",
@@ -3362,7 +3362,7 @@
       }
     ],
     "art_scale": 1.04,
-    "art_rear_path": "res://assets/art/enemies/slag_mortar_rear.png"
+    "art_rear_path": "res://assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png"
   },
   "glacial_mirror": {
     "name": "Glacial Mirror",

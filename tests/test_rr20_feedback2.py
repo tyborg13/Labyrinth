@@ -12,7 +12,7 @@ from PIL import Image
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT/'tools'),str(ROOT/'experiments/cutouts/hollow_mimic')]
 from case import CASE, ASSETS, DIRECTOR, VIEWS, read_json, write_json, digest
-from humanoid_cutout.bone_evidence import read_samples
+from humanoid_cutout.bone_evidence import read_report
 from humanoid_cutout.walk_gates import report as walk_report
 from humanoid_cutout.gates import bindings
 from humanoid_cutout.cpu_pose import CpuPose as FullPose
@@ -47,14 +47,14 @@ class FeedbackTwoTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix='rr20-record-') as folder:
             case=Path(folder);full={'samples':[{'fixture':FIXTURE_VALUE}]}
             write_json(case/'proof/samples.json',full)
-            self.assertEqual(read_samples(case),full)
+            self.assertEqual(read_report(case),full)
             evidence=case/'proof/logs/samples.full.json';write_json(evidence,full)
-            write_json(case/'proof/samples.json',{'full_evidence':{'file':'logs/samples.full.json','sha256':digest(evidence)}})
-            self.assertEqual(read_samples(case),full)
+            write_json(case/'proof/samples.json',{'full_samples':{'file':'logs/samples.full.json','sha256':digest(evidence)}})
+            self.assertEqual(read_report(case),full)
             write_json(evidence,{'samples':[]})
-            with self.assertRaisesRegex(ValueError,'evidence changed'):read_samples(case)
-            write_json(case/'proof/samples.json',{'full_evidence':{'file':'../outside.json','sha256':''}})
-            with self.assertRaises(ValueError):read_samples(case)
+            with self.assertRaisesRegex(ValueError,'evidence changed'):read_report(case)
+            write_json(case/'proof/samples.json',{'full_samples':{'file':'../outside.json','sha256':''}})
+            with self.assertRaises(ValueError):read_report(case)
 
     def test_compact_records_keep_extrema_swings_and_failures(self):
         original={'ok':False,'errors':['fixture failure'],'views':{'front':{'knees':{
@@ -80,7 +80,7 @@ class FeedbackTwoTests(unittest.TestCase):
     def test_cpu_mask_pruning_preserves_opaque_reference_fragments(self):
         # Compare pruned proof triangles with the original oracle at a rest
         # pose, before walking can fold distant transparent template triangles.
-        samples=proof_records.samples()
+        samples=read_report(CASE)
         for view in VIEWS:
             layout=read_json(CASE/f'layouts/{view}.json')
             row=next(r for r in samples['samples'] if r['view']==view and r['clip']=='idle' and r['kind']=='presented')
@@ -98,7 +98,7 @@ class FeedbackTwoTests(unittest.TestCase):
         candidate['gait_continuations']=read_json(CASE/'gait_continuations.proposal.json')['rear']
         self.assertEqual(errors(CASE,candidate),[])
         before,after=CpuPose(CASE,layout),CpuPose(CASE,candidate)
-        samples=proof_records.samples()
+        samples=read_report(CASE)
         frames=[r for r in samples['samples'] if r['view']=='rear' and r['clip']=='move' and r['kind']=='presented']
         for row in (frames[0],frames[-1]):
             original=np.logical_or.reduce([image[...,3]>0 for _,image,_ in before.layers(row)[0]])

@@ -16,9 +16,14 @@ from maquette_motion.compiler import evaluate
 from maquette_motion.features import source_pixels
 from residue import count as green_pixels, feature_mask, clean_piece
 import proof_records
+from humanoid_cutout.bone_evidence import read_report
 from continuations import derivation_errors as continuation_errors
 
 EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
+COVERAGE_PREFIXES = ('assets/units/hoarfrost_seer_cutout/', 'experiments/cutouts/hoarfrost_seer/',
+                     'assets/units/arc_thrall_cutout/', 'experiments/cutouts/arc_thrall/',
+                     'experiments/cutouts/storm_capacitor/mq5/proof/')
+COVERAGE_FILES = ('experiments/cutouts/storm_capacitor/rr17_proof.sh',)
 
 
 def protected_errors():
@@ -28,12 +33,11 @@ def protected_errors():
     for name, expected in read_json(CASE / 'protected_inputs.json').items():
         actual = digest(ROOT / name)
         change = coverage.get(name, {})
-        # Feedback 1 explicitly opens Seer source coverage for this fix. Keep
-        # the original protected ledger immutable, and bind each authorized
-        # derived change to both its old baseline and exact replacement bytes.
-        seer_path = name.startswith(('assets/units/hoarfrost_seer_cutout/',
-                                     'experiments/cutouts/hoarfrost_seer/'))
-        authorized = (seer_path and change.get('before_sha256') == expected and
+        # Director feedback 1/2 authorizes Seer; feedback 3 integrates rr-24's
+        # Thrall and refreshes headless records. Preserve the original ledger
+        # and require exact old/new bytes for each explicitly recorded path.
+        authorized_path = name in COVERAGE_FILES or name.startswith(COVERAGE_PREFIXES)
+        authorized = (authorized_path and change.get('before_sha256') == expected and
                       change.get('after_sha256') == actual)
         if actual != expected and not authorized:
             errors.append('Protected/baseline bytes changed: ' + name)
@@ -181,7 +185,7 @@ def native_residue_errors(capture, manifest, layouts):
 
 def native(capture):
     spaces = []
-    errors = native_errors(CASE, capture, failure_output=CASE/'proof/logs/native_failures', samples=proof_records.samples(), space_details=spaces)
+    errors = native_errors(CASE, capture, failure_output=CASE/'proof/logs/native_failures', space_details=spaces)
     manifest = read_json(capture / 'frames.json')
     layouts = {v: read_json(CASE / f'layouts/{v}.json') for v in VIEWS}
     errors += native_residue_errors(capture, manifest, layouts)
@@ -196,7 +200,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native', type=Path)
     args = parser.parse_args()
-    result = native(args.native) if args.native else headless(proof_records.samples())
+    result = native(args.native) if args.native else headless(read_report(CASE))
     proof_records.write('native_gates' if args.native else 'gates', result)
     print('RR20 %s GATES: %s (%d errors; both views)' % ('NATIVE' if args.native else 'SOURCE/BONE/DIRECTION/KNEE/SUPPORT/REACH', 'PASS' if result['ok'] else 'FAIL', len(result['errors'])))
     for view, report in result.get('views', {}).items():

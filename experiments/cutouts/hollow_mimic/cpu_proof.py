@@ -8,9 +8,9 @@ from maquette_motion import pixels
 from humanoid_cutout.gates import bindings, clean_metrics
 from humanoid_cutout.silhouette_gates import posed_owners
 from humanoid_cutout.anatomy import load
-from humanoid_cutout.rest_space import pockets, DetachedSource
+from humanoid_cutout.source_space import DetachedSource, pocket_report as pockets
 from maquette_motion.pixels import PROOF_DEFAULTS
-import proof_records
+from humanoid_cutout.bone_evidence import read_report
 
 
 # Prune only triangles whose entire UV rectangle is transparent. The original
@@ -103,4 +103,4 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=__import__('pathlib').Path, required=True)
     args = parser.parse_args()
     if not args.output.resolve().is_relative_to(CASE / 'proof/seam_cpu'): raise ValueError('CPU output belongs in ignored proof/seam_cpu')
-    raise SystemExit(int(not report(args.view, proof_records.samples(), args.output)['ok']))
+    raise SystemExit(int(not report(args.view, read_report(CASE), args.output)['ok']))

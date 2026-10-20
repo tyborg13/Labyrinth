@@ -1,0 +1,208 @@
+{
+  "compiled_sha256": "e5ac08a33cff58ee9118cf4434859acda2d6ba676d38612b79faf236ec4b6578",
+  "errors": [],
+  "fps": 60.0,
+  "native_pixels": false,
+  "ok": true,
+  "screen_pixel_scale": 0.627655328488817,
+  "step_distance_px": 83.5248641967773,
+  "full_samples": {
+    "file": "logs/samples_full.json",
+    "sha256": "331646aa2d6bc6a89f316766f24e1a878c24aed30a9dfa09ef72da9628ed92db"
+  },
+  "sample_count": 1214,
+  "inventory": [
+    {
+      "view": "front",
+      "clip": "brace",
+      "kind": "authored",
+      "count": 7
+    },
+    {
+      "view": "front",
+      "clip": "brace",
+      "kind": "presented",
+      "count": 54
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "kind": "authored",
+      "count": 19
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "kind": "presented",
+      "count": 90
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "kind": "authored",
+      "count": 15
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "kind": "presented",
+      "count": 30
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "kind": "authored",
+      "count": 9
+    },
+    {
+      "view": "front",
+      "clip": "idle",
+      "kind": "presented",
+      "count": 50
+    },
+    {
+      "view": "front",
+      "clip": "land",
+      "kind": "authored",
+      "count": 14
+    },
+    {
+      "view": "front",
+      "clip": "land",
+      "kind": "presented",
+      "count": 36
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "kind": "authored",
+      "count": 13
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "kind": "presented",
+      "count": 72
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kind": "authored",
+      "count": 88
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "kind": "presented",
+      "count": 51
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "kind": "authored",
+      "count": 11
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "kind": "presented",
+      "count": 48
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "kind": "authored",
+      "count": 7
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "kind": "presented",
+      "count": 54
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "kind": "authored",
+      "count": 19
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "kind": "presented",
+      "count": 90
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "kind": "authored",
+      "count": 15
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "kind": "presented",
+      "count": 30
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "kind": "authored",
+      "count": 9
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "kind": "presented",
+      "count": 50
+    },
+    {
+      "view": "rear",
+      "clip": "land",
+      "kind": "authored",
+      "count": 14
+    },
+    {
+      "view": "rear",
+      "clip": "land",
+      "kind": "presented",
+      "count": 36
+    },
+    {
+      "view": "rear",
+      "clip": "lob",
+      "kind": "authored",
+      "count": 13
+    },
+    {
+      "view": "rear",
+      "clip": "lob",
+      "kind": "presented",
+      "count": 72
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "kind": "authored",
+      "count": 88
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "kind": "presented",
+      "count": 51
+    },
+    {
+      "view": "rear",
+      "clip": "scatter",
+      "kind": "authored",
+      "count": 11
+    },
+    {
+      "view": "rear",
+      "clip": "scatter",
+      "kind": "presented",
+      "count": 48
+    }
+  ]
+}

@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from cutout_pipeline.cases import read_json, digest
+from cutout_pipeline.cases import read_json, write_json, digest
 from .gait import evaluate
 from .silhouette_gates import detached_metrics, joint_holes, posed_owners
 from .anatomy import for_layout, load
@@ -300,7 +300,8 @@ def clean_metrics(layers, outline_rules=None):
         occupied |= paint
     result['exposed_outline_pixels'] = int(exposed_dark.sum())
     result['outline_outside_pixels'] = int(outside_outline.sum())
-    result.update(detached_metrics(visible))
+    # Detached paint needs approved-source provenance, regardless of darkness.
+    result.update(detached_metrics(visible, allow_outline=False))
     result['dark_slab_blocks']=dark_slab_blocks(slab_dark)
     labels,groups=components(~occupied)
     edge=set(np.concatenate((labels[0],labels[-1],labels[:,0],labels[:,-1])).tolist())
@@ -308,26 +309,12 @@ def clean_metrics(layers, outline_rules=None):
     return result
 
 
-def unexplained_holes(occupied, references):
-    """One transported native rest hole may explain one deformed component."""
-    from maquette_motion.silhouette import holes
-    remaining=list(references)
-    unexplained=[]
-    for hole in holes(occupied):
-        size=int(hole.sum())
-        if size<=1: continue
-        overlaps=[int((hole & old).sum()) for old in remaining]
-        if overlaps and max(overlaps): remaining.pop(int(np.argmax(overlaps)))
-        else: unexplained.append(size)
-    return unexplained
-
-
-def native_errors(case, capture, failure_output=None, hole_details=None, samples=None, space_details=None):
+def native_errors(case, capture, failure_output=None, hole_details=None, space_details=None):
     """No image claims without hashed native captures and complete progression."""
     manifest = read_json(capture / 'frames.json')
     anatomy = load(case)
     errors = list(manifest.get('errors', []))
-    from .native_exceptions import load as load_exceptions, frame_errors
+    from .native_exceptions import load as load_exceptions
     try:
         approved = load_exceptions(case)
     except ValueError as error:
@@ -339,15 +326,17 @@ def native_errors(case, capture, failure_output=None, hole_details=None, samples
     bound_inputs=bindings(case)
     if manifest['inputs'] != bound_inputs: errors.append('stale native proof inputs')
     data = read_json(case / 'compiled_motion.json')
-    from .bone_evidence import read_samples
-    sampled=read_samples(case) if samples is None else samples
-    from .bone_evidence import evidence_errors
+    from .bone_evidence import evidence_errors, read_report
+    sampled = read_report(case)
     errors += evidence_errors(data, sampled, bound_inputs, EPSILON)
     if sampled.get('inputs')!=bound_inputs: errors.append('stale headless pose reference; rerun samples.gd')
     expected_poses={(r['view'],r['clip'],r['frame']):r for r in sampled['samples'] if r['kind']=='presented'}
     layouts={view:read_json(case / f'layouts/{view}.json') for view in data['view_tracks']}
-    from .rest_space import pockets, DetachedSource
+    from .rigid_air import for_case as air_policy_for_case
+    air_policies = {view: air_policy_for_case(case, layout, anatomy) for view, layout in layouts.items()}
+    from .source_space import DetachedSource, pocket_report, gate_errors as frame_errors
     detached_sources = {view: DetachedSource(case, layout) for view, layout in layouts.items()}
+    passed_spaces = []
     for layout in layouts.values():
         errors += source_errors(case,layout,read_json(case/'proof/build.json'))
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
@@ -411,7 +400,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None, samples
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
                 from .gait_continuations import texture
-                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip]))
+                source=Image.fromarray(texture(case, layout, part, gait='gait' in data['clips'][clip], clip=clip))
                 # Use the established real-source UV tie candidates, just as
                 # the rigid shimmer gate does. A default tie direction alone
                 # falsely rejects rear Thrall hidden_tube at a 45-degree pose.
@@ -432,23 +421,27 @@ def native_errors(case, capture, failure_output=None, hole_details=None, samples
         for row in seam_frames.get(key, []):
             seam |= np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3] > 0
         pose = expected_poses.get(key)
-        space = pockets(layers)
-        new_holes = list(space['failures'])
+        space = pocket_report(layers)
         if pose is None:
             errors.append(str(key) + ': missing independent joint-boundary pose')
         else:
+            from maquette_motion.pixels import PROOF_DEFAULTS
+            owners = posed_owners(layers, layout['parts'], pose['bones'], PROOF_DEFAULTS['source_offset'], anatomy['ownership'])
+            air_policy = air_policies[view]
+            if air_policy is None:
+                tears = joint_holes(occupied, seam, owners, references, pocket_details=True)
+                space = pocket_report(layers, tears)
+            else:
+                transforms = {name: part['transform'] for name, part in pose['parts'].items()}
+                space = air_policy.report(occupied, owners, transforms)
             transforms = {name: part['transform'] for name, part in pose['parts'].items()}
             detached = detached_sources[view].report(layers, transforms)
             metric.update(detached['metrics'])
-            space['source_components'] = detached['source_components']
-            space['unmatched_components'] = detached['unmatched_components']
-        if space_details is not None and (space['air_pockets'] or new_holes or
-                                         space.get('source_components') or space.get('unmatched_components')):
-            space_details.append({'view': view, 'clip': clip, 'frame': frame,
-                                  **space, 'failures': new_holes})
-        elif space_details is None:
-            for pocket in space['air_pockets']:
-                print('NATIVE REST AIR: %s bbox=%s pixels=%d' % (key, pocket['bbox'], pocket['pixel_count']))
+            space.update(source_components=detached['source_components'],
+                         unmatched_components=detached['unmatched_components'])
+        new_holes = space['failures']
+        if space['air_pockets'] or new_holes or space.get('source_components') or space.get('unmatched_components'):
+            passed_spaces.append({'view': view, 'clip': clip, 'frame': frame, **space})
         composite = Image.new('RGBA',(512,512))
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
@@ -475,6 +468,9 @@ def native_errors(case, capture, failure_output=None, hole_details=None, samples
     expected_frames = sum(round(c['seconds'] * 60) for c in data['clips'].values()) * len(data['view_tracks'])
     if len(layer_frames) != expected_frames: errors.append('incomplete clean union/material proof')
     if bindings(case)!=bound_inputs: errors.append('inputs changed during native gate')
+    if space_details is not None:
+        space_details.extend(passed_spaces)
+    write_json(capture / 'source_space_pockets.json', passed_spaces)
     return errors
 
 

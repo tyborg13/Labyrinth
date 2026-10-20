@@ -1,0 +1,264 @@
+{
+  "task": "rr-24",
+  "ready": false,
+  "all_changes_uncommitted": true,
+  "full_suites_run": false,
+  "windowed_commands_attempted": false,
+  "peer_review_run": false,
+  "checks": [
+    {
+      "name": "mq7b build and density paint",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_build.py && python3 -B experiments/cutouts/arc_thrall/rr11_density.py --refresh-sources",
+      "log": "/private/tmp/labyrinth_codex/rr24-build-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 FRONT MQ7B REST: PASS (0 px mismatch)",
+        "RR24 REAR MQ7B REST: PASS (0 px mismatch)",
+        "PROCESSED 186 file(s)",
+        "RR11 DENSITY PAINT: PASS (both views adopted/processed; native rest records pending director)"
+      ]
+    },
+    {
+      "name": "bone samples",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/rr11/action_direction.gd -- --case experiments/cutouts/arc_thrall/rr11 --output experiments/cutouts/arc_thrall/rr11/proof/samples.json",
+      "log": "/private/tmp/labyrinth_codex/rr24-samples-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)"
+      ]
+    },
+    {
+      "name": "source/bone/reach/direction/walk gates",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr11_gates.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-gates-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR11 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR11 BONE/CUT/KNEE GATES: PASS (0 errors)",
+        "RR15 FRONT ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 FRONT REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 FRONT SWING KNEES: PASS (6 swings; minimum peak 53.741 degrees)",
+        "GAIT FRONT: PASS (maximum fit 0.452544 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 FRONT SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524157/0.000061 px)",
+        "RR15 REAR ACTION DIRECTION: PASS (501 positive checks)",
+        "RR15 REAR REACH: PASS (11 keyed paths; 1000 intervals; 0 errors)",
+        "RR11 REAR SWING KNEES: PASS (6 swings; minimum peak 47.116 degrees)",
+        "GAIT REAR: PASS (maximum fit 0.056471 px; total drop 3.000000 px; rigid air 0.000000 px)",
+        "RR11 REAR SUPPORTS: PASS (move/jab frame change 0.000000/0.000000 px; target error 0.524156/0.000043 px)"
+      ]
+    },
+    {
+      "name": "new regressions",
+      "command": "python3 -B -m unittest tests.test_rr24_thrall",
+      "log": "/private/tmp/labyrinth_codex/rr24-regressions-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 11 tests in 2.866s",
+        "OK"
+      ]
+    },
+    {
+      "name": "guard-removal mutations",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_mutations.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-mutations.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 MUTATION collar_attachment: CAUGHT",
+        "RR24 MUTATION skirt_depth: CAUGHT",
+        "RR24 MUTATION cloth_chain: CAUGHT",
+        "RR24 MUTATION collar_contact: CAUGHT",
+        "RR24 MUTATION hem_limit: CAUGHT",
+        "RR24 MUTATION own_skin: CAUGHT"
+      ]
+    },
+    {
+      "name": "directed Thrall/Seer/Mirror/Capacitor/gait/registration sets",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_focused.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-focused-final.log",
+      "exit_code": 1,
+      "result_lines": [
+        "test_cache_and_receipt_reuse_are_reported_from_actual_execution (tests.test_glacial_mirror_regeneration.RegenerationInputTests) ... RR14 RUNTIME: PASS (246 checks; headless synthetic anatomy and foot IK)",
+        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
+        "RR16 THRALL POSE IDENTITY: PASS (1050 exact rows)",
+        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)",
+        "ERROR: test_disabling_transparent_target_guard_is_caught (tests.test_gait01.GaitTests)",
+        "ERROR: test_opaque_duplicate_and_out_of_bounds_targets_are_rejected (tests.test_gait01.GaitTests)",
+        "FAIL: test_front_render_inputs_and_all_front_pose_rows_are_byte_identical (tests.test_rr15_action_direction.ActionDirectionTests)",
+        "FAIL: test_every_visible_source_texel_retains_its_exact_color_and_correct_owner (tests.test_rr15_native_cleanup.NativeCleanupTests)",
+        "FAIL: test_joint_continuations_close_holes_and_removal_reopens_them (tests.test_rr15_native_cleanup.NativeCleanupTests)",
+        "FAIL: test_only_the_two_native_hip_speck_texels_are_removed_from_the_torso_seed (tests.test_rr15_native_cleanup.NativeCleanupTests)",
+        "FAIL: test_paint_motion_rest_and_visible_mesh_fields_are_unchanged (tests.test_rr15_native_cleanup.NativeCleanupTests)",
+        "FAIL: test_material_is_added_only_beneath_the_rest_torso (tests.test_rr15_shoulder.ShoulderContinuationTests)",
+        "FAIL: test_non_move_tracks_and_out_of_scope_assets_remain_identical (tests.test_gait01.GaitTests)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=2)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=9)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=10)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=19)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=25)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=40)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=41)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=43)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=44)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='front', frame=45)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='rear', frame=5)",
+        "FAIL: test_thrall_projected_seams_close_and_removing_coverage_reopens_them (tests.test_gait01.GaitTests) (view='rear', frame=45)",
+        "Ran 318 tests in 408.291s",
+        "FAILED (failures=19, errors=2)"
+      ]
+    },
+    {
+      "name": "Thrall runtime",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/rr11/runtime_checks.gd",
+      "log": "/private/tmp/labyrinth_codex/rr24-runtime-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR11 RUNTIME: PASS (5722 checks; headless logic only)"
+      ]
+    },
+    {
+      "name": "native probe loading, headless only",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/rr11/native_capture.gd -- --case experiments/cutouts/arc_thrall/rr11 --output experiments/cutouts/arc_thrall/rr11/proof/native --validate-only",
+      "log": "/private/tmp/labyrinth_codex/rr24-probe-load-final.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR11 NATIVE PROBE LOAD: PASS"
+      ]
+    },
+    {
+      "name": "rebake parser/load check",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tools/rebake_cutout_rests.gd --check-only --only arc_thrall_cutout",
+      "log": "/private/tmp/labyrinth_codex/rr24-rebake-parser.log",
+      "exit_code": 0,
+      "result_lines": []
+    },
+    {
+      "name": "SFX sync 0",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/suites/sfx_sync_0_program.gd -- --assert-onsets",
+      "log": "/private/tmp/labyrinth_codex/rr24-sfx0.log",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
+      ]
+    },
+    {
+      "name": "SFX sync 1",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/suites/sfx_sync_1_program.gd -- --assert-onsets",
+      "log": "/private/tmp/labyrinth_codex/rr24-sfx1.log",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
+      ]
+    },
+    {
+      "name": "SFX sync 2",
+      "command": "python3 tools/godot_task_runner.py --task-id rr-24 --stream -- godot --headless --path . --script tests/suites/sfx_sync_2_program.gd -- --assert-onsets",
+      "log": "/private/tmp/labyrinth_codex/rr24-sfx2.log",
+      "exit_code": 0,
+      "result_lines": [
+        "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
+      ]
+    },
+    {
+      "name": "art identity regressions",
+      "command": "python3 -B tests/test_art_identity_gate.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-art-identity.log",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 111 tests in 42.755s",
+        "OK"
+      ]
+    },
+    {
+      "name": "registration audit",
+      "command": "python3 -B tools/test_registration_audit.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-registration.log",
+      "exit_code": 0,
+      "result_lines": [
+        "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
+      ]
+    },
+    {
+      "name": "protected figures/paint/motion and unrelated registry records",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_preservation.py",
+      "log": "/private/tmp/labyrinth_codex/rr24-preservation.log",
+      "exit_code": 0,
+      "result_lines": [
+        "RR24 PROTECTED IDENTITY: PASS (26355 files; unrelated registry records retained)"
+      ]
+    },
+    {
+      "name": "native density check remains pending",
+      "command": "python3 tools/process_board_density.py --check --only arc_thrall_cutout",
+      "log": "/private/tmp/labyrinth_codex/rr24-density-check.log",
+      "exit_code": 1,
+      "result_lines": [
+        "rest rebake needed: assets/units/arc_thrall_cutout/front/rest.png: rig part pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/arc_thrall_cutout/humanoid_v2/rear/rest.png: no rebake record; run --record-rests after native rebake",
+        "rest rebake needed: assets/units/arc_thrall_cutout/rear/rest.png: rig part pixels changed since recorded rebake"
+      ]
+    },
+    {
+      "name": "CPU raster diagnostic",
+      "command": "python3 -B experiments/cutouts/arc_thrall/rr24_check.py --raster",
+      "log": "/private/tmp/labyrinth_codex/rr24-checks-final.log",
+      "exit_code": 1,
+      "native_pixels": false,
+      "views": {
+        "front": {
+          "source_errors": [],
+          "hem": {
+            "maximum_follow_through_px": 3.605543022966602,
+            "end_frame_delta_px": {
+              "idle": 0.0,
+              "move": 0.0,
+              "tether": 0.0,
+              "jab": 0.0,
+              "hit": 0.0,
+              "death": 0.0
+            },
+            "ok": true
+          },
+          "minimum_collar_clearance_px": 0.0,
+          "collar_overlap_frame_count": 4,
+          "cpu_frames": 335,
+          "cpu_failing_frames": 51,
+          "cpu_seam_ok": false
+        },
+        "rear": {
+          "source_errors": [],
+          "hem": {
+            "maximum_follow_through_px": 3.6055319830475385,
+            "end_frame_delta_px": {
+              "idle": 0.0,
+              "move": 0.0,
+              "tether": 0.0,
+              "jab": 0.0,
+              "hit": 0.0,
+              "death": 0.0
+            },
+            "ok": true
+          },
+          "minimum_collar_clearance_px": 0.0,
+          "collar_overlap_frame_count": 215,
+          "cpu_frames": 335,
+          "cpu_failing_frames": 5,
+          "cpu_seam_ok": false
+        }
+      }
+    },
+    {
+      "name": "shell syntax and whitespace",
+      "command": "sh -n experiments/cutouts/arc_thrall/rr24_proof.sh && git diff --check",
+      "exit_code": 0,
+      "result_lines": []
+    }
+  ],
+  "limitations": [
+    "Collar no-overlap requirement remains open (front death four one-pixel contacts).",
+    "CPU seam diagnostics fail in 51 front and five rear non-move frames. No exceptions added.",
+    "19 failures / two errors in retained old mq7/gait fixtures; assertions were not changed.",
+    "Native rest/density records and shadow refresh await director windowed rebake."
+  ],
+  "superseded_by": "feedback2_verification.json"
+}

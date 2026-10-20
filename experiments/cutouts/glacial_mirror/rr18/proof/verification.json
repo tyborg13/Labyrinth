@@ -1,145 +1,41 @@
 {
-  "implementation_state": "uncommitted feedback 3 implementation; every headless gate passes; fresh director native proof pending",
-  "headless_complete": true,
-  "acceptance_complete": false,
-  "design_placeholders": {},
-  "frame_exceptions": false,
-  "motion_changes": false,
-  "strict_gates": {
-    "ok": true,
-    "error_count": 0,
-    "report": "proof/gates.json",
-    "native_pixels": false,
-    "production_ready": false
+  "unit": "rr-23",
+  "base_commit": "521fa8f204f6f3b5d0aca1d09ec2494107c155d9",
+  "uncommitted": true,
+  "windowed_run": false,
+  "full_suites_run": false,
+  "focused": {
+    "tests": 267,
+    "failures": 2,
+    "known_scope_conflicts": [
+      "tests.test_rr17_feedback.FeedbackTests.test_shadow_baseline_is_explicit_and_portable",
+      "tests.test_gait01.GaitTests.test_non_move_tracks_and_out_of_scope_assets_remain_identical"
+    ]
   },
-  "source_stages": {
-    "raw_authoring": {
-      "front": {
-        "ok": true,
-        "errors": [],
-        "mismatch_pixels": 0,
-        "scope": "exact pre-cleanup source partition against protected painting"
-      },
-      "rear": {
-        "ok": true,
-        "errors": [],
-        "mismatch_pixels": 0,
-        "scope": "exact pre-cleanup source partition against protected painting"
-      }
-    },
-    "derived_presentation_delta_pixels": {
-      "front": 1,
-      "rear": 28
-    },
-    "explanation": "Exact raw partition retained. Only director-prescribed nearest own-surface continuation and zero-green processing is applied to the derived presentation; original paintings unchanged."
-  },
-  "scan": {
-    "front": {
-      "frames": 341,
-      "pocket_defects": 0,
-      "green_frames": 0,
-      "clean_piece_defects": 0,
-      "ok": true
-    },
-    "rear": {
-      "frames": 341,
-      "pocket_defects": 0,
-      "green_frames": 0,
-      "clean_piece_defects": 0,
-      "ok": true
-    }
-  },
-  "former_rear_failures": {
-    "frames": 13,
-    "pockets": 14,
-    "target_pixel_coverage": "all opaque for every allowed native UV candidate; positive regression retained",
-    "crop_index": "proof/feedback3_repaired/index.json",
-    "native_pixels": false
-  },
-  "production_rest": {
-    "front": {
-      "ok": true,
-      "errors": [],
-      "mismatch_pixels": 0,
-      "snapshot_mismatch_pixels": 0,
-      "scope": "exact density-derived source-space rest; native seal pending director"
-    },
-    "rear": {
-      "ok": true,
-      "errors": [],
-      "mismatch_pixels": 0,
-      "snapshot_mismatch_pixels": 0,
-      "scope": "exact density-derived source-space rest; native seal pending director"
-    }
-  },
-  "generic_extensions": [
-    "tools/humanoid_cutout/material_gates.py",
-    "tools/humanoid_cutout/anatomy.schema.json",
-    "tools/humanoid_cutout/gates.py",
-    "tools/humanoid_cutout/rigid_air.py",
-    "tools/humanoid_cutout/promotion.py"
-  ],
-  "results": {
-    "build-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-build-final.log",
-      "log_sha256": "97f910703a5bf357038beebb3a96d7e30193d1e1895fc0bec36e192330902fc8",
+  "logs": {
+    "rr23_additional_tests.log": {
+      "sha256": "b0611ff59a76c35284c0197ad7e3cef8810c32098b88fe89b540decc0c26aca1",
       "result_lines": [
-        "RR18 FRONT BUILD: PASS (rest mismatch: 0 px; all rigid; protected tracks byte-identical)",
-        "RR18 REAR BUILD: PASS (rest mismatch: 0 px; all rigid; protected tracks byte-identical)"
+        "Ran 4 tests in 13.690s",
+        "OK"
       ]
     },
-    "density-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-density-final.log",
-      "log_sha256": "b5cd02837ab5c36ca65a5432387c81ca236cb77eaa3a5aaa10cf6cffb78be0b3",
+    "rr23_art_identity.log": {
+      "sha256": "3f8ed12b6b0b0ef2ea21f22d49f90028d5aae7866ea65300960f99a7ea13476b",
       "result_lines": [
-        "RR18 DENSITY PAINT: PASS (both views adopted/processed; native rest records pending director)"
+        "Ran 111 tests in 49.928s",
+        "OK"
       ]
     },
-    "samples-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-samples-final.log",
-      "log_sha256": "beb23d283ed62ec34fafce2a101d56425ed128845f48884014caea2cd5044b41",
+    "rr23_density_check.log": {
+      "sha256": "2a58676821faa0f2957f5ce8a14982b95aec205b392750d85992a5d2513ee48d",
       "result_lines": [
-        "RR10 BONE SAMPLES: PASS (896 poses; headless transforms only)"
+        "rest rebake needed: assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png: rest pixels changed since recorded rebake",
+        "rest rebake needed: assets/units/glacial_mirror_cutout/humanoid_v2/rear/rest.png: rest pixels changed since recorded rebake"
       ]
     },
-    "gates-clean": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-gates-clean.log",
-      "log_sha256": "06345d01bc16f5bc1107b54d9243f6c90edc82096d6db5e7f1368f6d6999d5ad",
-      "result_lines": [
-        "RR18 FRONT KNEES: PASS (0 errors)",
-        "RR18 FRONT SUPPORTS: PASS (0 errors)",
-        "RR18 FRONT DIRECTIONS: PASS (0 errors)",
-        "RR18 FRONT REACH: PASS (0 errors)",
-        "RR18 FRONT PRODUCTION_REST: PASS (0 errors)",
-        "RR18 FRONT SEAMS: PASS (0 errors)",
-        "RR18 FRONT MATERIALS: PASS (0 errors)",
-        "RR18 FRONT RAW_IDENTITY: PASS (0 errors)",
-        "RR18 REAR KNEES: PASS (0 errors)",
-        "RR18 REAR SUPPORTS: PASS (0 errors)",
-        "RR18 REAR DIRECTIONS: PASS (0 errors)",
-        "RR18 REAR REACH: PASS (0 errors)",
-        "RR18 REAR PRODUCTION_REST: PASS (0 errors)",
-        "RR18 REAR SEAMS: PASS (0 errors)",
-        "RR18 REAR MATERIALS: PASS (0 errors)",
-        "RR18 REAR RAW_IDENTITY: PASS (0 errors)",
-        "RR18 SOURCE/CUT GATES: PASS (0 errors; both views)",
-        "RR18 ALL GATES: PASS (0 unique errors)"
-      ]
-    },
-    "focused-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-focused-final.log",
-      "log_sha256": "e56cb14064a12794c32acd07d5c1ee2c048e7fd306a087930e07adfe61fc7b14",
-      "result_lines": [
-        "Ran 208 tests in 161.968s",
-        "OK",
-        "RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)",
-        "RR16 THRALL POSE IDENTITY: PASS (990 exact rows)",
-        "RR16 SEER POSE IDENTITY: PASS (1258 exact rows)"
-      ]
-    },
-    "mutations-final": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-mutations-final.log",
-      "log_sha256": "f91af32621da882082766ef80d5c303413e3701858faa634f8f725d0835db064",
+    "rr23_existing_mutations.log": {
+      "sha256": "f91af32621da882082766ef80d5c303413e3701858faa634f8f725d0835db064",
       "result_lines": [
         "RR18 MUTATION production rest identity: CAUGHT",
         "RR18 MUTATION idle rigidity: CAUGHT",
@@ -153,113 +49,399 @@
         "RR18 MUTATION own-surface flat patch: CAUGHT"
       ]
     },
-    "native-load": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-native-load.log",
-      "log_sha256": "5cd04031710e1132240e2aa8720490687e149d34964303bd2af75d174592c1ea",
+    "rr23_focused.log": {
+      "sha256": "7d59bd23d118c757a46eaa8b6186a7548c517aa7f07d6da7329f79526c06d38d",
       "result_lines": [
-        "RR18 NATIVE PROBE LOAD: PASS"
+        "Ran 267 tests in 411.678s",
+        "FAILED (failures=2)"
       ]
     },
-    "production-front": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-production-front.log",
-      "log_sha256": "4acd789001312e9814a6f67c844fccda0919124acf5752155ed4a7e0d9ae2ba9",
+    "rr23_gates.log": {
+      "sha256": "eb336b4c8342c9e5cdadc58289cb858badee139b0b141f61fc5c5f7d86dae32f",
       "result_lines": [
-        "MAQUETTE PRODUCTION LOGIC: PASS (940 frames)"
+        "GAIT FRONT: PASS (maximum fit 2.716829 px; total drop 4.715247 px; rigid air 0.000000 px)",
+        "GAIT REAR: PASS (maximum fit 0.158067 px; total drop 3.500000 px; rigid air 0.000000 px)",
+        "RR18 SOURCE/CUT GATES: PASS (0 errors; both views)",
+        "RR18 ALL GATES: PASS (0 unique errors)"
       ]
     },
-    "production-rear": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-production-rear.log",
-      "log_sha256": "61a683e337182568bdf6f1b84f12b064756f1ce3ec6a48a49805743204f4dcc4",
+    "rr23_mutations.log": {
+      "sha256": "98fd271bfb11be1f1c38896b4e20a26d65f5828a68c90310318d0bab542d7ae0",
       "result_lines": [
-        "MAQUETTE PRODUCTION LOGIC: PASS (940 frames)"
+        "RR23 MUTATION committed protection: CAUGHT",
+        "RR23 MUTATION all-clip ankle attachment: CAUGHT",
+        "RR23 MUTATION front guard depth: CAUGHT",
+        "RR23 MUTATION rest order stop: CAUGHT"
       ]
     },
-    "shadow": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-shadow.log",
-      "log_sha256": "afa1e85cbb53f0763624b27f3995329bcff81346effc586f9d935ee804160b3a",
+    "rr23_owner_fixes.log": {
+      "sha256": "32c9b776ede11fe2849d9e5eefb78419cda1fd355e9aded52e0d7ac70d5e1b64",
       "result_lines": [
-        "RR18 SHADOW RECORDS: PASS (2 v2 views; every other unit retained)"
+        "RR23 FRONT ANKLES: PASS (0 errors)",
+        "RR23 FRONT ARMS: PASS (0 errors)",
+        "RR23 FRONT MAXIMUM ANKLE AIR: 0.000000 px",
+        "RR23 REAR ANKLES: PASS (0 errors)",
+        "RR23 REAR ARMS: PASS (0 errors)",
+        "RR23 REAR MAXIMUM ANKLE AIR: 0.000000 px"
       ]
     },
-    "art-identity": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-art-identity.log",
-      "log_sha256": "d6a73a1470559cf3377815bb2ac386b1d3b858adf00dcbb1c238d24fe9090c50",
+    "rr23_owner_tests.log": {
+      "sha256": "4d7de40efce33f3254360c543dcfa5198183acf29de67f915de241cb99d7f103",
       "result_lines": [
-        "Ran 111 tests in 38.143s",
+        "Ran 8 tests in 22.074s",
         "OK"
       ]
     },
-    "icon-identity": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-icon-identity.log",
-      "log_sha256": "aeb8eab8eeb87c97d150804b54d470279b25d480780ccf79e9464381ccfc401a",
+    "rr23_production_front.log": {
+      "sha256": "d97d532196a61b26047cadb3ebdfcdb6698388addf8f0d0c5cbf96476701e9b6",
       "result_lines": [
-        "Ran 7 tests in 0.076s",
-        "OK"
+        "MAQUETTE PRODUCTION LOGIC: PASS (949 frames)"
       ]
     },
-    "registration": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-registration.log",
-      "log_sha256": "9b1822beb8111c258af1be73ca53c76f39197de60e2db812f36009be230bea37",
+    "rr23_production_rear.log": {
+      "sha256": "e417cf77a2b2678aa2e7a7372167e433048641fe4bda90e4afb236417e0a51b5",
       "result_lines": [
-        "TEST REGISTRATION AUDIT: PASS (750 scripts; full suite=406, quarantined=29, windowed probe=315)"
+        "MAQUETTE PRODUCTION LOGIC: PASS (949 frames)"
       ]
     },
-    "sidecars": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sidecars.log",
-      "log_sha256": "fae20e9145922680d911d80ac07c55df1d5756518834a0493de745bee60f99a9",
+    "rr23_registration.log": {
+      "sha256": "e336d67a380d60d2a7a5216c5271e6e3bfd099775d5d114586fb6e5f5d8fbf14",
       "result_lines": [
-        "Ran 19 tests in 1.135s",
-        "OK",
-        "GODOT SIDECARS: gitignored exemptions = 1724"
+        "TEST REGISTRATION AUDIT: PASS (751 scripts; full suite=407, quarantined=29, windowed probe=315)"
       ]
     },
-    "sfx0": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sfx0.log",
-      "log_sha256": "5e000f9aa834690c89a237b783cb2ae5391a82b056729547e10181ff853d5aca",
+    "rr23_samples.log": {
+      "sha256": "519765dd92218073fa024ad66a55ec61314ee105ae1d9ac6edd2d1fff7c2b179",
+      "result_lines": []
+    },
+    "rr23_sfx0.log": {
+      "sha256": "5e6f8d4b71b0f33d6a294e7b87ef8f5a392844e8dacc67d3ee41fe282f14ae8e",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (4075 observations, 0 failures)"
       ]
     },
-    "sfx1": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sfx1.log",
-      "log_sha256": "0e7ea31cdede168da6a0a2d8e5c969920d7b41715a8d11c5a4189e07de8486d0",
+    "rr23_sfx1.log": {
+      "sha256": "fc1aaeb2b9eb5c1fb792005c3823810893be8812dd90791fc9686ac9838bc5a9",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (3348 observations, 0 failures)"
       ]
     },
-    "sfx2": {
-      "log": "/private/tmp/labyrinth_codex/rr18-feedback3-sfx2.log",
-      "log_sha256": "97b1e4c293bbd0ee3d27ade9097f9790e07418f9c7ce14d96876173f4c1a323e",
+    "rr23_sfx2.log": {
+      "sha256": "30cb5ab735619a35878dbbab01025b676e622bc3be2170569be7a624ad126deb",
       "result_lines": [
         "SFX SYNC HARNESS RESULT: PASS (1604 observations, 0 failures)"
       ]
+    },
+    "rr23_shadows.log": {
+      "sha256": "9003d95d40650c9cd1001ff5dda4c70ba8950a8771267c1febb72c1133a2c8aa",
+      "result_lines": []
+    },
+    "rr23_sidecars.log": {
+      "sha256": "063806206bc561e6a0428f57994ec0bfc8ebdeac67c3f2bbb5d772a1eeb44918",
+      "result_lines": [
+        "Ran 19 tests in 2.144s",
+        "OK"
+      ]
     }
   },
-  "full_suites": "not run per unit brief/director",
-  "windowed": "not attempted; worker has no window-server access",
-  "peer_review": "not run per explicit instructions",
-  "git_publication": "none; all changes uncommitted and unstaged",
-  "director_proof_commands": [
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh density",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh rest",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh native",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh sheets",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh idle",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh production",
-    "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-18 && sh experiments/cutouts/glacial_mirror/rr18_proof.sh review"
-  ],
-  "capture_paths": "proof/{native_rest,native,contact_sheets,idle_native,production_native}; refreshed CPU crops at proof/feedback3_repaired (all ignored)",
-  "inspection_fixture": "none requested; director owns fixture preparation",
-  "chosen_defaults": [
-    "test-only synthetic fixtures in tests/test_rr18_materials.py",
-    "existing crop padding 8 px and zoom 3; existing cameras/steps/timeouts retained"
-  ],
-  "native_rest_sealing": "refresh required after derived presentation/density updates",
-  "preservation": "proof/preservation.json",
-  "diff_check": "git diff --check exited 0",
-  "current_bindings": "PASS (samples and both 940-frame production reports match current bindings)",
-  "capture_ignore": "PASS (14 CPU crops and all windowed capture/video paths ignored)",
-  "change_ownership": "PASS (all changed files owned/allowed, all uncommitted and unstaged on codex/rr-18)",
-  "cpu_crop_inspection": "14 final regenerated crops inspected",
-  "new_source_sidecars": "RR18 NEW SOURCE SIDECARS: PASS (untracked raw-cut and presentation sources included)"
+  "owner_fixes": {
+    "front": {
+      "ankles": {
+        "ok": true,
+        "errors": [],
+        "presented_frames": 344,
+        "rest_overlap_pixels": {
+          "near": 647,
+          "far": 1064
+        },
+        "maximum_ankle_air_px": 0.0,
+        "clip_maxima": {
+          "hit": 0.0,
+          "idle": 0.0,
+          "guard": 0.0,
+          "refraction": 0.0,
+          "death": 0.0,
+          "move": 0.0
+        },
+        "worst": {
+          "clip": "idle",
+          "frame": 0,
+          "side": "near",
+          "air_px": 0.0
+        }
+      },
+      "arms": {
+        "ok": true,
+        "errors": [],
+        "painted_fists": {
+          "near": {
+            "width_px": 48,
+            "height_px": 53,
+            "wrist_pivot": [
+              208.5,
+              163.0
+            ]
+          },
+          "far": {
+            "width_px": 41,
+            "height_px": 36,
+            "wrist_pivot": [
+              44.9575,
+              122.97
+            ]
+          }
+        },
+        "shoulders": {
+          "positions": {
+            "near": [
+              178.5,
+              77.0
+            ],
+            "far": [
+              68.0,
+              60.425
+            ]
+          },
+          "front_height_delta_px": 16.575000000000003,
+          "front_expected_delta_px": 16.575,
+          "tolerance_px": 2.5
+        },
+        "guard_contact_frame": 24,
+        "guard_contact_phase": 0.452830188679245,
+        "fist_torso_overlap_pixels": {
+          "near": 1994,
+          "far": 0
+        },
+        "near_fist_ice_overlap_pixels": 944,
+        "draw_order": {
+          "head": 14,
+          "torso": 13,
+          "fore_near": 15,
+          "fist_near": 16,
+          "fist_far": 2
+        }
+      }
+    },
+    "rear": {
+      "ankles": {
+        "ok": true,
+        "errors": [],
+        "presented_frames": 344,
+        "rest_overlap_pixels": {
+          "near": 1252,
+          "far": 348
+        },
+        "maximum_ankle_air_px": 0.0,
+        "clip_maxima": {
+          "hit": 0.0,
+          "idle": 0.0,
+          "guard": 0.0,
+          "refraction": 0.0,
+          "death": 0.0,
+          "move": 0.0
+        },
+        "worst": {
+          "clip": "idle",
+          "frame": 0,
+          "side": "near",
+          "air_px": 0.0
+        }
+      },
+      "arms": {
+        "ok": true,
+        "errors": [],
+        "painted_fists": {
+          "near": {
+            "width_px": 48,
+            "height_px": 46,
+            "wrist_pivot": [
+              47.5,
+              127.0
+            ]
+          },
+          "far": {
+            "width_px": 44,
+            "height_px": 43,
+            "wrist_pivot": [
+              211.0425,
+              156.7125
+            ]
+          }
+        },
+        "shoulders": {
+          "positions": {
+            "near": [
+              77.5,
+              60.0
+            ],
+            "far": [
+              188.0,
+              76.575
+            ]
+          },
+          "front_height_delta_px": -16.575000000000003,
+          "front_expected_delta_px": 16.575,
+          "tolerance_px": 2.5
+        },
+        "guard_contact_frame": 24,
+        "guard_contact_phase": 0.452830188679245,
+        "fist_torso_overlap_pixels": {
+          "near": 963,
+          "far": 0
+        },
+        "near_fist_ice_overlap_pixels": 0,
+        "draw_order": {
+          "head": 14,
+          "torso": 11,
+          "fore_near": 4,
+          "fist_near": 2,
+          "fist_far": 10
+        }
+      }
+    }
+  },
+  "production_logic": {
+    "front": {
+      "ok": true,
+      "errors": [],
+      "frames": 949
+    },
+    "rear": {
+      "ok": true,
+      "errors": [],
+      "frames": 949
+    }
+  },
+  "proof_commands": "experiments/cutouts/glacial_mirror/rr18/rr23_handoff.md",
+  "native_seal_pending": true,
+  "TODO_DESIGN": {},
+  "fresh_bone_evidence": {
+    "ok": true,
+    "errors": [],
+    "fresh_inputs": true
+  },
+  "mutations": {
+    "rr18": {
+      "ok": true,
+      "mutations": [
+        {
+          "guard": "production rest identity",
+          "regression": "test_mutation_production_treatment_cannot_hide_rest_mismatch",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "idle rigidity",
+          "regression": "test_mutation_idle_rotation_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "rest RGBA",
+          "regression": "test_mutation_visible_source_rgba_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "required direction coverage",
+          "regression": "test_mutation_zero_forward_loses_required_coverage",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "every swing minimum",
+          "regression": "test_mutation_second_swing_no_knee_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "support stationarity",
+          "regression": "test_mutation_action_support_slide_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "rigid air allowance",
+          "regression": "test_air_between_stones_passes_without_a_frame_exception",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "rigid stone interior",
+          "regression": "test_punched_stone_interior_fails_with_single_owner_boundary",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "green residue",
+          "regression": "test_green_boundary_is_strict_and_ignores_transparent_rgb",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        },
+        {
+          "guard": "own-surface flat patch",
+          "regression": "test_flat_patch_mutation_is_rejected",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "restored": "in-memory only; source bytes untouched"
+        }
+      ]
+    },
+    "rr23": {
+      "ok": true,
+      "mutations": [
+        {
+          "guard": "committed protection",
+          "regression": "test_committed_protected_mutation_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "scope": "in-memory only"
+        },
+        {
+          "guard": "all-clip ankle attachment",
+          "regression": "test_disconnected_non_walk_ankle_mutation_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "scope": "in-memory only"
+        },
+        {
+          "guard": "front guard depth",
+          "regression": "test_wrong_front_guard_depth_mutation_is_caught",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "scope": "in-memory only"
+        },
+        {
+          "guard": "rest order stop",
+          "regression": "test_order_change_that_alters_rest_stops_with_design_placeholder",
+          "caught": true,
+          "failures": 1,
+          "errors": 0,
+          "scope": "in-memory only"
+        }
+      ]
+    }
+  }
 }

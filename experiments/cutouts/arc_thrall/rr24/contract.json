@@ -1,0 +1,37 @@
+{
+  "task": "rr-24",
+  "branch": "codex/rr-24",
+  "risk_tier": 2,
+  "preflight": "Design owner prepared and passed, per explicit worker assignment.",
+  "acceptance": [
+    "mq7b front/rear exact RGBA rest reconstruction: 0 px; existing limb/shoulder/cap contracts retained",
+    "Collar/lock/chain rigid torso; presented visible head owns every collar overlap; contact allowed and frames reported (feedback 1)",
+    "Full skirt/belt on pelvis/loincloth_tip above both thighs; own-skin hidden fills; follow-through <=4 px and settles",
+    "Density paint updated; native rest and shadow regeneration supplied for director; both-view source/reach/direction/gait/seam/residue checks",
+    "Other figures, protected painting and motion bytes unchanged"
+  ],
+  "proof": "Focused Thrall tests/mutations, Seer/Mirror/Capacitor sets, three SFX programs, registration audit; no full suites per unit brief.",
+  "inspection": "Director owns windowed density/rest/native/crops/sheets/idle/production/review; worker has no window-server access.",
+  "design_placeholders": {},
+  "feedback1": {
+    "baseline_commit": "4de3c0dc2d59a83246c6b36abfcada081ff1fdc0",
+    "acceptance": [
+      "Rendered ownership: visible head above collar in every clip/view; contacts reported, allowed",
+      "Case-scoped skirt/leg air policy passes only wholly unpainted/untucked source space and reports every passed pocket bounds",
+      "Re-pin only Thrall rr15/gait assertions to mq7b and director-data commit, inventory old/new baselines",
+      "Fix all remaining painted/tuck/joint seam defects with own edge texels; no new frame exceptions",
+      "Focused gates/tests/mutations all pass headless; exact director windowed sequence including crops"
+    ],
+    "proof": "Focused tests only; no full suite, peer review, commits or windowed runs."
+  },
+  "feedback2": {
+    "baseline_commit": "7cdcebb1e2e037f252d989627df4d70ade9003a0",
+    "acceptance": [
+      "Every hidden field keeps coverage and uses current own-mq7b edge donors; source and exposed provenance reject foreign skirt colours in both views",
+      "Every Thrall rest/native/idle capture selects layout.rest_source, with raw mq7b identity asserted separately",
+      "Walk crop metadata reproduces 382/338px overflow; frame-root stabilisation fits existing 320px cells at 2x without changing the sheet contract",
+      "No new alpha, geometry, draw-order, gait-coverage or motion changes; director re-runs the rr26 detached census after integration",
+      "Focused checks only, no windowed runs; exact director sequence including crops supplied"
+    ]
+  }
+}

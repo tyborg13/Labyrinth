@@ -1,0 +1,108 @@
+{
+  "character_id": "slag_mortar",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "direction_clips": [
+    "scatter"
+  ],
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the hero's cut-out bob: torso (with the harness and the crucible riding on it), head and both free arms drop 2 px and return as one rigid group; pelvis, apron, legs and feet still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [
+        "brace:move_away"
+      ],
+      "note": "a heavy plod on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 3.5 px after each landing and the torso jolts 1 px on the four full-step landings; the crucible rides the torso; the fists swing 2 px; the apron trails 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 5,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 2.0,
+          "down": 3.5,
+          "passing": 1.0,
+          "up": 0.5
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "hand_near",
+            "px": 2
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 2
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "lob": {
+      "seconds": 1.2,
+      "contact": 0.6,
+      "intents": [
+        "lob_slag:lob_mark"
+      ],
+      "note": "sinks 4 px and leans in, then heaves up and back: the crucible tips 22 degrees over the shoulder toward the target and the slag is lobbed (contact; the existing lob mark); both fists drive up; settles",
+      "release_at": {}
+    },
+    "land": {
+      "seconds": 0.6,
+      "contact": 0.3,
+      "intents": [
+        "slag_lands:lob_land"
+      ],
+      "note": "as the slag lands far away the brute rocks forward 2 px and the emptied crucible rattles on its back (hold steps); a satisfied nod",
+      "release_at": {}
+    },
+    "brace": {
+      "seconds": 0.9,
+      "contact": 0.4,
+      "intents": [
+        "brace:block"
+      ],
+      "note": "plants its feet and raises both iron bracers crossed in front of its face, sinking 3 px behind them; holds; lowers",
+      "release_at": {}
+    },
+    "scatter": {
+      "seconds": 0.8,
+      "contact": 0.5,
+      "intents": [
+        "scatter_shot:ranged"
+      ],
+      "note": "reaches its near fist back over the shoulder into the crucible's mouth, then hurls a handful of slag at the target (contact); the torso turns into the throw",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "sags to its knees: the pelvis drops 16 px over planted feet, the torso pitches forward 25 degrees with the crucible tipping a further 12 degrees over its head, the head bows, the fists hit the floor; terminal pose held, then the existing fade",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ]
+}

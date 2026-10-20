@@ -19,7 +19,9 @@ from maquette_motion.native_ties import select
 from maquette_motion.features import source_pixels
 from maquette_motion.silhouette import components, dilate
 from rr15_cpu_proof import CASE, frame_state
-from tests.gait01.preservation import assert_preserved
+from rr24_baseline import BASELINE_FILE, GEOMETRY_FIELDS, canonical, assert_preserved as assert_repaint_preserved
+from rr24_build import RECIPE, clean_residue
+from rr24_seams import frame_report as repaint_frame_report
 
 FIXTURES = PROJECT / 'tests/rr11/rr15'
 DETACHED_POSES = [('front', 'jab', 5), ('rear', 'tether', 15)]
@@ -68,66 +70,37 @@ class NativeCleanupTests(unittest.TestCase):
             self.assertEqual(detached_metrics(np.asarray(composite))['stray_components'], 0)
 
     def test_every_visible_source_texel_retains_its_exact_color_and_correct_owner(self):
-        transfers = read_json(CASE / 'edge_transfers.json')
-        for view, model in self.models.items():
-            baseline = CASE / (view + '_baseline')
-            old = read_json(baseline / f'layouts/{view}.json')
-            expected = {name: np.zeros((255, 255, 4), dtype=np.uint8) for name in model.layout['source_labels']}
-            for part in old['parts']:
-                name = next(n for n, labels in model.layout['source_labels'].items() if part['logical_part'] in labels)
-                image = source_pixels(baseline, part)
-                mask = image[..., 3] > 0
-                expected[name][mask] = image[mask]
-            for row in transfers[view]:
-                source = expected[row['source']]
-                labels, _ = components(source[..., 3] > 0, 8)
-                x, y = row['seed']
-                mask = labels == labels[y, x]
-                self.assertEqual(int(mask.sum()), row['pixels'])
-                expected[row['owner']][mask] = source[mask]
-                source[mask] = 0
+        for view,model in self.models.items():
             for part in model.layout['parts']:
-                if part.get('hidden_material'):
-                    continue
-                actual = source_pixels(CASE, part)
+                if part.get('hidden_material'): continue
+                raw = RECIPE/'raw'/view/(part['name']+'.png')
+                assert_repaint_preserved(self,str(raw.relative_to(PROJECT)))
+                expected,_ = clean_residue(np.asarray(Image.open(raw).convert('RGBA')))
+                actual = source_pixels(CASE,part)
                 record = model.layout['proof_layers'][part['name']]
-                checks = np.zeros_like(actual)
                 mask = model.image(record['mask'])
-                x, y = record['mask_offset']
-                checks[y:y + mask.shape[0], x:x + mask.shape[1]] = mask
-                actual[checks[..., 1] > 0] = 0
-                self.assertTrue(np.array_equal(actual, expected[part['name']]), (view, part['name']))
+                x,y = record['mask_offset']
+                actual[y:y+mask.shape[0],x:x+mask.shape[1]][mask[...,1]>0] = 0
+                np.testing.assert_array_equal(actual,expected,err_msg=view+'/'+part['name'])
 
     def test_joint_continuations_close_holes_and_removal_reopens_them(self):
-        for key in SEAM_POSES:
-            view = key[0]
-            model, pose = self.models[view], self.poses[key]
-            if key == ('rear', 'move', 6):
-                # The retained GPU defect belongs to the old walk pose.
-                pose = read_json(FIXTURES / 'legacy_rear_move6_pose.json')
-            # Pin the actual retained GPU defect, rather than unrelated CPU
-            # raster-boundary predictions elsewhere in the same pose.
-            target = np.asarray(Image.open(FIXTURES / f'{view}_{key[1]}{key[2]}_native_joint_hole.png')) > 0
-            def rejected(state):
-                _, owners, seam, refs, _ = state
-                seam = seam & dilate(target, JOINT_NEIGHBOURHOOD_PX)
-                return joint_holes(owners > 0, seam, owners, refs)
-            self.assertEqual(rejected(frame_state(model, pose)), [], key)
-            overrides = {p['name']: model.image(p['file']).copy() for p in model.layout['parts']}
-            for part in model.layout['parts']:
-                # Remove added continuation alpha, preserving current original
-                # paint, including the corrected tube/claw edge ownership.
-                path = FIXTURES / f'{view}_{part["name"]}_before_alpha.png'
-                if part.get('joint_extension'):
-                    mask = np.zeros((255, 255), dtype=bool)
-                else:
-                    mask = np.asarray(Image.open(path)) > 0
-                x, y, right, bottom = part['bbox']
-                before = mask[y:bottom, x:right].copy()
-                checks = model.image(model.layout['proof_layers'][part['name']]['mask'])
-                before |= (checks[..., 3] > 0) & (checks[..., 1] == 0)
-                overrides[part['name']][~before] = 0
-            self.assertTrue(rejected(frame_state(model, pose, overrides)), key)
+        # Re-pinned to the mq7b nape continuation, rather than the superseded
+        # mq7 armpit/crop fixture. Removing exactly its source points reopens
+        # all five independently identified rear death defects.
+        model = self.models['rear']
+        points = read_json(RECIPE/'joint_continuations.json')['rear']['head']['source_points']
+        overrides = {p['name']:model.image(p['file']).copy() for p in model.layout['parts']}
+        for part in model.layout['parts']:
+            if part['logical_part']!='head' or not part.get('hidden_material'): continue
+            x,y,right,bottom=part['bbox']
+            for u,v in points:
+                if x<=u<right and y<=v<bottom: overrides[part['name']][v-y,u-x]=0
+        for fixture in read_json(BASELINE_FILE)['nape_removal_frames']:
+            frame=fixture['frame']
+            pose=self.poses['rear','death',frame]
+            self.assertEqual(repaint_frame_report(model,pose)[-1]['failures'],[])
+            defects=repaint_frame_report(model,pose,source_overrides=overrides)[-1]['failures']
+            self.assertEqual([{k:d[k]for k in ('bbox','pixel_count')}for d in defects],fixture['pockets'])
 
     def test_hidden_tube_native_ties_are_exact_real_source_candidates(self):
         source = Image.open(FIXTURES / 'rear_hidden_tube_before.png').convert('RGBA')
@@ -144,46 +117,27 @@ class NativeCleanupTests(unittest.TestCase):
             broken[samples.ties] = INVALID_TIE_COLOR
             self.assertFalse(native_frame_matches(broken, samples.default, samples))
 
-    def test_only_the_two_native_hip_speck_texels_are_removed_from_the_torso_seed(self):
-        model = self.models['rear']
-        parts = {p['name']: p for p in model.layout['parts']}
-        def alpha(name):
-            part = parts[name]
-            result = np.zeros((255, 255), dtype=bool)
-            x, y, right, bottom = part['bbox']
-            result[y:bottom, x:right] = model.image(part['file'])[..., 3] > 0
-            return result
-        before = np.asarray(Image.open(FIXTURES / 'rear_hidden_torso_before_source.png').convert('RGBA'))[..., 3] > 0
-        current = alpha('hidden_torso')
-        ys, xs = np.nonzero(before & ~current)
-        self.assertEqual(set(zip(xs.tolist(), ys.tolist())), {(100, 138), (104, 142)})
-        # Other cleanup may trim only material added by rr-15. Opening a
-        # continuation loop must never erase an original painted/hidden edge.
-        for view, pieces in read_json(CASE / 'continuation_alpha_cleanup.json').items():
-            for name, points in pieces.items():
-                original = np.zeros((255, 255), dtype=bool)
-                for part_name in (name, 'hidden_' + name):
-                    path = FIXTURES / f'{view}_{part_name}_before_alpha.png'
-                    if path.exists():
-                        original |= np.asarray(Image.open(path)) > 0
-                for x, y in points:
-                    if view == 'rear' and name == 'torso' and (x, y) in {(100, 138), (104, 142)}:
-                        continue
-                    self.assertFalse(original[y, x], (view, name, x, y))
+    def test_mq7b_torso_continuation_matches_repaint_baseline(self):
+        # mq7b reassigns the full belt/skirt; freeze its new torso source
+        # instead of requiring exactly the old two-pixel mq7 alpha delta.
+        model=self.models['rear']
+        for part in model.layout['parts']:
+            if part['logical_part']=='torso':
+                assert_repaint_preserved(self,str((CASE/part['file']).relative_to(PROJECT)))
+        part=next(p for p in model.layout['parts'] if p['name']=='hidden_torso')
+        image=source_pixels(CASE,part)
+        for x,y in ((100,138),(104,142)): self.assertEqual(image[y,x,3],0)
 
     def test_paint_motion_rest_and_visible_mesh_fields_are_unchanged(self):
         self.assertTrue(rest_identity(CASE)['ok'])
-        for path, expected in read_json(FIXTURES / 'protected.json').items():
-            assert_preserved(self, PROJECT, path, expected)
-        geometry = read_json(FIXTURES / 'geometry_before.json')
-        for view, model in self.models.items():
+        for path in read_json(FIXTURES/'protected.json'):
+            assert_repaint_preserved(self,path)
+        geometry=read_json(BASELINE_FILE)['geometry']
+        for view,model in self.models.items():
             for mesh in model.layout['joint_meshes']:
-                if view + '/' + mesh['name'] not in geometry:
-                    self.assertTrue(mesh.get('hidden_material'))
-                    continue
-                fields = {k: mesh[k] for k in GEOMETRY_FIELDS if k in mesh}
-                actual = hashlib.sha256(json.dumps(fields, sort_keys=True).encode()).hexdigest()
-                self.assertEqual(actual, geometry[view + '/' + mesh['name']])
+                fields={k:mesh[k] for k in GEOMETRY_FIELDS if k in mesh}
+                self.assertEqual(canonical(fields),geometry[view+'/'+mesh['name']])
+
 
 
 if __name__ == '__main__':

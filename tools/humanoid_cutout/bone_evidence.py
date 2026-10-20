@@ -5,6 +5,21 @@ import math
 SAMPLE_FPS = 60
 
 
+def read_report(case):
+    """Read a full inventory or its canonical proof-relative full_samples pointer."""
+    from pathlib import Path
+    from cutout_pipeline.cases import read_json, digest
+    proof = (Path(case) / 'proof').resolve()
+    record = read_json(proof / 'samples.json')
+    if 'full_samples' not in record:
+        return record
+    reference = record['full_samples']
+    path = (proof / reference['file']).resolve()
+    if not path.is_relative_to(proof) or not path.is_file() or digest(path) != reference['sha256']:
+        raise ValueError('bone evidence changed: missing or changed full sample diagnostics; rerun sampler')
+    return read_json(path)
+
+
 def evidence_errors(data, report, current_bindings, tolerance):
     errors = []
     if report.get('ok') is not True:
@@ -51,17 +66,3 @@ def evidence_errors(data, report, current_bindings, tolerance):
                     any(abs(row['phase'] - row['frame'] / divisor) > tolerance for row in presented)):
                 errors.append('bone evidence: incomplete presented inventory: ' + view + '/' + clip)
     return errors
-
-
-def read_samples(case):
-    """Accept legacy full reports or a hashed pointer to ignored full evidence."""
-    from pathlib import Path
-    from cutout_pipeline.cases import read_json, digest
-    proof = Path(case) / 'proof'
-    report = read_json(proof / 'samples.json')
-    if 'samples' in report: return report
-    reference = report['full_evidence']
-    path = (proof / reference['file']).resolve()
-    if not path.is_relative_to(proof.resolve()) or digest(path) != reference['sha256']:
-        raise ValueError('Full sample evidence changed; rerun samples.gd')
-    return read_json(path)

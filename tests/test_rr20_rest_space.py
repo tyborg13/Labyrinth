@@ -9,7 +9,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from humanoid_cutout.rest_space import DetachedSource, pockets
+from humanoid_cutout.source_space import DetachedSource, pocket_report as pockets
 from humanoid_cutout.gates import clean_metrics
 from humanoid_cutout.native_exceptions import DETACHED_RULE, frame_errors
 from maquette_motion import pixels
@@ -130,8 +130,8 @@ class RestSpaceTests(unittest.TestCase):
         report = pockets([(self.part, paint, checks)])
         self.assertEqual(report['failures'], [])
         self.assertEqual(report['air_pockets'], [
-            {'bbox': [14, 14, 16, 16], 'pixel_count': 4},
-            {'bbox': [20, 20, 21, 21], 'pixel_count': 1}])
+            {'bbox': [14, 14, 16, 16], 'pixel_count': 4, 'painted_or_tuck_pixels': 0, 'joint_tear': False},
+            {'bbox': [20, 20, 21, 21], 'pixel_count': 1, 'painted_or_tuck_pixels': 0, 'joint_tear': False}])
 
     def test_one_missing_painted_pixel_rejects_whole_pocket(self):
         paint = self.paint.copy(); paint[14:16, 14:16] = 0

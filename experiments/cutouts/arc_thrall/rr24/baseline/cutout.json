@@ -1,0 +1,91 @@
+{
+  "character_id": "arc_thrall",
+  "rig": "humanoid_v2",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "design_placeholders": {},
+  "clips": {
+    "idle": {
+      "seconds": 0.84,
+      "loop": true,
+      "intents": [],
+      "note": "the protagonist's cut-out bob: upper body down 2 px and back as one rigid piece; the tube arm follows a beat later (same 2 px, protagonist sword lag); legs, feet and loincloth still",
+      "release_at": {}
+    },
+    "move": {
+      "seconds": 0.85,
+      "intents": [
+        "arc_jab:move_toward"
+      ],
+      "note": "a lurching walk on the protagonist's model: both legs step, six steps per tile rest to rest (a half step, four full steps, a closing half step), the near foot leading; 6 px lift; the pelvis settles 3 px after each landing; the torso pitches forward 4 degrees; the claw swings 4 px opposite the stepping leg and the tube 2 px; the loincloth trails 2 px",
+      "gait": {
+        "model": "protagonist_walk",
+        "steps_per_tile": 6,
+        "lead": "near",
+        "stance_fraction": 0.6,
+        "lift_px": 6,
+        "lane_narrowing": 0.7,
+        "leg_scale_max": 1.22,
+        "settle_px": {
+          "contact": 1.5,
+          "down": 3.0,
+          "passing": 0.8,
+          "up": 0.4
+        },
+        "arm_swing": {
+          "near": {
+            "bone": "tube_tip",
+            "px": 2
+          },
+          "far": {
+            "bone": "hand_far",
+            "px": 4
+          }
+        },
+        "max_fit_px": 6
+      },
+      "release_at": {}
+    },
+    "tether": {
+      "seconds": 1.2,
+      "contact": 0.5,
+      "intents": [
+        "tether:tether_beam"
+      ],
+      "note": "swings the tube up across its front until it points about 45 degrees down toward its partner (the facing direction); braces with the knees, head up; shudders 1 px while the beam holds (contact 0.5), then lowers. Targets are relative to the rest tip (rest joints in 255 px: shoulder_near 154,88; elbow_near 178,124; tube cap about 215,215); a 125 px forward and 92 px lift puts the cap near 103,179 in the front view",
+      "release_at": {}
+    },
+    "jab": {
+      "seconds": 0.7,
+      "contact": 0.45,
+      "intents": [
+        "arc_jab:melee"
+      ],
+      "note": "draws the tube back and up a little, then swings it forward in one heavy stroke until it points about 60 degrees down toward the target (contact), the weight shifting onto the front foot; holds a beat and recovers; the claw swings back as a counterweight; the weight sinks 3 px into the stroke; the stride foot stays planted and the trailing foot follows the body",
+      "release_at": {}
+    },
+    "hit": {
+      "seconds": 0.5,
+      "intents": [],
+      "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, the claw trails 1 px; recovered by 0.6",
+      "release_at": {}
+    },
+    "death": {
+      "seconds": 1.5,
+      "terminal": true,
+      "intents": [],
+      "note": "jolts up 2 px as the charge leaves it, then the knees buckle: the pelvis drops 22 px over planted feet and it pitches forward 25 degrees over the tube, which lands on the floor ahead; the claw braces on the floor; head down; terminal pose held",
+      "release_at": {}
+    }
+  },
+  "runtime_paths": [
+    "scripts/maquette_cutout_runtime/humanoid_motion.gd",
+    "scripts/maquette_cutout_runtime/humanoid_presentation.gd"
+  ],
+  "direction_clips": [
+    "jab",
+    "tether"
+  ]
+}

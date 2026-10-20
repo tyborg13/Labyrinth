@@ -837,7 +837,7 @@
       }
     }
   },
-  "full_evidence": {
+  "full_samples": {
     "file": "logs/gates.full.json",
     "sha256": "ea403bda3731a04b55e8e1b9c2f4a6d29eed71026b3c78b4fa89570fdb93ab44"
   }

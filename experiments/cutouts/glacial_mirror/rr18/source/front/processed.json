@@ -1,29 +1,29 @@
 {
   "K": 4,
   "drawn_size": [
-    212,
+    209,
     230
   ],
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.09189510176419234,
+    "chroma": 0.09118210124357046,
     "edge_light_share": 0.0,
-    "feature_px": 6.365663684213,
+    "feature_px": 6.265712314276076,
     "height": 230,
     "height_drawn": 230.0,
-    "orphan_share": 0.058025010144232544,
-    "regions": 669,
-    "run_length": 2.2167797857551723,
-    "symmetry": 0.6163444850080795,
-    "thin_abs": 0.007340735549079658,
-    "thin_rel": 0.01331661071968715,
-    "value": 0.23065792996899226,
-    "width": 212
+    "orphan_share": 0.06615946893413888,
+    "regions": 683,
+    "run_length": 2.1694174757281552,
+    "symmetry": 0.607856171627134,
+    "thin_abs": 0.006638323263966628,
+    "thin_rel": 0.013164764675169693,
+    "value": 0.23021423224917625,
+    "width": 209
   },
-  "pixel_sha256": "e544ed7146e64e035dfc52fc1b0a4d79be0d42e8bad25e669d421dae367b0634",
+  "pixel_sha256": "919a6f0dde80f9670c32cef001716b8e7ab85a380ed15d1a7bc4c990c9b664c5",
   "placement": [
-    22,
+    24,
     16
   ],
   "post_steps": [
@@ -47,10 +47,10 @@
         "space": "CIE Lab",
         "std_floor": 1e-06
       },
-      "pre_step_pixel_sha256": "c27da0454d602182dc44f50491535f6c42cec60ff7ae5353c99808fab7a95963",
+      "pre_step_pixel_sha256": "0e29d7cf4f9718d78f4405a832ac38b967eb79ade5bd536ada8d42605b85def8",
       "protected_body_share": {
         "front": 0.0013952308472856417,
-        "rear": 0.03243901538915747
+        "rear": 0.032120872971460546
       },
       "reference_pixel_sha256": "b786300193bd8b76d344b1021773d0943bdf8e4e817320279770f5ed87157e38",
       "step": "palette_match"
@@ -66,11 +66,11 @@
           21
         ]
       },
-      "pre_step_pixel_sha256": "29936fb875d2f9a55035cd3b58c6bc4738e87d0e2acb2231e085dbe6caef7037",
+      "pre_step_pixel_sha256": "b6ec718d9b5569621b34790e1607c098247bb83b3603ca521bdce6a76e15ba61",
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "0feb601983b60dd94ec7a808f3c78ab59fd76e9302de4bb8d2e913ffd6ff11a9",
+  "raw_sha256": "ca8208ae8f03468a750d475ad6ae7e02fb7f7f441b4883577cc5a43baead9148",
   "shift": [
     0,
     0

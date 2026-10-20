@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT / 'tools'))
 from cutout_pipeline.cases import read_json
 from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.gates import structure_errors, source_errors
-from humanoid_cutout.rest_space import DetachedSource
+from humanoid_cutout.source_space import DetachedSource
 from humanoid_cutout.texel_attachments import attach, base_mesh, barycentric
 
 CASE = ROOT / 'experiments/cutouts/hoarfrost_seer/rr10'

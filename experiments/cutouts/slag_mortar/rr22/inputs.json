@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/slag_mortar/mq9_front",
+  "rear_job": "spec/art_identity/jobs/slag_mortar/mq9_rear",
+  "front_delivery": "spec/art_identity/maquettes/slag_mortar/delivery",
+  "rear_delivery": "spec/art_identity/maquettes/slag_mortar/delivery",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 sys.path.insert(0,str(Path.cwd()/'tools'))
-from humanoid_cutout.rest_space import DetachedSource,pockets
+from humanoid_cutout.source_space import DetachedSource, pocket_report as pockets
 from humanoid_cutout.gates import clean_metrics
 from humanoid_cutout.native_exceptions import frame_errors
 paint=np.zeros((32,32,4),dtype=np.uint8)

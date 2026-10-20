@@ -1,156 +1,156 @@
 {
-  "source": "spec/art_identity/jobs/glacial_mirror/mq8_front/processed.png",
+  "source": "spec/art_identity/jobs/glacial_mirror/mq8b_front/processed.png",
+  "source_sha256": "735c23eb0e62a823a4f55135a86fc300208b08e8e92f37568f8b9fbe28c8b5ba",
   "parts": [
     {
       "name": "head",
       "file": "raw_cut/front/head.png",
       "offset": [
-        112,
+        111,
         16
       ],
       "z_index": 14,
-      "sha256": "840384dbaaa7a74461a6cfdce86675a9a376e64f05eef9769694a248fb624705"
+      "sha256": "0eb424308098cae469a3cf3a7db2c56f6062c848867c30649703ffe0fa13fb4e"
     },
     {
       "name": "torso",
       "file": "raw_cut/front/torso.png",
       "offset": [
-        85,
+        84,
         33
       ],
       "z_index": 13,
-      "sha256": "ff1e79b9c40d52701ca71d2e6d570c030ff5b246fef06ef124c5339faead45b0"
+      "sha256": "04760045889e0613915eb2bd18d538e3b5caa12989f5b98183c06f589a903fd2"
     },
     {
       "name": "pelvis",
       "file": "raw_cut/front/pelvis.png",
       "offset": [
-        97,
+        96,
         135
       ],
       "z_index": 10,
-      "sha256": "b64476fa6d9e441ff8885cc48ad57b21e320c40e51552f955bc22f7e61d51ba1"
+      "sha256": "75c7bc0c5bef17b2bd765120bb437379af3cddb8ecf3ddffe2723c4429fad813"
     },
     {
       "name": "upper_near",
       "file": "raw_cut/front/upper_near.png",
       "offset": [
-        138,
+        137,
         39
       ],
       "z_index": 12,
-      "sha256": "fdae66e44adb4c5b8ea45fcd64e7b814ac094a3a5e95e0362d0cfe6bf4d1067f"
+      "sha256": "084cfa0aa97611e1d0a2b0eeba14419af2f735a5bdf62d793b845bfb5aba92ae"
     },
     {
       "name": "fore_near",
       "file": "raw_cut/front/fore_near.png",
       "offset": [
-        186,
+        185,
         113
       ],
       "z_index": 11,
-      "sha256": "970123f8b02266462e70c7b636e3137c1605de5bcc86ee668383ce070000baba"
+      "sha256": "781d411fa8ecf8385118e6a2ea338b5c251365263232a06f2439fb0c27d7f1a3"
     },
     {
       "name": "fist_near",
       "file": "raw_cut/front/fist_near.png",
       "offset": [
-        186,
+        185,
         159
       ],
       "z_index": 9,
-      "sha256": "7a2975f8970b81eb3942f52ad7b0f5adad0476657306f7b8866827bf2cd4bd9e"
+      "sha256": "ba7a30e26a68db52fa768e08ce2147bf221a0f5d157b0e7bd48132ef619af090"
     },
     {
       "name": "thigh_near",
       "file": "raw_cut/front/thigh_near.png",
       "offset": [
-        135,
+        134,
         130
       ],
       "z_index": 7,
-      "sha256": "93f3e9aaffad097a944b791ebd2d633aa8d76d943d7b96e2a18b67b9da2d4a6c"
+      "sha256": "12b6a75e0be7110fc4c2fa882c173583f85e1e6705c2f7253475a1ec639bdbf6"
     },
     {
       "name": "shin_near",
       "file": "raw_cut/front/shin_near.png",
       "offset": [
-        140,
+        139,
         170
       ],
       "z_index": 6,
-      "sha256": "f051c6eeed89e4a08e0b62e84f536ff4643f497f80c74eef839ab5c5ba0ef64a"
+      "sha256": "8b45301b2f059dacd146d95db3d6b0bab37471f1f412977ee2d3bfb15040d050"
     },
     {
       "name": "foot_near",
       "file": "raw_cut/front/foot_near.png",
       "offset": [
-        134,
+        133,
         203
       ],
       "z_index": 5,
-      "sha256": "e7143a5b350628e4aa5a3d8de26af75fe8f4efa19c1816ed90b3ee3c792d7c0c"
+      "sha256": "efb07a0b741865165dd74005f312db323fb04ea1d71dd420675bc30ef33cacba"
     },
     {
       "name": "upper_far",
       "file": "raw_cut/front/upper_far.png",
       "offset": [
-        41,
+        40,
         22
       ],
       "z_index": 8,
-      "sha256": "7f3e479a0c8b1799e6cdf67bd1bee9482007d208823127ccc5f8ffae0ff78ee6"
+      "sha256": "050cb8586bae0b1ea7b3da3827e893140fcfa65d24a2e88444825b119ac9e723"
     },
     {
       "name": "fore_far",
       "file": "raw_cut/front/fore_far.png",
       "offset": [
-        28,
+        27,
         85
       ],
       "z_index": 4,
-      "sha256": "858d1af58791dfe41300c0029cfaf72e982773070e6b4dc3c685cbcf64260921"
+      "sha256": "c1db10be5d517330e29921a0517fe7240fc7e2f105ede597d3b06e17be1a8805"
     },
     {
       "name": "fist_far",
       "file": "raw_cut/front/fist_far.png",
       "offset": [
-        22,
-        114
+        24,
+        116
       ],
       "z_index": 2,
-      "sha256": "7548ccafdf60ab195a99cc9bc2a3191f95bc1daca859ea509ae97dc08401c607"
+      "sha256": "2da6a6e9a99d7818db0cbdd4d3d31b006207a6edebc13f4c3667190aac95d08e"
     },
     {
       "name": "thigh_far",
       "file": "raw_cut/front/thigh_far.png",
       "offset": [
-        77,
+        76,
         133
       ],
       "z_index": 3,
-      "sha256": "47046b9e03fc878a69fa813a55ac2687fa93c2ee7d30dfaede405c9f12603298"
+      "sha256": "dc499cd0c25f14563d7174020b95dc634948028a34f31136d9b0703e694d616d"
     },
     {
       "name": "shin_far",
       "file": "raw_cut/front/shin_far.png",
       "offset": [
-        76,
+        75,
         165
       ],
       "z_index": 1,
-      "sha256": "a28ca8fbbd5b6664f6c82db67e525107eb8805c09a1817e3408a85f48a3c94ed"
+      "sha256": "79468a5e14b42cf1c4f3c6453a446f860a01a1cea633150392f3e1961a628b17"
     },
     {
       "name": "foot_far",
       "file": "raw_cut/front/foot_far.png",
       "offset": [
-        66,
+        69,
         172
       ],
       "z_index": 0,
-      "sha256": "c49b2a310046240421a70964be29b08794384576e40a53ec7df1397d06f813f6"
+      "sha256": "3bc0314012a46c6aa7c819d26b7f766dfc510f4ad6af75a437ba2d861e617bfd"
     }
-  ],
-  "source_sha256": "9771f4bb6eccaaeb25aa2670c4c16b64f7cf8b31bc1bae86ecca13ece1c8ecc1"
+  ]
 }

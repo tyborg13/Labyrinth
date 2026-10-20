@@ -1,0 +1,125 @@
+{
+  "candidate_only": false,
+  "completions": {
+    "brace": {
+      "active": true,
+      "art": "slag_mortar_maquette",
+      "clip": "idle",
+      "facing": "rear",
+      "mirrored": true,
+      "phase": 0.410753655603655,
+      "presented_phase": 0.357142857142857,
+      "reduced_motion": false,
+      "rig_count": 2,
+      "screen_pixel_scale": 0.627655328488817,
+      "shown_clip": "idle",
+      "step_distance_px": 0.0,
+      "texture_id": -9223371444031838443
+    },
+    "hit": {
+      "active": true,
+      "art": "slag_mortar_maquette",
+      "clip": "idle",
+      "facing": "front",
+      "mirrored": true,
+      "phase": 0.0574666666666667,
+      "presented_phase": 0.0,
+      "reduced_motion": false,
+      "rig_count": 2,
+      "screen_pixel_scale": 0.627655328488817,
+      "shown_clip": "idle",
+      "step_distance_px": 0.0,
+      "texture_id": -9223371444031838443
+    },
+    "land": {
+      "active": true,
+      "art": "slag_mortar_maquette",
+      "clip": "idle",
+      "facing": "rear",
+      "mirrored": true,
+      "phase": 0.302734078884078,
+      "presented_phase": 0.238095238095238,
+      "reduced_motion": false,
+      "rig_count": 2,
+      "screen_pixel_scale": 0.627655328488817,
+      "shown_clip": "idle",
+      "step_distance_px": 0.0,
+      "texture_id": -9223371444031838443
+    },
+    "lob": {
+      "active": true,
+      "art": "slag_mortar_maquette",
+      "clip": "idle",
+      "facing": "rear",
+      "mirrored": true,
+      "phase": 0.178430242905243,
+      "presented_phase": 0.119047619047619,
+      "reduced_motion": false,
+      "rig_count": 2,
+      "screen_pixel_scale": 0.627655328488817,
+      "shown_clip": "idle",
+      "step_distance_px": 0.0,
+      "texture_id": -9223371444031838443
+    },
+    "move": {
+      "active": true,
+      "art": "slag_mortar_maquette",
+      "clip": "idle",
+      "facing": "rear",
+      "mirrored": true,
+      "phase": 0.07434828042328,
+      "presented_phase": 0.0,
+      "reduced_motion": false,
+      "rig_count": 2,
+      "screen_pixel_scale": 0.627655328488817,
+      "shown_clip": "idle",
+      "step_distance_px": 0.0,
+      "texture_id": -9223371444031838443
+    },
+    "scatter": {
+      "active": true,
+      "art": "slag_mortar_maquette",
+      "clip": "idle",
+      "facing": "front",
+      "mirrored": true,
+      "phase": 0.516665031265031,
+      "presented_phase": 0.476190476190476,
+      "reduced_motion": false,
+      "rig_count": 2,
+      "screen_pixel_scale": 0.627655328488817,
+      "shown_clip": "idle",
+      "step_distance_px": 0.0,
+      "texture_id": -9223371444031838443
+    }
+  },
+  "errors": [],
+  "native_pixels": false,
+  "ok": true,
+  "production_promoted": true,
+  "size": [
+    1920,
+    1080
+  ],
+  "type": "slag_mortar",
+  "ui_scale": 1.0,
+  "full_samples": {
+    "file": "logs/production_logic_rear/logic_frames.json",
+    "sha256": "4964e339f0646af29243ef545858771ae1f4fc4e969a94c73396e736f7ddcc95"
+  },
+  "frame_count": 1516,
+  "stage_counts": {
+    "idle": 50,
+    "move": 284,
+    "lob": 201,
+    "land": 111,
+    "brace": 151,
+    "scatter": 134,
+    "hit": 80,
+    "death": 505
+  },
+  "outcome_contacts": {
+    "lob": 0.6,
+    "land": 0.3,
+    "brace": 0.4
+  }
+}

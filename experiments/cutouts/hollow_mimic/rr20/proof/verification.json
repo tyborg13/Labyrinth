@@ -285,7 +285,7 @@
             }
           }
         },
-        "full_evidence": {
+        "full_samples": {
           "file": "logs/feedback3_passed_pockets.md",
           "sha256": "e7c17c123674258db0019f7bbae602b1edc54588aa1cd2a9de1e41257acfc52e"
         }

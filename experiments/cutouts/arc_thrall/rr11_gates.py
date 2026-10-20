@@ -3,10 +3,15 @@ import argparse
 from pathlib import Path
 from rr11_build import CASE, DIRECTOR, read_json, write_json
 from rr11_knees import knee_report, support_report
-from tools.humanoid_cutout.gates import structure_errors, source_errors, bone_errors, native_errors, bindings
+from tools.humanoid_cutout.gates import structure_errors, source_errors as shared_source_errors, bone_errors, native_errors, bindings
 from tools.humanoid_cutout.action_direction import report as action_direction_report
 from tools.humanoid_cutout.reach import report as reach_report
 from tools.humanoid_cutout.walk_gates import write_reports as write_walk_reports
+
+
+def source_errors(case, layout, build):
+    from rr24_check import source_errors as thrall_source_errors
+    return shared_source_errors(case,layout,build) + thrall_source_errors(layout['facing'],layout)
 
 
 def main():
@@ -31,7 +36,9 @@ def main():
         errors += knees[view]['errors']
         errors += supports[view]['errors']
     errors += cut_errors
-    if args.native: errors += native_errors(CASE, args.native)
+    if args.native:
+        from rr24_native_gates import errors as thrall_native_errors
+        errors += thrall_native_errors(CASE,args.native)
     placeholders = read_json(CASE / 'cutout.json')['design_placeholders']
     write_walk_reports(CASE, 'knees', knees)
     write_walk_reports(CASE, 'supports', supports)

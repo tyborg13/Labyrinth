@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'experiments/cutouts/hollow_mimic')]
 from case import CASE, read_json
 from humanoid_cutout.cpu_pose import CpuPose
-from humanoid_cutout.rest_space import DetachedSource
+from humanoid_cutout.source_space import DetachedSource
 from humanoid_cutout.gates import structure_errors, source_errors
 from humanoid_cutout.texel_attachments import attach
 

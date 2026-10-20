@@ -19,6 +19,6 @@ func write_report(output: String, report: Dictionary) -> void:
 	summary.erase("samples")
 	summary.erase("inputs")
 	summary["sample_counts"] = counts
-	summary["full_evidence"] = {"file": "logs/samples.full.json", "sha256": FileAccess.get_sha256(evidence)}
+	summary["full_samples"] = {"file": "logs/samples.full.json", "sha256": FileAccess.get_sha256(evidence)}
 	super.write_report(output, summary)
 	print("RR20 COMPACT SAMPLES: PASS (%d inventories; full transforms in ignored logs)" % counts.size())

@@ -1,4 +1,10 @@
-# rr-18 — Glacial Mirror humanoid v2
+# Glacial Mirror humanoid v2
+
+Current implementation handoff: [rr-23 owner fixes](rr18/rr23_handoff.md). Both
+mq8b cuts, ankle registration, front guard order and pinned preservation checks
+are installed. The rr-18 notes below are historical.
+
+## Historical rr-18 handoff
 
 Current handoff: [director feedback 3](rr18/feedback3.md). **All headless gates pass in both views.** The 13 rear continuation failures (14 pockets) are repaired; every original material-hit pixel is covered for all native UV candidates. All 682 presented frames have zero pockets, green-dominant texels and clean-piece defects. No exemptions or motion changes.
 

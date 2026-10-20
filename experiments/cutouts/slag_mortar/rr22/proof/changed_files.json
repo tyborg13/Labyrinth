@@ -1,0 +1,16 @@
+[
+  "assets/units/slag_mortar_cutout/integration.json",
+  "assets/units/slag_mortar_cutout/renderer.gd",
+  "experiments/cutouts/slag_mortar/README.md",
+  "experiments/cutouts/slag_mortar/rr22/proof/chosen_defaults.json",
+  "experiments/cutouts/slag_mortar/rr22/proof/production_logic/logic_frames.json",
+  "experiments/cutouts/slag_mortar/rr22/proof/production_logic_rear/logic_frames.json",
+  "experiments/cutouts/slag_mortar/rr22/proof/results.json",
+  "experiments/cutouts/slag_mortar/rr22/proof/samples.json",
+  "tests/rr22/pack.gd",
+  "tests/rr22/runtime_checks.gd",
+  "tests/test_rr22_source_space.py",
+  "tools/humanoid_cutout/gates.py",
+  "tools/humanoid_cutout/silhouette_gates.py",
+  "tools/humanoid_cutout/source_space.py"
+]

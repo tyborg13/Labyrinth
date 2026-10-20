@@ -1,0 +1,103 @@
+{
+  "task": "rr-21",
+  "round": "feedback 3",
+  "base_head": "e05340c42e715122c5e86b02a97987949aece9c1",
+  "branch": "codex/rr-21",
+  "uncommitted": true,
+  "full_suites_run": false,
+  "windowed_runs": false,
+  "peer_review_run": false,
+  "root_cause": {
+    "reason": "Direction evidence exits on stale bindings before counting positive checks. Review reused samples/native capture from before production_contract.json changed at e05340c42. The compact index correctly loaded all 1106 full poses.",
+    "binding_delta": {
+      "runtime:tests/rr21/production_contract.json": {
+        "captured": "665405bf47eb87cfefaca42e9898896e461fba2328416caf66f158c2cd7e9fd3",
+        "current": "59076c0321c43d887c833fdfdc1e226d06674762a4cf4a5dc33a733021917af4"
+      }
+    },
+    "original_review_errors": [
+      "bone evidence: stale input bindings",
+      "stale headless pose reference; rerun samples.gd",
+      "stale native proof inputs"
+    ]
+  },
+  "acceptance": {
+    "1": "Review always regenerates actual Bone2D samples with the task runner and rewrites the compact index. Current native captures are reused; stale/missing/incomplete provenance triggers the existing visual runner before native gates and encoding. No manifest rebinding or weaker gates.",
+    "2": "Outside JSON exists and has the matching SHA-256. Both relative and symlink escapes are rejected. Removing only containment causes both subtests to fail while existence/hash checks remain enabled.",
+    "3": "Focused tests only; exact windowed review command listed below. Full native pixels/encoding remain director-owned."
+  },
+  "regression": {
+    "checkout_fixture": "Only git-tracked case files, committed compact sample index and tracked build metadata; no ignored diagnostics.",
+    "capture_fixture": "Synthetic provenance metadata for review --validate-only; never native pixel acceptance.",
+    "actual_evidence": "Godot tests/rr21/samples.gd via tools/godot_task_runner.py produces full real Bone2D rows; both required clips checked in both views.",
+    "stale_samples": "Full record hash is valid but production-contract binding is stale; review regenerates evidence instead of relabeling it.",
+    "windowed_routing": "Inert Python command stubs verify refresh -> provenance -> conditional real-runner command -> native gate -> encoder. No GUI runs in tests."
+  },
+  "focused_test_command": "LABYRINTH_TASK_ID=rr-21 python3 -B -m unittest tests.test_rr21_review tests.test_rr21_walk tests.test_rr10_bone_evidence -q",
+  "focused_result_lines": [
+    "Ran 14 tests in 37.622s",
+    "OK"
+  ],
+  "focused_log": "experiments/cutouts/briar_weaver/mq9/proof/logs/feedback3_focused_final.log",
+  "headless_command": "PYTHONPATH=tools python3 -B experiments/cutouts/briar_weaver/rr21_evidence.py --refresh; python3 -B experiments/cutouts/briar_weaver/rr21_gates.py",
+  "headless_result_lines": [
+    "RR21 FRONT CUT: PASS (0 errors)",
+    "RR21 FRONT DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+    "RR21 FRONT WALK: PASS (6 swings; minimum peak 65.597 degrees; fit 0.073320 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582567 px)",
+    "RR21 FRONT REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 8 overreach reports)",
+    "RR21 REAR CUT: PASS (0 errors)",
+    "RR21 REAR DIRECTION: PASS (621 positive checks; lash/thornwall required)",
+    "RR21 REAR WALK: PASS (6 swings; minimum peak 69.553 degrees; fit 0.063006 px; total drop 2.500000 px; stance shift 0.000000 px; target error 0.582570 px)",
+    "RR21 REAR REACH: REPORT (14 keyed paths; 1000 intervals; 0 inside-minimum errors; 5 overreach reports)",
+    "RR21 RESIDUE: PASS (158 derived surfaces; zero outside declared features)",
+    "RR21 HEADLESS GATES: PASS (0 errors)"
+  ],
+  "compact_records": {
+    "samples": {
+      "bytes": 50203,
+      "has_full_sample_array": false
+    },
+    "gates": {
+      "bytes": 56323,
+      "has_full_sample_array": false
+    },
+    "native_gates": {
+      "bytes": 56186,
+      "has_full_sample_array": false
+    }
+  },
+  "preexisting_director_outputs_preserved": {
+    "experiments/cutouts/briar_weaver/mq9/proof/native_gates.json": "69ffe8d4a4280318ad7bd8999b351b7e1571866de806137b77b73a96a49d8f18",
+    "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_protagonist_idle.json": "dd6e3d5ca17cad4a92e6d3ab99990c55afde3511ccaccc890a89c3fb27aad9a2"
+  },
+  "protected_art_motion_runtime_dependencies_changed": false,
+  "shared_extensions": [],
+  "design_placeholders": {},
+  "chosen_defaults": {
+    "review_fixture_timeout_seconds": 180,
+    "inert_command_timeout_seconds": 10,
+    "invalid_capture_size_fixture": [
+      1,
+      1
+    ],
+    "case_override": "RR21_CASE for isolated tracked-file review fixtures; default remains the existing Briar case"
+  },
+  "windowed_review_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-21 && sh experiments/cutouts/briar_weaver/rr21_proof.sh review",
+  "windowed_behavior": "Current director native frames have stale production-contract provenance, so this review command will recapture them once through the existing visual runner, then validate and encode.",
+  "output_paths": [
+    "experiments/cutouts/briar_weaver/mq9/proof/logs/samples.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/samples.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/native",
+    "experiments/cutouts/briar_weaver/mq9/proof/native_gates.json",
+    "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_review.mp4",
+    "experiments/cutouts/briar_weaver/mq9/proof/briar_weaver_review.json"
+  ],
+  "checks": [
+    "sh -n experiments/cutouts/briar_weaver/rr21_proof.sh: exit 0",
+    "git diff --check: exit 0"
+  ],
+  "open_issues": [
+    "Fresh windowed review/native recapture and reel encoding cannot run in worker sandbox; director command supplied."
+  ],
+  "files_changed": "experiments/cutouts/briar_weaver/rr21_feedback3_files_changed.txt"
+}

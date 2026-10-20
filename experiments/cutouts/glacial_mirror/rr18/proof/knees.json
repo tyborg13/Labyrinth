@@ -10,9 +10,9 @@
         "from": 0.0,
         "to": 0.2,
         "peak_frame": 2,
-        "peak_bend_deg": 56.13199584260983,
+        "peak_bend_deg": 60.442788452850316,
         "apex_frame": 2,
-        "apex_swing_bend_deg": 56.13199584260983,
+        "apex_swing_bend_deg": 60.442788452850316,
         "apex_stance_bend_deg": 38.3351459518714
       },
       {
@@ -22,10 +22,10 @@
         "from": 0.0,
         "to": 0.4,
         "peak_frame": 10,
-        "peak_bend_deg": 81.24638898820008,
+        "peak_bend_deg": 81.24632671191826,
         "apex_frame": 11,
         "apex_swing_bend_deg": 73.53995611502489,
-        "apex_stance_bend_deg": 32.75547006853628
+        "apex_stance_bend_deg": 34.245941051912624
       },
       {
         "side": "near",
@@ -34,9 +34,9 @@
         "from": 0.2,
         "to": 0.6,
         "peak_frame": 21,
-        "peak_bend_deg": 59.58687824855374,
+        "peak_bend_deg": 64.51077523617512,
         "apex_frame": 21,
-        "apex_swing_bend_deg": 59.58687824855374,
+        "apex_swing_bend_deg": 64.51077523617512,
         "apex_stance_bend_deg": 38.54229200693329
       },
       {
@@ -49,7 +49,7 @@
         "peak_bend_deg": 82.4185023876338,
         "apex_frame": 32,
         "apex_swing_bend_deg": 80.11346875850195,
-        "apex_stance_bend_deg": 30.75595870440327
+        "apex_stance_bend_deg": 35.703212992163664
       },
       {
         "side": "near",
@@ -58,9 +58,9 @@
         "from": 0.6,
         "to": 1.0,
         "peak_frame": 43,
-        "peak_bend_deg": 59.279807725529054,
+        "peak_bend_deg": 61.679797765848015,
         "apex_frame": 42,
-        "apex_swing_bend_deg": 55.99475133950878,
+        "apex_swing_bend_deg": 58.53131197437408,
         "apex_stance_bend_deg": 44.31658375043324
       },
       {
@@ -73,15 +73,15 @@
         "peak_bend_deg": 85.24476965748663,
         "apex_frame": 51,
         "apex_swing_bend_deg": 85.24476965748663,
-        "apex_stance_bend_deg": 24.527701491730394
+        "apex_stance_bend_deg": 25.86376479728191
       }
     ],
-    "minimum_peak_bend_deg": 56.13199584260983,
+    "minimum_peak_bend_deg": 60.442788452850316,
     "maximum_fit_px": 2.716828686459621,
     "maximum_total_pelvis_drop_px": 4.715246843730412,
     "maximum_rigid_air_px": 0.0,
     "maximum_stance_frame_change_px": 0.0,
-    "maximum_stance_target_error_px": 0.6159496955095051,
+    "maximum_stance_target_error_px": 0.615954391924545,
     "sample_counts": {
       "frames": 125,
       "stance": 160,
@@ -103,7 +103,7 @@
         "peak_bend_deg": 69.71740911964874,
         "apex_frame": 2,
         "apex_swing_bend_deg": 69.71740911964874,
-        "apex_stance_bend_deg": 21.161259816828277
+        "apex_stance_bend_deg": 23.673781580857426
       },
       {
         "side": "far",
@@ -112,9 +112,9 @@
         "from": 0.0,
         "to": 0.4,
         "peak_frame": 10,
-        "peak_bend_deg": 52.98688744650388,
+        "peak_bend_deg": 58.21902776553073,
         "apex_frame": 11,
-        "apex_swing_bend_deg": 52.44438288516499,
+        "apex_swing_bend_deg": 55.98065001017354,
         "apex_stance_bend_deg": 38.13745237607028
       },
       {
@@ -127,7 +127,7 @@
         "peak_bend_deg": 69.52773969486577,
         "apex_frame": 21,
         "apex_swing_bend_deg": 68.74950738416868,
-        "apex_stance_bend_deg": 26.76841372535307
+        "apex_stance_bend_deg": 27.073335652863072
       },
       {
         "side": "far",
@@ -136,9 +136,9 @@
         "from": 0.4,
         "to": 0.8,
         "peak_frame": 32,
-        "peak_bend_deg": 54.51784192225206,
+        "peak_bend_deg": 60.10446150938097,
         "apex_frame": 32,
-        "apex_swing_bend_deg": 54.51784192225206,
+        "apex_swing_bend_deg": 60.10446150938097,
         "apex_stance_bend_deg": 40.174776215919685
       },
       {
@@ -151,7 +151,7 @@
         "peak_bend_deg": 71.1962122559474,
         "apex_frame": 42,
         "apex_swing_bend_deg": 64.72891265268728,
-        "apex_stance_bend_deg": 27.212558520947116
+        "apex_stance_bend_deg": 27.479042831771558
       },
       {
         "side": "far",
@@ -160,14 +160,14 @@
         "from": 0.8,
         "to": 1.0,
         "peak_frame": 51,
-        "peak_bend_deg": 51.766164915880154,
+        "peak_bend_deg": 57.76110611842087,
         "apex_frame": 51,
-        "apex_swing_bend_deg": 51.766164915880154,
+        "apex_swing_bend_deg": 57.76110611842087,
         "apex_stance_bend_deg": 31.101402389024255
       }
     ],
-    "minimum_peak_bend_deg": 51.766164915880154,
-    "maximum_fit_px": 2.842170943040401e-14,
+    "minimum_peak_bend_deg": 57.76110611842087,
+    "maximum_fit_px": 0.15806656563435695,
     "maximum_total_pelvis_drop_px": 3.5000000000000036,
     "maximum_rigid_air_px": 0.0,
     "maximum_stance_frame_change_px": 0.0,

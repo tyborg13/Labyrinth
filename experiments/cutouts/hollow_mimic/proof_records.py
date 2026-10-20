@@ -2,14 +2,6 @@
 from case import CASE, read_json, write_json, digest
 from humanoid_cutout.walk_gates import summary as walk_summary
 
-FULL_SAMPLES = 'logs/samples.full.json'
-
-
-def samples():
-    from humanoid_cutout.bone_evidence import read_samples
-    return read_samples(CASE)
-
-
 def compact(result):
     if isinstance(result, list):
         return [compact(item) for item in result]
@@ -29,5 +21,5 @@ def write(name, result):
     full = CASE / f'proof/logs/{name}.full.json'
     write_json(full, result)
     summary = compact(result)
-    summary['full_evidence'] = {'file': str(full.relative_to(CASE / 'proof')), 'sha256': digest(full)}
+    summary['full_samples'] = {'file': str(full.relative_to(CASE / 'proof')), 'sha256': digest(full)}
     write_json(CASE / f'proof/{name}.json', summary)

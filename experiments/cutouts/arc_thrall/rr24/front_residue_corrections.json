@@ -1,0 +1,34 @@
+{
+  "head": [],
+  "torso": [
+    {
+      "target": [
+        108,
+        122
+      ],
+      "donor": [
+        108,
+        121
+      ]
+    },
+    {
+      "target": [
+        105,
+        131
+      ],
+      "donor": [
+        105,
+        130
+      ]
+    }
+  ],
+  "upper_near": [],
+  "tube": [],
+  "sleeve_far": [],
+  "claw": [],
+  "leg_near": [],
+  "leg_far": [],
+  "foot_near": [],
+  "foot_far": [],
+  "loincloth": []
+}

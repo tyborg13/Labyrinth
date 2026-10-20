@@ -1,0 +1,78 @@
+{
+  "K": 4,
+  "drawn_size": [
+    178,
+    213
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.1905526550549145,
+    "edge_light_share": 0.0,
+    "feature_px": 5.881092875840682,
+    "height": 213,
+    "height_drawn": 213.0,
+    "orphan_share": 0.011977361470626946,
+    "regions": 659,
+    "run_length": 3.1227565419920538,
+    "symmetry": 0.6296645662755159,
+    "thin_abs": 0.009871451761505723,
+    "thin_rel": 0.024042469179133996,
+    "value": 0.21069701206854874,
+    "width": 178
+  },
+  "pixel_sha256": "68bd72f6f0bedc3a92c40f59f834efddb761f0ccd8a3498d6b121b13ecfae21a",
+  "placement": [
+    39,
+    33
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/slag_mortar/front/kit.json",
+        "pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a"
+      },
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "6e81ff4fc73f65b3d139ef31429bdfc3c126170a49e29155b3438366e061864a",
+      "protected_body_share": {
+        "front": 0.08425500186404872,
+        "rear": 0.06658468825431525
+      },
+      "reference_pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "f2286d624147999a63417a29ce622df584eb87ebc276446ce112937b1a5b93e1",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "189b996afbe009b256afacbc01f23de319dcc98a947eeecdd692df3a50ca0b3a",
+  "shift": [
+    0,
+    0
+  ]
+}

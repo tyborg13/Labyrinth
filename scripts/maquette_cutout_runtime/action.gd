@@ -10,6 +10,19 @@ const FPS: float = 60.0
 static func handles(type: String) -> bool:
 	return Presentation.handles(type)
 
+## Case-owned playback takes priority over declared shared contact clips.
+## The integration record owns the resource path ("action_adapter").
+static func playback_adapter(step: Dictionary, actor: Dictionary) -> Script:
+	var type: String = str(actor.get("type", ""))
+	var integration: Dictionary = Presentation.integration_for(type)
+	var path: String = str(integration.get("action_adapter", ""))
+	if not path.is_empty():
+		var adapter: Script = load(path) as Script
+		if adapter != null and adapter.handles(step, actor): return adapter
+	# Runtime loading avoids a preload cycle: contact_actions uses this clock.
+	var contact: Script = load("res://scripts/maquette_cutout_runtime/contact_actions.gd") as Script
+	return contact if contact.handles(step, actor) else null
+
 static func data_for(type: String) -> Dictionary:
 	if not handles(type): return {}
 	var directory: String = Presentation.asset_directory(type)
@@ -25,6 +38,7 @@ static func clip_for(effect: Dictionary, actor: Dictionary) -> String:
 		if bool(effect.get(flag, false)): return str(selectors[flag])
 	var intent: String = str(effect.get("intent_id", actor.get("intent", {}).get("id", "")))
 	var verb: String = str(effect.get("action_type", effect.get("kind", "")))
+	verb = str(Presentation.integration_for(str(actor.get("type", ""))).get("action_aliases", {}).get(verb, verb))
 	# The existing Kindle resolver emits a status snapshot. Normalize only its
 	# presentation selector; preserve the resolver step and protected clip data.
 	if str(actor.get("type", "")) == "ember_tick" and intent == "kindle" and verb == "status" and effect.has("enemy_after"):

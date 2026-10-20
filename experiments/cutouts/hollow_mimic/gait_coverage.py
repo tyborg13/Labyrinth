@@ -123,5 +123,5 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--samples', type=Path)
     args=parser.parse_args()
-    import proof_records
-    build(read_json(args.samples) if args.samples else proof_records.samples())
+    from humanoid_cutout.bone_evidence import read_report
+    build(read_json(args.samples) if args.samples else read_report(CASE))
