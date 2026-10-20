@@ -15,6 +15,7 @@ from tests import rr29_historical_mimic as history
 from tests import test_rr28_continuations as rr28
 from tests.test_rr20_cutout import rr20
 from rr20_preservation import own_input_errors
+from rr29_preservation import preservation_report
 
 ROOT=history.PROJECT
 FIXTURE={'input':'spec/rr29_historical_fixture.json','bytes':b'approved input\n',
@@ -86,6 +87,43 @@ class HistoricalRangeTests(unittest.TestCase):
         with self.assertRaises(AssertionError):assert_original(mutant)
         path.write_text(json.dumps(changed));assert_original(unit)
         print('RR29 RR28 RANGE MUTATION: PASS (actual layout assertion rejects in-range edit; later repair cannot hide it)')
+
+    def preservation_fixture(self):
+        for name,data in (
+            ('spec/art_identity/registry.json',{'entries':[
+                {'path':'assets/units/other/front.png','pixel_sha256':'fixture'}]}),
+            ('spec/assets/board_pixel_density/registry.json',{'entries':[
+                {'id':'other','path':'assets/units/other/front.png'}], 'excluded_paths':{}}),
+            ('spec/assets/board_pixel_density/outputs.json',{'outputs':{'assets/units/other/front.png':'fixture'}})):
+            self.write(name,json.dumps(data).encode())
+        self.write('assets/units/other/rig.gd',FIXTURE['bytes'])
+        self.write('experiments/cutouts/other/case.json',FIXTURE['bytes'])
+        return self.commit()
+
+    def test_rr29_preservation_rejects_committed_out_of_scope_changes(self):
+        baseline=self.preservation_fixture()
+        self.assertTrue(preservation_report(self.project,baseline)['ok'])
+        for name in ('assets/units/other/rig.gd','experiments/cutouts/other/case.json'):
+            self.write(name,FIXTURE['mutation'])
+        self.commit()
+        self.assertEqual(self.git('status','--porcelain'),'')
+        report=preservation_report(self.project,baseline)
+        self.assertFalse(report['ok'])
+        self.assertEqual(report['errors'],['other_figure_files_byte_identical'])
+        self.assertEqual(report['other_figure_changes'],[
+            'assets/units/other/rig.gd','experiments/cutouts/other/case.json'])
+        # Later commits and working changes cannot move the comparison base.
+        self.write('assets/units/hollow_mimic_cutout/rig.gd',FIXTURE['bytes']);self.commit()
+        self.assertEqual(preservation_report(self.project,baseline)['other_figure_changes'],report['other_figure_changes'])
+        print('RR29 COMMITTED SCOPE MUTATION: PASS (clean committed foreign rig/case edits rejected against integration)')
+
+    def test_rr29_preservation_includes_committed_shared_records_and_new_files(self):
+        baseline=self.preservation_fixture()
+        path=self.project/'spec/art_identity/registry.json';data=json.loads(path.read_bytes())
+        data['entries'][0]['pixel_sha256']='changed';path.write_text(json.dumps(data));self.commit()
+        self.assertEqual(preservation_report(self.project,baseline)['errors'],['identity_other_entries_identical'])
+        self.write('assets/units/other/new.gd',FIXTURE['mutation'])
+        self.assertIn('assets/units/other/new.gd',preservation_report(self.project,baseline)['other_figure_changes'])
 
 
 if __name__=='__main__':unittest.main()

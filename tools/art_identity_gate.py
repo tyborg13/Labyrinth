@@ -25,6 +25,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont, ImageOps
 
 from pixel_density import metrics as density_metrics
 from process_board_density import pixel_digest
+from art_identity_prompts import revision_binding, verify_revision
 
 ROOT = Path(__file__).resolve().parents[1]
 IDENTITY = Path("spec/art_identity")
@@ -700,10 +701,11 @@ def prompt_kit_version(kit: dict, prompt: bytes):
     custom prompts may not retain this exact serialization: for those the
     prompt hash and registry bindings still verify the recorded version field.
     Maquette jobs instead hash the whole captured prompt and ordered digests.
+    Opt-in revision prompts additionally bind the ordered base/revision pair.
     """
     if kit.get("kit_kind") == "maquette":
         digests = "".join(ref["pixel_sha256"] for ref in kit["refs"]).encode("ascii")
-        return sha(prompt + digests)
+        return sha(prompt + revision_binding(kit) + digests)
     preamble, view_marker, remainder = prompt.partition(b"\n## View\n")
     view, subject_marker, _ = remainder.partition(b"\n## Subject")
     if not view_marker or not subject_marker:
@@ -722,7 +724,8 @@ def recorded_ref_digests(kit: dict) -> dict:
 
 def kit_version_verification(kit: dict, prompt: bytes) -> str:
     if kit.get("kit_kind") == "maquette":
-        return "prompt_ordered_refs" if prompt_kit_version(kit, prompt) == kit["kit_version"] else "mismatched"
+        mode = "prompt_chain_ordered_refs" if revision_binding(kit) else "prompt_ordered_refs"
+        return mode if prompt_kit_version(kit, prompt) == kit["kit_version"] else "mismatched"
     return "prompt_reconstructed" if prompt_kit_version(kit, prompt) == kit["kit_version"] else "recorded"
 
 
@@ -1030,6 +1033,9 @@ def validate_palette_skip(step: dict) -> None:
 def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = False) -> list:
     """Read-only certification shared by registry checks and unregistered-job proof."""
     kit = read_json(kit_path)
+    verify_revision(kit, kit_path, root)
+    if revision_binding(kit) and prompt_kit_version(kit, (kit_path.parent / kit["prompt_path"]).read_bytes()) != kit.get("kit_version"):
+        raise ValueError("revision prompt chain kit_version does not reproduce")
     source = kit_path.parent / "processed.png"
     processed = read_json(source.with_suffix(".json"))
     steps = processed.get("post_steps", [])
@@ -1606,6 +1612,9 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
     provenance = ["kit_version " + kit["kit_version"], "front pixels " + pixel_digest(candidate),
                   "rear pixels " + (pixel_digest(rear_image) if rear_image else "absent"),
                   "kit file sha256 " + sha(kit_path.read_bytes()), "prompt sha256 " + kit["prompt_sha256"]]
+    if revision_binding(kit):
+        provenance.extend(["prompt chain: " + kit["prompt_source"] + " -> " + kit["revision_prompt_source"],
+                           "revision prompt sha256 " + kit["revision_prompt_sha256"]])
     provenance.extend(ref["file"] + " pixels " + ref["pixel_sha256"] for ref in kit["refs"])
     table_height = (len(metric_rows) + len(provenance) + 3) * line_height
     output = Image.new("RGBA", (row.width * 2, row.height * 3 + SHEET_DEFAULTS["detail_height"] + table_height), "#14100c")

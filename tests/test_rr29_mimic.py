@@ -117,6 +117,25 @@ class MimicRevisionTests(unittest.TestCase):
         row['parts']['hand_near']['z_index']=0
         self.assertTrue(draw_report(mutant)['errors'])
 
+    def test_every_sample_part_has_a_finite_native_node_transform(self):
+        for row in self.samples['samples']:
+            self.assertEqual(set(row['parts']),{p['name'] for p in self.layouts[row['view']]['parts']})
+            self.assertEqual(set(row['part_draw_order']),set(row['parts']))
+            self.assertEqual(len(row['part_draw_order']),len(row['parts']))
+            # Independent known tree relationship: skeleton sprites precede
+            # the rig's skinned meshes, even when their z values tie.
+            self.assertLess(row['part_draw_order'].index('head'),row['part_draw_order'].index('hand_near'))
+            self.assertLess(row['part_draw_order'].index('hand_near'),row['part_draw_order'].index('sleeve_near'))
+            for name,part in row['parts'].items():
+                self.assertIn('transform',part,(row['view'],row['clip'],row['frame'],name))
+                self.assertEqual(len(part['transform']),6)
+                self.assertTrue(all(math.isfinite(v) for v in part['transform']))
+
+    def test_far_arm_runtime_promotion_restoration_and_rear_exclusion(self):
+        result=godot('tests/rr29/far_arm_fixture.gd')
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+        self.assertIn('RR29 FAR ARM RUNTIME: PASS (26 checks)',result.stdout)
+
     def test_far_crossing_and_camera_view_are_geometric(self):
         layout=self.layouts['front']
         pose=copy.deepcopy(next(r for r in self.samples['samples'] if r['view']=='front' and r['clip']=='block' and r['frame']==TEST_DEFAULTS['mutation_frame']))
@@ -161,6 +180,32 @@ class MimicRevisionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'not green-dominant'):
             size=TEST_DEFAULTS['residue_fixture_size_px']
             apply(Image.new('RGBA',(size,size)),[{'step':'key_residue_4_neighbour_mean','pixels':[[0,0]]}],pixel_digest)
+
+    def test_rear_revision_prompt_tampering_fails_certification(self):
+        import art_identity_gate as gate
+        from unittest.mock import patch
+        job=ROOT/'spec/art_identity/jobs/hollow_mimic/mq11_rear'
+        kit=read_json(job/'kit.json');prompt=(job/kit['prompt_path']).read_bytes()
+        self.assertEqual(gate.prompt_kit_version(kit,prompt),kit['kit_version'])
+        self.assertEqual(gate.kit_version_verification(kit,prompt),'prompt_chain_ordered_refs')
+        self.assertEqual(gate.verify_job_recipe(job/'kit.json',require_inputs=True),[])
+        read_bytes=Path.read_bytes
+        for target,reason in ((job/kit['revision_prompt_path'],'revision_prompt digest changed'),
+                              (ROOT/kit['revision_prompt_source'],'revision_prompt source differs')):
+            with self.subTest(target=target):
+                with patch.object(Path,'read_bytes',lambda p: read_bytes(p)+b'\ntampered\n' if p==target else read_bytes(p)):
+                    with self.assertRaisesRegex(ValueError,reason):gate.verify_job_recipe(job/'kit.json')
+                    registry=read_json(ROOT/'spec/art_identity/registry.json')
+                    entry=next(e for e in registry['entries'] if e.get('kit_path')==str((job/'kit.json').relative_to(ROOT)))
+                    errors,_=gate.validate_kit_entry(entry,ROOT,read_json(ROOT/'spec/art_identity/bands.json'),{})
+                    self.assertTrue(any(reason in e for e in errors),errors)
+        changed=copy.deepcopy(kit)
+        for suffix in ('path','source','sha256'):
+            changed['prompt_'+suffix],changed['revision_prompt_'+suffix]=changed['revision_prompt_'+suffix],changed['prompt_'+suffix]
+        original_read=gate.read_json
+        with patch.object(gate,'read_json',side_effect=lambda p:changed if Path(p)==job/'kit.json' else original_read(p)):
+            with self.assertRaisesRegex(ValueError,'chain kit_version'):gate.verify_job_recipe(job/'kit.json')
+        print('RR29 REAR PROMPT TAMPERING: PASS (job revision, canonical revision and reordered chain rejected)')
 
     def test_native_capture_load_only(self):
         with tempfile.TemporaryDirectory(prefix='rr29-native-load-') as temporary:

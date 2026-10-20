@@ -11731,8 +11731,8 @@
   "assets/units/hollow_mimic_cutout/front/rest.png": {
     "kind": "rest",
     "id": "hollow_mimic_cutout",
-    "pixel_sha256": "48bf6ea474b5e7b561c90b0044e55c6e09b2de37966046e1cda07c4248115a84",
-    "parts_pixel_sha256": "387f7d2de1c793f270f48b62f393acce8f2af34ed101b8fff1ff796787ba2d82"
+    "pixel_sha256": "ae688671f039967ffd99d08117a40ca384d3abe640d586018ab881dcbe6cd84c",
+    "parts_pixel_sha256": "aae37d8ccd0ec1b082b6540a701c2c28e4a9715ee10fe094cf72aafa226f2086"
   },
   "assets/units/hollow_mimic_cutout/front/sleeve_far.png": {
     "pixel_sha256": "1213f3e5bfbfe5c153e7b9f73bada98533bad8cb69d1875bb01918286c2b7802",
@@ -11913,8 +11913,8 @@
   "assets/units/hollow_mimic_cutout/rear/rest.png": {
     "kind": "rest",
     "id": "hollow_mimic_cutout",
-    "pixel_sha256": "6c3042ac1a4d5bed756ab24ae184cf239dea3498d3e22ec33af110eea01d1d3d",
-    "parts_pixel_sha256": "387f7d2de1c793f270f48b62f393acce8f2af34ed101b8fff1ff796787ba2d82"
+    "pixel_sha256": "1f82728380170fd34898658520da4470f78c8e0a23df59409e61d3460bc5b400",
+    "parts_pixel_sha256": "aae37d8ccd0ec1b082b6540a701c2c28e4a9715ee10fe094cf72aafa226f2086"
   },
   "assets/units/hollow_mimic_cutout/rear/sleeve_far.png": {
     "pixel_sha256": "15c7e7605b709c704eda5c9e642f942c3799b297b2f24aa4585867d2e19fa779",

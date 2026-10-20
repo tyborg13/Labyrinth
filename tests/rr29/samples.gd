@@ -82,8 +82,13 @@ func record(rig: Node2D, view: String, clip: String, phase: float, frame: int, k
 		var sprite: Sprite2D = bone.get_node_or_null(NodePath(part["name"])) as Sprite2D
 		if sprite != null: parts[part["name"]] = {"transform": matrix(to_source*sprite.global_transform), "alpha": 1.0, "z_index": sprite.z_index}
 	for mesh: Dictionary in rig.layout.get("joint_meshes", []):
-		parts[mesh["name"]] = {"z_index": rig.get_node(NodePath(mesh["name"])).z_index}
-	var row: Dictionary = {"view": view, "clip": clip, "phase": phase, "frame": frame, "kind": kind, "bones": bones, "parts": parts}
+		var node: Polygon2D = rig.get_node(NodePath(mesh["name"])) as Polygon2D
+		# Skinning moves the vertices, not this node. Still record its actual
+		# source-space transform, just as the isolated native producer does.
+		parts[mesh["name"]] = {"transform": matrix(to_source * node.global_transform), "alpha": node.modulate.a, "z_index": node.z_index}
+	var draw_order: Array[String]
+	for part: Dictionary in preload("res://tests/rr29/paint_order.gd").parts(rig): draw_order.append(str(part["name"]))
+	var row: Dictionary = {"view": view, "clip": clip, "phase": phase, "frame": frame, "kind": kind, "bones": bones, "parts": parts, "part_draw_order": draw_order}
 	var at: float = phase
 	if kind == "presented":
 		at = preload("res://scripts/maquette_cutout_runtime/pixel_presentation.gd").phase_for(Motion.data_for(rig.layout), clip, phase)

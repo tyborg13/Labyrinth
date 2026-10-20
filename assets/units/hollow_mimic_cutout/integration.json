@@ -25,10 +25,7 @@
   },
   "density": {
     "entry": "hollow_mimic_cutout",
-    "native_rest_pending": [
-      "rest rebake needed: assets/units/hollow_mimic_cutout/front/rest.png: rest pixels changed since recorded rebake",
-      "rest rebake needed: assets/units/hollow_mimic_cutout/rear/rest.png: rest pixels changed since recorded rebake"
-    ]
+    "native_rest_pending": []
   },
   "files": {
     "compiled_motion.json": "2d8255e0e8686cb1e67a369852c56f68c5dc65de942dd3d226c5f63f7feb7b8a",
@@ -50,14 +47,14 @@
     "front/leg_near_hidden.png": "cbeaf97d2f0f589dec157cdd95b52b1001e260d3c600f2bc1c2c1183bc787209",
     "front/pelvis.png": "52879b00eaf31748101673941acf4dbef406494af313e1ad4125028d2c55e501",
     "front/pelvis_hidden.png": "1a06f4ecd7a70c444ca1b960cc06ca8c561bdaabebe42977bb1ae4acea4a0b76",
-    "front/rest.png": "b15fbea8cdaafadad18a7a1b27c4dcea42a8a548cca168a3a6d950fb088170ed",
+    "front/rest.png": "8e9a29615f5f0a02c79d9328d420bbbef2ac34fbd4c51c30cca18fb3434bf55f",
     "front/sleeve_far.png": "db1f3e79d4aaf97ff9e5b0d33a5cb6a20be7b604be5ca8a20538628d13007b3d",
     "front/sleeve_far_hidden.png": "1e34b861cc89673d0b08f27c8c018a03543170271ea82d81c3bd9a1ec4275111",
     "front/sleeve_near.png": "dd9996fc4314a5b579382439fa7286f91e2c4952d33a92995a9f0d18d573d852",
     "front/sleeve_near_hidden.png": "99e2dcf3d7e59eeb52321e0277bda0ca1c9326a1135bd72db5557bc1e1cc547b",
     "front/torso.png": "68540a0cad228ad06ebe18326c8d7a3048196d33a55e0518bfa31e3409a11daf",
     "front/torso_hidden.png": "4ef159d80435cf6ed0ae45a5de8b9eb55b98d95165d69d0294f59508b5a8d280",
-    "front.json": "60dab67ae39ec2974a8214620fd7104c2446423305f8b113ddbfc730661a272f",
+    "front.json": "048d58678b4ed0902afef10c0a52a7857f67fe07dc9daf08a26cd08d766bf680",
     "rear/foot_far.png": "4984730150b4886195ba9437af705557f49b3de40d9a05ea2c18fd2b83c261e7",
     "rear/foot_far_hidden.png": "e59892a962b6e2898b8f59e8701a46e5188f4e9d8742ccb37d9ae444e102e666",
     "rear/foot_near.png": "a240f9aea92591981f70d63cff8e876ac1474c1c96b1cf43e795f470e9e75e5e",
@@ -74,14 +71,14 @@
     "rear/leg_near_hidden.png": "283165ec5ffa4e5d54a5e2b1bd3629db20ede4a9e0fc8a2fb6c41354824c9660",
     "rear/pelvis.png": "93cbc321838cbf6b0e8c7acc03b448f49fe01faf9fcce80eb27f63d56b8df294",
     "rear/pelvis_hidden.png": "a9ba81faf4de028d89dc8b1e5d2b8561fa86037e5b2dfa488c15888e1bac7c3b",
-    "rear/rest.png": "331a81a1a7ab69f30087fa02309d1f1fe5fe17e627335fec15bd60eaf74186ee",
+    "rear/rest.png": "0d2c243236cadb00dae7851c9c389fa9e97472197a07928e1328ab39f3ea62a3",
     "rear/sleeve_far.png": "9921c7d66b519c387b1c6d6fc23b51bedfe20615a0975dfc851698bd31956570",
     "rear/sleeve_far_hidden.png": "2fda4ce70900f88d670956b590665b9267b34063dcaf0cd33e4265c5e8ad32db",
     "rear/sleeve_near.png": "6c7bfdb51e3253a92eae58d925c939967e9a422d5d7474026da940c0a1334647",
     "rear/sleeve_near_hidden.png": "e4b8721ff2e525f603db317d7e83a109c9912439c1286258fc0949d0f512c8d7",
     "rear/torso.png": "b8b6c60c7a6db0317f9263a4c9e38248fe441dfdd347bcd1e16646f371e67b32",
     "rear/torso_hidden.png": "3703d8af35ae8fa6e60ce041137e5243c963cc5f6d0ee569106678e07d7e1658",
-    "rear.json": "d23019a879c58fc3d48ab76a2ef6368c04a24b1c8e814f00252a9baab86b9390",
+    "rear.json": "5d73189621c553690ce4205c4ea8e6ab269bc2d49ca77d2b7c28071d2782dacc",
     "renderer.gd": "36be51af9cb29230d8a6b6ae191a5ad8cabceadce974263b0c1ae56a1c87b26a",
     "rig.gd": "87fde1ee68bea72bd269dfabf1535034b5367118bb61c0c8ee945d43fff24826"
   }

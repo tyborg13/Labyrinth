@@ -3747,7 +3747,7 @@
       ],
       "source_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/processed.png",
       "source_pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2",
-      "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2",
+      "pixel_sha256": "ae688671f039967ffd99d08117a40ca384d3abe640d586018ab881dcbe6cd84c",
       "sheet_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/sheet_pair.png",
       "landmarks": {
         "near": [
@@ -3772,13 +3772,13 @@
         "symmetry": 0.6533201921892324,
         "thin_abs": 0.017342761443989607,
         "thin_rel": 0.054037960550800124,
-        "feature_px": 5.985538126740709,
-        "regions": 375,
-        "chroma": 0.02253785473996074,
-        "value": 0.16597812795084538,
+        "feature_px": 5.993534841230852,
+        "regions": 374,
+        "chroma": 0.02243627633412874,
+        "value": 0.16575018863518612,
         "edge_light_share": 0.01975540921919097,
-        "orphan_share": 0.07517677707480462,
-        "run_length": 2.8542596133418314
+        "orphan_share": 0.033420171194640864,
+        "run_length": 3.1485821420201545
       }
     },
     {
@@ -3793,7 +3793,7 @@
       "facing": "rear",
       "kit_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/kit.json",
       "job_id": "mq11-hollow_mimic-rear",
-      "kit_version": "04657f5350e58faf51cc678d5090cd547b2e85d0893b05bc5ee9f9552742f962",
+      "kit_version": "57de7c9ec1b9b39371c53be6a262fb3e48c47c8d1c770434d3697de4949a9cd6",
       "prompt_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/prompt.md",
       "prompt_sha256": "d12d225dd81a927c5951e3ad452f3fff04c53634c2d2870eca086b52fc203fee",
       "ref_pixel_sha256": {
@@ -3941,7 +3941,7 @@
       ],
       "source_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/processed.png",
       "source_pixel_sha256": "d1baa2e3637583aed53b62626cab4abd394d996fb9b8aba1313c6902a56f82a3",
-      "pixel_sha256": "d1baa2e3637583aed53b62626cab4abd394d996fb9b8aba1313c6902a56f82a3",
+      "pixel_sha256": "1f82728380170fd34898658520da4470f78c8e0a23df59409e61d3460bc5b400",
       "sheet_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/sheet_pair.png",
       "landmarks": {
         "near": [
@@ -3966,13 +3966,13 @@
         "symmetry": 0.6841124976718197,
         "thin_abs": 0.015015457088178974,
         "thin_rel": 0.05991461798910647,
-        "feature_px": 5.864719661574691,
-        "regions": 395,
-        "chroma": 0.018320185427328595,
-        "value": 0.16408744641975734,
+        "feature_px": 5.909775788595139,
+        "regions": 389,
+        "chroma": 0.018337215645863825,
+        "value": 0.16406629200185888,
         "edge_light_share": 0.004524886877828055,
-        "orphan_share": 0.04902105108199617,
-        "run_length": 2.898037542662116
+        "orphan_share": 0.01965258354188135,
+        "run_length": 3.1025348253025804
       }
     },
     {

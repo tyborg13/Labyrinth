@@ -140605,5 +140605,5 @@
   "rest_source": "front/rest.png",
   "motion_data": "res://assets/units/hollow_mimic_cutout/compiled_motion.json",
   "gait_leg_scale_max": 1.22,
-  "rest_source_sha256": "b15fbea8cdaafadad18a7a1b27c4dcea42a8a548cca168a3a6d950fb088170ed"
+  "rest_source_sha256": "8e9a29615f5f0a02c79d9328d420bbbef2ac34fbd4c51c30cca18fb3434bf55f"
 }

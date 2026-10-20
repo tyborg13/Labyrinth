@@ -62,6 +62,7 @@ func _run() -> void:
 	if args.has("--validate-only"):
 		for view: String in data["view_tracks"]:
 			var rig: Node2D = make_rig(view)
+			if preload("res://tests/rr29/paint_order.gd").parts(rig).size() != rig.layout["parts"].size(): failures.append("Incomplete scene-tree paint order: " + view)
 			for part: Dictionary in rig.layout["parts"]:
 				var node: Node2D = painted_node(rig,str(part["name"]))
 				var mask: Texture2D = rig._texture(rig.layout["proof_layers"][part["name"]]["mask"])
@@ -119,7 +120,7 @@ func _run() -> void:
 				seam_rigs[view+"/"+str(seam["name"])] = make_hole_rig(view,seam)
 			for feature: Dictionary in rig.layout.get("features", []):
 				feature_rigs[view+"/"+str(feature["name"])] = make_hole_rig(view, feature["native_mask"])
-			for part: Dictionary in rig.layout["parts"]:
+			for part: Dictionary in preload("res://tests/rr29/paint_order.gd").parts(rig):
 				var actual: Node2D = make_rig(view)
 				isolate(actual, [str(part["name"])])
 				var checks: Node2D = make_rig(view)

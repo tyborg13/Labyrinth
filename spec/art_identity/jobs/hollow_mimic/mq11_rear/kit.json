@@ -5,7 +5,7 @@
   "job_id": "mq11-hollow_mimic-rear",
   "kind": "creature",
   "kit_kind": "maquette",
-  "kit_version": "04657f5350e58faf51cc678d5090cd547b2e85d0893b05bc5ee9f9552742f962",
+  "kit_version": "57de7c9ec1b9b39371c53be6a262fb3e48c47c8d1c770434d3697de4949a9cd6",
   "match_reference": {
     "job_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
     "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2"
