@@ -42,6 +42,8 @@ func _initialize() -> void:
 	else:
 		_capture = CaptureViewport.new()
 		root.add_child(_capture)
+		# CursorFeedback builds its glyph on its first frame.
+		await process_frame
 		_capture.setup(root)
 		_game_viewport = _capture.viewport
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
