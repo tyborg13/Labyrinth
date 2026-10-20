@@ -43,20 +43,28 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Director reminder: run `parallel_task.py contract … && preflight` in every new worktree before launch.
   Workers can't write Git metadata.
 - **Checkpoint published 2026-10-19: origin/master = 209cbc67c** (decisions). Next checkpoint on the owner's word.
-- Next (in order), 2026-10-19 afternoon:
-  1. Integration green at 521fa8f20+ (Godot PASS, Python 1223 OK): mq-10, rr-18, gait-01 merged (+ director post-merge
-     fixes). gait-01 = every humanoid walks on the protagonist's model (6 steps/tile, projected legs, pelvis fit).
-  2. Running: rr-20/21/22 round 2 (walk adoption, Mimic restaging, Mortar crucible masks, native gate fixes); rr-24
-     (Thrall re-cut: collar, skirt). rr-23 (Mirror re-cut, guard order) committed ba68a1359: windowed chain + Codex
-     review running.
-  3. On each finish: windowed proof (locked chain scripts in scratchpad), Codex review, merge with suites, then fresh inbox
-     items (Mirror, Thrall first; then Mimic, Weaver, Mortar).
+- Next (in order), 2026-10-19 evening:
+  1. Merged on integration (suites NOT yet run on these merges): rr-23 Mirror (6a94789d3), rr-25 Mortar (1fcb68232),
+     rr-24 Thrall (962950183), rr-21 Weaver (6077f772d). The rr-21 merge unified the parallel continuation rules
+     (`gait_continuations.active_recipe`), record readers and action adapters (see its merge message).
+     Every merged unit's committed proof records bind runtime/tool hashes that these merges changed, so they are stale
+     until the record refresh in step 3. Don't run full suites before then.
+  2. Running: rr-26 round 3 (feedback 3) finishes the in-progress merge of integration into rr-26 by consolidating
+     the detached-provenance classifier (source_space.py), one compact record format (`full_samples`) and one action
+     dispatch (`integration.json` "action_adapter" + shared contact adapter). ui-03 round 2 (feedback 2): isolate the
+     clip from the desktop mouse; prove the seal tooltip. ui-03 stills reviewed OK.
+  3. After rr-26: director commits the merge in rr-26, merges rr-26 into integration, runs every unit's windowed
+     record refresh (the sequences rr-26 lists), then ONE full-suite pass, then inbox items (Mortar, Weaver, Mimic;
+     Thrall v3 is posted and open). Then ui-03 merge + inbox clip.
   4. Backlog from today: the Mirror's feet and fists revisit (owner: "not totally sold"); unify the two detached
      provenance classifiers (rest_space.py from rr-26, source_space.py from rr-25) with differential tests (rr-26 review Low);
      rr-26 Low: a sum-preserving canonical-weight regression; rr-21 Low: path-containment test fixture.
      Thrall rear tether (director data, staged/rr-11 view_keys.rear): the tube rises over the FAR shoulder, so the upper
      arm crosses the back and leaves a fin at the near shoulder; re-key it to rise over the near shoulder after rr-24 lands.
      Empower charge sound: three candidates for an owner audition (ui-03 ships silent).
+     Keyword tooltip stacks list a keyword twice when an Empower bonus modifies it (charged Overhead Smash: MELEE
+     "Modified by: Empower +4" and plain MELEE). Pre-existing: `action_icon_library._append_tooltip_entry` dedupes on
+     icon+full text. Show each keyword once, keeping the modified entry.
      Proof capture speed (owner OK'd 2026-10-19): production captures write every frame as a full 1920x1080 lossless
      PNG (~7,900 frames, ~14 GB, 30-50 min per rig). Tooling unit after the current rigs land: crop each frame to the
      actor's bounds plus a margin and use fast PNG compression, same pixels gated; target a few minutes and <1 GB per rig.
