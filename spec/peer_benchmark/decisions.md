@@ -362,3 +362,5 @@
   PNG compression. The gates check the same pixels. A tooling unit runs after the current rig merges, so no in-flight
   proof is invalidated.
 
+- 2026-10-19 (director): the Thrall's rear Tether keeps its owner-approved motion. The near-side upright hold (A, 65/153) failed the 60.5 px minimum-reach gate on every raise/lower path (rr-27 feedback 1-3), and the gate stays: it guards against the arm crumple the owner flagged. The fin is backlog.
+- 2026-10-19 (director): Empower glossary copy is "Pay the extra cost as you play this card to gain its bonus. Charge it with the card's seal." (19 words; the ui-03 line was over the 20-word budget).
