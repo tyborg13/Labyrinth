@@ -1,0 +1,34 @@
+{
+  "applied": false,
+  "native_pixels": false,
+  "frames": 335,
+  "failures": [],
+  "ok": true,
+  "changes": [
+    {
+      "part": "mq7b_continuation_leg_far",
+      "source_texel": [
+        171,
+        218
+      ],
+      "local_texel": [
+        53,
+        97
+      ],
+      "kind": "remove copied hidden texel"
+    },
+    {
+      "part": "mq7b_continuation_leg_near",
+      "source_texel": [
+        109,
+        179
+      ],
+      "local_texel": [
+        17,
+        60
+      ],
+      "kind": "remove gait recipe target"
+    }
+  ],
+  "decision_required": "Brief permits removal only without an in-piece neighbour. Both neighbours exist, but neighbour weights are already identical."
+}

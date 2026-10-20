@@ -7526,51 +7526,10 @@
         "ok": true
       },
       "raster": {
-        "ok": false,
+        "ok": true,
         "native_pixels": false,
         "frames": 335,
-        "failures": [
-          {
-            "clip": "jab",
-            "frame": 22,
-            "holes": [
-              {
-                "bbox": [
-                  282,
-                  248,
-                  283,
-                  250
-                ],
-                "pixel_count": 2
-              }
-            ],
-            "unmatched_components": [],
-            "green_residue_px": 0,
-            "errors": [
-              "('front', 'jab', 22): new joint-seam hole larger than 1px"
-            ]
-          },
-          {
-            "clip": "death",
-            "frame": 31,
-            "holes": [
-              {
-                "bbox": [
-                  280,
-                  252,
-                  282,
-                  256
-                ],
-                "pixel_count": 7
-              }
-            ],
-            "unmatched_components": [],
-            "green_residue_px": 0,
-            "errors": [
-              "('front', 'death', 31): new joint-seam hole larger than 1px"
-            ]
-          }
-        ],
+        "failures": [],
         "air_pockets": [
           {
             "clip": "move",
@@ -21748,7 +21707,7 @@
           }
         ],
         "hidden_provenance": {
-          "exposed_pixels": 106245,
+          "exposed_pixels": 106415,
           "foreign_pixels": 0,
           "failures": []
         },
@@ -29602,11 +29561,11 @@
     "front_baseline/source/front/processed.png": "09a2e41da86df9b272494f760106140d0df0b8c3022d130d5cd5ae7a437347a0",
     "front_baseline/source/front/raw.png": "ecbfaebc36bcda02ceba86c48fcd98ed8e2037b482f9087cce68994962e14447",
     "front_baseline/source/spec_native.json": "c784431f013d443645e6d7c0ed5798fb2e0ad5e049e99e945cc6f502efcc3caf",
-    "gait_continuations.json": "e44e497bbb09ba66a681211f57acf7692a5a4c62c02871821c0a4befab9fc646",
+    "gait_continuations.json": "b17d74f0ca4bb5de6b298ac649111a2eafa5a7eaef8be47bc32cbe4dbacdbd43",
     "gate_exceptions.json": "37192c8c8f0f191d20d4237db4c13a6ceeeb27dbf2a05c2bfd137c5666f67a20",
     "inputs.json": "4b9bde5f8d882db8d5d94efe2bd9fc508ca0644bcae9f00abbcdaa7ea2035f2e",
     "joint_continuations.json": "fad3a15882b2578f93fd7a4659454e24b2c5a96be875edaa9b4760044b38548a",
-    "layouts/front.json": "f13054cd20103d89c81b649ee0e2b4e24d1f0561766bd86057d60a05d1c5f519",
+    "layouts/front.json": "06da40b875b4ff2044b779c6789c901709f80d0c144746097ce7e0861922f092",
     "layouts/rear.json": "3d4b9d88b8583d08aea7f47d1b6526bbc629020d503aeabfe48b3c3d089a1be7",
     "mesh_registration.json": "716c783abd62cd7b32b932b9b6b4d159b5e49915c08ae5dae5dc0ce7b832dfa4",
     "pieces/front/claw.png": "a48800f71243228b9528f249bc430fb4ccb204cddc5197a3637494e2d5b9554d",
@@ -29673,7 +29632,7 @@
     "pieces/rear/upper_near.png": "46706d2ae5df8c2f8691a05ad575f8471cf6379c96c5450e2bda46f7a10e5c78",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/compiled_motion.json": "7f85847a7dfcfda9047eae2ba075374b315c3756b047e9551b99275080b7df5e",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/director_motion.json": "b584128e4b02884a76c1df4b9d7e3c360c59189869fc5aeebfdcfc79e0b7314a",
-    "production:assets/units/arc_thrall_cutout/humanoid_v2/front.json": "ca4a9d6225b0bad880e668383bed5e5b35ca67d46ab684c9fce8e72d1baf2c69",
+    "production:assets/units/arc_thrall_cutout/humanoid_v2/front.json": "b54849dda8f99784d72ae82987b18817e676282b5d2ad09950d357afd7be882e",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/front/claw.png": "ee82229c874769006caba79cf9b1d39c3a44e471c6db8ad00dfcddefc56ca0f7",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/front/foot_far.png": "5c25be052f23b5f56f4a4098b2c8a756c860990a688b123c392f3ba807882051",
     "production:assets/units/arc_thrall_cutout/humanoid_v2/front/foot_near.png": "f379b9659480d87268e3b0c97497fe5c5c947aaf1fe375502d64bbf4c7732b51",
@@ -29802,7 +29761,7 @@
     "runtime:scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd": "43532624f65f63a5f93ef3eac7b0bb1d23ff999cb23c579a46d29b9c33d8f43c",
     "runtime:scripts/maquette_cutout_runtime/shale_bloomer_rig.gd": "a20fafcf49c7422a67458f65f9bf3103240187dec1ae190ed2441a3ca594a26f",
     "runtime:tests/gait01/board_geometry.gd": "02c2c0cac632e95946c967ade4a87cd66cf2d681a1f7d3898b5eb992d85997fd",
-    "runtime:tests/gait01/continuation_checks.gd": "ac16a00c941d168fbeb56f66a1cb0d90ae328794d9357a8727ce79d2bd2bd082",
+    "runtime:tests/gait01/continuation_checks.gd": "3132eb2d6f899a08c5c6304974393fcd6f4b9d4c32af6d68ba430056e5d38e92",
     "runtime:tests/gait01/move_capture.gd": "61b519c0335479b304d115e8089374b5431cdcf1c2536ace9a8ab677ea3f37db",
     "runtime:tests/gait01/move_contract.json": "27e236d588676a289984772ec53622e6cf50c8a0af99b225563e0d467f511495",
     "runtime:tests/gait01/mutations.py": "438b0c66e82e305f2259cf3b60996d56c9c05edcf360def635903a1bb66e0f97",

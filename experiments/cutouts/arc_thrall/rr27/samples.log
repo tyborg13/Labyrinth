@@ -1,0 +1,17 @@
+Running task-local command:
+  task: rr-27
+  run: rr-27-1792462603547952000-54722
+  HOME: /private/tmp/labyrinth-godot-home/rr-27-1792462603547952000-54722
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-27-1792462603547952000-54722/godot.log --headless --path . --script tests/rr11/action_direction.gd -- --case res://experiments/cutouts/arc_thrall/rr11 --output res://experiments/cutouts/arc_thrall/rr11/proof/samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+RR10 BONE SAMPLES: PASS (1050 poses; headless transforms only)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

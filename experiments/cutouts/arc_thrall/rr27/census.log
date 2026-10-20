@@ -1,0 +1,16 @@
+RR27 POSE ROW IDENTITY: PASS (1050 rows; 0 changed raw rows)
+RR27 PAINT/REST/MOTION IDENTITY: PASS (440 protected files; 0 changed)
+RR27 CENSUS front: 50 frames; 0 failing
+RR27 CENSUS front: 100 frames; 0 failing
+RR27 CENSUS front: 150 frames; 0 failing
+RR27 CENSUS front: 200 frames; 0 failing
+RR27 CENSUS front: 250 frames; 0 failing
+RR27 CENSUS front: 300 frames; 0 failing
+RR27 STRICT CENSUS FRONT: PASS (335 frames; 0 unmatched detached; 0 pocket failures)
+RR27 CENSUS rear: 50 frames; 0 failing
+RR27 CENSUS rear: 100 frames; 2 failing
+RR27 CENSUS rear: 150 frames; 2 failing
+RR27 CENSUS rear: 200 frames; 2 failing
+RR27 CENSUS rear: 250 frames; 2 failing
+RR27 CENSUS rear: 300 frames; 2 failing
+RR27 STRICT CENSUS REAR: FAIL (335 frames; 2 unmatched detached; 0 pocket failures)

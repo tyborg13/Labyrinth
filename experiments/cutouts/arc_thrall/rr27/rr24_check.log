@@ -1,0 +1,26 @@
+RR24 FRONT SOURCE/RESIDUE: PASS (0 errors)
+RR24 FRONT COLLAR OWNERSHIP: PASS (236 contact frames; 0 covered-head frames)
+RR24 FRONT HEM: PASS (maximum 3.605543 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})
+RR24 CPU front: 50 frames; 0 failing frames
+RR24 CPU front: 100 frames; 0 failing frames
+RR24 CPU front: 150 frames; 0 failing frames
+RR24 CPU front: 200 frames; 0 failing frames
+RR24 CPU front: 250 frames; 0 failing frames
+RR24 CPU front: 300 frames; 0 failing frames
+RR24 CPU FRONT SEAMS: PASS (335 frames; 0 failing frames; native acceptance pending)
+RR24 REAR SOURCE/RESIDUE: PASS (0 errors)
+RR24 REAR COLLAR OWNERSHIP: PASS (229 contact frames; 0 covered-head frames)
+RR24 REAR HEM: PASS (maximum 3.605532 px; end deltas {'idle': 0.0, 'move': 0.0, 'tether': 0.0, 'jab': 0.0, 'hit': 0.0, 'death': 0.0})
+RR24 CPU rear: 50 frames; 0 failing frames
+RR24 CPU rear: 100 frames; 2 failing frames
+RR24 CPU rear: 150 frames; 2 failing frames
+RR24 CPU rear: 200 frames; 2 failing frames
+RR24 CPU rear: 250 frames; 2 failing frames
+RR24 CPU rear: 300 frames; 2 failing frames
+RR24 CPU REAR SEAMS: FAIL (335 frames; 2 failing frames; native acceptance pending)
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-27/experiments/cutouts/arc_thrall/rr24_check.py", line 185, in <module>
+    if __name__ == '__main__': raise SystemExit(main())
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-27/experiments/cutouts/arc_thrall/rr24_check.py", line 179, in main
+    raise ValueError('Inputs changed during Thrall checks; discard this run')
+ValueError: Inputs changed during Thrall checks; discard this run
