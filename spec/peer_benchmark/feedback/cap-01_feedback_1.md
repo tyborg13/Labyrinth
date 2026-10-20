@@ -25,3 +25,12 @@ this round the director re-runs `compare` on them, plus `after` only if the writ
    - Report the mutation table.
 4. Focused tests only. Don't change the writer's on-disk format unless a finding requires it. If it does, say so; the
    director then re-captures `after`.
+5. **Gate failures must not abort the comparison.**
+   - The director's `before` run stopped at the Seer: `rr10_gates.py --native` exited 1 with 31 errors, all 2–3 px
+     joint tears. Those are real failures under rr-26's canonical gate. They are not caused by cap-01: the same 31
+     appear with integration's code on the same frames.
+   - `capture_director.py` must record each gate's JSON and exit code for before and for after, keep going, and have
+     `compare` require them identical.
+   - A gate failure is evidence, not a capture failure. Only capture or manifest errors stop the run.
+   - Capture each gate's JSON without overwriting the case's committed records. The director's manual run rewrote
+     `rr10/proof/native_gates.json` and `samples.json`; write to the proof output folder instead.
