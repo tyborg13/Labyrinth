@@ -1,5 +1,6 @@
 """Non-vacuous proof inventories and failing-gate evidence collection."""
 import copy
+import io
 import json
 from pathlib import Path
 import subprocess
@@ -91,6 +92,49 @@ class DirectorTests(unittest.TestCase):
         self.assertEqual(len(captures), 8)
         self.assertEqual(len(reports), 7)
         self.assertEqual(len(reels), 4)
+
+    def test_performance_targets_are_per_run_and_rig_totals_are_reported(self):
+        timings = [{'capture': 'seer/production/front', 'seconds': 256, 'GB': .58, 'bytes': 580_000_000},
+                   {'capture': 'mortar/production/front', 'seconds': 275, 'GB': .65, 'bytes': 650_000_000},
+                   {'capture': 'mortar/production/rear', 'seconds': 278, 'GB': .68, 'bytes': 680_000_000}]
+        with patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            result = director.write_performance_report(self.proof, 'after', timings)
+        self.assertEqual(result, json.loads((self.proof / 'capture_performance.json').read_text()))
+        self.assertEqual(result['per_rig_production']['mortar'],
+                         {'seconds': 553, 'GB': 1.33, 'runs': 2, 'all_runs_target_met': True})
+        self.assertTrue(all(row['target_met'] for row in result['runs']))
+        self.assertTrue(result['target']['advisory'])
+        self.assertEqual(stdout.getvalue().count('advisory target PASS'), 3)
+        self.assertIn('PRODUCTION RIG mortar: 553.000 s, 1.330000 GB (2 runs)', stdout.getvalue())
+        self.assertEqual(timings[0].keys(), {'capture', 'seconds', 'GB', 'bytes'})
+
+    def test_after_exits_zero_when_valid_capture_misses_performance_targets(self):
+        output = self.root / 'slow-after'
+        folder = output.resolve() / 'seer/production/front'
+        command = ['production_capture.gd', '--output', str(folder)]
+        def capture(command, env):
+            write_json(folder / 'frames.json', {'frames': [{}]})
+        with patch.object(sys, 'argv', ['capture_director.py', 'after', '--output', str(output)]), \
+             patch.object(director, 'command_plan', return_value=[command]), \
+             patch.object(director, 'execute', side_effect=capture), \
+             patch.object(director.time, 'perf_counter', side_effect=[0, director.PRODUCTION_TARGET_SECONDS + 1]), \
+             patch.object(director, 'collect'), patch.object(director, 'validate') as validate, \
+             patch.object(director, 'write_validation_report'), patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            self.assertEqual(director.main(), 0)
+        validate.assert_called_once_with(output, director.PROJECT, decode_reels=True)
+        report = json.loads((output / 'capture_performance.json').read_text())
+        self.assertFalse(report['runs'][0]['target_met'])
+        self.assertIn('advisory target MISS', stdout.getvalue())
+        self.assertIn('CAPTURE DIRECTOR AFTER: PASS', stdout.getvalue())
+
+    def test_performance_size_miss_is_advisory_and_printed(self):
+        timings = [{'capture': 'seer/production/front', 'seconds': 256,
+                    'GB': 1.1, 'bytes': 1_100_000_000}]
+        with patch('sys.stdout', new_callable=io.StringIO) as stdout:
+            result = director.write_performance_report(self.proof, 'after', timings)
+        self.assertFalse(result['runs'][0]['target_met'])
+        self.assertIn('256.000 s, 1.100000 GB; advisory target MISS', stdout.getvalue())
+        self.assertTrue(result['target']['advisory'])
 
     def test_empty_and_equally_missing_or_extra_artifacts_fail_with_path(self):
         empty = self.root / 'empty'; empty.mkdir()

@@ -99,6 +99,64 @@ class ProductionTests(unittest.TestCase):
         self.assertTrue(result['ok'])
         self.assertEqual(result['identity'], ['view', 'stage', 'presented_phase'])
 
+    def test_looping_clip_accepts_reordered_and_resampled_distinct_poses(self):
+        write_json(self.case / 'compiled_motion.json', {'clips': {'hit': {'loop': True}}})
+        a, b = self.root / 'before', self.root / 'after'
+        self.save(a, [0, .1, .2, .3, .4, .5, 1],
+                  hashes={0: 'a', .1: 'b', .2: 'c', .3: 'a', .4: 'b', .5: 'c', 1: 'a'})
+        self.save(b, [0, .6, .7, .8, .9, 1],
+                  hashes={0: 'c', .6: 'c', .7: 'b', .8: 'a', .9: 'c', 1: 'b'})
+        result = self.compare(a, b)
+        self.assertTrue(result['ok'], result['errors'])
+        clip = result['clips'][0]
+        self.assertEqual(clip['comparison'], 'distinct_pose_hashes')
+        self.assertEqual(clip['views'], [{'view': 'front', 'frames_before': 7, 'frames_after': 6,
+            'poses_before': ['a', 'b', 'c'], 'poses_after': ['a', 'b', 'c'], 'before_only': [], 'after_only': []}])
+
+    def test_idle_fallback_respects_an_explicit_non_looping_flag(self):
+        a, b = self.root / 'before', self.root / 'after'
+        self.save(a, [0, .1, .2, .3, .4, 1], stage='idle', hashes=dict.fromkeys([0, .1, .2, .3, .4, 1], 'a'))
+        self.save(b, [0, 1], stage='idle', hashes={0: 'a', 1: 'a'})
+        for definition, expected in (({}, True), ({'loop': True}, True), ({'loop': False}, False)):
+            with self.subTest(definition=definition):
+                write_json(self.case / 'compiled_motion.json', {'clips': {'idle': definition}})
+                result = self.compare(a, b)
+                self.assertEqual(result['ok'], expected, result['errors'])
+                if not expected: self.assertIn('4 unmatched', result['errors'][0])
+
+    def test_missing_extra_or_changed_looping_pose_fails(self):
+        write_json(self.case / 'compiled_motion.json', {'clips': {'idle': {'loop': True}}})
+        a, b = self.root / 'before', self.root / 'after'
+        self.save(a, [0, .5, 1], stage='idle', hashes={0: 'a', .5: 'b', 1: 'a'})
+        for poses in ({0: 'a', .5: 'a', 1: 'a'}, {0: 'a', .5: 'b', 1: 'c'}, {0: 'a', .5: 'c', 1: 'a'}):
+            with self.subTest(poses=poses):
+                self.save(b, [0, .5, 1], stage='idle', hashes=poses)
+                result = self.compare(a, b)
+                self.assertFalse(result['ok'])
+                self.assertIn('Looping production pose set differs: ' + str(a / 'front') + ':idle', result['errors'][0])
+
+    def test_looping_pose_sets_must_match_each_view_not_the_union(self):
+        case = self.root / 'rr22'; write_json(case / 'compiled_motion.json', {'clips': {'idle': {'loop': True}}})
+        a, b = self.root / 'before', self.root / 'after'
+        for view, old, new in (('front', 'a', 'b'), ('rear', 'b', 'a')):
+            self.save(a, [0, 1], view=view, stage='idle', hashes={0: old, 1: old})
+            self.save(b, [0, 1], view=view, stage='idle', hashes={0: new, 1: new})
+        result = compare_production(case, a, b, phase_field='phase')
+        self.assertFalse(result['ok'])
+        self.assertEqual(len(result['errors']), 2)
+        for view in ('front', 'rear'): self.assertTrue(any(str(a / view) in error for error in result['errors']))
+
+    def test_looping_empty_frames_or_missing_hash_cannot_pass(self):
+        write_json(self.case / 'compiled_motion.json', {'clips': {'idle': {'loop': True}}})
+        a, b = self.root / 'before', self.root / 'after'
+        self.save(a, [], stage='idle'); self.save(b, [], stage='idle')
+        self.assertFalse(self.compare(a, b)['ok'])
+        self.save(a, [0, 1], stage='idle', hashes={0: None, 1: 'a'})
+        self.save(b, [0, 1], stage='idle', hashes={0: None, 1: 'a'})
+        result = self.compare(a, b)
+        self.assertFalse(result['ok'])
+        self.assertIn('Missing production texture hash', result['errors'][0])
+
     def test_completeness_uses_observed_phases_contacts_and_manifest_errors(self):
         manifest = self.save(self.root / 'coverage', [0, .2, .5, .8, 1])
         data = {'clips': {'hit': {'seconds': .5, 'contact': .5}}}

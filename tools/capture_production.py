@@ -1,4 +1,4 @@
-"""Real-time production capture assembly and phase-matched equivalence.
+"""Real-time production capture assembly and pose/phase equivalence.
 
 Native captures retain the separate exact-inventory comparison. These helpers
 never alter capture manifests, pixels, renderer bindings or canonical gates.
@@ -92,18 +92,47 @@ def frame_record(view, row, phase_field):
             'file': row['file'], 'pixels_sha256': row.get('pixels_sha256')}
 
 
+def compare_looping_clip(clip, views, before, after, old, new):
+    """Stepped loops may resample poses, but must retain every distinct pose."""
+    errors, checks = [], []
+    for view in sorted(views):
+        left, right = old[(view, clip)], new[(view, clip)]
+        a = {row['pixels_sha256'] for row in left if row['pixels_sha256']}
+        b = {row['pixels_sha256'] for row in right if row['pixels_sha256']}
+        for root, rows in ((before, left), (after, right)):
+            if not rows:
+                errors.append('No looping production frames: ' + str(root / view) + ':' + clip)
+        if a != b:
+            errors.append('Looping production pose set differs: ' + str(before / view) + ':' + clip +
+                          ' vs ' + str(after / view) + ':' + clip +
+                          '; before only: ' + ', '.join(sorted(a - b)) +
+                          '; after only: ' + ', '.join(sorted(b - a)))
+        checks.append({'view': view, 'frames_before': len(left), 'frames_after': len(right),
+                       'poses_before': sorted(a), 'poses_after': sorted(b),
+                       'before_only': sorted(a - b), 'after_only': sorted(b - a)})
+    return {'clip': clip, 'comparison': 'distinct_pose_hashes', 'views': checks}, errors
+
+
 def compare_production(case, before, after, *, phase_field):
     errors, checks = [], []
-    sides = []
+    clips = read_json(Path(case) / 'compiled_motion.json')['clips']
+    looping = {clip for clip, definition in clips.items() if definition.get('loop', clip == 'idle') is True}
+    sides, loops = [], []
+    views = set(capture_views(case))
     for root in (before, after):
-        groups = defaultdict(list)
+        groups, poses = defaultdict(list), defaultdict(list)
         for view, manifest in manifests(case, root):
+            views.add(view)
             for row in manifest['frames']:
                 record = frame_record(view, row, phase_field)
                 if not record['pixels_sha256']:
                     errors.append('Missing production texture hash: ' + str(root / view / row['file']))
-                groups[(view, record['stage'], record['phase'])].append(record)
+                if record['stage'] in looping:
+                    poses[(view, record['stage'])].append(record)
+                else:
+                    groups[(view, record['stage'], record['phase'])].append(record)
         sides.append(groups)
+        loops.append(poses)
     old, new = sides
     unmatched = {'before': defaultdict(list), 'after': defaultdict(list)}
     matched = Counter()
@@ -117,8 +146,12 @@ def compare_production(case, before, after, *, phase_field):
         matched[identity[1]] += count
         unmatched['before'][identity[1]].extend(left[count:])
         unmatched['after'][identity[1]].extend(right[count:])
-    clips = set(read_json(Path(case) / 'compiled_motion.json')['clips'])
-    for clip in sorted(clips | set(matched)):
+    for clip in sorted(set(clips) | set(matched)):
+        if clip in looping:
+            check, failures = compare_looping_clip(clip, views, before, after, *loops)
+            checks.append(check)
+            errors.extend(failures)
+            continue
         a, b = unmatched['before'][clip], unmatched['after'][clip]
         if not matched[clip]: errors.append('No matched production frames: ' + str(before) + ':' + clip)
         for side, rows in (('before', a), ('after', b)):
@@ -127,4 +160,5 @@ def compare_production(case, before, after, *, phase_field):
                               ', '.join(row['view'] + '/' + row['file'] for row in rows))
         checks.append({'clip': clip, 'matched': matched[clip], 'unmatched_before': a, 'unmatched_after': b})
     return {'ok': not errors, 'errors': errors, 'clips': checks,
-            'identity': ['view', 'stage', phase_field], 'max_unmatched_per_clip_per_side': MAX_UNMATCHED_PER_CLIP}
+            'identity': ['view', 'stage', phase_field], 'looping_identity': ['view', 'stage', 'pixels_sha256'],
+            'max_unmatched_per_clip_per_side': MAX_UNMATCHED_PER_CLIP}
