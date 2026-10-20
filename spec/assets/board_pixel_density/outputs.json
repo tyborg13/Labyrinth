@@ -1076,7 +1076,7 @@
     "kind": "rest",
     "id": "arc_thrall_cutout",
     "pixel_sha256": "2a47ec42f9c413fe5e180b34e1bd7c1eac8eb31e4e1cb4139b1346dffdd892fd",
-    "parts_pixel_sha256": "9ca374aa4254b3e9f2b38b524e9f1218722dd6fa8654ab137825aa3fd6f3db5a"
+    "parts_pixel_sha256": "ae3c64481ff68824d3f532ed5a4c86827b9677a3be1a16048e7b54ef7a322a47"
   },
   "assets/units/arc_thrall_cutout/hidden/front/club.png": {
     "pixel_sha256": "317415dc9338c367407e6f890d4d3bf3dbca54f349f15841a45284f3f0e649e6",
@@ -1554,7 +1554,7 @@
     "kind": "rest",
     "id": "arc_thrall_cutout",
     "pixel_sha256": "8668cd7272c401e1466a5cf91e153ec06b77ee16975a10d67da72b5f48be8145",
-    "parts_pixel_sha256": "9ca374aa4254b3e9f2b38b524e9f1218722dd6fa8654ab137825aa3fd6f3db5a"
+    "parts_pixel_sha256": "ae3c64481ff68824d3f532ed5a4c86827b9677a3be1a16048e7b54ef7a322a47"
   },
   "assets/units/arc_thrall_cutout/humanoid_v2/front/sleeve_far.png": {
     "pixel_sha256": "85fc7d1a212c43bec7298a7f11da687e5576010f0438f4b47c73ed04a8f5330e",
@@ -1773,8 +1773,8 @@
     "facing": "rear"
   },
   "assets/units/arc_thrall_cutout/humanoid_v2/rear/mq7b_continuation_leg_far.png": {
-    "pixel_sha256": "2e7b189add110d5645b5c881511308fb21631c304e5015871e1779e1edb9d5d0",
-    "source_pixel_sha256": "3ff3d754a028a3fdc09d65802edac6504b3c964c3ceb5b599a985cb7287f63e9",
+    "pixel_sha256": "35fe2ad8fbabfc5355d811b95b52da55b571c9ab64ac27392aa7c4f20519022a",
+    "source_pixel_sha256": "35fe2ad8fbabfc5355d811b95b52da55b571c9ab64ac27392aa7c4f20519022a",
     "id": "arc_thrall_cutout",
     "mode": "clean",
     "grid": 1.0,
@@ -1824,7 +1824,7 @@
     "kind": "rest",
     "id": "arc_thrall_cutout",
     "pixel_sha256": "50d2edb1d5e7bcb91a8c9d235a392be4a92aee3b6f69e81139fb78e46153ca38",
-    "parts_pixel_sha256": "9ca374aa4254b3e9f2b38b524e9f1218722dd6fa8654ab137825aa3fd6f3db5a"
+    "parts_pixel_sha256": "ae3c64481ff68824d3f532ed5a4c86827b9677a3be1a16048e7b54ef7a322a47"
   },
   "assets/units/arc_thrall_cutout/humanoid_v2/rear/sleeve_far.png": {
     "pixel_sha256": "fb63760e2783a922b7a7eda31de5fa12fa04c3f39478a7c07c6f4915b00c112d",
@@ -1862,7 +1862,7 @@
     "kind": "rest",
     "id": "arc_thrall_cutout",
     "pixel_sha256": "f1928746d9bec02c17f9f6dea28a799dfa8e83bddf7a9c7a80a7151527220fb6",
-    "parts_pixel_sha256": "9ca374aa4254b3e9f2b38b524e9f1218722dd6fa8654ab137825aa3fd6f3db5a"
+    "parts_pixel_sha256": "ae3c64481ff68824d3f532ed5a4c86827b9677a3be1a16048e7b54ef7a322a47"
   },
   "assets/units/arc_thrall_cutout/seams/front/seam_collar_collar_component_02.png": {
     "pixel_sha256": "652ae937138d8d806d796f390b4abef58509dd83e214a8f1b2452e352ab51ea6",
