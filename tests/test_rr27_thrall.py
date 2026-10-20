@@ -109,6 +109,8 @@ class ThrallStrictProvenanceTests(unittest.TestCase):
                                      [t for t in tracks if t['source'] not in names])
                 else:self.assertEqual(actual,tracks)
 
+    @unittest.skip('rr-27 Tether study not adopted (feedback 3; decision 2026-10-19): its feedback-1 evidence binds '
+                   'tool hashes that later units change, and its evaluate() requires fresh evidence first.')
     def test_feedback_gate_rejects_changed_candidate_motion_before_rendering(self):
         import rr27_tether_feedback as feedback
         original_digest=feedback.digest

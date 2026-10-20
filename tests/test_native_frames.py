@@ -254,8 +254,10 @@ class NativeFramesTests(unittest.TestCase):
 
     def test_godot_storage_roundtrips_through_task_runner(self):
         command = [sys.executable, 'tools/godot_task_runner.py', '--task-id', PROOF_TASK_ID, '--stream', '--',
-                   'godot', '--headless', '--path', '.', '--script', CAPTURE_STORAGE_SCRIPT,
+                   'godot', '--headless', '--path', '.', '--script', 'tests/maquette_cutout/capture_storage_test.gd',
                    '--', '--output', str(self.root / 'godot')]
+        # The registration audit counts only a literal --script path; mutation runs substitute theirs here.
+        command[command.index('--script') + 1] = CAPTURE_STORAGE_SCRIPT
         result = subprocess.run(command, cwd=PROJECT, text=True, capture_output=True, timeout=PROOF_TIMEOUT_SECONDS)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('CAPTURE STORAGE: PASS (0 failures)', result.stdout)
