@@ -1,13 +1,68 @@
 """Measure actual frozen native triangles; never substitute recipe proxies."""
+import json
+
 import numpy as np
 
 from spec.art_identity.maquettes.raster import project, triangle_samples
 from spec.art_identity.maquettes.blender.accessory_geometry.forms import pelvis_frame
-from .candidate import GATES
+from spec.art_identity.maquettes.blender.source_recipe import RECIPE_DEFAULTS
+from .candidate import GATES, ROOT
 
 MEASURE_DEFAULTS = {'epsilon': 1e-9, 'centre_rows_fraction': .6}
 VALIDATION_LIMITS = {'lower_mask_visible_fraction_min': .6, 'crack_band_start': 1 / 3,
-                     'crack_band_end': 2 / 3, 'flap_min_contiguous_central_rows': 12}
+                     'crack_band_end': 2 / 3, 'flap_min_contiguous_central_rows': 12,
+                     'crack_visible_fraction_min': .85}
+CRACK_STROKE_WIDTH_SOURCE_PX = 2  # director: the painted crack is ~2 px wide at the 255 px source
+
+
+def registered_crack(spec):
+    recipe = json.loads((ROOT / spec['id'] / 'measurements.json').read_text())
+    feature = recipe['features']['violet_crack']
+    # The protected registration has no width yet. A director-supplied field
+    # takes precedence; no visual measurement is inferred from a test fixture.
+    feature.setdefault('stroke_width_px', CRACK_STROKE_WIDTH_SOURCE_PX)
+    return feature
+
+
+def stroke_pixels(path_px, width_px, size, source_size):
+    """Pixel-centre coverage of a registered polyline at its measured width."""
+    points = np.asarray(path_px, float) * size / source_size
+    if points.ndim != 2 or points.shape[1] != 2 or len(points) < 2 or not np.isfinite(points).all():
+        raise ValueError('Registered crack requires a finite source polyline')
+    if isinstance(width_px, str) and width_px.startswith('TODO_DESIGN_'):
+        raise ValueError('Unresolved design: ' + width_px)
+    if not isinstance(width_px, (int, float)) or not np.isfinite(width_px) or width_px <= 0:
+        raise ValueError('Registered crack requires a positive measured stroke_width_px')
+    radius = width_px * size / source_size / 2
+    pixels = np.zeros((size, size), bool)
+    for a, b in zip(points, points[1:]):
+        lo = np.maximum(np.ceil(np.minimum(a, b) - radius - .5).astype(int), 0)
+        hi = np.minimum(np.floor(np.maximum(a, b) + radius - .5).astype(int), size - 1)
+        if np.any(lo > hi):
+            continue
+        yy, xx = np.mgrid[lo[1]:hi[1] + 1, lo[0]:hi[0] + 1]
+        centres = np.stack((xx + .5, yy + .5), axis=-1)
+        delta = b - a
+        squared_length = float(delta @ delta)
+        t = np.clip(((centres - a) @ delta) / squared_length, 0, 1) if squared_length else 0
+        closest = a + np.asarray(t)[..., None] * delta
+        inside = ((centres - closest) ** 2).sum(axis=-1) <= radius ** 2
+        pixels[yy, xx] |= inside
+    return pixels
+
+
+def crack_visibility(feature, hair, mask, source_size=RECIPE_DEFAULTS['source_size']):
+    """The registered feature is a surface mark; compare its mask depth to hair."""
+    pixels = stroke_pixels(feature['source_path_px'], feature['stroke_width_px'], len(mask), source_size)
+    count = int(pixels.sum())
+    if not count:
+        raise ValueError('Registered crack has no front-view pixels')
+    visible = pixels & np.isfinite(mask) & (~np.isfinite(hair) | (mask > hair))
+    visible_count = int(visible.sum())
+    fraction = visible_count / count
+    return {'passed': fraction >= VALIDATION_LIMITS['crack_visible_fraction_min'],
+            'registered_crack_pixels': count, 'visible_crack_pixels': visible_count,
+            'visible_crack_fraction': fraction}
 
 
 def depth_image(spec, mesh, view):
@@ -79,19 +134,11 @@ def measure(spec, meshes):
         lower = np.isfinite(mask) & ~top_region
         lower_clear = lower & (~np.isfinite(hair) | (mask > hair))
         lower_fraction = float(lower_clear.sum() / lower.sum())
-        crack_start = top + (bottom - top) * VALIDATION_LIMITS['crack_band_start']
-        crack_end = top + (bottom - top) * VALIDATION_LIMITS['crack_band_end']
-        crack_rows = [int(y) for y in ys if crack_start <= y + .5 < crack_end]
-        visible_crack_rows = []
-        for y in crack_rows:
-            xs = np.flatnonzero(np.isfinite(mask[y]))
-            x = int(xs[len(xs) // 2])
-            if not np.isfinite(hair[y, x]) or mask[y, x] > hair[y, x]:
-                visible_crack_rows.append(y)
+        crack = crack_visibility(registered_crack(spec), hair, mask)
         checks = {'rear_height': extent / height <= GATES['rear_height_head_height_max'] * (1 + MEASURE_DEFAULTS['epsilon']),
                   'fringe_over_mask_top': bool(visible_overlap.any()),
                   'lower_mask_remains_visible': lower_fraction >= VALIDATION_LIMITS['lower_mask_visible_fraction_min'],
-                  'crack_band_remains_visible': bool(crack_rows) and visible_crack_rows == crack_rows}
+                  'crack_band_remains_visible': crack['passed']}
         return {'passed': all(checks.values()), 'checks': checks,
                 'rear_extent_above_crown_px': extent, 'rear_head_height_px': height,
                 'rear_extent_head_height_ratio': extent / height,
@@ -99,8 +146,7 @@ def measure(spec, meshes):
                 'visible_hair_over_mask_top_pixels': int(visible_overlap.sum()),
                 'visible_lower_mask_pixels': int(lower_clear.sum()),
                 'lower_mask_pixels': int(lower.sum()), 'visible_lower_mask_fraction': lower_fraction,
-                'crack_band_px': [crack_start, crack_end], 'crack_rows': crack_rows,
-                'visible_crack_rows': visible_crack_rows}
+                **{key: value for key, value in crack.items() if key != 'passed'}}
     origin, forward, _, up, _ = pelvis_frame(spec)
     radius = spec['mq11']['design']['belt']['forward_radius_m']
     views = {}

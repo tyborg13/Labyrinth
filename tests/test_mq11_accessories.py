@@ -48,6 +48,7 @@ FIXTURE = {'skull': {'crown_m': [0., 0, 1.5], 'base_m': [0., 0, .5],
            'attachment_joints': {'hip_near': [0., .25, 1.], 'hip_far': [0., -.25, 1.],
                                  'pelvis': [0., 0, 1.]},
            'attachment_flap_size_m': [.08, .35], 'attachment_shift_px': 13.,
+           'test_crack': {'source_path_px': [[125., 123.75], [125., 132.5]], 'stroke_width_px': 1.},
            'probe_import_timeout_s': 30}
 
 
@@ -439,10 +440,12 @@ class AccessoryProofTests(unittest.TestCase):
                 world += basis[1] * (.5 - y / GATES['native_size']) * scale + basis[2] * depth
                 vertices.append(np.linalg.solve(matrix[:3, :3], world - matrix[:3, 3]).tolist())
             meshes[name] = {'vertices': vertices, 'faces': [[0, 1, 2, 3]]}
-        self.assertTrue(measure(spec, meshes)['checks']['fringe_over_mask_top'])
-        meshes['hair_crown']['vertices'] = (np.array(meshes['hair_crown']['vertices']) - 2 * FIXTURE['depth_layers'][1] *
-                                           (basis[2] @ matrix[:3, :3])).tolist()
-        self.assertFalse(measure(spec, meshes)['checks']['fringe_over_mask_top'])
+        with patch('spec.art_identity.maquettes.hollow_mimic.owner_review.measurements.registered_crack',
+                   return_value=FIXTURE['test_crack']):
+            self.assertTrue(measure(spec, meshes)['checks']['fringe_over_mask_top'])
+            meshes['hair_crown']['vertices'] = (np.array(meshes['hair_crown']['vertices']) - 2 * FIXTURE['depth_layers'][1] *
+                                               (basis[2] @ matrix[:3, :3])).tolist()
+            self.assertFalse(measure(spec, meshes)['checks']['fringe_over_mask_top'])
 
     def test_sheet_keeps_native_cells_marks_joints_and_hashes_inputs(self):
         with tempfile.TemporaryDirectory(prefix='mq11-proof-', dir=PROJECT) as temporary:

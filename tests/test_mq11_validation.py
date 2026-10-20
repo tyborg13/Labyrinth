@@ -15,7 +15,8 @@ from tests.test_mq11_accessories import FIXTURE, base, document, hair_design, mo
 VALIDATION_FIXTURE = {'detachment_distance_m': 10., 'mask_size': 100, 'passing_rear_ratio': .4,
                       'rounding_fraction': .5, 'outside_epsilon_factor': 2.,
                       'flap_width_px': 8, 'flap_rows': 20, 'gap_row': 10,
-                      'extreme_error_px': 100}
+                      'extreme_error_px': 100,
+                      'crack_path_px': [[20.5, 30.5], [20.5, 60.5]], 'crack_stroke_width_px': 1.}
 
 
 def measured_mask(hair, rear_ratio=None):
@@ -25,7 +26,11 @@ def measured_mask(hair, rear_ratio=None):
     ratio = VALIDATION_FIXTURE['passing_rear_ratio'] if rear_ratio is None else rear_ratio
     spec = {'id': 'hollow_mimic', 'mq11': {'design': {'skull': deepcopy(FIXTURE['skull'])}}}
     meshes = {name: {'vertices': [[0., 0, 0]]} for name in ('hair_crown', 'cracked_mask')}
+    scale = measurements.RECIPE_DEFAULTS['source_size'] / size
+    feature = {'source_path_px': (np.array(VALIDATION_FIXTURE['crack_path_px']) * scale).tolist(),
+               'stroke_width_px': VALIDATION_FIXTURE['crack_stroke_width_px'] * scale}
     with (patch.object(measurements, 'depth_image', side_effect=[hair, mask]),
+          patch.object(measurements, 'registered_crack', return_value=feature),
           patch.object(measurements, 'project', side_effect=[np.array([[0., -ratio, 0]]),
                                                           np.array([[0., 0, 0], [0., 1, 0]])])):
         return measurements.measure(spec, meshes)
@@ -108,15 +113,15 @@ class MeasurementReviewTests(unittest.TestCase):
         self.assertTrue(report['checks']['crack_band_remains_visible'])
         self.assertFalse(report['checks']['lower_mask_remains_visible'])
 
-    def test_crack_centre_must_remain_visible_on_every_middle_third_row(self):
+    def test_mask_midpoint_occlusion_does_not_replace_actual_crack_visibility(self):
         hair = fringe_depth()
         size = len(hair)
         hair[size // 2, size // 2] = 1.
         report = measured_mask(hair)
         self.assertGreater(report['visible_lower_mask_fraction'], .6)
         self.assertTrue(report['checks']['lower_mask_remains_visible'])
-        self.assertFalse(report['checks']['crack_band_remains_visible'])
-        self.assertFalse(report['passed'])
+        self.assertTrue(report['checks']['crack_band_remains_visible'])
+        self.assertTrue(report['passed'])
 
     def test_rear_height_boundary_allows_relative_roundoff_but_rejects_outside_epsilon(self):
         maximum = GATES['rear_height_head_height_max']

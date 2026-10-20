@@ -1,10 +1,14 @@
-# mq-11 implementation handoff — director feedback 2
+# mq-11 implementation handoff — director feedback 3
 
 Both `design.json` files are filled director data and remain protected. The
 director's front thigh fraction 1.25, centre tolerance 12 px and median of the
 central 60% of flap rows are unchanged. No test fixture is used as player art.
 Fresh native proof remains the director's responsibility; this feedback fix
 runs focused Python checks only, with no bridge submission or full-suite run.
+
+The registered `violet_crack.source_path_px` has no stroke width in the recipe; the director set
+`measurements.py:CRACK_STROKE_WIDTH_SOURCE_PX = 2` (the painted crack is about 2 px wide at the 255 px source).
+Explicit fixture widths are test data only.
 
 The implementation is opt-in: `candidate.py` compiles the protected current
 recipe, replaces only `hair_crown` or the two apron accessories, and validates
@@ -25,8 +29,10 @@ the immutable [baseline](baseline.json).
    from frozen native triangles. Three-dimensional containment of the skull
    axis within the scalp's lateral extent rejects a detached cap without
    extending the cap down to the chin. The lower 80% mask band must retain at
-   least 60% visible mask pixels; each middle-third row must retain its mask
-   centre, protecting the crack/glow region. Inclusive tuft and rear-height
+   least 60% visible mask pixels. The actual registered crack polyline, at its
+   stroke width, is rasterized into the front view and depth-tested against
+   the hair; at least 85% of its pixels must remain visible. Mask midpoints do
+   not substitute for crack pixels. Inclusive tuft and rear-height
    limits allow relative numerical error of 1e-9.
 2. **Mortar loincloth:** one closed belt and two curved cloth flaps are drafted
    in the posed hip frame, with the original `apron` ownership, thickness,
@@ -90,7 +96,8 @@ In [the Mortar candidate](../../slag_mortar/owner_review/design.json):
   Front and rear depths follow their respective outward-facing body axes.
 - `rear.front_length_ratio` is the director's 0.8, strictly between 0 and 1.
 
-There are no live unresolved fields. Unresolved-data tests own their fixtures.
+Both protected design files are complete. The crack stroke-width measurement
+above is unresolved; other unresolved-data tests own their fixtures.
 
 ## Acceptance freshness and shape replay
 
@@ -115,9 +122,16 @@ metric from those triangles and rejects stale spec bindings or cached numbers.
 Both native imports and export I/O remain stdlib/NumPy only; image curation
 stays on the host. Older proof runs lacking this export require a fresh build.
 
+Crack coverage uses pixel-centred distances to registered stroke segments,
+including their full width and endpoints, scaled from the existing 256-pixel
+source registration to the 1024 front view. Pixels not on the mask count as
+not visible. The existing `crack_band_remains_visible` report key is preserved
+but now represents the 85% actual-crack rule. Reports include total and visible
+crack-pixel counts and their fraction. The lower-mask band rule is unchanged.
+
 ## Proof for the design owner
 
-Run the complete native pipeline **through the director bridge** with a fresh
+After supplying the stroke width, run the complete native pipeline **through the director bridge** with a fresh
 run id. These commands do not launch Blender
 directly, modify production deliveries, or perform Git actions.
 

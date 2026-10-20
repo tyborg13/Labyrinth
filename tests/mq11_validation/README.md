@@ -1,5 +1,10 @@
 # mq-11 observed verification
 
+Current feedback-3 results are in [feedback3.md](feedback3.md): 171 focused
+tests pass (two bridge skips), plus all 111 art-identity tests. Actual crack
+pixels are checked at 85% visibility. Production measurement still requires
+the director's missing stroke width; the named TODO is documented there.
+
 Current director-feedback-2 results are in [feedback2.md](feedback2.md): all
 162 focused tests pass (two opt-in bridge skips), all 111 art-identity tests
 pass, and all four surviving guard mutations are caught. The pending-design

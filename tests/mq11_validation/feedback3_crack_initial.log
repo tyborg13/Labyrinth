@@ -1,0 +1,11 @@
+test_98_percent_hidden_crack_fails_despite_visible_mask_midpoints (tests.test_mq11_crack_visibility.RegisteredCrackTests) ... ok
+test_eighty_five_percent_is_inclusive_and_one_more_hidden_pixel_fails (tests.test_mq11_crack_visibility.RegisteredCrackTests) ... ok
+test_hair_behind_the_mask_does_not_hide_the_crack (tests.test_mq11_crack_visibility.RegisteredCrackTests) ... ok
+test_missing_nonpositive_or_empty_registration_cannot_pass (tests.test_mq11_crack_visibility.RegisteredCrackTests) ... ok
+test_stroke_width_and_source_registration_scale_are_used (tests.test_mq11_crack_visibility.RegisteredCrackTests) ... ok
+test_top_band_fringe_keeps_the_actual_crack_visible (tests.test_mq11_crack_visibility.RegisteredCrackTests) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.005s
+
+OK
