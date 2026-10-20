@@ -47,24 +47,24 @@
         },
         {
           "drop_fraction": 0.35,
-          "width_fraction": 0.82,
-          "forward_offset_m": 0.012,
-          "curve_m": 0.025
+          "width_fraction": 0.97,
+          "forward_offset_m": 0.014,
+          "curve_m": 0.035
         },
         {
           "drop_fraction": 0.7,
-          "width_fraction": 0.72,
-          "forward_offset_m": 0.016,
-          "curve_m": 0.03
+          "width_fraction": 0.93,
+          "forward_offset_m": 0.02,
+          "curve_m": 0.045
         },
         {
           "drop_fraction": 1.0,
-          "width_fraction": 0.66,
-          "forward_offset_m": 0.014,
-          "curve_m": 0.025
+          "width_fraction": 0.88,
+          "forward_offset_m": 0.018,
+          "curve_m": 0.04
         }
       ],
-      "front_length_ratio": 0.8
+      "front_length_ratio": 0.85
     }
   }
 }

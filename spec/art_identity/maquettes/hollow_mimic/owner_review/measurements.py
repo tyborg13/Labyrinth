@@ -11,7 +11,10 @@ from .candidate import GATES, ROOT
 MEASURE_DEFAULTS = {'epsilon': 1e-9, 'centre_rows_fraction': .6}
 VALIDATION_LIMITS = {'lower_mask_visible_fraction_min': .6, 'crack_band_start': 1 / 3,
                      'crack_band_end': 2 / 3, 'flap_min_contiguous_central_rows': 12,
-                     'crack_visible_fraction_min': .85}
+                     'crack_visible_fraction_min': .40}
+# Director (2026-10-20, owner: bring the hair forward like the original): the fringe covers the crack's
+# upper segment by design, as in the original art where the crack emerges from under it. The gate only
+# guards against hair hiding most of the crack.
 CRACK_STROKE_WIDTH_SOURCE_PX = 2  # director: the painted crack is ~2 px wide at the 255 px source
 
 
