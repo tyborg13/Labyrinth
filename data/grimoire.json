@@ -384,7 +384,7 @@
         "extra cost"
       ],
       "body": [
-        "An optional extra cost. While playing the card, toggle Empower (E, or the right stick on a controller) to gain its listed bonus.",
+        "An optional extra cost. Charge the card with the Empower seal on its top-right corner (or press E; the right stick on a controller). A charged card glows and stays charged until you play it or your turn ends.",
         "The cost is paid when the card finishes: extra Time added to your next turn, health paid after the card resolves (Block does not prevent it), or Exhaust."
       ]
     },

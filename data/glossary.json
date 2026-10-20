@@ -306,7 +306,7 @@
     "id": "empower",
     "name": "Empower",
     "icon": "empower",
-    "definition": "You can pay the listed extra cost as you play this card to gain the listed bonus.",
+    "definition": "Pay the listed extra cost when you play this card to gain the listed bonus. Charge it with the seal on the card's corner.",
     "aliases": []
   },
   {

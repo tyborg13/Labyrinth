@@ -68,16 +68,37 @@ Data: card field `empower: {"cost": {"time": N} | {"health": N} | {"exhaust": tr
   after effects and bypasses Block, once per card; `exhaust` sends the card to
   `burned`, and an armed Rehearsed Escape preserves it like normal Exhaust
   (such cards also make Rehearsed Escape armable).
-- UI: the action-context command host shows `Empower +N Time`, `Empower N HP`
-  or `Empower: Exhaust` (prefixed `✓` when on) while no board target has been
-  chosen: at a targeted card's first decision, and at a targetless card's
-  confirmation stage (tracker mode `confirmation`). Keyboard `E`; controller
-  right-stick press (`controller_empower`, glyph `RS` / `R3`), listed in the
-  controller prompt bar. Toggling rebuilds the preview from the card's start, so
-  earlier automatic actions resolve with the bonus. The turn-order Time preview
-  and the selected card's own Time badge include the `+Time` cost (badge detail
-  `Empower: +N`, beside `Rite: -N` / `Quickened: -N`). The card's rows show an Empower segment
-  (`empower` icon, cost token, bonus tokens).
+- UI: the Empower seal is a 66-layout-pixel `UiSocket` at the top-right frame
+  corner, mirrored from the Time badge's anchor. It uses the approved Empower
+  icon at 52%, nearest-filtered. Hover, selection and controller focus reveal
+  unlit seals; charged seals remain visible above neighboring hand cards with a
+  static ember rim and halo. The in-body Empower row remains.
+- Charge belongs to the individual hand copy until play, discard, burn or turn
+  end. Deselect/reselect retains it. Click the seal, keyboard `E`, or controller
+  right-stick press (`controller_empower`, existing `RS` / `R3` glyph). Keyboard
+  precedence is dragged, selected, then hovered; controller uses dragged,
+  selected, then focused. The seal never selects or starts a drag.
+- Click targeting keeps the action cursor over the hand/HUD and hides the arrow
+  off the board. Toggles preserve AoE rotation and force-aim. Multi-target cards
+  lock their current charge after the first chosen target. A health cost greater
+  than or equal to current HP, after Iron Lung's Stoneskin payment, is blocked:
+  `Not enough health: Empower costs N HP.`
+- Every play path, including drag-drop and targetless confirmation, prepares
+  charged cards with `prepare_player_card(..., "empower")`. No payment timing,
+  Time pricing, Crown of Surplus or Overclock Coil behavior changes. The tracker
+  has no Empower command or reserved grid slot; the controller prompt bar keeps
+  input-aware Empower / Unempower.
+- Tooltip: `Empower: <cost> · <bonus>`, using existing token summaries; then
+  `Click the seal or press E` / `Press RS`, or when charged
+  `Charged. Click to cancel.` / `Charged. Press RS to cancel.`
+- Seal treatment follows ui-03's approved state specification: dim ember offered
+  icon, brighter hover/focus, full-color charged icon, disabled/desaturated/slashed
+  health block, and no hover response when locked. Charging scales 1→1.18→1 in
+  0.22 seconds with a doubled halo settling over 0.3 seconds; reduced motion
+  changes state instantly. No new sound cue.
+- The turn-order Time preview and the card's own Time badge include the `+Time`
+  cost (badge detail `Empower: +N`, beside `Rite: -N` / `Quickened: -N`). The
+  board and Stagger previews and the in-body cost/bonus tokens remain precise.
 
 ## State bonuses
 

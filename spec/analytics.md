@@ -275,6 +275,14 @@ movement, and surface creation/consumption payoffs during the resolved transitio
   remains a separate delta so analysts can distinguish trails and placed Light
   from actor-bound auras.
 
+The `empower_toggled` event is an append-only UI choice event. Payload is
+  `{card_id, on, source, phase}`: `on` is the resulting charge boolean;
+  `source` is `mouse`, `keyboard` or `controller`; `phase` is `hand`,
+  `targeting`, `drag` or `confirm`. Emit once for each successful toggle and
+  never for blocked or locked attempts. Charge clears at hand departure/turn
+  end without emitting a player toggle. Existing `card_played` Empower fields
+  and payment timing remain unchanged.
+
 Attack-carried Light remains one resolved attack action in this payload. Its
 additive `illuminate_radius` and `illuminate_duration` fields identify the
 post-hit rider, while the single chosen target remains the enemy, trap, terrain

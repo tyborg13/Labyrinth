@@ -2,6 +2,8 @@ extends Button
 class_name CardWidget
 
 signal activated
+signal empower_hover_changed(hovered: bool)
+signal empower_toggled
 signal drag_started
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
@@ -662,6 +664,11 @@ var _ready_wave_active: bool = false
 var _ready_wave_glow: PanelContainer
 var _summary_icon_box: VBoxContainer
 var _role_emblem: DebossedRoleEmblem
+var _empower_seal: Button
+var _empower_rim: Control
+var _empower_raised: bool = false
+var _empower_offered: bool = false
+var _empower_charged: bool = false
 var _time_badge: TimeCostBadge
 var _elevation_shadow: Panel
 var _elevation_shadow_style: StyleBoxFlat
@@ -1350,6 +1357,48 @@ func _refresh_role_emblem(card: Dictionary) -> void:
 	_role_emblem.setup(emblem_path, _card_layout_scale())
 	_role_emblem.visible = _summary_icon_box != null and _summary_icon_box.visible and not emblem_path.is_empty()
 
+func set_empower_state(offered: bool, charged: bool, raised: bool, blocked: bool, locked: bool, glyph: String, detail: String) -> void:
+	if not offered and _empower_seal == null: return
+	if _empower_seal == null:
+		_empower_seal = preload("res://scripts/card_empower_seal.gd").new()
+		_empower_seal.name = "EmpowerSeal"
+		add_child(_empower_seal)
+		_empower_seal.pressed.connect(func() -> void:
+			if not _empower_seal.blocked and not _empower_seal.locked:
+				empower_toggled.emit()
+		)
+		_empower_seal.mouse_entered.connect(func() -> void:
+			_left_pressed = false
+			empower_hover_changed.emit(true)
+		)
+		_empower_seal.mouse_exited.connect(func() -> void: empower_hover_changed.emit(false))
+		_empower_rim = preload("res://scripts/card_empower_rim.gd").new()
+		_empower_rim.name = "EmpowerRim"
+		add_child(_empower_rim)
+	_empower_offered = offered
+	_empower_raised = raised
+	_empower_charged = charged
+	_position_empower_seal()
+	_empower_seal.configure(charged, blocked, locked, raised, glyph, detail)
+	_refresh_empower_visibility()
+
+func _refresh_empower_visibility() -> void:
+	if _empower_seal == null: return
+	_empower_seal.visible = _empower_offered and (_empower_raised or _empower_charged)
+	_empower_rim.visible = _empower_offered and _empower_charged
+
+func _position_empower_seal() -> void:
+	if _empower_seal == null or _time_badge == null: return
+	# Mirror the watch's centre anchor; the seal itself is exactly 66 layout px.
+	var diameter: float = _scaled_card_value(66.0, 66.0)
+	_empower_seal.custom_minimum_size = Vector2.ONE * diameter
+	_empower_seal.size = Vector2.ONE * diameter
+	var watch_center: Vector2 = _time_badge.position + _time_badge.size * 0.5
+	_empower_seal.position = Vector2(size.x - watch_center.x, watch_center.y) - Vector2.ONE * diameter * 0.5
+	_empower_seal.pivot_offset = _empower_seal.size * 0.5
+	_empower_rim.size = size
+	_empower_rim.queue_redraw()
+
 func _ensure_time_badge() -> void:
 	if _time_badge != null:
 		return
@@ -1393,6 +1442,7 @@ func _position_time_badge() -> void:
 	var edge_overhang: float = overhang * 0.5
 	_time_badge.position = Vector2(-edge_overhang, -edge_overhang - vertical_lift)
 	_time_badge.z_index = 12
+	_position_empower_seal()
 
 func _refresh_summary_display(card: Dictionary) -> void:
 	var rows: Array = _summary_rows.duplicate(true)
@@ -2025,6 +2075,7 @@ func _clear_children(node: Node) -> void:
 
 func _on_local_mouse_entered() -> void:
 	_local_hovered = true
+	_refresh_empower_visibility()
 	_refresh_card_material(true)
 	if _time_badge != null:
 		_time_badge.set_hovered(true)
@@ -2032,6 +2083,7 @@ func _on_local_mouse_entered() -> void:
 
 func _on_local_mouse_exited() -> void:
 	_local_hovered = false
+	_refresh_empower_visibility()
 	_refresh_card_material(false)
 	if _time_badge != null:
 		_time_badge.set_hovered(_external_highlighted)

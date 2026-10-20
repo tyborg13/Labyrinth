@@ -1314,6 +1314,9 @@ var _committed_hand_query_diagnostics: Dictionary = {}
 
 var _fallback_preview_cache: Dictionary = {}
 var _card_play_options_cache: Dictionary = {}
+var _empower_charge = preload("res://scripts/card_empower_charge.gd").new()
+const EmpowerUi = preload("res://scripts/card_empower_controller.gd")
+
 var _card_widget_display_cache: Dictionary = {}
 var _move_attack_approach = MoveAttackApproach.new()
 var _preview_shortcuts_cache_key: String = ""
@@ -2288,7 +2291,7 @@ func _input(event: InputEvent) -> void:
 			board_view.call("_clear_hover_for_navigation")
 			_on_board_tile_hovered(INVALID_TARGET_TILE)
 		_sync_click_targeting_arrow(pointer_position)
-	if _selected_card_index >= 0 and _is_empower_shortcut_event(event) and not _controller_modal_visible() and _empower_toggle_available():
+	if _is_empower_shortcut_event(event) and not _controller_modal_visible() and EmpowerUi.available(self, EmpowerUi.index_for_input(self)):
 		get_viewport().set_input_as_handled()
 		await _toggle_pending_empower()
 		return
@@ -2354,6 +2357,12 @@ func _build_controller_interface() -> void:
 	_refresh_controller_prompts()
 
 func _on_input_modality_changed(modality: String) -> void:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if modality == InputRouterScript.MODALITY_CONTROLLER and _drag_card_index >= 0 and router != null and router.modality_change_action_pressed(InputRouterScript.ACTION_EMPOWER):
+		# Right-stick Empower edits the held card; it does not transfer the drag
+		# gesture to controller navigation or rebuild its pointer-owned layout.
+		_refresh_controller_prompts()
+		return
 	_move_attack_approach.clear()
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_focused(true)
@@ -2424,7 +2433,15 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		return false
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if controller_activity and router != null and router.has_method("mark_controller_device"):
-		router.call("mark_controller_device", event.device)
+		router.call("mark_controller_device", event.device, event)
+	if _drag_card_index >= 0 and event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
+		if _empower_toggle_available():
+			await _toggle_pending_empower("controller")
+		_refresh_controller_prompts()
+		return true
+	# Other controller actions resume normal cancellation after an Empower handoff.
+	if _drag_card_index >= 0 and controller_activity:
+		_cancel_drag_play()
 	if _upgrade_scrim != null and _upgrade_scrim.visible:
 		if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
 			_controller_switch_character_tab(-1)
@@ -2505,7 +2522,7 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		return false
 	if event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
 		if _empower_toggle_available():
-			await _toggle_pending_empower()
+			await _toggle_pending_empower("controller")
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
@@ -3513,6 +3530,7 @@ func _refresh_controller_interface() -> void:
 		_controller_set_hand_index(maxi(0, _controller_hand_index))
 
 func _refresh_controller_prompts() -> void:
+	EmpowerUi.sync_widgets(self)
 	if _controller_prompt_bar == null:
 		return
 	_controller_prompt_bar.set_undo_available(_movement_undo_button != null and _movement_undo_button.undo_available())
@@ -3668,6 +3686,9 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Unfocus Hand"},
 			{"action": InputRouterScript.ACTION_PASS, "label": "Pass"},
 		]
+	if _controller_region != "board" and _empower_toggle_available():
+		var empower_index: int = EmpowerUi.index_for_input(self, true)
+		prompts.append({"action": InputRouterScript.ACTION_EMPOWER, "label": "Unempower" if _hand_card_empowered(empower_index) else "Empower"})
 	_controller_prompt_bar.set_prompts(prompts)
 
 func _connect_board_aim_signals() -> void:
@@ -8178,6 +8199,11 @@ func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) 
 			_card_targeting_pointer_position = mouse_position
 		elif _card_targeting_pointer_position.x < 0.0 or _card_targeting_pointer_position.y < 0.0:
 			_card_targeting_pointer_position = _current_mouse_position()
+		if not EmpowerUi.pointer_on_board(self, _card_targeting_pointer_position):
+			if _drag_target_arrow != null: _drag_target_arrow.clear_targeting()
+			if _drag_overlay != null: _drag_overlay.visible = false
+			_set_targeting_cursor_suppressed(false)
+			return
 		_set_card_targeting_arrow(_selected_card_index, _card_targeting_pointer_position)
 		return
 	if _drag_card_index >= 0:
@@ -8274,8 +8300,15 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	_prepare_native_card_widget(widget)
 	_reset_card_proxy_widget_transients(widget)
 	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id, _combat_state))
-	var display: Dictionary = _card_widget_display(card_id, _combat_state)
+	var empower_index: int = _drag_card_index if _drag_card_index >= 0 else _selected_card_index
+	var charged: bool = empower_index >= 0 and _card_id_for_hand_index(empower_index) == card_id and (_hand_card_empowered(empower_index) or (empower_index == _selected_card_index and _selected_card_empowered()))
+	var display_state: Dictionary = _combat_state
+	if charged:
+		display_state = _combat_state.duplicate(false)
+		CardKeywordRules.stamp_card_start(display_state, card_id, _card_def(card_id, _combat_state), true)
+	var display: Dictionary = _card_widget_display(card_id, display_state)
 	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
+	widget.set_empower_state(charged or (_drag_card_index >= 0 and CardKeywordRules.has_empower(_card_def(card_id, _combat_state))), charged, _drag_card_index >= 0, false, false, get_node("/root/InputRouter").empower_glyph_label() if _drag_card_index >= 0 else "", "")
 	# CardWidget configuration can resolve a previously stretched reusable child
 	# against its parent a second time. Pin proxy widgets to their native rect after
 	# every configure so reuse cannot grow 250x352 into 500x704.
@@ -10931,6 +10964,7 @@ func _refresh_card_preview_ui() -> void:
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_stage_total", performance_phase_started)
 	_refresh_hand_panel()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_hand_total", performance_phase_started)
+	EmpowerUi.sync_widgets(self)
 	_refresh_card_preview_visibility()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_refresh_visibility_total", performance_phase_started)
 	# The choice refresh owns the tracker refresh, and the tracker performs and
@@ -12456,7 +12490,7 @@ func _turn_order_card_time_preview() -> Dictionary:
 	if card_id.is_empty():
 		return {}
 	var card: Dictionary = _card_def(card_id, _combat_state)
-	var empower_time: int = CardKeywordRules.empower_time_surcharge(_preview_combat_state, card_id, card) if index == _selected_card_index else 0
+	var empower_time: int = int(CardKeywordRules.empower_cost(card).get("time", 0)) if _hand_card_empowered(index) or (index == _selected_card_index and _selected_card_empowered()) else 0
 	return {
 		"time": _combat_engine.card_time_cost_from_def(card) + empower_time,
 		"plays_spent": _combat_engine.card_plays_spent(card_id, _combat_state),
@@ -13646,16 +13680,6 @@ func _action_step_tracker_state() -> Dictionary:
 			"selected_targets": choice_targets
 		}
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
-		# A targetless card's confirmation stage keeps the host only for Empower.
-		if _pending_card_requires_confirmation() and _empower_toggle_available():
-			return {
-				"active": true,
-				"mode": "confirmation",
-				"card_id": _card_id_for_hand_index(_selected_card_index),
-				"actions": _pending_actions,
-				"action_index": _pending_actions.size(),
-				"selected_targets": _pending_selected_targets
-			}
 		return {}
 	return {
 		"active": true,
@@ -13975,12 +13999,10 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
 	if context_mode == "confirmation":
-		_add_empower_command()
 		return
 	if context_mode not in ["selection", "choice"]:
 		return
 	var alongside_mode_tabs: bool = context_mode == "choice"
-	_add_empower_command()
 	_add_surface_relic_commands()
 	if _current_action_supports_rotation():
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
@@ -14790,6 +14812,7 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 	var next_state: Dictionary = _combat_engine.use_quick_wits(before_state, hand_index)
 	if next_state == before_state:
 		return
+	_empower_charge.remove(hand_index, _combat_state)
 	_clear_combat_skill_card_selection()
 	_animating_hand_card_index = hand_index
 	_animation_lock = true
@@ -17133,7 +17156,7 @@ func _refresh_hand_panel() -> void:
 		hash(_combat_skill_card_selection_indices),
 	]
 	signature += "|controller_hand:%d:%d" % [1 if _controller_is_active() else 0, 1 if _controller_hand_focused else 0]
-	signature += "|empowered:%d" % (1 if _selected_card_empowered() else 0)
+	signature += "|empowered:%d:%d" % [1 if _selected_card_empowered() else 0, hash(_empower_charge.charged)]
 	if signature == _hand_panel_signature:
 		return
 	_hand_panel_signature = signature
@@ -17287,6 +17310,7 @@ func _refresh_hand_panel() -> void:
 				widget.visible = false
 			if ready_wave_delay >= 0.0:
 				widget.call_deferred("play_ready_wave", ready_wave_delay)
+		EmpowerUi.sync_widgets(self)
 		hand_box.configure_layout(_hand_layout_gap(hand.size(), card_size), true)
 		call_deferred("_fit_current_hand_layout_to_visible_width", hand_layout_revision)
 		var emphasized_hand_index: int = (
@@ -17538,6 +17562,7 @@ func _new_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dictionar
 	widget.set_meta("sfx_cue_owns_focus", true)
 	widget.activated.connect(_on_hand_card_widget_activated.bind(widget))
 	widget.drag_started.connect(_on_hand_card_widget_drag_started.bind(widget))
+	widget.empower_hover_changed.connect(_on_hand_empower_hover_changed.bind(widget))
 	widget.mouse_entered.connect(_on_hand_card_widget_hover_started.bind(widget))
 	widget.mouse_exited.connect(_on_hand_card_widget_hover_ended.bind(widget))
 	var slot: Control = _hand_card_slot(widget, card_size)
@@ -17662,10 +17687,28 @@ func _on_hand_card_widget_hover_started(widget: CardWidget) -> void:
 	if index >= 0:
 		_on_card_hover_started(index)
 
+func _on_hand_empower_hover_changed(hovered: bool, widget: CardWidget) -> void:
+	if hovered:
+		_on_hand_card_widget_hover_started(widget)
+		if _card_focus_tooltip_stack != null: _card_focus_tooltip_stack.hide_stack()
+	else:
+		_on_hand_card_widget_hover_ended(widget)
+
 func _on_hand_card_widget_hover_ended(widget: CardWidget) -> void:
+	# The corner seal overhangs the card's input rectangle. Let Godot finish
+	# transferring pointer ownership to the child before lowering this card.
+	if widget.has_node("EmpowerSeal"):
+		call_deferred("_finish_hand_card_widget_hover_ended", widget)
+		return
 	var index: int = _hand_card_index_for_widget(widget)
-	if index >= 0:
-		_on_card_hover_ended(index)
+	if index >= 0: _on_card_hover_ended(index)
+
+func _finish_hand_card_widget_hover_ended(widget: CardWidget) -> void:
+	if not is_instance_valid(widget) or not widget.is_inside_tree(): return
+	var hovered: Control = get_viewport().gui_get_hovered_control()
+	if hovered != null and (hovered == widget or widget.is_ancestor_of(hovered)): return
+	var index: int = _hand_card_index_for_widget(widget)
+	if index >= 0: _on_card_hover_ended(index)
 
 func _hand_card_slot(widget: Control, card_size: Vector2) -> Control:
 	return _scaled_card_slot(widget, card_size)
@@ -17720,6 +17763,7 @@ func _set_hand_emphasized_index(index: int, animated: bool = true) -> void:
 	if hand_box == null:
 		return
 	hand_box.set_emphasized_index(index, animated and not _reduced_motion_enabled())
+	EmpowerUi.sync_widgets(self)
 	if index < 0:
 		if _card_focus_tooltip_stack != null:
 			_card_focus_tooltip_stack.hide_stack()
@@ -17732,6 +17776,12 @@ func _show_card_focus_tooltips(index: int) -> void:
 	var card_control: Control = _hand_card_control(index)
 	var card_id: String = _card_id_for_hand_index(index)
 	if card_control == null or card_id.is_empty():
+		_card_focus_tooltip_stack.hide_stack()
+		return
+	# Hand refreshes also reach this path without a new seal-enter event.
+	# Keep pointer inspection owned by the seal until the pointer leaves it.
+	var seal: Button = card_control.get_node_or_null("EmpowerSeal") as Button
+	if not _controller_is_active() and seal != null and seal.is_hovered():
 		_card_focus_tooltip_stack.hide_stack()
 		return
 	var card: Dictionary = _card_def(card_id, _combat_state)
@@ -18879,6 +18929,7 @@ func _active_card_preview() -> Dictionary:
 	return {}
 
 func _card_preview_for_index(index: int, play_mode: String = "play") -> Dictionary:
+	if play_mode == "play" and _hand_card_empowered(index): play_mode = "empower"
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	if _combat_state.is_empty():
@@ -18951,6 +19002,9 @@ func _card_playability_for_index(index: int) -> Dictionary:
 	if _card_playability_cache.has(preview_key):
 		return _card_playability_cache[preview_key] as Dictionary
 	var summary: Dictionary = _card_playability_for_state(_combat_state, index)
+	if _hand_card_empowered(index):
+		var empowered: Dictionary = _card_play_options_for_index(index)
+		summary = {"printed_playable": bool(empowered.get("printed_playable", false)), "any_playable": bool(empowered.get("any_playable", false))}
 	_card_playability_cache[preview_key] = summary
 	return summary
 
@@ -19101,10 +19155,13 @@ func _adopt_committed_hand_queries() -> void:
 	# Umbra information, status, relics, skill charges, surfaces and RNG/history.
 	if not _committed_hand_query_state.is_empty() and _committed_hand_query_state == _combat_state and (not _committed_hand_query_prepare_previews or _committed_hand_query_definitions == _committed_query_definitions()):
 		for index: int in _committed_hand_query_flags:
+			if _hand_card_empowered(index): continue
 			_card_playability_cache[_card_preview_cache_key(index)] = _committed_hand_query_flags[index]
 		for index: int in _committed_hand_query_display:
+			if _hand_card_empowered(index): continue
 			_card_widget_display_cache[_card_preview_cache_key(index, "display")] = _committed_hand_query_display[index]
 		for index: int in _committed_hand_query_previews:
+			if _hand_card_empowered(index): continue
 			_card_preview_cache[_card_preview_cache_key(index)] = _committed_hand_query_previews[index]
 			_card_full_preview_summary_cache[_card_preview_cache_key(index)] = _committed_hand_query_full_flags[index]
 		# Publish later hand entries first so the bounded four-entry foreground
@@ -19112,6 +19169,7 @@ func _adopt_committed_hand_queries() -> void:
 		var shortcut_indices: Array = _committed_hand_query_shortcuts.keys()
 		shortcut_indices.reverse()
 		for index: int in shortcut_indices:
+			if _hand_card_empowered(index): continue
 			var prepared: Dictionary = _committed_hand_query_shortcuts[index]
 			_adopt_owned_preview_shortcuts(_preview_shortcuts_content_key(prepared["preview"], true), prepared["result"])
 			_adopt_owned_preview_shortcuts(_preview_shortcuts_content_key(prepared["preview"], false), prepared["exact_result"])
@@ -19192,15 +19250,15 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
 		return {}
-	# A selected card shows its Empower bonus while the toggle is on.
-	var empowered_display: bool = index == _selected_card_index and _selected_card_empowered()
+	# Every charged hand copy shows its Empower bonus before selection.
+	var empowered_display: bool = _hand_card_empowered(index)
 	var cache_key: String = _card_preview_cache_key(index, "display_empowered" if empowered_display else "display")
 	if _card_widget_display_cache.has(cache_key):
 		return _card_widget_display_cache.get(cache_key, {}) as Dictionary
 	var display_state: Dictionary = _combat_state
 	if empowered_display:
 		display_state = _combat_state.duplicate(false)
-		display_state[CardKeywordRules.PLAY_MODIFIERS_KEY] = (_preview_combat_state.get(CardKeywordRules.PLAY_MODIFIERS_KEY, {}) as Dictionary).duplicate(true)
+		CardKeywordRules.stamp_card_start(display_state, str(hand[index]), _card_def(str(hand[index]), _combat_state), true)
 	var display: Dictionary = _card_widget_display(str(hand[index]), display_state)
 	_card_widget_display_cache[cache_key] = display
 	return display
@@ -19332,6 +19390,7 @@ func _has_any_playable_combat_card() -> bool:
 	return false
 
 func _mark_combat_preview_state_changed() -> void:
+	_empower_charge.observe(_combat_state)
 	_combat_preview_revision += 1
 	_combat_forecast_cache.clear()
 	_preview_shortcuts_content_cache.clear()
@@ -19385,7 +19444,7 @@ func _card_preview_cache_key(index: int, play_kind: String = "play") -> String:
 	# _mark_combat_preview_state_changed owns every committed-state mutation and
 	# clears these caches. Re-hashing the full late-run combat snapshot just to
 	# discover a cache hit made updating ten retained hand cards cost ~20 ms.
-	return "%d|%d|%s" % [_combat_preview_revision, index, play_kind]
+	return "%d|%d|%s|%d" % [_combat_preview_revision, index, play_kind, 1 if _hand_card_empowered(index) else 0]
 
 func _preview_shortcuts_key(preview: Dictionary, defer_safe_move_resolution: bool = false) -> String:
 	# Combat and selection revisions are the ownership boundary for preview
@@ -21566,7 +21625,7 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	_update_drag_hand_card_visual()
 	_set_drag_source_slot_visible(false)
 
-func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
+func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false, preserve_aim: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
 		return
 	_ensure_sfx_bank()
@@ -21586,8 +21645,9 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_pending_selected_targets.clear()
 		_pending_umbra_commit_locked = false
 		_pending_orientation_target_tile = INVALID_TARGET_TILE
-		_aoe_aim_orientation = Vector2i(1, 0)
-		_reset_force_aim()
+		if not preserve_aim:
+			_aoe_aim_orientation = Vector2i(1, 0)
+			_reset_force_aim()
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
 		_refresh_card_preview_ui()
@@ -21609,9 +21669,9 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_selected_targets.clear()
 	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
-	_reset_force_aim()
+	if not preserve_aim: _reset_force_aim()
 	if _pending_action_index < _pending_actions.size():
-		_reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
+		if not preserve_aim: _reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
 		_refresh_pending_aoe_target_tiles()
 	performance_phase_started = _record_runtime_performance_phase("card_preview_targets", performance_phase_started)
 	_append_skipped_target_placeholders(0, _pending_action_index)
@@ -22484,6 +22544,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
 	await _begin_locked_hand_render_cache()
+	_empower_charge.remove(hand_index, _combat_state)
 	var committed_combat_state: Dictionary = _combat_engine.finish_player_card(
 		resolved_state,
 		hand_index,
@@ -34009,73 +34070,26 @@ func _commit_surface_skill_tile(tile: Vector2i) -> void:
 
 # ---------------------------------------------------------------- Card keywords
 # Empower is an optional extra cost chosen before the card's first board decision
-# (or at a targetless card's confirmation). The flag lives on the prepared
-# preview state, separate from technique modes, and toggling rebuilds the preview
-# from the card's start so automatic actions resolve with the bonus.
-func _selected_card_empowered() -> bool:
-	if _selected_card_index < 0 or _preview_combat_state.is_empty():
-		return false
-	var modifiers: Dictionary = _preview_combat_state.get(CardKeywordRules.PLAY_MODIFIERS_KEY, {}) as Dictionary
-	return bool(modifiers.get("empowered", false)) and str(modifiers.get("card_id", "")) == _card_id_for_hand_index(_selected_card_index)
+# (or at a targetless card's confirmation). Charge belongs to a hand copy in
+# CardEmpowerCharge; prepared states retain the existing rules flag. Toggling
+# rebuilds from the start so automatic actions resolve with the bonus.
+func _hand_card_empowered(index: int) -> bool:
+	_empower_charge.observe(_combat_state)
+	return _empower_charge.is_charged(index)
 
-func _selected_card_empower_cost() -> Dictionary:
-	if _selected_card_index < 0 or _combat_state.is_empty():
-		return {}
-	var card_id: String = _card_id_for_hand_index(_selected_card_index)
-	if card_id.is_empty():
-		return {}
-	return CardKeywordRules.empower_cost(_card_def(card_id, _combat_state))
+func _selected_card_empowered() -> bool:
+	if _hand_card_empowered(_selected_card_index): return true
+	var modifiers: Dictionary = _preview_combat_state.get(CardKeywordRules.PLAY_MODIFIERS_KEY, {}) as Dictionary
+	return _selected_card_index >= 0 and bool(modifiers.get("empowered", false)) and str(modifiers.get("card_id", "")) == _card_id_for_hand_index(_selected_card_index)
 
 func _empower_toggle_available() -> bool:
-	if _animation_lock or _selected_card_index < 0 or _pending_umbra_commit_locked or _drag_card_index >= 0 or _preview_combat_state.is_empty():
-		return false
-	if _selected_card_empower_cost().is_empty():
-		return false
-	for tile: Vector2i in _pending_selected_targets:
-		if tile.x >= 0:
-			return false
-	return true
+	return EmpowerUi.available(self, EmpowerUi.index_for_input(self, _controller_is_active()))
 
-func _empower_command_text(active: bool) -> String:
-	var cost_label: String = CardKeywordRules.empower_cost_label(_selected_card_empower_cost())
-	var text: String = "Empower: %s" % cost_label if cost_label == "Exhaust" else "Empower %s" % cost_label
-	# The keyboard shortcut is printed like the INTENTS [I] toggle.
-	return ("✓ " if active else "") + text + " [E]"
+func _on_hand_empower_toggled(widget: CardWidget) -> void:
+	await EmpowerUi.toggle(self, _hand_card_index_for_widget(widget), "mouse")
 
-func _empower_command_tooltip() -> String:
-	var card_id: String = _card_id_for_hand_index(_selected_card_index)
-	var card: Dictionary = _card_def(card_id, _combat_state)
-	var bonus_text: String = "repeat this card's first action" if bool((card.get("empower", {}) as Dictionary).get("repeat_first", false)) else ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
-	return "Empower (%s): %s.\nThe cost is paid when the card finishes. Press E (controller: right stick)." % [CardKeywordRules.empower_cost_label(_selected_card_empower_cost()), bonus_text]
-
-func _add_empower_command() -> void:
-	if not _empower_toggle_available() or _action_context_command_bar == null:
-		return
-	var active: bool = _selected_card_empowered()
-	_add_action_context_button(_empower_command_text(active), _on_empower_command_pressed, _empower_command_tooltip(), true)
-	var button: Node = _action_context_command_bar.get_child(_action_context_command_bar.get_child_count() - 1)
-	button.name = "ActionContextEmpower"
-	button.set_meta("empower_active", active)
-	if button is BaseButton:
-		(button as BaseButton).toggle_mode = true
-		(button as BaseButton).set_pressed_no_signal(active)
-
-func _on_empower_command_pressed() -> void:
-	await _toggle_pending_empower()
-
-func _toggle_pending_empower() -> void:
-	if not _empower_toggle_available():
-		return
-	var index: int = _selected_card_index
-	var next_mode: String = "play" if _selected_card_empowered() else "empower"
-	var preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index, next_mode))
-	if not bool(preview.get("playable", false)):
-		_show_combat_log_message("Empower has no legal play right now.")
-		return
-	await _begin_card_preview(index, preview, _selected_card_label_override)
-	if _controller_is_active() and _targeted_card_aiming_active():
-		_controller_enter_board(true)
-	_refresh_controller_prompts()
+func _toggle_pending_empower(source: String = "keyboard") -> void:
+	await EmpowerUi.toggle(self, EmpowerUi.index_for_input(self, source == "controller"), source)
 
 func _is_empower_shortcut_event(event: InputEvent) -> bool:
 	if not (event is InputEventKey):
