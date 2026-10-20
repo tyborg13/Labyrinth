@@ -10,6 +10,7 @@ from .gates import bindings
 from .action_direction import pose_values
 from .bone_contracts import fk_world
 from .gait import schedule
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 FRAME_COUNT = 12
 ZOOM = 3
@@ -37,8 +38,8 @@ def compose(case, capture, output):
         for row in rows:
             if abs(row['phase']-row['frame']/(FRAME_COUNT-1)) > 1e-6: raise ValueError('Uneven move phases')
             path = capture/row['file']
-            if digest(path)!=row['sha256']: raise ValueError('Changed native frame')
-            image = Image.open(path).convert('RGBA')
+            if frame_digest(path)!=row['sha256']: raise ValueError('Changed native frame')
+            image = load_frame(path).convert('RGBA')
             if image.size!=(1920,1080): raise ValueError('Wrong native dimensions')
             values,modes = pose_values(data,view,'move',row['phase'])
             fk = fk_world(layout,values,modes,forward,manifest['step_distance_px']/row['scale'])

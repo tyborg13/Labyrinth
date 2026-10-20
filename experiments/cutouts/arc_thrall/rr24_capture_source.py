@@ -18,7 +18,7 @@ def source():
          'rest_reference(view)'),
         ('"name": entry["part"]["name"], "file": file, "checks": checks,',
          '"name": entry["part"]["name"], "file": file, "checks": checks,\n'
-         '\t\t\t\t\t\t"sha256": FileAccess.get_sha256(path(file)), "checks_sha256": FileAccess.get_sha256(path(checks)),'),
+         '\t\t\t\t\t\t"sha256": CaptureStorage.file_hash(path(file)), "checks_sha256": CaptureStorage.file_hash(path(checks)),'),
         ('print("RR11 NATIVE PROBE LOAD: "',
          '_validate_rest_references()\n\t\tprint("RR11 NATIVE PROBE LOAD: "')]
     for old,new in replacements:

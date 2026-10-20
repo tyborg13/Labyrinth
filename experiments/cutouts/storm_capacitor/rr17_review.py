@@ -2,14 +2,21 @@
 import argparse
 import json
 import subprocess
+import tempfile
 from PIL import Image, ImageDraw
 from rr17_build import *
 from rr17_gates import pixel_gate
+from humanoid_cutout.native_frames import load_frame, frame_digest, export_frame
 
 PROOF_DEFAULTS = {'sheet_columns': 6, 'label_height': 24, 'crop_margin': 3}
 
 
 def compose(native, output):
+    with tempfile.TemporaryDirectory(prefix="cap01-review-") as scratch:
+        _compose(native, output, Path(scratch))
+
+
+def _compose(native, output, scratch):
     verified = pixel_gate(read(CASE / 'proof/samples.json'), native)
     if not verified['ok']: raise ValueError(verified['errors'])
     report = read(native / 'frames.json')
@@ -24,14 +31,15 @@ def compose(native, output):
         for _ in range(repeats):
             for row in rows:
                 path = (native / row['overview']).resolve()
-                if digest(path) != row['overview_sha256']: raise ValueError('Overview changed: ' + str(path))
+                if frame_digest(path) != row['overview_sha256']: raise ValueError('Overview changed: ' + str(path))
+                path = export_frame(path, scratch)
                 sequence.extend(["file '" + str(path).replace("'", "'\\''") + "'", 'duration %.12f' % (1 / 60)])
                 count += 1
         if clip == 'death':
             for _ in range(60):
                 sequence.extend(["file '" + str(path).replace("'", "'\\''") + "'", 'duration %.12f' % (1 / 60)])
                 count += 1
-        bounds = [Image.open(native / row['file']).getbbox() for row in rows]
+        bounds = [load_frame(native / row['file']).getbbox() for row in rows]
         box = [min(b[0] for b in bounds), min(b[1] for b in bounds), max(b[2] for b in bounds), max(b[3] for b in bounds)]
         margin = PROOF_DEFAULTS['crop_margin']
         box = (box[0] - margin, box[1] - margin, box[2] + margin, box[3] + margin)
@@ -40,7 +48,7 @@ def compose(native, output):
         sheet = Image.new('RGB', (columns * w, math.ceil(len(rows) / columns) * (h + label)), '#1E1E24')
         draw = ImageDraw.Draw(sheet)
         for index, row in enumerate(rows):
-            image = Image.open(native / row['file']).convert('RGBA').crop(box).resize((w, h), Image.Resampling.NEAREST)
+            image = load_frame(native / row['file']).convert('RGBA').crop(box).resize((w, h), Image.Resampling.NEAREST)
             x, y = index % columns * w, index // columns * (h + label)
             sheet.paste(image, (x, y + label), image)
             draw.text((x, y), '%s %03d  %.4f' % (clip, row['frame'], row['phase']), fill='white')

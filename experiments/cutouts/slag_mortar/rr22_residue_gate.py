@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 from cutout_pipeline.cases import digest, read_json
 from rr22_surfaces import residue_mask
+from humanoid_cutout.native_frames import load_frame, frame_digest, frame_exists
 
 NATIVE_SIZE = (512, 512)
 
@@ -16,7 +17,7 @@ def piece_feature(case, layout, piece):
     result = np.zeros((255, 255), dtype=bool)
     for feature in layout.get('features', []):
         if feature['piece'] == piece:
-            result |= np.asarray(Image.open(case / feature['mask'])) > 0
+            result |= np.asarray(load_frame(case / feature['mask'])) > 0
     return result
 
 
@@ -31,7 +32,7 @@ def source_errors(case, layout, feature_case=None, feature_layout=None):
         if amount: errors.append(f'{layout["facing"]}/{part["name"]}: {amount} residue texels outside features')
     feature = np.logical_or.reduce([piece_feature(feature_case, feature_layout, p['logical_part']) for p in layout['parts']])
     rest_path = case / layout.get('rest_source', layout.get('rest_texture', ''))
-    rest = count(Image.open(rest_path), feature)
+    rest = count(load_frame(rest_path), feature)
     if rest: errors.append(f'{layout["facing"]}/rest: {rest} residue texels outside features')
     return errors
 
@@ -54,10 +55,10 @@ def native_errors(case, capture):
             continue
         records[key] = row
         path = capture / row['file']
-        if not path.is_file() or digest(path) != row['sha256']:
+        if not frame_exists(path) or frame_digest(path) != row['sha256']:
             errors.append('changed/missing native feature mask: ' + str(key))
             continue
-        image = Image.open(path).convert('RGBA')
+        image = load_frame(path).convert('RGBA')
         if image.size != NATIVE_SIZE:
             errors.append('native feature mask dimensions differ: ' + str(key))
             continue
@@ -69,5 +70,5 @@ def native_errors(case, capture):
         feature = np.zeros(tuple(reversed(NATIVE_SIZE)), dtype=bool)
         for definition in layouts[row['view']]['features']:
             feature |= masks.get((row['view'], row['clip'], row['frame'], definition['name']), False)
-        errors += [row['file'] + ': ' + error for error in frame_errors(Image.open(capture / row['file']), feature)]
+        errors += [row['file'] + ': ' + error for error in frame_errors(load_frame(capture / row['file']), feature)]
     return errors

@@ -10,6 +10,7 @@ from rr24_build import CASE, RECIPE, read_json, write_json, digest
 from tools.humanoid_cutout.gates import bindings
 from tools.humanoid_cutout.cpu_pose import sprite_transform
 from maquette_motion.pixels import PROOF_DEFAULTS
+from humanoid_cutout.native_frames import load_frame
 
 SHEET_SIZE = (1920, 1080)
 SHEET_COLUMNS = 6
@@ -77,13 +78,13 @@ def compose(capture, output):
                 else:
                     rows = {r['frame']:r for r in manifest['pieces'] if r['view']==view and r['clip']==clip and r['name']=='loincloth'}
                     if len(rows) != expected: raise ValueError('Missing isolated native skirt frames')
-                    boxes = [Image.open(capture/rows[r['frame']]['file']).getbbox() for r in frames]
+                    boxes = [load_frame(capture/rows[r['frame']]['file']).getbbox() for r in frames]
                 bounds,size,crops = crop_plan(boxes,roots)
                 count = SHEET_COLUMNS*SHEET_ROWS
                 for start in range(0,len(frames),count):
                     sheet = Image.new('RGB',SHEET_SIZE,BACKGROUND); draw = ImageDraw.Draw(sheet)
                     for i,row in enumerate(frames[start:start+count]):
-                        image = Image.open(capture/row['file']).convert('RGBA').crop(crops[start+i]).resize(size,Image.Resampling.NEAREST)
+                        image = load_frame(capture/row['file']).convert('RGBA').crop(crops[start+i]).resize(size,Image.Resampling.NEAREST)
                         x=(i%SHEET_COLUMNS)*CELL_SIZE[0]; y=(i//SHEET_COLUMNS)*CELL_SIZE[1]
                         sheet.paste(image,(x,y),image)
                         draw.text((x,y+CELL_SIZE[1]-LABEL_HEIGHT_PX),f'{view} {label} {region} {row["frame"]:04d}',fill='white')

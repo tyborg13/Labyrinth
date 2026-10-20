@@ -10,6 +10,7 @@ from cutout_pipeline.cases import read_json, write_json, digest
 from .gait import evaluate
 from .silhouette_gates import detached_metrics, joint_holes, posed_owners
 from .anatomy import for_layout, load
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 EPSILON = 0.0001  # Serialized Bone2D float tolerance, not animation tuning.
 FAILURE_CROP_ZOOM = 3
@@ -111,14 +112,14 @@ def source_errors(case, layout, build):
         record = layout['proof_layers'][part['name']]
         # The immutable allowed/tuck masks are separate from the paint asset.
         checks = np.zeros((255,255,4),dtype=np.uint8)
-        mask = Image.open(case / record['mask']).convert('RGBA')
+        mask = load_frame(case / record['mask']).convert('RGBA')
         checks_image = Image.fromarray(checks)
         checks_image.paste(mask,tuple(record['mask_offset']))
         checks = np.asarray(checks_image)
         continuations[part['name']] = checks[..., 1] > 0
         if np.any((images[part['name']][...,3]>0) & (checks[...,0]==0)):
             errors.append('piece source outside own silhouette/tuck: '+part['name'])
-    approved = np.asarray(Image.open(case / layout['rest_source']).convert('RGBA'))
+    approved = np.asarray(load_frame(case / layout['rest_source']).convert('RGBA'))
     if not np.array_equal(np.asarray(rest),approved): errors.append('rest: composed source mismatch')
     from .texel_attachments import surface_errors as attachment_errors
     errors += attachment_errors(layout, images, continuations)
@@ -131,14 +132,14 @@ def source_errors(case, layout, build):
         if part.get('occluded_surface') and dark_slab_blocks(outline_class(images[part['name']], rules(case,layout['facing']))):
             errors.append('dark-slab: occluded donor surface: ' + part['logical_part'])
     for tuck in build['tucks']:
-        mask = np.asarray(Image.open(case / tuck['required_mask'])) > 0
+        mask = np.asarray(load_frame(case / tuck['required_mask'])) > 0
         supplied = np.zeros((255,255),dtype=bool)
         for part in layout['parts']:
             if part['logical_part']==tuck['piece']:
                 supplied |= images[part['name']][...,3]>0
         if np.any(mask & ~supplied): errors.append('tuck: missing actual texels: '+tuck['piece'])
     for feature in layout['features']:
-        mask = np.asarray(Image.open(case / feature['mask'])) > 0
+        mask = np.asarray(load_frame(case / feature['mask'])) > 0
         if not np.array_equal(images[feature['piece']][mask],approved[mask]):
             errors.append('feature integrity: '+feature['name'])
     # A colour can occur in the painting and still form a false horizontal
@@ -152,7 +153,7 @@ def source_errors(case, layout, build):
             continue
         record=layout['proof_layers'][name]
         checks_image=Image.new('RGBA',(255,255))
-        checks_image.paste(Image.open(case/record['mask']).convert('RGBA'),tuple(record['mask_offset']))
+        checks_image.paste(load_frame(case/record['mask']).convert('RGBA'),tuple(record['mask_offset']))
         continuation=np.asarray(checks_image)[...,1]>0
         donors=images[name].copy(); donors[continuation]=0
         expected=edge_texels(donors,continuation,rules(case,layout['facing']))
@@ -341,20 +342,20 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         errors += source_errors(case,layout,read_json(case/'proof/build.json'))
     native_frames={(r['view'],r['clip'],r['frame']):r for r in manifest['frames']}
     for view in data['view_tracks']:
-        rest = np.asarray(Image.open(capture / (view + '_rest.png')).convert('RGBA'))
-        source = np.asarray(Image.open(case / layouts[view]['rest_source']).convert('RGBA'))
+        rest = np.asarray(load_frame(capture / (view + '_rest.png')).convert('RGBA'))
+        source = np.asarray(load_frame(case / layouts[view]['rest_source']).convert('RGBA'))
         if not np.array_equal(rest, source): errors.append(view + ': native rest mismatch')
         for clip, definition in data['clips'].items():
             rows = [r for r in manifest['frames'] if r['view'] == view and r['clip'] == clip]
             if len(rows) != round(definition['seconds'] * 60) or {r['frame'] for r in rows}!=set(range(round(definition['seconds']*60))): errors.append(view + '/' + clip + ': missing frames')
             for row in rows:
-                if digest(capture / row['file']) != row['sha256']: errors.append('changed frame: ' + row['file'])
+                if frame_digest(capture / row['file']) != row['sha256']: errors.append('changed frame: ' + row['file'])
     for clip,definition in data['clips'].items():
         pair_rows=[r for r in manifest.get('pairs',[]) if r['clip']==clip]
         if {r['frame'] for r in pair_rows}!=set(range(round(definition['seconds']*60))): errors.append(clip+': incomplete reel pairs')
         for row in pair_rows:
-            if digest(capture / row['file'])!=row['sha256']: errors.append('changed reel pair: '+row['file'])
-            if Image.open(capture / row['file']).size!=(1920,1080): errors.append('wrong reel dimensions: '+row['file'])
+            if frame_digest(capture / row['file'])!=row['sha256']: errors.append('changed reel pair: '+row['file'])
+            if load_frame(capture / row['file']).size!=(1920,1080): errors.append('wrong reel dimensions: '+row['file'])
     idle_rows = manifest.get('idle_groups', [])
     expected_idle = round(data['clips']['idle']['seconds'] * 60) * 3 * len(data['view_tracks'])
     if len(idle_rows) != expected_idle: errors.append('incomplete isolated idle groups')
@@ -364,8 +365,8 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         else:
             offset=idle_group_offset(layouts[row['view']],expected['bones'],row['group'],anatomy)
             if not np.allclose(offset,row['offset'],atol=EPSILON,rtol=0): errors.append(row['file']+': idle offset differs from authored group')
-        rest = np.asarray(Image.open(capture / row['rest']).convert('RGBA'))
-        frame = np.asarray(Image.open(capture / row['file']).convert('RGBA'))
+        rest = np.asarray(load_frame(capture / row['rest']).convert('RGBA'))
+        frame = np.asarray(load_frame(capture / row['file']).convert('RGBA'))
         mismatch = idle_pixel_errors(rest, frame, row['offset'])
         if mismatch: errors.append('%s: idle pixel mismatch: %d' % (row['file'], mismatch))
     if not manifest.get('idle_groups'): errors.append('missing isolated idle group proof')
@@ -378,11 +379,11 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
     if not manifest.get('pieces'): errors.append('missing every-frame clean-piece proof')
     hole_frames={}
     for row in manifest.get('rest_holes',[]):
-        if digest(capture / row['file'])!=row['sha256']: errors.append('changed native rest-hole reference: '+row['file'])
+        if frame_digest(capture / row['file'])!=row['sha256']: errors.append('changed native rest-hole reference: '+row['file'])
         hole_frames.setdefault((row['view'],row['clip'],row['frame']),[]).append(row)
     seam_frames = {}
     for row in manifest.get('joint_seams', []):
-        if digest(capture / row['file']) != row['sha256']: errors.append('changed native joint seam: ' + row['file'])
+        if frame_digest(capture / row['file']) != row['sha256']: errors.append('changed native joint seam: ' + row['file'])
         seam_frames.setdefault((row['view'],row['clip'],row['frame']), []).append(row)
     from maquette_motion.material_palette import rules
     outline_rules = {view: rules(case,view) for view in layouts}
@@ -394,8 +395,8 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         for row in rows:
             part = next(p for p in layout['parts'] if p['name'] == row['name'])
             if row['source'] != part['file']: errors.append(row['file'] + ': native source differs from layout')
-            image=np.asarray(Image.open(capture / row['file']).convert('RGBA'))
-            checks=np.asarray(Image.open(capture / row['checks']).convert('RGBA'))
+            image=np.asarray(load_frame(capture / row['file']).convert('RGBA'))
+            checks=np.asarray(load_frame(capture / row['checks']).convert('RGBA'))
             if row.get('rigid'):
                 reference=expected_poses.get(key,{}).get('parts',{}).get(row['name'],{}).get('transform')
                 if reference is None or not np.allclose(reference,row['transform'],atol=EPSILON,rtol=0): errors.append(row['file']+': differs from independent pose')
@@ -414,12 +415,12 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         expected_holes=len(layout.get('proof_rest_holes',[]))
         if len(hole_frames.get(key,[]))!=expected_holes: errors.append(str(key)+': missing GPU rest-hole transport')
         occupied=np.logical_or.reduce([image[...,3]>0 for _,image,_ in layers])
-        references=[np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3]>0 for row in hole_frames.get(key,[])]
+        references=[np.asarray(load_frame(capture / row['file']).convert('RGBA'))[...,3]>0 for row in hole_frames.get(key,[])]
         if len(seam_frames.get(key, [])) != len(layout.get('proof_joint_seams', [])):
             errors.append(str(key) + ': missing GPU joint-seam transport')
         seam = np.zeros_like(occupied)
         for row in seam_frames.get(key, []):
-            seam |= np.asarray(Image.open(capture / row['file']).convert('RGBA'))[...,3] > 0
+            seam |= np.asarray(load_frame(capture / row['file']).convert('RGBA'))[...,3] > 0
         pose = expected_poses.get(key)
         space = pocket_report(layers)
         if pose is None:
@@ -446,7 +447,7 @@ def native_errors(case, capture, failure_output=None, hole_details=None, space_d
         for _,image,_ in sorted(layers,key=lambda item:item[0]['z_index']): composite.alpha_composite(Image.fromarray(image))
         if key not in native_frames: errors.append(str(key)+': missing composed native frame')
         else:
-            actual=np.asarray(Image.open(capture / native_frames[key]['file']).convert('RGBA'))
+            actual=np.asarray(load_frame(capture / native_frames[key]['file']).convert('RGBA'))
             from maquette_motion.pixels import changed
             if changed(actual,np.asarray(composite)).any(): errors.append(str(key)+': native frame differs from isolated GPU pieces')
         signatures = [{field: hole[field] for field in ('bbox', 'pixel_count')} for hole in new_holes]
@@ -482,6 +483,7 @@ def bindings(case):
         paths.extend(Path(directory) / name for name in files if Path(name).suffix in ('.json', '.png'))
     result = {str(p.relative_to(case)): digest(p) for p in paths}
     project = Path(__file__).resolve().parents[2]
+    result['runtime:tests/maquette_cutout/capture_storage.gd'] = digest(project / 'tests/maquette_cutout/capture_storage.gd')
     integration = load(case)['integration']
     for folder in integration['binding_folders']:
         for path in (project / folder).rglob('*'):

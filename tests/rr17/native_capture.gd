@@ -1,5 +1,7 @@
 extends SceneTree
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Director-only 1920x1080 native renderer. One centred actor, never mirrored.
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
 const Motion = preload("res://scripts/maquette_cutout_runtime/motion.gd")
@@ -27,6 +29,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	_output = args[args.find("--output") + 1] if args.has("--output") else CASE.path_join("proof/native")
+	CaptureStorage.setup(_output)
 	_rig = Rig.new()
 	_rig.case_directory = CASE
 	if args.has("--validate-only"):
@@ -71,8 +74,9 @@ func _run() -> void:
 		var approved: Image = Image.load_from_file(CASE.path_join("source/" + view + "/processed.png"))
 		approved.convert(Image.FORMAT_RGBA8)
 		if rest.get_data() != approved.get_data(): _errors.append(view + ": native rest identity differs")
-		rest.save_png(_output.path_join(view + "_rest.png"))
-	_canvas.get_texture().get_image().save_png(_output.path_join("rest.png"))
+		CaptureStorage.save(rest, _output.path_join(view + "_rest.png"))
+	CaptureStorage.plan_review(_canvas)
+	CaptureStorage.save(_canvas.get_texture().get_image(), _output.path_join("rest.png"))
 	if not args.has("--rest-only"):
 		var data: Dictionary = Motion.data_for({"motion_data": CASE.path_join("compiled_motion.json")})
 		for view: String in ["front", "rear"]:
@@ -89,36 +93,37 @@ func _run() -> void:
 				if item.has("contact"):
 					_rig.apply_pose(clip, float(item["contact"]))
 					await capture(view, clip, count, float(item["contact"]), true)
+	CaptureStorage.finish()
 	var file := FileAccess.open(_output.path_join("frames.json"), FileAccess.WRITE)
-	file.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_pixels": true, "size": [1920, 1080], "ui_scale": 1.0,
-		"fps": FPS, "frames": _frames, "contacts": _contacts, "inputs": preload("res://tests/maquette_cutout/proof_inputs.gd").bindings(CASE), "errors": _errors}))
+	file.store_string(JSON.stringify(CaptureStorage.annotate({"ok": _errors.is_empty(), "native_pixels": true, "size": [1920, 1080], "ui_scale": 1.0,
+		"fps": FPS, "frames": _frames, "contacts": _contacts, "inputs": preload("res://tests/maquette_cutout/proof_inputs.gd").bindings(CASE), "errors": _errors})))
 	print("RR17 NATIVE CAPTURE: " + ("PASS" if _errors.is_empty() else "FAIL"))
-	for path: String in ["rest.png", "front_rest.png", "rear_rest.png"]: print(ProjectSettings.globalize_path(_output.path_join(path)))
+	for path: String in ["rest.png", "front_rest.png", "rear_rest.png"]: print(ProjectSettings.globalize_path(CaptureStorage.proof_png(_output.path_join(path))))
 	for clip: String in ["idle", "charge", "discharge", "hit", "death"]:
 		var rows: Array = _frames.filter(func(row: Dictionary) -> bool: return row["view"] == "front" and row["clip"] == clip)
 		for index: int in range(mini(6, rows.size())):
 			var selected: int = roundi(float(index) * (rows.size() - 1) / 5.0)
-			print(ProjectSettings.globalize_path(_output.path_join(rows[selected]["overview"])))
+			print(ProjectSettings.globalize_path(CaptureStorage.proof_png(_output.path_join(rows[selected]["overview"]))))
 	quit(0 if _errors.is_empty() else 1)
 
 func capture(view: String, clip: String, frame: int, phase: float, contact: bool = false) -> void:
 	var prefix: String = "%s_%s_%04d" % [view, clip, frame]
 	await draw_frame()
 	var full: String = prefix + ".png"
-	_native.get_texture().get_image().save_png(_output.path_join(full))
+	CaptureStorage.save(_native.get_texture().get_image(), _output.path_join(full))
 	var overview: String = prefix + "_overview.png"
-	_canvas.get_texture().get_image().save_png(_output.path_join(overview))
+	CaptureStorage.save(_canvas.get_texture().get_image(), _output.path_join(overview), clip)
 	var layers: Dictionary = {}
 	for name: String in ["column", "cap"]:
 		for part: String in ["column", "cap"]: _rig.bones[part].get_node(NodePath(part)).visible = name == part
 		await draw_frame()
 		var path: String = prefix + "_" + name + ".png"
-		_native.get_texture().get_image().save_png(_output.path_join(path))
-		layers[name] = {"file": path, "sha256": FileAccess.get_sha256(_output.path_join(path))}
+		CaptureStorage.save(_native.get_texture().get_image(), _output.path_join(path))
+		layers[name] = {"file": path, "sha256": CaptureStorage.file_hash(_output.path_join(path))}
 	for name: String in ["column", "cap"]: _rig.bones[name].get_node(NodePath(name)).visible = true
 	var row: Dictionary = {"view": view, "clip": clip, "frame": frame, "phase": phase, "file": full,
-		"sha256": FileAccess.get_sha256(_output.path_join(full)), "overview": overview,
-		"overview_sha256": FileAccess.get_sha256(_output.path_join(overview)), "layers": layers}
+		"sha256": CaptureStorage.file_hash(_output.path_join(full)), "overview": overview,
+		"overview_sha256": CaptureStorage.file_hash(_output.path_join(overview)), "layers": layers}
 	if contact: _contacts.append(row)
 	else: _frames.append(row)
 

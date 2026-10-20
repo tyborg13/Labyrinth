@@ -8,6 +8,7 @@ from PIL import Image
 from cutout_pipeline.cases import read_json
 from maquette_motion import pixels, silhouette
 from maquette_motion.bleed import source_transform
+from humanoid_cutout.native_frames import load_frame
 
 INTERIOR_EROSION_PX = 1
 # RendererCanvasCull::_cull_canvas_item skips inherited modulate.a < 0.007,
@@ -50,7 +51,7 @@ def body_part(layout):
 
 
 def reference_images(case, layout):
-    rest = np.array(Image.open(case / layout['rest_source']).convert('RGBA'))[..., 3] > 0
+    rest = np.array(load_frame(case / layout['rest_source']).convert('RGBA'))[..., 3] > 0
     eroded = ~silhouette.dilate(~np.pad(rest, INTERIOR_EROSION_PX), INTERIOR_EROSION_PX,
                                grid_distance=True)[INTERIOR_EROSION_PX:-INTERIOR_EROSION_PX,
                                                    INTERIOR_EROSION_PX:-INTERIOR_EROSION_PX]
@@ -114,9 +115,9 @@ def native_consistency_errors(layers, composed):
         if key not in frames:
             errors.append(str(key) + ': missing composed native frame')
             continue
-        images = [np.array(Image.open(layers['directory'] / row[k + '_file']).convert('RGBA'))[..., 3] > 0
+        images = [np.array(load_frame(layers['directory'] / row[k + '_file']).convert('RGBA'))[..., 3] > 0
                   for k in ('parts', 'seams')]
-        actual = np.array(Image.open(composed['directory'] / frames[key]['file']).convert('RGBA'))[..., 3] > 0
+        actual = np.array(load_frame(composed['directory'] / frames[key]['file']).convert('RGBA'))[..., 3] > 0
         if any(image.shape != size for image in [*images, actual]):
             errors.append(str(key) + ': wrong native seam layer dimensions')
         elif not np.array_equal(images[0] | images[1], actual):
@@ -133,7 +134,7 @@ def report(case, samples, native=None, historical_reference_model=False):
         references = reference_images(case, layout)
         layers = {kind: dict(layout, parts=[p for p in layout['parts'] if bool(p.get('seam_underlay')) == flag])
                   for kind, flag in (('parts', False), ('seams', True))}
-        images = {p['name']: Image.open(case / p['file']).convert('RGBA') for p in layout['parts']}
+        images = {p['name']: load_frame(case / p['file']).convert('RGBA') for p in layout['parts']}
         from maquette_motion.joint_seams import boundary, material_parts, rest_regions
         parts = material_parts(layout)
         regions = rest_regions(case, layout)
@@ -168,7 +169,7 @@ def report(case, samples, native=None, historical_reference_model=False):
                     matrix = pixels.unpack(frame['reference_transform'])
                     if not np.allclose(matrix, source_transform(row, owner), atol=pixels.PROOF_DEFAULTS['transform_tolerance'], rtol=0):
                         errors.append('/'.join(map(str, key)) + ': independently moved native reference mask')
-                    native_references = [np.asarray(Image.open(native['directory'] / frame[k + '_file']).convert('RGBA'))[..., 3] > 0
+                    native_references = [np.asarray(load_frame(native['directory'] / frame[k + '_file']).convert('RGBA'))[..., 3] > 0
                                          for k in ('rest', 'interior')]
                     if any(m.shape != (pixels.PROOF_DEFAULTS['canvas_size'],) * 2 for m in native_references):
                         errors.append('/'.join(map(str, key)) + ': wrong native reference dimensions')
@@ -179,7 +180,7 @@ def report(case, samples, native=None, historical_reference_model=False):
                     for kind, actual, expected_mask in zip(('rest', 'interior'), native_references, expected_masks):
                         if not native_reference_matches(actual, expected_mask, row):
                             errors.append('/'.join(map(str, key)) + ': native ' + kind + ' reference differs from source transform')
-                masks = [np.array(Image.open(native['directory'] / frame[k + '_file']).convert('RGBA'))[..., 3] > 0
+                masks = [np.array(load_frame(native['directory'] / frame[k + '_file']).convert('RGBA'))[..., 3] > 0
                          for k in ('parts', 'seams')]
                 if any(m.shape != (pixels.PROOF_DEFAULTS['canvas_size'],) * 2 for m in masks):
                     errors.append('/'.join(map(str, key)) + ': wrong native seam dimensions')

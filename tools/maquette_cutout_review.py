@@ -9,6 +9,7 @@ from cutout_pipeline.cases import read_json, write_json, digest
 from maquette_motion.gates import native_errors
 from maquette_cutout_polish import gate as pixel_gate
 from maquette_motion import certificates
+from humanoid_cutout.native_frames import load_frame
 FPS = 60
 SIZE = (1920,1080)
 DEATH_HOLD_FRAMES = FPS
@@ -44,7 +45,7 @@ def compose(case, capture, output):
             count=round(compiled['clips'][clip]['seconds']*FPS)
             sequence=list(range(count))*loops+([count-1]*DEATH_HOLD_FRAMES if clip=='death' else [])
             for frame in sequence:
-                image=Image.open(capture/f'pair_{clip}/frame_{frame:04d}.png').convert('RGB')
+                image=load_frame(capture/f'pair_{clip}/frame_{frame:04d}.png').convert('RGB')
                 if image.size!=SIZE:raise ValueError('Native pair must be 1920x1080')
                 process.stdin.write(image.tobytes());total+=1
     finally:

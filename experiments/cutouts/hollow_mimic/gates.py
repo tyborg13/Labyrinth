@@ -18,12 +18,19 @@ from residue import count as green_pixels, feature_mask, clean_piece
 import proof_records
 from humanoid_cutout.bone_evidence import read_report
 from continuations import derivation_errors as continuation_errors
+from humanoid_cutout.native_frames import load_frame, frame_digest
 
 EPSILON = 0.0001  # Existing serialized Bone2D tolerance.
 COVERAGE_PREFIXES = ('assets/units/hoarfrost_seer_cutout/', 'experiments/cutouts/hoarfrost_seer/',
                      'assets/units/arc_thrall_cutout/', 'experiments/cutouts/arc_thrall/',
                      'experiments/cutouts/storm_capacitor/mq5/proof/')
-COVERAGE_FILES = ('experiments/cutouts/storm_capacitor/rr17_proof.sh',)
+# cap-01 owns these capture consumers (owner-approved brief, 2026-10-19).
+# The ledger still requires their exact frozen-before and current-after bytes;
+# paint, motion data, gate thresholds and every other protected path stay bound.
+COVERAGE_FILES = ('experiments/cutouts/storm_capacitor/rr17_proof.sh',
+                  'experiments/cutouts/storm_capacitor/rr17_review.py',
+                  'experiments/cutouts/storm_capacitor/rr17_release.py',
+                  'experiments/cutouts/storm_capacitor/rr17_gates.py')
 
 
 def protected_errors():
@@ -54,7 +61,7 @@ def residue_derivation_errors(layout):
     errors = []
     for name in layout['source_labels']:
         source = CASE / 'residue_source' / layout['facing']
-        visible, hidden = [np.asarray(Image.open(source / f'{name}_{kind}.png').convert('RGBA')) for kind in ('visible', 'hidden')]
+        visible, hidden = [np.asarray(load_frame(source / f'{name}_{kind}.png').convert('RGBA')) for kind in ('visible', 'hidden')]
         expected = clean_piece(visible, hidden, feature_mask(CASE, layout, name))[:2]
         for is_hidden, pixels in zip((False, True), expected):
             actual = np.zeros_like(pixels)
@@ -133,13 +140,13 @@ def headless(samples):
         for part in layout['parts']:
             if green_pixels(source_pixels(CASE, part), feature_mask(CASE, layout, part['logical_part'])):
                 cut.append(view + '/' + part['name'] + ': chroma-key residue')
-        if green_pixels(Image.open(CASE / layout['rest_source']).convert('RGBA'), feature_mask(CASE, layout)):
+        if green_pixels(load_frame(CASE / layout['rest_source']).convert('RGBA'), feature_mask(CASE, layout)):
             cut.append(view + ': chroma-key residue in presentation rest')
         prod = read_json(ASSETS / (view + '.json'))
         for part in prod['parts']:
             if green_pixels(source_pixels(ASSETS, part), feature_mask(CASE, layout, part['logical_part'])):
                 cut.append(view + '/' + part['name'] + ': production chroma-key residue')
-        if green_pixels(Image.open(ASSETS / prod['rest_source']).convert('RGBA'), feature_mask(CASE, layout)):
+        if green_pixels(load_frame(ASSETS / prod['rest_source']).convert('RGBA'), feature_mask(CASE, layout)):
             cut.append(view + ': chroma-key residue in production rest')
         bones = bone_errors(layout, data, samples, current)
         direction = direction_report(layout, data, samples, current, require_presented=True)
@@ -160,7 +167,7 @@ def native_residue_errors(capture, manifest, layouts):
         if key in masks: errors.append(str(key) + ': duplicate feature mask')
         masks[key] = row
     for row in manifest['frames']:
-        image = Image.open(capture / row['file']).convert('RGBA')
+        image = load_frame(capture / row['file']).convert('RGBA')
         exempt = np.zeros((image.height, image.width), dtype=bool)
         for feature in layouts[row['view']].get('features', []):
             key = (row['view'], row['clip'], row['frame'], feature['name'])
@@ -169,10 +176,10 @@ def native_residue_errors(capture, manifest, layouts):
                 errors.append(str(key) + ': missing native feature mask')
                 continue
             used.add(key)
-            if digest(capture / record['file']) != record['sha256']:
+            if frame_digest(capture / record['file']) != record['sha256']:
                 errors.append(str(key) + ': changed native feature mask')
                 continue
-            mask = Image.open(capture / record['file']).convert('RGBA')
+            mask = load_frame(capture / record['file']).convert('RGBA')
             if mask.size != image.size:
                 errors.append(str(key) + ': feature mask dimensions differ')
                 continue

@@ -1,5 +1,7 @@
 extends SceneTree
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Windowed renderer only. All pieces/check masks use the real joint_meshes
 ## path. Clones isolate layers in parallel; none are CPU-skinned or rasterized.
 const Rig = preload("res://scripts/maquette_cutout_runtime/rig.gd")
@@ -52,6 +54,7 @@ func _run() -> void:
 		quit(1)
 		return
 	output = args[args.find("--output") + 1]
+	CaptureStorage.setup(output)
 	data = Motion.data_for({"motion_data": directory.path_join("compiled_motion.json")})
 	anatomy = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
 	if data["clips"].get("move", {}).has("gait"):
@@ -128,12 +131,13 @@ func _run() -> void:
 	await draw_frame()
 	for view: String in primary:
 		var image: Image = picture(primary[view]).get_region(Rect2i(128,128,255,255))
-		image.save_png(output.path_join(view + "_rest.png"))
+		CaptureStorage.save(image, output.path_join(view + "_rest.png"))
 		var source: Image = Image.load_from_file(directory.path_join("source/" + view + "/processed.png"))
 		source.convert(Image.FORMAT_RGBA8)
 		if image.get_data() != source.get_data(): failures.append(view + ": native rest mismatch")
-	for key: String in groups: picture(groups[key]).save_png(path("groups/" + key + "_rest.png"))
-	canvas.get_texture().get_image().save_png(output.path_join("rest_pair.png"))
+	for key: String in groups: CaptureStorage.save(picture(groups[key]), path("groups/" + key + "_rest.png"))
+	CaptureStorage.plan_review(canvas)
+	CaptureStorage.save(canvas.get_texture().get_image(), output.path_join("rest_pair.png"))
 	if args.has("--idle-comparison"):
 		var hero_view: SubViewport = viewport(POSE_SIZE, true)
 		hero = Hero.new()
@@ -148,7 +152,7 @@ func _run() -> void:
 			for rig: Node2D in rigs: rig.apply_pose("idle", phase)
 			hero.apply_pose("idle", phase)
 			await draw_frame()
-			canvas.get_texture().get_image().save_png(path("idle_comparison/frame_%04d.png" % frame))
+			CaptureStorage.save(canvas.get_texture().get_image(), path("idle_comparison/frame_%04d.png" % frame))
 	elif not args.has("--rest-only"):
 		for clip: String in data["clips"]:
 			label.text = clip
@@ -159,18 +163,18 @@ func _run() -> void:
 				await draw_frame()
 				for view: String in primary:
 					var file: String = view + "_" + clip + "/pose_%04d.png" % frame
-					picture(primary[view]).save_png(path(file))
+					CaptureStorage.save(picture(primary[view]), path(file))
 					records.append({"view": view, "clip": clip, "frame": frame, "phase": phase, "file": file,
-						"sha256": FileAccess.get_sha256(path(file))})
+						"sha256": CaptureStorage.file_hash(path(file))})
 				var pair: String = "pair_" + clip + "/frame_%04d.png" % frame
-				canvas.get_texture().get_image().save_png(path(pair))
-				pairs.append({"clip": clip, "frame": frame, "file": pair, "sha256": FileAccess.get_sha256(path(pair))})
+				CaptureStorage.save(canvas.get_texture().get_image(), path(pair))
+				pairs.append({"clip": clip, "frame": frame, "file": pair, "sha256": CaptureStorage.file_hash(path(pair))})
 				for key: String in isolated:
 					var entry: Dictionary = isolated[key]
 					var file: String = "pieces/" + clip + "/%04d/" % frame + key + ".png"
 					var checks: String = file.trim_suffix(".png") + "_checks.png"
-					picture(entry["paint"]).save_png(path(file))
-					picture(entry["checks"]).save_png(path(checks))
+					CaptureStorage.save(picture(entry["paint"]), path(file))
+					CaptureStorage.save(picture(entry["checks"]), path(checks))
 					var node: Node2D = painted_node(entry["paint"], str(entry["part"]["name"]))
 					var transform: Transform2D = node.global_transform
 					transform.origin -= ORIGIN
@@ -180,45 +184,46 @@ func _run() -> void:
 						"rigid": not node is Polygon2D, "transform": Samples.matrix(transform)})
 				for key: String in hole_rigs:
 					var hole_file: String = "holes/"+clip+"/%04d/" % frame+key+".png"
-					picture(hole_rigs[key]).save_png(path(hole_file))
+					CaptureStorage.save(picture(hole_rigs[key]), path(hole_file))
 					rest_holes.append({"view":key.get_slice("/",0),"clip":clip,"frame":frame,"file":hole_file,
-						"sha256":FileAccess.get_sha256(path(hole_file))})
+						"sha256":CaptureStorage.file_hash(path(hole_file))})
 				for key: String in seam_rigs:
 					var seam_file: String = "seams/"+clip+"/%04d/" % frame+key+".png"
-					picture(seam_rigs[key]).save_png(path(seam_file))
+					CaptureStorage.save(picture(seam_rigs[key]), path(seam_file))
 					joint_seams.append({"view":key.get_slice("/",0),"clip":clip,"frame":frame,"file":seam_file,
-						"sha256":FileAccess.get_sha256(path(seam_file))})
+						"sha256":CaptureStorage.file_hash(path(seam_file))})
 				for key: String in feature_rigs:
 					var feature_file: String = "features/" + clip + "/%04d/" % frame + key + ".png"
-					picture(feature_rigs[key]).save_png(path(feature_file))
+					CaptureStorage.save(picture(feature_rigs[key]), path(feature_file))
 					feature_masks.append({"view": key.get_slice("/", 0), "name": key.get_slice("/", 1),
-						"clip": clip, "frame": frame, "file": feature_file, "sha256": FileAccess.get_sha256(path(feature_file))})
+						"clip": clip, "frame": frame, "file": feature_file, "sha256": CaptureStorage.file_hash(path(feature_file))})
 				if clip == "idle":
 					for key: String in groups:
 						var group_rig: Node2D = groups[key]
 						var file: String = "groups/" + key + "/frame_%04d.png" % frame
-						picture(group_rig).save_png(path(file))
+						CaptureStorage.save(picture(group_rig), path(file))
 						var anchor: String = str(anatomy["idle_groups"][key.get_slice("/",1)]["bones"][0])
 						var bone: Bone2D = group_rig.bones[anchor]
 						var offset: Vector2 = bone.global_position - ORIGIN - Motion.point(group_rig.layout["joints"][anchor]["position"])
 						idle_groups.append({"view":key.get_slice("/",0),"group":key.get_slice("/",1),"frame":frame,
 							"file": file, "rest": "groups/" + key + "_rest.png", "offset": [roundi(offset.x),roundi(offset.y)]})
+	CaptureStorage.finish()
 	var file := FileAccess.open(output.path_join("frames.json"), FileAccess.WRITE)
-	file.store_string(JSON.stringify({"native_pixels": true, "size": [1920,1080], "ui_scale": 1.0, "fps": FPS,
+	file.store_string(JSON.stringify(CaptureStorage.annotate({"native_pixels": true, "size": [1920,1080], "ui_scale": 1.0, "fps": FPS,
 		"inputs": _binding_script.for_case(directory), "frames": records, "pairs": pairs, "pieces": pieces,
 		"idle_groups": idle_groups, "rest_holes":rest_holes, "joint_seams":joint_seams, "feature_masks": feature_masks,
-		"errors": failures, "ok": failures.is_empty()}))
+		"errors": failures, "ok": failures.is_empty()})))
 	print("RR22 NATIVE CAPTURE: " + ("PASS" if failures.is_empty() else "FAIL"))
-	print(ProjectSettings.globalize_path(output.path_join("rest_pair.png")))
+	print(ProjectSettings.globalize_path(CaptureStorage.proof_png(output.path_join("rest_pair.png"))))
 	if args.has("--idle-comparison"):
 		var count: int = roundi(0.84 * FPS * IDLE_COMPARISON_LOOPS)
 		for sample: int in range(PROOF_REPRESENTATIVES):
-			print(ProjectSettings.globalize_path(output.path_join("idle_comparison/frame_%04d.png" % roundi(float(sample) * (count - 1) / float(PROOF_REPRESENTATIVES - 1)))))
+			print(ProjectSettings.globalize_path(CaptureStorage.proof_png(output.path_join("idle_comparison/frame_%04d.png" % roundi(float(sample) * (count - 1) / float(PROOF_REPRESENTATIVES - 1))))))
 	elif not args.has("--rest-only"):
 		for clip: String in data["clips"]:
 			var count: int = roundi(float(data["clips"][clip]["seconds"]) * FPS)
 			for sample: int in range(PROOF_REPRESENTATIVES):
-				print(ProjectSettings.globalize_path(output.path_join("pair_" + clip + "/frame_%04d.png" % roundi(float(sample) * (count - 1) / float(PROOF_REPRESENTATIVES - 1)))))
+				print(ProjectSettings.globalize_path(CaptureStorage.proof_png(output.path_join("pair_" + clip + "/frame_%04d.png" % roundi(float(sample) * (count - 1) / float(PROOF_REPRESENTATIVES - 1))))))
 	quit(0 if failures.is_empty() else 1)
 
 func path(relative: String) -> String:

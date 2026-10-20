@@ -4,6 +4,7 @@ import shutil
 from rr17_build import *
 import process_board_density as density
 from pixel_density import metrics, strength
+from humanoid_cutout.native_frames import load_frame
 
 
 def register():
@@ -21,7 +22,7 @@ def register():
              'facings': {}, 'rest_paths': {}}
     for view in VIEWS:
         path = prefix + f'/{view}/rest.png'
-        share = metrics(Image.open(ROOT / path).convert('RGBA'))['orphan_share']
+        share = metrics(load_frame(ROOT / path).convert('RGBA'))['orphan_share']
         t = strength(share)
         entry['facings'][view] = {'measurement_path': path, 'orphan_share': share, 't': t, 'grid': round(t, 2), 'mode': 'clean'}
         entry['rest_paths'][view] = [path]
@@ -49,8 +50,8 @@ def identity_rests(evidence):
         relative = str(rest.relative_to(ROOT))
         record = {'id': 'storm_capacitor', 'path': relative, 'kind': 'object', 'entry_kind': 'legacy',
                   'anatomy': '', 'boss': False, 'art_scale': 1.0, 'size_class': 'large',
-                  'pixel_sha256': pixel_digest(Image.open(rest)), 'metrics': measure(rest, 1.0, 'object', ''),
-                  'source_path': str(PAINTING.relative_to(ROOT)), 'source_pixel_sha256': pixel_digest(Image.open(PAINTING)),
+                  'pixel_sha256': pixel_digest(load_frame(rest)), 'metrics': measure(rest, 1.0, 'object', ''),
+                  'source_path': str(PAINTING.relative_to(ROOT)), 'source_pixel_sha256': pixel_digest(load_frame(PAINTING)),
                   'owner_approval': 'rr-17 brief: exact partition of existing approved Storm Capacitor painting. ' + evidence}
         registry['entries'] = [e for e in registry['entries'] if e['path'] != relative] + [record]
     write(path, registry)
@@ -61,8 +62,8 @@ def seal(native):
     result = pixel_gate(read(CASE / 'proof/samples.json'), native)
     if not result['ok']: raise ValueError(result['errors'])
     for view in VIEWS:
-        actual = Image.open(native / (view + '_rest.png')).convert('RGBA')
-        if not np.array_equal(actual, Image.open(PAINTING).convert('RGBA')): raise ValueError('Native rest differs')
+        actual = load_frame(native / (view + '_rest.png')).convert('RGBA')
+        if not np.array_equal(actual, load_frame(PAINTING).convert('RGBA')): raise ValueError('Native rest differs')
         actual.save(PRODUCTION / view / 'rest.png')
     entry = next(e for e in density.load_registry()['entries'] if e['id'] == 'storm_capacitor_cutout')
     density.record_rests([entry], read(density.MANIFEST))

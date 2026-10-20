@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 from cutout_pipeline.cases import read_json
 from maquette_motion import pixels
+from humanoid_cutout.native_frames import load_frame
 
 # Acceptance limits supplied by director feedback 4, in source/native pixels.
 DETACHED_DISTANCE_PX = 2
@@ -106,7 +107,7 @@ def compose(case, layout, row, images=None):
         node = row['parts'][part['name']]
         if node['alpha'] <= 0:
             continue
-        image = images[part['name']] if images else Image.open(case / part['file']).convert('RGBA')
+        image = images[part['name']] if images else load_frame(case / part['file']).convert('RGBA')
         transform = pixels.unpack(node['transform'])
         corners = np.array([[0, 0, 1], [image.width, 0, 1], [0, image.height, 1], [image.width, image.height, 1]]).T
         points = (transform @ corners)[:2] + pixels.PROOF_DEFAULTS['source_offset']
@@ -122,7 +123,7 @@ def compose(case, layout, row, images=None):
 
 def rest_hole_owners(case, layout):
     from maquette_motion.features import source_pixels
-    paint = np.array(Image.open(case / layout['rest_source']).convert('RGBA'))
+    paint = np.array(load_frame(case / layout['rest_source']).convert('RGBA'))
     visible = [p for p in layout['parts'] if not p.get('hidden_material') and not p.get('seam_underlay')]
     result = []
     for hole in holes(paint[..., 3] > 0):
@@ -150,7 +151,7 @@ def pose_report(case, report, native=None, legacy_hole_gate=False):
     for view in ('front', 'rear'):
         layout = read_json(case / f'layouts/{view}.json')
         definitions = rest_hole_owners(case, layout)
-        images = {p['name']: Image.open(case / p['file']).convert('RGBA') for p in layout['parts']}
+        images = {p['name']: load_frame(case / p['file']).convert('RGBA') for p in layout['parts']}
         cache, measurements = {}, {}
         for row in (r for r in report['samples'] if r['view'] == view):
             key = (view, row['clip'], row['frame'])
@@ -163,7 +164,7 @@ def pose_report(case, report, native=None, legacy_hole_gate=False):
                 if key not in native_rows:
                     failures.append(f'{view}/{row["clip"]}/{row["frame"]}: missing native silhouette')
                     continue
-                mask = np.array(Image.open(native['directory'] / native_rows[key]['file']).convert('RGBA'))[..., 3] > 0
+                mask = np.array(load_frame(native['directory'] / native_rows[key]['file']).convert('RGBA'))[..., 3] > 0
                 if mask.shape != (pixels.PROOF_DEFAULTS['canvas_size'], pixels.PROOF_DEFAULTS['canvas_size']):
                     failures.append(f'{view}/{row["clip"]}/{row["frame"]}: wrong native silhouette dimensions')
                     continue

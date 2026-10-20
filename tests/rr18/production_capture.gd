@@ -1,5 +1,7 @@
 extends SceneTree
 
+const CaptureStorage = preload("res://tests/maquette_cutout/capture_storage.gd")
+
 ## Actual resolver steps and production callbacks, using the promoted two-view rig.
 const CaptureScene = preload("res://tests/rr10/candidate_scene.gd")
 const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
@@ -43,6 +45,7 @@ func _run() -> void:
 		return
 	_type = args[args.find("--type") + 1]
 	_output = args[args.find("--output") + 1]
+	CaptureStorage.setup(_output)
 	_logic = args.has("--logic-only")
 	if args.has("--view"): _view = args[args.find("--view") + 1]
 	assert(_view in ["front", "rear"])
@@ -122,6 +125,9 @@ func _run() -> void:
 	var bindings: Dictionary = preload("res://tests/rr10/bindings.gd").for_case("res://experiments/cutouts/glacial_mirror/rr18")
 	var report: Dictionary = {"ok": _failures.is_empty(), "native_pixels": not _logic, "type": _type, "candidate_only": false, "production_promoted": true,
 		"size": [1920, 1080], "ui_scale": 1.0, "view": _view, "inputs": bindings, "frames": _frames, "walk_samples": _walk_samples, "completions": _scene.proof_completions, "errors": _failures}
+	if not _logic or OS.get_cmdline_user_args().has("--validate-crop"):
+		report.merge(CaptureStorage.metadata())
+	if not _logic: CaptureStorage.finish()
 	var file := FileAccess.open(_output.path_join("logic_frames.json" if _logic else "frames.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(report))
 	print("MAQUETTE PRODUCTION %s: %s (%d frames)" % ["LOGIC" if _logic else "NATIVE", "PASS" if _failures.is_empty() else "FAIL", _frames.size()])
@@ -143,6 +149,7 @@ func _capture() -> void:
 	var snapshot: Dictionary = renderer.snapshot()
 	if str(snapshot["facing"]) != _view: _failures.append(_stage + ": expected " + _view + " production view")
 	if snapshot["clip"] != _stage: return
+	CaptureStorage.check_production_canvas(_scene.board_view, _scene.board_view.combat_state["enemies"][0])
 	var rig: Node = renderer.rigs[snapshot["facing"]]
 	if _stage == "move" and not _walk_samples.has(snapshot["facing"]):
 		_walk_samples[snapshot["facing"]] = preload("res://tests/gait01/production_walk.gd").capture(rig, str(snapshot["clip"]), float(snapshot["phase"]))
@@ -174,7 +181,7 @@ func _capture() -> void:
 		row["pixels_sha256"] = hash.finish().hex_encode()
 		var filename: String = "frame_%05d_%s.png" % [_frames.size(), _stage]
 		row["file"] = filename
-		_viewport.get_texture().get_image().save_png(_output.path_join(filename))
+		CaptureStorage.save(_viewport.get_texture().get_image(), _output.path_join(filename), _stage)
 	_frames.append(row)
 
 func fixture(intent: String) -> Dictionary:
@@ -190,6 +197,8 @@ func install(state: Dictionary) -> void:
 	Fixtures.install(_scene, state)
 	_scene._render_board_state(state, {})
 	await settle()
+	if (not _logic or OS.get_cmdline_user_args().has("--validate-crop")) and not CaptureStorage.board_crop.has_area():
+		CaptureStorage.plan_production(_scene.board_view, _type, _data, fixture, FIXTURE_CONTACT_TILE)
 
 func settle() -> void:
 	for frame: int in range(SETTLE_FRAMES): await process_frame
@@ -205,9 +214,9 @@ func print_proof_images() -> void:
 		if selected.size() < 6: continue
 		for sample: int in range(6):
 			var index: int = roundi(float(sample) * (selected.size() - 1) / 5.0)
-			print(ProjectSettings.globalize_path(_output.path_join(str(selected[index]["file"]))))
+			print(ProjectSettings.globalize_path(CaptureStorage.proof_png(_output.path_join(str(selected[index]["file"])))))
 		if _data["clips"][clip].has("contact"):
 			for row: Dictionary in _frames:
 				if row["stage"] == clip and absf(float(row["snapshot"]["phase"]) - float(_data["clips"][clip]["contact"])) < 0.000001:
-					print(ProjectSettings.globalize_path(_output.path_join(str(row["file"]))))
+					print(ProjectSettings.globalize_path(CaptureStorage.proof_png(_output.path_join(str(row["file"])))))
 					break

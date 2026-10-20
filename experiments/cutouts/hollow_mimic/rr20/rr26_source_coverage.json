@@ -738,5 +738,33 @@
   "experiments/cutouts/storm_capacitor/mq5/proof/production_logic/logic_frames.json": {
     "before_sha256": "32adb8d24e9944a1c0f053675222e810a8795a2226315dee2efdff074e1b8d72",
     "after_sha256": "009b7b5ab09204763f55f8dea67e3079647bdc5de9c31cf37e6808155a494880"
+  },
+  "experiments/cutouts/arc_thrall/rr15_native_audit.py": {
+    "before_sha256": "43470633c14df7878b00d8799ddb069ba3693df9f2ed380a57ce9857786c469b",
+    "after_sha256": "bfdf7c9d88bf9efa0bbf149b69d154d34dbcc19abbf27ec347c896299da6263b"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10_seam_fixtures.py": {
+    "before_sha256": "9fc4e9b810d2e544d742b101020558a86e3acf8c857617855776476f3100d62b",
+    "after_sha256": "3299ea85d5bfa090e24caca23a354dc4e6385ac0c9bba439515d56f27c86236d"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10_tuck_diagnostic.py": {
+    "before_sha256": "6b7568480efb5d4709aa09350ba474833402102f5c866554e5a0897f049229c5",
+    "after_sha256": "66f4be960def37b3a656ed54506e6b7d60c4812862cfb656fd7ebe0d0732322b"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr13_seam_fixtures.py": {
+    "before_sha256": "5cb9cceb921038dd0aff72dcdb33099484669856ee1440343e6e8bbb1f9efdeb",
+    "after_sha256": "26231f0b0ab4accac01cc3c267b7ba7b742ea1af9f86173ec396ca26797f3695"
+  },
+  "experiments/cutouts/storm_capacitor/rr17_gates.py": {
+    "before_sha256": "1c864e8f450212f0f7e2353f392c9186c5006e3c6fed02a2ea6f43d7e6e248c1",
+    "after_sha256": "969ea73c3463dfd87b1dd7cb20d15c61d08dca861a86f8f7efe226285f44ac51"
+  },
+  "experiments/cutouts/storm_capacitor/rr17_release.py": {
+    "before_sha256": "e927110f7a5cd881bcb72e3fbbf40d415a37d90cafdc0f98efb1aeb8b49cc8d7",
+    "after_sha256": "f3375526af0ec968908b1d8b9b5ffa56f0604dafc5dee081b3977c6f48ac2e71"
+  },
+  "experiments/cutouts/storm_capacitor/rr17_review.py": {
+    "before_sha256": "4b83ca6b15f02bb1bc78a5cc26a7323b1f48ebb88277cd245d7788717bd39dd4",
+    "after_sha256": "fc2458f3a9e19e364391084e4b7499424819e69008441b84c3519fb83430d264"
   }
 }

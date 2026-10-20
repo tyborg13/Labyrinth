@@ -8,6 +8,7 @@ from PIL import Image, ImageDraw
 from cutout_pipeline.cases import read_json, write_json, digest
 from humanoid_cutout.gates import native_errors
 from maquette_cutout_review import plan
+from humanoid_cutout.native_frames import load_frame
 
 FPS = 60
 ENCODER_THREADS = 2
@@ -25,7 +26,7 @@ def encode(paths, output):
         '-c:v','libx264','-crf',str(ENCODER_CRF),'-preset',ENCODER_PRESET,'-pix_fmt','yuv420p',str(output)], stdin=subprocess.PIPE)
     try:
         for path in paths:
-            image = Image.open(path).convert('RGB')
+            image = load_frame(path).convert('RGB')
             if image.size != (1920,1080): raise ValueError('Native proof dimensions differ: ' + str(path))
             process.stdin.write(image.tobytes())
     finally:
@@ -66,7 +67,7 @@ def compose(case, capture, output, mode):
                     rows = sorted([r for r in manifest['frames'] if r['view']==view and r['clip']==clip],key=lambda r:r['frame'])
                     bounds = [512,512,0,0]
                     for row in rows:
-                        box = Image.open(capture / row['file']).getbbox()
+                        box = load_frame(capture / row['file']).getbbox()
                         if box:
                             bounds = [min(bounds[0],box[0]),min(bounds[1],box[1]),max(bounds[2],box[2]),max(bounds[3],box[3])]
                     bounds = [max(0,bounds[0]-SHEET_CROP_MARGIN_PX),max(0,bounds[1]-SHEET_CROP_MARGIN_PX),
@@ -75,7 +76,7 @@ def compose(case, capture, output, mode):
                     sheet = Image.new('RGB',(width*SHEET_COLUMNS,(height+SHEET_LABEL_HEIGHT_PX)*((len(rows)+SHEET_COLUMNS-1)//SHEET_COLUMNS)), '#1E1E24')
                     draw = ImageDraw.Draw(sheet)
                     for index,row in enumerate(rows):
-                        image = Image.open(capture / row['file']).convert('RGBA').crop(tuple(bounds)).resize((width,height),Image.Resampling.NEAREST)
+                        image = load_frame(capture / row['file']).convert('RGBA').crop(tuple(bounds)).resize((width,height),Image.Resampling.NEAREST)
                         x,y=(index%SHEET_COLUMNS)*width,(index//SHEET_COLUMNS)*(height+SHEET_LABEL_HEIGHT_PX)
                         sheet.paste(image,(x,y),image)
                         draw.text((x,y+height),f'{clip} {row["frame"]:04d} phase={row["phase"]:.4f}',fill='white')

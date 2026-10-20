@@ -60,6 +60,17 @@ Exactly three rigid groups. Nothing rotates, scales or deforms, and no mesh chan
 - **Proof:** in every presented idle frame, every visible pixel equals its group's rest pixel shifted by a whole-pixel
   offset. The mismatch count is 0.
 
+Native proof still renders at 1920×1080 and 100% UI scale. Disk frames use one fixed run-wide rectangle covering
+the projected full action canvas in both views and all clip positions, padded by 16 screen pixels and clamped to
+the frame; `size` retains the original space and `crop` records `[x,y,w,h]`. Isolated rig surfaces already span
+their full action canvas. The shared native-frame loader restores coordinates for gates, contact sheets and
+reels, and production captures retain `full_<clip>.png` for board/floor samples outside the crop. PNG is the
+conservative lossless default until the Seer production benchmark selects the fastest eligible PNG, lossless
+WebP or headered RGBA candidate below 1 GB; that report can drive capture encoding directly. The benchmark
+verifies every RGBA byte (including hidden RGB), while the headless equivalence harness compares gate JSON,
+renderer texture hashes and exact decoded reel frames. Real-renderer timing and Seer/Mortar before/after proof
+remain director-run checks.
+
 ## 3. Actions, move, hit and death: translation-led
 - The body acts by moving, not by spinning. Translations of `torso` and `pelvis` carry the action.
   - Torso lean: at most 4° from rest. Head nod: at most 6° relative to the torso.

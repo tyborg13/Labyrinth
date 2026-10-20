@@ -3,6 +3,7 @@ extends RefCounted
 ## Mirrors the Python input manifest, never hashes proof outputs into themselves.
 static func for_case(directory: String) -> Dictionary:
 	var result: Dictionary = {}
+	result["runtime:tests/maquette_cutout/capture_storage.gd"] = FileAccess.get_sha256("res://tests/maquette_cutout/capture_storage.gd")
 	var anatomy: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(directory.path_join("anatomy.json")))
 	var integration: Dictionary = anatomy["integration"]
 	_collect(directory, directory, "", result, ["json", "png"])
