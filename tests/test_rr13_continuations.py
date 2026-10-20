@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import subprocess
 import unittest
 
 import numpy as np
@@ -23,6 +24,9 @@ FIXTURES = PROJECT / 'tests/rr10/rr13_f3'
 FIXED_FRAMES = [('front', 'mark', frame, 'hidden_torso') for frame in (18, 22, 48, 49)] + [
     ('rear', 'mark', frame, 'hidden_torso') for frame in (20, 21, 22)] + [
     ('front', 'death', 68, 'sleeve_near')]
+# Preserve rr-13's own commit range; rr-26 feedbacks 1/2 subsequently
+# authorize Seer sleeve and hem weights (32ce9d813).
+UNIT_HEAD = '3c6363908'
 GEOMETRY_FIELDS = ('bbox', 'vertices', 'uvs', 'triangles', 'weights', 'weight_bounds')
 
 
@@ -62,7 +66,9 @@ class ContinuationTests(unittest.TestCase):
         self.assertTrue(rest_identity(CASE)['ok'])
         before = read(FIXTURES / 'geometry_before.json')
         for view in ('front', 'rear'):
-            for mesh in read(CASE / f'layouts/{view}.json')['joint_meshes']:
+            relative = str((CASE / f'layouts/{view}.json').relative_to(PROJECT))
+            layout = json.loads(subprocess.check_output(['git', 'show', UNIT_HEAD + ':' + relative], cwd=PROJECT))
+            for mesh in layout['joint_meshes']:
                 fields = {k: mesh[k] for k in GEOMETRY_FIELDS if k in mesh}
                 actual = hashlib.sha256(json.dumps(fields, sort_keys=True).encode()).hexdigest()
                 self.assertEqual(actual, before[view + '/' + mesh['name']])

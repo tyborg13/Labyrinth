@@ -2084,6 +2084,7 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	EmpowerUi.observe_targeting_pointer(self, event)
 	if is_instance_valid(_section_transition):
 		_section_transition.contain_input(event)
 		get_viewport().set_input_as_handled()
@@ -8212,7 +8213,9 @@ func _sync_click_targeting_arrow(mouse_position: Vector2 = Vector2(-1.0, -1.0)) 
 		_drag_target_arrow.clear_targeting()
 	if _drag_overlay != null:
 		_drag_overlay.visible = false
-	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
+	# Preserve the live endpoint while a modal suspends the selected card.
+	if not _targeted_card_aiming_active():
+		_card_targeting_pointer_position = Vector2(-1.0, -1.0)
 	_set_targeting_cursor_suppressed(false)
 
 func _set_card_targeting_arrow(source_index: int, endpoint: Vector2, suppress_pointer_cursor: bool = true) -> void:

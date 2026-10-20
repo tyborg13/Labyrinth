@@ -795,10 +795,10 @@
       "current_name": "Empower",
       "current_definition": "Optional: pay the listed extra cost while playing this card to gain the listed bonus.",
       "name": "Empower",
-      "definition": "You can pay the listed extra cost as you play this card to gain the listed bonus.",
-      "words": 17,
+      "definition": "Pay the extra cost as you play this card to gain its bonus. Charge it with the card's seal.",
+      "words": 19,
       "changed": true,
-      "reason": "clarity",
+      "reason": "ui-03 seal copy, shortened by the director to fit the 20-word budget",
       "evidence": [
         "scripts/card_keyword_rules.gd:83-84",
         "scripts/card_keyword_rules.gd:169-180",

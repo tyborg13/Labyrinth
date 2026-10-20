@@ -29,12 +29,9 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
-	for type: String in ["arc_thrall", "slag_mortar", "gust_shrike"]:
-		if type == "arc_thrall":
-			_expect(not Facing.handles(type), "rr-07 Thrall uses articulated facing; its runtime suite covers each direction")
-			continue
-		# Once promoted, rr-03's production probe owns articulated facing proof.
-		if type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): continue
+	# Promoted rigs are covered by their runtime suites, never by still lookup.
+	for type: String in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES:
+		if not Facing.handles(type): continue
 		var board: Control = Board.new()
 		board.size = FIXTURE_BOARD_PIXELS
 		board._ensure_unit_assets_for_type(type)
@@ -48,7 +45,13 @@ func _run() -> void:
 			state["player"]["pos"] = FIXTURE_ENEMY_TILE + delta
 			board.set_combat_state(state)
 			var expected: Dictionary = CutoutFacing.direction_for_delta(delta)
-			_expect(board.presentation["static_enemy_facings"]["enemy_1"] == expected, type + " follows hero on each diagonal side")
+			var facings: Dictionary = board.presentation.get("static_enemy_facings", {})
+			_expect(facings.has("enemy_1"), type + " registers a static facing")
+			if not facings.has("enemy_1"):
+				board.free()
+				_finish()
+				return
+			_expect(facings["enemy_1"] == expected, type + " follows hero on each diagonal side")
 			var texture: Texture2D = board._texture_for_unit(unit)
 			var source_path: String = str(Data.enemy_def(type)["art_rear_path" if expected["facing"] == "rear" else "art_path"])
 			var source: Image = Image.load_from_file(source_path)
@@ -104,6 +107,9 @@ func _run() -> void:
 	capacitor._ensure_unit_assets_for_type("storm_capacitor")
 	_expect(capacitor._unit_art_scale({"type": "storm_capacitor"}) == Data.enemy_def("storm_capacitor")["art_scale"], "Explicit approved capacitor scale supersedes old canvas compensation")
 	capacitor.free()
+	_finish()
+
+func _finish() -> void:
 	for failure: String in _failures: push_error(failure)
 	print("STATIC FACING TEST RESULT: %s (%d checks, %d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _checks, _failures.size()])
 	quit(0 if _failures.is_empty() else 1)

@@ -6,6 +6,7 @@ import re
 import unittest
 
 PROJECT = Path(__file__).resolve().parents[1]
+# rr-26 feedbacks 1 and 2 (32ce9d813) authorize the sleeve/hem pins.
 BASELINE = PROJECT / 'tests/rr14/seer_identity.json'
 
 

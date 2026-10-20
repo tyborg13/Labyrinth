@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Cursor = preload("res://scripts/cursor_feedback.gd")
 const CaptureViewport = preload("res://tests/helpers/ui03_capture_viewport.gd")
 const IDLE_POINTER := Vector2(1500, 650)
 
@@ -169,7 +170,7 @@ static func _isolated_capture(tree: SceneTree, expect: Callable, fixtures: Scrip
 	expect.call(charged != null and bool(scene.call("_hand_card_empowered", 1)), "The isolated seal click displays the real charged tooltip")
 	if charged != null:
 		expect.call(charged.is_embedded() and capture.viewport.get_embedded_subwindows().has(charged), "The real tooltip is embedded in the recorded SubViewport texture")
-	print("EMPOWER TOOLTIP ISOLATED offered=%s charged=%s desktop_input_isolated=%s" % [offered_visible, charged != null, glyph.position.is_equal_approx(capture.viewport.get_mouse_position() - CursorFeedbackController.CustomCursorGlyphScript.HOTSPOT)])
+	print("EMPOWER TOOLTIP ISOLATED offered=%s charged=%s desktop_input_isolated=%s" % [offered_visible, charged != null, glyph.position.is_equal_approx(capture.viewport.get_mouse_position() - Cursor.CustomCursorGlyphScript.HOTSPOT)])
 	await _capture_motion(tree, capture, IDLE_POINTER)
 	capture.close()
 	capture.queue_free()
