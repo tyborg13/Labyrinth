@@ -1,0 +1,59 @@
+{
+  "min_images": 3,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_ui100/charge.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/uncharge.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/charge_again.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            450,
+            650,
+            1050,
+            420
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 10
+        }
+      ]
+    }
+  ]
+}

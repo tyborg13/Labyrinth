@@ -1,4 +1,5 @@
 {
+  "tests/empower_sfx_probe.gd": "Windowed 1920x1080 charge/uncharge/charge movie with audio; sequence also supports headless --validate-only.",
   "tests/int03_targeting_probe.gd": "Real-renderer 1920x1080 targeting ownership proof; headless semantics use --validate-only.",
   "tests/acolyte_cutout_asset_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/acolyte_cutout_gameplay_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",

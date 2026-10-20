@@ -72,5 +72,7 @@
  "card.invalid": -27,
  "deck.shuffle": -27,
  "card.exhaust": -25,
- "map.hover": -32
+ "map.hover": -32,
+ "empower.charge": -24,
+ "empower.uncharge": -30
 }

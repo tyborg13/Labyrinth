@@ -1,0 +1,84 @@
+{
+  "designs": {
+    "empower.charge": {
+      "layers": [
+        {
+          "end_seconds": 0.4504166666666667,
+          "licence_id": "CC0-1.0",
+          "source_path": "opengameart/catching-fire/flame_0.ogg",
+          "source_sha256": "c1eaafba3746374c68c30dc8b7ec895dac0e1e66064522f03340dc9b2da4a2cd",
+          "start_seconds": 0.0,
+          "take_id": "c1eaafba3746#1"
+        },
+        {
+          "end_seconds": 41.82,
+          "licence_id": "Sonniss GDC Bundle licence",
+          "source_path": "sonniss_gdc/GDC2018/Pole Position - The Burning House Library/Burning_House_t4_Fire_low_intensity_with_crackling_MKH8060.wav",
+          "source_sha256": "69b703317050a1730481246b7578f7565797ec4d4385fdd958595dd0cc10bf47",
+          "start_seconds": 41.48,
+          "take_id": "69b703317050#56"
+        }
+      ],
+      "licence_id": "Sonniss GDC Bundle licence",
+      "recipe": {
+        "layers": [
+          {
+            "fade_in_ms": 6,
+            "fade_out_ms": 120,
+            "gain_db": -4,
+            "lowpass_hz": 7000,
+            "take": "c1eaafba3746#1",
+            "trim": [
+              0.09,
+              0.45
+            ]
+          },
+          {
+            "fade_out_ms": 100,
+            "gain_db": -12,
+            "lowpass_hz": 9000,
+            "offset_ms": 0,
+            "take": "69b703317050#56"
+          }
+        ],
+        "length_s": 0.55,
+        "note": "Kindle: a warm flame catching (low whoomp), with a short ember crackle as it settles.",
+        "onset_note": "Director 2026-10-20: the flame's first 90 ms is a -29..-11 dB pre-roll that put the perceived onset at 110 ms (sfx-04 cap 40). Trimmed: perceived onset 20 ms, first peak 25 ms. The crackle now lands with the flame."
+      }
+    },
+    "empower.uncharge": {
+      "layers": [
+        {
+          "end_seconds": 0.4504166666666667,
+          "licence_id": "CC0-1.0",
+          "source_path": "opengameart/catching-fire/flame_0.ogg",
+          "source_sha256": "c1eaafba3746374c68c30dc8b7ec895dac0e1e66064522f03340dc9b2da4a2cd",
+          "start_seconds": 0.0,
+          "take_id": "c1eaafba3746#1"
+        }
+      ],
+      "licence_id": "CC0-1.0",
+      "recipe": {
+        "layers": [
+          {
+            "fade_in_ms": 6,
+            "fade_out_ms": 140,
+            "gain_db": -4,
+            "lowpass_hz": 2400,
+            "pitch": 0.85,
+            "take": "c1eaafba3746#1",
+            "trim": [
+              0.1,
+              0.42
+            ]
+          }
+        ],
+        "length_s": 0.36,
+        "note": "Un-charge (owner 2026-10-20: softer, slightly duller than the charge): the charge's flame alone, no crackle, pitched down and darkened. Mix 6 dB under empower.charge.",
+        "onset_note": "Director 2026-10-20: same pre-roll trim (100 ms of source); perceived onset 12 ms, first peak 17.5 ms."
+      }
+    }
+  },
+  "recipe_file": "spec/peer_benchmark/staged/sfx/recipes_empower.json",
+  "selected_label": "A"
+}

@@ -1364,7 +1364,7 @@ func set_empower_state(offered: bool, charged: bool, raised: bool, blocked: bool
 		_empower_seal.name = "EmpowerSeal"
 		add_child(_empower_seal)
 		_empower_seal.pressed.connect(func() -> void:
-			if not _empower_seal.blocked and not _empower_seal.locked:
+			if not _empower_seal.locked:
 				empower_toggled.emit()
 		)
 		_empower_seal.mouse_entered.connect(func() -> void:

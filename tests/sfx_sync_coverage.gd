@@ -10,6 +10,8 @@ const RUN: String = "scripts/run_scene.gd"
 static func measured_samples(failures: Array[String]) -> Dictionary:
 	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(REPORT))
 	var samples: Dictionary = report["samples"]
+	# Additive measurements keep the approved sfx-04 baseline unchanged.
+	samples.merge(JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/empower_sfx_samples.json")))
 	for path: String in samples:
 		if FileAccess.get_sha256(path) != str(samples[path]["sha256"]):
 			failures.append("Audio changed; refresh sound-lab measurements: " + path)

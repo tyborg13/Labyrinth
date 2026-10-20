@@ -31,7 +31,12 @@ static func locked(scene: Node, index: int) -> bool:
 	return false
 
 static func available(scene: Node, index: int) -> bool:
-	return index >= 0 and not scene._animation_lock and str(scene._run_state.get("mode", "")) == "combat" and not scene._controller_modal_visible() and scene._combat_skill_card_selection_zone.is_empty() and not locked(scene, index) and blocked_health(scene, index) == 0 and not Keywords.empower_cost(scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)).is_empty()
+	return can_attempt(scene, index) and blocked_health(scene, index) == 0
+
+static func can_attempt(scene: Node, index: int) -> bool:
+	# Health-blocked input still reaches toggle for invalid feedback. Keep
+	# available() health-gated for the existing controller prompts and visuals.
+	return index >= 0 and not scene._animation_lock and str(scene._run_state.get("mode", "")) == "combat" and not scene._controller_modal_visible() and scene._combat_skill_card_selection_zone.is_empty() and not locked(scene, index) and not Keywords.empower_cost(scene._card_def(scene._card_id_for_hand_index(index), scene._combat_state)).is_empty()
 
 static func tooltip(scene: Node, index: int) -> String:
 	var blocked: int = blocked_health(scene, index)
@@ -63,7 +68,10 @@ static func sync_widgets(scene: Node) -> void:
 			widget.empower_toggled.connect(scene._on_hand_empower_toggled.bind(widget))
 
 static func toggle(scene: Node, index: int, source: String) -> void:
-	if not available(scene, index): return
+	if not can_attempt(scene, index): return
+	if blocked_health(scene, index) > 0:
+		scene._sfx_router.card_invalid()
+		return
 	scene._empower_charge.observe(scene._combat_state)
 	var phase: String = "drag" if scene._drag_card_index >= 0 else ("confirm" if scene._pending_card_requires_confirmation() else ("targeting" if scene._selected_card_index >= 0 else "hand"))
 	scene._empower_charge.toggle(index)
@@ -73,6 +81,12 @@ static func toggle(scene: Node, index: int, source: String) -> void:
 		scene._empower_charge.toggle(index)
 		scene._mark_combat_preview_state_changed()
 		return
+	# Successful input toggles own their sound. Play before the awaited preview;
+	# automatic charge removal/observation must stay silent.
+	if scene._hand_card_empowered(index):
+		scene._sfx_bank.play("empower.charge")
+	else:
+		scene._sfx_bank.play("empower.uncharge")
 	if index == scene._drag_card_index:
 		scene._drag_card_options = scene._card_play_options_for_index(index).duplicate(false)
 	if index == scene._selected_card_index:
