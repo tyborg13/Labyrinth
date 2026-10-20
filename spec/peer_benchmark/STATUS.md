@@ -19,6 +19,17 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-20 15:40:
+  - mq-11 merged (56de97dfb). Codex SIGNOFF a3fc15b69, native acceptance director_06, integration green at 300f8277b.
+  - rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) launched from 7adad7e92.
+  - Their new maquette deliveries (capture without the .blend or determinism) were copied untracked into each
+    worktree's `tests/mq11_proof/director_06/<figure>/capture/`. The source copy stays in the mq-11 worktree until both
+    land.
+  - Backlog:
+    - find the suite test that rewrites `experiments/cutouts/briar_weaver/mq9/proof/samples.json` (seen twice;
+      restored each time);
+    - mq-11 Low: an off-mask crack regression;
+    - sfx-05 Low: three missing regression cases.
 - 2026-10-20 14:25 (Mimic/Mortar owner fixes):
   - **mq-11.** The director authored the design data:
     - the Mimic's 16-tuft mop, measured from the built skull (generator `staged/mq11/mimic_hair.py`);
