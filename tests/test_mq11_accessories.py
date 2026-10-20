@@ -41,7 +41,7 @@ FIXTURE = {'skull': {'crown_m': [0., 0, 1.5], 'base_m': [0., 0, .5],
                     {'drop_fraction': .5, 'width_fraction': .9, 'forward_offset_m': .01, 'curve_m': .02},
                     {'drop_fraction': 1., 'width_fraction': .8, 'forward_offset_m': 0., 'curve_m': .02}],
            'rear_front_length_ratio': .9, 'rotation_degrees': 33.,
-           'centre_mask_box': (4, 12, 4, 12), 'centre_line': [[8., 0], [8., 16]],
+           'centre_mask_box': (4, 28, 4, 12), 'centre_line': [[8., 0], [8., 32]],
            'depth_rect_px': [(480, 480), (544, 480), (544, 544), (480, 544)],
            'depth_layers': [0., .1], 'test_joint_px': [512, 512],
            'attachment_camera': {'ortho_scale': 2.4, 'target': [0., 0, 1.]},
@@ -99,6 +99,7 @@ class AccessoryGeometryTests(unittest.TestCase):
             with (self.subTest(unresolved=unresolved),
                   tempfile.TemporaryDirectory(prefix='mq11-no-submission-', dir=PROJECT) as temporary,
                   patch.object(workflow, 'PROJECT', Path(temporary)),
+                  patch.object(workflow, 'inputs', return_value={}),
                   patch.object(workflow, 'compile_candidate', side_effect=lambda name: compile_document(name, documents[name])),
                   patch.object(workflow, 'run_job') as bridge, patch.object(workflow, 'write') as write):
                 with self.assertRaisesRegex(ValueError, 'TODO_DESIGN_'):
@@ -246,7 +247,7 @@ class AccessoryGeometryTests(unittest.TestCase):
         b = np.array([r['points'] for r in second['pattern']['rows']])
         np.testing.assert_allclose(b, a @ rotation.T, atol=1e-12)
 
-    def test_front_reaches_nine_tenths_of_thigh_and_back_is_shorter(self):
+    def test_front_uses_director_thigh_fraction_and_back_is_shorter(self):
         spec = base('slag_mortar')
         config = mortar_design()
         drops = {}
@@ -400,8 +401,8 @@ class AccessoryProofTests(unittest.TestCase):
             self.assertFalse(shifted['views'][view]['leather_apron']['passed'])
             self.assertTrue(shifted['views'][view]['rear_leather_apron']['passed'])
 
-    def test_centreline_gate_is_inclusive_at_four_pixels_and_rejects_beyond(self):
-        mask = np.zeros((16, 16), bool)
+    def test_centreline_gate_is_inclusive_at_twelve_pixels_and_rejects_beyond(self):
+        mask = np.zeros((32, 32), bool)
         y0, y1, x0, x1 = FIXTURE['centre_mask_box']
         mask[y0:y1, x0:x1] = True
         line = np.array(FIXTURE['centre_line'])

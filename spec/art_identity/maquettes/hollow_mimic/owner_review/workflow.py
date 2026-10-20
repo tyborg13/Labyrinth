@@ -14,7 +14,7 @@ from spec.art_identity.maquettes.blender.contract import digest
 from spec.art_identity.maquettes.blender.curate_delivery import sha, write
 from spec.art_identity.maquettes.blender.delivery_validation import seal_delivery, validate_delivery
 from .candidate import ROOT, FIGURES, compile_candidate, folder
-from .preservation import HERE, PROJECT, check, status
+from .preservation import HERE, PROJECT, check, status, source_dependencies
 from .proof import inspect, sheet
 
 WORKFLOW_DEFAULTS = {'timeout_s': 900, 'run_id': 'owner_01'}
@@ -28,26 +28,36 @@ def output_folder(name, run_id):
 
 
 def inputs():
-    paths = list((ROOT / 'blender').rglob('*.py'))
-    paths += list(HERE.glob('*.py'))
-    paths += [ROOT / n / 'measurements.json' for n in FIGURES]
-    paths += [ROOT / n / 'owner_review/design.json' for n in FIGURES]
-    paths += [HERE / 'baseline.json']
+    # Native scripts execute separately and select builder modules at runtime.
+    # Seed that whole family, then follow all repository imports, including
+    # raster/geometry, batch proof, fitting and the rear-turn observations.
+    seeds = list((ROOT / 'blender').rglob('*.py')) + list(HERE.glob('*.py'))
+    paths = source_dependencies(PROJECT, seeds)
+    paths.update(ROOT / n / 'measurements.json' for n in FIGURES)
+    paths.update(ROOT / n / 'owner_review/design.json' for n in FIGURES)
+    paths.update((HERE / 'baseline.json', ROOT / 'frostglass_lancer/spec_r3.json'))
     return {str(p.relative_to(PROJECT)): sha(p) for p in sorted(paths)}
+
+
+def require_current_inputs(snapshot):
+    if inputs() != snapshot:
+        raise ValueError('Stale mq-11 acceptance: inputs changed since preparation')
 
 
 def prepare(run_id):
     check()
+    snapshot = inputs()
     # Compile every figure before creating directories, writing specs or
     # calling the bridge. A half-filled design never starts a partial batch.
     specs = {name: compile_candidate(name) for name in FIGURES}
+    require_current_inputs(snapshot)
     destinations = {name: output_folder(name, run_id) for name in FIGURES}
     if any(path.exists() and any(path.iterdir()) for path in destinations.values()):
         raise ValueError('Use fresh empty mq-11 proof directories')
     for name, path in destinations.items():
         path.mkdir(parents=True, exist_ok=True)
         write(path / 'spec_native.json', specs[name])
-        write(path / 'input_sha256.json', inputs())
+        write(path / 'input_sha256.json', snapshot)
     return destinations
 
 
@@ -64,8 +74,12 @@ def native_job(output, name, script, args, allow_gate_failure=False):
 
 def build(run_id):
     outputs = prepare(run_id)
+    snapshot = json.loads((outputs[FIGURES[0]] / 'input_sha256.json').read_text())
     builder = ROOT / 'blender'
     for name, output in outputs.items():
+        require_current_inputs(snapshot)
+        if json.loads((output / 'input_sha256.json').read_text()) != snapshot:
+            raise ValueError('Inconsistent mq-11 preparation snapshot')
         path, capture = output / 'spec_native.json', output / 'capture'
         spec = json.loads(path.read_text())
         native_job(output, 'capture', builder / 'build.py', [path, capture])
@@ -85,7 +99,8 @@ def build(run_id):
             raise ValueError('mq-11 fit/turn/accessory/preservation gate failed: ' + name)
         seal_delivery(spec, capture)
         validate_delivery(spec, capture)
-        receipt = {'passed': True, 'spec_hash': digest(spec), 'inputs_sha256': inputs(),
+        require_current_inputs(snapshot)
+        receipt = {'passed': True, 'spec_hash': digest(spec), 'inputs_sha256': snapshot,
                    'files_sha256': {str(p.relative_to(output)): sha(p) for p in sorted(output.rglob('*'))
                                     if p.is_file() and p.suffix in ('.json', '.png', '.log')},
                    'production_deliveries_preserved': check()}
@@ -99,15 +114,18 @@ def verify(run_id):
         spec = compile_candidate(name)
         output = output_folder(name, run_id)
         receipt = json.loads((output / 'acceptance.json').read_text())
-        if receipt.get('passed') is not True or receipt['spec_hash'] != digest(spec) or receipt['inputs_sha256'] != inputs():
+        snapshot = json.loads((output / 'input_sha256.json').read_text())
+        if receipt.get('passed') is not True or receipt['spec_hash'] != digest(spec) or receipt['inputs_sha256'] != snapshot:
             raise ValueError('Missing, failed or stale mq-11 acceptance: ' + name)
+        require_current_inputs(snapshot)
         for relative, expected in receipt['files_sha256'].items():
             path = (output / relative).resolve()
             if not path.is_relative_to(output.resolve()) or sha(path) != expected:
                 raise ValueError('Changed proof artifact: ' + relative)
         validate_delivery(spec, output / 'capture')
-        if not inspect(spec, output / 'capture')['passed']:
+        if not inspect(spec, output / 'capture', write_report=False)['passed']:
             raise ValueError('Recomputed mq-11 acceptance failed: ' + name)
+        require_current_inputs(snapshot)
     print('MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true')
 
 

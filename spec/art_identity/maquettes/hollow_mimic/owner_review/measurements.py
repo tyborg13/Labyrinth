@@ -6,6 +6,8 @@ from spec.art_identity.maquettes.blender.accessory_geometry.forms import pelvis_
 from .candidate import GATES
 
 MEASURE_DEFAULTS = {'epsilon': 1e-9, 'centre_rows_fraction': .6}
+VALIDATION_LIMITS = {'lower_mask_visible_fraction_min': .6, 'crack_band_start': 1 / 3,
+                     'crack_band_end': 2 / 3, 'flap_min_contiguous_central_rows': 12}
 
 
 def depth_image(spec, mesh, view):
@@ -47,6 +49,9 @@ def projected_centre_error(mask, line):
         raise ValueError('Flap centre line is empty')
     trim = int(len(rows) * (1 - MEASURE_DEFAULTS['centre_rows_fraction']) / 2)
     central = rows[trim:len(rows) - trim] or rows
+    if (len(central) < VALIDATION_LIMITS['flap_min_contiguous_central_rows'] or
+            any(b['y_px'] != a['y_px'] + 1 for a, b in zip(central, central[1:]))):
+        raise ValueError('insufficient flap rows')
     error = float(np.median([row['error_px'] for row in central]))
     return {'passed': abs(error) <= GATES['flap_centre_error_px_max'],
             'median_central_error_px': error, 'central_rows': [central[0]['y_px'], central[-1]['y_px']],
@@ -73,15 +78,29 @@ def measure(spec, meshes):
         visible_overlap = np.isfinite(mask) & np.isfinite(hair) & (hair > mask) & top_region
         lower = np.isfinite(mask) & ~top_region
         lower_clear = lower & (~np.isfinite(hair) | (mask > hair))
-        checks = {'rear_height': extent <= GATES['rear_height_head_height_max'] * height,
+        lower_fraction = float(lower_clear.sum() / lower.sum())
+        crack_start = top + (bottom - top) * VALIDATION_LIMITS['crack_band_start']
+        crack_end = top + (bottom - top) * VALIDATION_LIMITS['crack_band_end']
+        crack_rows = [int(y) for y in ys if crack_start <= y + .5 < crack_end]
+        visible_crack_rows = []
+        for y in crack_rows:
+            xs = np.flatnonzero(np.isfinite(mask[y]))
+            x = int(xs[len(xs) // 2])
+            if not np.isfinite(hair[y, x]) or mask[y, x] > hair[y, x]:
+                visible_crack_rows.append(y)
+        checks = {'rear_height': extent / height <= GATES['rear_height_head_height_max'] * (1 + MEASURE_DEFAULTS['epsilon']),
                   'fringe_over_mask_top': bool(visible_overlap.any()),
-                  'lower_mask_remains_visible': bool(lower_clear.any())}
+                  'lower_mask_remains_visible': lower_fraction >= VALIDATION_LIMITS['lower_mask_visible_fraction_min'],
+                  'crack_band_remains_visible': bool(crack_rows) and visible_crack_rows == crack_rows}
         return {'passed': all(checks.values()), 'checks': checks,
                 'rear_extent_above_crown_px': extent, 'rear_head_height_px': height,
                 'rear_extent_head_height_ratio': extent / height,
                 'mask_top_band_px': [top, cutoff],
                 'visible_hair_over_mask_top_pixels': int(visible_overlap.sum()),
-                'visible_lower_mask_pixels': int(lower_clear.sum())}
+                'visible_lower_mask_pixels': int(lower_clear.sum()),
+                'lower_mask_pixels': int(lower.sum()), 'visible_lower_mask_fraction': lower_fraction,
+                'crack_band_px': [crack_start, crack_end], 'crack_rows': crack_rows,
+                'visible_crack_rows': visible_crack_rows}
     origin, forward, _, up, _ = pelvis_frame(spec)
     radius = spec['mq11']['design']['belt']['forward_radius_m']
     views = {}

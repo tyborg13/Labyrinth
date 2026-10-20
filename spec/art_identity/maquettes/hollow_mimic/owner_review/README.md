@@ -1,11 +1,10 @@
-# mq-11 implementation handoff — design data pending
+# mq-11 implementation handoff — director feedback 2
 
-The requested appearance corrections are **not delivered**. The brief supplies
-shape constraints but no replacement scalp profile, individual tuft paths and
-thicknesses, belt dimensions, curved flap rows, or shorter rear-flap ratio.
-Under the explicit implementation-only rule, these are `TODO_DESIGN_…` data
-fields rather than invented visible dimensions. No placeholder geometry or
-synthetic test fixture is used as player art.
+Both `design.json` files are filled director data and remain protected. The
+director's front thigh fraction 1.25, centre tolerance 12 px and median of the
+central 60% of flap rows are unchanged. No test fixture is used as player art.
+Fresh native proof remains the director's responsibility; this feedback fix
+runs focused Python checks only, with no bridge submission or full-suite run.
 
 The implementation is opt-in: `candidate.py` compiles the protected current
 recipe, replaces only `hair_crown` or the two apron accessories, and validates
@@ -23,16 +22,20 @@ the immutable [baseline](baseline.json).
    width is 1.25 times the owner's skull width; its volume must reach the crown
    and ear line. The mask, crack source, body, limbs, joints and labels are
    preserved. Actual rear height and front fringe depth overlap are measured
-   from frozen native triangles. Pending the three Mimic design fields below.
+   from frozen native triangles. Three-dimensional containment of the skull
+   axis within the scalp's lateral extent rejects a detached cap without
+   extending the cap down to the chin. The lower 80% mask band must retain at
+   least 60% visible mask pixels; each middle-third row must retain its mask
+   centre, protecting the crack/glow region. Inclusive tuft and rear-height
+   limits allow relative numerical error of 1e-9.
 2. **Mortar loincloth:** one closed belt and two curved cloth flaps are drafted
    in the posed hip frame, with the original `apron` ownership, thickness,
    stiffness, native collision solve and `rag` style. The front root tangent
    is perpendicular to body forward, spans half the measured outer hip width,
-   and hangs from the belt front centre. Its nominal hem reaches mid-thigh;
+   and hangs from the belt front centre. Its nominal thigh fraction is 1.25;
    the rear uses the same frame and an owner-specified shorter ratio. The old
    world-X gathering and fixed-plane rest correction are removed only from
-   these candidates. Both cameras see the same mesh and pose. Pending the four
-   Mortar design fields below.
+   these candidates. Both cameras see the same mesh and pose.
 3. **Gates/proof:** the director command runs native build/capture, cold/cache/
    independent replay, unrounded exact mesh/joint replay, ownership mutation,
    facing/collision/solo validation, before/after IoU, the existing mq-06 pixel
@@ -45,29 +48,28 @@ the immutable [baseline](baseline.json).
 | Hollow Mimic | 0.815673909922 | 0.770515330525 | Pending director capture |
 | Slag Mortar | 0.799598979220 | 0.772701972148 | Pending director capture |
 
-The centre-line probe uses the projected vertical through the existing
-`pelvis` joint and checks **every occupied scanline of each unoccluded flap**
-in both views at 1024. It does not offset the reference line to hide body-front
-or body-rear displacement. If the physical front/rear attachment cannot satisfy
-the stated ±4 px gate, the director must resolve that conflict; the probe
-retains the literal gate and reports the measured errors.
+The centre-line reference is the vertical through each flap's belt attachment:
+pelvis-frame origin ± forward × belt forward radius. At 1024, the median error
+of the central 60% of occupied rows must remain within ±12 px. This statistic
+requires at least 12 central rows with no gaps; otherwise measurement fails
+with `insufficient flap rows`. End-row maximum errors are still reported.
 
-## Owner data contract / TODO_DESIGN
+## Protected owner data contract
 
-Edit only the candidate `design` fields; the `base_recipe_sha256` pins are
-intentionally immutable. Coordinates are metres in the existing posed native
+Both candidate `design` fields and `base_recipe_sha256` pins are immutable for
+implementation work. Coordinates are metres in the existing posed native
 body space, X forward / Y lateral / Z up, before the front/rear camera turn.
 No generated art, audio, fonts or new dependencies are involved.
 
 In [the Mimic candidate](design.json):
 
-- `TODO_DESIGN_MIMIC_SKULL_LANDMARKS`: replace `skull` with `crown_m`, `base_m`,
+- `skull` contains `crown_m`, `base_m`,
   `ear_line_m` (3D points), `height_m`, `width_m`, and a unit `lateral_axis`
   perpendicular to crown-minus-base. Height must equal crown-to-base distance.
-- `TODO_DESIGN_MIMIC_SCALP_PROFILE`: replace `scalp` with `centre_m` and
+- `scalp` contains `centre_m` and
   `radii_m` (three positive native ellipsoid radii). The existing organic
   relief, subdivision and voxel-union settings are inherited unchanged.
-- `TODO_DESIGN_MIMIC_TUFT_LAYOUT`: replace `tufts` with 16 objects containing
+- `tufts` contains 16 objects with
   distinct `id`, `role` (`mop` or `fringe`; four fringe), `path_m` (at least two
   3D controls), and corresponding positive `radii_m`, tapering toward each tip.
   All roots must lie within the scalp. Arc length, rather than root-to-tip
@@ -75,26 +77,48 @@ In [the Mimic candidate](design.json):
 
 In [the Mortar candidate](../../slag_mortar/owner_review/design.json):
 
-- `TODO_DESIGN_MORTAR_BELT_PROFILE`: replace `belt` with `forward_radius_m`,
+- `belt` contains `forward_radius_m`,
   `lateral_radius_m`, `height_m` and anatomical **outer** `hip_width_m`. Belt
   centre and orientation come from the two posed hips. Thickness is inherited
   from the existing leather flap. Hip-joint spacing is not substituted for
   the measured outer hip width.
-- `TODO_DESIGN_MORTAR_FRONT_FLAP_CURVE` and
-  `TODO_DESIGN_MORTAR_REAR_FLAP_CURVE`: replace each `rows` with at least two
+- `front.rows` and `rear.rows` each contain at least two
   objects containing `drop_fraction` (monotonically 0 to 1), `width_fraction`
   (0–1, positive), `forward_offset_m`, and `curve_m`. These define the nominal
   hem taper and the bow over the thighs. The root row has width fraction 1,
   zero forward offset and zero curve; the free rows retain the native solver.
   Front and rear depths follow their respective outward-facing body axes.
-- `TODO_DESIGN_MORTAR_REAR_LENGTH_RATIO`: replace `rear.front_length_ratio`
-  with the owner's ratio strictly between 0 and 1. No arbitrary interpretation
-  of “slightly shorter” is supplied.
+- `rear.front_length_ratio` is the director's 0.8, strictly between 0 and 1.
+
+There are no live unresolved fields. Unresolved-data tests own their fixtures.
+
+## Acceptance freshness and shape replay
+
+`workflow.inputs()` follows repository Python imports, including relative and
+conditional imports and package initializers. It seeds the complete native
+builder family and owner workflow scripts, covering separately executed jobs
+and dynamic builder dispatch without importing Blender modules on the host.
+The closure includes `raster.py`, `geometry.py`, fitting, batch proof and the
+rear-turn observations. Recipe, design, baseline and Lancer rig-template JSON
+inputs are bound too.
+
+Preparation takes one input snapshot before compiling either figure. Building
+checks that same snapshot before each figure and before accepting its output;
+acceptance never refreshes it. Verification compares the receipt, preparation
+snapshot and current dependency hashes, then checks the bound artifacts and
+replays shape measurements without rewriting their fit report.
+
+The native probe writes `capture/mq11_meshes.json` with the exact frozen native
+accessory vertices and faces, bound to the spec, build report and blend. Its
+hash is recorded in `mq11_shape.json`. Host inspection recomputes every shape
+metric from those triangles and rejects stale spec bindings or cached numbers.
+Both native imports and export I/O remain stdlib/NumPy only; image curation
+stays on the host. Older proof runs lacking this export require a fresh build.
 
 ## Proof for the design owner
 
-After filling those fields, run the complete native pipeline **through the
-director bridge** with a fresh run id. These commands do not launch Blender
+Run the complete native pipeline **through the director bridge** with a fresh
+run id. These commands do not launch Blender
 directly, modify production deliveries, or perform Git actions.
 
 ```sh
@@ -133,8 +157,8 @@ owns the bridge run, inspection, staging, commit, review and publication.
 Only non-player-visible implementation/proof values were chosen:
 
 - `GEOMETRY_DEFAULTS`: numerical epsilon 1e-9 m; 32 belt tessellation samples.
-- `MEASURE_DEFAULTS`: epsilon 1e-9 and existing `pelvis` joint as centre-line
-  reference. Scanline pixel centres and native triangle depths are measured.
+- `MEASURE_DEFAULTS`: epsilon 1e-9 and the director's central row fraction .6.
+  The 12-row minimum and mask visibility requirements come from feedback 2.
 - `WORKFLOW_DEFAULTS`: 900-second native job budget inherited from the existing
   workflow; default local proof run id `owner_01`.
 - `PROOF_DEFAULTS`: existing 28 px header and 24/24/24 background, white marks,
@@ -143,6 +167,9 @@ Only non-player-visible implementation/proof values were chosen:
   [92,37,162,103] / proof skull height 44 px. Existing Pillow default font.
 - `FIXTURE` in `tests/test_mq11_accessories.py`: synthetic dimensions, paths,
   camera test rectangles, masks, depths and rotation; never candidate data.
+- `VALIDATION_FIXTURE` and `FRESHNESS_FIXTURE` in the new focused tests contain
+  only synthetic geometry, roundoff cases and receipt metadata. No visible
+  dimension, gate value or design field is chosen by these tests.
 
 No gameplay tuning, balance, icon identities, analytics, saves or runtime
 inputs change. Exact observed checks and logs are in `tests/mq11_validation/`.

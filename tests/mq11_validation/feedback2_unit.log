@@ -1,0 +1,80 @@
+test_belt_is_closed_and_follows_the_posed_hips (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_director_filled_candidates_compile_and_preserve_the_other_parts (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_each_candidate_reports_every_missing_design_field (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_flap_drafting_rotates_with_the_pelvis_and_has_no_camera_branch (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_flap_roots_are_centred_perpendicular_to_body_forward (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_front_uses_director_thigh_fraction_and_back_is_shorter (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_hair_preserves_every_non_hair_piece_and_does_not_mutate_input (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_invalid_rear_length_and_unowned_mutations_fail (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_mortar_has_one_body_two_flaps_shared_ownership_and_original_rag (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_no_shared_tuft_root_or_zero_length_segment (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_scalp_must_reach_ears_and_fringe_must_fall_forward (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_stale_base_and_non_owned_figure_fail (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_todos_stop_the_whole_batch_before_writes_or_native_submission (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_tuft_lengths_fringe_count_and_scalp_width_are_enforced (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_uniform_fan_and_detached_roots_fail_before_blender (tests.test_mq11_accessories.AccessoryGeometryTests) ... ok
+test_before_iou_and_every_existing_delivery_remain_byte_identical (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_centreline_gate_is_inclusive_at_twelve_pixels_and_rejects_beyond (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_flap_centreline_uses_each_attachment_and_rejects_thirteen_pixel_shift (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_fringe_gate_rejects_hair_behind_the_mask (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_native_probe_import_and_entry_point_do_not_require_pil (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_native_triangle_projection_keeps_depth_for_fringe_occlusion (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_rr20_inventory_adapter_keeps_other_pins_live (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_rr20_inventory_extension_preserves_all_original_lines (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_sheet_keeps_native_cells_marks_joints_and_hashes_inputs (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_unresolved_status_uses_test_owned_design_files (tests.test_mq11_accessories.AccessoryProofTests) ... ok
+test_detached_scalp_and_all_its_tufts_cannot_compile (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_mutated_unowned_accessory_is_rejected_independently_of_body_fields (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_reversed_or_duplicate_internal_flap_rows_fail (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_tuft_length_boundaries_allow_relative_roundoff_but_reject_outside_epsilon (tests.test_mq11_validation.GeometryReviewTests) ... ok
+test_crack_centre_must_remain_visible_on_every_middle_third_row (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_flaps_need_twelve_contiguous_central_rows (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_near_total_occlusion_rejects_the_old_one_visible_row_case (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_rear_height_boundary_allows_relative_roundoff_but_rejects_outside_epsilon (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_sixty_percent_of_lower_band_is_inclusive_and_less_fails (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_two_extreme_rows_cannot_cancel_into_a_passing_median (tests.test_mq11_validation.MeasurementReviewTests) ... ok
+test_build_cannot_refresh_a_changed_snapshot_at_acceptance (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_prepare_snapshots_before_compiling_and_rejects_input_changes (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_verify_rejects_changed_dependencies_before_inspecting_cached_results (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_verify_rejects_receipt_rebound_to_different_preparation_inputs (tests.test_mq11_freshness.AcceptanceFreshnessTests) ... ok
+test_complete_local_import_closure_includes_relative_conditional_and_package_modules (tests.test_mq11_freshness.DependencyInputTests) ... ok
+test_workflow_binds_raster_geometry_fit_and_rear_turn_dependencies (tests.test_mq11_freshness.DependencyInputTests) ... ok
+test_mesh_export_is_bound_to_the_spec_and_artifact_hashes (tests.test_mq11_freshness.NativeShapeBindingTests) ... ok
+test_shape_report_spec_binding_rejects_an_otherwise_current_report (tests.test_mq11_freshness.NativeShapeBindingTests) ... ok
+test_verify_recomputes_measurements_and_rejects_stale_passing_numbers (tests.test_mq11_freshness.NativeShapeBindingTests) ... ok
+test_all_four_review_mutations_are_caught_by_assertions (tests.test_mq11_guard_mutations.GuardMutationTests) ... 
+======================================================================
+FAIL: test_all_four_review_mutations_are_caught_by_assertions (tests.test_mq11_guard_mutations.GuardMutationTests) (mutation='shape_report_spec_binding')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq11_guard_mutations.py", line 44, in test_all_four_review_mutations_are_caught_by_assertions
+    self.assertFalse(result.errors, stream.getvalue())
+AssertionError: [(<tests.test_mq11_freshness.NativeShapeBindingTests testMethod=test_shape_report_spec_binding_rejects_an_otherwise_current_report>, 'Traceback (most recent call last):\n  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq11_freshness.py", line 162, in test_shape_report_spec_binding_rejects_an_otherwise_current_report\n    proof.inspect(spec, capture)\n  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hollow_mimic/owner_review/proof.py", line 56, in inspect\n    raster = load_render(spec, capture, view)\n  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/backend.py", line 40, in load_render\n    names = list(spec[\'labels\'])\nKeyError: \'labels\'\n')] is not false : test_shape_report_spec_binding_rejects_an_otherwise_current_report (tests.test_mq11_freshness.NativeShapeBindingTests) ... ERROR
+
+======================================================================
+ERROR: test_shape_report_spec_binding_rejects_an_otherwise_current_report (tests.test_mq11_freshness.NativeShapeBindingTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_mq11_freshness.py", line 162, in test_shape_report_spec_binding_rejects_an_otherwise_current_report
+    proof.inspect(spec, capture)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/hollow_mimic/owner_review/proof.py", line 56, in inspect
+    raster = load_render(spec, capture, view)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/spec/art_identity/maquettes/blender/backend.py", line 40, in load_render
+    names = list(spec['labels'])
+KeyError: 'labels'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.016s
+
+FAILED (errors=1)
+
+
+----------------------------------------------------------------------
+Ran 45 tests in 1.622s
+
+FAILED (failures=1)
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ11_MUTATION_CAUGHT: flap_row_ordering; errors=0
+MQ11_MUTATION_CAUGHT: unowned_accessory_preservation; errors=0
+MQ11_ACCEPTANCE: PASS; figures=2; native_fit_shape_turn_collision_ownership_determinism_bound=true
+MQ11_MUTATION_CAUGHT: acceptance_freshness; errors=0

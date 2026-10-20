@@ -12,7 +12,7 @@ from ..contract import todos, vector
 from ..source_recipe import common
 from ..drape import tailor
 
-GEOMETRY_DEFAULTS = {'epsilon_m': 1e-9, 'belt_samples': 32}
+GEOMETRY_DEFAULTS = {'epsilon_m': 1e-9, 'relative_epsilon': 1e-9, 'belt_samples': 32}
 
 
 def complete(design):
@@ -58,6 +58,14 @@ def hair_piece(template, design, gates):
     reach = float(np.linalg.norm(up * scalp['radii_m']))
     if centre @ up + reach < np.asarray(skull['crown_m']) @ up or centre @ up - reach > np.asarray(skull['ear_line_m']) @ up:
         raise ValueError('Scalp must cover the crown and sides down to ear height')
+    # The cap need not extend down to the chin. Its lateral ellipsoid extent
+    # must contain the skull axis in 3D, in addition to the height coverage.
+    scaled_axis = up / scalp['radii_m']
+    for landmark in ('crown_m', 'base_m'):
+        offset = (np.asarray(skull[landmark]) - centre) / scalp['radii_m']
+        lateral = offset - scaled_axis * (offset @ scaled_axis) / (scaled_axis @ scaled_axis)
+        if np.linalg.norm(lateral) > 1 + GEOMETRY_DEFAULTS['relative_epsilon']:
+            raise ValueError('Scalp must contain the skull axis within its lateral extent')
     if len(tufts) != gates['tuft_count'] or len({t['id'] for t in tufts}) != len(tufts):
         raise ValueError('Distinct measured tuft ids required for every tuft')
     if sum(t['role'] == 'fringe' for t in tufts) != gates['fringe_count']:
@@ -87,7 +95,9 @@ def hair_piece(template, design, gates):
         if np.any(segments <= GEOMETRY_DEFAULTS['epsilon_m']):
             raise ValueError('Tuft path contains a zero-length segment')
         length = float(segments.sum()) / height
-        if not gates['tuft_length_head_height'][0] <= length <= gates['tuft_length_head_height'][1]:
+        low, high = gates['tuft_length_head_height']
+        epsilon = GEOMETRY_DEFAULTS['relative_epsilon']
+        if not low * (1 - epsilon) <= length <= high * (1 + epsilon):
             raise ValueError('Tuft length outside the brief head-height range: ' + tuft['id'])
         lengths.append(length)
         directions.append(points[-1] - points[0])

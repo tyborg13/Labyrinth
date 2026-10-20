@@ -1,5 +1,10 @@
 # mq-11 observed verification
 
+Current director-feedback-2 results are in [feedback2.md](feedback2.md): all
+162 focused tests pass (two opt-in bridge skips), all 111 art-identity tests
+pass, and all four surviving guard mutations are caught. The pending-design
+notes below are historical initial-implementation evidence.
+
 Implementation and native-proof commands are documented in
 [`owner_review/README.md`](../../spec/art_identity/maquettes/hollow_mimic/owner_review/README.md).
 All changes are uncommitted. No Blender job or windowed capture was run.

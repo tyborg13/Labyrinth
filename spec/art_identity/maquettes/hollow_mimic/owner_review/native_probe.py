@@ -53,10 +53,15 @@ def main(spec_path, capture_path, output_path):
         indices = {old: new for new, old in enumerate(used)}
         meshes[name] = {'vertices': [list(obj.matrix_world @ obj.data.vertices[i].co) for i in used],
                         'faces': [[indices[i] for i in face.vertices] for face in obj.data.polygons]}
+    binding = {'spec_hash': digest(spec), 'cold_mesh_hash': build['combined_mesh_hash'],
+               'blend_sha256': sha(capture / 'maquette.blend'),
+               'build_report_sha256': sha(capture / 'build_report.json')}
+    # Host verification can replay measurements from these exact frozen native
+    # triangles without opening Blender or trusting cached numeric results.
+    mesh_path = capture / 'mq11_meshes.json'
+    write(mesh_path, dict(binding, meshes=meshes))
     report = measure(spec, meshes)
-    report.update(spec_hash=digest(spec), cold_mesh_hash=build['combined_mesh_hash'],
-                  blend_sha256=sha(capture / 'maquette.blend'),
-                  build_report_sha256=sha(capture / 'build_report.json'))
+    report.update(binding, mesh_export_sha256=sha(mesh_path))
     write(output_path, report)
     print('MQ11_NATIVE_SHAPE: ' + ('PASS' if report['passed'] else 'FAIL') + '; ' + spec['id'])
     return 0 if report['passed'] else 1

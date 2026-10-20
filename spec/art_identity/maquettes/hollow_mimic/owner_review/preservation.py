@@ -1,5 +1,7 @@
 """Read-only byte guard for every existing delivery and both protected recipes."""
+import ast
 import json
+from pathlib import Path
 
 from spec.art_identity.maquettes.blender.compile_recipe import PROJECT
 from spec.art_identity.maquettes.blender.curate_delivery import sha, write
@@ -49,3 +51,53 @@ def status():
     result['native_proof'] = 'pending director bridge run'
     result['after_iou'] = {name: None for name in FIGURES}
     return result
+
+
+def source_dependencies(project, entry_points):
+    """Include local imports in every branch, submodules and package initializers.
+
+    Callers seed separately executed scripts and dynamically selected module
+    families too; resolving source paths never requires bpy or host image tools.
+    """
+    project = Path(project).resolve()
+    pending = {Path(p).resolve() for p in entry_points}
+    found = set()
+
+    def enqueue(name):
+        parts = name.split('.')
+        for count in range(1, len(parts) + 1):
+            package = project.joinpath(*parts[:count]) / '__init__.py'
+            if package.is_file():
+                pending.add(package)
+        module = project.joinpath(*parts).with_suffix('.py')
+        if module.is_file():
+            pending.add(module)
+
+    while pending:
+        path = pending.pop()
+        if path in found:
+            continue
+        relative = path.relative_to(project)
+        found.add(path)
+        package = relative.parent.parts
+        for node in ast.walk(ast.parse(path.read_text(), filename=str(path))):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    enqueue(alias.name)
+            elif isinstance(node, ast.ImportFrom):
+                prefix = package[:len(package) - node.level + 1] if node.level else ()
+                name = '.'.join((*prefix, *node.module.split('.'))) if node.module else '.'.join(prefix)
+                if name:
+                    enqueue(name)
+                    for alias in node.names:
+                        if alias.name != '*':
+                            enqueue(name + '.' + alias.name)
+            elif isinstance(node, ast.Call) and node.args and isinstance(node.args[0], ast.Constant):
+                # Also cover literal dynamic imports. Nonliteral native module
+                # dispatch is covered by the caller's family seeds.
+                function = node.func.id if isinstance(node.func, ast.Name) else getattr(node.func, 'attr', '')
+                if function in ('__import__', 'import_module') and isinstance(node.args[0].value, str):
+                    name = node.args[0].value
+                    if not name.startswith('.'):
+                        enqueue(name)
+    return found

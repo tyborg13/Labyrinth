@@ -13,6 +13,7 @@ from spec.art_identity.maquettes.hollow_mimic.batch_proof import pose_gates
 from spec.art_identity.maquettes.raster import project
 from tests.test_maquette_rear_turn import observations
 from .candidate import ROOT, GATES
+from .measurements import measure
 from .preservation import HERE, PROJECT
 
 PROOF_DEFAULTS = {'header_px': 28, 'joint_radius_px': 3, 'caption_offset_px': 4,
@@ -22,7 +23,30 @@ PROOF_DEFAULTS = {'header_px': 28, 'joint_radius_px': 3, 'caption_offset_px': 4,
                   'original_head_box': (92, 37, 162, 103), 'original_skull_height_px': 44}
 
 
-def inspect(spec, capture):
+def inspect_shape(spec, capture):
+    """Recompute the bound report from the native probe's frozen triangles."""
+    capture = Path(capture)
+    build = json.loads((capture / 'build_report.json').read_text())
+    expected = {'spec_hash': digest(spec), 'cold_mesh_hash': build['combined_mesh_hash'],
+                'build_report_sha256': sha(capture / 'build_report.json'),
+                'blend_sha256': sha(capture / 'maquette.blend')}
+    shape = json.loads((capture / 'mq11_shape.json').read_text())
+    mesh_path = capture / 'mq11_meshes.json'
+    exported = json.loads(mesh_path.read_text())
+    if (build['spec_hash'] != digest(spec) or not build['passed'] or
+            shape['spec_hash'] != digest(spec) or
+            any(shape.get(key) != value or exported.get(key) != value for key, value in expected.items()) or
+            shape.get('mesh_export_sha256') != sha(mesh_path)):
+        raise ValueError('Stale native accessory measurements')
+    fresh = measure(spec, exported['meshes'])
+    fresh.update(expected, mesh_export_sha256=sha(mesh_path))
+    if fresh != shape:
+        raise ValueError('Stale native accessory measurements: recomputed shape differs')
+    return fresh
+
+
+def inspect(spec, capture, write_report=True):
+    shape = inspect_shape(spec, capture)
     recipe = json.loads((ROOT / spec['id'] / 'measurements.json').read_text())
     views = {}
     for view in ('front', 'rear'):
@@ -50,16 +74,12 @@ def inspect(spec, capture):
     after = build['mesh_hashes']
     changed = {'hair_crown_render'} if spec['id'] == 'hollow_mimic' else {'leather_apron_render', 'rear_leather_apron_render', 'leather_belt_render'}
     untouched = {k: v for k, v in before.items() if k not in changed} == {k: v for k, v in after.items() if k not in changed}
-    shape = json.loads((capture / 'mq11_shape.json').read_text())
-    if (shape['spec_hash'] != digest(spec) or shape['build_report_sha256'] != sha(capture / 'build_report.json') or
-            shape['cold_mesh_hash'] != build['combined_mesh_hash'] or
-            shape['blend_sha256'] != sha(capture / 'maquette.blend')):
-        raise ValueError('Stale native accessory measurements')
     result = {'passed': pose['passed'] and all(turn_checks.values()) and all(r['passed'] for r in views.values()) and shape['passed'] and untouched,
               'spec_hash': digest(spec), 'views': views, 'pose': pose,
               'true_turn': {'passed': all(turn_checks.values()), 'checks': turn_checks, 'observations': turn},
               'unchanged_native_body_mask_and_other_accessories': untouched, 'native_shape': shape}
-    write(capture / 'mq11_fit.json', result)
+    if write_report:
+        write(capture / 'mq11_fit.json', result)
     baseline = json.loads((HERE / 'baseline.json').read_text())['before_iou'][spec['id']]
     print('MQ11_FIT: ' + ('PASS' if result['passed'] else 'FAIL') + '; ' + spec['id'] + '; ' +
           '; '.join(v + '=' + format(baseline[v], '.9f') + ' -> ' + format(views[v]['iou'], '.9f') for v in views))
