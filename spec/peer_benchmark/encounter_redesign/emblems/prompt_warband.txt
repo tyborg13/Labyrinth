@@ -1,0 +1,7 @@
+Use your built-in image generation tool (real image generation, not code drawing).
+
+Make exactly ONE square 1024x1024 PNG: a map room emblem for a dark-fantasy game. Match the supplied reference emblems exactly in hand, material, rendering and palette: a single painterly, richly rendered object with antique bronze, aged iron, worn leather and cloth, warm rim light from the upper left and soft deep shadows. Centre the object with generous margin: it fills about 70% of the canvas and nothing touches an edge. Background: perfectly flat near-black RGB (7,7,11), the same as the references, with no vignette, texture, glow halo, ring, frame, medallion or border. No text, letters, runes or numbers. The silhouette must stay readable at 48 pixels across, so keep one bold, simple shape with no fussy small parts.
+
+SUBJECT: a war captain's standard. A tall spear-tipped wooden pole with an antique bronze finial, flying a tattered dark crimson-black war banner that hangs from a short crossbar. The banner bears a simple bronze horned-skull crest, and its lower edge is torn into three ragged tails. The pole leans very slightly. The banner is the dominant shape. It must NOT read as crossed swords, a scroll or a flag on a castle.
+
+Save the result as warband_emblem.png in the current working directory.

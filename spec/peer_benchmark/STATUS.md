@@ -57,8 +57,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     removed.
   - Inbox:
     - empower-sound-built is open (clip with sound).
-    - Encounter redesign posted: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX and items enc-warband,
-      enc-breakout, enc-clarity, enc-dragons, enc-guardians. No enc units until the owner settles the direction. See
+    - Encounter redesign posted: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX (revision 2, 20 Oct:
+      four map-visible special encounters after the owner's redirect) and items enc-specials, enc-clarity,
+      enc-dragons, enc-guardians. No enc units until the owner settles the direction. See
       `encounter_redesign/README.md`.
     - Inbox cards now support an optional `link`.
   - sfx-05 Low (backlog): three missing regression cases (rejected-toggle silence, available() health guard,

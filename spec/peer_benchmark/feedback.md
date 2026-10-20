@@ -229,3 +229,14 @@
 - weaver-rig: APPROVED (2026-10-20 13:54).
 - mimic-rig: NEEDS CHANGES (2026-10-20 13:54). Verbatim: "The hair is very wrong. The original is spiky anime-ish like our protag, the new is a weird peacock feather fan in the back. Also, the arms don't sway realistically during the walk animation, there's one animation where a hand in the front view gets drawn behind the body when it should be in front."
 - mortar-rig: NEEDS CHANGES (2026-10-20 13:57). Verbatim: "Generally he's looking pretty decent, but the loin cloth is very wrongly positioned. Doesn't match the perspective at all, like it's not even on him. And there's some noticeably wrong tearing and stretching during animations around his face and arms. We need to clean all that up."
+- enc-warband + enc-breakout: REDIRECTED (2026-10-20, by voice in the work thread, not the inbox). Owner: "I think these
+  should just be unique encounters similar to our guardians, but not restricted to a certain path like the guardians
+  are. So like have the leader always be a specific enemy. Have the one where you have to escape have a specific sort
+  of composition of enemies ... maybe there's like a mini boss ... Like have a little bit of flavor attached to each of
+  these, and then they can have their own icon on the map, so you know what you're getting into." Rewards: "maybe you
+  get guaranteed higher rarity or more choices or more embers ... I'm not super prescriptive on that." Repeats: "do we
+  make it so you can keep hitting these special encounters in every section? I think we would need to." Standard
+  combat "is always just defeat all the enemies." Then "Yes, please" to rewriting the proposal as four types with
+  per-section variants, rewards, map-icon mockups and placement rules. Posted as inbox item enc-specials; both old
+  items closed with a pointer.
+

@@ -11,26 +11,34 @@ function drawBoard(host, spec) {
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++)
     el("rect", { x: P + x * C + 1, y: P + y * C + 1, width: C - 2, height: C - 2, rx: 3, class: "b-floor" });
   const tint = (cells, cls) => (cells || []).forEach(([x, y]) => el("rect", { x: P + x * C + 3, y: P + y * C + 3, width: C - 6, height: C - 6, rx: 3, class: cls }));
-  tint(spec.aura, "b-aura"); tint(spec.threat, "b-threat"); tint(spec.ice, "b-ice"); tint(spec.safe, "b-safe");
+  tint(spec.light, "b-light"); tint(spec.aura, "b-aura"); tint(spec.threat, "b-threat"); tint(spec.ice, "b-ice"); tint(spec.safe, "b-safe");
   (spec.doors || []).forEach((d) => {
     const [x, y] = d.at; const side = d.side;
     const bar = side === "top" ? { x: P + x * C + 6, y: P - 14, width: C - 12, height: 10 } : side === "bottom" ? { x: P + x * C + 6, y: P + N * C + 4, width: C - 12, height: 10 }
       : side === "right" ? { x: P + N * C + 4, y: P + y * C + 6, width: 10, height: C - 12 } : { x: P - 14, y: P + y * C + 6, width: 10, height: C - 12 };
-    el("rect", Object.assign(bar, { rx: 2, class: d.entry ? "b-entry" : "b-door" }));
-    if (!d.entry) el("rect", { x: P + x * C + 4, y: P + y * C + 4, width: C - 8, height: C - 8, rx: 3, class: "b-threshold" });
+    el("rect", Object.assign(bar, { rx: 2, class: d.entry ? "b-entry" : d.seal ? "b-seal" : "b-door" }));
+    if (!d.entry) el("rect", { x: P + x * C + 4, y: P + y * C + 4, width: C - 8, height: C - 8, rx: 3, class: d.seal ? "b-threshold-seal" : "b-threshold" });
+    if (d.seal) { const t = el("text", { x: cx(x), y: cy(y) + 8, "text-anchor": "middle", class: "b-seal-count" }); t.textContent = d.seal; }
   });
   (spec.pillars || []).forEach(([x, y]) => el("rect", { x: P + x * C + 5, y: P + y * C + 5, width: C - 10, height: C - 10, rx: 4, class: "b-pillar" }));
   (spec.crates || []).forEach(([x, y]) => el("rect", { x: P + x * C + 13, y: P + y * C + 13, width: C - 26, height: C - 26, rx: 2, class: "b-crate" }));
+  (spec.embers || []).forEach(([x, y]) => [[-8, -6], [6, -8], [0, 7], [9, 5], [-9, 6]].forEach(([dx, dy]) =>
+    el("circle", { cx: cx(x) + dx, cy: cy(y) + dy, r: 3.2, class: "b-ember" })));
   (spec.paths || []).forEach((p) => {
     const d = p.pts.map(([x, y], i) => `${i ? "L" : "M"}${cx(x)},${cy(y)}`).join(" ");
     el("path", { d, class: "b-path b-path-" + p.kind });
     const [ex, ey] = p.pts[p.pts.length - 1];
-    if (p.kind !== "blocked") el("circle", { cx: cx(ex), cy: cy(ey), r: 4, class: "b-path-end b-path-" + p.kind });
+    if (p.kind === "flee") {
+      const [px, py] = p.pts[p.pts.length - 2], ang = Math.atan2(ey - py, ex - px), L = 12;
+      const tip = [cx(ex), cy(ey)], a1 = ang + 2.6, a2 = ang - 2.6;
+      el("path", { d: `M${tip[0]},${tip[1]} L${tip[0] + L * Math.cos(a1)},${tip[1] + L * Math.sin(a1)} L${tip[0] + L * Math.cos(a2)},${tip[1] + L * Math.sin(a2)} z`, class: "b-flee-head" });
+    } else if (p.kind !== "blocked") el("circle", { cx: cx(ex), cy: cy(ey), r: 4, class: "b-path-end b-path-" + p.kind });
   });
   (spec.units || []).forEach((u) => {
     const g = el("g", { class: "b-unit b-" + u.t });
-    el("circle", { cx: cx(u.x), cy: cy(u.y), r: C * 0.34 }, g);
-    const t = el("text", { x: cx(u.x), y: cy(u.y) + 5, "text-anchor": "middle" }, g); t.textContent = u.label;
+    if (u.t === "brazier") el("path", { d: `M${cx(u.x) - 17},${cy(u.y) - 8} h34 l-7,15 h-20 z M${cx(u.x) - 10},${cy(u.y) + 7} l-5,13 M${cx(u.x) + 10},${cy(u.y) + 7} l5,13 M${cx(u.x)},${cy(u.y) + 7} v13`, class: "b-brazier-iron" }, g);
+    else el("circle", { cx: cx(u.x), cy: cy(u.y), r: C * 0.34 }, g);
+    const t = el("text", { x: cx(u.x), y: cy(u.y) + (u.t === "brazier" ? -12 : 5), "text-anchor": "middle" }, g); t.textContent = u.t === "brazier" ? "\u2022".repeat(+u.label) : u.label;
     if (u.t === "leader") { const c = el("path", { d: `M${cx(u.x) - 11},${cy(u.y) - 19} l4,-9 l7,6 l7,-6 l4,9 z`, class: "b-crown" }, g); }
   });
   (spec.notes || []).forEach((n) => { const t = el("text", { x: cx(n.x), y: cy(n.y) + (n.dy || 0), "text-anchor": "middle", class: "b-note" }); t.textContent = n.text; });

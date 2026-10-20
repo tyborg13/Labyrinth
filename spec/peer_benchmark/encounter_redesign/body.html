@@ -1,11 +1,16 @@
 <header class="top">
-  <p class="eyebrow">Escape the Umbra · design proposal · 20 October 2026</p>
+  <p class="eyebrow">Escape the Umbra · design proposal · revised 20 October 2026</p>
   <h1>Encounters that ask hard questions</h1>
-  <p class="lede">A redesign of the six dragons, the six Guardians, Defeat the Leader and Reach the Exit. Nothing here is
-  built yet. Tell me what to keep, cut or change, and once we've settled it, it goes to Codex as its own workstream.</p>
+  <p class="lede">A redesign of the six dragons, the six Guardians, and four special encounters that replace Defeat the
+  Leader and Reach the Exit. Nothing here is built yet. Tell me what to keep, cut or change, and once we've settled it,
+  it goes to Codex as its own workstream.</p>
+  <p class="small"><b>What changed in this revision:</b> standard fights are always Defeat All. The leader and exit
+  ideas became authored special encounters you choose on the map, with two new ones beside them. The sections from
+  Showing the rules onward haven't changed.</p>
   <nav class="toc" aria-label="Sections">
-    <a href="#problem">What's wrong today</a><a href="#rules">Five rules</a><a href="#warband">Defeat the Leader</a>
-    <a href="#breakout">Reach the Exit</a><a href="#clarity">Showing the rules</a><a href="#dragons">Dragons</a>
+    <a href="#problem">What's wrong today</a><a href="#rules">Five rules</a><a href="#specials">Special encounters</a><a href="#warband">Warband</a>
+    <a href="#snare">Umbral Snare</a><a href="#hoarder">Ember Hoarder</a><a href="#lastlight">Last Light</a>
+    <a href="#rewards">Rewards</a><a href="#placement">Placement</a><a href="#clarity">Showing the rules</a><a href="#dragons">Dragons</a>
     <a href="#guardians">Guardians</a><a href="#plan">Targets and build order</a><a href="#questions">Your calls</a>
   </nav>
 </header>
@@ -57,74 +62,233 @@
   </ol>
 </section>
 
-<section id="warband">
-  <p class="eyebrow">Defeat the Leader</p>
-  <h2>The Warband: the leader is the brain, behind a screen</h2>
-  <p>The question each fight should ask: punch through the screen now, or survive a stronger warband while you work around it?</p>
-  <div class="pair">
-    <figure><div class="board" data-board="warband-before"></div><figcaption><b>Today.</b> The leader is whoever has the
-      most HP: here a Tunnel Crawler, the closest enemy. One rush ends the fight.</figcaption></figure>
-    <figure><div class="board" data-board="warband-after"></div><figcaption><b>Proposed.</b> The Dust Acolyte commands
-      from the back row, screened by a Crawler. Followers inside its gold banner hit harder while it lives. The direct
-      route is blocked, and the way around is longer.</figcaption></figure>
-  </div>
-  <ol class="spec">
-    <li><b>Leader by role, not HP.</b> Casters and support lead first (Dust Acolyte, Grave Surgeon, Hoarfrost Seer, Gale
-      Herald, Briar Weaver, Slag Mortar, Hollow Mimic), then ranged (Bone Harrier, Frostglass Lancer), then heavies (Stone
-      Warden, Chainbound Gaoler, Glacial Mirror). Fodder never leads (Crawler, Ooze, Droplet, Tick, Wisp), and neither do
-      the immobile Capacitor or the hiders (Gloam Stalker, Burrow Grub). The pick is weighted random among the two best
-      available roles, so it varies.</li>
-    <li><b>Back line.</b> It starts 4–6 tiles from you, is never the closest enemy, and always has a follower standing
-      in its way.</li>
-    <li><b>Command.</b> Followers within 2 tiles of the leader deal +1 damage. It's shown as a gold banner on the
-      floor, and their intent numbers include the +1.</li>
-    <li><b>It keeps its distance.</b> When you get within 2, it steps back behind its screen (at most 1 tile a turn)
-      and still acts.</li>
-    <li><b>Fairer buff.</b> ×1.25 HP and Stoneskin 2/3/4 by tier, down from ×1.5 and 3/4/5. The challenge comes
-      from position, not from a sponge.</li>
-    <li><b>The warband breaks.</b> When the leader dies, the followers run for the edges and vanish, matching the
-      "the rest flee" text. Today they silently collapse, and Ember Ticks still burst. One line, one sound: "The
-      warband breaks!"</li>
-    <li><b>War chest.</b> The leader drops embers worth half of what the fleeing followers were worth. Leader rooms
-      currently pay half of a Defeat All room.</li>
-  </ol>
-  <p class="guard"><b>Guardrails (2,000 seeds per tier):</b> the leader isn't the closest enemy in at least 95% of rooms
-    and has a screen in at least 85%; no enemy type is more than 35% of a tier's leaders; reaching it takes a median deck 2–3 turns.</p>
+<section id="specials">
+  <p class="eyebrow">Revised 20 October, after your notes</p>
+  <h2>Special encounters: fights you choose on the map</h2>
+  <p>Standard fights are always <b>Defeat All</b>, rolled from the section's enemies the way they are today. The
+    other objectives become four authored <b>special encounters</b>. Each has a fixed cast, its own rules and its own
+    map emblem, so you know what you're walking into and can plan a route around the fights you want. Like Guardians
+    they're harder than a standard fight and pay better, but they aren't tied to one route, and every section has its
+    own version of each.</p>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Encounter</th><th>The fantasy</th><th>The question it asks</th><th>It pays in</th></tr></thead>
+    <tbody>
+      <tr><th>The Warband</th><td>A war captain marches with its escort. Kill the captain and the rest flee.</td>
+        <td>Punch through the screen now, or survive a stronger warband while you work around it?</td><td>Gear: a guaranteed equipment drop</td></tr>
+      <tr><th>Umbral Snare</th><td>The shadow springs a trap. The doors are sealing, its hunters are loose, and a jailer holds the last way out.</td>
+        <td>Which door do you save, and is the route behind it worth the fight?</td><td>Embers for every door you keep open</td></tr>
+      <tr><th>Ember Hoarder</th><td>A thief of embers is cornered with its sack. It runs for a door while its gang covers the escape.</td>
+        <td>Can you pin it down before it gets out?</td><td>Embers: the whole hoard</td></tr>
+      <tr><th>Last Light</th><td>The Umbra is swallowing the room. One brazier still burns.</td>
+        <td>Hold the light or chase the snuffers?</td><td>Healing: the brazier's warmth</td></tr>
+    </tbody></table></div>
+  <p>Each type pays in a different currency, so the map choice is about what your run needs: gear, embers or health.
+    A clean win in any of them also earns one extra card choice and more embers than a standard fight (see <a href="#rewards">Rewards</a>).</p>
+  <figure class="shot"><img src="mock_special_map.jpg" alt="The Hollow Gale section map with a Warband, an Umbral Snare and an Ember Hoarder node among the standard fights, and the legend listing them" loading="lazy">
+    <figcaption><b>On the map.</b> The Hollow Gale with three special nodes: a Warband, an Umbral Snare and an Ember
+      Hoarder. Each has its own emblem in the normal room medallion. The legend lists only the room types this section
+      contains, so it stays one row. Hover or focus names the section's version, such as <i>Warband · The
+      Stormcaller</i>, with one line on what you'll face. The emblems are concept art for this proposal; final ones go
+      through the icon identity policy.</figcaption></figure>
+  <figure class="shot"><img src="mock_special_emblems.jpg" alt="The four special-encounter emblems at map and legend sizes: a war banner, a door bound by shadow, a clawed hand clutching embers, and a brazier against the dark" loading="lazy">
+    <figcaption><b>The four emblems</b> at the sizes the map uses: an available room, a future room and the legend.
+      Each is a different silhouette: a war banner, a door bound by shadow, a clawed fist of embers and a three-legged
+      brazier. They're built to stay distinct from the campfire (Ember Hearth) and the lantern (your entry).</figcaption></figure>
 </section>
 
-<section id="breakout">
-  <p class="eyebrow">Reach the Exit</p>
-  <h2>The Breakout: hunters behind you, a gatekeeper at the door</h2>
-  <p>An escape should be a chase with a real route choice: the short lane past the gatekeeper, or the long way round
-    while the hunters close in. Every room is escapable in 2–4 turns, and none is a free walk-out.</p>
-  <div class="pair three">
-    <figure><div class="board" data-board="breakout-trivial"></div><figcaption><b>Today, trivial.</b> The enemies
-      landed on the far side. Six free tiles to the door; two of your 13 escapes took one turn.</figcaption></figure>
-    <figure><div class="board" data-board="breakout-walled"></div><figcaption><b>Today, walled.</b> Nothing stops a
-      Warden on the threshold, with a Gaoler, a Mirror and a Crawler stacked in front of the only door.</figcaption></figure>
-    <figure><div class="board" data-board="breakout-after"></div><figcaption><b>Proposed.</b> Crawlers start behind
-      you. A Warden and a Gaoler each hold a door. Short and contested, or long and chased.</figcaption></figure>
-  </div>
+<section id="warband">
+  <p class="eyebrow">Special encounter · replaces Defeat the Leader</p>
+  <h2>The Warband: a captain behind its screen</h2>
+  <p>Every section has one named captain, always the same enemy, with an escort built around it. You learn each
+    captain's habits and plan for them.</p>
+  <figure><div class="board" data-board="warband"></div><figcaption><b>The Stormcaller's warband</b> (the Hollow
+    Gale). The captain, a Gale Herald, calls the wind from the back row, screened by a Chainbound Gaoler. Shrikes inside
+    its gold banner hit harder while it lives. The direct route is blocked, and the way around is longer.</figcaption></figure>
+  <div class="legend" aria-label="Legend"><span><i class="k-hero"></i>You</span><span><i class="k-enemy"></i>Enemy</span>
+    <span><i class="k-leader"></i>Captain</span><span><i class="k-gate"></i>Screen</span><span><i class="k-aura"></i>Command banner</span>
+    <span><i class="k-pillar"></i>Pillar</span></div>
   <ol class="spec">
-    <li><b>Roles.</b> <i>Gatekeepers</i> (Stone Warden, Chainbound Gaoler, Glacial Mirror, Briar Weaver), at most one
-      per door, start 2 tiles inside it and hold its lane. <i>Hunters</i> (Tunnel Crawler, Ash Hound, Gust Shrike, Bone
-      Harrier) start 3 tiles behind or beside you and chase.</li>
-    <li><b>Lanes.</b> Escape rooms get their own pillar and crate layouts, with two routes to each door: short past the
-      gatekeeper, or long around cover.</li>
-    <li><b>Guardrails, checked on every room.</b> If a check fails, the layout is rerolled up to 20 times, then a safe authored layout is used:
-      <ul>
-        <li>nothing starts on a threshold: no enemy, trap or loot;</li>
-        <li>every door is contested, so there's never a turn-1 route out that no enemy can reach;</li>
-        <li>at least one door has a route that a median deck clears in 2–4 turns, facing at most two attacks on the way;</li>
-        <li>no door has two gatekeepers.</li>
-      </ul></li>
-    <li><b>Gatekeepers block.</b> Gatekeepers make blocking the route to their door their main goal. Today that's only the last tie-breaker in enemy movement.</li>
-    <li><b>Clean escape pays.</b> Escaping earns half the embers of the enemies still standing. Loot sits on the
-      contested lane, so the risk pays too. Exit rooms currently pay the least of all (median 10 embers).</li>
-    <li><b>Option, your call: hold the door.</b> Reaching the threshold opens the door, and you escape at the start
-      of your next turn if you're still standing on it. That ends 1-turn escapes and makes the Gaoler's pull a real
-      threat, but it adds one enemy round to every escape. I lean yes.</li>
+    <li><b>A fixed captain per section.</b> It's a titled, larger version of one of the section's own enemies (1.15×
+      scale, a gold banner beneath it, its title on the nameplate). It has ×1.25 HP and Stoneskin 2/3/4 by tier.</li>
+    <li><b>Back line.</b> It starts 4–6 tiles from you, is never the closest enemy, and always has a follower standing
+      in its way.</li>
+    <li><b>Command.</b> Followers within 2 tiles of the captain deal +1 damage. It's shown as a gold banner on the
+      floor, and their intent numbers include the +1.</li>
+    <li><b>It keeps its distance.</b> When you get within 2, it steps back behind its screen (at most 1 tile a turn)
+      and still acts. The Dynamo can't move, so it starts deepest in the room instead.</li>
+    <li><b>Its order.</b> Each captain has one signature order (below), shown in its intents like any other action.</li>
+    <li><b>The warband breaks.</b> When the captain dies, the followers run for the edges and vanish. One line, one
+      sound: "The warband breaks!"</li>
+    <li><b>Escort size</b> 3, 4 or 5 followers by tier.</li>
   </ol>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Section</th><th>Captain</th><th>Escort</th><th>Its order</th><th>Your lever</th></tr></thead>
+    <tbody>
+      <tr><th>Worldspine Roots</th><td><b>The Thornmother</b> (Briar Weaver)</td><td>Stone Warden, 2 Stoneback Mites; Burrow Grub at tier 3</td>
+        <td>Her Thornwall grows 5 tiles long and always rises between you and her: she rebuilds her own screen.</td>
+        <td>Brambles hurt whoever is pushed into them. Shove her escort into her own wall.</td></tr>
+      <tr><th>Cinder Crown</th><td><b>The Slagmaster</b> (Slag Mortar)</td><td>2 Ash Hounds, Ember Tick; Cinder Ooze at tier 3</td>
+        <td>Barrage: Lob Slag marks two plus-shapes at once.</td>
+        <td>Slag hits whatever is under it. Drag the Hounds onto the marks.</td></tr>
+      <tr><th>The Hollow Gale</th><td><b>The Stormcaller</b> (Gale Herald)</td><td>Chainbound Gaoler, 2 Gust Shrikes; Roc Fledgling at tier 3</td>
+        <td>Its wind never drops: a gust slides everything 1 tile every round, not only after Call the Wind.</td>
+        <td>The wind carries its followers too. Read it and let it throw Shrikes into pillars.</td></tr>
+      <tr><th>Rime Hall</th><td><b>The Rime Oracle</b> (Hoarfrost Seer)</td><td>Glacial Mirror, 2 Rime Whelps; Rime Spitter at tier 3</td>
+        <td>Its Icefall lands as a wall of ice pillars between you and it.</td>
+        <td>Pillars shatter for 2 to everything beside them. Break them when the Whelps crowd in.</td></tr>
+      <tr><th>Tempest Spire</th><td><b>The Dynamo</b> (Storm Capacitor)</td><td>2 Arc Thralls, Lightning Wisp; Bell Tender at tier 3</td>
+        <td>While both Thralls stand, Arc Burst fires at 2 Charge instead of 3.</td>
+        <td>Kill one Thrall to break its tether and slow the Dynamo down.</td></tr>
+      <tr><th>Heart of the Umbra</th><td><b>The Hollow Prior</b> (Hollow Mimic)</td><td>2 Veilbound Acolytes, Gloam Stalker; Wick Shade at tier 3</td>
+        <td>Veil: while it lives, its followers more than 2 tiles from you stay hidden in the Umbra.</td>
+        <td>Bring your own Light, or go straight for the Prior: the veil drops when it dies.</td></tr>
+    </tbody></table></div>
+  <p class="guard"><b>Guardrails (2,000 seeds per tier):</b> the captain isn't the closest enemy in at least 95% of
+    rooms and has a screen in at least 85%; a median deck reaches it in 2–3 turns.</p>
+</section>
+
+<section id="snare">
+  <p class="eyebrow">Special encounter · replaces Reach the Exit</p>
+  <h2>Umbral Snare: get out before the doors seal</h2>
+  <p>The shadow has trapped you in the room. Every door out is one of your routes onward, and the Umbra is closing
+    them one at a time. A jailer holds the last one.</p>
+  <figure><div class="board" data-board="snare"></div><figcaption><b>A Cinder Crown snare.</b> The right door is
+    close but seals after 2 turns; the left one is far but lasts 4. A Sealbinder holds each shut. The Umbral Gaoler
+    stands in the top door, which never seals, and Ash Hounds come in behind you. Sprint right, kill a Sealbinder to
+    keep its door, or fight the Gaoler.</figcaption></figure>
+  <div class="legend" aria-label="Legend"><span><i class="k-hero"></i>You</span><span><i class="k-binder"></i>Sealbinder</span>
+    <span><i class="k-gate"></i>The Umbral Gaoler</span><span><i class="k-hunter"></i>Hunter</span>
+    <span><i class="k-door"></i>Open door</span><span><i class="k-seal"></i>Sealing door</span><span><i class="k-pillar"></i>Pillar</span></div>
+  <ol class="spec">
+    <li><b>Doors seal on the clock.</b> Every door but one has a <i>Sealbinder</i> (a Veilbound Acolyte, 4 HP)
+      channelling a black seal into it. Each sealing door shows its time on the turn clock: the first seals after
+      about 2 of your turns, the next after about 4.</li>
+    <li><b>Kill the Sealbinder and the door stays open.</b> That's the lever, and it costs time you could spend running.</li>
+    <li><b>A sealed door costs you its route.</b> The map shows that branch sealed, and you can't take it from this room.</li>
+    <li><b>The Umbral Gaoler</b> holds the last door, which never seals. It's a mini-boss version of the Chainbound
+      Gaoler: double HP, Stoneskin 2/3/4 by tier. Its Chain Reel drags you away from the threshold. You can always
+      fight your way out.</li>
+    <li><b>Hunters</b> from the section come in through the door you entered, one at the start of each enemy round,
+      up to three. Waiting only makes it worse.</li>
+    <li><b>Escape</b> by stepping onto an open door's threshold, as today. No door can be reached on your first
+      turn.</li>
+    <li><b>Where it goes:</b> only on rooms with at least two ways onward, so a sealed door always costs a real choice.</li>
+  </ol>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Section</th><th>Hunters</th><th>The room closes in</th></tr></thead>
+    <tbody>
+      <tr><th>Worldspine Roots</th><td>Burrow Grubs: they burrow under you and erupt a turn later.</td><td>Each round, Rubble rises across one tile of the shortest lane.</td></tr>
+      <tr><th>Cinder Crown</th><td>Ash Hounds: fast, 3 tiles a move.</td><td>Fire spreads one row from the entry each round, burning the floor at your back.</td></tr>
+      <tr><th>The Hollow Gale</th><td>Gust Shrikes: they dive across your lane.</td><td>A headwind slides everything 1 tile back toward the entry after each enemy turn.</td></tr>
+      <tr><th>Rime Hall</th><td>Rime Whelps, a pack of three from the start.</td><td>The doors frost over: the tile in front of each sealing door turns to Ice.</td></tr>
+      <tr><th>Tempest Spire</th><td>Arc Thralls: their tether beams cut across the lanes.</td><td>Crossing a live tether hurts and Shocks you.</td></tr>
+      <tr><th>Heart of the Umbra</th><td>Gloam Stalkers and Wick Shades.</td><td>The Umbra closes one ring of the room every two rounds.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="hoarder">
+  <p class="eyebrow">Special encounter · new</p>
+  <h2>Ember Hoarder: an escape in reverse</h2>
+  <p>This time something else is running. The Ember Hoarder is a hunched, long-armed Umbra scavenger dragging a sack
+    of stolen embers. Its gang gets in your way while it makes for a door.</p>
+  <figure><div class="board" data-board="hoarder"></div><figcaption><b>A Worldspine Roots hoard.</b> The Hoarder
+    starts close and runs for the right door, 3 tiles a turn. Stoneback Mites shove you off its trail and a Stone
+    Warden blocks the straight lane. Every hit spills embers on the floor.</figcaption></figure>
+  <div class="legend" aria-label="Legend"><span><i class="k-hero"></i>You</span><span><i class="k-hoarder"></i>Ember Hoarder</span>
+    <span><i class="k-enemy"></i>Its gang</span><span><i class="k-embers"></i>Spilled embers</span><span><i class="k-flee"></i>Its run</span>
+    <span><i class="k-door"></i>Door</span><span><i class="k-pillar"></i>Pillar</span></div>
+  <ol class="spec">
+    <li><b>It runs.</b> The Hoarder starts 2–3 tiles from you and flees for a door. Its route is shown, like an
+      intent. It moves 3 tiles a turn and never attacks. Starting HP 16, 20 or 24 by tier.</li>
+    <li><b>Pin it down.</b> Root, Immobilize, Chill, Pull and blocking its path all slow it down. This is the fight
+      where control cards shine.</li>
+    <li><b>Every hit spills embers</b> (3 per hit) onto its tile. Pick them up before the room ends, or lose them.</li>
+    <li><b>The room ends</b> when the Hoarder dies or gets out. Its gang flees either way, and nobody has to kill them.</li>
+    <li><b>If it escapes,</b> you keep what you picked up and get a standard reward, with no special bonus.</li>
+    <li><b>New art:</b> the Hoarder is the one new creature in this proposal. It goes through the visual identity
+      gate like any board art, and a stand-in is used until it's approved.</li>
+  </ol>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Section</th><th>The gang</th><th>How they stop you</th></tr></thead>
+    <tbody>
+      <tr><th>Worldspine Roots</th><td>Stone Warden, 2 Stoneback Mites</td><td>The Warden blocks the lane; Mites' Driving Claw shoves you back.</td></tr>
+      <tr><th>Cinder Crown</th><td>2 Ember Ticks, Ash Hound</td><td>Ticks Kindle Fire on its trail behind it.</td></tr>
+      <tr><th>The Hollow Gale</th><td>Chainbound Gaoler, 2 Roc Fledglings</td><td>Manacle Pin roots you to the spot.</td></tr>
+      <tr><th>Rime Hall</th><td>Glacial Mirror, 2 Rime Spitters</td><td>The Mirror walls off the lane and the Spitters lay Ice.</td></tr>
+      <tr><th>Tempest Spire</th><td>2 Arc Thralls</td><td>Their tether beam fences off the Hoarder's path.</td></tr>
+      <tr><th>Heart of the Umbra</th><td>2 Wick Shades, Gloam Stalker</td><td>Hooking Grasp pulls you back, and the Stalker ambushes from behind.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="lastlight">
+  <p class="eyebrow">Special encounter · brings back Survive</p>
+  <h2>Last Light: keep the brazier burning</h2>
+  <p>The parked Survive objective, now with a reason. The Umbra is swallowing the room and one brazier still burns.
+    Keep it lit until the marked time and the dark recedes.</p>
+  <figure><div class="board" data-board="lastlight"></div><figcaption><b>A Worldspine Roots vigil.</b> The brazier
+    has three flames and lights two tiles around it. A Stoneback Mite has reached it and will snuff a flame next turn,
+    while a Burrow Grub is about to erupt beside it. Enemies beyond the Light are hidden. Two problems, one free step.</figcaption></figure>
+  <div class="legend" aria-label="Legend"><span><i class="k-hero"></i>You</span><span><i class="k-brazier"></i>Brazier (flames)</span>
+    <span><i class="k-light"></i>Its Light</span><span><i class="k-enemy"></i>Enemy</span><span><i class="k-hidden"></i>Hidden in the dark</span><span><i class="k-threat"></i>Hits next turn</span>
+    <span><i class="k-pillar"></i>Pillar</span></div>
+  <ol class="spec">
+    <li><b>Hold until the marked time</b> on the turn clock, about 5 of your turns, with at least one flame lit.</li>
+    <li><b>Snuffers.</b> An enemy that reaches the brazier puts out one flame on its next turn instead of attacking.
+      The snuff shows in its intent, so you get a turn to kill it, push it away or block it.</li>
+    <li><b>The Light shrinks.</b> The brazier lights 2 tiles around it with three flames, 1 tile with two, and only its
+      own tile with one. Enemies outside the Light are hidden.</li>
+    <li><b>Fire relights it.</b> Fire damage or a Fire surface on the brazier restores a flame, up to three.</li>
+    <li><b>Waves</b> of section enemies come in from the edges each round. Killing them isn't the goal; holding is.</li>
+    <li><b>Win:</b> at the marked time the dark recedes and every enemy left dissolves.</li>
+    <li><b>If the last flame dies,</b> the Umbra floods the room. It becomes Defeat All in the dark, with enemies
+      hidden beyond 1 tile of you, and you get a standard reward with no special bonus.</li>
+  </ol>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Section</th><th>Who comes for the flame</th><th>The twist</th></tr></thead>
+    <tbody>
+      <tr><th>Worldspine Roots</th><td>Burrow Grubs, Stoneback Mites</td><td>Grubs burrow and erupt right beside the brazier.</td></tr>
+      <tr><th>Cinder Crown</th><td>Ember Ticks, Ash Hounds</td><td>Ticks are drawn to the flame: one that dies beside the brazier relights a flame. Sometimes you let them come.</td></tr>
+      <tr><th>The Hollow Gale</th><td>Gust Shrikes, a Gale Herald</td><td>Call the Wind blows at the brazier, and each gust that reaches it costs a flame unless you stand in the way.</td></tr>
+      <tr><th>Rime Hall</th><td>Rime Whelps, a Hoarfrost Seer</td><td>Icefall rings the brazier with pillars that cut off your way back to it.</td></tr>
+      <tr><th>Tempest Spire</th><td>Lightning Wisps, Bell Tenders</td><td>Tenders electrify the floor around the brazier, so defending it means standing on the network.</td></tr>
+      <tr><th>Heart of the Umbra</th><td>Wick Shades, Veilbound Acolytes</td><td>Two braziers, and the snuffers always go for the dimmer one. You can't stand by both.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="rewards">
+  <h2>Rewards: better than a standard fight, below a Guardian</h2>
+  <ul class="spec">
+    <li><b>Every clean win</b> offers 4 cards instead of 3, at least one of them Rare or better, and 1.5× the
+      embers of a standard fight at that depth.</li>
+    <li><b>Plus a bonus in the type's own currency:</b>
+      <ul>
+        <li><b>Warband, Captain's spoils:</b> a guaranteed equipment drop.</li>
+        <li><b>Umbral Snare, Slipped the snare:</b> +6 embers for each door still open when you leave, yours included.</li>
+        <li><b>Ember Hoarder, the hoard:</b> killing it drops another standard fight's worth of embers, on top of
+          everything it spilled.</li>
+        <li><b>Last Light, Kindled:</b> heal 2 HP for each flame still lit, up to 6.</li>
+      </ul></li>
+    <li><b>Fail the goal</b> (the Hoarder escapes, or the last flame dies) and you still finish the room, with a
+      standard reward.</li>
+    <li><b>Guardians keep their unique trophies.</b> Special encounters never award relics.</li>
+  </ul>
+</section>
+
+<section id="placement">
+  <h2>Where they appear</h2>
+  <ul class="spec">
+    <li><b>Every section has 2 or 3,</b> and never two of the same type. Over a run you meet each type three to five
+      times, each time as that section's version.</li>
+    <li><b>They replace standard fights</b> and count as fights in every route's fight budget, so route lengths and
+      difficulty totals don't change.</li>
+    <li><b>Not in the opening two steps,</b> and never directly before or after a Guardian on the same route.</li>
+    <li><b>Every route passes at most two,</b> and at least two different routes have one, so there's always a path
+      with them and a path without.</li>
+    <li><b>Umbral Snare</b> only goes where the room has at least two ways onward.</li>
+    <li><b>Unknown rooms never hide a special encounter.</b> You always know when you're walking into one.</li>
+    <li><b>In the Heart of the Umbra,</b> special encounters are landmarks that show through the fog, like Guardians.</li>
+    <li><b>Difficulty</b> follows the room's depth, like standard fights.</li>
+  </ul>
 </section>
 
 <section id="clarity">
@@ -240,7 +404,7 @@
     <caption>Starting difficulty bands (yours to move), measured by bots and then by your playtests</caption>
     <thead><tr><th>Room</th><th>Turns</th><th>HP lost (of 24)</th><th>Also</th></tr></thead>
     <tbody>
-      <tr><td>Leader and Exit rooms</td><td>3–5</td><td>3–6</td><td>no 1-turn escapes; leader screened ≥ 85%</td></tr>
+      <tr><td>Special encounters</td><td>3–6</td><td>4–8</td><td>no first-turn escapes; captain screened ≥ 85%; Hoarder caught in about 60% of bot runs; Last Light held in about 70%</td></tr>
       <tr><td>Guardians</td><td>5–7</td><td>7–11</td><td>the lever used in most bot wins</td></tr>
       <tr><td>Dragons</td><td>7–10</td><td>9–14</td><td>Wrath reached in about 95%; broken about half the time</td></tr>
     </tbody></table></div>
@@ -248,7 +412,10 @@
     <li><b>Measure first.</b> An encounter sweep (2,000 seeds per tier) and a bot harness for all 12 bosses give
       today's numbers before anything changes. I'll also fix the analytics gap: room type and Guardian id are built
       but silently dropped.</li>
-    <li><b>Warband and Breakout</b>, in parallel.</li>
+    <li><b>Special-encounter framework, with the Warband as the pilot:</b> Defeat All for standard fights, map
+      placement, emblems, legend and tooltips, and the rewards.</li>
+    <li><b>Umbral Snare and Last Light</b>, in parallel.</li>
+    <li><b>Ember Hoarder</b>, once its creature art passes the visual identity gate.</li>
     <li><b>The clarity layer:</b> How it fights, the next-three strip, first-sight callouts, Grimoire entries and the
       Guardian boss bar.</li>
     <li><b>Dragon framework with Tharokh as the pilot</b>, then a clip and a playtest for you, then the other five.</li>
@@ -262,9 +429,11 @@
   <h2>Your calls</h2>
   <p>Each area has its own item in the Review Inbox, so you can approve or redirect them separately.</p>
   <ol class="qs">
-    <li><b>Warband.</b> Is "the leader is the brain behind a screen, and its followers hit harder while it lives" the
-      fight you want? Are fleeing followers and a war chest right?</li>
-    <li><b>Breakout.</b> Hunters behind you and gatekeepers at the doors: the right fantasy? Hold the door, yes or no?</li>
+    <li><b>Special encounters.</b> Are these four the right set? Any type, captain or section twist you'd cut or change?</li>
+    <li><b>Rewards.</b> An extra card choice, plus gear, embers or healing by type: about the right level?</li>
+    <li><b>How often.</b> Two or three per section, never the same type twice in one section?</li>
+    <li><b>The Ember Hoarder</b> needs one new creature. Worth a full art pass, or should it be a laden version of an
+      existing enemy?</li>
     <li><b>Showing the rules.</b> Is the next-three strip welcome or too much? Is a one-time callout that waits for a key
       OK? Do you want How it fights on boss pre-battles, given you trimmed that screen before?</li>
     <li><b>Dragons.</b> Three acts with a breakable cataclysm for all six? Any dragon idea you'd change? Tharokh first?</li>

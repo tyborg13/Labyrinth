@@ -77,17 +77,31 @@ figcaption { font-size: 15px; line-height: 1.45; color: #cfc2aa; }
 .b-gate circle { fill: #3a2c1a; stroke: #f0b85a; stroke-width: 4; }
 .b-leader circle { fill: #4a3410; stroke: var(--gold); stroke-width: 4; }
 .b-crown { fill: var(--gold); }
-.b-note { font: 13px var(--ui); fill: var(--muted); }
+.b-note { font: 600 12px var(--ui); fill: #ffd6cf; }
+.b-light { fill: rgba(255,214,120,.16); stroke: rgba(255,214,120,.55); }
+.b-seal { fill: #8a63c9; } .b-threshold-seal { fill: rgba(138,99,201,.18); stroke: #8a63c9; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.b-seal-count { font: 600 22px var(--ui); fill: #c9b2f0; }
+.b-binder circle { fill: #2a1d3d; stroke: #a07ee0; }
+.b-hoarder circle { fill: #4a3410; stroke: #ff9f43; stroke-width: 4; stroke-dasharray: 6 3; }
+.b-hidden circle { fill: rgba(40,34,48,.6); stroke: #6b6276; stroke-dasharray: 3 3; } .b-hidden text { fill: #8f879a; }
+.b-brazier-iron { fill: #3b3128; stroke: #c49a5a; stroke-width: 3; stroke-linejoin: round; }
+.b-brazier text { font: 700 22px var(--ui); fill: #ffcf6b; letter-spacing: 1px; }
+.b-ember { fill: #ff9f43; }
+.b-path-flee { stroke: #ff9f43; stroke-dasharray: 8 5; } .b-flee-head { fill: #ff9f43; }
+.legend i.k-hero { background:#1f4f47; border:2px solid #5fc8ac } .legend i.k-enemy { background:#4a1d1a; border:2px solid #b4473f }
+.legend i.k-leader { background:#4a3410; border:3px solid #d9a441 } .legend i.k-gate { background:#3a2c1a; border:3px solid #f0b85a }
+.legend i.k-hunter { background:#4a1d1a; border:2px dashed #ff8a5c } .legend i.k-binder { background:#2a1d3d; border:2px solid #a07ee0 }
+.legend i.k-hoarder { background:#4a3410; border:2px dashed #ff9f43 } .legend i.k-hidden { background:rgba(40,34,48,.6); border:2px dashed #6b6276 }
+.legend i.k-brazier { border-radius:2px; background:#3b3128; border:2px solid #c49a5a } .legend i.k-light { border-radius:2px; background:rgba(255,214,120,.3) }
+.legend i.k-aura { border-radius:2px; background:rgba(217,164,65,.35) } .legend i.k-threat { border-radius:2px; background:rgba(217,83,74,.45) }
+.legend i.k-pillar { border-radius:2px; background:#514538 } .legend i.k-door { border-radius:2px; background:#5fc8ac }
+.legend i.k-seal { border-radius:2px; background:#8a63c9 } .legend i.k-embers { background:#ff9f43; width:8px; height:8px }
+.legend i.k-flee { border-radius:0; height:0; border-top:3px dashed #ff9f43 }
+.board-single { max-width: 440px; }
+a { color: #f4d48a; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 """
-legend = """<div class="legend" aria-label="Legend"><span><i style="background:#1f4f47;border:2px solid #5fc8ac"></i>You</span>
-<span><i style="background:#4a1d1a;border:2px solid #b4473f"></i>Enemy</span><span><i style="background:#4a3410;border:3px solid #d9a441"></i>Leader</span>
-<span><i style="background:#3a2c1a;border:3px solid #f0b85a"></i>Gatekeeper</span><span><i style="background:#4a1d1a;border:2px dashed #ff8a5c"></i>Hunter</span>
-<span><i style="border-radius:2px;background:#5fc8ac"></i>Exit door</span><span><i style="border-radius:2px;background:#514538"></i>Pillar</span>
-<span><i style="border-radius:2px;background:rgba(217,164,65,.35)"></i>Command banner</span></div>"""
 body = open(P + "/body.html").read()
-body = body.replace('</div>\n  <ol class="spec">\n    <li><b>Leader by role', '</div>\n  ' + legend + '\n  <ol class="spec">\n    <li><b>Leader by role', 1)
-body = body.replace('</div>\n  <ol class="spec">\n    <li><b>Roles.', '</div>\n  ' + legend + '\n  <ol class="spec">\n    <li><b>Roles.', 1)
 boards = open(P + "/boards.json").read()
 js = open(P + "/board.js").read()
 page = f"""<meta charset="utf-8">
