@@ -19,6 +19,24 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-20 afternoon:
+  - Merged int-05 (6a188d45d) and sfx-05 (672b55f64; Codex SIGNOFF 2b4095104; Empower cues onset-trimmed by the
+    director, blocked-health card.invalid). Godot PASS.
+  - Python had 1 error: test_empower_sfx imported sound-lab deps at module level. It now skips its two audio tests
+    without the venv, like test_sfx_lab.
+  - The full suite rewrote the tracked `experiments/cutouts/briar_weaver/mq9/proof/samples.json` (runtime hashes). It
+    was restored. Backlog: find the test with this side effect.
+  - Capacitor windowed rr17_proof PASS on ee03daf93 (cap-02 crop + rr-28 scoped preservation); cap-check worktree
+    removed.
+  - Inbox:
+    - empower-sound-built is open (clip with sound).
+    - Encounter redesign posted: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX and items enc-warband,
+      enc-breakout, enc-clarity, enc-dragons, enc-guardians. No enc units until the owner settles the direction. See
+      `encounter_redesign/README.md`.
+    - Inbox cards now support an optional `link`.
+  - sfx-05 Low (backlog): three missing regression cases (rejected-toggle silence, available() health guard,
+    can_attempt() non-health guards).
+  - mq-11 running (Blender bridge bp49pzgph).
 - Merged on integration since playtest 10: map-02, cbt-01, boon-01, fix-05, flow-01, qa-07, qa-08, bug-01, mq-04,
   rr-05, det-01, rr-07, mq-05 (d2560b9c9), rr-12 (9fdb6462f), mq-06 (78d87f474), mq-07 (663a8e84e). Owner approved:
   section transition, Bloomer rr-05 clip, roster plan, Lancer look, Burrow Grub and Ember Tick rigs (rr-12).

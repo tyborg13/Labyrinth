@@ -5,7 +5,7 @@
   inbox.py reset LIVE.html                    # print the skeleton reset CSS the platform served
 
 Items: {id, posted "YYYY-MM-DD HH:MM", area, title, look, questions[], command?, media[{type: video|image, url,
-caption}], status: open|answered|done, response?{verdict: approved|changes|note, notes, at}, reply?}.
+caption}], link?{url, label}, status: open|answered|done, response?{verdict: approved|changes|note, notes, at}, reply?}.
 The owner's page publishes `response`/`status: answered`; the director sets `reply` and `status: done`.
 """
 import json, re, sys

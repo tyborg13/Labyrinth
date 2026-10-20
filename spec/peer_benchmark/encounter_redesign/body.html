@@ -1,0 +1,273 @@
+<header class="top">
+  <p class="eyebrow">Escape the Umbra · design proposal · 20 October 2026</p>
+  <h1>Encounters that ask hard questions</h1>
+  <p class="lede">A redesign of the six dragons, the six Guardians, Defeat the Leader and Reach the Exit. Nothing here is
+  built yet. Tell me what to keep, cut or change, and once we've settled it, it goes to Codex as its own workstream.</p>
+  <nav class="toc" aria-label="Sections">
+    <a href="#problem">What's wrong today</a><a href="#rules">Five rules</a><a href="#warband">Defeat the Leader</a>
+    <a href="#breakout">Reach the Exit</a><a href="#clarity">Showing the rules</a><a href="#dragons">Dragons</a>
+    <a href="#guardians">Guardians</a><a href="#plan">Targets and build order</a><a href="#questions">Your calls</a>
+  </nav>
+</header>
+
+<section id="problem">
+  <h2>What's wrong today</h2>
+  <p>Every fight comes down to the same loop: read the telegraph, take a free step out of it, attack, repeat.</p>
+  <ul class="facts">
+    <li><b>The free step solves almost every warning.</b> You get 2 free tiles of movement each turn. Boss attacks are
+      announced one at a time, and most stay where they were aimed. There is nearly always a safe tile one or two steps
+      away that still lets you attack. Your turns also come around faster than the dragons' (about 15–19 Time against
+      their 17.5–20). The last dragon revision's own review said "ordinary attacks plus free sidesteps remained sufficient".</li>
+    <li><b>Bosses fight alone.</b> Four of the six dragons have no helpers, and none of them change as the fight goes
+      on: turn six is the same fight as turn one.</li>
+    <li><b>Guardian helpers are noise.</b> They have 4–6 HP and die to any hit, then come back for free on every
+      Guardian turn. Storm Cantor and Gallows Roc act at initiative 20, against a designed 11 and 9, so they rarely act at all.</li>
+    <li><b>The rules aren't shown.</b> The Grimoire has no Guardian entries, and the pre-battle shows only tags like
+      "Raise Terrain +2". Bespoke rules live in tooltips you have to find.</li>
+    <li><b>The leader is simply the biggest HP bar.</b> At tier 1 that's a Tunnel Crawler 65% of the time. It's placed
+      like everyone else and walks straight at you.</li>
+    <li><b>Exits are a coin flip.</b> Every exit is exactly 6 tiles from your entry, and enemies are scattered around
+      them with nothing checking the result. Nothing stops an enemy or a trap from starting on the threshold.</li>
+  </ul>
+  <div class="tablewrap"><table>
+    <caption>Your local play logs, August–September (one player, mixed builds, small sample)</caption>
+    <thead><tr><th>Objective</th><th>Fights</th><th>Won</th><th>Median turns</th><th>Median HP lost</th><th>Median embers</th></tr></thead>
+    <tbody>
+      <tr><td>Defeat All</td><td>32</td><td>28</td><td>5</td><td>1.5</td><td>30.5</td></tr>
+      <tr><td>Defeat the Leader</td><td>17</td><td>14</td><td>3</td><td>3</td><td>15</td></tr>
+      <tr class="hot"><td>Reach the Exit</td><td>13</td><td>13</td><td>3</td><td>0</td><td>10</td></tr>
+    </tbody></table></div>
+  <p class="small">Leader fights end after a median of 1.5 kills. Two of the 13 escapes took a single turn. None of the
+    14 logged dragon fights ran on the current dragon revision, and only one Guardian fight was logged (an Ashen Reaver,
+    won on turn 5).</p>
+</section>
+
+<section id="rules">
+  <h2>Five rules every encounter has to pass</h2>
+  <ol class="rules">
+    <li><b>Two problems in one turn.</b> Each enemy round poses at least two threats whose answers conflict. The free
+      step can answer one of them, never both without giving up your attack.</li>
+    <li><b>The board tightens.</b> Pressure builds as the fight goes on, so dodging and waiting lose value.</li>
+    <li><b>Every mechanic has a lever.</b> Something you can see and exploit for an outsized payoff: a stagger, a self-hit,
+      a broken shield. Hard questions need good answers.</li>
+    <li><b>Show, then tell.</b> A bespoke rule is visible on the board and in one plain sentence before it can hurt you.
+      Tooltips add depth; they are never the only place a rule lives.</li>
+    <li><b>Random, within guardrails.</b> Setups stay random, but they come from authored roles and layouts, and a
+      2,000-seed sweep checks them against measured bands before they ship.</li>
+  </ol>
+</section>
+
+<section id="warband">
+  <p class="eyebrow">Defeat the Leader</p>
+  <h2>The Warband: the leader is the brain, behind a screen</h2>
+  <p>The question each fight should ask: punch through the screen now, or survive a stronger warband while you work around it?</p>
+  <div class="pair">
+    <figure><div class="board" data-board="warband-before"></div><figcaption><b>Today.</b> The leader is whoever has the
+      most HP: here a Tunnel Crawler, the closest enemy. One rush ends the fight.</figcaption></figure>
+    <figure><div class="board" data-board="warband-after"></div><figcaption><b>Proposed.</b> The Dust Acolyte commands
+      from the back row, screened by a Crawler. Followers inside its gold banner hit harder while it lives. The direct
+      route is blocked, and the way around is longer.</figcaption></figure>
+  </div>
+  <ol class="spec">
+    <li><b>Leader by role, not HP.</b> Casters and support lead first (Dust Acolyte, Grave Surgeon, Hoarfrost Seer, Gale
+      Herald, Briar Weaver, Slag Mortar, Hollow Mimic), then ranged (Bone Harrier, Frostglass Lancer), then heavies (Stone
+      Warden, Chainbound Gaoler, Glacial Mirror). Fodder never leads (Crawler, Ooze, Droplet, Tick, Wisp), and neither do
+      the immobile Capacitor or the hiders (Gloam Stalker, Burrow Grub). The pick is weighted random among the two best
+      available roles, so it varies.</li>
+    <li><b>Back line.</b> It starts 4–6 tiles from you, is never the closest enemy, and always has a follower standing
+      in its way.</li>
+    <li><b>Command.</b> Followers within 2 tiles of the leader deal +1 damage. It's shown as a gold banner on the
+      floor, and their intent numbers include the +1.</li>
+    <li><b>It keeps its distance.</b> When you get within 2, it steps back behind its screen (at most 1 tile a turn)
+      and still acts.</li>
+    <li><b>Fairer buff.</b> ×1.25 HP and Stoneskin 2/3/4 by tier, down from ×1.5 and 3/4/5. The challenge comes
+      from position, not from a sponge.</li>
+    <li><b>The warband breaks.</b> When the leader dies, the followers run for the edges and vanish, matching the
+      "the rest flee" text. Today they silently collapse, and Ember Ticks still burst. One line, one sound: "The
+      warband breaks!"</li>
+    <li><b>War chest.</b> The leader drops embers worth half of what the fleeing followers were worth. Leader rooms
+      currently pay half of a Defeat All room.</li>
+  </ol>
+  <p class="guard"><b>Guardrails (2,000 seeds per tier):</b> the leader isn't the closest enemy in at least 95% of rooms
+    and has a screen in at least 85%; no enemy type is more than 35% of a tier's leaders; reaching it takes a median deck 2–3 turns.</p>
+</section>
+
+<section id="breakout">
+  <p class="eyebrow">Reach the Exit</p>
+  <h2>The Breakout: hunters behind you, a gatekeeper at the door</h2>
+  <p>An escape should be a chase with a real route choice: the short lane past the gatekeeper, or the long way round
+    while the hunters close in. Every room is escapable in 2–4 turns, and none is a free walk-out.</p>
+  <div class="pair three">
+    <figure><div class="board" data-board="breakout-trivial"></div><figcaption><b>Today, trivial.</b> The enemies
+      landed on the far side. Six free tiles to the door; two of your 13 escapes took one turn.</figcaption></figure>
+    <figure><div class="board" data-board="breakout-walled"></div><figcaption><b>Today, walled.</b> Nothing stops a
+      Warden on the threshold, with a Gaoler, a Mirror and a Crawler stacked in front of the only door.</figcaption></figure>
+    <figure><div class="board" data-board="breakout-after"></div><figcaption><b>Proposed.</b> Crawlers start behind
+      you. A Warden and a Gaoler each hold a door. Short and contested, or long and chased.</figcaption></figure>
+  </div>
+  <ol class="spec">
+    <li><b>Roles.</b> <i>Gatekeepers</i> (Stone Warden, Chainbound Gaoler, Glacial Mirror, Briar Weaver), at most one
+      per door, start 2 tiles inside it and hold its lane. <i>Hunters</i> (Tunnel Crawler, Ash Hound, Gust Shrike, Bone
+      Harrier) start 3 tiles behind or beside you and chase.</li>
+    <li><b>Lanes.</b> Escape rooms get their own pillar and crate layouts, with two routes to each door: short past the
+      gatekeeper, or long around cover.</li>
+    <li><b>Guardrails, checked on every room.</b> If a check fails, the layout is rerolled up to 20 times, then a safe authored layout is used:
+      <ul>
+        <li>nothing starts on a threshold: no enemy, trap or loot;</li>
+        <li>every door is contested, so there's never a turn-1 route out that no enemy can reach;</li>
+        <li>at least one door has a route that a median deck clears in 2–4 turns, facing at most two attacks on the way;</li>
+        <li>no door has two gatekeepers.</li>
+      </ul></li>
+    <li><b>Gatekeepers block.</b> Gatekeepers make blocking the route to their door their main goal. Today that's only the last tie-breaker in enemy movement.</li>
+    <li><b>Clean escape pays.</b> Escaping earns half the embers of the enemies still standing. Loot sits on the
+      contested lane, so the risk pays too. Exit rooms currently pay the least of all (median 10 embers).</li>
+    <li><b>Option, your call: hold the door.</b> Reaching the threshold opens the door, and you escape at the start
+      of your next turn if you're still standing on it. That ends 1-turn escapes and makes the Gaoler's pull a real
+      threat, but it adds one enemy round to every escape. I lean yes.</li>
+  </ol>
+</section>
+
+<section id="clarity">
+  <p class="eyebrow">Shared by dragons and Guardians</p>
+  <h2>Showing the rules before they hurt you</h2>
+  <figure class="shot"><img src="mock_prebattle.jpg" alt="Pre-battle screen for Craghide with a How it fights block under the foes" loading="lazy">
+    <figcaption><b>Pre-battle, boss rooms only.</b> Three lines under the foes: the signature rule, how to beat it,
+      and what changes at half health. Ordinary rooms stay as minimal as you asked for in pb-01.</figcaption></figure>
+  <ul class="spec">
+    <li><b>Next three intents.</b> Boss rotations are fixed, so the bar under the boss's health shows the next three in
+      order. You can plan ahead: Faultline is next, so break the spires now.</li>
+    <li><b>First-sight callout.</b> The first time a bespoke rule appears in a profile, the camera settles on the tiles
+      it affects and a short card names it, says what it does and how to beat it. Any key dismisses it, and it goes
+      into the Grimoire. It never appears again unless you turn it back on.</li>
+    <li><b>Guardians become proper mini-bosses.</b> They get a compact boss bar with a signature badge and the
+      next-three strip, and the Umbra never hides them (their helpers can still hide).</li>
+    <li><b>Grimoire entries</b> for all six Guardians and their helpers; there are none today.</li>
+  </ul>
+</section>
+
+<section id="dragons">
+  <p class="eyebrow">The six dragons</p>
+  <h2>Three acts, and a cataclysm you can break</h2>
+  <figure class="shot"><img src="mock_tharokh.jpg" alt="Tharokh at half health announcing Worldbreak, with the board red except four shelter tiles beside the spires" loading="lazy">
+    <figcaption><b>Tharokh at half health.</b> Worldbreak lands next turn on every tile not beside a standing spire;
+      the four shelter tiles are marked. The Break meter under the health bar shows 5 of the 14 damage needed to cancel
+      it. The first-sight callout explains it once.</figcaption></figure>
+  <ol class="spec">
+    <li><b>Lieutenants.</b> Each dragon brings two helpers that feed its mechanic. They're worth killing, but every
+      card you spend on them isn't spent on the dragon. They don't come back in act one; one fresh lieutenant
+      joins at Wrath.</li>
+    <li><b>Wrath at half health.</b> One beat: a roar, a screen shake and the name banner. The arena changes
+      for good and the rotation gets harder for act two.</li>
+    <li><b>The cataclysm.</b> At Wrath the dragon channels its cataclysm. It hits almost the whole board next turn,
+      except the shelter its own mechanic creates.
+      <ul>
+        <li><b>Break meter:</b> 14 damage, plus 2 per section, to start; tunable. Fill it before the cataclysm lands
+          and the dragon is broken: it loses its next action and your next hit on it deals +6.</li>
+        <li>Miss it and the cataclysm lands.</li>
+        <li>If act two drags on, the cataclysm comes back as the fifth step of its rotation.</li>
+      </ul></li>
+    <li><b>The same language for all six.</b> Shelter, Break and Wrath work the same way on every dragon. You learn
+      the system once; each dragon answers it differently.</li>
+  </ol>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Dragon</th><th>Lieutenants (new job)</th><th>Wrath: cataclysm and shelter</th><th>Act two arena</th><th>Your lever</th></tr></thead>
+    <tbody>
+      <tr><th>Tharokh, the Worldspine</th><td>2 Stoneback Mites tend the spires: a Mite beside a spire repairs it 2 HP on its turn.</td>
+        <td><b>Worldbreak</b>, 14: every tile not beside a standing spire. The spires are your shelter.</td>
+        <td>The outer ring cracks to Rubble.</td><td>Spires hurt you in act one and save you in act two. Break them early, or keep a few for shelter.</td></tr>
+      <tr><th>Vyraketh, the Cinder Crown</th><td>2 Cinder Droplets leave Fire as they move, growing the field Crownfire detonates.</td>
+        <td><b>Crown of Cinders</b>, 12: every Fire tile erupts and spreads to its neighbours. Shelter: 2+ tiles from any Fire.</td>
+        <td>Its Fire stops burning out (up to 12 tiles).</td><td>Overwrite its Fire with Ice to cut the field; lure it into its own blast.</td></tr>
+      <tr><th>Vaeloryx, the Hollow Gale</th><td>2 Gust Shrikes dive across you, shoving you sideways into the wake.</td>
+        <td><b>Hollow Sky</b>: a gale drives every unit 3 tiles in one marked direction; Collisions hurt. Shelter: directly downwind of a pillar.</td>
+        <td>Standing Wind: everything slides 1 tile downwind after every enemy turn; the wind turns clockwise each round.</td><td>The wind moves its Shrikes too. Ride it, and shove them into pillars and each other.</td></tr>
+      <tr><th>Iskaldra, the Rime Tyrant</th><td>2 Rime Spitters lay Ice. Iskaldra on Ice gains a Mantle layer.</td>
+        <td><b>Absolute Zero</b>, 12: everything more than 1 tile from her. Shelter is right beside her, and Shatterstorm comes next.</td>
+        <td>The outer ring freezes to Ice (Chilled while you stand on it).</td><td>Her Mantle cancels hits, so strip the layers first; multi-hit cards shine.</td></tr>
+      <tr><th>Zekarion, the Raging Tempest</th><td>His 2 Lightning Wisps become conductors: Overload arcs through any Wisp within 2 of a charge.</td>
+        <td><b>Thunderhead</b>, 12: every Electrified tile and every chain connected to it. Shelter: tiles off the network.</td>
+        <td>His charged ground stops resetting each Skybreak (up to 12 tiles).</td><td>Kill a Wisp to cut a circuit. Your Lightning conducts through his network too.</td></tr>
+      <tr><th>Noctyrax, the Last Eclipse</th><td>His 2 Veilbound Acolytes become snuffers: an Acolyte beside a lit brazier puts it out on its next turn, shown in advance.</td>
+        <td><b>Totality</b>, 12, at 66% and 33% (the final boss gets three acts): everyone outside Light. Shelter: lit braziers and your own Light.</td>
+        <td>The Umbra closes one ring of the arena each act.</td><td>Guard and relight the braziers, kill the snuffers, bring your own Light.</td></tr>
+    </tbody></table></div>
+  <p class="small">Zekarion and Noctyrax already bring two helpers each; theirs get new jobs. Opening warnings stay at
+    clock 12. Base HP stays as it is; act two gets harder, the bosses don't get longer.</p>
+</section>
+
+<section id="guardians">
+  <p class="eyebrow">The six Guardians</p>
+  <h2>One sharp rule each, and helpers that serve it</h2>
+  <figure class="shot"><img src="mock_rimejaw.jpg" alt="Rimejaw marking the hero's tile for a pounce, with its Ice trail and the compact Guardian boss bar" loading="lazy">
+    <figcaption><b>Rimejaw's Hunt.</b> Harrowing Pounce now marks the tile it will land on, a turn ahead, at the end
+      of its Ice trail. The compact boss bar shows the signature badge and the next three intents.</figcaption></figure>
+  <ul class="spec">
+    <li><b>Signature rule.</b> Every Guardian has one always-on rule, shown as a badge on its bar and in the
+      pre-battle.</li>
+    <li><b>Finite helpers.</b> Two at the start. Replacements come only from a telegraphed Call intent, once per
+      rotation, instead of a free summon on every Guardian turn.</li>
+    <li><b>Fury at half health.</b> One sharp escalation and one banner.</li>
+    <li><b>Pace.</b> Storm Cantor and Gallows Roc go back to their designed initiative (20 now, 11 and 9 designed),
+      then get tuned from the bot runs.</li>
+  </ul>
+  <div class="tablewrap"><table class="wide">
+    <thead><tr><th>Guardian</th><th>Signature rule</th><th>Helpers' job</th><th>Fury</th><th>Your lever</th></tr></thead>
+    <tbody>
+      <tr><th>Ashen Reaver</th><td><b>Pyre</b>: its Fire lanes never burn out this fight; the yard fills up.</td>
+        <td>Ash Hounds standing on Fire are Blazing: +2 damage.</td><td>Raking Flame lays two lanes.</td>
+        <td>Executioner's Fall leaves it Exposed 3. Dodge the line, then punish.</td></tr>
+      <tr><th>Rimejaw</th><td><b>The Hunt</b>: it marks the tile it will pounce on, one turn ahead. Its trail is Ice.</td>
+        <td>Whelps' bites push you toward the mark; Spitters lay more Ice.</td><td>Pounces twice per rotation.</td>
+        <td>Make it land on its own Ice: it's Chilled, and an Ice attack Freezes it.</td></tr>
+      <tr><th>Storm Cantor</th><td><b>The Choir</b>: its Electrified ground is one network; Peal hits every connected tile.</td>
+        <td>Bell Tenders extend the network toward you.</td><td>Peal strikes two conductors.</td>
+        <td>Your Lightning conducts through its network too. Kill a Tender to cut the chain.</td></tr>
+      <tr><th>Gallows Roc</th><td><b>The Gallows</b>: it pulls you in and throws you out; every Collision you take deals +2.</td>
+        <td>Fledglings peck where you land.</td><td>Hookwind pulls 3.</td>
+        <td>Grave Dive becomes a marked line. If it misses, the Roc is Grounded: it can't move and is Exposed 3.</td></tr>
+      <tr><th>Craghide</th><td><b>Crag Armour</b>: takes half damage while touching an outcrop.</td>
+        <td>Stoneback Mites shove you toward the outcrops, into Groundsplit range.</td><td>Raises three outcrops at a time.</td>
+        <td>Break outcrops (3 HP) to strip its armour and defuse Groundsplit, or push it off its rock.</td></tr>
+      <tr><th>Last Lamplighter</th><td><b>The Vigil</b>: takes +3 damage from attacks while it stands in a brazier's Light. In darkness, its Shades rise.</td>
+        <td>Wick Shades hook you away from the Light.</td><td>Snuffs both braziers at once.</td>
+        <td>Relight braziers by stepping on them and fight it in the Light. Last Procession relights them anyway, so time your burst.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="plan">
+  <h2>Targets and build order</h2>
+  <div class="tablewrap"><table>
+    <caption>Starting difficulty bands (yours to move), measured by bots and then by your playtests</caption>
+    <thead><tr><th>Room</th><th>Turns</th><th>HP lost (of 24)</th><th>Also</th></tr></thead>
+    <tbody>
+      <tr><td>Leader and Exit rooms</td><td>3–5</td><td>3–6</td><td>no 1-turn escapes; leader screened ≥ 85%</td></tr>
+      <tr><td>Guardians</td><td>5–7</td><td>7–11</td><td>the lever used in most bot wins</td></tr>
+      <tr><td>Dragons</td><td>7–10</td><td>9–14</td><td>Wrath reached in about 95%; broken about half the time</td></tr>
+    </tbody></table></div>
+  <ol class="spec">
+    <li><b>Measure first.</b> An encounter sweep (2,000 seeds per tier) and a bot harness for all 12 bosses give
+      today's numbers before anything changes. I'll also fix the analytics gap: room type and Guardian id are built
+      but silently dropped.</li>
+    <li><b>Warband and Breakout</b>, in parallel.</li>
+    <li><b>The clarity layer:</b> How it fights, the next-three strip, first-sight callouts, Grimoire entries and the
+      Guardian boss bar.</li>
+    <li><b>Dragon framework with Tharokh as the pilot</b>, then a clip and a playtest for you, then the other five.</li>
+    <li><b>Guardian framework with Rimejaw as the pilot</b>, then the other five.</li>
+  </ol>
+  <p class="small">Every mechanic change is scored against the card balance heuristic, with its spec and scorer updated
+    together. New analytics fields are additive.</p>
+</section>
+
+<section id="questions">
+  <h2>Your calls</h2>
+  <p>Each area has its own item in the Review Inbox, so you can approve or redirect them separately.</p>
+  <ol class="qs">
+    <li><b>Warband.</b> Is "the leader is the brain behind a screen, and its followers hit harder while it lives" the
+      fight you want? Are fleeing followers and a war chest right?</li>
+    <li><b>Breakout.</b> Hunters behind you and gatekeepers at the doors: the right fantasy? Hold the door, yes or no?</li>
+    <li><b>Showing the rules.</b> Is the next-three strip welcome or too much? Is a one-time callout that waits for a key
+      OK? Do you want How it fights on boss pre-battles, given you trimmed that screen before?</li>
+    <li><b>Dragons.</b> Three acts with a breakable cataclysm for all six? Any dragon idea you'd change? Tharokh first?</li>
+    <li><b>Guardians.</b> One sharp rule each, with finite helpers? Any of the six rules you'd swap?</li>
+  </ol>
+</section>

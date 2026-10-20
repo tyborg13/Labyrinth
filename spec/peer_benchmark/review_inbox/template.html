@@ -43,6 +43,8 @@ h1 { font: 650 clamp(28px, 4vw, 40px)/1.1 var(--display); margin: 0; letter-spac
 .chip.state-warn { color: var(--warn); border-color: var(--warn); }
 h3 { font: 600 21px/1.25 var(--display); margin: 0; text-wrap: balance; }
 .look { margin: 0; max-width: 68ch; white-space: pre-line; }
+.link { color: var(--ember); font-weight: 600; text-underline-offset: 3px; }
+.link:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
 .qs { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; max-width: 68ch; }
 .code { font: 13px/1.5 var(--mono); background: var(--ground); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
 .reply, .answer { border-radius: 8px; padding: 10px 12px; max-width: 68ch; }
@@ -107,7 +109,7 @@ details[open] > summary { margin-bottom: 14px; }
     }
     return `<article class="card ${esc(it.status)}" id="item-${esc(it.id)}">${med ? `<div class="media">${med}</div>` : ""}
       <div class="content"><div class="meta">${stateChip(it)}<span>${esc(it.area || "")}</span><span>${esc(it.posted || "")}</span></div>
-      <h3>${esc(it.title)}</h3>${it.look ? `<p class="look">${esc(it.look)}</p>` : ""}${qs}${code}${answer}${reply}${form}</div></article>`;
+      <h3>${esc(it.title)}</h3>${it.look ? `<p class="look">${esc(it.look)}</p>` : ""}${it.link ? `<p class="look"><a class="link" href="${esc(it.link.url)}" target="_blank" rel="noopener">${esc(it.link.label)}</a></p>` : ""}${qs}${code}${answer}${reply}${form}</div></article>`;
   }
   function render() {
     const items = STATE.items || [];

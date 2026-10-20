@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 import runpy
@@ -11,10 +12,14 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.sfx_lab.common import decode
-from tools.sfx_lab.sync import leading_ms
-from tools.sfx_lab.sync_metrics import envelope_times
-MIX = runpy.run_path(str(ROOT / 'spec/peer_benchmark/staged/sfx/measure_mix.py'))['mmax']
+MISSING_MODULES = tuple(name for name in ("numpy", "soundfile", "scipy", "pyloudnorm")
+                        if importlib.util.find_spec(name) is None)
+AUDIO_REASON = "Missing optional modules: %s; run with /Users/borgerding/.cache/umbra-sfx/venv/bin/python." % ", ".join(MISSING_MODULES)
+if not MISSING_MODULES:
+    from tools.sfx_lab.common import decode
+    from tools.sfx_lab.sync import leading_ms
+    from tools.sfx_lab.sync_metrics import envelope_times
+    MIX = runpy.run_path(str(ROOT / 'spec/peer_benchmark/staged/sfx/measure_mix.py'))['mmax']
 TARGETS = {'empower.charge': -24, 'empower.uncharge': -30}
 LICENCES = {'empower.charge': 'Sonniss GDC Bundle licence', 'empower.uncharge': 'CC0-1.0'}
 MIX_TOLERANCE_LU = 0.05
@@ -48,6 +53,7 @@ class EmpowerSfxTests(unittest.TestCase):
                 path = ROOT / 'assets/audio/sfx/cues' / row['path']
                 self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), row['output_sha256'])
 
+    @unittest.skipUnless(not MISSING_MODULES, AUDIO_REASON)
     def test_mix_targets_and_six_db_difference(self):
         cues = read('data/sfx_cues.json')['cues']
         targets = read('spec/peer_benchmark/staged/sfx/mix_targets.json')
@@ -66,6 +72,7 @@ class EmpowerSfxTests(unittest.TestCase):
             self.assertFalse(entry.get('sync_contact_alignment', False))
         self.assertAlmostEqual(actual['empower.charge'] - actual['empower.uncharge'], 6, delta=MIX_TOLERANCE_LU)
 
+    @unittest.skipUnless(not MISSING_MODULES, AUDIO_REASON)
     def test_hash_bound_samples_meet_input_onset_and_duration(self):
         samples = read('tests/fixtures/empower_sfx_samples.json')
         self.assertEqual(len(samples), 2)

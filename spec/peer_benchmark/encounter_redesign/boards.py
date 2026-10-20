@@ -1,0 +1,42 @@
+import json
+def diamond(cx, cy, r, skip=()):
+    return [[x, y] for y in range(7) for x in range(7) if abs(x-cx)+abs(y-cy) <= r and [x, y] not in skip and (x, y) != (cx, cy)]
+PIL_A = [[1, 2], [5, 4]]
+BOARDS = {
+ "warband-before": {"alt": "Today: a Tunnel Crawler leads, closest to you",
+   "doors": [{"side": "bottom", "at": [3, 6], "entry": True}], "pillars": PIL_A, "crates": [[4, 1]],
+   "units": [{"x": 3, "y": 6, "t": "hero", "label": "You"}, {"x": 3, "y": 3, "t": "leader", "label": "Cr"},
+             {"x": 5, "y": 1, "t": "enemy", "label": "Ha"}, {"x": 1, "y": 1, "t": "enemy", "label": "Ac"}],
+   "paths": [{"kind": "short", "pts": [[3, 6], [3, 4]]}]},
+ "warband-after": {"alt": "Proposed: a Dust Acolyte commands from the back, screened",
+   "doors": [{"side": "bottom", "at": [3, 6], "entry": True}], "pillars": PIL_A, "crates": [[4, 1]],
+   "aura": diamond(3, 1, 2, skip=PIL_A + [[4, 1]]),
+   "units": [{"x": 3, "y": 6, "t": "hero", "label": "You"}, {"x": 3, "y": 1, "t": "leader", "label": "Ac"},
+             {"x": 3, "y": 3, "t": "enemy", "label": "Cr"}, {"x": 5, "y": 2, "t": "enemy", "label": "Ha"}],
+   "paths": [{"kind": "blocked", "pts": [[3, 6], [3, 4]]},
+             {"kind": "long", "pts": [[3, 6], [1, 6], [1, 5], [0, 5], [0, 1], [2, 1]]}]},
+ "breakout-trivial": {"alt": "Today, trivial: nothing between you and the door",
+   "doors": [{"side": "bottom", "at": [3, 6], "entry": True}, {"side": "top", "at": [3, 0]}, {"side": "right", "at": [6, 3]}],
+   "pillars": [[1, 3], [5, 1]], "crates": [[0, 0], [6, 6]],
+   "units": [{"x": 3, "y": 6, "t": "hero", "label": "You"}, {"x": 0, "y": 2, "t": "enemy", "label": "Wa"},
+             {"x": 1, "y": 1, "t": "enemy", "label": "Ga"}, {"x": 0, "y": 5, "t": "enemy", "label": "Cr"},
+             {"x": 1, "y": 0, "t": "enemy", "label": "Ha"}],
+   "paths": [{"kind": "short", "pts": [[3, 6], [3, 0]]}]},
+ "breakout-walled": {"alt": "Today, walled: the only door is stacked",
+   "doors": [{"side": "bottom", "at": [3, 6], "entry": True}, {"side": "top", "at": [3, 0]}],
+   "pillars": [[1, 3], [5, 3]], "crates": [[2, 1], [4, 1]],
+   "threat": [[2, 0], [4, 0], [3, 1], [2, 2], [3, 2], [4, 2], [3, 3]],
+   "units": [{"x": 3, "y": 6, "t": "hero", "label": "You"}, {"x": 3, "y": 0, "t": "enemy", "label": "Wa"},
+             {"x": 2, "y": 2, "t": "enemy", "label": "Ga"}, {"x": 4, "y": 2, "t": "enemy", "label": "Mi"},
+             {"x": 3, "y": 3, "t": "enemy", "label": "Cr"}],
+   "paths": [{"kind": "blocked", "pts": [[3, 6], [3, 4]]}]},
+ "breakout-after": {"alt": "Proposed: hunters behind you, a gatekeeper at each door, two lanes",
+   "doors": [{"side": "bottom", "at": [3, 6], "entry": True}, {"side": "top", "at": [3, 0]}, {"side": "right", "at": [6, 3]}],
+   "pillars": [[1, 2], [5, 4]], "crates": [[0, 4], [5, 1]],
+   "units": [{"x": 3, "y": 6, "t": "hero", "label": "You"}, {"x": 1, "y": 5, "t": "hunter", "label": "Cr"},
+             {"x": 5, "y": 5, "t": "hunter", "label": "Cr"}, {"x": 3, "y": 2, "t": "gate", "label": "Wa"},
+             {"x": 4, "y": 3, "t": "gate", "label": "Ga"}, {"x": 0, "y": 1, "t": "enemy", "label": "Ha"}],
+   "paths": [{"kind": "short", "pts": [[3, 6], [3, 4], [2, 4], [2, 1], [3, 1], [3, 0]]},
+             {"kind": "long", "pts": [[3, 6], [6, 6], [6, 3]]}]},
+}
+print(json.dumps(BOARDS))
