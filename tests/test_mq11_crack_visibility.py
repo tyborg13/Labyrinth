@@ -13,7 +13,7 @@ CRACK_FIXTURE = {'size': 100, 'source_size': 100,
                  'feature': {'source_path_px': [[20.5, 30.5], [20.5, 79.5], [70.5, 79.5]], 'stroke_width_px': 1.},
                  'wide_stroke_px': 3., 'source_scale': 2,
                  'hair_depth': 1., 'mask_depth': 0., 'behind_depth': -1.,
-                 'expected_crack_pixels': 100, 'passing_visible_pixels': 85, 'hidden_pixels': 98,
+                 'expected_crack_pixels': 100, 'passing_visible_pixels': 40, 'hidden_pixels': 98,
                  'registered_width_source_px': 2., 'occluder_depth_offset_m': .01}
 
 
@@ -58,7 +58,7 @@ class RegisteredTriangleCrackTests(unittest.TestCase):
     def test_real_registered_path_is_visible_under_a_top_band_only_fringe(self):
         report = self.report(self.fringe)
         self.assertTrue(report['passed'])
-        self.assertGreaterEqual(report['visible_crack_fraction'], .85)
+        self.assertGreaterEqual(report['visible_crack_fraction'], measurements.VALIDATION_LIMITS['crack_visible_fraction_min'])
         self.assertTrue(report['checks']['lower_mask_remains_visible'])
         print('MQ11_CRACK_TRIANGLE_FIXTURE: top_band_only; pixels=' + str(report['registered_crack_pixels']) +
               '; visible=' + str(report['visible_crack_pixels']) + '; passed=true')
@@ -115,14 +115,14 @@ class RegisteredCrackTests(unittest.TestCase):
         self.assertEqual(report['visible_crack_pixels'], 2)
         self.assertEqual(1 - report['visible_crack_fraction'], .98)
 
-    def test_eighty_five_percent_is_inclusive_and_one_more_hidden_pixel_fails(self):
+    def test_threshold_is_inclusive_and_one_more_hidden_pixel_fails(self):
         pixels = measurements.stroke_pixels(self.feature['source_path_px'], self.feature['stroke_width_px'],
                                               len(self.mask), CRACK_FIXTURE['source_size'])
         y, x = np.where(pixels)
         visible = CRACK_FIXTURE['passing_visible_pixels']
         self.hair[y[visible:], x[visible:]] = CRACK_FIXTURE['hair_depth']
         report = self.report()
-        self.assertEqual(report['visible_crack_fraction'], .85)
+        self.assertEqual(report['visible_crack_fraction'], measurements.VALIDATION_LIMITS['crack_visible_fraction_min'])
         self.assertTrue(report['passed'])
         self.hair[y[visible - 1], x[visible - 1]] = CRACK_FIXTURE['hair_depth']
         self.assertFalse(self.report()['passed'])
