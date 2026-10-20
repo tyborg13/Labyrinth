@@ -8,6 +8,7 @@ from cutout_pipeline.cases import read_json
 from humanoid_cutout.native_frames import stored_path
 from humanoid_cutout.capture_equivalence import native_files
 from maquette_cutout_review import plan
+from capture_production import validate_manifest
 
 FPS = 60
 IDLE_COMPARISON_SECONDS = 0.84  # Existing native writer's protagonist clock.
@@ -66,15 +67,6 @@ def native_inventory(data, layouts, idle=False):
     return files | set().union(*fields.values()), fields
 
 
-def production_counts(case, view):
-    # The case's recorded fixed-clock production inventory is authoritative,
-    # including recovery/contact samples beyond the authored clip's 60Hz reel.
-    relative = 'proof/production_logic.json' if case.name == 'rr10' else (
-        'proof/production_logic_rear/logic_frames.json' if view == 'rear' else 'proof/production_logic/logic_frames.json')
-    record = read_json(case / relative)
-    return Counter(record['stage_counts']) if 'stage_counts' in record else Counter(row['stage'] for row in record['frames'])
-
-
 def capture_sets():
     return {f'{name}/{kind}' for name in CASES for kind in ('native', 'idle_native', 'production/front')} | {
         'mortar/production/rear', 'mortar/gait_move_native'}
@@ -83,14 +75,19 @@ def capture_sets():
 def report_sets():
     return {f'{name}/native_gates.json' for name in CASES} | {
         f'{name}/native/source_space_pockets.json' for name in CASES} | {
-        f'{name}/production/{view}/production_gates.json' for name in CASES
-        for view in (('front', 'rear') if name == 'mortar' else ('front',))} | {'mortar/logs/native_gates_full.json'}
+        f'{name}/production/production_gates.json' for name in CASES} | {'mortar/logs/native_gates_full.json'}
 
 
 def exit_sets():
     return {f'{name}/native_gate_exit.json' for name in CASES} | {
-        f'{name}/production/{view}/production_gate_exit.json' for name in CASES
-        for view in (('front', 'rear') if name == 'mortar' else ('front',))}
+        f'{name}/production/production_gate_exit.json' for name in CASES}
+
+
+def legacy_production_records():
+    # r1's invalid per-folder gates are retained unchanged as historical records.
+    return {f'{name}/production/{view}/{filename}' for name in CASES
+            for view in (('front', 'rear') if name == 'mortar' else ('front',))
+            for filename in ('production_gates.json', 'production_gate_exit.json')}
 
 
 def reel_sets():
@@ -107,7 +104,7 @@ def video_inventory(path, count):
         raise ValueError('Decoded reel inventory differs: ' + str(path))
 
 
-def validate(root, project, *, gate_exits=True, decode_reels=False):
+def validate(root, project, *, gate_exits=True, decode_reels=False, production_reports=True):
     """Fail closed, including equally missing/extra evidence on both sides."""
     root = Path(root)
     captures, reports, reels = capture_sets(), report_sets(), reel_sets()
@@ -115,9 +112,13 @@ def validate(root, project, *, gate_exits=True, decode_reels=False):
     exact_set({p.relative_to(root).as_posix() for p in root.rglob('frames.json')},
               {relative + '/frames.json' for relative in captures}, root)
     exact_set({p.relative_to(root).as_posix() for p in root.rglob('*.mp4')}, reels, root)
+    legacy = legacy_production_records()
+    if not production_reports:
+        reports -= {f'{name}/production/production_gates.json' for name in CASES}
+        legacy |= {f'{name}/production/production_gates.json' for name in CASES}
     actual_reports = {p.relative_to(root).as_posix() for p in root.rglob('*.json')
                       if 'gates' in p.stem or p.name == 'source_space_pockets.json'}
-    exact_set(actual_reports, reports, root)
+    exact_set(actual_reports - legacy, reports, root)
     for relative in reports:
         report = read_json(root / relative)
         if relative.endswith('source_space_pockets.json'):
@@ -145,13 +146,7 @@ def validate(root, project, *, gate_exits=True, decode_reels=False):
                 row_set(manifest, 'frames', expected, folder)
             else:
                 rows = manifest['frames']
-                if set(row['stage'] for row in rows) != set(data['clips']):
-                    raise ValueError('Production clip inventory differs: ' + str(folder / 'frames.json'))
-                counts = Counter(row['stage'] for row in rows)
-                expected_counts = production_counts(case, kind.split('/')[-1])
-                if set(expected_counts) != set(data['clips']) or counts != expected_counts:
-                    raise ValueError('Production frame inventory differs: ' + str(folder / 'frames.json') +
-                                     '; expected ' + str(dict(expected_counts)) + ', got ' + str(dict(counts)))
+                validate_manifest(manifest, data, folder / 'frames.json')
                 expected = {f'frame_{i:05d}_{row["stage"]}.png' for i, row in enumerate(rows)}
                 row_set(manifest, 'frames', expected, folder)
                 if any(not r.get('pixels_sha256') for r in rows):
@@ -204,7 +199,7 @@ def validate(root, project, *, gate_exits=True, decode_reels=False):
         raise ValueError('Gait sheet inventory differs: ' + str(root / 'mortar/gait_move_sheet.json'))
     if gate_exits:
         actual_exits = {p.relative_to(root).as_posix() for p in root.rglob('*gate_exit.json')}
-        exact_set(actual_exits, exit_sets(), root)
+        exact_set(actual_exits - legacy_production_records(), exit_sets(), root)
         for relative in exit_sets():
             status = read_json(root / relative)
             report = relative.replace('native_gate_exit.json', 'native_gates.json').replace('production_gate_exit.json', 'production_gates.json')

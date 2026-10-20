@@ -19,6 +19,7 @@ from cutout_pipeline.cases import read_json
 from humanoid_cutout.capture_equivalence import compare, json_bytes
 from humanoid_cutout.bone_evidence import read_report
 from capture_inventory import CASES, validate, exit_sets
+from capture_production import compare_production, manifests, validate_manifest, PRODUCTION_PHASE_FIELD
 
 PROJECT = Path(__file__).resolve().parents[1]
 CAPTURE_TIMEOUT_SECONDS = 3600  # Existing Seer native proof budget.
@@ -96,13 +97,10 @@ def execute(command, env):
 def collect(output, env):
     for name, (creature, number) in CASES.items():
         case = PROJECT / 'experiments/cutouts' / creature / number
-        target = output / name
-        for view in (('front', 'rear') if name == 'mortar' else ('front',)):
-            folder = target / 'production' / view
-            manifest = read_json(folder / 'frames.json')
-            if manifest.get('ok') is not True or manifest.get('errors'):
-                raise ValueError('Capture/manifest error: ' + str(folder / 'frames.json'))
-            execute(production_gate_command(case, folder, folder), env)
+        folder = output / name / 'production'
+        for view, manifest in manifests(case, folder):
+            validate_manifest(manifest, read_json(case / 'compiled_motion.json'), folder / view / 'frames.json')
+        execute(production_gate_command(case, folder, folder), env)
 
 
 def production_gate_command(case, capture, output):
@@ -123,10 +121,9 @@ def complete_legacy_gate_exits(root, env):
         case = PROJECT / 'experiments/cutouts' / creature / number
         if not (target / 'native_gate_exit.json').is_file():
             recover_native_exit(root, target, case, creature, number, env)
-        for view in (('front', 'rear') if name == 'mortar' else ('front',)):
-            folder = target / 'production' / view
-            status = folder / 'production_gate_exit.json'
-            if status.is_file(): continue
+        folder = target / 'production'
+        status = folder / 'production_gate_exit.json'
+        if not status.is_file():
             with tempfile.TemporaryDirectory(prefix='cap01-production-gate-', dir=root.parent) as temporary:
                 evaluation = Path(temporary)
                 execute(production_gate_command(case, folder, evaluation), env)
@@ -163,14 +160,48 @@ def compare_complete(before, after, output):
     env = dict(os.environ, PYTHONPATH=str(PROJECT / 'tools'), LABYRINTH_TASK_ID=TASK_ID)
     for root in (before, after):
         performance = root / 'capture_performance.json'
-        if performance.is_file() and read_json(performance).get('gate_evidence_version') == 2:
+        if performance.is_file() and read_json(performance).get('gate_evidence_version') == 3:
             validate(root, PROJECT)
         else:
             complete_legacy_gate_exits(root, env)
         validate(root, PROJECT)
     reports |= exit_sets()
-    result = compare(before, after, reports=sorted(reports), reels=sorted(reels), captures=sorted(captures))
+    native = {relative for relative in captures if '/production/' not in relative}
+    result = compare(before, after, reports=sorted(reports), reels=sorted(reels), captures=sorted(native))
+    result['production'] = {}
+    for name, (creature, number) in CASES.items():
+        case = PROJECT / 'experiments/cutouts' / creature / number
+        production = compare_production(case, before / name / 'production', after / name / 'production',
+                                        phase_field=PRODUCTION_PHASE_FIELD)
+        result['production'][name] = production
+        result['errors'].extend(production['errors'])
+    result['ok'] = not result['errors']
     result['gate_exit_codes'] = {relative: read_json(before / relative)['exit_code'] for relative in sorted(exit_sets())}
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(result, indent=2) + '\n')
+    return result
+
+
+def validate_existing(before, output):
+    """Reuse captured evidence, repairing only r1's per-folder gate collection."""
+    validate(before, PROJECT, gate_exits=False, decode_reels=True, production_reports=False)
+    env = dict(os.environ, PYTHONPATH=str(PROJECT / 'tools'), LABYRINTH_TASK_ID=TASK_ID)
+    collect(before, env)
+    complete_legacy_gate_exits(before, env)
+    validate(before, PROJECT, decode_reels=True)
+    return write_validation_report(before, output)
+
+
+def write_validation_report(before, output):
+    result = {'ok': True, 'capture': str(before), 'production': {},
+              'phase_policy': 'finite [0,1], canonical progression span, exact named contacts',
+              'production_match_phase': PRODUCTION_PHASE_FIELD,
+              'gate_exit_codes': {relative: read_json(before / relative)['exit_code'] for relative in sorted(exit_sets())}}
+    for name, (creature, number) in CASES.items():
+        case = PROJECT / 'experiments/cutouts' / creature / number
+        data = read_json(case / 'compiled_motion.json')
+        result['production'][name] = {view: validate_manifest(manifest, data, before / name / 'production' / view / 'frames.json')
+                                      for view, manifest in manifests(case, before / name / 'production')}
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2) + '\n')
     return result
@@ -178,13 +209,27 @@ def compare_complete(before, after, output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('phase', choices=['before', 'after', 'benchmark', 'compare'])
-    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('phase', choices=['before', 'after', 'benchmark', 'compare', 'validate'])
+    parser.add_argument('--output', type=Path)
     parser.add_argument('--encoder-report', type=Path)
     parser.add_argument('--before', type=Path)
     parser.add_argument('--after', type=Path)
     parser.add_argument('--print-commands', action='store_true')
     args = parser.parse_args()
+    if args.phase == 'validate':
+        if not args.before: parser.error('validate needs --before')
+        args.before = args.before.resolve()
+        args.output = (args.output or args.before / 'capture_validation.json').resolve()
+        try:
+            validate_existing(args.before, args.output)
+        except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
+            args.output.parent.mkdir(parents=True, exist_ok=True)
+            args.output.write_text(json.dumps({'ok': False, 'errors': [str(error)]}, indent=2) + '\n')
+            print('CAPTURE VALIDATION: FAIL; ' + str(error))
+            return 1
+        print('CAPTURE VALIDATION: PASS; ' + str(args.output))
+        return 0
+    if not args.output: parser.error(args.phase + ' needs --output')
     if args.phase == 'compare':
         if not args.before or not args.after: parser.error('compare needs --before and --after')
         try:
@@ -223,13 +268,14 @@ def main():
                             'frames': count, 'bytes': size})
     collect(args.output, env)
     validate(args.output, PROJECT, decode_reels=True)
+    write_validation_report(args.output, args.output / 'capture_validation.json')
     production = {}
     for name in CASES:
         rows = [r for r in timings if r['capture'].startswith(name + '/')]
         seconds, size = sum(r['seconds'] for r in rows), sum(r['bytes'] for r in rows)
         production[name] = {'seconds': seconds, 'GB': size / 1_000_000_000,
                             'target_met': seconds < 480 and size < 1_000_000_000}
-    (args.output / 'capture_performance.json').write_text(json.dumps({'phase': args.phase, 'gate_evidence_version': 2, 'runs': timings,
+    (args.output / 'capture_performance.json').write_text(json.dumps({'phase': args.phase, 'gate_evidence_version': 3, 'runs': timings,
         'per_rig_production': production, 'size_scope': 'all production files, including full references and proof exports'}, indent=2) + '\n')
     if args.phase == 'after' and not all(row['target_met'] for row in production.values()):
         print('CAPTURE DIRECTOR AFTER: FAIL (production time/size target; see capture_performance.json)')

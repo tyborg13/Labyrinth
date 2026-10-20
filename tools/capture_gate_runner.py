@@ -15,6 +15,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(PROJECT), str(PROJECT / 'tools')]
 from cutout_pipeline.cases import read_json, write_json
 from humanoid_cutout.production_gates import production_errors
+from capture_production import combined
 from humanoid_cutout.capture_equivalence import json_bytes
 
 
@@ -75,7 +76,7 @@ def run(case, output, samples, native, script):
 
 
 def run_production(case, output, native):
-    errors = production_errors(case, read_json(native / 'frames.json'), read_json(case / 'compiled_motion.json'))
+    errors = production_errors(case, combined(case, native), read_json(case / 'compiled_motion.json'))
     write_json(output / 'production_gates.json', {'ok': not errors, 'errors': errors})
     print('CAPTURE PRODUCTION GATES: %s (%d errors; %s)' % ('FAIL' if errors else 'PASS', len(errors), native))
     return int(bool(errors))

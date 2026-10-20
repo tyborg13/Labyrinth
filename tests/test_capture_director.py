@@ -3,6 +3,7 @@ import copy
 import json
 from pathlib import Path
 import subprocess
+import shutil
 import sys
 import tempfile
 import unittest
@@ -51,7 +52,8 @@ class DirectorTests(unittest.TestCase):
                 manifest.update({field: [{'file': p} for p in sorted(paths)] for field, paths in fields.items()})
                 self.capture(name + '/' + kind, manifest, files)
             for view in (('front', 'rear') if name == 'mortar' else ('front',)):
-                frames = [{'stage': clip, 'file': f'frame_{i:05d}_{clip}.png', 'pixels_sha256': 'texture'}
+                frames = [{'stage': clip, 'file': f'frame_{i:05d}_{clip}.png', 'pixels_sha256': 'texture',
+                           'snapshot': {'clip': clip, 'phase': (i % 6) / 5, 'facing': view}}
                           for i, clip in enumerate(['idle'] * 6 + ['death'] * 6)]
                 files = {r['file'] for r in frames}
                 if name == 'mortar': files.add('prebattle_panel.png')
@@ -87,7 +89,7 @@ class DirectorTests(unittest.TestCase):
     def test_complete_inventory_accepts_failing_canonical_gates(self):
         captures, reports, reels = inventory.validate(self.proof, self.project)
         self.assertEqual(len(captures), 8)
-        self.assertEqual(len(reports), 8)
+        self.assertEqual(len(reports), 7)
         self.assertEqual(len(reels), 4)
 
     def test_empty_and_equally_missing_or_extra_artifacts_fail_with_path(self):
@@ -129,13 +131,62 @@ class DirectorTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Extra artifact: .*rogue.rgba'):
             inventory.validate(self.proof, self.project)
 
-    def test_production_counts_require_case_inventory_even_on_both_sides(self):
+    def test_production_count_can_vary_without_a_headless_table(self):
         path = self.proof / 'seer/production/front/frames.json'
         manifest = json.loads(path.read_text())
-        manifest['frames'].pop()
+        # Insert another genuine phase and regenerate only this fixture's files.
+        rows = manifest['frames']; rows.insert(2, copy.deepcopy(rows[1]))
+        rows[2]['snapshot']['phase'] = .3
+        for file in path.parent.glob('*.png'): file.unlink()
+        for i, row in enumerate(rows):
+            row['file'] = f'frame_{i:05d}_{row["stage"]}.png'
+            (path.parent / row['file']).touch()
         write_json(path, manifest)
-        with self.assertRaisesRegex(ValueError, 'Production frame inventory differs: ' + str(path)):
-            inventory.validate(self.proof, self.project)
+        inventory.validate(self.proof, self.project)
+
+    def test_validate_reuses_before_and_preserves_legacy_folder_reports(self):
+        legacy = self.proof / 'mortar/production/front/production_gates.json'
+        write_json(legacy, {'ok': False, 'errors': ['rear: missing production walk samples']})
+        previous = legacy.read_bytes()
+        with patch.object(director, 'PROJECT', self.project), patch.object(director, 'collect') as collect, \
+             patch.object(director, 'complete_legacy_gate_exits'), patch.object(inventory, 'video_inventory'):
+            report = director.validate_existing(self.proof, self.root / 'validation.json')
+        collect.assert_called_once()
+        self.assertTrue(report['ok'])
+        self.assertEqual(legacy.read_bytes(), previous)
+        self.assertEqual(report['production']['seer']['front']['idle']['frames'], 6)
+
+    def test_director_routes_production_to_phase_matching_and_compares_gate_errors(self):
+        after = self.root / 'after'; shutil.copytree(self.proof, after)
+        calls = []
+        def strict_reports(before, after, **kwargs):
+            calls.append(kwargs)
+            return compare(before, after, reports=kwargs['reports'])
+        with patch.object(director, 'PROJECT', self.project), patch.object(inventory, 'video_inventory'), \
+             patch.object(director, 'compare', side_effect=strict_reports):
+            result = director.compare_complete(self.proof, after, self.root / 'comparison.json')
+            self.assertTrue(result['ok'], result['errors'])
+            self.assertEqual(set(result['production']), {'seer', 'mortar'})
+            self.assertEqual(set(calls[0]['captures']), inventory.capture_sets() - {
+                'seer/production/front', 'mortar/production/front', 'mortar/production/rear'})
+            path = after / 'seer/production/front/frames.json'
+            manifest = json.loads(path.read_text()); manifest['frames'][1]['pixels_sha256'] = 'changed'
+            write_json(path, manifest)
+            self.assertFalse(director.compare_complete(self.proof, after, self.root / 'pixel_difference.json')['ok'])
+            shutil.copyfile(self.proof / 'seer/production/front/frames.json', path)
+            write_json(after / 'mortar/production/production_gates.json', {'ok': False, 'errors': ['changed gate error']})
+            self.assertFalse(director.compare_complete(self.proof, after, self.root / 'gate_difference.json')['ok'])
+
+    def test_validate_cli_requires_before_and_accepts_optional_output(self):
+        result = subprocess.run([sys.executable, 'tools/capture_director.py', 'validate'], cwd=PROJECT,
+                                capture_output=True, text=True)
+        self.assertEqual(result.returncode, 2)
+        self.assertIn('validate needs --before', result.stderr)
+        root = self.root / 'empty_before'; root.mkdir()
+        result = subprocess.run([sys.executable, 'tools/capture_director.py', 'validate', '--before', str(root)],
+                                cwd=PROJECT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertFalse(json.loads((root / 'capture_validation.json').read_text())['ok'])
 
     def test_failed_gate_process_is_recorded_and_sequence_continues(self):
         commands = [director.gate_command(Path('/case/rr10'), self.proof / 'seer', Path('/samples'), Path('/native'), 'hoarfrost_seer', 'rr10'), ['capture-next']]
