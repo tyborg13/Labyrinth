@@ -1,5 +1,91 @@
 # int-03 implementation handoff
 
+## Feedback 1 — current implementation
+
+The director commits `88c850052` (capture setup wait) and `8d7c20bce`
+(19-word approved-copy metadata) are preserved. This follow-up changes only
+three test files and this handoff, and remains uncommitted. No product code,
+assets, copy, motion or probe was changed. The director reports that all eight
+native-renderer targeting states pass and read correctly.
+
+1. **Permanent targeting-cache regressions** in
+   `tests/suites/card_drag_play_suite.gd` now assert the endpoint while each
+   modal is still open, before any closing motion can replace it, and after an
+   explicit suspended sync. They also deliver motion after actual play,
+   second-click cancellation and the production Pass/enemy phase. They check
+   the empty endpoint immediately after input and after layout. The turn test
+   verifies the combat turn advances, and uses the existing headless-only
+   render-boundary signal fixture.
+2. **Canonical roster coverage** in
+   `tests/suites/pre_battle_living_foes_suite.gd` derives rig identities from
+   `ActorPresentation.PROFILES` (the dedicated travel-rig roster), Guardian
+   `ACTOR_IDS`, `Presentation.CREATURES` and conditional Shrike availability.
+   Still identities come from `CutoutContext.STATIC_ENEMY_TYPES`, excluding
+   promoted rigs. The declared union must exactly equal `Data.enemies()`.
+   Maquette membership, counts and the wrapper's reported total are dynamic.
+   Renderer paths are reconstructed independently from declarations and source
+   paths; the oracle never calls any renderer selector under test. The wrapper
+   is `tests/pre_battle_living_foes_test.gd`.
+
+Focused mutation results (temporary product edits restored byte-for-byte):
+
+| Mutation | Exact result | Permanent checks that reject it |
+| --- | --- | --- |
+| Unconditional endpoint reset | `CARD DRAG PLAY TEST RESULT: FAIL (8)`; exit 1 | Map, menu, Abilities and skill choice each fail the pre-close retention and suspended-sync checks |
+| Remove selected-card observer guard | `CARD DRAG PLAY TEST RESULT: FAIL (4)`; exit 1 | Post-play, cancellation and turn-end motion all fail immediate empty-cache checks; post-play also fails after the motion frame |
+
+Logs: `/private/tmp/int-03-f1-mutation-endpoint-reset.log` and
+`/private/tmp/int-03-f1-mutation-selected-guard.log`.
+
+Roster extensibility / independent-oracle checks:
+
+- Temporarily adding `gale_herald: slag_mortar` to `CREATURES` (reuse an existing
+  rig for a headless fixture) passes with no test edits:
+  `PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)`
+  and `TEST RESULT: PASS`; exit 0. Dynamic coverage moves one still to the rig
+  set. Log: `/private/tmp/int-03-f1-rig-addition.log`.
+- Temporarily returning the Weaver adapter for Mortar is rejected: the oracle
+  reports `ERROR: Instantiated renderer Script matches the board identity: slag_mortar`,
+  `PB-01 LIVING FOES TEST: FAIL (43 identities; exact objective copy; reduced-motion rest)`
+  and `TEST RESULT: FAIL`; exit 1. Log:
+  `/private/tmp/int-03-f1-wrong-renderer.log`.
+
+Both temporary presentation edits were restored exactly.
+Final unmutated focused results (all exit 0):
+
+- `CARD DRAG PLAY TEST RESULT: PASS` — `/private/tmp/int-03-f1-drag-final.log`.
+- `PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)`;
+  `TEST RESULT: PASS` — `/private/tmp/int-03-f1-roster-final.log`.
+- `Ran 6 tests in 0.056s`; `OK` — `/private/tmp/int-03-f1-copy.log`.
+- `TEST REGISTRATION AUDIT: PASS (756 scripts; full suite=411, quarantined=29, windowed probe=316)`
+  — `/private/tmp/int-03-f1-registration.log`.
+
+`git diff --check` passes. Only the three test files and this handoff differ
+from `8d7c20bce`; both director commits and all production bytes are preserved.
+The targeting log retains existing headless resource/leak diagnostics; the
+suite and task runner both exit 0.
+
+Commands used for the focused suites, including the mutation runs:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/int-03 && python3 tools/godot_task_runner.py --task-id int-03 --stream -- godot --headless --script tests/card_drag_play_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/int-03 && python3 tools/godot_task_runner.py --task-id int-03 --stream -- godot --headless --script tests/pre_battle_living_foes_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/int-03 && python3 -m unittest tests.text_budget_test
+cd /Users/borgerding/workspace/Labyrinth.worktrees/int-03 && python3 tools/test_registration_audit.py
+```
+
+No full suite, windowed run, peer review or Git mutation was requested or run
+in this follow-up. New chosen default: test-only
+`TURN_END_POINTER_FIXTURE_SEED = 93120`; all other fixture coordinates and
+render-boundary behavior are reused. No `TODO_DESIGN_*` was introduced.
+The former word-budget conflict in the historical report below is resolved by
+the director's approved 19-word copy and metadata; this worker did not alter it.
+
+## Original-round record (historical)
+
+The remaining sections record the original implementation and its then-current
+proof results. They precede the director commits and feedback-1 work above.
+
 All changes are uncommitted on `codex/int-03`. The design owner owns committing,
 peer review, renderer inspection, the inspection fixture and publication.
 No windowed run, peer review, commit, branch change, queue edit or publication

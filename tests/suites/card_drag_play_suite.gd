@@ -10,6 +10,7 @@ const PLAYER_TILE := Vector2i(2, 4)
 const TARGET_TILE := Vector2i(3, 4)
 const INVALID_TILE := Vector2i(6, 6)
 const NO_TARGET_TILE := Vector2i(-1, -1)
+const TURN_END_POINTER_FIXTURE_SEED: int = 93120
 
 
 static func run(expect: Callable) -> void:
@@ -108,6 +109,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_targetless_board_and_outside_releases(tree, expect)
 	await _test_click_targeting_regression(tree, expect)
 	await _test_click_targeting_arrow_and_hover_suppression(tree, expect)
+	await _test_turn_end_clears_pointer_endpoint(tree, expect)
 	await _test_controller_first_card_press_enters_shared_targeting(tree, expect)
 	await _test_controller_targeting_reuses_shared_arrow(tree, expect)
 	await _test_modal_controller_handoff_suspends_targeting_cursors(tree, expect)
@@ -490,6 +492,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	instance.call("_open_large_map")
 	await tree.process_frame
 	expect.call(int(instance.get("_selected_card_index")) == 0, "Opening a non-destructive modal should preserve the selected card")
+	_assert_modal_endpoint_retained(instance, target_position, expect, "Map")
 	expect.call(arrow != null and not arrow.visible, "A modal should suspend the targeting arrow while it owns the pointer")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "A modal should restore the forged pointer even though targeting remains selected behind it")
@@ -505,6 +508,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	instance.call("_open_menu_overlay")
 	await tree.process_frame
 	expect.call(int(instance.get("_selected_card_index")) == 0 and arrow != null and not arrow.visible, "Button-opened menus should suspend targeting without discarding the selected card")
+	_assert_modal_endpoint_retained(instance, target_position, expect, "Menu")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Button-opened menus should never inherit the targeting cursor suppression")
 	# The modal may own input while the pointer returns from HUD to board.
@@ -522,6 +526,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	var skill_status_scrim: Control = instance.get("_skill_status_scrim") as Control
 	expect.call(skill_status_scrim != null and skill_status_scrim.visible, "The Abilities popover fixture should open while a card remains selected")
 	expect.call(int(instance.get("_selected_card_index")) == 0 and arrow != null and not arrow.visible, "Abilities should suspend click targeting without discarding the selected card")
+	_assert_modal_endpoint_retained(instance, target_position, expect, "Abilities")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Abilities should restore the forged pointer while its popover owns input")
 	# The modal may own input while the pointer returns from HUD to board.
@@ -543,6 +548,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	var skill_choice_scrim: Control = instance.get("_skill_choice_scrim") as Control
 	expect.call(skill_choice_scrim != null and skill_choice_scrim.visible, "The skill-choice fixture should open a valid option modal")
 	expect.call(int(instance.get("_selected_card_index")) == 0 and arrow != null and not arrow.visible, "Skill choices should suspend click targeting without discarding the selected card")
+	_assert_modal_endpoint_retained(instance, target_position, expect, "Skill choice")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Skill choices should restore the forged pointer while the modal owns input")
 	# The modal may own input while the pointer returns from HUD to board.
@@ -577,6 +583,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	expect.call(_enemy_hp(instance) < enemy_hp_before and not _hand(instance).has("lantern_shot"), "A legal click-arrow target should resolve the selected card through the normal click path")
 	expect.call(str(instance.get_meta("last_card_play_source_kind", "")) == "hand" and _last_play_source_inside_hand(instance), "Click-arrow play should retain the normal hand-origin launch")
 	expect.call(arrow != null and not arrow.visible, "Playing through click targeting should clear the shared arrow")
+	await _assert_inactive_endpoint_stays_empty(tree, instance, target_position, expect, "Played card")
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Card resolution should restore the forged pointer after the targeting arrow clears")
 	instance.queue_free()
@@ -593,6 +600,7 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	await tree.process_frame
 	expect.call(int(cancel_instance.get("_selected_card_index")) == -1 and _hand(cancel_instance).has("lantern_shot"), "A second click on a targeted card should retain the existing cancel behavior")
 	expect.call(cancel_arrow != null and not cancel_arrow.visible, "Targeted-card second-click cancellation should clear the arrow")
+	await _assert_inactive_endpoint_stays_empty(tree, cancel_instance, _tile_global_position(cancel_instance, enemy_tile), expect, "Cancelled card")
 	hand_box = cancel_instance.get("hand_box") as Control
 	expect.call(hand_box != null and int(hand_box.call("emphasized_index")) == -1, "Targeted-card cancellation should release the selected-card hand pose")
 	cursor_feedback = tree.root.get_node_or_null("CursorFeedback")
@@ -626,6 +634,46 @@ static func _test_click_targeting_arrow_and_hover_suppression(tree: SceneTree, e
 	await tree.process_frame
 	if cursor_feedback != null and cursor_feedback.has_method("glyph_visibility_suppressed"):
 		expect.call(not bool(cursor_feedback.call("glyph_visibility_suppressed")), "Leaving the scene during active targeting should release forged-pointer suppression")
+
+
+static func _assert_modal_endpoint_retained(instance: Node, expected: Vector2, expect: Callable, context: String) -> void:
+	expect.call(bool(instance.call("_controller_modal_visible")) and int(instance.get("_selected_card_index")) >= 0, context + " endpoint proof requires a still-open modal and selected card")
+	# Check while suspended, before another motion event can repopulate a cache
+	# incorrectly erased by the opening/layout callbacks or this explicit sync.
+	expect.call((instance.get("_card_targeting_pointer_position") as Vector2).is_equal_approx(expected), context + " keeps the selected endpoint while the modal is still open")
+	instance.call("_sync_click_targeting_arrow")
+	expect.call((instance.get("_card_targeting_pointer_position") as Vector2).is_equal_approx(expected), context + " suspended sync preserves the selected endpoint before closing")
+
+
+static func _assert_inactive_endpoint_stays_empty(tree: SceneTree, instance: Node, point: Vector2, expect: Callable, context: String) -> void:
+	var empty_endpoint := Vector2(-1.0, -1.0)
+	expect.call(int(instance.get("_selected_card_index")) == -1 and instance.get("_card_targeting_pointer_position") == empty_endpoint, context + " clears selection and its cached endpoint")
+	# Assert immediately after delivery as well as after layout. A deferred
+	# reset must not conceal an unguarded observer writing without a selection.
+	_move_pointer(tree, point)
+	expect.call(instance.get("_card_targeting_pointer_position") == empty_endpoint, context + " mouse motion cannot repopulate an inactive endpoint")
+	await tree.process_frame
+	expect.call(instance.get("_card_targeting_pointer_position") == empty_endpoint, context + " endpoint remains empty after the motion frame")
+
+
+static func _test_turn_end_clears_pointer_endpoint(tree: SceneTree, expect: Callable) -> void:
+	var instance: Node = await _live_instance(tree, expect, "lantern_shot", TARGET_TILE, TURN_END_POINTER_FIXTURE_SEED)
+	if instance == null: return
+	await instance.call("_on_card_pressed", 0)
+	var point: Vector2 = _tile_global_position(instance, TARGET_TILE)
+	_move_pointer(tree, point)
+	expect.call(int(instance.get("_selected_card_index")) == 0 and (instance.get("_card_targeting_pointer_position") as Vector2).is_equal_approx(point), "Turn-end endpoint proof starts with a selected card and populated cache")
+	# Supply only the missing headless render boundary, as in the existing
+	# movement-undo Pass fixture; the production turn-ending path still runs.
+	var turn_before: int = int((instance.get("_combat_state") as Dictionary).get("turn", 0))
+	var headless_render_boundary: Callable = func() -> void: RenderingServer.frame_post_draw.emit()
+	if DisplayServer.get_name() == "headless": tree.process_frame.connect(headless_render_boundary)
+	await instance.call("_on_pass_turn_pressed")
+	if tree.process_frame.is_connected(headless_render_boundary): tree.process_frame.disconnect(headless_render_boundary)
+	expect.call(int((instance.get("_combat_state") as Dictionary).get("turn", 0)) > turn_before, "Turn-end endpoint proof completes the production Pass/enemy phase")
+	await _assert_inactive_endpoint_stays_empty(tree, instance, point, expect, "Ended turn")
+	instance.queue_free()
+	await tree.process_frame
 
 
 static func _test_controller_first_card_press_enters_shared_targeting(tree: SceneTree, expect: Callable) -> void:

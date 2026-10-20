@@ -10,7 +10,7 @@ func _initialize() -> void:
 func _run() -> void:
 	preload("res://tests/suites/combat_objective_suite.gd").run(_expect)
 	await Suite.run(_expect)
-	print("PB-01 LIVING FOES TEST: %s (43 identities; exact objective copy; reduced-motion rest)" % ("FAIL" if failed else "PASS"))
+	print("PB-01 LIVING FOES TEST: %s (%d identities; exact objective copy; reduced-motion rest)" % ["FAIL" if failed else "PASS", preload("res://scripts/game_data.gd").enemies().size()])
 	print("TEST RESULT: %s" % ("FAIL" if failed else "PASS"))
 	quit(1 if failed else 0)
 
