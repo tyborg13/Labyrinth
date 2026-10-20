@@ -10,7 +10,7 @@ case "$stage" in
 density)
 python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 180 tests/rr10/density_rebake.gd -- --only hoarfrost_seer_cutout
 python3 tools/process_board_density.py --record-rests --only hoarfrost_seer_cutout
-python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script tools/generate_unit_shadow_cache.gd
+python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script tests/rr10/shadow_refresh.gd
 python3 tools/process_board_density.py --check --only hoarfrost_seer_cutout
 python3 experiments/cutouts/hoarfrost_seer/rr10_density.py seal
 ;;

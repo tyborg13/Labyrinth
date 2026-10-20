@@ -28,6 +28,7 @@ def program_paths(path: str) -> tuple[str, ...]:
 
 
 PYTHON_PROGRAMS = {"tests/maquette_cutout/capture_storage_test.gd": "tests/test_native_frames.py",
+                   "tests/maquette_cutout/production_crop_plan_test.gd": "tests/test_production_crop_plan.py",
                    "tests/program_suite_runner_test.gd": "tests/test_program_suite_runner.py",
                    "tests/maquette_cutout/reference_mask_test.gd": "tests/test_maquette_native_alpha.py"}
 
