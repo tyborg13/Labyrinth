@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "id": "slag_mortar",
+  "base_recipe_sha256": "4bb28f8cd7691b8a709fa24debbedf68feb721f9afa768bd691c7e05352c77ce",
+  "design": {
+    "belt": {
+      "forward_radius_m": 0.23,
+      "lateral_radius_m": 0.38,
+      "height_m": 0.07,
+      "hip_width_m": 0.7
+    },
+    "front": {
+      "rows": [
+        {
+          "drop_fraction": 0.0,
+          "width_fraction": 1.0,
+          "forward_offset_m": 0.0,
+          "curve_m": 0.0
+        },
+        {
+          "drop_fraction": 0.3,
+          "width_fraction": 0.97,
+          "forward_offset_m": 0.012,
+          "curve_m": 0.03
+        },
+        {
+          "drop_fraction": 0.65,
+          "width_fraction": 0.92,
+          "forward_offset_m": 0.02,
+          "curve_m": 0.045
+        },
+        {
+          "drop_fraction": 1.0,
+          "width_fraction": 0.86,
+          "forward_offset_m": 0.018,
+          "curve_m": 0.04
+        }
+      ]
+    },
+    "rear": {
+      "rows": [
+        {
+          "drop_fraction": 0.0,
+          "width_fraction": 1.0,
+          "forward_offset_m": 0.0,
+          "curve_m": 0.0
+        },
+        {
+          "drop_fraction": 0.35,
+          "width_fraction": 0.82,
+          "forward_offset_m": 0.012,
+          "curve_m": 0.025
+        },
+        {
+          "drop_fraction": 0.7,
+          "width_fraction": 0.72,
+          "forward_offset_m": 0.016,
+          "curve_m": 0.03
+        },
+        {
+          "drop_fraction": 1.0,
+          "width_fraction": 0.66,
+          "forward_offset_m": 0.014,
+          "curve_m": 0.025
+        }
+      ],
+      "front_length_ratio": 0.8
+    }
+  }
+}
