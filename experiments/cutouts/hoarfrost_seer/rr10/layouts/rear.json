@@ -119295,5 +119295,71 @@
       "bone": "foot_far",
       "file": "seams/rear_foot_far.png"
     }
-  ]
+  ],
+  "gait_continuations": {
+    "torso": {
+      "donor": "torso",
+      "texels": [
+        [
+          69,
+          27,
+          69,
+          28
+        ],
+        [
+          70,
+          27,
+          69,
+          28
+        ]
+      ],
+      "clips": [
+        "mark"
+      ]
+    },
+    "hidden_torso": {
+      "donor": "torso",
+      "texels": [
+        [
+          11,
+          70,
+          8,
+          63
+        ],
+        [
+          10,
+          71,
+          8,
+          63
+        ],
+        [
+          11,
+          71,
+          8,
+          63
+        ],
+        [
+          9,
+          72,
+          8,
+          63
+        ],
+        [
+          10,
+          72,
+          8,
+          63
+        ],
+        [
+          11,
+          72,
+          8,
+          63
+        ]
+      ],
+      "clips": [
+        "mark"
+      ]
+    }
+  }
 }

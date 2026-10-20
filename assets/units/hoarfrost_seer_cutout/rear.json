@@ -118951,5 +118951,71 @@
   },
   "rest_source": "humanoid_v2/rear/rest.png",
   "motion_data": "res://assets/units/hoarfrost_seer_cutout/humanoid_v2/compiled_motion.json",
-  "rest_source_sha256": "ed088952f4716dc80ffaa28eb6cdcda9e782a6edf8e4a80bcfe90931d30bcd6a"
+  "rest_source_sha256": "ed088952f4716dc80ffaa28eb6cdcda9e782a6edf8e4a80bcfe90931d30bcd6a",
+  "gait_continuations": {
+    "torso": {
+      "donor": "torso",
+      "texels": [
+        [
+          69,
+          27,
+          69,
+          28
+        ],
+        [
+          70,
+          27,
+          69,
+          28
+        ]
+      ],
+      "clips": [
+        "mark"
+      ]
+    },
+    "hidden_torso": {
+      "donor": "torso",
+      "texels": [
+        [
+          11,
+          70,
+          8,
+          63
+        ],
+        [
+          10,
+          71,
+          8,
+          63
+        ],
+        [
+          11,
+          71,
+          8,
+          63
+        ],
+        [
+          9,
+          72,
+          8,
+          63
+        ],
+        [
+          10,
+          72,
+          8,
+          63
+        ],
+        [
+          11,
+          72,
+          8,
+          63
+        ]
+      ],
+      "clips": [
+        "mark"
+      ]
+    }
+  }
 }

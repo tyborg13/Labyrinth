@@ -18,12 +18,13 @@ python3 -B experiments/cutouts/storm_capacitor/rr17_review.py --native "$native"
 # the native gate before recording density, rather than inventing a rebake.
 python3 -B experiments/cutouts/storm_capacitor/rr17_release.py seal-rest --native "$native"
 python3 tools/process_board_density.py --only storm_capacitor_cutout --check
-python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow.gd
 if [ -n "${RR17_SHADOW_BASELINE:-}" ]; then
     cp "$RR17_SHADOW_BASELINE" "$rig_case/proof/logs/shadow_baseline.res"
 else
-    git show eafe1715d:assets/generated/unit_shadow_cache.res > "$rig_case/proof/logs/shadow_baseline.res"
+    # Pin both committed Capacitor records before refreshing the cache.
+    git show HEAD:assets/generated/unit_shadow_cache.res > "$rig_case/proof/logs/shadow_baseline.res"
 fi
+python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow.gd
 python3 tools/godot_task_runner.py --task-id "$task_id" --stream -- godot --headless --path . --script experiments/cutouts/storm_capacitor/rr17_shadow_check.gd -- --baseline "$rig_case/proof/logs/shadow_baseline.res"
 python3 tools/visual_probe_runner.py --task-id "$task_id" --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract tests/rr17/production_contract.json tests/rr17/production_capture.gd -- --type storm_capacitor --output "$production"
 python3 -B experiments/cutouts/storm_capacitor/rr17_gates.py production --input "$production/frames.json" --output "$production/verification.json"

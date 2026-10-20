@@ -1,0 +1,1351 @@
+{
+  "ok": true,
+  "base_revision": "370ab4b13b298b4a32bc1670f4c36916541850da",
+  "pose_rows": 1008,
+  "raw_pose_rows_identical": true,
+  "raw_before_sha256": "6ec2fbbc81230000d1da4d19b4fc3d67467282e8b15e6f2bc2019da066d505d0",
+  "raw_after_sha256": "6ec2fbbc81230000d1da4d19b4fc3d67467282e8b15e6f2bc2019da066d505d0",
+  "committed_raw_pose_sha256": "6ec2fbbc81230000d1da4d19b4fc3d67467282e8b15e6f2bc2019da066d505d0",
+  "baseline_samples_sha256": "7ba57f6cca08b5b7e390a44157976c6cad36f69aba4169b35fb010582b5c8976",
+  "protected_files": {
+    "experiments/cutouts/hollow_mimic/rr20/anatomy.json": {
+      "sha256": "28ec49b9728a4f68cf3e3b994dd6fb69723725ebf93f26538b0115c617945bc9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/foot_far.png": {
+      "sha256": "d683d5f489c3ec30ff110294e9c2018b49c383495e036d804392c2baf8485277",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/foot_far_hidden.png": {
+      "sha256": "86dfa6b6e5b36e9afd3187eb51362fb43c68891f8da7a26c3ba519895575b7f5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/foot_near.png": {
+      "sha256": "910fb672a255e4ef40fdc14b47673f6e8107c6d58377e81efc02eeb0ac068550",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/foot_near_hidden.png": {
+      "sha256": "d38d3ceb180672edde1f19ac315ddcae87a67cc30cdf6a235ed1d3e947594ce3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/hand_far.png": {
+      "sha256": "3d24d81330b90553fd6f6e0eadcf7c7517377e2f5c3d7f67b9220813792d0746",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/hand_far_hidden.png": {
+      "sha256": "7e86a7f6a378fc94b0cd8b8cbcb100248e62b801605feb754a903868bfb75fff",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/hand_near.png": {
+      "sha256": "93809ba27626d712017141a7059957e48e5b3514e05554ef6d0ae5ad562159e7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/hand_near_hidden.png": {
+      "sha256": "fe075ce83fcdf75256e3fd5ef854f3ca48e495966684ece8370c66cbee5bf62a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/head.png": {
+      "sha256": "8a2710c34574a4c535feebef71f05e580d1e3435feae4d6da2f1f74e323e6784",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/head_hidden.png": {
+      "sha256": "06c66feed045eb046732798b987f7334f2de05fdb3f2feb1fba2ffd1461729c9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/leg_far.png": {
+      "sha256": "89760dbfafbfeb29816da70992ab037116c89b90d9f7d5c6d0fd3c8be6a8aaea",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/leg_far_hidden.png": {
+      "sha256": "63613f6b4f34ad6f6e0c5157630eeebe8fdd1e6abd1eee41bc69e62a27fe32c7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/leg_near.png": {
+      "sha256": "e83af59947a5b08bd71f391106b5c78ee83daa6080a4e205ac746880a4f856dd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/leg_near_hidden.png": {
+      "sha256": "968a1e385f126f7edfda29fca97dfcb1737d329bd95c13f2ccbcc0e9ac705d95",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/pelvis.png": {
+      "sha256": "85379bd98f98dea279a940b7c992655b2a39ca68aeebe8672a81d2bf24a5773d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/pelvis_hidden.png": {
+      "sha256": "fbf50808dd81ee440f973c66e92b8ad850297337142b03fd09a23f2a09f935b4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/sleeve_far.png": {
+      "sha256": "1c2387f06375f9e4e12b035fb12a7329724f48e11db35fbbf841639be4b93b4d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/sleeve_far_hidden.png": {
+      "sha256": "d7a9538e32e3bff5406b5cc2790ebf26cb12d4302fa4f1bd00e3fe8f1d47c102",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/sleeve_near.png": {
+      "sha256": "f2a76ab95d3e82f69f1819ebd5dfd44189be3f57598b2602f51f979d8edf8107",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/sleeve_near_hidden.png": {
+      "sha256": "c59614361eb8f75eea47e533b3ddf2359a3b9e84d5daa55c56012bad0b336708",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/torso.png": {
+      "sha256": "a3460b59cc5d3944ecc04d804483eb40473076ac38b25e4243313a048f4a081a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/front/torso_hidden.png": {
+      "sha256": "fe13f6ced05092f7c03f9200e53e60027545b286e6f54e76a9f5495330e63fc8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/foot_far.png": {
+      "sha256": "921e9e385c05ac1c52a391fe9121e947a18fba30d2e10e15d455641543da9847",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/foot_far_hidden.png": {
+      "sha256": "3a08a1d69f7ec3571c284bd24db802c0c872e5a2e1db19bb48bcfbca9cbacfa7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/foot_near.png": {
+      "sha256": "c8b07c648ee6c07bd28eb2eb2cb9451248689b3735b75db234fbceff7a031df9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/foot_near_hidden.png": {
+      "sha256": "fb5cec5b1b3de4ce415c9785558db3e2882d59f02bae4dbb57a7d4165cb7410e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/hand_far.png": {
+      "sha256": "43bf5027626bb93ab7ed2e1d17c413782ff812b6de21808a5f594003a93469af",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/hand_far_hidden.png": {
+      "sha256": "ec5d09fefb8a6875be4131bafadc5b62003d7868f264e76103a84d822b77dde2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/hand_near.png": {
+      "sha256": "d3b4c4cf3814e327106c22c1e6dd4ad63d86717f1d0af34bc21f4604635ce026",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/hand_near_hidden.png": {
+      "sha256": "39414ea949065a17cd8ce65b6e9795f71e47b467dbb3ee177c6bbdd4b31a713a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/head.png": {
+      "sha256": "fc8d9478e96ca4444a5a69e3f65ef28abcb46557285fde1aa20425d08da8dee7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/head_hidden.png": {
+      "sha256": "63c1bf542281e553bf32f05f25dff9307f263f6e17164b2bb9263d362919809d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/leg_far.png": {
+      "sha256": "002a74f75a3dd10ffb04b33ffb8f9d779efcaf79af19c9e28a11a849d018236b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/leg_far_hidden.png": {
+      "sha256": "9e7154f131bdf51fc2ddabe4c8d3efaaeeb822dbf35d0d0307fab99c7b6f7470",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/leg_near.png": {
+      "sha256": "ea571de194bc77664f68afcd75dee76c4aa11a2cd42a8e1659521994892b65e0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/leg_near_hidden.png": {
+      "sha256": "91d0b3956c16d160946acd12a5c8436f218348b63928989be27feea08d5bd789",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/pelvis.png": {
+      "sha256": "5ad5da388e250fc24aec69027597212fff372433e3b495fef4d72f72fc8be141",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/pelvis_hidden.png": {
+      "sha256": "c318c8d8ae33ffa646c95f956e35b70b43421990de166472866bcfb335776be4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/sleeve_far.png": {
+      "sha256": "d2ad44cdc2db253fbf5db30e484338b3b25953b68c8598673863810820466b14",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/sleeve_far_hidden.png": {
+      "sha256": "75c3839d9feaa06833bfb801f9dae39fd61bf8c34db8c9bdc0dc2a2c5b89ee16",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/sleeve_near.png": {
+      "sha256": "18c2cdb0222d643f0452e65d9a9d280dcd2ebcbce31bc173267d5caa4e714542",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/sleeve_near_hidden.png": {
+      "sha256": "fed4d37d9f622a38c9e0f164e94844ad6ab5f049cc5ee6b70ccc1b4569e2a818",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/torso.png": {
+      "sha256": "b01dd870f2af3ed8a4c99f2526fc7f741f361a40772f1cef692689011a583a49",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/checks/rear/torso_hidden.png": {
+      "sha256": "f91fa514027774bb758ed80c5149b8e07fccea090e0791d396618c4f8031df65",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/compiled_motion.json": {
+      "sha256": "33d41730cea68af609899fc97a8c4c63b449926b9784d1fedc9dc850cad6d8c4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/director_motion.json": {
+      "sha256": "c0f1ef683f22cb63ef9ad1430560d88e6dd9da378828fca0e793add0ccea28ac",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/features/front_violet_crack.png": {
+      "sha256": "68f67f3fefac72857e2e74b3d58cf30b466992b720c2bec8a31652b666767a10",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/features/front_violet_crack_native.png": {
+      "sha256": "2f2fab9cf22a2770ac5fbf81b524475b04c837a0cbc88e4238d90a299c7322ed",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/foot_far.png": {
+      "sha256": "8d75170ff4bfc7c0f9ccdf869c58a698aca9c9ea3326694e32ddde5847c87e88",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/foot_near.png": {
+      "sha256": "26ceecc320229dd163da532b936d0d0e9c9eaf378177370f66c50ea6a6a08c3b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/fore_far.png": {
+      "sha256": "d3323706767e5267586244af1aa3f1d4eb61805a1bc645fddcb6d48d20fee24c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/fore_near.png": {
+      "sha256": "dfa02bbe42661a08fd3371bb33f845490073f1edd6300c0a489293260511c694",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/hand_far.png": {
+      "sha256": "ce4b8d990f16b100cb6e13ae7ab099606e57fb0b7fc0edb254c5453ceb023bee",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/hand_near.png": {
+      "sha256": "1f01efe876ce090f774c52b612a8164ac6e4fe7b8a144e150eb36a30d8c0c1a0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/head.png": {
+      "sha256": "f81d154e0a3c204a4aa58bac8c62537dd9895746e1afd27afc19bf86aa42e46b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/pelvis.png": {
+      "sha256": "2ed6a074898977f89353134eb3ec82fddce7068489f199dccba14b33d6f13206",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/shin_far.png": {
+      "sha256": "9a90057c46de41e2962c25acda3e3ae70624de435a48a722015ddf2d7933d6c9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/shin_near.png": {
+      "sha256": "c7304b78bd09363b15595aa350197db833e85ce913f9773e7704ae25ff310483",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/thigh_far.png": {
+      "sha256": "a2f720ced70487bd0ed2c120c72efdabed011f5b477dc50c4b7ce5d7be6deba7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/thigh_near.png": {
+      "sha256": "0cc9f25d406f53a08f3715e8903543b0e7b706d4cf3567fc6436aa94ddf561e5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/torso.png": {
+      "sha256": "860088c55a14dd6ceb33cfc9d3889d1f2e209745806d0805155e2d5d0a071b1f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/upper_far.png": {
+      "sha256": "e89f58ffde0004c0022553ad9c1dab944aff11875bb9ea6782cbacd4cef26629",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/pieces/front/upper_near.png": {
+      "sha256": "a550d2a581b9d0bd1368fced6f6ce34e6562a071eb0c3b141a17cc117b04b497",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_parts.png": {
+      "sha256": "47510a99214f937b01350e1a70e634c09879d63b5d40ee9dbeeb4580aadf77d9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_foot_far.png": {
+      "sha256": "4d46c8006337412ff319f304ed59ed9c56b000f1f2f269340dafb7803d36369d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_foot_near.png": {
+      "sha256": "7d265aeec19ab10d0b0d8da61760da86b63dc7ec0b5ad4cceb054c005d5fcf26",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_fore_far.png": {
+      "sha256": "650d79e2ce95a92f250289507bdbee0e3242878d62bc3a471dec527f216c7a1f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_fore_near.png": {
+      "sha256": "480e2ec0623516bf87c4cb722cf8ae7f996d966c323dc2b72d3c966c63b5cd41",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_hand_far.png": {
+      "sha256": "1f32c76aa9a4ae66ecc66f248dd09d15f1ece1b87c9f12b12c9cc5634fbf3151",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_hand_near.png": {
+      "sha256": "ec36e13285e1862850911b5d992c975a5ee3a49c04c7e83332b50a8cb52f581c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_head.png": {
+      "sha256": "3efabdf72b56df0fca2ac927b6ef013a578f4a0de05f268c65f7c675ee5ed7df",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_pelvis.png": {
+      "sha256": "754252d1a5eca33fadf7da2e9615ba5e98fafd44b1abfebe422eebc85cd1aa81",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_shin_far.png": {
+      "sha256": "c2738ce3597f5f713238598dbe8d8f7f47c4db711ff85c3c4c305a26b58d7be6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_shin_near.png": {
+      "sha256": "014368194a023b2e6e2493988171628e0e3bbc65b23d4979b6e3517f8206980a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_thigh_far.png": {
+      "sha256": "9dbaaf1febaf4a3711fe961f1bce6554a370680118e5e9263389057713760f87",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_thigh_near.png": {
+      "sha256": "b9809e538014a5cb2cb1c9c8b965ba56699516862de60812572b5933419b949b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_torso.png": {
+      "sha256": "ff1830300cb86a24bfec1b1dba1aed20cc7e2ed7348c6f99dbee7bcc6f7f58bb",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_upper_far.png": {
+      "sha256": "e9be72e447345dbb2a4d7f43c76acb6fc00c00e4f03abc60a3841c3913766165",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/registered/front_solo_upper_near.png": {
+      "sha256": "b34bebb455275c91db6dbd0bfff6f1864d9da840a4cee71420e5989bee08ddd2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/source/front/processed.png": {
+      "sha256": "16b177d8ad516cfa5b11a9607f6c898934bff234c579bafef7e553df571fb138",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/front_baseline/source/front/raw.png": {
+      "sha256": "54a7ac1250d79f00181b1bf2addd82cfb606cd595c97951d11892bf4c9758935",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/front_00.png": {
+      "sha256": "8c52a8baa607b7757a7e17bdad9a6772d42de257c03abb7bf94e1a12821c1b30",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/front_01.png": {
+      "sha256": "4db20795717368c78dc3255e6f17b9a71005848c002036128ac9cedf1c55e8e8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/front_02.png": {
+      "sha256": "29818ec926601076b3137831f79c71c191b0c954d669264e1d7c6d977348f51b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/front_03.png": {
+      "sha256": "77e538e34a48f778b38105667e97e384da957995cdcbd8d2c1d7632ffd303638",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/rear_00.png": {
+      "sha256": "5ce93a8a6059a584b4dcc380f7ecf1eaa21af3c5216b5f94065eeff0a7d76fc6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/rear_01.png": {
+      "sha256": "78b06f9d674d839b881032515257e4eceeca2508a538cc435fefb38de8420267",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/rear_02.png": {
+      "sha256": "d6c8d09bb90da20f978fc9fc3d3040dc5fa44789f2ef1a882f590f28304d4647",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/rear_03.png": {
+      "sha256": "8462bc78f20d694082fab65678212f2953b9b7b0ec6e121b2402ef1d47739497",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/holes/rear_04.png": {
+      "sha256": "ca206b1974062db7cfc062fcd9f6ea5c52dbf10119e6f4873aeb03319ef48171",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/inputs.json": {
+      "sha256": "08d045cc766e7db8817f9b5715258887ca056de36d9d9986d43feae766a2a462",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/foot_far.png": {
+      "sha256": "7fec53f5b239c7dba74283300ea53f805630611fe91ff7e51454389cd41191ee",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/foot_near.png": {
+      "sha256": "3389d0a1a8ed8e0ce3a159bd03b42ac37eee9244cffd992c55c02cc555a83eef",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/hand_far.png": {
+      "sha256": "925da21f441e49c3f26fd04f547708c96ca67f4d62e39c9f2a0e57cf53153422",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/hand_near.png": {
+      "sha256": "5ac0069f4b539556c4755a9ba18ac80996de437a16e3ab8c7972b4278a361f7e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/head.png": {
+      "sha256": "5465d8bd7f5e1011a3d493138add04a38650008da3051afb27cf6a6f7bb43bc4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/leg_far.png": {
+      "sha256": "82de5958f6901634d57b17e3e9009f8e3bb681873a3b06c5be4ad79e04d548f1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/leg_near.png": {
+      "sha256": "0627988f27be4a2561ebb082bc783ffe684306a547ddedbc9a91e626af791741",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/pelvis.png": {
+      "sha256": "c1020088658ba760505c35cdb44d6380691820eb2b1a10143bf6920eefe5c4b6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/sleeve_far.png": {
+      "sha256": "89e2c00acfb52591f0f1db97ada397c7641d2880b8630001b7c1a1506d10f828",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/sleeve_near.png": {
+      "sha256": "1413e7c769a1a560ab30fcd11b28e9999af3b1884fed0eee4704e00843702ce5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/front/torso.png": {
+      "sha256": "efaf3107bcd58f959fda12fd9197167116b612a06409b25fd612ace331d30a0f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/foot_far.png": {
+      "sha256": "20a8a3457cf751f36d00850ddc96e3295200a6a7cc573bfc5ce74f0401109c7b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/foot_near.png": {
+      "sha256": "bdb71db0672227e7f28b2425f7ecfad7e1eaf0557d4b06faba81132c8a8f155a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/hand_far.png": {
+      "sha256": "1efb0fd56018d0501a65d2254c66dc47bd38b37e7f0ed8c25bb753f3b490f3ab",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/hand_near.png": {
+      "sha256": "01963b9abe40786a96238660699d700b166e1231ad99243e0800e9bf306dc634",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/head.png": {
+      "sha256": "73de5ed9f48b8bc74c47d4709e795787a30138b37ad7f37ce1ed98259f2caf3a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/leg_far.png": {
+      "sha256": "2024de24db802d2e826a2254d699a5dca8176d562f7f899aff569744b27881b0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/leg_near.png": {
+      "sha256": "ad50b7173af31d27a67595cf11a5259668c96b7fae590a153050306f903f08b1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/pelvis.png": {
+      "sha256": "ba97a1623140456e549b8bbd418847611adca82d68c364a3422f6ebae625b2af",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/sleeve_far.png": {
+      "sha256": "feb9bdbf906d1c5ec6fe41bce33c46942e0d448d5d87231d2fcbcdc20654e5d9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/sleeve_near.png": {
+      "sha256": "fef410a52e15ddb7e607de275eddb39c9716b655addc99f533e03bbbdb7cb2db",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/joint_source/rear/torso.png": {
+      "sha256": "193327474dbcfc0116d599a17e051f17ecf57c7c9dc5acb253c3d99a0cf3a13d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/foot_far.png": {
+      "sha256": "8d75170ff4bfc7c0f9ccdf869c58a698aca9c9ea3326694e32ddde5847c87e88",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/foot_far_hidden.png": {
+      "sha256": "5a20aeb4e78a2e5703c86af9d16b45c99d5ea7ea0349a50e976718fba3727efd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/foot_near.png": {
+      "sha256": "26ceecc320229dd163da532b936d0d0e9c9eaf378177370f66c50ea6a6a08c3b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/foot_near_hidden.png": {
+      "sha256": "5f074b4ca2fd91cdf73adb8db61e79fedac0c8d0bf4e3dbd632e1c2d9010c253",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/hand_far.png": {
+      "sha256": "ce4b8d990f16b100cb6e13ae7ab099606e57fb0b7fc0edb254c5453ceb023bee",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/hand_far_hidden.png": {
+      "sha256": "9c4e5484749aa7449e679813adf039e7e4011c16ebd48b6c26ae650346826103",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/hand_near.png": {
+      "sha256": "1f01efe876ce090f774c52b612a8164ac6e4fe7b8a144e150eb36a30d8c0c1a0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/hand_near_hidden.png": {
+      "sha256": "2a8cb4b9820531a1fffd57aa512880f6113a980cfc8734769d9016cbb86ffaa5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/head.png": {
+      "sha256": "112b63fa204091804300610d53a78976216c42351f059681f5ebf23e937f5661",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/head_hidden.png": {
+      "sha256": "e6bc30a2b7f6c782e66613c66844cd04dd8fa5790101caf67a12b258012bc240",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/leg_far.png": {
+      "sha256": "cb79ead42c09e70d307e84237fd9cb374173a86feb02f194e49658cdc46844a5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/leg_far_hidden.png": {
+      "sha256": "583a9279845b4b4fb5d3f5418031c7693f526542b6f38c95f971430df7f4b305",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/leg_near.png": {
+      "sha256": "c20377928eadd6178778eefe56b5657788c5d7af5f58da1b6a5d97e1439fa9a6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/leg_near_hidden.png": {
+      "sha256": "c762a6ed5929e8054228f8e93a859d4fae10c7aaafedd6312e07c5965b06f501",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/pelvis.png": {
+      "sha256": "2ed6a074898977f89353134eb3ec82fddce7068489f199dccba14b33d6f13206",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/pelvis_hidden.png": {
+      "sha256": "262dfcb2fa98665c1bb7a246b442017cd1536c626d5ba148ce9188a29876602c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/sleeve_far.png": {
+      "sha256": "930f50986d326c6f93d73a8d6b0460a2a2edd702a3bfbebefd7ca234e4049384",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/sleeve_far_hidden.png": {
+      "sha256": "93b0cceaa46bb1ef69a71c60ddf687fdfb60f4ff615911d66cb4894648344424",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/sleeve_near.png": {
+      "sha256": "6d8a53ff9f6df29b21fccbff6f8a7d21dc5b02a576c8cdd8559d18f4a04f006c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/sleeve_near_hidden.png": {
+      "sha256": "4fa2225c58288b0d394057170dadc08de3f31b8dcfb85f5f2fadd155241388c2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/torso.png": {
+      "sha256": "860088c55a14dd6ceb33cfc9d3889d1f2e209745806d0805155e2d5d0a071b1f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/front/torso_hidden.png": {
+      "sha256": "a280c1b463ad92d70d62bfb667e7329dfe32eda66b2d73773419883af5616d06",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/foot_far.png": {
+      "sha256": "8b5accaecf2f41881805ad829508e4b13f8b966ead396d4e196a89cb1ed1db31",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/foot_far_hidden.png": {
+      "sha256": "fcce6e69c089eb5210fb3f937bbe6998db6d902578192ec8607ba4f07f77a990",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/foot_near.png": {
+      "sha256": "9497a1cfa05ec7e650593f7ec3e265e440bcc974b8ebbad9e281514ddb11af7c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/foot_near_hidden.png": {
+      "sha256": "2dd9cc3f5ac4dc7e9635c92365e563b3fa910469f13e4ba119c00873df3c754f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/hand_far.png": {
+      "sha256": "8c17c5e58b83f27eb7e06cd50ee73700aa70c52c4f8bb1bf675803cf63f0c055",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/hand_far_hidden.png": {
+      "sha256": "dc4e0be0ee1fd5994ec4dd86c4210fdee86abe4a3f3939130d7974e58ce6d43f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/hand_near.png": {
+      "sha256": "7b7d31d7a6ccc5cd3ef5a413d880c30acc48e196a026e52ccf8139cd0f2b52d6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/hand_near_hidden.png": {
+      "sha256": "8742df834199613cf48a65ffc4ec13802d6b00a98678eb63e770dfc6c33d3b9e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/head.png": {
+      "sha256": "9f0aa0c3181b2123f8bcad568e8587baccc70f7da6e4c396e4122ff9a7bd1ab2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/head_hidden.png": {
+      "sha256": "9470629c31fc5f6cbba4be341681fcd966be39636d6a33b8f2ca4a3ce6d7646c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/leg_far.png": {
+      "sha256": "75e8d7662356c52c591bb40293adffd5a9f350f0798d424f37106ebf9a0c9350",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/leg_far_hidden.png": {
+      "sha256": "509f02686fe22054c8f2de058589992ab3363b3df85f01da8f9d2d35285f9fef",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/leg_near.png": {
+      "sha256": "f727637d4bdf70a7685e326ad35ff27e288d112aaf8c07c0d629035605985fde",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/leg_near_hidden.png": {
+      "sha256": "2514ef3b65c9bf42b8e557f8e4be9bff7c6f40c856e8d9c332c1495bcb15971b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/pelvis.png": {
+      "sha256": "934eafe75b66ed5ff63af78e2f708eb05f0461da8b7dded0f408fc75a426407d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/pelvis_hidden.png": {
+      "sha256": "f5583b130dfee93f76f84796b26339512b8fe07aa353aaef49a32e1327e096da",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/sleeve_far.png": {
+      "sha256": "452ac6d70469774a648159b63491d00e07c0b833c98fb1fc9d58491661d3c0b3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/sleeve_far_hidden.png": {
+      "sha256": "04369366b5b144151078a9f21c0dd55cb73726583e6bccccdd5c24d9eb628b6b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/sleeve_near.png": {
+      "sha256": "1f8d65742ec2af677b5e500fc4bf6b811417de3aeb00fe4c2a813f42d103e5d0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/sleeve_near_hidden.png": {
+      "sha256": "c1a4d05646986eb597c724c1d67429e6716e9fe35690b26e9ecb702bb4ba7378",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/torso.png": {
+      "sha256": "d27298d2d73e2c0dbf5e8a5c97b9e536174802bc5911254f7c3cf621e26e6dcd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/pieces/rear/torso_hidden.png": {
+      "sha256": "0b2bed1ce43916a077314c37a2c2db6b09aa73810a17c4d6604f4448d90d0126",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/presentation/front/rest.png": {
+      "sha256": "199005775f6f18ece0afd83c7aec32f4505d8a55faadb634eaf633106619090d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/presentation/rear/rest.png": {
+      "sha256": "6d30859a879486d54f883841cd4823b4e85f116433c1252200562a018aa3cc5f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/foot_far.png": {
+      "sha256": "8b5accaecf2f41881805ad829508e4b13f8b966ead396d4e196a89cb1ed1db31",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/foot_near.png": {
+      "sha256": "9497a1cfa05ec7e650593f7ec3e265e440bcc974b8ebbad9e281514ddb11af7c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/fore_far.png": {
+      "sha256": "7312f0a0a3538f1cc29a317575be21ce33285f1ed2c637454937a6d7f3eb9986",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/fore_near.png": {
+      "sha256": "1bd69aefb18efc67d7bfc8a8e715b696da859ea1547b2b4f8699153ec9f3a9ca",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/hand_far.png": {
+      "sha256": "8c17c5e58b83f27eb7e06cd50ee73700aa70c52c4f8bb1bf675803cf63f0c055",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/hand_near.png": {
+      "sha256": "7b7d31d7a6ccc5cd3ef5a413d880c30acc48e196a026e52ccf8139cd0f2b52d6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/head.png": {
+      "sha256": "73adf3d80496fb3c38accd45e3005f2ea773d32282e2a75fb6875efa0f39c0c7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/pelvis.png": {
+      "sha256": "934eafe75b66ed5ff63af78e2f708eb05f0461da8b7dded0f408fc75a426407d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/shin_far.png": {
+      "sha256": "fa7408d940668b1bce44c052dd86811942216d278d854b976362ca9902799441",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/shin_near.png": {
+      "sha256": "02919f787c4aaa52f49406ecd7c8bf966f49dc49a248210bc01527b080f1d38a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/thigh_far.png": {
+      "sha256": "256eccd208f588cb8036caa36929f9ea614823e97b5560c4829d2eaa809b8476",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/thigh_near.png": {
+      "sha256": "b6380f0c33172fc606ebcb32563d720fb8bda1cecf76c4eb0eec8bc684798760",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/torso.png": {
+      "sha256": "d27298d2d73e2c0dbf5e8a5c97b9e536174802bc5911254f7c3cf621e26e6dcd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/upper_far.png": {
+      "sha256": "8ffe09ff42fa33f276c08e290cd7f89cad565a59c71659a18ac2708e541207dc",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/pieces/rear/upper_near.png": {
+      "sha256": "7ab9c6e3acdc3c9e82329e292d41ec0574ee3f9d9baa1ef171c9110442adf68f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_parts.png": {
+      "sha256": "b34e7ad52f1d2705423c52b9a2869cca0c16592e0dcc112e64cbfe98629016b6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_foot_far.png": {
+      "sha256": "a162df86f31bb8ec96d4d75e52a577a5d9c0290f90bec04e22562540b4203fb6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_foot_near.png": {
+      "sha256": "ff6608e26a7ae3aea885d4b03827647835719d0cf926a7cfc5a2617ce0150f26",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_fore_far.png": {
+      "sha256": "563e35c69dda2f9684abbe59436c9c7a994df133b82ec15b15b80701430f5442",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_fore_near.png": {
+      "sha256": "a506d2901bf70c6214933dc0e3fc3e70b79e0cafadd3726926e9776b60e4a774",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_hand_far.png": {
+      "sha256": "7d63c791a8697c1772a5f9dd7baed94a1d7828ece1138dbb74bfa34d24e197ef",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_hand_near.png": {
+      "sha256": "facfd835869b7cd1c42e64757cd24dd4c4bcd846183732ed2c1eb8c722811ab4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_head.png": {
+      "sha256": "10ba02580d670aadb65141be9d77b2a856433e543159920b04cdcb5e4e9fea66",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_pelvis.png": {
+      "sha256": "f018b241ebd86fe20244e1d5975e4e41fd0764e6a9767cd19f41dc19b96ff7a2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_shin_far.png": {
+      "sha256": "032324c0058efe8989a9f94fd1b993bcb4b70c28f24f9559c581752ac3d5a57f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_shin_near.png": {
+      "sha256": "84bba909de715252aef00cefd814a615bd7d70dca90d9f42ba0419e5f6a68a1b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_thigh_far.png": {
+      "sha256": "de643de712b3247e8482514e3cddb0778c45449454fe9e4f80db1b84262fa9e0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_thigh_near.png": {
+      "sha256": "3a85b15f7d088af615cab43ee44b9a759f810a82650f518d2d35444f28349673",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_torso.png": {
+      "sha256": "dcd15a2fb8513f32c1529e8e8d221622b42f952fc698cacac97758a1a8a7d941",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_upper_far.png": {
+      "sha256": "4d85e7814dc364a36f8b669c6990f10f13b2949f73edbe659fd1331b9eba8b82",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/registered/rear_solo_upper_near.png": {
+      "sha256": "cb9df6b2e879850c32b4921bd35a9e9f1e0d7f870df2b4727d145c0ba169a856",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/source/rear/processed.png": {
+      "sha256": "ceee8edb9dedbe9fdeb6c1c56c6bef6f7c382d9ffecb6cac6665b3f3300f8cbc",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/rear_baseline/source/rear/raw.png": {
+      "sha256": "6d61c1d30869912782b4809b5db3d01801c0007c17069842b2192d67edcc9995",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/foot_far_hidden.png": {
+      "sha256": "7fec53f5b239c7dba74283300ea53f805630611fe91ff7e51454389cd41191ee",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/foot_far_visible.png": {
+      "sha256": "934adf197386dde34a752588448742f3026b7401e102afbf131998269f50774a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/foot_near_hidden.png": {
+      "sha256": "3389d0a1a8ed8e0ce3a159bd03b42ac37eee9244cffd992c55c02cc555a83eef",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/foot_near_visible.png": {
+      "sha256": "579f542139b3a2534dd2b19a139c3cf6e0ad50199d77a0f7a53701b5df20a4e6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/hand_far_hidden.png": {
+      "sha256": "925da21f441e49c3f26fd04f547708c96ca67f4d62e39c9f2a0e57cf53153422",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/hand_far_visible.png": {
+      "sha256": "ebdda5ad35da61687db0e3a731e2363805cd71854921143938d9c2d8b10111a9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/hand_near_hidden.png": {
+      "sha256": "5ac0069f4b539556c4755a9ba18ac80996de437a16e3ab8c7972b4278a361f7e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/hand_near_visible.png": {
+      "sha256": "e8696120ea5af1fb66462b5ad257710d771a74166a94fc292ce8fa0c41e54e95",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/head_hidden.png": {
+      "sha256": "5465d8bd7f5e1011a3d493138add04a38650008da3051afb27cf6a6f7bb43bc4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/head_visible.png": {
+      "sha256": "082984c829a19911bb5e91777fb5814d117740f4290ae964665dadbe82be4a48",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/leg_far_hidden.png": {
+      "sha256": "82de5958f6901634d57b17e3e9009f8e3bb681873a3b06c5be4ad79e04d548f1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/leg_far_visible.png": {
+      "sha256": "d5ebb9f5898b4ec3cdef92daf105344fc230bab67968db1f5e557f40dae51065",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/leg_near_hidden.png": {
+      "sha256": "0627988f27be4a2561ebb082bc783ffe684306a547ddedbc9a91e626af791741",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/leg_near_visible.png": {
+      "sha256": "704f417e2e68ce39b8dd7dfcc054c8523dc6bfc156e3cd25afe33e906b1d96ae",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/pelvis_hidden.png": {
+      "sha256": "c1020088658ba760505c35cdb44d6380691820eb2b1a10143bf6920eefe5c4b6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/pelvis_visible.png": {
+      "sha256": "1345b21ee9b7438cbdd642bf055cdcd37c800bf92193621c4857a7bd539d09ba",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/sleeve_far_hidden.png": {
+      "sha256": "89e2c00acfb52591f0f1db97ada397c7641d2880b8630001b7c1a1506d10f828",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/sleeve_far_visible.png": {
+      "sha256": "d37c3058d4aea686daed7ebcab9620865e0e978e5d705f2c8a9783ab62250589",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/sleeve_near_hidden.png": {
+      "sha256": "3ec5974c6b527fed9cc55c684c450642aa9ef49826aea2da8573a2a9ec565a1a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/sleeve_near_visible.png": {
+      "sha256": "f5b9e9328644f31780cce216b68b342588b11db8de0e646ed4648ca8cff6f7d5",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/torso_hidden.png": {
+      "sha256": "efaf3107bcd58f959fda12fd9197167116b612a06409b25fd612ace331d30a0f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/front/torso_visible.png": {
+      "sha256": "3808e3daec88e077ec1e4a572fcff166bfd679a3efd16e33e1492b9528976f74",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/foot_far_hidden.png": {
+      "sha256": "20a8a3457cf751f36d00850ddc96e3295200a6a7cc573bfc5ce74f0401109c7b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/foot_far_visible.png": {
+      "sha256": "66da848513a7355354d9215ec693923f96a3d9203e9427fe56ca81e4a39c8198",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/foot_near_hidden.png": {
+      "sha256": "bdb71db0672227e7f28b2425f7ecfad7e1eaf0557d4b06faba81132c8a8f155a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/foot_near_visible.png": {
+      "sha256": "889ad8f1ea5eea2ebd1fb42d92574997f131972e2eec946e21e0bb6aa5cefe9f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/hand_far_hidden.png": {
+      "sha256": "1efb0fd56018d0501a65d2254c66dc47bd38b37e7f0ed8c25bb753f3b490f3ab",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/hand_far_visible.png": {
+      "sha256": "72ce9ceb90ab82c95c828e69e0f6bb2bd38717eb35fc0e457c75736bbe8a5a6e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/hand_near_hidden.png": {
+      "sha256": "01963b9abe40786a96238660699d700b166e1231ad99243e0800e9bf306dc634",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/hand_near_visible.png": {
+      "sha256": "4c2af70b0141aaf98a5286264fd58135a28caf6e60f4750c60ca6cd96aeb7c2c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/head_hidden.png": {
+      "sha256": "73de5ed9f48b8bc74c47d4709e795787a30138b37ad7f37ce1ed98259f2caf3a",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/head_visible.png": {
+      "sha256": "95ba35fc1b0431072e789ecf55d453a6c1d6e7e9247281f982ee0e95a985cbb3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/leg_far_hidden.png": {
+      "sha256": "2024de24db802d2e826a2254d699a5dca8176d562f7f899aff569744b27881b0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/leg_far_visible.png": {
+      "sha256": "c233b886770e17080adf6f63e7a8dbd1975756fd450860003a83dc4e6362d746",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/leg_near_hidden.png": {
+      "sha256": "e97db6b978eaeddcc8fdf31a7f415b4d483652f11ffbdce4b20f6c9ceb048de0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/leg_near_visible.png": {
+      "sha256": "edbe562ac5d10108d927c83932eaaddb2e87d10742f0e83e8c4441bf7ea7455d",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/pelvis_hidden.png": {
+      "sha256": "ba97a1623140456e549b8bbd418847611adca82d68c364a3422f6ebae625b2af",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/pelvis_visible.png": {
+      "sha256": "e77592f1fa931033f4631d935dadd7d76ebb9217d460eb66ea255e3e771687b2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/sleeve_far_hidden.png": {
+      "sha256": "feb9bdbf906d1c5ec6fe41bce33c46942e0d448d5d87231d2fcbcdc20654e5d9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/sleeve_far_visible.png": {
+      "sha256": "081be352562d4824825eb0c252abdd02f92f9020080b40587d733458c33c09db",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/sleeve_near_hidden.png": {
+      "sha256": "fef410a52e15ddb7e607de275eddb39c9716b655addc99f533e03bbbdb7cb2db",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/sleeve_near_visible.png": {
+      "sha256": "dcd9b0d3aea956dad62d9009cb46fce1d985cd2155de8229089a5c0919f22208",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/torso_hidden.png": {
+      "sha256": "23626535c7c39812cc74645768ed1958760d184c4eff84ca653625c88e9d890c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/residue_source/rear/torso_visible.png": {
+      "sha256": "7ed3d8dcd9d3ec6068469ee7ba9b854df79719593b8dda87aa326ccb982fa2f7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_foot_far.png": {
+      "sha256": "de8a080fd211d1862423ec9d073a4d36ab1693388879c93c8d00b2a669298ad3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_foot_near.png": {
+      "sha256": "17329f5c036a9317e750645eb4ef9309cc6f34268fce998c8bdfe61fcd7cc96c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_hand_far.png": {
+      "sha256": "af68f89ab50e89e5f3efa76e081c31748a3e715f7ea726c59c21561435edfc2c",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_hand_near.png": {
+      "sha256": "5ff9bc2a2c08eaf6aedabadd5204741176c25e36a6ea1aa79c70be9b963bdfaf",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_head.png": {
+      "sha256": "15f0b701411c2300553ba91ef0160733cbaa228071e930724c9b1b92a718431b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_leg_far.png": {
+      "sha256": "db0bdf50c29819ad1647500c54854002496200b361e40c3398d02800dfa50d45",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_leg_near.png": {
+      "sha256": "2e9883e8f2ef58ac287963dc38d36b3b2af17ded11d8356f617ba0012c0dd614",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_pelvis.png": {
+      "sha256": "5f381e0422d17270e37aca6947bac561248f8136312ebada39a121e4a31dc157",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_sleeve_far.png": {
+      "sha256": "232e484a12ffedec91d381e38639bdc0e6cbc6a01febe3fe581bf82979d5d063",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_sleeve_near.png": {
+      "sha256": "9658148271108316aeaf2808f88942bf773a92e796909cefe8811c2678f1c847",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/front_torso.png": {
+      "sha256": "5d0f99c323c3726c3a355695060ca9adb6d55022a155d3898beffc1af27519f7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_foot_far.png": {
+      "sha256": "5252ac7165d81260dff4dd906631193f96e39be695ab8cb32310039652dfcbb6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_foot_near.png": {
+      "sha256": "466116e38644125bb72eb27b98111e96eddda7e7bfbb80dc9db03b08033e5f75",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_hand_far.png": {
+      "sha256": "5aa14668a14bdb9f63bacecd48a3b0e75f108a5ee69e844f302a8c81e0b7adbd",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_hand_near.png": {
+      "sha256": "2348844ce864fb8daa92d5e177f5e6e860b8d21707a40b91cca39be22820c4f2",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_head.png": {
+      "sha256": "442551dcc997b546bf6ec8b0a9fe2cad0f19254a00e4f249aed1e4dfe86056a4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_leg_far.png": {
+      "sha256": "d63cf9f9c422c8fdda92c466eee78445743bff04c344fc162c3198d190a37495",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_leg_near.png": {
+      "sha256": "684a8ae0a7bbcec713d58cff3d888fe332592e73d94703a1901dcc178e6b30f6",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_pelvis.png": {
+      "sha256": "dc1d83d1314fdc692600f26e0a56aeb176db9f1728396a90dfcfc210565791f8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_sleeve_far.png": {
+      "sha256": "3fa28eb9c1e2ecac3e199850b54714366192065ad9c41ba3c24440bf22098aaf",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_sleeve_near.png": {
+      "sha256": "786fa4783d5eba57a441c991dd9160bff13f6cb96d4ffa512c83daf185fdc9b3",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/seams/rear_torso.png": {
+      "sha256": "c3f4f7a3eb7d91f9939e1bc74e563a04bf006492392d8fc2305b38c03089176f",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/source/front/processed.png": {
+      "sha256": "16b177d8ad516cfa5b11a9607f6c898934bff234c579bafef7e553df571fb138",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/source/rear/processed.png": {
+      "sha256": "ceee8edb9dedbe9fdeb6c1c56c6bef6f7c382d9ffecb6cac6665b3f3300f8cbc",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_foot_far.png": {
+      "sha256": "69e84646cb12490f4cce4ce18934b10d4df8fef570170259a6882f93601faaa7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_foot_near.png": {
+      "sha256": "c090a69e922e61ebc3e8c7edd99b7ab334829c45d7cb373fa97569b8e205c8f1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_hand_far.png": {
+      "sha256": "00d58543b6b97a40273421a4175336802033975b78aec0ba27ae6f7e06f923ae",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_hand_near.png": {
+      "sha256": "5d63aa23f48311bfb9ee7de0c9eee7d34284d727580600c1b483905e199cb8c4",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_head.png": {
+      "sha256": "85ffa179bfdbe6f7491b5a800d4e1063da425c9f07e7c4fe067118743d0a5194",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_leg_far.png": {
+      "sha256": "0ac0089a04e86f7c5fef15c55cfa54791a21172dfec94e70f0eaddc93ba72732",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_leg_near.png": {
+      "sha256": "b33387ef16fcf8830a507793b3466422736e7f6e7a4c17b3c5760e197878d01b",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_pelvis.png": {
+      "sha256": "dfa38b989972fa094492107aa302bd30b7b6a28d17fb3e048fe4163277b102f9",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_sleeve_far.png": {
+      "sha256": "c4b70fd40edcb669e5c09d808555d751a51529f8c3fa53011719b1a769c728a8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_sleeve_near.png": {
+      "sha256": "a862d41e59140a8c70520ef1aa6337018787722b39630522637de6a6c1cbfdf1",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/front_torso.png": {
+      "sha256": "ad6b0f9a21590c43e53550d9b60a8667d72a2fd1e6e163c295646f1cab4fe314",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_foot_far.png": {
+      "sha256": "8fe44c6801ed1bda48f6c5d30ea8b899965893dc9e8ae3b4daab3ab948bbe336",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_foot_near.png": {
+      "sha256": "e2d98722641b4d6020c9e8bea8e4eef959482affb4e2c078742c2e0b50a2426e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_hand_far.png": {
+      "sha256": "6a4690592a5a8aea6eb8c221aeb8880d69fbfd4af0e965e2eb42cc6e4e894631",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_hand_near.png": {
+      "sha256": "fbfd39d0bb484cdb7a498690d3d428b80396dc7f6b6e77584f1f4845d1bca715",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_head.png": {
+      "sha256": "203ee9aba08bc4992e7f39296cda2ef1899304790d56d755679169a8ed37eba0",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_leg_far.png": {
+      "sha256": "da29e3e35cdf23901fe2d49302f562aa25a6076d291185668bcb6944605ad555",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_leg_near.png": {
+      "sha256": "ff5764a81e2163b748022ef577971d0ea9ba23adaffa3db66a970eceb1188aa8",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_pelvis.png": {
+      "sha256": "c90646fef6cc21dca57869644bd9e0295b0bca3345950b37916a6e32b317373e",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_sleeve_far.png": {
+      "sha256": "679ae4acdb96915f9a5c149c8ec6c4f2a165c87a0ddee85d1245d8fea77064c7",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_sleeve_near.png": {
+      "sha256": "7d12b1e00d4fef915518e5a629e1a14c6ba1ebf39c2c7663d4a19ed9497bf396",
+      "byte_identical": true
+    },
+    "experiments/cutouts/hollow_mimic/rr20/tucks/rear_torso.png": {
+      "sha256": "4f70a6db493271f8826b37fa28248f6efa5e2847702bacf3002ba4221af03ff7",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/compiled_motion.json": {
+      "sha256": "33d41730cea68af609899fc97a8c4c63b449926b9784d1fedc9dc850cad6d8c4",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/director_motion.json": {
+      "sha256": "c0f1ef683f22cb63ef9ad1430560d88e6dd9da378828fca0e793add0ccea28ac",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/foot_far.png": {
+      "sha256": "4543ba8f4c21f738c81934bfdd20bf5a984b0173896d99d812cdb12ea47bfe0f",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/foot_far_hidden.png": {
+      "sha256": "a640b5b7d6a0fe8dc793d37b2fabea89ca618cc414d81da0155254f4df7e0379",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/foot_near.png": {
+      "sha256": "22a5df43d8606c7718af20158f8ee0ebe39ddd962d1f2be008951fed31e5e4fb",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/foot_near_hidden.png": {
+      "sha256": "22457c5f9be431a52771672a2c632259c2f410bc57252047849b5c1468c900f5",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/hand_far.png": {
+      "sha256": "9a85119186ffb62877e39a96efdf963b18b7c19be9e0c075df5b5c5618257c52",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/hand_far_hidden.png": {
+      "sha256": "9c4e5484749aa7449e679813adf039e7e4011c16ebd48b6c26ae650346826103",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/hand_near.png": {
+      "sha256": "be1b20e7ed34263eba05ead7a4e0318526495d53cb0d3121991e27668ec0c5be",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/hand_near_hidden.png": {
+      "sha256": "2a8cb4b9820531a1fffd57aa512880f6113a980cfc8734769d9016cbb86ffaa5",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/head.png": {
+      "sha256": "9cbd216ca05fda08fe899dcd615e37d4b5e99d0b62de67cbf8cbd4df8087c017",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/head_hidden.png": {
+      "sha256": "e6bc30a2b7f6c782e66613c66844cd04dd8fa5790101caf67a12b258012bc240",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/leg_far.png": {
+      "sha256": "b7ff6f51be4d96deedecf36cefbaeb59f79212a1b252cc4cd8c48a01b59eba70",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/leg_far_hidden.png": {
+      "sha256": "583a9279845b4b4fb5d3f5418031c7693f526542b6f38c95f971430df7f4b305",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/leg_near.png": {
+      "sha256": "bf23895d70b904d1742e83f0c363324cc28c39ccd1c145c6e0262a9cb34a5999",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/leg_near_hidden.png": {
+      "sha256": "18d637d5ded30771cce9a8e41ded50fe4066b7aff07c2dc5b03af7625d766126",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/pelvis.png": {
+      "sha256": "cac419783426cfa157130a399c5c3fd98d82733eae89cfedb6c2d4b73a0feac2",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/pelvis_hidden.png": {
+      "sha256": "8aae0ed26d8b7534de85b39225ca4d930a8c2c7c850daf491fc08c67d474b6a9",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/rest.png": {
+      "sha256": "c5f057b840c552355c50dba56d422b14668792b3764965588513152e7a175b23",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/sleeve_far.png": {
+      "sha256": "df69532a942a4981281cd98797910935c8d7ead17814979ad5762c587add0c89",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/sleeve_far_hidden.png": {
+      "sha256": "1b7581d575766d5b30c5c06f337616b78e0f0c52ef8edcaec74665a28b72e2ee",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/sleeve_near.png": {
+      "sha256": "dc37f67213ca8cb4963787fc0312b37fd7d5820fad1930b0bddd0f2e25727cc1",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/sleeve_near_hidden.png": {
+      "sha256": "4fa2225c58288b0d394057170dadc08de3f31b8dcfb85f5f2fadd155241388c2",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/torso.png": {
+      "sha256": "601ca0efd45f3bf170d5acbd584ef03d5d814d30e5e20aa160dc2fe66c80b232",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/front/torso_hidden.png": {
+      "sha256": "a280c1b463ad92d70d62bfb667e7329dfe32eda66b2d73773419883af5616d06",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/foot_far.png": {
+      "sha256": "f892bb100314a8b8c231e675806abd2c8c3a5c31dde801fba0f00ef180826d44",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/foot_far_hidden.png": {
+      "sha256": "fcce6e69c089eb5210fb3f937bbe6998db6d902578192ec8607ba4f07f77a990",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/foot_near.png": {
+      "sha256": "e6e1b6d7b91a68c94ce3eebffa2bb2e88053eea3463b7b26e236e318d97725c3",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/foot_near_hidden.png": {
+      "sha256": "9ebd49d3880198b37c59ec4976cbe3d9ef6847ca7a41c5074685d9da19bbf383",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/hand_far.png": {
+      "sha256": "7726594144953c9afcdbc6500523f0d3ab401b0b4347515ead80ceb30fa23e0c",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/hand_far_hidden.png": {
+      "sha256": "57f41e5f77f3b62e8fb17a1eeff3c8056f870527e1805cc13a6489c3e8113205",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/hand_near.png": {
+      "sha256": "0ae1b19f1d0373af5a19c05262f46c0db6fa8e062545fad04812b121924469c4",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/hand_near_hidden.png": {
+      "sha256": "c58783f70937710b8ee5a3b1082ebdd7e4887b8d2504dbcdd6b2abafe16f074f",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/head.png": {
+      "sha256": "50a85f5aa06229f14dd182742a6089a7535d7a2c2ac17e5304425fd9fdc4a6a0",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/head_hidden.png": {
+      "sha256": "9470629c31fc5f6cbba4be341681fcd966be39636d6a33b8f2ca4a3ce6d7646c",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/leg_far.png": {
+      "sha256": "3933a8d39544ffd65dfb587511a3e22eb4bc92ad949c3e5df46a7f59d505aa96",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/leg_far_hidden.png": {
+      "sha256": "509f02686fe22054c8f2de058589992ab3363b3df85f01da8f9d2d35285f9fef",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/leg_near.png": {
+      "sha256": "fa411f015cac96dbd6d2e3188a0d3051a84d0bf3801bf6d2edcfd2658bb6338c",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/leg_near_hidden.png": {
+      "sha256": "5655e212de2b3e306b2e96ea7bc238062d236a3e3f63c42ab82a183f89c4ac71",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/pelvis.png": {
+      "sha256": "ef3a239fd54b142c7228a20078fdaade4827a0c8fda179beb521b6ba7506190d",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/pelvis_hidden.png": {
+      "sha256": "e9d48522b912c36f428fbe43d168e0ac2fd165bf254544ae40953f373177c3a6",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/rest.png": {
+      "sha256": "c822a061f43aeab5e2691266570d805926b682c56b3bea35c994dd74c0f4cd89",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/sleeve_far.png": {
+      "sha256": "2eb7158b510de401e47ba4e7aaaceaf39859cc0f9c0404d276a98ed58424d443",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/sleeve_far_hidden.png": {
+      "sha256": "04369366b5b144151078a9f21c0dd55cb73726583e6bccccdd5c24d9eb628b6b",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/sleeve_near.png": {
+      "sha256": "b867af117549f5274d3e491c9ed0aa7a78510c9b54e343c2a2a11f401d6228c3",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/sleeve_near_hidden.png": {
+      "sha256": "c1a4d05646986eb597c724c1d67429e6716e9fe35690b26e9ecb702bb4ba7378",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/torso.png": {
+      "sha256": "532336e2407d5deeea34b8cb2785c8cb7183c787b7677a9cd53e9e311a130434",
+      "byte_identical": true
+    },
+    "assets/units/hollow_mimic_cutout/rear/torso_hidden.png": {
+      "sha256": "5f1edc08c7c200bb1d8d8132470a0fed9e7903945bf15e238d480e6fa9e2de78",
+      "byte_identical": true
+    }
+  },
+  "unexpected_changed_files": [],
+  "unexpected_layout_changes": [],
+  "rest_identity": {
+    "ok": true,
+    "views": {
+      "front": {
+        "different_pixels": 0,
+        "pixel_identical": true
+      },
+      "rear": {
+        "different_pixels": 0,
+        "pixel_identical": true
+      }
+    }
+  }
+}

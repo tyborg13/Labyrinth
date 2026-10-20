@@ -1,0 +1,215 @@
+"""rr-28 copies only own treated texels in the clips with joint tears."""
+from copy import deepcopy
+from pathlib import Path
+import sys
+import os
+import subprocess
+import tempfile
+import unittest
+from unittest.mock import patch
+
+import numpy as np
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'experiments/cutouts/hoarfrost_seer')]
+from rr28_build import RIGS, paths, apply, build, production_layouts, clip_evidence_errors
+from rr28_check import model_for, committed
+from humanoid_cutout.source_space import DetachedSource
+from cutout_pipeline.cases import read_json, write_json
+from humanoid_cutout.gait_continuations import active_recipe, errors, texture
+from maquette_motion.pixels import rest_identity
+
+PROOF_TIMEOUT_SECONDS = 90
+
+
+class JointContinuationTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        folder = tempfile.TemporaryDirectory(prefix='rr28-bones-')
+        cls.addClassCleanup(folder.cleanup)
+        cls.samples = {}
+        for name, (_, version) in RIGS.items():
+            output = Path(folder.name) / (name + '.json')
+            command = [sys.executable, 'tools/godot_task_runner.py', '--task-id',
+                os.environ.get('LABYRINTH_TASK_ID', 'rr-28'), '--stream', '--', 'godot',
+                '--headless', '--path', '.', '--script', f'tests/{version}/samples.gd', '--',
+                '--case', str(paths(name)[0]), '--output', str(output)]
+            result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,
+                timeout=PROOF_TIMEOUT_SECONDS)
+            if result.returncode:
+                raise AssertionError(result.stdout + result.stderr)
+            cls.samples[name] = read_json(output)
+
+    def test_replay_is_idempotent_and_only_recipes_change_in_all_layout_copies(self):
+        for name in RIGS:
+            case, assets, recipe = paths(name)
+            definitions = read_json(recipe / 'joint_continuations.json')
+            for view in ('front', 'rear'):
+                layout = read_json(case / f'layouts/{view}.json')
+                self.assertEqual(errors(case, layout), [])
+                self.assertEqual(clip_evidence_errors(case, layout, definitions), [])
+                self.assertEqual(apply(case, deepcopy(layout), definitions), layout)
+                for path in [case / f'layouts/{view}.json', *production_layouts(assets, view)]:
+                    production = read_json(path)
+                    self.assertEqual(production.get('gait_continuations'), layout.get('gait_continuations'))
+                    production.pop('gait_continuations', None)
+                    self.assertEqual(production, __import__('json').loads(committed(path)))
+
+    def test_clip_scope_and_exact_own_donor_rgba_including_density_treated_production(self):
+        for name in RIGS:
+            case, assets, recipe_folder = paths(name)
+            definitions = read_json(recipe_folder / 'joint_continuations.json')
+            clips = ['rest', *read_json(case / 'compiled_motion.json')['clips']]
+            for view in ('front', 'rear'):
+                for root, path in [(case, case / f'layouts/{view}.json'),
+                                   *[(p.parent, p) for p in production_layouts(assets, view)]]:
+                    layout = read_json(path)
+                    self.assertEqual(clip_evidence_errors(case, layout, definitions), [])
+                    for piece, recipe in layout.get('gait_continuations', {}).items():
+                        evidence = definitions[view][piece]['source_evidence']
+                        expected_clips = {row['clip'] for row in evidence}
+                        self.assertTrue(all(row['view'] == view for row in evidence))
+                        self.assertEqual(set(recipe['clips']), expected_clips)
+                        part = next(p for p in layout['parts'] if p['name'] == piece)
+                        donor = next(p for p in layout['parts'] if p['name'] == recipe['donor'])
+                        self.assertEqual(part['logical_part'], donor['logical_part'])
+                        original = texture(root, layout, part)
+                        paint = np.asarray(Image.open(root / donor['file']).convert('RGBA'))
+                        for clip in clips:
+                            active = active_recipe(layout, piece, clip=clip, gait=clip == 'move')
+                            filled = texture(root, layout, part, clip=clip, gait=clip == 'move')
+                            if clip not in expected_clips:
+                                self.assertIsNone(active)
+                                np.testing.assert_array_equal(filled, original)
+                            else:
+                                self.assertIsNotNone(active)
+                                expected = original.copy()
+                                for x, y, u, v in recipe['texels']:
+                                    self.assertEqual(original[y, x, 3], 0)
+                                    expected[y, x] = paint[v, u]
+                                np.testing.assert_array_equal(filled, expected)
+
+    def test_coherent_rebuild_rejects_unjustified_clips_before_any_output_write(self):
+        case, assets, recipe = paths('seer')
+        for view, piece, clip in [('front', 'sleeve_near', 'mark'), ('rear', 'torso', 'bolt')]:
+            with self.subTest(view=view, piece=piece, clip=clip):
+                definitions = read_json(recipe / 'joint_continuations.json')
+                definitions[view][piece]['clips'].append(clip)
+                layout = read_json(case / f'layouts/{view}.json')
+                # Reproduce the old coherent rebuild: source definition and
+                # derived activation agree, so the shared clip-name gate passes.
+                with patch('rr28_build.clip_evidence_errors', return_value=[]):
+                    rebuilt = apply(case, deepcopy(layout), definitions)
+                self.assertEqual(errors(case, rebuilt), [])
+                self.assertIn(f'{view}.{piece} layout: clip {clip} has no recorded tear evidence',
+                              clip_evidence_errors(case, rebuilt, definitions))
+                # Check both views: even a rejected rear recipe must leave the
+                # otherwise valid front and all production outputs untouched.
+                with tempfile.TemporaryDirectory(prefix='rr28-clip-mutation-') as folder:
+                    mutated_recipe = Path(folder)
+                    write_json(mutated_recipe / 'joint_continuations.json', definitions)
+                    with patch('rr28_build.paths', return_value=(case, assets, mutated_recipe)), \
+                            patch('rr28_build.write_json') as writes:
+                        with self.assertRaisesRegex(ValueError,
+                                rf'{view}\.{piece}.*{clip}.*no recorded tear evidence'):
+                            build('seer')
+                        writes.assert_not_called()
+
+    def test_missing_rear_evidence_rejects_coherent_bolt_expansion_before_any_write(self):
+        case, assets, recipe = paths('seer')
+        definition_path = recipe / 'joint_continuations.json'
+        definitions = read_json(definition_path)
+        del definitions['rear']
+        # Model the director's exact mutation in all three rear layout copies
+        # without touching the files that the windowed capture is reading.
+        layouts = {}
+        for path in [case / 'layouts/rear.json', *production_layouts(assets, 'rear')]:
+            layouts[path] = read_json(path)
+            layouts[path]['gait_continuations']['torso']['clips'].append('bolt')
+        fixtures = {definition_path: definitions, **layouts}
+
+        def mutated_read(path):
+            return deepcopy(fixtures[path]) if path in fixtures else read_json(path)
+
+        with patch('rr28_build.read_json', side_effect=mutated_read), \
+                patch('rr28_build.write_json') as writes:
+            with self.assertRaisesRegex(ValueError, 'rear: missing tear evidence view'):
+                build('seer')
+            writes.assert_not_called()
+
+    def test_evidenced_clip_cannot_be_removed_before_any_output_write(self):
+        case, assets, recipe = paths('seer')
+        definitions = read_json(recipe / 'joint_continuations.json')
+        definition = definitions['front']['sleeve_far']
+        definition['clips'].remove('hit')
+        self.assertTrue(any(r['clip'] == 'hit' for r in definition['source_evidence']))
+        with tempfile.TemporaryDirectory(prefix='rr28-missing-clip-') as folder:
+            mutated_recipe = Path(folder)
+            write_json(mutated_recipe / 'joint_continuations.json', definitions)
+            with patch('rr28_build.paths', return_value=(case, assets, mutated_recipe)), \
+                    patch('rr28_build.write_json') as writes:
+                with self.assertRaisesRegex(ValueError,
+                        r'front\.sleeve_far.*evidenced clip hit is missing'):
+                    build('seer')
+                writes.assert_not_called()
+
+    def test_clip_evidence_requires_matching_view_and_valid_presented_frame(self):
+        case, _, recipe = paths('seer')
+        original = read_json(recipe / 'joint_continuations.json')
+        layout = read_json(case / 'layouts/front.json')
+        frames = [r['frame'] for r in self.samples['seer']['samples']
+                  if (r['view'], r['clip'], r['kind']) == ('front', 'move', 'presented')]
+        for field, value in [('view', 'rear'), ('clip', 'unknown'), ('frame', -1),
+                             ('frame', max(frames) + 1), ('frame', True)]:
+            with self.subTest(field=field, value=value):
+                definitions = deepcopy(original)
+                definitions['front']['sleeve_near']['source_evidence'][0][field] = value
+                rejected = clip_evidence_errors(case, layout, definitions)
+                self.assertTrue(any('front.sleeve_near: invalid tear evidence' in r for r in rejected))
+                self.assertIn('front.sleeve_near layout: clip move has no recorded tear evidence', rejected)
+
+    def test_every_original_native_pocket_pixel_is_covered_in_cpu_estimate(self):
+        for name in RIGS:
+            case, _, recipe = paths(name)
+            poses = {(r['view'], r['clip'], r['frame']): r for r in self.samples[name]['samples'] if r['kind'] == 'presented'}
+            definitions = read_json(recipe / 'joint_continuations.json')
+            models = {v: model_for(name, case, read_json(case / f'layouts/{v}.json')) for v in definitions}
+            cache, checked = {}, set()
+            for pieces in definitions.values():
+                for definition in pieces.values():
+                    for row in definition['source_evidence']:
+                        if row.get('reason'):
+                            continue  # Additional census-trapped pockets have separate all-frame proof.
+                        key = row['view'], row['clip'], row['frame']
+                        if key not in cache:
+                            layers, _ = models[key[0]].layers(poses[key])
+                            cache[key] = np.logical_or.reduce([image[..., 3] > 0 for _, image, _ in layers])
+                        x, y = np.asarray(row['pixels']).T
+                        self.assertTrue(cache[key][y, x].all(), (name, key, row['bbox']))
+                        checked.add((*key, tuple(row['bbox'])))
+            self.assertEqual(len(checked), 31 if name == 'seer' else 85)
+
+    def test_seer_fold_bridge_prevents_a_detached_copy_in_both_death_frames(self):
+        case, _, _ = paths('seer')
+        layout = read_json(case / 'layouts/front.json')
+        damaged = deepcopy(layout)
+        recipe = damaged['gait_continuations']['sleeve_far']
+        recipe['texels'] = [row for row in recipe['texels'] if row[:2] != [11, 24]]
+        for frame in (63, 64):
+            pose = next(p for p in self.samples['seer']['samples'] if
+                (p['view'], p['clip'], p['kind'], p['frame']) == ('front', 'death', 'presented', frame))
+            transforms = {k: p['transform'] for k, p in pose['parts'].items()}
+            for candidate, expected in ((layout, 0), (damaged, 1)):
+                model = model_for('seer', case, deepcopy(candidate))
+                layers, _ = model.layers(pose)
+                report = DetachedSource(case, candidate).report(layers, transforms)
+                self.assertEqual(len(report['unmatched_components']), expected)
+
+    def test_rest_composites_stay_exact(self):
+        for name in RIGS:
+            self.assertTrue(rest_identity(paths(name)[0])['ok'])
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
