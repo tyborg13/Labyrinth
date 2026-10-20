@@ -1,0 +1,105 @@
+test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) ... 
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/front.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: 'f5fa38ad3b9389b51c9a0c625b0716fab1841cf8f5f49de74e3ec38b653d32ce' != '7616887d13630807aa8632120eed00fc19621f8778a359ba1355fbf64726224f'
+- f5fa38ad3b9389b51c9a0c625b0716fab1841cf8f5f49de74e3ec38b653d32ce
++ 7616887d13630807aa8632120eed00fc19621f8778a359ba1355fbf64726224f
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/humanoid_v2/front.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: '2ff7ede08f5c490c74a4db3a226d7e2159fe1e65c97a00ff81a5f2dae875099b' != '2e0155744eae46af120b8ca7b15bca7efc8170743a8d150184105da2607b9e93'
+- 2ff7ede08f5c490c74a4db3a226d7e2159fe1e65c97a00ff81a5f2dae875099b
++ 2e0155744eae46af120b8ca7b15bca7efc8170743a8d150184105da2607b9e93
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: '58e9fdb203ed0ad76efa3ef42adfd1c20805bb725df8283a042dba5724c8ce97' != '54825cde26729a63a7f41db030a9bea07705f920beb8da82c2e96fa06d276006'
+- 58e9fdb203ed0ad76efa3ef42adfd1c20805bb725df8283a042dba5724c8ce97
++ 54825cde26729a63a7f41db030a9bea07705f920beb8da82c2e96fa06d276006
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/integration.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: '93f4a6289bd1027feb5533e1e0cb4cea59e90910968ec788cd175f5a91b0c6aa' != 'b551eddf56c1fe99d337d1586c9ff9dbb5c20867eddba65086e85bebfd3d0f0e'
+- 93f4a6289bd1027feb5533e1e0cb4cea59e90910968ec788cd175f5a91b0c6aa
++ b551eddf56c1fe99d337d1586c9ff9dbb5c20867eddba65086e85bebfd3d0f0e
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='assets/units/hoarfrost_seer_cutout/rear.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: '4bc5899a9796d11240835a312f77ef956cf64ebd7c09fab6f43429dfcfce6b5f' != 'd9f03580474bc4d2c292c7b2bd01848fac91eb14ae6604b452863ca605656280'
+- 4bc5899a9796d11240835a312f77ef956cf64ebd7c09fab6f43429dfcfce6b5f
++ d9f03580474bc4d2c292c7b2bd01848fac91eb14ae6604b452863ca605656280
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: '767c05cf491eee395a8c7a478267eca493935d72a4a3e1c83ea0354418a5bab5' != 'ed09aac51077756315dda786da5c60672ec7a4d95d71a488a12424fb72fa1d0c'
+- 767c05cf491eee395a8c7a478267eca493935d72a4a3e1c83ea0354418a5bab5
++ ed09aac51077756315dda786da5c60672ec7a4d95d71a488a12424fb72fa1d0c
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: 'bb50513bbf7af43141e73305d314770de8afe9a5f05c848e924c814ae269219b' != '9feb102f9451ce273c4f395fbe6128f3c15741a56cf63c406b6aca5dd4a245d0'
+- bb50513bbf7af43141e73305d314770de8afe9a5f05c848e924c814ae269219b
++ 9feb102f9451ce273c4f395fbe6128f3c15741a56cf63c406b6aca5dd4a245d0
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/proof/seer_protagonist_idle.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 25, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256((PROJECT / filename).read_bytes()).hexdigest(), expected)
+AssertionError: '1735ad8876fcdf6b01762f09dfb0917ea34205b9a09392c2198584a2d36da94e' != 'b08ad417e4aadd9b6748dd6da0610d6f41c5b4a1a499b295c3fbc23daa85d4fa'
+- 1735ad8876fcdf6b01762f09dfb0917ea34205b9a09392c2198584a2d36da94e
++ b08ad417e4aadd9b6748dd6da0610d6f41c5b4a1a499b295c3fbc23daa85d4fa
+
+
+======================================================================
+FAIL: test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical (tests.test_rr14_seer_identity.SeerIdentityTests) (file='experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/mq-11/tests/test_rr14_seer_identity.py", line 28, in test_approved_assets_layouts_compiled_motion_and_samples_are_byte_identical
+    self.assertEqual(hashlib.sha256(without_bindings((PROJECT / filename).read_bytes())).hexdigest(), expected)
+AssertionError: '4648e6dae278e80bb8fbaac55e8b64bc42bb79971224025dee4326d47e1753ec' != '022dc32d5b2d3ed333b1356c600958f26b72314f02f3d1ff4dfdd56474f88af7'
+- 4648e6dae278e80bb8fbaac55e8b64bc42bb79971224025dee4326d47e1753ec
++ 022dc32d5b2d3ed333b1356c600958f26b72314f02f3d1ff4dfdd56474f88af7
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.091s
+
+FAILED (failures=9)
+RR14 SEER BYTE IDENTITY: PASS (777 files; only two input-binding objects excluded)

@@ -20,6 +20,7 @@ from humanoid_cutout.compiler import compile_motion
 from humanoid_cutout.bone_contracts import leg_bend_side
 from humanoid_cutout.anatomy import for_layout
 from maquette_motion.features import source_pixels
+from tests.mq11_preservation import rr20_inventory_context
 
 PROOF_TIMEOUT_SECONDS = 180
 MUTATION_OFFSET_PX = 4
@@ -41,6 +42,7 @@ class HollowMimicTests(unittest.TestCase):
             cls.samples = read_json(output)
         cls.bound = bindings(CASE)
 
+    @rr20_inventory_context(rr20)
     def test_approved_inputs_and_prior_figures_are_byte_identical(self):
         self.assertEqual(rr20.protected_errors(), [])
         self.assertEqual((CASE/'director_motion.json').read_bytes(), DIRECTOR.read_bytes())
@@ -84,6 +86,7 @@ class HollowMimicTests(unittest.TestCase):
             self.assertTrue(report['overreach'])
             self.assertTrue(all(p['samples'] >= 1001 for p in report['paths']))
 
+    @rr20_inventory_context(rr20)
     def test_director_residue_cleanup_preserves_sources_and_resolves_placeholder(self):
         self.assertEqual(read_json(CASE/'inputs.json')['design_placeholders'], DESIGN_PLACEHOLDERS)
         self.assertNotIn('TODO_DESIGN_rear_green_texel', DESIGN_PLACEHOLDERS)

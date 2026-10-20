@@ -75,8 +75,9 @@ def labels_for(folder):
     return json.loads(recipe.read_text())['labels']
 
 
-def observations(folder, front_folder=None):
-    labels = labels_for(folder)
+def observations(folder, front_folder=None, labels=None):
+    # Captures outside the maquette tree (e.g. mq-11 proof runs) pass their spec's labels.
+    labels = labels if labels is not None else labels_for(folder)
     result = {}
     for view in ('front', 'rear'):
         source = front_folder if view == 'front' and front_folder is not None else folder

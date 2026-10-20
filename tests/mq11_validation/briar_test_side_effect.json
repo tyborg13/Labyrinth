@@ -1,0 +1,13 @@
+{
+  "file": "experiments/cutouts/briar_weaver/mq9/proof/samples.json",
+  "original_sha256": "a497ee7b2083088f4e032564ad42066a4119ae909aafb572be2b49c45b8c2ceb",
+  "test_generated_sha256": "113780bd8dfc0cdb8f0dda7dbd5b739768ddb0b36556ca78f70767bf20f2fef7",
+  "only_inputs_and_full_samples_receipt_changed": true,
+  "restored": true,
+  "final_sweep": {
+    "original_sha256": "a497ee7b2083088f4e032564ad42066a4119ae909aafb572be2b49c45b8c2ceb",
+    "test_generated_sha256": "113780bd8dfc0cdb8f0dda7dbd5b739768ddb0b36556ca78f70767bf20f2fef7",
+    "only_inputs_and_full_samples_receipt_changed": true,
+    "restored": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "snapshot_sha256": {
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/design.json": "129d95f9d6bf14ff8fa5a6d0ae0529dbbecd5a3ba1cfb66ddb3f75c2fd301c89",
+    "spec/art_identity/maquettes/slag_mortar/owner_review/design.json": "63bf1ff51b8e95ad8ad64d06332221c82ef9a505035983d805a8d196e627d1dc",
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/measurements.py": "62166b4cf9f10c417a3f263cf9ce307692bf8657d1feb823743d027eaec5d4f2"
+  },
+  "current_sha256": {
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/design.json": "129d95f9d6bf14ff8fa5a6d0ae0529dbbecd5a3ba1cfb66ddb3f75c2fd301c89",
+    "spec/art_identity/maquettes/slag_mortar/owner_review/design.json": "ec815b8c71a18f7c928dc984a8d6cf0760c861085cd71858e6ce1f06f1de23b7",
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/measurements.py": "62166b4cf9f10c417a3f263cf9ce307692bf8657d1feb823743d027eaec5d4f2"
+  },
+  "initial_front_thigh_fraction": 0.9,
+  "current_front_thigh_fraction": 1.25,
+  "note": "Concurrent director values preserved; awaiting clarification of 0.9 versus 1.25. No bridge or full suite run."
+}

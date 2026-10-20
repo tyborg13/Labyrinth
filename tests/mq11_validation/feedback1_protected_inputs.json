@@ -1,0 +1,26 @@
+{
+  "sha256": {
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/design.json": "129d95f9d6bf14ff8fa5a6d0ae0529dbbecd5a3ba1cfb66ddb3f75c2fd301c89",
+    "spec/art_identity/maquettes/slag_mortar/owner_review/design.json": "63bf1ff51b8e95ad8ad64d06332221c82ef9a505035983d805a8d196e627d1dc",
+    "spec/art_identity/maquettes/hollow_mimic/owner_review/measurements.py": "62166b4cf9f10c417a3f263cf9ce307692bf8657d1feb823743d027eaec5d4f2"
+  },
+  "gates": {
+    "native_size": 1024,
+    "iou": {
+      "front": 0.7,
+      "rear": 0.65
+    },
+    "scalp_skull_width": 1.25,
+    "tuft_count": 16,
+    "fringe_count": 4,
+    "tuft_length_head_height": [
+      0.3,
+      0.9
+    ],
+    "rear_height_head_height_max": 0.5,
+    "fringe_mask_top_fraction": 0.2,
+    "flap_hip_width": 0.5,
+    "front_thigh_fraction": 0.9,
+    "flap_centre_error_px_max": 4
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "assets/units/hoarfrost_seer_cutout/front.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "f5fa38ad3b9389b51c9a0c625b0716fab1841cf8f5f49de74e3ec38b653d32ce"
+  },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/front.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "2ff7ede08f5c490c74a4db3a226d7e2159fe1e65c97a00ff81a5f2dae875099b"
+  },
+  "assets/units/hoarfrost_seer_cutout/humanoid_v2/rear.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "58e9fdb203ed0ad76efa3ef42adfd1c20805bb725df8283a042dba5724c8ce97"
+  },
+  "assets/units/hoarfrost_seer_cutout/integration.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "93f4a6289bd1027feb5533e1e0cb4cea59e90910968ec788cd175f5a91b0c6aa"
+  },
+  "assets/units/hoarfrost_seer_cutout/rear.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "4bc5899a9796d11240835a312f77ef956cf64ebd7c09fab6f43429dfcfce6b5f"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/layouts/front.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "767c05cf491eee395a8c7a478267eca493935d72a4a3e1c83ea0354418a5bab5"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/layouts/rear.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "bb50513bbf7af43141e73305d314770de8afe9a5f05c848e924c814ae269219b"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/proof/seer_protagonist_idle.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "1735ad8876fcdf6b01762f09dfb0917ea34205b9a09392c2198584a2d36da94e"
+  },
+  "experiments/cutouts/hoarfrost_seer/rr10/proof/hoarfrost_seer_review.json": {
+    "byte_identical_to_integration_HEAD": true,
+    "sha256": "9bba9554b8dbe69bbfe34d0a4756a2de6cb2fbdb6efcf2e546ec13806d8736f8"
+  }
+}
