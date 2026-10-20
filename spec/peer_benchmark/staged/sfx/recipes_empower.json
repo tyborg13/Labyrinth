@@ -4,24 +4,85 @@
       "note": "Kindle: a warm flame catching (low whoomp), with a short ember crackle as it settles.",
       "length_s": 0.55,
       "layers": [
-        {"take": "c1eaafba3746#1", "trim": [0.0, 0.42], "gain_db": -4, "lowpass_hz": 7000, "fade_out_ms": 120},
-        {"take": "69b703317050#56", "gain_db": -12, "offset_ms": 60, "lowpass_hz": 9000, "fade_out_ms": 100}
+        {
+          "take": "c1eaafba3746#1",
+          "trim": [
+            0.0,
+            0.42
+          ],
+          "gain_db": -4,
+          "lowpass_hz": 7000,
+          "fade_out_ms": 120
+        },
+        {
+          "take": "69b703317050#56",
+          "gain_db": -12,
+          "offset_ms": 60,
+          "lowpass_hz": 9000,
+          "fade_out_ms": 100
+        }
       ]
     },
     "B": {
       "note": "Seal: a muted low stamp with a small iron latch click on top, like pressing a seal into warm wax.",
       "length_s": 0.4,
       "layers": [
-        {"take": "44215b7af83d#1", "pitch": 0.9, "gain_db": -2, "lowpass_hz": 6000},
-        {"take": "ba9ba60b172b#1", "pitch": 0.8, "gain_db": -11, "offset_ms": 8, "lowpass_hz": 8000, "fade_out_ms": 80}
+        {
+          "take": "44215b7af83d#1",
+          "pitch": 0.9,
+          "gain_db": -2,
+          "lowpass_hz": 6000
+        },
+        {
+          "take": "ba9ba60b172b#1",
+          "pitch": 0.8,
+          "gain_db": -11,
+          "offset_ms": 8,
+          "lowpass_hz": 8000,
+          "fade_out_ms": 80
+        }
       ]
     },
     "C": {
       "note": "Ignite: a quick, warm fire swell that rises into the charge, softened at the top.",
       "length_s": 0.6,
       "layers": [
-        {"take": "bb13cef9c0b0#1", "gain_db": -3, "lowpass_hz": 8000, "fade_out_ms": 150},
-        {"take": "9fba005f8d9e#1", "trim": [0.0, 0.45], "pitch": 1.15, "gain_db": -14, "lowpass_hz": 7000, "fade_out_ms": 120}
+        {
+          "take": "bb13cef9c0b0#1",
+          "gain_db": -3,
+          "lowpass_hz": 8000,
+          "fade_out_ms": 150
+        },
+        {
+          "take": "9fba005f8d9e#1",
+          "trim": [
+            0.0,
+            0.45
+          ],
+          "pitch": 1.15,
+          "gain_db": -14,
+          "lowpass_hz": 7000,
+          "fade_out_ms": 120
+        }
+      ]
+    }
+  },
+  "empower.uncharge": {
+    "A": {
+      "note": "Un-charge (owner 2026-10-20: softer, slightly duller than the charge): the charge's flame alone, no crackle, pitched down and darkened. Mix 6 dB under empower.charge.",
+      "length_s": 0.36,
+      "layers": [
+        {
+          "take": "c1eaafba3746#1",
+          "trim": [
+            0.0,
+            0.32
+          ],
+          "pitch": 0.85,
+          "gain_db": -4,
+          "lowpass_hz": 2400,
+          "fade_out_ms": 140
+        }
       ]
     }
   }
