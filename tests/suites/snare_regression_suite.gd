@@ -1,4 +1,6 @@
 extends RefCounted
+
+const Graph = preload("res://scripts/section_map_graph.gd")
 ## Director feedback: sealed-threshold exploits and final-start placement.
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
@@ -146,6 +148,9 @@ static func _true_bearing(expect: Callable) -> void:
 	var profile: Dictionary = Skills._new_run(engine, ["true_bearing"])["progression"]
 	for study: Dictionary in TRUE_BEARING_CASES:
 		var state: Dictionary = engine.create_new_run(study["seed"], profile)
+		# These reproductions were found on revision 6 maps; saved runs keep their revision.
+		state["section_map_layout_revision"] = 6
+		Graph.initialize(state)
 		var room: Dictionary = engine.room_metadata(state, study["room"])
 		expect.call(room.get("special_type") == "umbral_snare" and room["special_variant"] == study["biome"], "True Bearing reproduction uses the exact production Snare")
 		var found: bool = false

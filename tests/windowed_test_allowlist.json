@@ -196,6 +196,7 @@
   "tests/main_menu_umbra_button_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/maneuver_board_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/maneuver_cards_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
+  "tests/map_03_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/map_decision_layer_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/map_overlay_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/map_travel_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",

@@ -19,7 +19,7 @@ static func run(expect: Callable) -> void:
 	# controlled. The committed regression bounds deterministic search work.
 	var fallback_within_limit: bool = report["fallback"] <= seeds.size() * Graph.ROOM_COUNTS.size() * Benchmark.FALLBACK_LIMIT
 	expect.call(fallback_within_limit, "Fallback rate stays within the sweep's limit")
-	expect.call(report["max_attempt_nodes"] <= Graph.V5_TYPE_NODE_BUDGET, "Every type assignment respects its deterministic node budget")
+	expect.call(report["max_attempt_nodes"] <= _type_budget(), "Every type assignment respects its deterministic node budget")
 	# Exercise the ordinary public call too: diagnostics must not enter saves or
 	# influence the generated graph, and all 21 cases retain complete map rules.
 	for sample: Dictionary in report["samples"]:
@@ -34,7 +34,11 @@ static func run(expect: Callable) -> void:
 		Graph.initialize(second)
 		expect.call(var_to_str(first) == var_to_str(second), "Same 32-bit seed gives a byte-identical graph with or without diagnostics: %d" % int(sample["seed"]))
 		for index: int in range(6): _test_rules(first, index, expect)
-	print("Section map fast performance: %s (%d seeds x 6 sections; max attempt %d/%d nodes; fallback %d; max section %.3fms; max run %.3fms)" % ["PASS" if fallback_within_limit and report["max_attempt_nodes"] <= Graph.V5_TYPE_NODE_BUDGET else "FAIL", seeds.size(), report["max_attempt_nodes"], Graph.V5_TYPE_NODE_BUDGET, report["fallback"], report["all_sections"]["max_ms"], report["runs"]["max_ms"]])
+	print("Section map fast performance: %s (%d seeds x 6 sections; max attempt %d/%d nodes; fallback %d; max section %.3fms; max run %.3fms)" % ["PASS" if fallback_within_limit and report["max_attempt_nodes"] <= _type_budget() else "FAIL", seeds.size(), report["max_attempt_nodes"], _type_budget(), report["fallback"], report["all_sections"]["max_ms"], report["runs"]["max_ms"]])
+
+# New runs use the current revision's per-attempt budget.
+static func _type_budget() -> int:
+	return Graph.V7_TYPE_NODE_BUDGET if Graph.LAYOUT_REVISION >= 7 else Graph.V5_TYPE_NODE_BUDGET
 
 static func _test_seed_fixtures(expect: Callable) -> void:
 	var seeds: Array = JSON.parse_string(FileAccess.get_file_as_string(Benchmark.SEED_PATH))
@@ -90,10 +94,27 @@ static func _test_memo_and_cutoff(expect: Callable) -> void:
 	expect.call(not Graph._solve_types_v5(layout, [], 10, 5, search) and int(search.get("memo_hits", 0)) == 1, "Repeated failed state uses the memo")
 	expect.call(Graph._type_signature_v5([["event", "mystery"]]) == Graph._type_signature_v5([["mystery", "event"]]), "Memo keys ignore candidate preference order")
 
+# Revision 7 sections are webs, not walks: rebuild the layout from the rooms' links.
+static func _web_layout(state: Dictionary, index: int, count: int) -> Dictionary:
+	var rows: Dictionary = {}
+	var children: Dictionary = {}
+	for node: Dictionary in state["rooms"].values():
+		if int(node["section_index"]) != index or int(node["map_step"]) <= 0 or int(node["map_step"]) >= count: continue
+		var cell := Vector2i(int(node["map_step"]), int(node["map_lane"]))
+		if not rows.has(cell.x): rows[cell.x] = []
+		rows[cell.x].append(cell.y)
+		var targets: Array = []
+		for link: Dictionary in node["connections"]:
+			var target: Dictionary = Graph.room(state, link["coord"])
+			if int(target["section_index"]) == index and int(target["map_step"]) < count: targets.append(Vector2i(int(target["map_step"]), int(target["map_lane"])))
+		if not targets.is_empty(): children[cell] = targets
+	for step: int in rows: (rows[step] as Array).sort()
+	return Graph._layout_from_children_v7(rows, children, count)
+
 static func _test_rules(state: Dictionary, index: int, expect: Callable) -> void:
 	var info: Dictionary = Graph.section(state, index)
 	var count: int = Graph.ROOM_COUNTS[index]
-	var layout: Dictionary = Graph._layout_from_walks(info["walks"], count)
+	var layout: Dictionary = Graph._layout_from_walks(info["walks"], count) if not (info["walks"] as Array).is_empty() else _web_layout(state, index, count)
 	for node: Dictionary in state["rooms"].values():
 		if int(node["section_index"]) != index or int(node["map_step"]) in [0, count]: continue
 		var solver_node: Dictionary = node.duplicate(true)

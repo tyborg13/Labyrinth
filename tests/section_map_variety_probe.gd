@@ -64,7 +64,8 @@ func _run() -> void:
 		return
 	var signatures: Dictionary = {}
 	for seed_value: int in PROOF_SEEDS:
-		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
+		# map-02 proves revision 5's walks; saved runs keep that revision.
+		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": 5}
 		Graph.initialize(state)
 		for index: int in PROOF_SECTIONS:
 			var info: Dictionary = Graph.section(state, index)

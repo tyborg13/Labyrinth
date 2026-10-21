@@ -17,7 +17,9 @@ static func run(expect: Callable) -> void:
 	test_bounded_structures(expect)
 	test_probe_ready(expect)
 	for seed_value: int in LAYOUT_SEEDS:
-		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
+		# map-02's layout contract is revision 5's (saved runs keep it); revision 7
+		# scrolls and is covered by section_map_v7_suite.gd.
+		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": 5}
 		Graph.initialize(state)
 		test_layout_gaps(state, expect)
 
