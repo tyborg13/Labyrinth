@@ -1,0 +1,228 @@
+{
+  "status": "feedback_3_headless_verified_owner_native_acceptance_pending",
+  "ready": false,
+  "committed": false,
+  "windowed_runs_attempted": 0,
+  "full_suites_run_this_round": 0,
+  "requirements": {
+    "1": {
+      "status": "pass",
+      "requirement": "Root cause before construction edits",
+      "attributed_pixels": 12014,
+      "record": "proof/joint_cleanup/root_cause.md",
+      "pixel_table": "proof/joint_cleanup/attribution.json.gz",
+      "immutable_before_fixture": "tests/rr30/joint_surface_before.npz"
+    },
+    "2": {
+      "status": "pass_headless",
+      "requirement": "Fix source construction",
+      "changes": [
+        "Joint-local static source-alpha cuts",
+        "Approved own/adjacent skin and cloth donors above measured skin floor",
+        "Bounded head/pelvis action fills; optional continuation_min_luma donor field",
+        "Measured front near-elbow registration and rear rigid sole ownership",
+        "Transparent storage calibration with unchanged rigid-air checks"
+      ],
+      "painting_changed": false,
+      "capture_masks": false
+    },
+    "3": {
+      "status": "pass_for_implemented_contact_boundary_basis",
+      "requirement": "All-frame CPU coverage and joint gate with construction-disabled mutation",
+      "presented_frames": 862,
+      "views": {
+        "front": {
+          "ok": true,
+          "maximum_visible_cover_distance_px": 2.999639445365608,
+          "frames": 431,
+          "failures": [],
+          "skin_luma_floors": {
+            "upper_near": 17.778999999999996,
+            "fore_near": 18.132,
+            "hand_near": 18.099999999999998,
+            "thigh_near": 18.317,
+            "upper_far": 17.854,
+            "fore_far": 18.605,
+            "hand_far": 17.801,
+            "thigh_far": 18.203
+          }
+        },
+        "rear": {
+          "ok": true,
+          "maximum_visible_cover_distance_px": 2.9996047469007543,
+          "frames": 431,
+          "failures": [],
+          "skin_luma_floors": {
+            "upper_near": 17.861,
+            "fore_near": 20.419999999999998,
+            "hand_near": 17.872,
+            "thigh_near": 17.872,
+            "upper_far": 17.79,
+            "fore_far": 18.006999999999998,
+            "hand_far": 17.872,
+            "thigh_far": 17.769
+          }
+        }
+      },
+      "mutations_caught": [
+        "front/lob0016 cover distance and dark seams",
+        "front/lob0032 cover distance and dark seams"
+      ],
+      "mutation": "proof/joint_cleanup/mutation_disabled_fix.json",
+      "joint_distance_basis": "TODO_DESIGN_joint_cover_distance_basis"
+    },
+    "4": {
+      "status": "pass",
+      "requirement": "Retain prior certified data and behavior",
+      "source_rest_mismatch_px": {
+        "front": 0,
+        "rear": 0
+      },
+      "native_rest_png_bytes_retained": {
+        "front": true,
+        "rear": true
+      },
+      "identity_tests": "111/111",
+      "rear_chroma": 0.19884831373817569,
+      "stretch_limit_percent": 12.0,
+      "maximum_stretch_percent": 2.399499057226251e-05,
+      "physical_pieces": 80,
+      "walk_maximum_fit_px": {
+        "front": 0.091893,
+        "rear": 0.098218
+      },
+      "protected_motion_compiled_bytes_unchanged": {
+        "experiments/cutouts/slag_mortar/rr30/director_motion.json": true,
+        "experiments/cutouts/slag_mortar/rr30/compiled_motion.json": true,
+        "assets/units/slag_mortar_cutout/humanoid_v2/director_motion.json": true,
+        "assets/units/slag_mortar_cutout/humanoid_v2/compiled_motion.json": true
+      },
+      "flap_sway": "proof/runtime_sway.json"
+    },
+    "5": {
+      "status": "pending director windowed acceptance",
+      "requirement": "Native acceptance and refreshable bindings",
+      "historical_acceptance": "Director reported every windowed stage PASS for 407ca1d9a; retained captures are historical",
+      "current_headless_bindings": "proof/bindings_check.json",
+      "commands": [
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh density",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh rest",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh native",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh sheets",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh walk",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh idle",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh production",
+        "sh experiments/cutouts/slag_mortar/rr30_proof.sh review"
+      ]
+    },
+    "6": {
+      "status": "pass",
+      "requirement": "Focused tests only",
+      "scope": "Unit tests and unit CPU/production logic sweeps; no full suites, renderer runs or peer review"
+    }
+  },
+  "observed": {
+    "rr30_focused": [
+      "Ran 33 tests in 347.953s",
+      "OK"
+    ],
+    "supplemental_density_and_donors": [
+      "Ran 6 tests in 6.091s",
+      "OK"
+    ],
+    "unchanged_legacy_donors": [
+      "Ran 2 tests in 17.991s",
+      "OK"
+    ],
+    "art_identity": [
+      "Ran 111 tests in 36.098s",
+      "OK"
+    ],
+    "source_bone_knee": [
+      "RR30 SOURCE/BONE/KNEE GATES: PASS (0 errors; both views)"
+    ],
+    "canonical_and_joint": [
+      "RR30 FRONT CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)",
+      "RR30 REAR CPU COVERAGE AND JOINT GATES: PASS (431 frames; 0 errors)"
+    ],
+    "source_disabled_mutation": [
+      "RR30 JOINT MUTATION: CAUGHT (source fix disabled; lob0016 and lob0032; cover and dark seams)"
+    ],
+    "production": [
+      "RR30 PRODUCTION LOGIC GATES: PASS (3032 frames; 0 errors; both views)"
+    ],
+    "walk": [
+      "RR30 FRONT WALK: PASS (maximum fit 0.091893 px; total drop 3.500000 px)",
+      "RR30 REAR WALK: PASS (maximum fit 0.098218 px; total drop 3.500000 px)"
+    ],
+    "stretch": [
+      "RR30 STRETCH: PASS (0 errors; 80 pieces)"
+    ],
+    "registration": [
+      "TEST REGISTRATION AUDIT: PASS (761 scripts; full suite=415, quarantined=29, windowed probe=317)"
+    ],
+    "sidecars": [
+      "RR30 SIDECAR CANDIDATE: PASS (tracked files plus owned additions)"
+    ],
+    "diff_check": [
+      "git diff --check: exit 0; no output"
+    ]
+  },
+  "stretch": {
+    "limit_percent": 12.0,
+    "pieces": 80,
+    "maximum_percent": 2.399499057226251e-05,
+    "per_piece_report": "proof/stretch.json"
+  },
+  "preservation": {
+    "ok": true,
+    "tracked_files_checked": 31442,
+    "changed": [],
+    "protected_inputs_checked": 166,
+    "protected_changed": [],
+    "non_mortar_records_unchanged": {
+      "spec/art_identity/registry.json": true,
+      "spec/assets/board_pixel_density/registry.json": true,
+      "spec/assets/board_pixel_density/outputs.json": true
+    },
+    "native_rest_png_bytes_retained": {
+      "front": true,
+      "rear": true
+    }
+  },
+  "artifacts": {
+    "comparison": "proof/joint_cleanup/before_after.png",
+    "root_cause": "proof/joint_cleanup/root_cause.md",
+    "joint_sweep": "proof/joint_cleanup/full_sweep.json",
+    "mutation": "proof/joint_cleanup/mutation_disabled_fix.json",
+    "identity_sheets": [
+      "spec/art_identity/jobs/slag_mortar/mq11_front/sheet.png",
+      "spec/art_identity/jobs/slag_mortar/mq11_rear/sheet.png"
+    ],
+    "cpu_crops": [
+      "proof/after/",
+      "proof/after_full/"
+    ],
+    "native": "Director-owned; no new renderer captures claimed",
+    "logs": "proof/logs/feedback3-*.log"
+  },
+  "TODO_DESIGN": {
+    "TODO_DESIGN_joint_cover_distance_basis": "Pending clarification: implemented exact distance to painted contact interface posed from both pieces; a hinge-centered 3 px disk cannot cover the approved contact width"
+  },
+  "chosen_defaults": "proof/chosen_defaults.json",
+  "open_issues": [
+    "Director must rerun density/rest/native/sheets/walk/idle/production/review in order for current construction.",
+    "Joint distance basis clarification remains named; current gate uses painted contact boundary."
+  ],
+  "historical_suites_not_rerun": {
+    "feedback_1_full_godot": [
+      "MAIN BODY ASSERTIONS: 378990",
+      "FULL SUITE RUNTIME: 434.349 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "feedback_1_full_python": [
+      "Ran 1554 tests in 1552.577s",
+      "FAILED (failures=5, errors=3, skipped=66)"
+    ]
+  }
+}

@@ -1,0 +1,3108 @@
+{
+  "views": {
+    "front": {
+      "cuts": {
+        "hidden_upper_near": [
+          [
+            65,
+            15
+          ]
+        ],
+        "hidden_mortar": [
+          [
+            6,
+            24
+          ],
+          [
+            7,
+            24
+          ],
+          [
+            7,
+            27
+          ],
+          [
+            8,
+            20
+          ],
+          [
+            8,
+            21
+          ],
+          [
+            8,
+            25
+          ],
+          [
+            8,
+            26
+          ],
+          [
+            8,
+            27
+          ],
+          [
+            9,
+            21
+          ],
+          [
+            9,
+            27
+          ],
+          [
+            10,
+            22
+          ],
+          [
+            10,
+            29
+          ],
+          [
+            11,
+            29
+          ],
+          [
+            12,
+            24
+          ]
+        ],
+        "hidden_upper_far": [
+          [
+            30,
+            32
+          ],
+          [
+            50,
+            11
+          ],
+          [
+            52,
+            7
+          ],
+          [
+            52,
+            8
+          ],
+          [
+            53,
+            7
+          ],
+          [
+            53,
+            8
+          ],
+          [
+            54,
+            6
+          ],
+          [
+            55,
+            6
+          ],
+          [
+            56,
+            6
+          ]
+        ],
+        "hidden_fore_far": [
+          [
+            3,
+            43
+          ]
+        ],
+        "hidden_pelvis": [
+          [
+            12,
+            21
+          ],
+          [
+            43,
+            12
+          ],
+          [
+            43,
+            15
+          ],
+          [
+            44,
+            15
+          ],
+          [
+            44,
+            16
+          ],
+          [
+            45,
+            16
+          ],
+          [
+            46,
+            17
+          ],
+          [
+            47,
+            17
+          ],
+          [
+            48,
+            17
+          ],
+          [
+            48,
+            18
+          ],
+          [
+            48,
+            19
+          ],
+          [
+            49,
+            18
+          ],
+          [
+            49,
+            19
+          ],
+          [
+            49,
+            20
+          ],
+          [
+            50,
+            20
+          ],
+          [
+            51,
+            20
+          ],
+          [
+            52,
+            20
+          ],
+          [
+            55,
+            21
+          ],
+          [
+            55,
+            22
+          ]
+        ],
+        "hidden_hand_near": [
+          [
+            17,
+            11
+          ]
+        ],
+        "hidden_bracer_near": [
+          [
+            13,
+            45
+          ],
+          [
+            24,
+            43
+          ]
+        ],
+        "hidden_fore_near": [
+          [
+            13,
+            56
+          ]
+        ]
+      },
+      "evidence": [
+        {
+          "clip": "lob",
+          "frame": 35,
+          "piece": "hidden_upper_near",
+          "source_texels": [
+            [
+              65,
+              15
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 36,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              7,
+              24
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 37,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              7
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 38,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 39,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 39,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 40,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              20
+            ],
+            [
+              6,
+              24
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 40,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              54,
+              6
+            ],
+            [
+              55,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 41,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              9,
+              21
+            ],
+            [
+              12,
+              24
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 41,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ],
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 42,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ],
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 43,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ],
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 44,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ],
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 45,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ],
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 46,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              9,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 46,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ],
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 47,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              10,
+              22
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 47,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 48,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              10,
+              22
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 48,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              54,
+              6
+            ],
+            [
+              55,
+              6
+            ],
+            [
+              56,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 49,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              7
+            ],
+            [
+              54,
+              6
+            ],
+            [
+              56,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 50,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              52,
+              7
+            ],
+            [
+              53,
+              7
+            ],
+            [
+              54,
+              6
+            ],
+            [
+              56,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 51,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              52,
+              7
+            ],
+            [
+              53,
+              7
+            ],
+            [
+              54,
+              6
+            ],
+            [
+              56,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 52,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 53,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 54,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 55,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 59,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 60,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              7,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 10,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              52,
+              8
+            ],
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 13,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              56,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 44,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              56,
+              6
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 46,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              52,
+              8
+            ],
+            [
+              53,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 19,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 21,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              7,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 22,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              25
+            ],
+            [
+              8,
+              26
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 23,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              26
+            ],
+            [
+              8,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 24,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              26
+            ],
+            [
+              8,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 25,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              26
+            ],
+            [
+              8,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 28,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              26
+            ],
+            [
+              8,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 29,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              8,
+              26
+            ],
+            [
+              8,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 30,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              9,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 32,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              7,
+              27
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 34,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 37,
+          "piece": "hidden_mortar",
+          "source_texels": [
+            [
+              10,
+              29
+            ],
+            [
+              11,
+              29
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 16,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              50,
+              11
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 24,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              30,
+              32
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 26,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              12,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 27,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              55,
+              22
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 39,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              47,
+              17
+            ],
+            [
+              48,
+              17
+            ],
+            [
+              49,
+              18
+            ],
+            [
+              50,
+              20
+            ],
+            [
+              51,
+              20
+            ],
+            [
+              52,
+              20
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 40,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              48,
+              17
+            ],
+            [
+              49,
+              18
+            ],
+            [
+              49,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 41,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              48,
+              17
+            ],
+            [
+              49,
+              18
+            ],
+            [
+              49,
+              19
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 42,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              45,
+              16
+            ],
+            [
+              46,
+              17
+            ],
+            [
+              47,
+              17
+            ],
+            [
+              48,
+              17
+            ],
+            [
+              48,
+              18
+            ],
+            [
+              49,
+              18
+            ],
+            [
+              49,
+              19
+            ],
+            [
+              49,
+              20
+            ],
+            [
+              50,
+              20
+            ],
+            [
+              51,
+              20
+            ],
+            [
+              52,
+              20
+            ],
+            [
+              55,
+              22
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 46,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              48,
+              17
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 51,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              48,
+              17
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 52,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              48,
+              17
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 53,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              48,
+              17
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 54,
+          "piece": "hidden_hand_near",
+          "source_texels": [
+            [
+              17,
+              11
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 63,
+          "piece": "hidden_bracer_near",
+          "source_texels": [
+            [
+              24,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 63,
+          "piece": "hidden_fore_near",
+          "source_texels": [
+            [
+              13,
+              56
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 67,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              43,
+              12
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 68,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              43,
+              12
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 71,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              49,
+              18
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 72,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              15
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              17
+            ],
+            [
+              49,
+              18
+            ],
+            [
+              49,
+              19
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 73,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              45,
+              16
+            ],
+            [
+              49,
+              19
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 74,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              49,
+              18
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 76,
+          "piece": "hidden_bracer_near",
+          "source_texels": [
+            [
+              13,
+              45
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 76,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              43,
+              15
+            ],
+            [
+              44,
+              15
+            ],
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              47,
+              17
+            ],
+            [
+              48,
+              18
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 77,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              43,
+              15
+            ],
+            [
+              44,
+              15
+            ],
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              47,
+              17
+            ],
+            [
+              48,
+              18
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 78,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 78,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 79,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 80,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 81,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 81,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 82,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 82,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 83,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 83,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 84,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 84,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 85,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 85,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 86,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 86,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 87,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 87,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 88,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 88,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 89,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              3,
+              43
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 89,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              44,
+              16
+            ],
+            [
+              45,
+              16
+            ],
+            [
+              48,
+              19
+            ],
+            [
+              55,
+              21
+            ]
+          ]
+        }
+      ]
+    },
+    "rear": {
+      "cuts": {
+        "hidden_upper_near": [
+          [
+            19,
+            37
+          ],
+          [
+            19,
+            38
+          ],
+          [
+            36,
+            8
+          ]
+        ],
+        "hidden_torso": [
+          [
+            63,
+            56
+          ],
+          [
+            68,
+            71
+          ],
+          [
+            69,
+            72
+          ],
+          [
+            70,
+            73
+          ],
+          [
+            72,
+            74
+          ],
+          [
+            78,
+            57
+          ],
+          [
+            80,
+            57
+          ],
+          [
+            81,
+            57
+          ],
+          [
+            83,
+            19
+          ],
+          [
+            84,
+            19
+          ],
+          [
+            85,
+            19
+          ],
+          [
+            86,
+            19
+          ]
+        ],
+        "hidden_upper_far": [
+          [
+            17,
+            58
+          ],
+          [
+            31,
+            11
+          ],
+          [
+            59,
+            67
+          ],
+          [
+            71,
+            74
+          ],
+          [
+            72,
+            74
+          ]
+        ],
+        "hidden_hand_far": [
+          [
+            4,
+            8
+          ]
+        ],
+        "hidden_fore_far": [
+          [
+            52,
+            54
+          ]
+        ],
+        "hidden_head": [
+          [
+            30,
+            58
+          ]
+        ],
+        "hidden_pelvis": [
+          [
+            19,
+            13
+          ],
+          [
+            19,
+            14
+          ],
+          [
+            20,
+            12
+          ],
+          [
+            20,
+            13
+          ],
+          [
+            20,
+            14
+          ],
+          [
+            21,
+            12
+          ],
+          [
+            21,
+            13
+          ],
+          [
+            21,
+            14
+          ]
+        ]
+      },
+      "evidence": [
+        {
+          "clip": "lob",
+          "frame": 36,
+          "piece": "hidden_upper_near",
+          "source_texels": [
+            [
+              36,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 49,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              81,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 50,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              80,
+              57
+            ],
+            [
+              81,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 51,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              80,
+              57
+            ],
+            [
+              81,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 52,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              80,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 53,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              80,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 54,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              80,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 55,
+          "piece": "hidden_upper_near",
+          "source_texels": [
+            [
+              36,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 55,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              80,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 60,
+          "piece": "hidden_upper_near",
+          "source_texels": [
+            [
+              36,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 62,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              78,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 63,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              78,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "lob",
+          "frame": 64,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              72,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 6,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              78,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 47,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              59,
+              67
+            ],
+            [
+              72,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "brace",
+          "frame": 49,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              78,
+              57
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 11,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              59,
+              67
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 12,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              59,
+              67
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 13,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              59,
+              67
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 14,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              59,
+              67
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 15,
+          "piece": "hidden_hand_far",
+          "source_texels": [
+            [
+              4,
+              8
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 15,
+          "piece": "hidden_fore_far",
+          "source_texels": [
+            [
+              52,
+              54
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 15,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              59,
+              67
+            ]
+          ]
+        },
+        {
+          "clip": "scatter",
+          "frame": 36,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              17,
+              58
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 14,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              31,
+              11
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 15,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              31,
+              11
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 22,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              68,
+              71
+            ],
+            [
+              69,
+              72
+            ],
+            [
+              70,
+              73
+            ],
+            [
+              72,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 29,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              63,
+              56
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 36,
+          "piece": "hidden_head",
+          "source_texels": [
+            [
+              30,
+              58
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 52,
+          "piece": "hidden_upper_near",
+          "source_texels": [
+            [
+              19,
+              38
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 58,
+          "piece": "hidden_torso",
+          "source_texels": [
+            [
+              83,
+              19
+            ],
+            [
+              84,
+              19
+            ],
+            [
+              85,
+              19
+            ],
+            [
+              86,
+              19
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 61,
+          "piece": "hidden_upper_near",
+          "source_texels": [
+            [
+              19,
+              37
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 63,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 64,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 65,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 67,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 68,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 69,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 70,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              19,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 71,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 72,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 73,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 74,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 75,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 76,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 77,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 78,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 79,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 79,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 80,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 80,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 81,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 81,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 82,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 82,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 83,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 83,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 84,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 84,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 85,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 85,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 86,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 86,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 87,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 87,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 88,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 88,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 89,
+          "piece": "hidden_upper_far",
+          "source_texels": [
+            [
+              71,
+              74
+            ]
+          ]
+        },
+        {
+          "clip": "death",
+          "frame": 89,
+          "piece": "hidden_pelvis",
+          "source_texels": [
+            [
+              20,
+              12
+            ],
+            [
+              21,
+              12
+            ],
+            [
+              19,
+              13
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              21,
+              13
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              20,
+              14
+            ],
+            [
+              21,
+              14
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "changed_files": [
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_mortar.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_mortar.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_mortar.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_mortar.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_hand_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_hand_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_hand_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_hand_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_bracer_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_bracer_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_bracer_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_bracer_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/front/hidden_fore_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/front/hidden_fore_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_fore_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/front/hidden_fore_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_upper_near.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_torso.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_torso.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_torso.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_torso.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_upper_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_hand_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_hand_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_hand_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_hand_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_fore_far.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_head.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_head.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_head.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_head.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/pieces/rear/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/experiments/cutouts/slag_mortar/rr30/checks/rear/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_pelvis.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-31/spec/assets/board_pixel_density/sources/assets/units/slag_mortar_cutout/humanoid_v2/rear/hidden_pelvis.png"
+  ]
+}

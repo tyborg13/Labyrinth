@@ -1,0 +1,95 @@
+{
+  "basis": "CPU diagnostic from actual presented transforms; no native renderer claim",
+  "crops": [
+    {
+      "view": "front",
+      "region": "face_neck",
+      "clip": "death",
+      "frame": 78,
+      "phase": 0.876404494382023,
+      "crop": [
+        193,
+        224,
+        255,
+        286
+      ],
+      "file": "front_face_neck_death_0078.png",
+      "native_pixels": false
+    },
+    {
+      "view": "front",
+      "region": "arm_near",
+      "clip": "brace",
+      "frame": 19,
+      "phase": 0.358490566037736,
+      "crop": [
+        254,
+        216,
+        348,
+        302
+      ],
+      "file": "front_arm_near_brace_0019.png",
+      "native_pixels": false
+    },
+    {
+      "view": "front",
+      "region": "arm_far",
+      "clip": "brace",
+      "frame": 18,
+      "phase": 0.339622641509434,
+      "crop": [
+        168,
+        210,
+        237,
+        278
+      ],
+      "file": "front_arm_far_brace_0018.png",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "region": "face_neck",
+      "clip": "death",
+      "frame": 78,
+      "phase": 0.876404494382023,
+      "crop": [
+        279,
+        199,
+        335,
+        259
+      ],
+      "file": "rear_face_neck_death_0078.png",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "region": "arm_near",
+      "clip": "brace",
+      "frame": 16,
+      "phase": 0.30188679245283,
+      "crop": [
+        167,
+        233,
+        237,
+        293
+      ],
+      "file": "rear_arm_near_brace_0016.png",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "region": "arm_far",
+      "clip": "brace",
+      "frame": 18,
+      "phase": 0.339622641509434,
+      "crop": [
+        258,
+        208,
+        349,
+        302
+      ],
+      "file": "rear_arm_far_brace_0018.png",
+      "native_pixels": false
+    }
+  ]
+}

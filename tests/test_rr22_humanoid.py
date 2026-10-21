@@ -39,7 +39,7 @@ class SlagMortarTests(unittest.TestCase):
         cls.build = read_json(CASE / 'proof/build.json')
         with tempfile.TemporaryDirectory(prefix='rr22-bones-') as folder:
             path = Path(folder) / 'samples.json'
-            result = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-25', '--stream', '--',
+            result = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', os.environ.get('LABYRINTH_TASK_ID', 'rr-30'), '--stream', '--',
                 'godot', '--headless', '--path', '.', '--script', 'tests/rr22/samples.gd', '--',
                 '--case', str(CASE), '--output', str(path)], cwd=PROJECT, capture_output=True, text=True, timeout=PROOF_TIMEOUT_SECONDS)
             if result.returncode: raise AssertionError(result.stdout + result.stderr)
@@ -279,7 +279,13 @@ class SlagMortarTests(unittest.TestCase):
             self.assertNotIn('experiments/', layout['motion_data'])
             for part in layout['parts'] + layout['joint_meshes']:
                 self.assertTrue((ASSETS / 'humanoid_v2' / part['file']).is_file())
-        self.assertEqual((ASSETS / 'humanoid_v2/director_motion.json').read_bytes(), DIRECTOR.read_bytes())
+        # Historical rr22 anatomy stays frozen; production follows the declared
+        # promoted case. rr30 separately binds that copy to the protected input.
+        active_case = PROJECT / integration['case']
+        from cutout_pipeline.cases import digest
+        active_motion = active_case / 'director_motion.json'
+        self.assertEqual((ASSETS / 'humanoid_v2/director_motion.json').read_bytes(), active_motion.read_bytes())
+        self.assertEqual(digest(active_motion), integration['director_sha256'])
 
 
 if __name__ == '__main__': unittest.main()

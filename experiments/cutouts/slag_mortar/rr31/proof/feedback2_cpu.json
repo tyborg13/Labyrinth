@@ -1,0 +1,398 @@
+{
+  "native_pixels": false,
+  "frames": [
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 32,
+      "file": "proof/feedback2_cpu/front_lob_0032.png",
+      "sha256": "c3e4162876adbf430be2dd3eabf0b205e8418ffc2b7bae26e4e49bbc60c785e0",
+      "native_pixels": false,
+      "detail": {
+        "file": "proof/feedback2_lob_detail.png",
+        "left": "unchanged round-1 native",
+        "right": "new source CPU render",
+        "crop": [
+          265,
+          210,
+          325,
+          280
+        ],
+        "scale": 4,
+        "native_before_sha256": "64844cf0c0dba99ae51c2b1daf493a1dd4e445816c2d11c9aa6e3179a19bb2f2"
+      }
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 33,
+      "file": "proof/feedback2_cpu/front_lob_0033.png",
+      "sha256": "652651aa9c814e5f307c2eee4aa17e576174533bc87801f9a9931b9a6ccc22dd",
+      "native_pixels": false
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 67,
+      "file": "proof/feedback2_cpu/front_lob_0067.png",
+      "sha256": "851d8769a975dc80298df7361b842b5d2fae38a0143ef7e29b1901801a715ef9",
+      "native_pixels": false
+    },
+    {
+      "view": "front",
+      "clip": "brace",
+      "frame": 20,
+      "file": "proof/feedback2_cpu/front_brace_0020.png",
+      "sha256": "b46b010c567038da33f1154cb4ca97300b89479cd5239b1c134ab801bd8da1d2",
+      "native_pixels": false,
+      "detail": {
+        "file": "proof/feedback2_brace_detail.png",
+        "left": "unchanged round-1 native",
+        "right": "new source CPU render",
+        "crop": [
+          175,
+          255,
+          245,
+          325
+        ],
+        "scale": 4,
+        "native_before_sha256": "49a150df7bc0c4079408bfe8b4982b9a3d94747762c8c738682026f0fb4e79dd"
+      }
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "frame": 39,
+      "file": "proof/feedback2_cpu/front_scatter_0039.png",
+      "sha256": "5d7b6fa12d1f6a9cd1516272ba050e5afe416c500805fd64e08e9f2e8414db62",
+      "native_pixels": false
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "file": "proof/feedback2_cpu/front_death_0078.png",
+      "sha256": "acc643de6a85aab1bcccf1ab99ce6ae6e817e9509b2a4055896f4103be4aacd0",
+      "native_pixels": false,
+      "detail": {
+        "file": "proof/feedback2_death_detail.png",
+        "left": "unchanged round-1 native",
+        "right": "new source CPU render",
+        "crop": [
+          265,
+          225,
+          325,
+          295
+        ],
+        "scale": 4,
+        "native_before_sha256": "00480fe4f81920d6fcde37da516cac0154cee8b3e64175b3cb2b279c32237e12"
+      }
+    },
+    {
+      "view": "rear",
+      "clip": "lob",
+      "frame": 59,
+      "file": "proof/feedback2_cpu/rear_lob_0059.png",
+      "sha256": "3f5a6e893c9f763dccec3978820be34d81a97300b44f7e2596ee09ae6bc9cc85",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "clip": "lob",
+      "frame": 60,
+      "file": "proof/feedback2_cpu/rear_lob_0060.png",
+      "sha256": "f8ce919c62af4695c7b0775db7f037e7ebb076aa264c763bf68047472e15e656",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 7,
+      "file": "proof/feedback2_cpu/rear_brace_0007.png",
+      "sha256": "a920135cd810992b66934065efff6bc501f5a4532110b34626a85412a3996e55",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 8,
+      "file": "proof/feedback2_cpu/rear_brace_0008.png",
+      "sha256": "faab967d9c3dc9b2d2bb837019c4ef9bf956f2db72ed67fe2176272674f973f0",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 47,
+      "file": "proof/feedback2_cpu/rear_brace_0047.png",
+      "sha256": "9fd938695b89e4432179939bc431b1d8fbcaeec4a46fb1ff0d2d85a1e0257b38",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 48,
+      "file": "proof/feedback2_cpu/rear_brace_0048.png",
+      "sha256": "a920135cd810992b66934065efff6bc501f5a4532110b34626a85412a3996e55",
+      "native_pixels": false
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 50,
+      "file": "proof/feedback2_cpu/rear_brace_0050.png",
+      "sha256": "60fd700807c01f97c8bb89140dc9eeeb7341b384907c12acf192d984561b34cb",
+      "native_pixels": false
+    }
+  ],
+  "native_pose_source_coverage": [
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 33,
+      "piece": "hidden_upper_near",
+      "transform": [
+        0.999657332897186,
+        -0.0261769499629736,
+        0.0261769499629736,
+        0.999657332897186,
+        130.845001220703,
+        95.1591186523438
+      ],
+      "destination": [
+        322,
+        242
+      ],
+      "native_frame_sha256": "a8c85be7c3b28434f93c873f79dc4b2adca508301c3e984dc38aa6db43970610",
+      "source_choices": [
+        [
+          194,
+          111
+        ],
+        [
+          194,
+          112
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 67,
+      "piece": "hidden_upper_near",
+      "transform": [
+        0.999657332897186,
+        -0.0261769499629736,
+        0.0261769499629736,
+        0.999657332897186,
+        130.845001220703,
+        93.1591186523438
+      ],
+      "destination": [
+        322,
+        240
+      ],
+      "native_frame_sha256": "48e360166c7b596d00d0f5a70732097d0d6434ead8cd77211f6c4c0a588ce569",
+      "source_choices": [
+        [
+          194,
+          111
+        ],
+        [
+          194,
+          112
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "frame": 39,
+      "piece": "hidden_upper_near",
+      "transform": [
+        0.999657332897186,
+        -0.0261769499629736,
+        0.0261769499629736,
+        0.999657332897186,
+        129.845001220703,
+        91.1591186523438
+      ],
+      "destination": [
+        321,
+        238
+      ],
+      "native_frame_sha256": "96ef7cad94696ba849c0d145e616ff4ad4bd37ebc9317ae967e6eebc71a5fb23",
+      "source_choices": [
+        [
+          194,
+          111
+        ],
+        [
+          194,
+          112
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 7,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        87.5346069335938
+      ],
+      "destination": [
+        284,
+        265
+      ],
+      "native_frame_sha256": "dba1560a4ad5614a1bd1b06b2a4e3798a2b6ce4c2ebe117eba11f0c3d2ea22a3",
+      "source_choices": [
+        [
+          154,
+          134
+        ],
+        [
+          154,
+          135
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 8,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        87.5346069335938
+      ],
+      "destination": [
+        284,
+        265
+      ],
+      "native_frame_sha256": "d2139aafbc3c144343eb9c10a57bc79cd56847e0e0be4265ddcc4162945c4f2a",
+      "source_choices": [
+        [
+          154,
+          134
+        ],
+        [
+          154,
+          135
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 47,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        88.5346221923828
+      ],
+      "destination": [
+        284,
+        266
+      ],
+      "native_frame_sha256": "082fd87597a34e701141e1631bc6dc36b7d8a762614e5aa4d3ac1b1e9775c152",
+      "source_choices": [
+        [
+          154,
+          134
+        ],
+        [
+          154,
+          135
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 48,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        87.5346069335938
+      ],
+      "destination": [
+        284,
+        265
+      ],
+      "native_frame_sha256": "dba1560a4ad5614a1bd1b06b2a4e3798a2b6ce4c2ebe117eba11f0c3d2ea22a3",
+      "source_choices": [
+        [
+          154,
+          134
+        ],
+        [
+          154,
+          135
+        ]
+      ],
+      "alpha_choices": [
+        255,
+        255,
+        255,
+        255
+      ]
+    }
+  ],
+  "source_coverage_passed": 7,
+  "source_coverage_total": 7,
+  "native_acceptance": "Pending director rerun; these are CPU source/pose checks, not a new native-gate pass."
+}

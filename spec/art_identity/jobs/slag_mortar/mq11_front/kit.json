@@ -1,0 +1,55 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "slag_mortar",
+  "job_id": "mq-slag_mortar-front-mq11",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "55e6a840ea113edb35ccc5027504dfba1e6ba34de55f5a01e18b5152fd22eb7d",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/slag_mortar/front/kit.json",
+    "pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a"
+  },
+  "method": "mq-11 maquette paint-over (belt and loincloth only), composited below y 560 into the approved mq9 painting",
+  "peers": [
+    "frostglass_lancer_front",
+    "slag_mortar_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "294b965271c84f9ea8808b70a68113c8100e01675c3859f880317d321561a5b9",
+  "prompt_source": "spec/art_identity/maquettes/slag_mortar/rr30_mq11_front_prompt.md",
+  "refs": [
+    {
+      "file": "refs/01_maquette_front_parts_mq11.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_front/01_maquette_front_parts_mq11.png",
+      "pixel_sha256": "eddaebb8944fa6076ab6681564a25129c135807543a642518693f278934b2fa8",
+      "role": "maquette_parts",
+      "canon_id": "mq11_front_01_maquette_front_parts_mq11"
+    },
+    {
+      "file": "refs/02_maquette_front_clay_mq11.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_front/02_maquette_front_clay_mq11.png",
+      "pixel_sha256": "0718298c51ef5860c7296bd4d18372e5a973622959fb59308af91a305e2b0a64",
+      "role": "maquette_clay",
+      "canon_id": "mq11_front_02_maquette_front_clay_mq11"
+    },
+    {
+      "file": "refs/03_current_painting_front.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_front/03_current_painting_front.png",
+      "pixel_sha256": "674b3239308ff0911a3c22c77a9028bc4f4e8117e9b1d5b6ea936f76cc0cf1ae",
+      "role": "identity",
+      "canon_id": "mq11_front_03_current_painting_front"
+    },
+    {
+      "file": "refs/04_original_mortar_front.png",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_slag_mortar_front/04_original_mortar_front.png",
+      "pixel_sha256": "87732f7a3c0f5a5cd3d8127fd19046eb848edec38c4f550e4439bcbf53026eb1",
+      "role": "identity",
+      "canon_id": "mq11_front_04_original_mortar_front"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "view": "creature_front",
+  "provided_prompt_source": "spec/peer_benchmark/staged/paintovers/slag_mortar_front_mq11.md"
+}

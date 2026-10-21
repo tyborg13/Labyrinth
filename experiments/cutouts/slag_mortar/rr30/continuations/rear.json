@@ -1,0 +1,73 @@
+{
+  "basis": {
+    "director": "7de7194a9125133e67dd8fd3459cabd3fbabee69122bd8057bbfcc9a0482d530",
+    "paint": "aecd880701aa19e8c6283cd18aab38930c8a0817b120da534c6e89365b240b8e",
+    "ownership": "7ecf5aa2b99ae0c949476afe53ce9109a629dae0d1f4d8607c1ef613736a19b1",
+    "joints": "fb43afc0759e1eaee1e9fc507c442a1d264cc1d3bbf117ee7586c08a9d5a792f"
+  },
+  "sampled_frames": 431,
+  "domains": {
+    "head": {
+      "file": "continuations/rear_head.png",
+      "sha256": "3e9395eae88f687d199be2e804641121739cd5dd1cee23d02f0c56a621d0f4b0"
+    },
+    "torso": {
+      "file": "continuations/rear_torso.png",
+      "sha256": "cf0ec91611839fce1ca92011250a03bd4da4e52c7268e5f408b1b1589b87f08d"
+    },
+    "pelvis": {
+      "file": "continuations/rear_pelvis.png",
+      "sha256": "9c3c966caee058115bd61d85f85a35d402fef21da6e3ba472c518a458d84501d"
+    },
+    "upper_near": {
+      "file": "continuations/rear_upper_near.png",
+      "sha256": "d8792b27d70c35552ab1e345b4c6ea01bae330cec5b82a874ef8f05738865e95"
+    },
+    "fore_near": {
+      "file": "continuations/rear_fore_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "hand_near": {
+      "file": "continuations/rear_hand_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "thigh_near": {
+      "file": "continuations/rear_thigh_near.png",
+      "sha256": "751f50347870386dfebc65314cbab7dbdf9eaff03bf3585c8c238f608ae398a3"
+    },
+    "shin_near": {
+      "file": "continuations/rear_shin_near.png",
+      "sha256": "396443f7cea309fbae9277221bb11ef12e26d34dffeb794eaf76ab8c0adf6316"
+    },
+    "foot_near": {
+      "file": "continuations/rear_foot_near.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "upper_far": {
+      "file": "continuations/rear_upper_far.png",
+      "sha256": "549fa74e6fda5471ae3b6d28d87ddaac81d57f2816956b70db9b44012c96052c"
+    },
+    "fore_far": {
+      "file": "continuations/rear_fore_far.png",
+      "sha256": "cae47bd63ec787f3b8f472a8f1a8d44e586070f94b714c3ba781293bfe2f3195"
+    },
+    "hand_far": {
+      "file": "continuations/rear_hand_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    },
+    "thigh_far": {
+      "file": "continuations/rear_thigh_far.png",
+      "sha256": "fc65d4032fff18d0f9d0dc58ee31fdb249194e4affca0ac554ba81421e86a0d9"
+    },
+    "shin_far": {
+      "file": "continuations/rear_shin_far.png",
+      "sha256": "d845d130941d236c743541016690edd3d1ff6f6b0e54ef9231ad567d5886d978"
+    },
+    "foot_far": {
+      "file": "continuations/rear_foot_far.png",
+      "sha256": "fc8e7d63694feb864fbdad602bab822404195b79378089a3cb73b7d3e9c13fc8"
+    }
+  },
+  "step_distance_px": 83.5248641967773,
+  "screen_pixel_scale": 0.627655328488817
+}

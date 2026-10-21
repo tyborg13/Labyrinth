@@ -1,0 +1,361 @@
+{
+  "ok": false,
+  "errors": [
+    "front/arm_near: 1597.540369% exceeds 12.000000% at brace/19",
+    "front/leg_near: 164.247078% exceeds 12.000000% at move/41",
+    "front/hidden_leg_near: 136.149440% exceeds 12.000000% at move/41",
+    "front/arm_far: 687.809688% exceeds 12.000000% at brace/18",
+    "front/leg_far: 202.122173% exceeds 12.000000% at move/30",
+    "front/hidden_leg_far: 280.893495% exceeds 12.000000% at move/29",
+    "rear/arm_near: 1431.950644% exceeds 12.000000% at brace/16",
+    "rear/leg_near: 54.425041% exceeds 12.000000% at move/41",
+    "rear/hidden_leg_near: 165.380789% exceeds 12.000000% at move/2",
+    "rear/arm_far: 709.821180% exceeds 12.000000% at brace/18",
+    "rear/leg_far: 213.443338% exceeds 12.000000% at move/30"
+  ],
+  "maximum_stretch": 0.12,
+  "basis": "presented Bone2D transforms; complete opaque texel edges; hidden material included",
+  "native_pixels": false,
+  "pieces": {
+    "front/apron": {
+      "maximum_stretch": 0.06834414216354912,
+      "maximum_percent": 6.8344142163549115,
+      "worst": {
+        "clip": "death",
+        "frame": 80,
+        "phase": 0.898876404494382,
+        "maximum_stretch": 0.06834414216354912,
+        "edge": [
+          15,
+          78,
+          1
+        ]
+      },
+      "texel_edges": 6566,
+      "sampled_frames": 431
+    },
+    "front/hidden_apron": {
+      "maximum_stretch": 0.0683391012128316,
+      "maximum_percent": 6.83391012128316,
+      "worst": {
+        "clip": "death",
+        "frame": 80,
+        "phase": 0.898876404494382,
+        "maximum_stretch": 0.0683391012128316,
+        "edge": [
+          57,
+          66,
+          1
+        ]
+      },
+      "texel_edges": 3915,
+      "sampled_frames": 431
+    },
+    "front/arm_near": {
+      "maximum_stretch": 15.975403687733042,
+      "maximum_percent": 1597.5403687733042,
+      "worst": {
+        "clip": "brace",
+        "frame": 19,
+        "phase": 0.358490566037736,
+        "maximum_stretch": 15.975403687733042,
+        "edge": [
+          41,
+          56,
+          1
+        ]
+      },
+      "texel_edges": 7634,
+      "sampled_frames": 431
+    },
+    "front/hidden_arm_near": {
+      "maximum_stretch": 2.167860766455476e-07,
+      "maximum_percent": 2.167860766455476e-05,
+      "worst": {
+        "clip": "brace",
+        "frame": 47,
+        "phase": 0.886792452830189,
+        "maximum_stretch": 2.167860766455476e-07,
+        "edge": [
+          48,
+          85,
+          0
+        ]
+      },
+      "texel_edges": 794,
+      "sampled_frames": 431
+    },
+    "front/leg_near": {
+      "maximum_stretch": 1.6424707800329053,
+      "maximum_percent": 164.24707800329054,
+      "worst": {
+        "clip": "move",
+        "frame": 41,
+        "phase": 0.82,
+        "maximum_stretch": 1.6424707800329053,
+        "edge": [
+          35,
+          32,
+          1
+        ]
+      },
+      "texel_edges": 3266,
+      "sampled_frames": 431
+    },
+    "front/hidden_leg_near": {
+      "maximum_stretch": 1.3614943964047725,
+      "maximum_percent": 136.14943964047725,
+      "worst": {
+        "clip": "move",
+        "frame": 41,
+        "phase": 0.82,
+        "maximum_stretch": 1.3614943964047725,
+        "edge": [
+          34,
+          32,
+          1
+        ]
+      },
+      "texel_edges": 945,
+      "sampled_frames": 431
+    },
+    "front/arm_far": {
+      "maximum_stretch": 6.87809688458102,
+      "maximum_percent": 687.8096884581021,
+      "worst": {
+        "clip": "brace",
+        "frame": 18,
+        "phase": 0.339622641509434,
+        "maximum_stretch": 6.87809688458102,
+        "edge": [
+          43,
+          47,
+          1
+        ]
+      },
+      "texel_edges": 4280,
+      "sampled_frames": 431
+    },
+    "front/hidden_arm_far": {
+      "maximum_stretch": 2.137188688244862e-07,
+      "maximum_percent": 2.137188688244862e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 35,
+        "phase": 0.393258426966292,
+        "maximum_stretch": 2.137188688244862e-07,
+        "edge": [
+          10,
+          71,
+          0
+        ]
+      },
+      "texel_edges": 2316,
+      "sampled_frames": 431
+    },
+    "front/leg_far": {
+      "maximum_stretch": 2.0212217259789726,
+      "maximum_percent": 202.12217259789728,
+      "worst": {
+        "clip": "move",
+        "frame": 30,
+        "phase": 0.6,
+        "maximum_stretch": 2.0212217259789726,
+        "edge": [
+          4,
+          32,
+          1
+        ]
+      },
+      "texel_edges": 755,
+      "sampled_frames": 431
+    },
+    "front/hidden_leg_far": {
+      "maximum_stretch": 2.808934948529855,
+      "maximum_percent": 280.8934948529855,
+      "worst": {
+        "clip": "move",
+        "frame": 29,
+        "phase": 0.58,
+        "maximum_stretch": 2.808934948529855,
+        "edge": [
+          31,
+          35,
+          1
+        ]
+      },
+      "texel_edges": 3408,
+      "sampled_frames": 431
+    },
+    "rear/apron": {
+      "maximum_stretch": 0.03302922107678441,
+      "maximum_percent": 3.302922107678441,
+      "worst": {
+        "clip": "move",
+        "frame": 24,
+        "phase": 0.48,
+        "maximum_stretch": 0.03302922107678441,
+        "edge": [
+          16,
+          84,
+          1
+        ]
+      },
+      "texel_edges": 6183,
+      "sampled_frames": 431
+    },
+    "rear/hidden_apron": {
+      "maximum_stretch": 0.033028882469282816,
+      "maximum_percent": 3.3028882469282816,
+      "worst": {
+        "clip": "move",
+        "frame": 24,
+        "phase": 0.48,
+        "maximum_stretch": 0.033028882469282816,
+        "edge": [
+          71,
+          77,
+          1
+        ]
+      },
+      "texel_edges": 3820,
+      "sampled_frames": 431
+    },
+    "rear/arm_near": {
+      "maximum_stretch": 14.319506436566634,
+      "maximum_percent": 1431.9506436566635,
+      "worst": {
+        "clip": "brace",
+        "frame": 16,
+        "phase": 0.30188679245283,
+        "maximum_stretch": 14.319506436566634,
+        "edge": [
+          40,
+          54,
+          0
+        ]
+      },
+      "texel_edges": 3361,
+      "sampled_frames": 431
+    },
+    "rear/hidden_arm_near": {
+      "maximum_stretch": 1.8668755763506795e-07,
+      "maximum_percent": 1.8668755763506795e-05,
+      "worst": {
+        "clip": "brace",
+        "frame": 45,
+        "phase": 0.849056603773585,
+        "maximum_stretch": 1.8668755763506795e-07,
+        "edge": [
+          4,
+          74,
+          0
+        ]
+      },
+      "texel_edges": 3521,
+      "sampled_frames": 431
+    },
+    "rear/leg_near": {
+      "maximum_stretch": 0.5442504148397531,
+      "maximum_percent": 54.42504148397531,
+      "worst": {
+        "clip": "move",
+        "frame": 41,
+        "phase": 0.82,
+        "maximum_stretch": 0.5442504148397531,
+        "edge": [
+          10,
+          29,
+          1
+        ]
+      },
+      "texel_edges": 1330,
+      "sampled_frames": 431
+    },
+    "rear/hidden_leg_near": {
+      "maximum_stretch": 1.6538078851372968,
+      "maximum_percent": 165.38078851372967,
+      "worst": {
+        "clip": "move",
+        "frame": 2,
+        "phase": 0.04,
+        "maximum_stretch": 1.6538078851372968,
+        "edge": [
+          33,
+          35,
+          1
+        ]
+      },
+      "texel_edges": 2456,
+      "sampled_frames": 431
+    },
+    "rear/arm_far": {
+      "maximum_stretch": 7.09821180289687,
+      "maximum_percent": 709.8211802896869,
+      "worst": {
+        "clip": "brace",
+        "frame": 18,
+        "phase": 0.339622641509434,
+        "maximum_stretch": 7.09821180289687,
+        "edge": [
+          47,
+          61,
+          0
+        ]
+      },
+      "texel_edges": 8803,
+      "sampled_frames": 431
+    },
+    "rear/hidden_arm_far": {
+      "maximum_stretch": 2.0244913123690367e-07,
+      "maximum_percent": 2.0244913123690367e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 62,
+        "phase": 0.696629213483146,
+        "maximum_stretch": 2.0244913123690367e-07,
+        "edge": [
+          64,
+          97,
+          1
+        ]
+      },
+      "texel_edges": 1020,
+      "sampled_frames": 431
+    },
+    "rear/leg_far": {
+      "maximum_stretch": 2.1344333756774407,
+      "maximum_percent": 213.44333756774407,
+      "worst": {
+        "clip": "move",
+        "frame": 30,
+        "phase": 0.6,
+        "maximum_stretch": 2.1344333756774407,
+        "edge": [
+          59,
+          33,
+          1
+        ]
+      },
+      "texel_edges": 3936,
+      "sampled_frames": 431
+    },
+    "rear/hidden_leg_far": {
+      "maximum_stretch": 0.11070008931697406,
+      "maximum_percent": 11.070008931697405,
+      "worst": {
+        "clip": "move",
+        "frame": 27,
+        "phase": 0.54,
+        "maximum_stretch": 0.11070008931697406,
+        "edge": [
+          25,
+          74,
+          1
+        ]
+      },
+      "texel_edges": 781,
+      "sampled_frames": 431
+    }
+  }
+}

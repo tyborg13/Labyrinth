@@ -1,0 +1,4997 @@
+{
+  "requirements": {
+    "1": {
+      "source_status": "fixed_in_source",
+      "front_texels": 14,
+      "rear_texels": 2,
+      "native_pose_source_coverage": "7/7, all legal UV choices opaque",
+      "cpu_targets": "11/11 clean",
+      "fresh_native_gate": "PENDING director windowed recapture",
+      "historical_native_errors": 7
+    },
+    "2": {
+      "status": "implemented",
+      "diagnostics_blocking": false,
+      "rr30_native_blocking": true,
+      "proof_dispatch_mutation_tests": "passed"
+    },
+    "3": {
+      "status": "preserved",
+      "immutable_files": 101,
+      "source_production_alpha_parts": 80,
+      "rest_different_pixels": {
+        "front": 0,
+        "rear": 0
+      },
+      "density_calibration_unchanged": true,
+      "maximum_affine_stretch_residue": 2.6365098459990577e-07,
+      "rigid_pieces": 80
+    },
+    "4": {
+      "status": "focused_only",
+      "full_suites_run": false,
+      "tests": {
+        "rr31": [
+          "Ran 29 tests in 14.688s",
+          "OK"
+        ],
+        "mortar": [
+          "Ran 10 tests in 11.307s",
+          "OK"
+        ],
+        "joint_surfaces": [
+          "Ran 4 tests in 432.951s",
+          "OK"
+        ]
+      }
+    }
+  },
+  "views": {
+    "front": {
+      "frames": 431,
+      "acceptance_errors": [],
+      "maximum_cover_distance": 2.999497061328248,
+      "diagnostic_failures": 363
+    },
+    "rear": {
+      "frames": 431,
+      "acceptance_errors": [],
+      "maximum_cover_distance": 2.9981903453869387,
+      "diagnostic_failures": 338
+    }
+  },
+  "diagnostics": {
+    "ok": false,
+    "blocking": false,
+    "frames": 862,
+    "failed": 701,
+    "passed": 161,
+    "source": "Fresh full focused CPU coverage sweep; ImageGate.frame called for every presented frame.",
+    "counts_only": true,
+    "failures": [
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 12,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 13,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 14,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 15,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 16,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 17,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 18,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 19,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 20,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 21,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 22,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 23,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 24,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 25,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 26,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 27,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 28,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 29,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 30,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 31,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 32,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 33,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 34,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "idle",
+        "frame": 35,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 0,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 1,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 2,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 3,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 4,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 5,
+        "morphology_errors": 3,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 6,
+        "morphology_errors": 3,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 7,
+        "morphology_errors": 2,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 8,
+        "morphology_errors": 2,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 9,
+        "morphology_errors": 1,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 10,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 11,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 12,
+        "morphology_errors": 7,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 13,
+        "morphology_errors": 5,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 14,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 15,
+        "morphology_errors": 8,
+        "interior_pieces": 17
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 16,
+        "morphology_errors": 10,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 17,
+        "morphology_errors": 7,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 18,
+        "morphology_errors": 4,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 19,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 20,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 21,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 22,
+        "morphology_errors": 3,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 23,
+        "morphology_errors": 4,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 24,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 25,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 26,
+        "morphology_errors": 3,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 27,
+        "morphology_errors": 3,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 28,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 29,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 30,
+        "morphology_errors": 3,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 31,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 32,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 33,
+        "morphology_errors": 7,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 34,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 35,
+        "morphology_errors": 9,
+        "interior_pieces": 16
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 36,
+        "morphology_errors": 10,
+        "interior_pieces": 16
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 37,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 38,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 39,
+        "morphology_errors": 2,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 40,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 41,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 42,
+        "morphology_errors": 3,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 43,
+        "morphology_errors": 4,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 44,
+        "morphology_errors": 4,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 45,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 46,
+        "morphology_errors": 1,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 47,
+        "morphology_errors": 2,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 48,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 49,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "move",
+        "frame": 50,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 1,
+        "morphology_errors": 3,
+        "interior_pieces": 2
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 2,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 3,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 4,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 5,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 6,
+        "morphology_errors": 2,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 7,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 8,
+        "morphology_errors": 7,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 9,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 10,
+        "morphology_errors": 8,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 11,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 12,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 13,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 14,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 15,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 16,
+        "morphology_errors": 3,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 17,
+        "morphology_errors": 3,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 18,
+        "morphology_errors": 4,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 19,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 20,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 21,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 22,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 23,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 24,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 25,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 26,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 27,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 28,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 29,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 30,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 31,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 32,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 33,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 34,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 35,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 36,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 37,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 38,
+        "morphology_errors": 12,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 39,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 40,
+        "morphology_errors": 11,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 41,
+        "morphology_errors": 11,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 42,
+        "morphology_errors": 12,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 43,
+        "morphology_errors": 12,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 44,
+        "morphology_errors": 12,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 45,
+        "morphology_errors": 11,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 46,
+        "morphology_errors": 11,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 47,
+        "morphology_errors": 11,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 48,
+        "morphology_errors": 10,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 49,
+        "morphology_errors": 12,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 50,
+        "morphology_errors": 12,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 51,
+        "morphology_errors": 12,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 52,
+        "morphology_errors": 12,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 53,
+        "morphology_errors": 13,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 54,
+        "morphology_errors": 13,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 55,
+        "morphology_errors": 13,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 56,
+        "morphology_errors": 10,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 57,
+        "morphology_errors": 10,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 58,
+        "morphology_errors": 10,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 59,
+        "morphology_errors": 10,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 60,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 61,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 62,
+        "morphology_errors": 8,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 63,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 64,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 65,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 66,
+        "morphology_errors": 3,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 67,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 68,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 69,
+        "morphology_errors": 3,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "lob",
+        "frame": 70,
+        "morphology_errors": 3,
+        "interior_pieces": 2
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 4,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 5,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 6,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 7,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 8,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 9,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 10,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 11,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 12,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 13,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 14,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 15,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 16,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 17,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 18,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 19,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "land",
+        "frame": 20,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 1,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 2,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 3,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 4,
+        "morphology_errors": 5,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 5,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 6,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 7,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 8,
+        "morphology_errors": 6,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 9,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 10,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 11,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 12,
+        "morphology_errors": 5,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 13,
+        "morphology_errors": 7,
+        "interior_pieces": 16
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 14,
+        "morphology_errors": 8,
+        "interior_pieces": 16
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 15,
+        "morphology_errors": 7,
+        "interior_pieces": 16
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 16,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 17,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 18,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 19,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 20,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 21,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 22,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 23,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 24,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 25,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 26,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 27,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 28,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 29,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 30,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 31,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 32,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 33,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 34,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 35,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 36,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 37,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 38,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 39,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 40,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 41,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 42,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 43,
+        "morphology_errors": 8,
+        "interior_pieces": 16
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 44,
+        "morphology_errors": 6,
+        "interior_pieces": 15
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 45,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 46,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 47,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 48,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 49,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 50,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 51,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "brace",
+        "frame": 52,
+        "morphology_errors": 3,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 3,
+        "morphology_errors": 0,
+        "interior_pieces": 5
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 4,
+        "morphology_errors": 0,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 5,
+        "morphology_errors": 2,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 6,
+        "morphology_errors": 2,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 7,
+        "morphology_errors": 2,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 8,
+        "morphology_errors": 5,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 9,
+        "morphology_errors": 5,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 10,
+        "morphology_errors": 5,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 11,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 12,
+        "morphology_errors": 7,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 13,
+        "morphology_errors": 7,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 14,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 15,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 16,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 17,
+        "morphology_errors": 3,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 18,
+        "morphology_errors": 2,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 19,
+        "morphology_errors": 2,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 20,
+        "morphology_errors": 5,
+        "interior_pieces": 5
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 21,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 22,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 23,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 24,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 25,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 26,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 27,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 28,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 29,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 30,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 31,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 32,
+        "morphology_errors": 5,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 33,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 34,
+        "morphology_errors": 2,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 35,
+        "morphology_errors": 2,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 36,
+        "morphology_errors": 3,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 37,
+        "morphology_errors": 2,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 38,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 39,
+        "morphology_errors": 2,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 40,
+        "morphology_errors": 2,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 41,
+        "morphology_errors": 1,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 42,
+        "morphology_errors": 3,
+        "interior_pieces": 2
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 43,
+        "morphology_errors": 2,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "scatter",
+        "frame": 44,
+        "morphology_errors": 0,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 1,
+        "morphology_errors": 2,
+        "interior_pieces": 1
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 2,
+        "morphology_errors": 0,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 3,
+        "morphology_errors": 1,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 4,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 5,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 6,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 7,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 8,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 9,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 10,
+        "morphology_errors": 1,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 11,
+        "morphology_errors": 1,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 12,
+        "morphology_errors": 1,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 13,
+        "morphology_errors": 0,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 14,
+        "morphology_errors": 2,
+        "interior_pieces": 5
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 15,
+        "morphology_errors": 1,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 16,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 17,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 18,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 19,
+        "morphology_errors": 2,
+        "interior_pieces": 0
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 20,
+        "morphology_errors": 2,
+        "interior_pieces": 0
+      },
+      {
+        "view": "front",
+        "clip": "hit",
+        "frame": 21,
+        "morphology_errors": 2,
+        "interior_pieces": 0
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 4,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 5,
+        "morphology_errors": 2,
+        "interior_pieces": 6
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 6,
+        "morphology_errors": 1,
+        "interior_pieces": 5
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 7,
+        "morphology_errors": 2,
+        "interior_pieces": 5
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 8,
+        "morphology_errors": 2,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 9,
+        "morphology_errors": 2,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 10,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 11,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 12,
+        "morphology_errors": 4,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 13,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 14,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 15,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 16,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 17,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 18,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 19,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 20,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 21,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 22,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 23,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 24,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 25,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 26,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 27,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 28,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 29,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 30,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 31,
+        "morphology_errors": 6,
+        "interior_pieces": 7
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 32,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 33,
+        "morphology_errors": 5,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 34,
+        "morphology_errors": 6,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 35,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 36,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 37,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 38,
+        "morphology_errors": 5,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 39,
+        "morphology_errors": 5,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 40,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 41,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 42,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 43,
+        "morphology_errors": 7,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 44,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 45,
+        "morphology_errors": 7,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 46,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 47,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 48,
+        "morphology_errors": 7,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 49,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 50,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 51,
+        "morphology_errors": 9,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 52,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 53,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 54,
+        "morphology_errors": 9,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 55,
+        "morphology_errors": 8,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 56,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 57,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 58,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 59,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 60,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 61,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 62,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 63,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 64,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 65,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 66,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 67,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 68,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 69,
+        "morphology_errors": 5,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 70,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 71,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 72,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 73,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 74,
+        "morphology_errors": 8,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 75,
+        "morphology_errors": 8,
+        "interior_pieces": 8
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 76,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 77,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 78,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 79,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 80,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 81,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 82,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 83,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 84,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 85,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 86,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 87,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 88,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "front",
+        "clip": "death",
+        "frame": 89,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 0,
+        "morphology_errors": 1,
+        "interior_pieces": 3
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 1,
+        "morphology_errors": 3,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 2,
+        "morphology_errors": 2,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 3,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 4,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 5,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 6,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 7,
+        "morphology_errors": 2,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 8,
+        "morphology_errors": 5,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 9,
+        "morphology_errors": 2,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 10,
+        "morphology_errors": 9,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 11,
+        "morphology_errors": 8,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 12,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 13,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 14,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 15,
+        "morphology_errors": 7,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 16,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 17,
+        "morphology_errors": 4,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 18,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 19,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 20,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 21,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 22,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 23,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 24,
+        "morphology_errors": 6,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 25,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 26,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 27,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 28,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 29,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 30,
+        "morphology_errors": 4,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 31,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 32,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 33,
+        "morphology_errors": 9,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 34,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 35,
+        "morphology_errors": 4,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 36,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 37,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 38,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 39,
+        "morphology_errors": 3,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 40,
+        "morphology_errors": 5,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 41,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 42,
+        "morphology_errors": 3,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 43,
+        "morphology_errors": 5,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 44,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 45,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 46,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 47,
+        "morphology_errors": 7,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 48,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 49,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "move",
+        "frame": 50,
+        "morphology_errors": 1,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 1,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 2,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 3,
+        "morphology_errors": 1,
+        "interior_pieces": 3
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 4,
+        "morphology_errors": 2,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 5,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 6,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 7,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 8,
+        "morphology_errors": 8,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 9,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 10,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 11,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 12,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 13,
+        "morphology_errors": 8,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 14,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 15,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 16,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 17,
+        "morphology_errors": 9,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 18,
+        "morphology_errors": 8,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 19,
+        "morphology_errors": 10,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 20,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 21,
+        "morphology_errors": 10,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 22,
+        "morphology_errors": 11,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 23,
+        "morphology_errors": 11,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 24,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 25,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 26,
+        "morphology_errors": 11,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 27,
+        "morphology_errors": 10,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 28,
+        "morphology_errors": 10,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 29,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 30,
+        "morphology_errors": 8,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 31,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 32,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 33,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 34,
+        "morphology_errors": 3,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 35,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 36,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 37,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 38,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 39,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 40,
+        "morphology_errors": 11,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 41,
+        "morphology_errors": 8,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 42,
+        "morphology_errors": 8,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 43,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 44,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 45,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 46,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 47,
+        "morphology_errors": 9,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 48,
+        "morphology_errors": 12,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 49,
+        "morphology_errors": 11,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 50,
+        "morphology_errors": 8,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 51,
+        "morphology_errors": 9,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 52,
+        "morphology_errors": 9,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 53,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 54,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 55,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 56,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 57,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 58,
+        "morphology_errors": 8,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 59,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 60,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 61,
+        "morphology_errors": 3,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 62,
+        "morphology_errors": 5,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 63,
+        "morphology_errors": 1,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 64,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 65,
+        "morphology_errors": 4,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 66,
+        "morphology_errors": 1,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 67,
+        "morphology_errors": 1,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 68,
+        "morphology_errors": 2,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 69,
+        "morphology_errors": 1,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "lob",
+        "frame": 70,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 4,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 5,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 6,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 7,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 8,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 9,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 10,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 11,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 12,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 13,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 14,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 15,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 16,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 17,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 18,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 19,
+        "morphology_errors": 4,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "land",
+        "frame": 20,
+        "morphology_errors": 0,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 1,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 2,
+        "morphology_errors": 1,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 3,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 4,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 5,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 6,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 7,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 8,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 9,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 10,
+        "morphology_errors": 9,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 11,
+        "morphology_errors": 10,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 12,
+        "morphology_errors": 9,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 13,
+        "morphology_errors": 6,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 14,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 15,
+        "morphology_errors": 5,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 16,
+        "morphology_errors": 4,
+        "interior_pieces": 16
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 17,
+        "morphology_errors": 5,
+        "interior_pieces": 16
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 18,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 19,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 20,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 21,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 22,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 23,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 24,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 25,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 26,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 27,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 28,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 29,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 30,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 31,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 32,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 33,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 34,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 35,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 36,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 37,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 38,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 39,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 40,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 41,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 42,
+        "morphology_errors": 5,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 43,
+        "morphology_errors": 6,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 44,
+        "morphology_errors": 8,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 45,
+        "morphology_errors": 9,
+        "interior_pieces": 16
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 46,
+        "morphology_errors": 10,
+        "interior_pieces": 15
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 47,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 48,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 49,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 50,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 51,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "brace",
+        "frame": 52,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 3,
+        "morphology_errors": 2,
+        "interior_pieces": 0
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 4,
+        "morphology_errors": 1,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 5,
+        "morphology_errors": 3,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 6,
+        "morphology_errors": 3,
+        "interior_pieces": 3
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 7,
+        "morphology_errors": 3,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 8,
+        "morphology_errors": 3,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 9,
+        "morphology_errors": 4,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 10,
+        "morphology_errors": 2,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 11,
+        "morphology_errors": 2,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 12,
+        "morphology_errors": 0,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 13,
+        "morphology_errors": 0,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 14,
+        "morphology_errors": 0,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 15,
+        "morphology_errors": 1,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 16,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 17,
+        "morphology_errors": 1,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 18,
+        "morphology_errors": 4,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 19,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 20,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 21,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 22,
+        "morphology_errors": 6,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 23,
+        "morphology_errors": 7,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 24,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 25,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 26,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 27,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 28,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 29,
+        "morphology_errors": 4,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 30,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 31,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 32,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 33,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 34,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 35,
+        "morphology_errors": 4,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 36,
+        "morphology_errors": 7,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 37,
+        "morphology_errors": 7,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 38,
+        "morphology_errors": 3,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 39,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 40,
+        "morphology_errors": 6,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 41,
+        "morphology_errors": 5,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 42,
+        "morphology_errors": 5,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 43,
+        "morphology_errors": 1,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "scatter",
+        "frame": 44,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 2,
+        "morphology_errors": 2,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 3,
+        "morphology_errors": 1,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 4,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 5,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 6,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 7,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 8,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 9,
+        "morphology_errors": 3,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 10,
+        "morphology_errors": 1,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 11,
+        "morphology_errors": 1,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 12,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 13,
+        "morphology_errors": 0,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 14,
+        "morphology_errors": 1,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 15,
+        "morphology_errors": 2,
+        "interior_pieces": 2
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 16,
+        "morphology_errors": 2,
+        "interior_pieces": 3
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 17,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 18,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 19,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 20,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "rear",
+        "clip": "hit",
+        "frame": 21,
+        "morphology_errors": 1,
+        "interior_pieces": 1
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 4,
+        "morphology_errors": 1,
+        "interior_pieces": 3
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 5,
+        "morphology_errors": 1,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 6,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 7,
+        "morphology_errors": 2,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 8,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 9,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 10,
+        "morphology_errors": 3,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 11,
+        "morphology_errors": 3,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 12,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 13,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 14,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 15,
+        "morphology_errors": 2,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 16,
+        "morphology_errors": 4,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 17,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 18,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 19,
+        "morphology_errors": 5,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 20,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 21,
+        "morphology_errors": 3,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 22,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 23,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 24,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 25,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 26,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 27,
+        "morphology_errors": 5,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 28,
+        "morphology_errors": 6,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 29,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 30,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 31,
+        "morphology_errors": 6,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 32,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 33,
+        "morphology_errors": 7,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 34,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 35,
+        "morphology_errors": 7,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 36,
+        "morphology_errors": 7,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 37,
+        "morphology_errors": 6,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 38,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 39,
+        "morphology_errors": 6,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 40,
+        "morphology_errors": 6,
+        "interior_pieces": 4
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 41,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 42,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 43,
+        "morphology_errors": 6,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 44,
+        "morphology_errors": 6,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 45,
+        "morphology_errors": 4,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 46,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 47,
+        "morphology_errors": 4,
+        "interior_pieces": 7
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 48,
+        "morphology_errors": 4,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 49,
+        "morphology_errors": 4,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 50,
+        "morphology_errors": 4,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 51,
+        "morphology_errors": 4,
+        "interior_pieces": 5
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 52,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 53,
+        "morphology_errors": 6,
+        "interior_pieces": 6
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 54,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 55,
+        "morphology_errors": 6,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 56,
+        "morphology_errors": 6,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 57,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 58,
+        "morphology_errors": 5,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 59,
+        "morphology_errors": 4,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 60,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 61,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 62,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 63,
+        "morphology_errors": 9,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 64,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 65,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 66,
+        "morphology_errors": 5,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 67,
+        "morphology_errors": 8,
+        "interior_pieces": 9
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 68,
+        "morphology_errors": 5,
+        "interior_pieces": 8
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 69,
+        "morphology_errors": 6,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 70,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 71,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 72,
+        "morphology_errors": 8,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 73,
+        "morphology_errors": 8,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 74,
+        "morphology_errors": 6,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 75,
+        "morphology_errors": 6,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 76,
+        "morphology_errors": 8,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 77,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 78,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 79,
+        "morphology_errors": 7,
+        "interior_pieces": 10
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 80,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 81,
+        "morphology_errors": 7,
+        "interior_pieces": 11
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 82,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 83,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 84,
+        "morphology_errors": 7,
+        "interior_pieces": 12
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 85,
+        "morphology_errors": 7,
+        "interior_pieces": 14
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 86,
+        "morphology_errors": 8,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 87,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 88,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      },
+      {
+        "view": "rear",
+        "clip": "death",
+        "frame": 89,
+        "morphology_errors": 7,
+        "interior_pieces": 13
+      }
+    ],
+    "verification_inputs": {
+      "experiments/cutouts/slag_mortar/rr31_images.py": "95d94ceaf9b58ff2f47bd67110a2eedb8163cbf2331b08bbc9625bda4f615d08",
+      "experiments/cutouts/slag_mortar/rr31_budgets.py": "9db260727ce1a290331386bee86ee22164af03c23aa8e2103d3bf61d0209dc41",
+      "tools/humanoid_cutout/image_gates.py": "8c05e4957a5370e55a179523e1f8cd435a5801d9b90dd86857cea97f1abd4631"
+    }
+  },
+  "proofs": {
+    "cpu": "feedback2_cpu.json",
+    "preservation": "feedback2_preservation.json",
+    "source": "../feedback2_source_fixes.json"
+  },
+  "TODO_DESIGN": [],
+  "windowed_runs_attempted": false,
+  "committed": false,
+  "open_issues": [
+    "Fresh rr30 native 0-error result, review clip and director visual judgment require the owner windowed run."
+  ]
+}

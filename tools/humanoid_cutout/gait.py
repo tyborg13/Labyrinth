@@ -9,8 +9,9 @@ import math
 from maquette_motion.compiler import evaluate as legacy_evaluate
 
 SIDES = ('near', 'far')
+FLAP_SWAY_RAMP_FRACTION = .12  # Director feedback 1, rr30.
 FIELDS = {'model', 'steps_per_tile', 'lead', 'stance_fraction', 'lift_px',
-          'lane_narrowing', 'leg_scale_max', 'settle_px', 'arm_swing', 'max_fit_px'}
+          'lane_narrowing', 'leg_scale_max', 'settle_px', 'arm_swing', 'max_fit_px', 'flap_sway'}
 
 
 def schedule(gait):
@@ -33,7 +34,7 @@ def schedule(gait):
 def validate(gait, clip):
     if clip != 'move': raise ValueError('gait: only move clips may declare a gait')
     if set(gait) - FIELDS: raise ValueError('gait: unknown fields: ' + str(sorted(set(gait) - FIELDS)))
-    required = FIELDS - {'leg_scale_max'}
+    required = FIELDS - {'leg_scale_max', 'flap_sway'}
     if required - set(gait): raise ValueError('gait: missing fields: ' + str(sorted(required - set(gait))))
     if gait['model'] != 'protagonist_walk': raise ValueError('gait: expected protagonist_walk model')
     count = gait['steps_per_tile']
@@ -71,6 +72,40 @@ def validate(gait, clip):
     numbers += [gait.get('leg_scale_max', 1.22)]
     if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in numbers):
         raise ValueError('gait: values must be finite and nonnegative')
+    if 'flap_sway' in gait:
+        sway = {k:v for k,v in gait['flap_sway'].items() if not k.startswith('_')}
+        if set(sway) != {'deg', 'lag_s', 'per'} or sway['per'] != 'step':
+            raise ValueError('gait: flap_sway requires deg, lag_s and per step')
+        if any(not isinstance(sway[k], (int, float)) or not math.isfinite(sway[k]) or sway[k] < 0
+               for k in ('deg', 'lag_s')):
+            raise ValueError('gait: flap sway values must be finite and nonnegative')
+
+
+def flap_sway(definition, phase):
+    """One delayed sine between actual contacts, with director endpoint ramps."""
+    gait = definition.get('gait', {})
+    if 'flap_sway' not in gait: return 0.
+    sway = gait['flap_sway']
+    delayed = max(0., phase - sway['lag_s'] / definition['seconds'])
+    start, cycle = 0., 0.
+    for swing in schedule(gait):
+        end = swing['end']
+        if delayed <= end:
+            cycle = (delayed - start) / (end - start)
+            break
+        start = end
+    ramp = min(1., max(0., phase / FLAP_SWAY_RAMP_FRACTION),
+               max(0., (1. - phase) / FLAP_SWAY_RAMP_FRACTION))
+    envelope = ramp * ramp * (3. - 2. * ramp)
+    return sway['deg'] * math.sin(math.tau * cycle) * envelope
+
+
+def add_flap_sway(data, view, clip, phase, values):
+    definition = data.get('clips', {}).get(clip, {})
+    if 'flap_sway' not in definition.get('gait', {}): return
+    channels = values.setdefault('flap', {})
+    channels['swing_deg'] = channels.get('swing_deg', 0.) + flap_sway(
+        definition, phase) * data['projection'][view]['lean_sign']
 
 
 def expand(gait, layout, clip):

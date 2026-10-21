@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "negative_checks": [
+    {
+      "disabled": "skinned strain rejection",
+      "result": "CAUGHT",
+      "log": "proof/logs/feedback2-stretch-mutations.log"
+    },
+    {
+      "disabled": "rigid strain rejection",
+      "result": "CAUGHT",
+      "log": "proof/logs/feedback2-stretch-mutations.log"
+    },
+    {
+      "disabled": "Godot flap sway",
+      "result": "CAUGHT",
+      "log": "proof/logs/feedback2-runtime-sway-mutation.log"
+    }
+  ],
+  "runtime_restored_byte_for_byte": true,
+  "baseline": "proof/logs/feedback2-focused-final.log"
+}

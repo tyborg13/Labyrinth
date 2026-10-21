@@ -1,0 +1,2870 @@
+{
+  "front_rest_mismatch_pixels": 0,
+  "rest_mismatch_pixels": 0,
+  "joint_surfaces": {
+    "distance_basis": "painted_contact_boundary",
+    "maximum_visible_distance_px": 3.0,
+    "source_contact_radius_px": 3.0,
+    "pieces": {
+      "head": {
+        "removed_texels": 155,
+        "covered_texels": 524,
+        "changed_colour_texels": 221
+      },
+      "torso": {
+        "removed_texels": 1996,
+        "covered_texels": 1413,
+        "changed_colour_texels": 630
+      },
+      "mortar": {
+        "removed_texels": 1522,
+        "covered_texels": 625,
+        "changed_colour_texels": 216
+      },
+      "pelvis": {
+        "removed_texels": 645,
+        "covered_texels": 2657,
+        "changed_colour_texels": 1370
+      },
+      "belt": {
+        "removed_texels": 28,
+        "covered_texels": 559,
+        "changed_colour_texels": 162
+      },
+      "flap": {
+        "removed_texels": 0,
+        "covered_texels": 222,
+        "changed_colour_texels": 26
+      },
+      "bracer_near": {
+        "removed_texels": 56,
+        "covered_texels": 386,
+        "changed_colour_texels": 49
+      },
+      "bracer_far": {
+        "removed_texels": 36,
+        "covered_texels": 232,
+        "changed_colour_texels": 107
+      },
+      "upper_near": {
+        "removed_texels": 562,
+        "covered_texels": 472,
+        "changed_colour_texels": 355
+      },
+      "fore_near": {
+        "removed_texels": 93,
+        "covered_texels": 1213,
+        "changed_colour_texels": 439
+      },
+      "hand_near": {
+        "removed_texels": 59,
+        "covered_texels": 235,
+        "changed_colour_texels": 173
+      },
+      "thigh_near": {
+        "removed_texels": 233,
+        "covered_texels": 651,
+        "changed_colour_texels": 121
+      },
+      "shin_near": {
+        "removed_texels": 101,
+        "covered_texels": 447,
+        "changed_colour_texels": 57
+      },
+      "foot_near": {
+        "removed_texels": 5,
+        "covered_texels": 135,
+        "changed_colour_texels": 39
+      },
+      "upper_far": {
+        "removed_texels": 1335,
+        "covered_texels": 255,
+        "changed_colour_texels": 190
+      },
+      "fore_far": {
+        "removed_texels": 144,
+        "covered_texels": 1143,
+        "changed_colour_texels": 638
+      },
+      "hand_far": {
+        "removed_texels": 194,
+        "covered_texels": 106,
+        "changed_colour_texels": 102
+      },
+      "thigh_far": {
+        "removed_texels": 290,
+        "covered_texels": 817,
+        "changed_colour_texels": 26
+      },
+      "shin_far": {
+        "removed_texels": 182,
+        "covered_texels": 313,
+        "changed_colour_texels": 76
+      },
+      "foot_far": {
+        "removed_texels": 50,
+        "covered_texels": 116,
+        "changed_colour_texels": 59
+      }
+    }
+  },
+  "painted_joint_registration": {
+    "fore_near": {
+      "native_position": [
+        194.67,
+        147.0
+      ],
+      "painted_contact_centroid": [
+        187.27272727272728,
+        139.27272727272728
+      ],
+      "basis": "Endpoint centroid of the approved upper/forearm contact grid edges"
+    }
+  },
+  "invisible_rgb_normalized_texels": 0,
+  "residue_cleanup": {
+    "head": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "torso": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "mortar": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "pelvis": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "belt": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "flap": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "bracer_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "bracer_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "upper_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "fore_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "hand_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "thigh_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "shin_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "foot_near": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "upper_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "fore_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "hand_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "thigh_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "shin_far": {
+      "visible": 0,
+      "hidden": 0
+    },
+    "foot_far": {
+      "visible": 0,
+      "hidden": 0
+    }
+  },
+  "covered_connections": {
+    "head": 0,
+    "torso": 0,
+    "mortar": 0,
+    "pelvis": 0,
+    "belt": 0,
+    "flap": 0,
+    "bracer_near": 0,
+    "bracer_far": 0,
+    "upper_near": 0,
+    "fore_near": 0,
+    "hand_near": 0,
+    "thigh_near": 0,
+    "shin_near": 0,
+    "foot_near": 0,
+    "upper_far": 0,
+    "fore_far": 0,
+    "hand_far": 0,
+    "thigh_far": 0,
+    "shin_far": 0,
+    "foot_far": 0
+  },
+  "swept_joint_material": {
+    "head": 258,
+    "torso": 1612,
+    "pelvis": 164,
+    "upper_near": 382,
+    "fore_near": 65,
+    "hand_near": 0,
+    "thigh_near": 233,
+    "shin_near": 172,
+    "foot_near": 0,
+    "upper_far": 370,
+    "fore_far": 99,
+    "hand_far": 0,
+    "thigh_far": 211,
+    "shin_far": 51,
+    "foot_far": 0
+  },
+  "unresolved_connections": {},
+  "ownership": {
+    "rule": "protected_crucible_mask_and_native_body",
+    "region_pixels": 6503,
+    "retained_pixels": 4745,
+    "transferred_pixels": 1758,
+    "speck_transfers": [
+      {
+        "from": "apron",
+        "to": "thigh_near",
+        "pixels": 2
+      }
+    ],
+    "mq11_partition": {
+      "trace_source": "rr30_ownership_traces.json",
+      "trace_sha256": "11d49319c255c52990750ab2ad90a4c0148455d15fccdb850ce4a0cdfb4556d8",
+      "policy": "approved painted equipment boundaries; source RGBA unchanged",
+      "flap": {
+        "pixels": 1501,
+        "trace": [
+          [
+            111,
+            159
+          ],
+          [
+            125,
+            162
+          ],
+          [
+            139,
+            162
+          ],
+          [
+            148,
+            159
+          ],
+          [
+            148,
+            165
+          ],
+          [
+            146,
+            173
+          ],
+          [
+            145,
+            183
+          ],
+          [
+            143,
+            192
+          ],
+          [
+            141,
+            200
+          ],
+          [
+            138,
+            204
+          ],
+          [
+            134,
+            200
+          ],
+          [
+            131,
+            209
+          ],
+          [
+            128,
+            212
+          ],
+          [
+            125,
+            202
+          ],
+          [
+            123,
+            207
+          ],
+          [
+            120,
+            208
+          ],
+          [
+            118,
+            203
+          ],
+          [
+            115,
+            202
+          ],
+          [
+            114,
+            198
+          ],
+          [
+            111,
+            194
+          ],
+          [
+            110,
+            187
+          ],
+          [
+            108,
+            181
+          ],
+          [
+            109,
+            175
+          ],
+          [
+            111,
+            168
+          ]
+        ]
+      },
+      "belt": {
+        "pixels": 818,
+        "trace": [
+          [
+            102,
+            144
+          ],
+          [
+            111,
+            148
+          ],
+          [
+            120,
+            150
+          ],
+          [
+            130,
+            151
+          ],
+          [
+            143,
+            151
+          ],
+          [
+            155,
+            148
+          ],
+          [
+            166,
+            143
+          ],
+          [
+            171,
+            146
+          ],
+          [
+            168,
+            155
+          ],
+          [
+            157,
+            159
+          ],
+          [
+            144,
+            163
+          ],
+          [
+            132,
+            164
+          ],
+          [
+            120,
+            163
+          ],
+          [
+            109,
+            160
+          ],
+          [
+            104,
+            155
+          ]
+        ]
+      },
+      "bracer_near": {
+        "pixels": 983,
+        "trace": [
+          [
+            180,
+            154
+          ],
+          [
+            191,
+            151
+          ],
+          [
+            201,
+            152
+          ],
+          [
+            207,
+            155
+          ],
+          [
+            208,
+            169
+          ],
+          [
+            207,
+            176
+          ],
+          [
+            201,
+            181
+          ],
+          [
+            187,
+            185
+          ],
+          [
+            176,
+            187
+          ],
+          [
+            173,
+            179
+          ],
+          [
+            171,
+            168
+          ],
+          [
+            173,
+            160
+          ]
+        ]
+      },
+      "bracer_far": {
+        "pixels": 813,
+        "trace": [
+          [
+            59,
+            131
+          ],
+          [
+            65,
+            133
+          ],
+          [
+            76,
+            136
+          ],
+          [
+            82,
+            139
+          ],
+          [
+            83,
+            145
+          ],
+          [
+            81,
+            152
+          ],
+          [
+            79,
+            159
+          ],
+          [
+            77,
+            164
+          ],
+          [
+            70,
+            164
+          ],
+          [
+            63,
+            162
+          ],
+          [
+            56,
+            160
+          ],
+          [
+            50,
+            160
+          ],
+          [
+            49,
+            156
+          ],
+          [
+            50,
+            150
+          ],
+          [
+            53,
+            143
+          ],
+          [
+            56,
+            136
+          ]
+        ]
+      },
+      "native_apron_residue_body_pixels": 444,
+      "rigid_segment_speck_transfers": [
+        {
+          "from": "pelvis",
+          "to": "torso",
+          "pixels": 1
+        },
+        {
+          "from": "fore_near",
+          "to": "upper_near",
+          "pixels": 1
+        },
+        {
+          "from": "fore_far",
+          "to": "bracer_far",
+          "pixels": 4
+        },
+        {
+          "from": "fore_far",
+          "to": "bracer_far",
+          "pixels": 1
+        },
+        {
+          "from": "fore_far",
+          "to": "bracer_far",
+          "pixels": 1
+        },
+        {
+          "from": "fore_far",
+          "to": "bracer_far",
+          "pixels": 1
+        },
+        {
+          "from": "fore_far",
+          "to": "bracer_far",
+          "pixels": 1
+        },
+        {
+          "from": "shin_far",
+          "to": "flap",
+          "pixels": 2
+        }
+      ]
+    },
+    "director_mask_sha256": "a506bc823d6c0dcf76ee4942525c315b46cc65fdc98ed9717dda930d94042992",
+    "names": [
+      "head",
+      "torso",
+      "pelvis",
+      "upper_near",
+      "fore_near",
+      "hand_near",
+      "upper_far",
+      "fore_far",
+      "hand_far",
+      "thigh_near",
+      "shin_near",
+      "foot_near",
+      "thigh_far",
+      "shin_far",
+      "foot_far",
+      "mortar",
+      "apron",
+      "flap",
+      "belt",
+      "bracer_near",
+      "bracer_far"
+    ],
+    "map": "ownership/front.png",
+    "map_sha256": "3be8bf31f536157ce8327a9419f75c3557cbba1fa5d37e89441b057173989840"
+  },
+  "tucks": [
+    {
+      "piece": "head",
+      "minimum_px": 3,
+      "cover": [
+        "torso"
+      ],
+      "required_mask": "tucks/front_head.png",
+      "required_pixels": 524,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 167
+    },
+    {
+      "piece": "torso",
+      "minimum_px": 3,
+      "cover": [
+        "head",
+        "mortar",
+        "pelvis",
+        "upper_far",
+        "upper_near"
+      ],
+      "required_mask": "tucks/front_torso.png",
+      "required_pixels": 1415,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 549
+    },
+    {
+      "piece": "mortar",
+      "minimum_px": 3,
+      "cover": [
+        "torso",
+        "head",
+        "upper_near",
+        "upper_far"
+      ],
+      "required_mask": "tucks/front_mortar.png",
+      "required_pixels": 611,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 336
+    },
+    {
+      "piece": "pelvis",
+      "minimum_px": 3,
+      "cover": [
+        "belt",
+        "thigh_far",
+        "thigh_near",
+        "torso"
+      ],
+      "required_mask": "tucks/front_pelvis.png",
+      "required_pixels": 2638,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 653
+    },
+    {
+      "piece": "belt",
+      "minimum_px": 3,
+      "cover": [
+        "flap",
+        "pelvis"
+      ],
+      "required_mask": "tucks/front_belt.png",
+      "required_pixels": 559,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 377
+    },
+    {
+      "piece": "flap",
+      "minimum_px": 3,
+      "cover": [
+        "belt"
+      ],
+      "required_mask": "tucks/front_flap.png",
+      "required_pixels": 222,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 146
+    },
+    {
+      "piece": "bracer_near",
+      "minimum_px": 3,
+      "cover": [
+        "fore_near",
+        "hand_near"
+      ],
+      "required_mask": "tucks/front_bracer_near.png",
+      "required_pixels": 384,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 338
+    },
+    {
+      "piece": "bracer_far",
+      "minimum_px": 3,
+      "cover": [
+        "fore_far",
+        "hand_far"
+      ],
+      "required_mask": "tucks/front_bracer_far.png",
+      "required_pixels": 232,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 191
+    },
+    {
+      "piece": "upper_near",
+      "minimum_px": 3,
+      "cover": [
+        "fore_near",
+        "torso"
+      ],
+      "required_mask": "tucks/front_upper_near.png",
+      "required_pixels": 474,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 319
+    },
+    {
+      "piece": "fore_near",
+      "minimum_px": 3,
+      "cover": [
+        "bracer_near",
+        "hand_near",
+        "upper_near"
+      ],
+      "required_mask": "tucks/front_fore_near.png",
+      "required_pixels": 1212,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 510
+    },
+    {
+      "piece": "hand_near",
+      "minimum_px": 3,
+      "cover": [
+        "bracer_near",
+        "fore_near"
+      ],
+      "required_mask": "tucks/front_hand_near.png",
+      "required_pixels": 234,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 136
+    },
+    {
+      "piece": "thigh_near",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis",
+        "shin_near"
+      ],
+      "required_mask": "tucks/front_thigh_near.png",
+      "required_pixels": 651,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 210
+    },
+    {
+      "piece": "shin_near",
+      "minimum_px": 3,
+      "cover": [
+        "foot_near",
+        "thigh_near"
+      ],
+      "required_mask": "tucks/front_shin_near.png",
+      "required_pixels": 447,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 235
+    },
+    {
+      "piece": "foot_near",
+      "minimum_px": 3,
+      "cover": [
+        "shin_near"
+      ],
+      "required_mask": "tucks/front_foot_near.png",
+      "required_pixels": 135,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 106
+    },
+    {
+      "piece": "upper_far",
+      "minimum_px": 3,
+      "cover": [
+        "fore_far",
+        "torso"
+      ],
+      "required_mask": "tucks/front_upper_far.png",
+      "required_pixels": 252,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 173
+    },
+    {
+      "piece": "fore_far",
+      "minimum_px": 3,
+      "cover": [
+        "bracer_far",
+        "hand_far",
+        "upper_far"
+      ],
+      "required_mask": "tucks/front_fore_far.png",
+      "required_pixels": 1143,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 444
+    },
+    {
+      "piece": "hand_far",
+      "minimum_px": 3,
+      "cover": [
+        "bracer_far",
+        "fore_far"
+      ],
+      "required_mask": "tucks/front_hand_far.png",
+      "required_pixels": 107,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 105
+    },
+    {
+      "piece": "thigh_far",
+      "minimum_px": 3,
+      "cover": [
+        "pelvis",
+        "shin_far"
+      ],
+      "required_mask": "tucks/front_thigh_far.png",
+      "required_pixels": 817,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 183
+    },
+    {
+      "piece": "shin_far",
+      "minimum_px": 3,
+      "cover": [
+        "foot_far",
+        "thigh_far"
+      ],
+      "required_mask": "tucks/front_shin_far.png",
+      "required_pixels": 313,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 183
+    },
+    {
+      "piece": "foot_far",
+      "minimum_px": 3,
+      "cover": [
+        "shin_far"
+      ],
+      "required_mask": "tucks/front_foot_far.png",
+      "required_pixels": 116,
+      "missing_pixels": 0,
+      "geometry": "three-pixel painted joint contact",
+      "prior_radial_required_pixels": 76
+    }
+  ],
+  "delivery": {
+    "joints_px.json": "385a72b9c12a1f1b099f354db426af4164724c862ca6428e1a99597cba4b269b",
+    "front_parts.png": "e7a25f033dc5c9410b96e0b0127dcda7e648294cf0544593e0561eea0a53098f",
+    "front_solo_head.png": "03ed6b81c196d645d63013ff95a1b051a32956ae7d9a0b7c6882032fb7c39f29",
+    "front_solo_torso.png": "66f35b9e729396235503ef8ddbfd9efcd0f306a0d90fac8cd14a9389094919c7",
+    "front_solo_mortar.png": "6e125bde0c5e353b1df4e17bc8c2c225e772eba2781e6d81b2e2389bf8ecdede",
+    "front_solo_pelvis.png": "ad87e71e69706667bc8602027366fb3847a6ca189a8b9076a78f906497457e21",
+    "front_solo_apron.png": "a56c28bd3bc77943e9db8034a0715f9dc326f22deca8d7d62a67fab6951a26b8",
+    "front_solo_upper_near.png": "7065f85bbf810401e72e679065fdbbca09ece76196dc0844834630607a6fbca7",
+    "front_solo_fore_near.png": "97db1c6d266d5547bb02895ba6e9ce907dd44b127c4a2f7dd65d2c1c43de2da8",
+    "front_solo_hand_near.png": "ee527ee6d57f8c51156d44405b0e55d63b2547b18634891a80940697ede0c00b",
+    "front_solo_thigh_near.png": "877fd371911dbc08f18e81bb44e1787114864e23f6aa93139a7876135733e50d",
+    "front_solo_shin_near.png": "6bfd36d48d0eb1d3927e7b3266a9bc2f3680d18acfa14cfaf1f79cab3c476fff",
+    "front_solo_foot_near.png": "de1c231adea7de12893744948a026fadda13c314afb0b26facc326fca27ef956",
+    "front_solo_upper_far.png": "46a5065026c78b8a41f903531a09e9fd77433c1e5914ee4a111c6ce4fe8119a5",
+    "front_solo_fore_far.png": "dff19363edf371c80de7621d9029463bd66c7d065058d314ad619bb87b43e4db",
+    "front_solo_hand_far.png": "50d08b4cc78be60c7ed1502eb493537bedcc892944c750782b62796ce216b58f",
+    "front_solo_thigh_far.png": "f4568cc76a958a10a04253adebe0bbc35b160dceca330f8d66cce73c3d4fa4fb",
+    "front_solo_shin_far.png": "9ea55e5a27d8fe00bc78213e8b857628a36defcd6b169c719d8119d384e2eb79",
+    "front_solo_foot_far.png": "3110a78bf4d5c6361fe1bceeb842ab7fd40a0d95f1326318dc65a015d13173bc"
+  },
+  "source_ownership": "experiments/cutouts/slag_mortar/rr30/front_baseline/layouts/front.json",
+  "source_ownership_sha256": "f2b2a86a12efb9984fb456442a3a7dcafcbaf53a61be5310992736c6aff11214",
+  "views": {
+    "front": {
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "joint_surfaces": {
+        "distance_basis": "painted_contact_boundary",
+        "maximum_visible_distance_px": 3.0,
+        "source_contact_radius_px": 3.0,
+        "pieces": {
+          "head": {
+            "removed_texels": 155,
+            "covered_texels": 524,
+            "changed_colour_texels": 221
+          },
+          "torso": {
+            "removed_texels": 1996,
+            "covered_texels": 1413,
+            "changed_colour_texels": 630
+          },
+          "mortar": {
+            "removed_texels": 1522,
+            "covered_texels": 625,
+            "changed_colour_texels": 216
+          },
+          "pelvis": {
+            "removed_texels": 645,
+            "covered_texels": 2657,
+            "changed_colour_texels": 1370
+          },
+          "belt": {
+            "removed_texels": 28,
+            "covered_texels": 559,
+            "changed_colour_texels": 162
+          },
+          "flap": {
+            "removed_texels": 0,
+            "covered_texels": 222,
+            "changed_colour_texels": 26
+          },
+          "bracer_near": {
+            "removed_texels": 56,
+            "covered_texels": 386,
+            "changed_colour_texels": 49
+          },
+          "bracer_far": {
+            "removed_texels": 36,
+            "covered_texels": 232,
+            "changed_colour_texels": 107
+          },
+          "upper_near": {
+            "removed_texels": 562,
+            "covered_texels": 472,
+            "changed_colour_texels": 355
+          },
+          "fore_near": {
+            "removed_texels": 93,
+            "covered_texels": 1213,
+            "changed_colour_texels": 439
+          },
+          "hand_near": {
+            "removed_texels": 59,
+            "covered_texels": 235,
+            "changed_colour_texels": 173
+          },
+          "thigh_near": {
+            "removed_texels": 233,
+            "covered_texels": 651,
+            "changed_colour_texels": 121
+          },
+          "shin_near": {
+            "removed_texels": 101,
+            "covered_texels": 447,
+            "changed_colour_texels": 57
+          },
+          "foot_near": {
+            "removed_texels": 5,
+            "covered_texels": 135,
+            "changed_colour_texels": 39
+          },
+          "upper_far": {
+            "removed_texels": 1335,
+            "covered_texels": 255,
+            "changed_colour_texels": 190
+          },
+          "fore_far": {
+            "removed_texels": 144,
+            "covered_texels": 1143,
+            "changed_colour_texels": 638
+          },
+          "hand_far": {
+            "removed_texels": 194,
+            "covered_texels": 106,
+            "changed_colour_texels": 102
+          },
+          "thigh_far": {
+            "removed_texels": 290,
+            "covered_texels": 817,
+            "changed_colour_texels": 26
+          },
+          "shin_far": {
+            "removed_texels": 182,
+            "covered_texels": 313,
+            "changed_colour_texels": 76
+          },
+          "foot_far": {
+            "removed_texels": 50,
+            "covered_texels": 116,
+            "changed_colour_texels": 59
+          }
+        }
+      },
+      "painted_joint_registration": {
+        "fore_near": {
+          "native_position": [
+            194.67,
+            147.0
+          ],
+          "painted_contact_centroid": [
+            187.27272727272728,
+            139.27272727272728
+          ],
+          "basis": "Endpoint centroid of the approved upper/forearm contact grid edges"
+        }
+      },
+      "invisible_rgb_normalized_texels": 0,
+      "residue_cleanup": {
+        "head": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "torso": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "mortar": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "pelvis": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "belt": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "flap": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "bracer_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "bracer_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "upper_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "fore_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "thigh_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "shin_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "upper_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "fore_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "thigh_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "shin_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_far": {
+          "visible": 0,
+          "hidden": 0
+        }
+      },
+      "covered_connections": {
+        "head": 0,
+        "torso": 0,
+        "mortar": 0,
+        "pelvis": 0,
+        "belt": 0,
+        "flap": 0,
+        "bracer_near": 0,
+        "bracer_far": 0,
+        "upper_near": 0,
+        "fore_near": 0,
+        "hand_near": 0,
+        "thigh_near": 0,
+        "shin_near": 0,
+        "foot_near": 0,
+        "upper_far": 0,
+        "fore_far": 0,
+        "hand_far": 0,
+        "thigh_far": 0,
+        "shin_far": 0,
+        "foot_far": 0
+      },
+      "swept_joint_material": {
+        "head": 258,
+        "torso": 1612,
+        "pelvis": 164,
+        "upper_near": 382,
+        "fore_near": 65,
+        "hand_near": 0,
+        "thigh_near": 233,
+        "shin_near": 172,
+        "foot_near": 0,
+        "upper_far": 370,
+        "fore_far": 99,
+        "hand_far": 0,
+        "thigh_far": 211,
+        "shin_far": 51,
+        "foot_far": 0
+      },
+      "unresolved_connections": {},
+      "ownership": {
+        "rule": "protected_crucible_mask_and_native_body",
+        "region_pixels": 6503,
+        "retained_pixels": 4745,
+        "transferred_pixels": 1758,
+        "speck_transfers": [
+          {
+            "from": "apron",
+            "to": "thigh_near",
+            "pixels": 2
+          }
+        ],
+        "mq11_partition": {
+          "trace_source": "rr30_ownership_traces.json",
+          "trace_sha256": "11d49319c255c52990750ab2ad90a4c0148455d15fccdb850ce4a0cdfb4556d8",
+          "policy": "approved painted equipment boundaries; source RGBA unchanged",
+          "flap": {
+            "pixels": 1501,
+            "trace": [
+              [
+                111,
+                159
+              ],
+              [
+                125,
+                162
+              ],
+              [
+                139,
+                162
+              ],
+              [
+                148,
+                159
+              ],
+              [
+                148,
+                165
+              ],
+              [
+                146,
+                173
+              ],
+              [
+                145,
+                183
+              ],
+              [
+                143,
+                192
+              ],
+              [
+                141,
+                200
+              ],
+              [
+                138,
+                204
+              ],
+              [
+                134,
+                200
+              ],
+              [
+                131,
+                209
+              ],
+              [
+                128,
+                212
+              ],
+              [
+                125,
+                202
+              ],
+              [
+                123,
+                207
+              ],
+              [
+                120,
+                208
+              ],
+              [
+                118,
+                203
+              ],
+              [
+                115,
+                202
+              ],
+              [
+                114,
+                198
+              ],
+              [
+                111,
+                194
+              ],
+              [
+                110,
+                187
+              ],
+              [
+                108,
+                181
+              ],
+              [
+                109,
+                175
+              ],
+              [
+                111,
+                168
+              ]
+            ]
+          },
+          "belt": {
+            "pixels": 818,
+            "trace": [
+              [
+                102,
+                144
+              ],
+              [
+                111,
+                148
+              ],
+              [
+                120,
+                150
+              ],
+              [
+                130,
+                151
+              ],
+              [
+                143,
+                151
+              ],
+              [
+                155,
+                148
+              ],
+              [
+                166,
+                143
+              ],
+              [
+                171,
+                146
+              ],
+              [
+                168,
+                155
+              ],
+              [
+                157,
+                159
+              ],
+              [
+                144,
+                163
+              ],
+              [
+                132,
+                164
+              ],
+              [
+                120,
+                163
+              ],
+              [
+                109,
+                160
+              ],
+              [
+                104,
+                155
+              ]
+            ]
+          },
+          "bracer_near": {
+            "pixels": 983,
+            "trace": [
+              [
+                180,
+                154
+              ],
+              [
+                191,
+                151
+              ],
+              [
+                201,
+                152
+              ],
+              [
+                207,
+                155
+              ],
+              [
+                208,
+                169
+              ],
+              [
+                207,
+                176
+              ],
+              [
+                201,
+                181
+              ],
+              [
+                187,
+                185
+              ],
+              [
+                176,
+                187
+              ],
+              [
+                173,
+                179
+              ],
+              [
+                171,
+                168
+              ],
+              [
+                173,
+                160
+              ]
+            ]
+          },
+          "bracer_far": {
+            "pixels": 813,
+            "trace": [
+              [
+                59,
+                131
+              ],
+              [
+                65,
+                133
+              ],
+              [
+                76,
+                136
+              ],
+              [
+                82,
+                139
+              ],
+              [
+                83,
+                145
+              ],
+              [
+                81,
+                152
+              ],
+              [
+                79,
+                159
+              ],
+              [
+                77,
+                164
+              ],
+              [
+                70,
+                164
+              ],
+              [
+                63,
+                162
+              ],
+              [
+                56,
+                160
+              ],
+              [
+                50,
+                160
+              ],
+              [
+                49,
+                156
+              ],
+              [
+                50,
+                150
+              ],
+              [
+                53,
+                143
+              ],
+              [
+                56,
+                136
+              ]
+            ]
+          },
+          "native_apron_residue_body_pixels": 444,
+          "rigid_segment_speck_transfers": [
+            {
+              "from": "pelvis",
+              "to": "torso",
+              "pixels": 1
+            },
+            {
+              "from": "fore_near",
+              "to": "upper_near",
+              "pixels": 1
+            },
+            {
+              "from": "fore_far",
+              "to": "bracer_far",
+              "pixels": 4
+            },
+            {
+              "from": "fore_far",
+              "to": "bracer_far",
+              "pixels": 1
+            },
+            {
+              "from": "fore_far",
+              "to": "bracer_far",
+              "pixels": 1
+            },
+            {
+              "from": "fore_far",
+              "to": "bracer_far",
+              "pixels": 1
+            },
+            {
+              "from": "fore_far",
+              "to": "bracer_far",
+              "pixels": 1
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 2
+            }
+          ]
+        },
+        "director_mask_sha256": "a506bc823d6c0dcf76ee4942525c315b46cc65fdc98ed9717dda930d94042992",
+        "names": [
+          "head",
+          "torso",
+          "pelvis",
+          "upper_near",
+          "fore_near",
+          "hand_near",
+          "upper_far",
+          "fore_far",
+          "hand_far",
+          "thigh_near",
+          "shin_near",
+          "foot_near",
+          "thigh_far",
+          "shin_far",
+          "foot_far",
+          "mortar",
+          "apron",
+          "flap",
+          "belt",
+          "bracer_near",
+          "bracer_far"
+        ],
+        "map": "ownership/front.png",
+        "map_sha256": "3be8bf31f536157ce8327a9419f75c3557cbba1fa5d37e89441b057173989840"
+      },
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/front_head.png",
+          "required_pixels": 524,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 167
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "head",
+            "mortar",
+            "pelvis",
+            "upper_far",
+            "upper_near"
+          ],
+          "required_mask": "tucks/front_torso.png",
+          "required_pixels": 1415,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 549
+        },
+        {
+          "piece": "mortar",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "head",
+            "upper_near",
+            "upper_far"
+          ],
+          "required_mask": "tucks/front_mortar.png",
+          "required_pixels": 611,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 336
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "belt",
+            "thigh_far",
+            "thigh_near",
+            "torso"
+          ],
+          "required_mask": "tucks/front_pelvis.png",
+          "required_pixels": 2638,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 653
+        },
+        {
+          "piece": "belt",
+          "minimum_px": 3,
+          "cover": [
+            "flap",
+            "pelvis"
+          ],
+          "required_mask": "tucks/front_belt.png",
+          "required_pixels": 559,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 377
+        },
+        {
+          "piece": "flap",
+          "minimum_px": 3,
+          "cover": [
+            "belt"
+          ],
+          "required_mask": "tucks/front_flap.png",
+          "required_pixels": 222,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 146
+        },
+        {
+          "piece": "bracer_near",
+          "minimum_px": 3,
+          "cover": [
+            "fore_near",
+            "hand_near"
+          ],
+          "required_mask": "tucks/front_bracer_near.png",
+          "required_pixels": 384,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 338
+        },
+        {
+          "piece": "bracer_far",
+          "minimum_px": 3,
+          "cover": [
+            "fore_far",
+            "hand_far"
+          ],
+          "required_mask": "tucks/front_bracer_far.png",
+          "required_pixels": 232,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 191
+        },
+        {
+          "piece": "upper_near",
+          "minimum_px": 3,
+          "cover": [
+            "fore_near",
+            "torso"
+          ],
+          "required_mask": "tucks/front_upper_near.png",
+          "required_pixels": 474,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 319
+        },
+        {
+          "piece": "fore_near",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_near",
+            "hand_near",
+            "upper_near"
+          ],
+          "required_mask": "tucks/front_fore_near.png",
+          "required_pixels": 1212,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 510
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_near",
+            "fore_near"
+          ],
+          "required_mask": "tucks/front_hand_near.png",
+          "required_pixels": 234,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 136
+        },
+        {
+          "piece": "thigh_near",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_near"
+          ],
+          "required_mask": "tucks/front_thigh_near.png",
+          "required_pixels": 651,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 210
+        },
+        {
+          "piece": "shin_near",
+          "minimum_px": 3,
+          "cover": [
+            "foot_near",
+            "thigh_near"
+          ],
+          "required_mask": "tucks/front_shin_near.png",
+          "required_pixels": 447,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 235
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "shin_near"
+          ],
+          "required_mask": "tucks/front_foot_near.png",
+          "required_pixels": 135,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 106
+        },
+        {
+          "piece": "upper_far",
+          "minimum_px": 3,
+          "cover": [
+            "fore_far",
+            "torso"
+          ],
+          "required_mask": "tucks/front_upper_far.png",
+          "required_pixels": 252,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 173
+        },
+        {
+          "piece": "fore_far",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_far",
+            "hand_far",
+            "upper_far"
+          ],
+          "required_mask": "tucks/front_fore_far.png",
+          "required_pixels": 1143,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 444
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_far",
+            "fore_far"
+          ],
+          "required_mask": "tucks/front_hand_far.png",
+          "required_pixels": 107,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 105
+        },
+        {
+          "piece": "thigh_far",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_far"
+          ],
+          "required_mask": "tucks/front_thigh_far.png",
+          "required_pixels": 817,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 183
+        },
+        {
+          "piece": "shin_far",
+          "minimum_px": 3,
+          "cover": [
+            "foot_far",
+            "thigh_far"
+          ],
+          "required_mask": "tucks/front_shin_far.png",
+          "required_pixels": 313,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 183
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "shin_far"
+          ],
+          "required_mask": "tucks/front_foot_far.png",
+          "required_pixels": 116,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 76
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "385a72b9c12a1f1b099f354db426af4164724c862ca6428e1a99597cba4b269b",
+        "front_parts.png": "e7a25f033dc5c9410b96e0b0127dcda7e648294cf0544593e0561eea0a53098f",
+        "front_solo_head.png": "03ed6b81c196d645d63013ff95a1b051a32956ae7d9a0b7c6882032fb7c39f29",
+        "front_solo_torso.png": "66f35b9e729396235503ef8ddbfd9efcd0f306a0d90fac8cd14a9389094919c7",
+        "front_solo_mortar.png": "6e125bde0c5e353b1df4e17bc8c2c225e772eba2781e6d81b2e2389bf8ecdede",
+        "front_solo_pelvis.png": "ad87e71e69706667bc8602027366fb3847a6ca189a8b9076a78f906497457e21",
+        "front_solo_apron.png": "a56c28bd3bc77943e9db8034a0715f9dc326f22deca8d7d62a67fab6951a26b8",
+        "front_solo_upper_near.png": "7065f85bbf810401e72e679065fdbbca09ece76196dc0844834630607a6fbca7",
+        "front_solo_fore_near.png": "97db1c6d266d5547bb02895ba6e9ce907dd44b127c4a2f7dd65d2c1c43de2da8",
+        "front_solo_hand_near.png": "ee527ee6d57f8c51156d44405b0e55d63b2547b18634891a80940697ede0c00b",
+        "front_solo_thigh_near.png": "877fd371911dbc08f18e81bb44e1787114864e23f6aa93139a7876135733e50d",
+        "front_solo_shin_near.png": "6bfd36d48d0eb1d3927e7b3266a9bc2f3680d18acfa14cfaf1f79cab3c476fff",
+        "front_solo_foot_near.png": "de1c231adea7de12893744948a026fadda13c314afb0b26facc326fca27ef956",
+        "front_solo_upper_far.png": "46a5065026c78b8a41f903531a09e9fd77433c1e5914ee4a111c6ce4fe8119a5",
+        "front_solo_fore_far.png": "dff19363edf371c80de7621d9029463bd66c7d065058d314ad619bb87b43e4db",
+        "front_solo_hand_far.png": "50d08b4cc78be60c7ed1502eb493537bedcc892944c750782b62796ce216b58f",
+        "front_solo_thigh_far.png": "f4568cc76a958a10a04253adebe0bbc35b160dceca330f8d66cce73c3d4fa4fb",
+        "front_solo_shin_far.png": "9ea55e5a27d8fe00bc78213e8b857628a36defcd6b169c719d8119d384e2eb79",
+        "front_solo_foot_far.png": "3110a78bf4d5c6361fe1bceeb842ab7fd40a0d95f1326318dc65a015d13173bc"
+      },
+      "source_ownership": "experiments/cutouts/slag_mortar/rr30/front_baseline/layouts/front.json",
+      "source_ownership_sha256": "f2b2a86a12efb9984fb456442a3a7dcafcbaf53a61be5310992736c6aff11214"
+    },
+    "rear": {
+      "front_rest_mismatch_pixels": 0,
+      "rest_mismatch_pixels": 0,
+      "joint_surfaces": {
+        "distance_basis": "painted_contact_boundary",
+        "maximum_visible_distance_px": 3.0,
+        "source_contact_radius_px": 3.0,
+        "pieces": {
+          "head": {
+            "removed_texels": 343,
+            "covered_texels": 300,
+            "changed_colour_texels": 40
+          },
+          "torso": {
+            "removed_texels": 1304,
+            "covered_texels": 2945,
+            "changed_colour_texels": 2087
+          },
+          "mortar": {
+            "removed_texels": 338,
+            "covered_texels": 509,
+            "changed_colour_texels": 153
+          },
+          "pelvis": {
+            "removed_texels": 574,
+            "covered_texels": 2396,
+            "changed_colour_texels": 1456
+          },
+          "belt": {
+            "removed_texels": 21,
+            "covered_texels": 606,
+            "changed_colour_texels": 94
+          },
+          "flap": {
+            "removed_texels": 0,
+            "covered_texels": 244,
+            "changed_colour_texels": 10
+          },
+          "bracer_near": {
+            "removed_texels": 15,
+            "covered_texels": 212,
+            "changed_colour_texels": 25
+          },
+          "bracer_far": {
+            "removed_texels": 39,
+            "covered_texels": 376,
+            "changed_colour_texels": 26
+          },
+          "upper_near": {
+            "removed_texels": 1248,
+            "covered_texels": 198,
+            "changed_colour_texels": 37
+          },
+          "fore_near": {
+            "removed_texels": 757,
+            "covered_texels": 780,
+            "changed_colour_texels": 101
+          },
+          "hand_near": {
+            "removed_texels": 5,
+            "covered_texels": 209,
+            "changed_colour_texels": 74
+          },
+          "thigh_near": {
+            "removed_texels": 258,
+            "covered_texels": 677,
+            "changed_colour_texels": 229
+          },
+          "shin_near": {
+            "removed_texels": 76,
+            "covered_texels": 389,
+            "changed_colour_texels": 136
+          },
+          "foot_near": {
+            "removed_texels": 16,
+            "covered_texels": 169,
+            "changed_colour_texels": 34
+          },
+          "upper_far": {
+            "removed_texels": 810,
+            "covered_texels": 480,
+            "changed_colour_texels": 230
+          },
+          "fore_far": {
+            "removed_texels": 138,
+            "covered_texels": 1261,
+            "changed_colour_texels": 484
+          },
+          "hand_far": {
+            "removed_texels": 55,
+            "covered_texels": 145,
+            "changed_colour_texels": 143
+          },
+          "thigh_far": {
+            "removed_texels": 148,
+            "covered_texels": 585,
+            "changed_colour_texels": 155
+          },
+          "shin_far": {
+            "removed_texels": 114,
+            "covered_texels": 492,
+            "changed_colour_texels": 105
+          },
+          "foot_far": {
+            "removed_texels": 12,
+            "covered_texels": 180,
+            "changed_colour_texels": 50
+          }
+        }
+      },
+      "painted_joint_registration": {},
+      "invisible_rgb_normalized_texels": 0,
+      "residue_cleanup": {
+        "head": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "torso": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "mortar": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "pelvis": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "belt": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "flap": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "bracer_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "bracer_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "upper_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "fore_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "thigh_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "shin_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_near": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "upper_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "fore_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "hand_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "thigh_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "shin_far": {
+          "visible": 0,
+          "hidden": 0
+        },
+        "foot_far": {
+          "visible": 0,
+          "hidden": 0
+        }
+      },
+      "covered_connections": {
+        "head": 0,
+        "torso": 0,
+        "mortar": 0,
+        "pelvis": 0,
+        "belt": 0,
+        "flap": 0,
+        "bracer_near": 0,
+        "bracer_far": 0,
+        "upper_near": 0,
+        "fore_near": 0,
+        "hand_near": 0,
+        "thigh_near": 0,
+        "shin_near": 0,
+        "foot_near": 0,
+        "upper_far": 0,
+        "fore_far": 0,
+        "hand_far": 0,
+        "thigh_far": 0,
+        "shin_far": 0,
+        "foot_far": 0
+      },
+      "swept_joint_material": {
+        "head": 108,
+        "torso": 1642,
+        "pelvis": 469,
+        "upper_near": 41,
+        "fore_near": 0,
+        "hand_near": 0,
+        "thigh_near": 131,
+        "shin_near": 29,
+        "foot_near": 0,
+        "upper_far": 636,
+        "fore_far": 79,
+        "hand_far": 0,
+        "thigh_far": 238,
+        "shin_far": 192,
+        "foot_far": 0
+      },
+      "unresolved_connections": {},
+      "ownership": {
+        "rule": "protected_crucible_mask_and_native_body",
+        "region_pixels": 7391,
+        "retained_pixels": 6908,
+        "transferred_pixels": 547,
+        "rear_fist": {
+          "bracer_pixels": 464,
+          "fist_pixels": 852,
+          "transferred_pixels": 701,
+          "axis": [
+            -0.08724184534171374,
+            0.9961871613413678
+          ],
+          "rim_columns": [
+            -15,
+            -14,
+            -13,
+            -12,
+            -11,
+            -10,
+            -9,
+            -8,
+            -7,
+            -6,
+            -5,
+            -4,
+            -3,
+            -2,
+            -1,
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          "rim_along_px": [
+            3.7229083968793266,
+            7.8821407329282245,
+            9.961756900952674,
+            13.03756023031849,
+            14.120989237001572,
+            15.204418243684653,
+            15.291660089026369,
+            16.37508909570945,
+            16.462330941051164,
+            17.545759947734243,
+            16.63681463173459,
+            17.72024363841767,
+            17.807485483759386,
+            17.894727329101098,
+            17.981969174442813,
+            18.15645286512624,
+            18.243694710467956,
+            18.330936555809668,
+            18.418178401151383,
+            18.505420246493095,
+            17.509233085151727,
+            17.596474930493443,
+            18.767145782518238,
+            18.85438762785995,
+            18.941629473201665,
+            19.028871318543377,
+            18.03268415720201,
+            18.119926002543725,
+            18.207167847885437,
+            18.294409693227152,
+            17.385464377227496,
+            16.476519061227844,
+            16.563760906569556,
+            15.654815590569903,
+            14.74587027457025
+          ]
+        },
+        "speck_transfers": [],
+        "mq11_partition": {
+          "trace_source": "rr30_ownership_traces.json",
+          "trace_sha256": "11d49319c255c52990750ab2ad90a4c0148455d15fccdb850ce4a0cdfb4556d8",
+          "policy": "approved painted equipment boundaries; source RGBA unchanged",
+          "flap": {
+            "pixels": 1292,
+            "trace": [
+              [
+                95,
+                152
+              ],
+              [
+                107,
+                155
+              ],
+              [
+                119,
+                155
+              ],
+              [
+                132,
+                152
+              ],
+              [
+                137,
+                152
+              ],
+              [
+                137,
+                166
+              ],
+              [
+                136,
+                179
+              ],
+              [
+                134,
+                190
+              ],
+              [
+                131,
+                195
+              ],
+              [
+                128,
+                188
+              ],
+              [
+                125,
+                188
+              ],
+              [
+                123,
+                199
+              ],
+              [
+                120,
+                199
+              ],
+              [
+                116,
+                194
+              ],
+              [
+                112,
+                194
+              ],
+              [
+                108,
+                190
+              ],
+              [
+                104,
+                190
+              ],
+              [
+                101,
+                184
+              ],
+              [
+                98,
+                179
+              ],
+              [
+                96,
+                171
+              ],
+              [
+                94,
+                161
+              ]
+            ]
+          },
+          "belt": {
+            "pixels": 866,
+            "trace": [
+              [
+                82,
+                140
+              ],
+              [
+                94,
+                145
+              ],
+              [
+                104,
+                148
+              ],
+              [
+                119,
+                148
+              ],
+              [
+                132,
+                146
+              ],
+              [
+                143,
+                142
+              ],
+              [
+                151,
+                140
+              ],
+              [
+                153,
+                148
+              ],
+              [
+                151,
+                154
+              ],
+              [
+                143,
+                157
+              ],
+              [
+                132,
+                160
+              ],
+              [
+                119,
+                160
+              ],
+              [
+                104,
+                159
+              ],
+              [
+                92,
+                157
+              ],
+              [
+                83,
+                153
+              ]
+            ]
+          },
+          "bracer_near": {
+            "pixels": 892,
+            "trace": [
+              [
+                42,
+                126
+              ],
+              [
+                46,
+                128
+              ],
+              [
+                49,
+                132
+              ],
+              [
+                54,
+                135
+              ],
+              [
+                62,
+                138
+              ],
+              [
+                70,
+                139
+              ],
+              [
+                76,
+                137
+              ],
+              [
+                75,
+                145
+              ],
+              [
+                72,
+                151
+              ],
+              [
+                67,
+                156
+              ],
+              [
+                64,
+                159
+              ],
+              [
+                58,
+                162
+              ],
+              [
+                51,
+                160
+              ],
+              [
+                44,
+                159
+              ],
+              [
+                39,
+                157
+              ],
+              [
+                36,
+                153
+              ],
+              [
+                36,
+                146
+              ],
+              [
+                38,
+                137
+              ],
+              [
+                40,
+                131
+              ]
+            ]
+          },
+          "bracer_far": {
+            "pixels": 991,
+            "trace": [
+              [
+                170,
+                159
+              ],
+              [
+                179,
+                156
+              ],
+              [
+                185,
+                154
+              ],
+              [
+                190,
+                151
+              ],
+              [
+                197,
+                149
+              ],
+              [
+                202,
+                147
+              ],
+              [
+                205,
+                152
+              ],
+              [
+                207,
+                159
+              ],
+              [
+                211,
+                169
+              ],
+              [
+                211,
+                174
+              ],
+              [
+                206,
+                177
+              ],
+              [
+                198,
+                179
+              ],
+              [
+                191,
+                182
+              ],
+              [
+                180,
+                185
+              ],
+              [
+                175,
+                178
+              ],
+              [
+                173,
+                170
+              ]
+            ]
+          },
+          "native_apron_residue_body_pixels": 494,
+          "rigid_segment_speck_transfers": [
+            {
+              "from": "torso",
+              "to": "thigh_far",
+              "pixels": 5
+            },
+            {
+              "from": "fore_near",
+              "to": "bracer_near",
+              "pixels": 1
+            },
+            {
+              "from": "shin_near",
+              "to": "flap",
+              "pixels": 2
+            },
+            {
+              "from": "thigh_far",
+              "to": "flap",
+              "pixels": 2
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 3
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 2
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 2
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 1
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 1
+            },
+            {
+              "from": "shin_far",
+              "to": "flap",
+              "pixels": 1
+            }
+          ],
+          "rigid_foot_sole_bridge": {
+            "pixels": 174,
+            "hull": [
+              [
+                65,
+                208
+              ],
+              [
+                100,
+                202
+              ],
+              [
+                102,
+                205
+              ],
+              [
+                102,
+                209
+              ],
+              [
+                100,
+                211
+              ],
+              [
+                74,
+                213
+              ],
+              [
+                70,
+                213
+              ],
+              [
+                67,
+                211
+              ]
+            ],
+            "basis": "Approved painted heel/toe hull; only intervening shin-owned sole paint transfers"
+          }
+        },
+        "director_mask_sha256": "74f4fa96c301ebc2bc2baf75d204eb64756289260f147e8ad5c1269ad3068d8c",
+        "names": [
+          "head",
+          "torso",
+          "pelvis",
+          "upper_near",
+          "fore_near",
+          "hand_near",
+          "upper_far",
+          "fore_far",
+          "hand_far",
+          "thigh_near",
+          "shin_near",
+          "foot_near",
+          "thigh_far",
+          "shin_far",
+          "foot_far",
+          "mortar",
+          "apron",
+          "flap",
+          "belt",
+          "bracer_near",
+          "bracer_far"
+        ],
+        "map": "ownership/rear.png",
+        "map_sha256": "7ecf5aa2b99ae0c949476afe53ce9109a629dae0d1f4d8607c1ef613736a19b1"
+      },
+      "tucks": [
+        {
+          "piece": "head",
+          "minimum_px": 3,
+          "cover": [
+            "torso"
+          ],
+          "required_mask": "tucks/rear_head.png",
+          "required_pixels": 299,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 111
+        },
+        {
+          "piece": "torso",
+          "minimum_px": 3,
+          "cover": [
+            "head",
+            "mortar",
+            "pelvis",
+            "upper_far",
+            "upper_near"
+          ],
+          "required_mask": "tucks/rear_torso.png",
+          "required_pixels": 2933,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 962
+        },
+        {
+          "piece": "mortar",
+          "minimum_px": 3,
+          "cover": [
+            "torso",
+            "head",
+            "upper_near",
+            "upper_far"
+          ],
+          "required_mask": "tucks/rear_mortar.png",
+          "required_pixels": 509,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 471
+        },
+        {
+          "piece": "pelvis",
+          "minimum_px": 3,
+          "cover": [
+            "belt",
+            "thigh_far",
+            "thigh_near",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_pelvis.png",
+          "required_pixels": 2388,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 836
+        },
+        {
+          "piece": "belt",
+          "minimum_px": 3,
+          "cover": [
+            "flap",
+            "pelvis"
+          ],
+          "required_mask": "tucks/rear_belt.png",
+          "required_pixels": 606,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 442
+        },
+        {
+          "piece": "flap",
+          "minimum_px": 3,
+          "cover": [
+            "belt"
+          ],
+          "required_mask": "tucks/rear_flap.png",
+          "required_pixels": 244,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 163
+        },
+        {
+          "piece": "bracer_near",
+          "minimum_px": 3,
+          "cover": [
+            "fore_near",
+            "hand_near"
+          ],
+          "required_mask": "tucks/rear_bracer_near.png",
+          "required_pixels": 212,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 165
+        },
+        {
+          "piece": "bracer_far",
+          "minimum_px": 3,
+          "cover": [
+            "fore_far",
+            "hand_far"
+          ],
+          "required_mask": "tucks/rear_bracer_far.png",
+          "required_pixels": 376,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 324
+        },
+        {
+          "piece": "upper_near",
+          "minimum_px": 3,
+          "cover": [
+            "fore_near",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_upper_near.png",
+          "required_pixels": 195,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 68
+        },
+        {
+          "piece": "fore_near",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_near",
+            "hand_near",
+            "upper_near"
+          ],
+          "required_mask": "tucks/rear_fore_near.png",
+          "required_pixels": 780,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 54
+        },
+        {
+          "piece": "hand_near",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_near",
+            "fore_near"
+          ],
+          "required_mask": "tucks/rear_hand_near.png",
+          "required_pixels": 209,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 162
+        },
+        {
+          "piece": "thigh_near",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_near"
+          ],
+          "required_mask": "tucks/rear_thigh_near.png",
+          "required_pixels": 677,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 210
+        },
+        {
+          "piece": "shin_near",
+          "minimum_px": 3,
+          "cover": [
+            "foot_near",
+            "thigh_near"
+          ],
+          "required_mask": "tucks/rear_shin_near.png",
+          "required_pixels": 389,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 289
+        },
+        {
+          "piece": "foot_near",
+          "minimum_px": 3,
+          "cover": [
+            "shin_near"
+          ],
+          "required_mask": "tucks/rear_foot_near.png",
+          "required_pixels": 169,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 141
+        },
+        {
+          "piece": "upper_far",
+          "minimum_px": 3,
+          "cover": [
+            "fore_far",
+            "torso"
+          ],
+          "required_mask": "tucks/rear_upper_far.png",
+          "required_pixels": 476,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 440
+        },
+        {
+          "piece": "fore_far",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_far",
+            "hand_far",
+            "upper_far"
+          ],
+          "required_mask": "tucks/rear_fore_far.png",
+          "required_pixels": 1261,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 587
+        },
+        {
+          "piece": "hand_far",
+          "minimum_px": 3,
+          "cover": [
+            "bracer_far",
+            "fore_far"
+          ],
+          "required_mask": "tucks/rear_hand_far.png",
+          "required_pixels": 121,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 120
+        },
+        {
+          "piece": "thigh_far",
+          "minimum_px": 3,
+          "cover": [
+            "pelvis",
+            "shin_far"
+          ],
+          "required_mask": "tucks/rear_thigh_far.png",
+          "required_pixels": 585,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 229
+        },
+        {
+          "piece": "shin_far",
+          "minimum_px": 3,
+          "cover": [
+            "foot_far",
+            "thigh_far"
+          ],
+          "required_mask": "tucks/rear_shin_far.png",
+          "required_pixels": 492,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 302
+        },
+        {
+          "piece": "foot_far",
+          "minimum_px": 3,
+          "cover": [
+            "shin_far"
+          ],
+          "required_mask": "tucks/rear_foot_far.png",
+          "required_pixels": 180,
+          "missing_pixels": 0,
+          "geometry": "three-pixel painted joint contact",
+          "prior_radial_required_pixels": 147
+        }
+      ],
+      "delivery": {
+        "joints_px.json": "385a72b9c12a1f1b099f354db426af4164724c862ca6428e1a99597cba4b269b",
+        "rear_parts.png": "e3a16912c27daa7dc62aecd0c4b03f921a365172b6be761d1ba5caa9539146f7",
+        "rear_solo_head.png": "68bb19f9639d69fa0fd76b398691bea9b2366458a460fcdbcd154c6a4b92c5e1",
+        "rear_solo_torso.png": "02a780daed32565f9fc942c5b0125f183b913e2cba95450d2202c4f59a668e54",
+        "rear_solo_mortar.png": "9e4b8178cb349ddb34f758a96afdc034d05eb8c4bc2fb0db59e5f2cf972a7e23",
+        "rear_solo_pelvis.png": "3c7aa9261eef74335c66de0a8faedfaefc1fd73c6313490269b29c7ee8c24d09",
+        "rear_solo_apron.png": "62e64b7448d5860ed5e50d630553f0c94079f047b6aad0b481a5660ada9f37fa",
+        "rear_solo_upper_near.png": "5bc92fb35afac6f07c8b9bbfd5dcbfcdf3d7afdb7e4cec6e70395bbb3742402c",
+        "rear_solo_fore_near.png": "259411a7b98af857d88520ee35fef6e06d51ecab79e057fc9ecdc3266661b9ab",
+        "rear_solo_hand_near.png": "46df63cf3acfe9862f97a91a7d0fbc9d0a9aa79077ef75fcc89fd26636735964",
+        "rear_solo_thigh_near.png": "2469accace63d85b7d2bb77f3929c8487ccb5da8260c7ffbbdf5d470f6272da2",
+        "rear_solo_shin_near.png": "3619c1a1ed7b393410fda2301d01678bdea6bfb2e36003e3aa3606f377ad7a51",
+        "rear_solo_foot_near.png": "34c789fbee8dc08a372d64c5c82d3d8224815e1e7440a61e0cbe405bdec83295",
+        "rear_solo_upper_far.png": "90be8c056018d907ddfcafa642ceae0f994a07fc9db77679e30faa5ed2334939",
+        "rear_solo_fore_far.png": "92088f6aabe34551bf5b558afa080d07d11c818c878b9ad3406772c4967388a5",
+        "rear_solo_hand_far.png": "860ba75c86c2c4308feda1b2698f3439525cedb838e938d2bb19858eceb15436",
+        "rear_solo_thigh_far.png": "728c2dda67aceedb6522ca49f776c229fcac56e3f8c6a3e73d224afa9bb70381",
+        "rear_solo_shin_far.png": "e3b2218b0515ed84c725ec04435abaf2a6d0e4b2fa0a7f8a6c3831604a4d07c5",
+        "rear_solo_foot_far.png": "d12c516a7b197dd9e1f6fabc40619c357dfe292b6dcd31623db61eb3237f786c"
+      },
+      "source_ownership": "experiments/cutouts/slag_mortar/rr30/rear_baseline/layouts/rear.json",
+      "source_ownership_sha256": "7fcb32cea009bab017b3a35ee6839a89d283bc9a3dce04b33ba4aaed3c7934d7"
+    }
+  },
+  "director_sha256": "f8351c6a1a6bbb5eda7796c3ec030064de2df869e21c303b353aea9bfaaac6a2",
+  "production_promoted": true,
+  "native_proof": "pending rr-31 director windowed captures"
+}

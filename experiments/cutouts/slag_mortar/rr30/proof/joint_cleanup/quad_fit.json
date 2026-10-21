@@ -1,0 +1,1037 @@
+{
+  "front": {
+    "upper_far": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          60,
+          94,
+          104,
+          135
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            57,
+            91,
+            107,
+            138
+          ],
+          "failed_frames": 4,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            60,
+            94,
+            104,
+            135
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "torso": {
+      "best": {
+        "padding_px": 8,
+        "bounds": [
+          82,
+          97,
+          159,
+          159
+        ],
+        "failed_frames": 2,
+        "blocked_points": 2
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            87,
+            102,
+            154,
+            154
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            90,
+            105,
+            151,
+            151
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 1,
+          "bounds": [
+            89,
+            104,
+            152,
+            152
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 2,
+          "bounds": [
+            88,
+            103,
+            153,
+            153
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 4,
+          "bounds": [
+            86,
+            101,
+            155,
+            155
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 5,
+          "bounds": [
+            85,
+            100,
+            156,
+            156
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 6,
+          "bounds": [
+            84,
+            99,
+            157,
+            157
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 7,
+          "bounds": [
+            83,
+            98,
+            158,
+            158
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 8,
+          "bounds": [
+            82,
+            97,
+            159,
+            159
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 10,
+          "bounds": [
+            80,
+            95,
+            161,
+            161
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 12,
+          "bounds": [
+            78,
+            93,
+            163,
+            163
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 16,
+          "bounds": [
+            74,
+            89,
+            167,
+            167
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 24,
+          "bounds": [
+            66,
+            81,
+            175,
+            175
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 32,
+          "bounds": [
+            58,
+            73,
+            183,
+            183
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 64,
+          "bounds": [
+            26,
+            41,
+            215,
+            215
+          ],
+          "failed_frames": 27,
+          "blocked_points": 52
+        },
+        {
+          "padding_px": 255,
+          "bounds": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        }
+      ]
+    },
+    "hidden_torso": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          68,
+          90,
+          156,
+          156
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            65,
+            87,
+            159,
+            159
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            68,
+            90,
+            156,
+            156
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "hand_near": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          179,
+          178,
+          217,
+          217
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            176,
+            175,
+            220,
+            220
+          ],
+          "failed_frames": 5,
+          "blocked_points": 5
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            179,
+            178,
+            217,
+            217
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "hand_far": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          39,
+          163,
+          81,
+          188
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            36,
+            160,
+            84,
+            191
+          ],
+          "failed_frames": 1,
+          "blocked_points": 1
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            39,
+            163,
+            81,
+            188
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "mortar": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          122,
+          33,
+          216,
+          113
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            119,
+            30,
+            219,
+            116
+          ],
+          "failed_frames": 1,
+          "blocked_points": 1
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            122,
+            33,
+            216,
+            113
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "fore_near": {
+      "best": {
+        "padding_px": 3,
+        "bounds": [
+          168,
+          132,
+          217,
+          189
+        ],
+        "failed_frames": 18,
+        "blocked_points": 18
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            168,
+            132,
+            217,
+            189
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            171,
+            135,
+            214,
+            186
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 1,
+          "bounds": [
+            170,
+            134,
+            215,
+            187
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 2,
+          "bounds": [
+            169,
+            133,
+            216,
+            188
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 4,
+          "bounds": [
+            167,
+            131,
+            218,
+            190
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 5,
+          "bounds": [
+            166,
+            130,
+            219,
+            191
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 6,
+          "bounds": [
+            165,
+            129,
+            220,
+            192
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 7,
+          "bounds": [
+            164,
+            128,
+            221,
+            193
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 8,
+          "bounds": [
+            163,
+            127,
+            222,
+            194
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 10,
+          "bounds": [
+            161,
+            125,
+            224,
+            196
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 12,
+          "bounds": [
+            159,
+            123,
+            226,
+            198
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 16,
+          "bounds": [
+            155,
+            119,
+            230,
+            202
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 24,
+          "bounds": [
+            147,
+            111,
+            238,
+            210
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 32,
+          "bounds": [
+            139,
+            103,
+            246,
+            218
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 64,
+          "bounds": [
+            107,
+            71,
+            255,
+            250
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 255,
+          "bounds": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        }
+      ]
+    },
+    "hidden_fore_near": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          171,
+          131,
+          214,
+          192
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            168,
+            128,
+            217,
+            195
+          ],
+          "failed_frames": 18,
+          "blocked_points": 18
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            171,
+            131,
+            214,
+            192
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    }
+  },
+  "rear": {
+    "shin_near": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          64,
+          187,
+          103,
+          214
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            61,
+            184,
+            106,
+            217
+          ],
+          "failed_frames": 1,
+          "blocked_points": 1
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            64,
+            187,
+            103,
+            214
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "upper_far": {
+      "best": {
+        "padding_px": 1,
+        "bounds": [
+          122,
+          92,
+          201,
+          146
+        ],
+        "failed_frames": 1,
+        "blocked_points": 2
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            120,
+            90,
+            203,
+            148
+          ],
+          "failed_frames": 8,
+          "blocked_points": 9
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            123,
+            93,
+            200,
+            145
+          ],
+          "failed_frames": 8,
+          "blocked_points": 9
+        },
+        {
+          "padding_px": 1,
+          "bounds": [
+            122,
+            92,
+            201,
+            146
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 2,
+          "bounds": [
+            121,
+            91,
+            202,
+            147
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 4,
+          "bounds": [
+            119,
+            89,
+            204,
+            149
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 5,
+          "bounds": [
+            118,
+            88,
+            205,
+            150
+          ],
+          "failed_frames": 8,
+          "blocked_points": 9
+        },
+        {
+          "padding_px": 6,
+          "bounds": [
+            117,
+            87,
+            206,
+            151
+          ],
+          "failed_frames": 1,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 7,
+          "bounds": [
+            116,
+            86,
+            207,
+            152
+          ],
+          "failed_frames": 1,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 8,
+          "bounds": [
+            115,
+            85,
+            208,
+            153
+          ],
+          "failed_frames": 7,
+          "blocked_points": 10
+        },
+        {
+          "padding_px": 10,
+          "bounds": [
+            113,
+            83,
+            210,
+            155
+          ],
+          "failed_frames": 1,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 12,
+          "bounds": [
+            111,
+            81,
+            212,
+            157
+          ],
+          "failed_frames": 1,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 16,
+          "bounds": [
+            107,
+            77,
+            216,
+            161
+          ],
+          "failed_frames": 7,
+          "blocked_points": 8
+        },
+        {
+          "padding_px": 24,
+          "bounds": [
+            99,
+            69,
+            224,
+            169
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 32,
+          "bounds": [
+            91,
+            61,
+            232,
+            177
+          ],
+          "failed_frames": 7,
+          "blocked_points": 10
+        },
+        {
+          "padding_px": 64,
+          "bounds": [
+            59,
+            29,
+            255,
+            209
+          ],
+          "failed_frames": 5,
+          "blocked_points": 8
+        },
+        {
+          "padding_px": 255,
+          "bounds": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "failed_frames": 7,
+          "blocked_points": 10
+        }
+      ]
+    },
+    "hidden_upper_far": {
+      "best": {
+        "padding_px": 10,
+        "bounds": [
+          109,
+          80,
+          210,
+          165
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            116,
+            87,
+            203,
+            158
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            119,
+            90,
+            200,
+            155
+          ],
+          "failed_frames": 1,
+          "blocked_points": 1
+        },
+        {
+          "padding_px": 1,
+          "bounds": [
+            118,
+            89,
+            201,
+            156
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 2,
+          "bounds": [
+            117,
+            88,
+            202,
+            157
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 4,
+          "bounds": [
+            115,
+            86,
+            204,
+            159
+          ],
+          "failed_frames": 1,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 5,
+          "bounds": [
+            114,
+            85,
+            205,
+            160
+          ],
+          "failed_frames": 1,
+          "blocked_points": 3
+        },
+        {
+          "padding_px": 6,
+          "bounds": [
+            113,
+            84,
+            206,
+            161
+          ],
+          "failed_frames": 1,
+          "blocked_points": 3
+        },
+        {
+          "padding_px": 7,
+          "bounds": [
+            112,
+            83,
+            207,
+            162
+          ],
+          "failed_frames": 1,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 8,
+          "bounds": [
+            111,
+            82,
+            208,
+            163
+          ],
+          "failed_frames": 1,
+          "blocked_points": 4
+        },
+        {
+          "padding_px": 10,
+          "bounds": [
+            109,
+            80,
+            210,
+            165
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "mortar": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          36,
+          22,
+          134,
+          113
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            33,
+            19,
+            137,
+            116
+          ],
+          "failed_frames": 1,
+          "blocked_points": 1
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            36,
+            22,
+            134,
+            113
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    },
+    "upper_near": {
+      "best": {
+        "padding_px": 0,
+        "bounds": [
+          44,
+          109,
+          90,
+          139
+        ],
+        "failed_frames": 0,
+        "blocked_points": 0
+      },
+      "trials": [
+        {
+          "padding_px": 3,
+          "bounds": [
+            41,
+            106,
+            93,
+            142
+          ],
+          "failed_frames": 2,
+          "blocked_points": 2
+        },
+        {
+          "padding_px": 0,
+          "bounds": [
+            44,
+            109,
+            90,
+            139
+          ],
+          "failed_frames": 0,
+          "blocked_points": 0
+        }
+      ]
+    }
+  }
+}

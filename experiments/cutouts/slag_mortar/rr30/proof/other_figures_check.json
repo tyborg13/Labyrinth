@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "tracked_files_checked": 31442,
+  "changed": [],
+  "protected_inputs_checked": 166,
+  "protected_changed": [],
+  "non_mortar_records_unchanged": {
+    "spec/art_identity/registry.json": true,
+    "spec/assets/board_pixel_density/registry.json": true,
+    "spec/assets/board_pixel_density/outputs.json": true
+  },
+  "native_rest_png_bytes_retained": {
+    "front": true,
+    "rear": true
+  }
+}

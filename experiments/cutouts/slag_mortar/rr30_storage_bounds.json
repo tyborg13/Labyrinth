@@ -1,0 +1,306 @@
+{
+  "front": {
+    "upper_far": [
+      60,
+      94,
+      104,
+      135
+    ],
+    "torso": [
+      82,
+      97,
+      159,
+      159
+    ],
+    "hidden_torso": [
+      68,
+      90,
+      156,
+      156
+    ],
+    "hand_near": [
+      179,
+      178,
+      217,
+      217
+    ],
+    "hand_far": [
+      39,
+      163,
+      81,
+      188
+    ],
+    "mortar": [
+      122,
+      33,
+      216,
+      113
+    ],
+    "fore_near": [
+      168,
+      132,
+      217,
+      189
+    ],
+    "hidden_fore_near": [
+      171,
+      131,
+      214,
+      192
+    ],
+    "hidden_head": [
+      98,
+      71,
+      167,
+      126
+    ],
+    "hidden_mortar": [
+      115,
+      74,
+      198,
+      118
+    ],
+    "hidden_pelvis": [
+      91,
+      120,
+      178,
+      186
+    ],
+    "hidden_belt": [
+      97,
+      136,
+      178,
+      172
+    ],
+    "hidden_flap": [
+      104,
+      154,
+      156,
+      169
+    ],
+    "hidden_bracer_near": [
+      169,
+      144,
+      216,
+      194
+    ],
+    "hidden_bracer_far": [
+      44,
+      126,
+      90,
+      172
+    ],
+    "hidden_upper_near": [
+      131,
+      91,
+      207,
+      153
+    ],
+    "hidden_hand_near": [
+      176,
+      171,
+      217,
+      193
+    ],
+    "hidden_thigh_near": [
+      118,
+      159,
+      185,
+      212
+    ],
+    "hidden_shin_near": [
+      139,
+      187,
+      187,
+      243
+    ],
+    "hidden_foot_near": [
+      155,
+      214,
+      187,
+      233
+    ],
+    "hidden_upper_far": [
+      56,
+      105,
+      116,
+      152
+    ],
+    "hidden_fore_far": [
+      41,
+      123,
+      91,
+      179
+    ],
+    "hidden_hand_far": [
+      43,
+      157,
+      76,
+      173
+    ],
+    "hidden_thigh_far": [
+      84,
+      150,
+      145,
+      205
+    ],
+    "hidden_shin_far": [
+      80,
+      177,
+      115,
+      219
+    ],
+    "hidden_foot_far": [
+      83,
+      196,
+      110,
+      217
+    ]
+  },
+  "rear": {
+    "shin_near": [
+      64,
+      187,
+      103,
+      214
+    ],
+    "upper_far": [
+      122,
+      92,
+      201,
+      146
+    ],
+    "hidden_upper_far": [
+      109,
+      80,
+      210,
+      165
+    ],
+    "mortar": [
+      36,
+      22,
+      134,
+      113
+    ],
+    "upper_near": [
+      44,
+      109,
+      90,
+      139
+    ],
+    "hidden_head": [
+      124,
+      39,
+      166,
+      101
+    ],
+    "hidden_torso": [
+      82,
+      77,
+      184,
+      161
+    ],
+    "hidden_mortar": [
+      54,
+      40,
+      140,
+      124
+    ],
+    "hidden_pelvis": [
+      78,
+      111,
+      164,
+      184
+    ],
+    "hidden_belt": [
+      83,
+      133,
+      160,
+      168
+    ],
+    "hidden_flap": [
+      87,
+      151,
+      145,
+      165
+    ],
+    "hidden_bracer_near": [
+      32,
+      131,
+      81,
+      170
+    ],
+    "hidden_bracer_far": [
+      167,
+      140,
+      218,
+      192
+    ],
+    "hidden_upper_near": [
+      55,
+      103,
+      96,
+      150
+    ],
+    "hidden_fore_near": [
+      34,
+      127,
+      80,
+      164
+    ],
+    "hidden_hand_near": [
+      32,
+      143,
+      74,
+      166
+    ],
+    "hidden_thigh_near": [
+      69,
+      151,
+      135,
+      204
+    ],
+    "hidden_shin_near": [
+      62,
+      178,
+      105,
+      217
+    ],
+    "hidden_foot_near": [
+      61,
+      195,
+      104,
+      217
+    ],
+    "hidden_fore_far": [
+      164,
+      132,
+      221,
+      196
+    ],
+    "hidden_hand_far": [
+      179,
+      175,
+      220,
+      190
+    ],
+    "hidden_thigh_far": [
+      108,
+      144,
+      175,
+      211
+    ],
+    "hidden_shin_far": [
+      130,
+      183,
+      181,
+      245
+    ],
+    "hidden_foot_far": [
+      136,
+      210,
+      174,
+      237
+    ]
+  }
+}

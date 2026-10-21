@@ -26,6 +26,9 @@ static func channels(data: Dictionary, clip: String, phase: float, layout: Dicti
 				"fraction_of_step": value *= step
 				"world_step": value = (value - root_progress) * step
 		values[bone][track["channel"]] = value
+	if data["clips"][clip].get("gait", {}).has("flap_sway"):
+		if not values.has("flap"): values["flap"] = {}
+		values["flap"]["swing_deg"] = float(values["flap"].get("swing_deg", 0.0)) + Gait.flap_sway(data["clips"][clip], phase) * float(data["projection"][facing]["lean_sign"])
 	return values
 
 static func offset(value: Dictionary, forward: Vector2, pivot: Vector2, root: Vector2) -> Vector2:
@@ -73,7 +76,9 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 			var pivot: Vector2 = Tracks.point(joint["position"])
 			var origin: Vector2 = pivot - (Vector2.ZERO if parent.is_empty() else Tracks.point(joints[parent]["position"]))
 			var value: Dictionary = values.get(name, {})
-			var local := Transform2D(deg_to_rad(float(value.get("lean_deg", 0.0))), origin + offset(value, forward, pivot, root))
+			var angle_deg: float = float(value.get("lean_deg", 0.0))
+			if value.has("swing_deg"): angle_deg += float(value["swing_deg"])
+			var local := Transform2D(deg_to_rad(angle_deg), origin + offset(value, forward, pivot, root))
 			authored[name] = local
 			result[name] = local if parent.is_empty() else (result[parent] as Transform2D) * local
 			order.append(name)

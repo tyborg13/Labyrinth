@@ -1,0 +1,834 @@
+{
+  "frames": 11,
+  "observations": 11,
+  "source_inverse_raster_disagreements": 11,
+  "rows": [
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 33,
+      "observations": [
+        {
+          "bbox": [
+            322,
+            242,
+            323,
+            243
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "upper_near"
+          ],
+          "traces": [
+            {
+              "piece": "upper_near",
+              "logical_piece": "upper_near",
+              "destination": [
+                322,
+                242
+              ],
+              "inverse_source": [
+                194,
+                112
+              ],
+              "raster_source": [
+                194,
+                111
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/front/upper_near.png",
+              "source_sha256": "d954bc8174dab484046b3186ddb58697accb234b48f05b171a1a10f9bd5b3584"
+            },
+            {
+              "piece": "hidden_upper_near",
+              "logical_piece": "upper_near",
+              "destination": [
+                322,
+                242
+              ],
+              "inverse_source": [
+                194,
+                112
+              ],
+              "raster_source": [
+                194,
+                112
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/front/hidden_upper_near.png",
+              "source_sha256": "b47edb9b9fcd7aea91291c2f22e572b79190999723c25387ea34e21530597779"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/front_lob_0033.png",
+      "capture_sha256": "bbc946d69bf2da7380ae4d020b6a56f4f5a2f0aa78884c1969b0fde7b4bdd72e"
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 67,
+      "observations": [
+        {
+          "bbox": [
+            322,
+            240,
+            323,
+            241
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "upper_near"
+          ],
+          "traces": [
+            {
+              "piece": "upper_near",
+              "logical_piece": "upper_near",
+              "destination": [
+                322,
+                240
+              ],
+              "inverse_source": [
+                194,
+                112
+              ],
+              "raster_source": [
+                194,
+                111
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/front/upper_near.png",
+              "source_sha256": "d954bc8174dab484046b3186ddb58697accb234b48f05b171a1a10f9bd5b3584"
+            },
+            {
+              "piece": "hidden_upper_near",
+              "logical_piece": "upper_near",
+              "destination": [
+                322,
+                240
+              ],
+              "inverse_source": [
+                194,
+                112
+              ],
+              "raster_source": [
+                194,
+                112
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/front/hidden_upper_near.png",
+              "source_sha256": "b47edb9b9fcd7aea91291c2f22e572b79190999723c25387ea34e21530597779"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/front_lob_0067.png",
+      "capture_sha256": "80265ff89c25feed323c84e62f796b818dc0d02c7f962910133a03358fb2fbc9"
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "frame": 39,
+      "observations": [
+        {
+          "bbox": [
+            321,
+            238,
+            322,
+            239
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "upper_near"
+          ],
+          "traces": [
+            {
+              "piece": "upper_near",
+              "logical_piece": "upper_near",
+              "destination": [
+                321,
+                238
+              ],
+              "inverse_source": [
+                194,
+                112
+              ],
+              "raster_source": [
+                194,
+                111
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/front/upper_near.png",
+              "source_sha256": "d954bc8174dab484046b3186ddb58697accb234b48f05b171a1a10f9bd5b3584"
+            },
+            {
+              "piece": "hidden_upper_near",
+              "logical_piece": "upper_near",
+              "destination": [
+                321,
+                238
+              ],
+              "inverse_source": [
+                194,
+                112
+              ],
+              "raster_source": [
+                194,
+                112
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/front/hidden_upper_near.png",
+              "source_sha256": "b47edb9b9fcd7aea91291c2f22e572b79190999723c25387ea34e21530597779"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/front_scatter_0039.png",
+      "capture_sha256": "e26cc29214a0d24671aa67add4483fe05990601563e7dce3eb03b42975547df9"
+    },
+    {
+      "view": "rear",
+      "clip": "lob",
+      "frame": 59,
+      "observations": [
+        {
+          "bbox": [
+            347,
+            307,
+            348,
+            308
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "fore_far",
+            "hand_far"
+          ],
+          "traces": [
+            {
+              "piece": "fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                347,
+                307
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                183
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/fore_far.png",
+              "source_sha256": "c2c050272c68b5390aa5f9c3da8ac574b674518f5914755ebc87fddedd4dd891"
+            },
+            {
+              "piece": "hidden_fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                347,
+                307
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                182
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_fore_far.png",
+              "source_sha256": "13b8cb91af97af40d2ca4f9485ca797a1db9539aa8607e1e32b84a41ea280453"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_lob_0059.png",
+      "capture_sha256": "2910a8ede5441ab3f27e24773ffb986b32b19f0867993c2440d85f1d3a761262"
+    },
+    {
+      "view": "rear",
+      "clip": "lob",
+      "frame": 60,
+      "observations": [
+        {
+          "bbox": [
+            347,
+            307,
+            348,
+            308
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "fore_far",
+            "hand_far"
+          ],
+          "traces": [
+            {
+              "piece": "fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                347,
+                307
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                183
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/fore_far.png",
+              "source_sha256": "c2c050272c68b5390aa5f9c3da8ac574b674518f5914755ebc87fddedd4dd891"
+            },
+            {
+              "piece": "hidden_fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                347,
+                307
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                182
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_fore_far.png",
+              "source_sha256": "13b8cb91af97af40d2ca4f9485ca797a1db9539aa8607e1e32b84a41ea280453"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_lob_0060.png",
+      "capture_sha256": "23eea3b21369abaedd6d3729d833d7b32e64d5bdf0f45ac5f5c6d840d458ca26"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 4,
+      "observations": [
+        {
+          "bbox": [
+            344,
+            312,
+            345,
+            313
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "fore_far",
+            "hand_far"
+          ],
+          "traces": [
+            {
+              "piece": "fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                344,
+                312
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                183
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/fore_far.png",
+              "source_sha256": "c2c050272c68b5390aa5f9c3da8ac574b674518f5914755ebc87fddedd4dd891"
+            },
+            {
+              "piece": "hidden_fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                344,
+                312
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                182
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_fore_far.png",
+              "source_sha256": "13b8cb91af97af40d2ca4f9485ca797a1db9539aa8607e1e32b84a41ea280453"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_brace_0004.png",
+      "capture_sha256": "515a55e5ada7dfddfde625decbd94557edeb4d7f37d1256a1c516a8a82801276"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 7,
+      "observations": [
+        {
+          "bbox": [
+            280,
+            264,
+            311,
+            331
+          ],
+          "pixel_count": 566,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "torso",
+            "belt",
+            "bracer_far",
+            "upper_far",
+            "fore_far",
+            "hand_far",
+            "thigh_far",
+            "shin_far"
+          ],
+          "traces": [
+            {
+              "piece": "upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                265
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                135
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/upper_far.png",
+              "source_sha256": "cc5d4ef7f46793da3456bf5edb33095de5465c3753f5278057fb42bdcea94d55"
+            },
+            {
+              "piece": "hidden_upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                265
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                134
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_upper_far.png",
+              "source_sha256": "cd12ad2a60a2e7187d4d94e595cc64d5c1dc5fd672a247fb5e13ed706b5a437b"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_brace_0007.png",
+      "capture_sha256": "c0fe473b769de50a30c00d242d9155814774b15420a2e60b73a530a22fb87d97"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 8,
+      "observations": [
+        {
+          "bbox": [
+            280,
+            264,
+            309,
+            331
+          ],
+          "pixel_count": 574,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "torso",
+            "belt",
+            "bracer_far",
+            "upper_far",
+            "fore_far",
+            "hand_far",
+            "thigh_far",
+            "shin_far"
+          ],
+          "traces": [
+            {
+              "piece": "upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                265
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                135
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/upper_far.png",
+              "source_sha256": "cc5d4ef7f46793da3456bf5edb33095de5465c3753f5278057fb42bdcea94d55"
+            },
+            {
+              "piece": "hidden_upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                265
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                134
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_upper_far.png",
+              "source_sha256": "cd12ad2a60a2e7187d4d94e595cc64d5c1dc5fd672a247fb5e13ed706b5a437b"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_brace_0008.png",
+      "capture_sha256": "a5ee370de57f9a9e5ac6a58cf1f72c3690fb7724be8cdc4609890bb4292b8904"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 47,
+      "observations": [
+        {
+          "bbox": [
+            280,
+            264,
+            309,
+            331
+          ],
+          "pixel_count": 564,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "torso",
+            "belt",
+            "bracer_far",
+            "upper_far",
+            "fore_far",
+            "hand_far",
+            "thigh_far",
+            "shin_far"
+          ],
+          "traces": [
+            {
+              "piece": "upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                266
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                135
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/upper_far.png",
+              "source_sha256": "cc5d4ef7f46793da3456bf5edb33095de5465c3753f5278057fb42bdcea94d55"
+            },
+            {
+              "piece": "hidden_upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                266
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                134
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_upper_far.png",
+              "source_sha256": "cd12ad2a60a2e7187d4d94e595cc64d5c1dc5fd672a247fb5e13ed706b5a437b"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_brace_0047.png",
+      "capture_sha256": "500bad6631dc1232a19239d390afe4586b584645b198a19e13ade5e86dd8d654"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 48,
+      "observations": [
+        {
+          "bbox": [
+            280,
+            264,
+            311,
+            331
+          ],
+          "pixel_count": 566,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "torso",
+            "belt",
+            "bracer_far",
+            "upper_far",
+            "fore_far",
+            "hand_far",
+            "thigh_far",
+            "shin_far"
+          ],
+          "traces": [
+            {
+              "piece": "upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                265
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                135
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/upper_far.png",
+              "source_sha256": "cc5d4ef7f46793da3456bf5edb33095de5465c3753f5278057fb42bdcea94d55"
+            },
+            {
+              "piece": "hidden_upper_far",
+              "logical_piece": "upper_far",
+              "destination": [
+                284,
+                265
+              ],
+              "inverse_source": [
+                154,
+                134
+              ],
+              "raster_source": [
+                154,
+                134
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_upper_far.png",
+              "source_sha256": "cd12ad2a60a2e7187d4d94e595cc64d5c1dc5fd672a247fb5e13ed706b5a437b"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_brace_0048.png",
+      "capture_sha256": "c0fe473b769de50a30c00d242d9155814774b15420a2e60b73a530a22fb87d97"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 50,
+      "observations": [
+        {
+          "bbox": [
+            344,
+            312,
+            345,
+            313
+          ],
+          "pixel_count": 1,
+          "flagged_pixels": 1,
+          "surrounding_pieces": [
+            "fore_far",
+            "hand_far"
+          ],
+          "traces": [
+            {
+              "piece": "fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                344,
+                312
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                183
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/fore_far.png",
+              "source_sha256": "c2c050272c68b5390aa5f9c3da8ac574b674518f5914755ebc87fddedd4dd891"
+            },
+            {
+              "piece": "hidden_fore_far",
+              "logical_piece": "fore_far",
+              "destination": [
+                344,
+                312
+              ],
+              "inverse_source": [
+                215,
+                182
+              ],
+              "raster_source": [
+                215,
+                182
+              ],
+              "raster_rgba": [
+                0,
+                0,
+                0,
+                0
+              ],
+              "source_file": "pieces/rear/hidden_fore_far.png",
+              "source_sha256": "13b8cb91af97af40d2ca4f9485ca797a1db9539aa8607e1e32b84a41ea280453"
+            }
+          ]
+        }
+      ],
+      "capture": "proof/seam_holes/rear_brace_0050.png",
+      "capture_sha256": "92028279c7a17abb1d9ebdb1969963474558860b0a8595e7bcc3a2b12395a7bb"
+    }
+  ],
+  "samples_sha256": "835470e1150d0ef3a11469c55997da331e9f558c1f5b81220202903989409ff3",
+  "disposition": "Unchanged failures. All eleven visible-piece inverse hits disagree with the fixed-grid raster. Seven single-pixel holes; four large pockets each flagged by one pixel. No missing construction texel established; no paint or gate exemption added.",
+  "native_pixels": false
+}

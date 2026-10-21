@@ -1,0 +1,953 @@
+{
+  "scope": "static source construction only; director motion and native captures unchanged",
+  "native_manifest_sha256": "4762b13c32783bcf08831d34250d39aace703987e51829c0b98ff1cdd28d6fef",
+  "native_errors_before": [
+    "('front', 'lob', 33): new joint-seam hole larger than 1px",
+    "('front', 'lob', 67): new joint-seam hole larger than 1px",
+    "('rear', 'brace', 7): new joint-seam hole larger than 1px",
+    "('rear', 'brace', 8): new joint-seam hole larger than 1px",
+    "('rear', 'brace', 47): new joint-seam hole larger than 1px",
+    "('rear', 'brace', 48): new joint-seam hole larger than 1px",
+    "('front', 'scatter', 39): new joint-seam hole larger than 1px"
+  ],
+  "evidence": [
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 32,
+      "piece": "hidden_pelvis",
+      "native_sha256": "64844cf0c0dba99ae51c2b1daf493a1dd4e445816c2d11c9aa6e3179a19bb2f2",
+      "source_pixels": [
+        [
+          104,
+          142
+        ],
+        [
+          104,
+          143
+        ]
+      ],
+      "destinations": [
+        [
+          232,
+          273
+        ],
+        [
+          232,
+          274
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 32,
+      "piece": "hidden_upper_near",
+      "native_sha256": "64844cf0c0dba99ae51c2b1daf493a1dd4e445816c2d11c9aa6e3179a19bb2f2",
+      "source_pixels": [
+        [
+          198,
+          102
+        ]
+      ],
+      "destinations": [
+        [
+          325,
+          234
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 32,
+      "piece": "hidden_fore_far",
+      "native_sha256": "64844cf0c0dba99ae51c2b1daf493a1dd4e445816c2d11c9aa6e3179a19bb2f2",
+      "source_pixels": [
+        [
+          76,
+          167
+        ],
+        [
+          76,
+          168
+        ]
+      ],
+      "destinations": [
+        [
+          203,
+          301
+        ],
+        [
+          203,
+          302
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 32,
+      "piece": "hidden_thigh_far",
+      "native_sha256": "64844cf0c0dba99ae51c2b1daf493a1dd4e445816c2d11c9aa6e3179a19bb2f2",
+      "source_pixels": [
+        [
+          110,
+          180
+        ],
+        [
+          114,
+          187
+        ],
+        [
+          94,
+          199
+        ]
+      ],
+      "destinations": [
+        [
+          233,
+          311
+        ],
+        [
+          235,
+          318
+        ],
+        [
+          213,
+          325
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "brace",
+      "frame": 20,
+      "piece": "hidden_torso",
+      "native_sha256": "49a150df7bc0c4079408bfe8b4982b9a3d94747762c8c738682026f0fb4e79dd",
+      "source_pixels": [
+        [
+          146,
+          107
+        ],
+        [
+          145,
+          109
+        ],
+        [
+          99,
+          115
+        ],
+        [
+          86,
+          129
+        ],
+        [
+          86,
+          130
+        ],
+        [
+          83,
+          132
+        ],
+        [
+          84,
+          132
+        ],
+        [
+          83,
+          133
+        ]
+      ],
+      "destinations": [
+        [
+          273,
+          237
+        ],
+        [
+          272,
+          239
+        ],
+        [
+          227,
+          247
+        ],
+        [
+          214,
+          262
+        ],
+        [
+          214,
+          263
+        ],
+        [
+          211,
+          265
+        ],
+        [
+          212,
+          265
+        ],
+        [
+          211,
+          266
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "brace",
+      "frame": 20,
+      "piece": "hidden_upper_near",
+      "native_sha256": "49a150df7bc0c4079408bfe8b4982b9a3d94747762c8c738682026f0fb4e79dd",
+      "source_pixels": [
+        [
+          147,
+          101
+        ],
+        [
+          146,
+          103
+        ],
+        [
+          200,
+          142
+        ],
+        [
+          201,
+          142
+        ],
+        [
+          203,
+          145
+        ]
+      ],
+      "destinations": [
+        [
+          273,
+          237
+        ],
+        [
+          272,
+          239
+        ],
+        [
+          335,
+          263
+        ],
+        [
+          336,
+          263
+        ],
+        [
+          338,
+          265
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "brace",
+      "frame": 20,
+      "piece": "hidden_upper_far",
+      "native_sha256": "49a150df7bc0c4079408bfe8b4982b9a3d94747762c8c738682026f0fb4e79dd",
+      "source_pixels": [
+        [
+          103,
+          112
+        ],
+        [
+          60,
+          131
+        ],
+        [
+          98,
+          126
+        ],
+        [
+          98,
+          127
+        ],
+        [
+          99,
+          127
+        ],
+        [
+          98,
+          128
+        ],
+        [
+          99,
+          128
+        ],
+        [
+          99,
+          129
+        ],
+        [
+          58,
+          135
+        ]
+      ],
+      "destinations": [
+        [
+          227,
+          247
+        ],
+        [
+          182,
+          261
+        ],
+        [
+          220,
+          261
+        ],
+        [
+          220,
+          262
+        ],
+        [
+          221,
+          262
+        ],
+        [
+          220,
+          263
+        ],
+        [
+          221,
+          263
+        ],
+        [
+          221,
+          264
+        ],
+        [
+          180,
+          265
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "brace",
+      "frame": 20,
+      "piece": "hidden_thigh_far",
+      "native_sha256": "49a150df7bc0c4079408bfe8b4982b9a3d94747762c8c738682026f0fb4e79dd",
+      "source_pixels": [
+        [
+          110,
+          180
+        ],
+        [
+          114,
+          187
+        ],
+        [
+          94,
+          199
+        ]
+      ],
+      "destinations": [
+        [
+          233,
+          311
+        ],
+        [
+          235,
+          318
+        ],
+        [
+          213,
+          325
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "piece": "hidden_torso",
+      "native_sha256": "00480fe4f81920d6fcde37da516cac0154cee8b3e64175b3cb2b279c32237e12",
+      "source_pixels": [
+        [
+          150,
+          139
+        ],
+        [
+          151,
+          140
+        ]
+      ],
+      "destinations": [
+        [
+          270,
+          280
+        ],
+        [
+          272,
+          281
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "piece": "hidden_upper_near",
+      "native_sha256": "00480fe4f81920d6fcde37da516cac0154cee8b3e64175b3cb2b279c32237e12",
+      "source_pixels": [
+        [
+          171,
+          141
+        ],
+        [
+          172,
+          142
+        ],
+        [
+          156,
+          142
+        ],
+        [
+          158,
+          143
+        ]
+      ],
+      "destinations": [
+        [
+          285,
+          278
+        ],
+        [
+          286,
+          279
+        ],
+        [
+          270,
+          280
+        ],
+        [
+          272,
+          281
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "piece": "hidden_fore_far",
+      "native_sha256": "00480fe4f81920d6fcde37da516cac0154cee8b3e64175b3cb2b279c32237e12",
+      "source_pixels": [
+        [
+          63,
+          126
+        ],
+        [
+          76,
+          167
+        ],
+        [
+          76,
+          168
+        ],
+        [
+          76,
+          169
+        ],
+        [
+          77,
+          169
+        ]
+      ],
+      "destinations": [
+        [
+          184,
+          288
+        ],
+        [
+          205,
+          326
+        ],
+        [
+          205,
+          327
+        ],
+        [
+          205,
+          328
+        ],
+        [
+          206,
+          328
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "piece": "hidden_thigh_far",
+      "native_sha256": "00480fe4f81920d6fcde37da516cac0154cee8b3e64175b3cb2b279c32237e12",
+      "source_pixels": [
+        [
+          111,
+          191
+        ]
+      ],
+      "destinations": [
+        [
+          235,
+          333
+        ]
+      ]
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 78,
+      "piece": "hidden_fore_near",
+      "native_sha256": "00480fe4f81920d6fcde37da516cac0154cee8b3e64175b3cb2b279c32237e12",
+      "source_pixels": [
+        [
+          171,
+          137
+        ],
+        [
+          172,
+          139
+        ]
+      ],
+      "destinations": [
+        [
+          285,
+          278
+        ],
+        [
+          286,
+          279
+        ]
+      ]
+    }
+  ],
+  "views": {
+    "front": {
+      "additions": {
+        "hidden_upper_near": {
+          "donor": "upper_near",
+          "texels": [
+            [
+              63,
+              21,
+              60,
+              16
+            ],
+            [
+              69,
+              51,
+              64,
+              45
+            ],
+            [
+              70,
+              51,
+              64,
+              45
+            ]
+          ],
+          "minimum_luma": 17.778999999999996,
+          "rejected_texels": [
+            [
+              15,
+              12
+            ],
+            [
+              16,
+              10
+            ],
+            [
+              25,
+              51
+            ],
+            [
+              27,
+              52
+            ],
+            [
+              40,
+              50
+            ],
+            [
+              41,
+              51
+            ],
+            [
+              67,
+              11
+            ],
+            [
+              72,
+              54
+            ]
+          ]
+        },
+        "hidden_torso": {
+          "donor": "torso",
+          "texels": [
+            [
+              77,
+              19,
+              60,
+              10
+            ],
+            [
+              31,
+              25,
+              20,
+              20
+            ]
+          ],
+          "minimum_luma": 18.605,
+          "rejected_texels": [
+            [
+              15,
+              42
+            ],
+            [
+              15,
+              43
+            ],
+            [
+              16,
+              42
+            ],
+            [
+              18,
+              39
+            ],
+            [
+              18,
+              40
+            ],
+            [
+              78,
+              17
+            ],
+            [
+              82,
+              49
+            ],
+            [
+              83,
+              50
+            ]
+          ]
+        },
+        "hidden_pelvis": {
+          "donor": "pelvis",
+          "texels": [],
+          "minimum_luma": 18.605,
+          "rejected_texels": [
+            [
+              13,
+              22
+            ],
+            [
+              13,
+              23
+            ]
+          ]
+        },
+        "hidden_upper_far": {
+          "donor": "upper_far",
+          "texels": [
+            [
+              42,
+              21,
+              40,
+              29
+            ],
+            [
+              42,
+              22,
+              40,
+              29
+            ],
+            [
+              43,
+              22,
+              40,
+              29
+            ],
+            [
+              42,
+              23,
+              40,
+              29
+            ],
+            [
+              43,
+              23,
+              40,
+              29
+            ],
+            [
+              43,
+              24,
+              40,
+              29
+            ],
+            [
+              4,
+              26,
+              2,
+              34
+            ]
+          ],
+          "minimum_luma": 17.854,
+          "rejected_texels": [
+            [
+              2,
+              30
+            ],
+            [
+              47,
+              7
+            ]
+          ]
+        },
+        "hidden_fore_far": {
+          "donor": "fore_far",
+          "texels": [
+            [
+              22,
+              3,
+              19,
+              4
+            ]
+          ],
+          "minimum_luma": 18.605,
+          "rejected_texels": [
+            [
+              35,
+              44
+            ],
+            [
+              35,
+              45
+            ],
+            [
+              35,
+              46
+            ],
+            [
+              36,
+              46
+            ]
+          ]
+        },
+        "hidden_thigh_far": {
+          "donor": "thigh_far",
+          "texels": [],
+          "minimum_luma": 18.203,
+          "rejected_texels": [
+            [
+              10,
+              49
+            ],
+            [
+              26,
+              30
+            ],
+            [
+              27,
+              41
+            ],
+            [
+              30,
+              37
+            ]
+          ]
+        },
+        "hidden_fore_near": {
+          "donor": "fore_near",
+          "texels": [],
+          "minimum_luma": 18.132,
+          "rejected_texels": [
+            [
+              0,
+              6
+            ],
+            [
+              1,
+              8
+            ]
+          ]
+        },
+        "hidden_hand_far": {
+          "donor": "hand_far",
+          "texels": [
+            [
+              32,
+              13,
+              37,
+              7
+            ]
+          ],
+          "measured_contact": [
+            75,
+            170
+          ],
+          "maximum_distance": 2.3664797808578824
+        }
+      },
+      "rest_mismatch_pixels": 0,
+      "added_texels": 14,
+      "rejected_texels": 30,
+      "cover_calibration_frames": 431
+    },
+    "rear": {
+      "additions": {
+        "hidden_upper_far": {
+          "donor": "upper_far",
+          "texels": [
+            [
+              45,
+              54,
+              31,
+              41
+            ]
+          ],
+          "minimum_luma": 17.79
+        },
+        "hidden_fore_far": {
+          "donor": "fore_far",
+          "texels": [
+            [
+              51,
+              50,
+              50,
+              48
+            ]
+          ],
+          "minimum_luma": 18.006999999999998
+        }
+      },
+      "rest_mismatch_pixels": 0,
+      "added_texels": 2,
+      "rejected_texels": 0,
+      "cover_calibration_frames": 431
+    }
+  },
+  "source_hashes_before": {
+    "pieces/front/arm_far.png": "ee17280470fe5a0bd44cc7f6c16be92b9bf67a1b4497a43fdc6ba6e5083c8ca5",
+    "pieces/front/arm_near.png": "c385e9e560965c0ade5d8c094d1f8bd54628836e2eeab2fabd6655766128370f",
+    "pieces/front/belt.png": "1e7d8ddacebd6188cd70a791f588ed004717fe0c48fc04941a0127daaca49f14",
+    "pieces/front/bracer_far.png": "fc00b9af83f4e76dcf740be899f092735f72bbf02a2a76b97e7ddf1116a4321f",
+    "pieces/front/bracer_near.png": "2b8d8fa1c3dbdc81a85a1a0874af65f2b91742426ebbcf68ceb66d94cfa25531",
+    "pieces/front/flap.png": "07732a49bdf5e36a366d0ea60f1b06b8d74cbf20df912c7836c1a1bdd2d8524a",
+    "pieces/front/foot_far.png": "39fc723d7fb76039965a552573060c7b6e113a9aa27d0a01fd3a327f1f989077",
+    "pieces/front/foot_near.png": "99a3bf694adde32c837d901c0f99a08efc4c77f68118efe1ce583ad4a192350d",
+    "pieces/front/fore_far.png": "38b789f998fb2fadc822af374d97d4bd49bbb79076427bc7bd563ff33920df74",
+    "pieces/front/fore_near.png": "26d8187da1cbe0917d28f5c4cc963eed0e99c54a80cef8f77db10fdb53e6f67a",
+    "pieces/front/hand_far.png": "cc97e93742c136470b0ea4a77e99049b9096d117b36f449ca3bdd0f513b8c771",
+    "pieces/front/hand_near.png": "f5ae733039de18f256d48fba8067a695cab27d70fc453e0b84d03d779e495c0b",
+    "pieces/front/head.png": "5f8617f0c5f8b77d7c25181e357f52c554d9b3bf1a79cd2912ada1722d2e5501",
+    "pieces/front/hidden_arm_far.png": "433a96187ff43a755fafb46bf5427da51b45061e8e9dda61d61e39437f02ff98",
+    "pieces/front/hidden_arm_near.png": "5881877058ce44bd1ab776d18d78231d1786f13ed891eaa201a80b767f197244",
+    "pieces/front/hidden_belt.png": "b5a46747858e5393971924dda5e2b7a0941eb25726419a6664bb5a00c4550284",
+    "pieces/front/hidden_bracer_far.png": "4e6907afe4361c4dd0840a86980aef2f689183413b5d18076215b83073ffd5fc",
+    "pieces/front/hidden_bracer_near.png": "6d09f05f85d74ced72eed71f9e20c28e94d1bf70bc08928cb40bff73c45e21b8",
+    "pieces/front/hidden_flap.png": "a2639479828837b34792be63320836bd61359f57be647c4dd568a140dc129962",
+    "pieces/front/hidden_foot_far.png": "72930089e2c82a25e3233fe3c64c4852af44c64a94b447d1a6d4f6419c877b80",
+    "pieces/front/hidden_foot_near.png": "f559b0e225eb0a3762bfc4bd65f2e29c53f11e5fc511e14fa9d02f54584d35b1",
+    "pieces/front/hidden_fore_far.png": "6c5626ce89f81c8cd4882a64b2daa8f16efa09b43bf0f90feb14f1e2dc1bc099",
+    "pieces/front/hidden_fore_near.png": "8e6f445b44fc0722428fc36c21e8740e5af0de290faa527a3c760abc45edb853",
+    "pieces/front/hidden_hand_far.png": "f3e06f2056ff1669f5c6d36a0e61c0eb0d102b4899e1966006c0673b37b0d0a3",
+    "pieces/front/hidden_hand_near.png": "4864a8dd665c90a04ae18ed6ea960a3829627b7145d9ec5c25cb0564d8bae27f",
+    "pieces/front/hidden_head.png": "ee53bb0a19e7145617893dc1926c71922a8dd9ba27d8737c62689f79bf33c098",
+    "pieces/front/hidden_leg_far.png": "1f62a4d8961f393f9c706c8ecb37e140d335ba43284ff16d5b3c8c24f09a414a",
+    "pieces/front/hidden_leg_near.png": "bab2094aacce394a9957efd31c01688c028e1d7396adb3c48a8c7ed71985f0b6",
+    "pieces/front/hidden_mortar.png": "be18648c0d7b3e6d58ba3fa3dc75d719851f1bcfed98933397d75f9ebf019306",
+    "pieces/front/hidden_pelvis.png": "71785b740bdf6a79e9fab7ce4b880173bff46ad1203f96d4ba1a616515a06610",
+    "pieces/front/hidden_shin_far.png": "921751946b240e5e02246e187769c21cb06e0a92ddb4007eb2d4e76ce4bd97cb",
+    "pieces/front/hidden_shin_near.png": "c43b7ebf39d9be58d895c2813b89e57f0eaba41a5de7a03034b5d09b530b546f",
+    "pieces/front/hidden_thigh_far.png": "33fb4e413ebf82356960255ce86202fe641f227763ad846ced07bf3a3c132118",
+    "pieces/front/hidden_thigh_near.png": "e41d1de20a04afd2bca680df3178e5e67bf9aef83ec0acfba9d6de46d9a81a2e",
+    "pieces/front/hidden_torso.png": "d6264d573c194f685779f19c82984df732dae2dcf36cc669e3b04d79cb215b67",
+    "pieces/front/hidden_upper_far.png": "34161baa9ec6d5b9879b5608a96ef3e4b7f255b3d04a34fdfee6620a991fe8df",
+    "pieces/front/hidden_upper_near.png": "b47edb9b9fcd7aea91291c2f22e572b79190999723c25387ea34e21530597779",
+    "pieces/front/leg_far.png": "89592e6f3460d131bce9300e1a03a716a681344da9d2834248beefbe7621f3dc",
+    "pieces/front/leg_near.png": "af73014dede6d416ee5844e72dbf88a9b03b2502df9eda083625a2a1728016bf",
+    "pieces/front/mortar.png": "04374d523a6a058ca7c39e473ec545d701c07c01e7dd409e116da93b2fee224b",
+    "pieces/front/pelvis.png": "9177a5a7307318aeb191c295e155c0c02332f5da4206cb9c1112b55b3d9b092d",
+    "pieces/front/shin_far.png": "2832cc198fd297ccbdf93124c59cf5812b911d27fadbe06ce66304884409b955",
+    "pieces/front/shin_near.png": "4f86e471f549c1c72dfec72304194b854a029737a0e955123c77eb5ac66bd4a6",
+    "pieces/front/thigh_far.png": "0dd1315f3031bd7a657abacecc69cecc4a59f4280c449256f41a9d5018413b7c",
+    "pieces/front/thigh_near.png": "6f2e7b0003ffca816e1fdedd9b7ae079e70fb20119162685468f62378bfda299",
+    "pieces/front/torso.png": "28aa4a2c09d8e411517a3ef0f0a0800ce57c1f33d70f9672449c59ad8c3d3ec6",
+    "pieces/front/upper_far.png": "923de0463f653f2f235e37450f2e2d159d4caea6aa2915b4341f7bbce9532fcd",
+    "pieces/front/upper_near.png": "d954bc8174dab484046b3186ddb58697accb234b48f05b171a1a10f9bd5b3584",
+    "pieces/rear/arm_far.png": "1a6e5ef65a4480eae1fbde0544d2f5dae031638fb944babe50987a620c3dfd25",
+    "pieces/rear/arm_near.png": "72045d8019f0f85bc47d8006fb939bde4e55c4ae75ed2cc0c402a810271953a5",
+    "pieces/rear/belt.png": "0c5bb0e1664caf5f3b7fff3b63dcd9380140e71206deff00aa0ca7768bab3bc8",
+    "pieces/rear/bracer_far.png": "f960e131689dde4184d210d5a30eebe9282af06de4ff19053ad64542f4bd7f60",
+    "pieces/rear/bracer_near.png": "bf06c12738797d736faacc71a5c23679b8a595d690e7811f3997cdfbbb7a5d83",
+    "pieces/rear/flap.png": "9473cddaccc5006ec40534279e4e7217e57fada21774299426ad5fb2003e0d00",
+    "pieces/rear/foot_far.png": "f9283a30666086c3262c1a735202015efbd1638eecfc5470e39f37da5d090e05",
+    "pieces/rear/foot_near.png": "90415e94a30f8bd24791bb107d0ffb0b26ff09ae21924b86c852fcd1d7d2fcf4",
+    "pieces/rear/fore_far.png": "c2c050272c68b5390aa5f9c3da8ac574b674518f5914755ebc87fddedd4dd891",
+    "pieces/rear/fore_near.png": "8653d71c1b47b3047746d7cc8ff6af833ae164573827ea0a6a8638538cce83c5",
+    "pieces/rear/hand_far.png": "4a752cb6dd24cfc510d2c5b3b39bed09c3acedd287aa06e766ed08e65dedbfc9",
+    "pieces/rear/hand_near.png": "4c30745a9744c4910eff8615c3e838bfa461ba750f6f846a0df4932a40673b0f",
+    "pieces/rear/head.png": "fb38a68ef2bab3f7fa2698130e2ddcf4b97c82fb0b7ee3682b0b4677351bcfa6",
+    "pieces/rear/hidden_arm_far.png": "525ef1a6ac86b7b69d667fb5cd1b3e897d4524f3ff5993a2e5f8f1aee7e46826",
+    "pieces/rear/hidden_arm_near.png": "b58058148780a6e7db853d549ba047fafe6efecf001a10127217a7e7f0cff9a5",
+    "pieces/rear/hidden_belt.png": "1766f7374178ef571dc89a65270a6ab3c59002fe2148de680244d58e868c05e5",
+    "pieces/rear/hidden_bracer_far.png": "f3ad2e9fc0ef4eabc363087f23cd226a183c80a085c16136e0de9ca7a948d809",
+    "pieces/rear/hidden_bracer_near.png": "17a45694b9d95aac1105fac97e95162fcded959958a1371ac42f6d05f5fd1b04",
+    "pieces/rear/hidden_flap.png": "3ce63f99dad033c314ff302701e71de59a3fe1bc75b504697a20fd8b6f228ce3",
+    "pieces/rear/hidden_foot_far.png": "590d2994b23464b00fc27fed57a4a824a1f497c73fb0ef6df6c53de95d6c6939",
+    "pieces/rear/hidden_foot_near.png": "84a82566edd3a1838c43ba67c88ba38709f6b85e12aee822898a9cabd26f3958",
+    "pieces/rear/hidden_fore_far.png": "13b8cb91af97af40d2ca4f9485ca797a1db9539aa8607e1e32b84a41ea280453",
+    "pieces/rear/hidden_fore_near.png": "1c6b4adc57f131b989c8c1b359085bf60ad438b685ed4c5eedda86cea903d2e9",
+    "pieces/rear/hidden_hand_far.png": "11fe1b09ccec3ef967861b1694e137846bc220071bdaea5bf7c59541a3737161",
+    "pieces/rear/hidden_hand_near.png": "6371a9b1ee84bf0d6c133910c4a0c5b4b7771380d835a9327d7fe88feb04d1bd",
+    "pieces/rear/hidden_head.png": "8f1ee72e76c3de414c0728046f5fb16a0101a36518b843fd9470cb3ec670a0ae",
+    "pieces/rear/hidden_leg_far.png": "75a4ac5d589aecdf6d095c9e9aaa23290541bb9c5dcf5116e43d19381c8c69db",
+    "pieces/rear/hidden_leg_near.png": "9f17aa0df7024dd6359c06ea590a2f1e42cfbae0c31be5dc0bdeefac7dc4fb68",
+    "pieces/rear/hidden_mortar.png": "67fceff10cb72f62946267ad118177c885a595750a619878d05f9960d0b33867",
+    "pieces/rear/hidden_pelvis.png": "a1bffdd65ad4f95ae6f3db207d1847db2288eef30e03aff8ed20998aa1bf05c9",
+    "pieces/rear/hidden_shin_far.png": "f2cb24c640e3f661cab2821eb0875423a36cf0b9201d3ae920120257f591bc4c",
+    "pieces/rear/hidden_shin_near.png": "2da64fc5d74280d3c030fe8d168212d2878a2f67c74634a27f8040634d1d4a9d",
+    "pieces/rear/hidden_thigh_far.png": "a68535e2801ebbe98f683c1cb276d07949ad7877a9c68255cce824682654986a",
+    "pieces/rear/hidden_thigh_near.png": "dee964107c4257635fd824f93cb90522371fa0c3258699345b247095e7b8175d",
+    "pieces/rear/hidden_torso.png": "870ad2a5b49e3179d2fb33e3110fec5992f61a58ed67b71686de48abecee8f14",
+    "pieces/rear/hidden_upper_far.png": "cd12ad2a60a2e7187d4d94e595cc64d5c1dc5fd672a247fb5e13ed706b5a437b",
+    "pieces/rear/hidden_upper_near.png": "07e25d7fef4a22540bdbafc8184449241b911dae4db3bea32aa6a368f8091a13",
+    "pieces/rear/leg_far.png": "a75eef58a269786aec72ef45cae3c5a5859bc70d2185f6ee560350de13121330",
+    "pieces/rear/leg_near.png": "74462e70379dd203344f3b637d3491e751e46140942d26bf09054620f3c4e041",
+    "pieces/rear/mortar.png": "cea0b351ebace98d8779bb5261bb3fb308eaeb9bf4581ae5d32ec32e8a2128b6",
+    "pieces/rear/pelvis.png": "c335a12dd58bd3ac4aa0fa6651ea5ed5aa73843cfb86b155cb3bf1bd339e0fe4",
+    "pieces/rear/shin_far.png": "bc2e1bc70e88c88c6d8df24579eaf27a6633b37f3905f6e4570b14938993ed84",
+    "pieces/rear/shin_near.png": "513a4bcbbf652dfece5bde0d8e67779c5e5cdcbd16b7426d9b0d36b5d2d884d7",
+    "pieces/rear/thigh_far.png": "2b3d1dd0d2d827cdd5aa9e3f80af493f3cce587316d06770ef0604ebc1f3c565",
+    "pieces/rear/thigh_near.png": "ed20640b4f43edd9aff352708618cd832429453af8a8cbbfa67bc6523e940c56",
+    "pieces/rear/torso.png": "8081ccbeea5bd42f03e6e9f68d74751a16ae88868979af655c4fcfe41567bccd",
+    "pieces/rear/upper_far.png": "cc5d4ef7f46793da3456bf5edb33095de5465c3753f5278057fb42bdcea94d55",
+    "pieces/rear/upper_near.png": "02c91fe5e6fa03985a7094ee3fe3a71e0f142e6e029970b7f32673e56e617453"
+  },
+  "brace_contact_calibration": {
+    "frames": 431,
+    "disconnected": [
+      "hidden_bracer_far"
+    ],
+    "candidates": {
+      "hidden_hand_far": {
+        "maximum_distance": 2.3664797808578824,
+        "rejected": []
+      }
+    }
+  }
+}

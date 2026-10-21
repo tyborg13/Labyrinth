@@ -1,0 +1,35 @@
+{
+  "task_id": "rr-30",
+  "risk_tier": "high",
+  "authority": "unit brief; design owner owns preflight, commits, review, inspection and publication",
+  "acceptance_criteria": [
+    "mq11 front/rear identity jobs K4, sheets, supplied judge provenance",
+    "source rests 0 px; rigid pelvis belt, hinged flap, rigid forearm bracers",
+    "before/after face-neck and both-arm crops; own-piece joint continuations; canonical tear gate zero",
+    "all presented frames in both views: every skinned texel edge <=12% stretch; rr22 gates; every other figure byte-identical"
+  ],
+  "proof": [
+    "focused Python and Godot checks",
+    "full Python and Godot suites once",
+    "native/production captures and review mp4 prepared for design owner"
+  ],
+  "inspection": "windowed 1920x1080, UI scale 100%; director-run; no window-server available",
+  "design_placeholders": {},
+  "feedback_1": {
+    "authority": "Director feedback 1, 2026-10-20",
+    "acceptance": [
+      "Rigid upper/fore/hand and thigh/shin/foot in both views; own-piece parent continuations, child overlap, canonical gate zero",
+      "12% deformation relative to declared uniform scale; every rigid piece about zero",
+      "Sine flap sway each step, contact phase origin, supplied amplitude/lag, smoothstep endpoint envelope",
+      "director_08 acceptance and wide mq11b rear painting; 0 pixel rest in both views",
+      "Focused tests then each full suite once; windowed proof commands supplied"
+    ],
+    "risk_tier": "high",
+    "lifecycle": "Design owner owns preflight, commit, peer review, inspection and publication; worker leaves uncommitted",
+    "design_resolutions": {
+      "mq11_acceptance": "director_08",
+      "flap_sway": "sine at actual foot contacts, supplied .06 s delay and 4 degree amplitude; 12% smoothstep endpoint ramps",
+      "limb_construction": "rigid segments; Glacial Mirror covered joint and air policy"
+    }
+  }
+}

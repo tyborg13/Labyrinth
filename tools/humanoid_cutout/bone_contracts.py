@@ -63,7 +63,7 @@ def fk_world(layout, values, modes, forward, step):
         origin += [channels.get('lane_px', 0.), 0.]
         origin += forward * amount + [np.sign(joints['root']['position'][0] - position[0]) *
                                       channels.get('inward_px', 0.), -channels.get('lift_px', 0.)]
-        angle = math.radians(channels.get('lean_deg', 0.))
+        angle = math.radians(channels.get('lean_deg', 0.) + channels.get('swing_deg', 0.))
         c, s = math.cos(angle), math.sin(angle)
         local = np.array([[c, -s, origin[0]], [s, c, origin[1]], [0., 0., 1.]])
         if (layout.get('leg_roles') or 'lane_px' in channels) and mode == 'world_step' and name.startswith('foot_'):

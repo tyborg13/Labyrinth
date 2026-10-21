@@ -1,0 +1,1129 @@
+{
+  "ok": true,
+  "errors": [],
+  "maximum_stretch": 0.12,
+  "basis": "presented transforms; skin texel edges and rigid local strain; hidden material included; declared uniform scale removed",
+  "native_pixels": false,
+  "pieces": {
+    "front/head": {
+      "maximum_stretch": 1.4124724945219214e-07,
+      "maximum_percent": 1.4124724945219214e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 52,
+        "phase": 0.584269662921348,
+        "maximum_stretch": 1.4124724945219214e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_head": {
+      "maximum_stretch": 1.4124724945219214e-07,
+      "maximum_percent": 1.4124724945219214e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 52,
+        "phase": 0.584269662921348,
+        "maximum_stretch": 1.4124724945219214e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/torso": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "death",
+        "frame": 54,
+        "phase": 0.606741573033708,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_torso": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "death",
+        "frame": 54,
+        "phase": 0.606741573033708,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/mortar": {
+      "maximum_stretch": 1.4144040338948116e-07,
+      "maximum_percent": 1.4144040338948116e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 59,
+        "phase": 0.662921348314607,
+        "maximum_stretch": 1.4144040338948116e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_mortar": {
+      "maximum_stretch": 1.4144040338948116e-07,
+      "maximum_percent": 1.4144040338948116e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 59,
+        "phase": 0.662921348314607,
+        "maximum_stretch": 1.4144040338948116e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/pelvis": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_pelvis": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/belt": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_belt": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/flap": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 15,
+        "phase": 0.3,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_flap": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 15,
+        "phase": 0.3,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/bracer_near": {
+      "maximum_stretch": 1.4590935992764287e-07,
+      "maximum_percent": 1.4590935992764287e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 41,
+        "phase": 0.460674157303371,
+        "maximum_stretch": 1.4590935992764287e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_bracer_near": {
+      "maximum_stretch": 1.4590935992764287e-07,
+      "maximum_percent": 1.4590935992764287e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 41,
+        "phase": 0.460674157303371,
+        "maximum_stretch": 1.4590935992764287e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/bracer_far": {
+      "maximum_stretch": 2.1371886571586174e-07,
+      "maximum_percent": 2.1371886571586174e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 2.1371886571586174e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_bracer_far": {
+      "maximum_stretch": 2.1371886571586174e-07,
+      "maximum_percent": 2.1371886571586174e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 2.1371886571586174e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/upper_near": {
+      "maximum_stretch": 1.2698440454705917e-07,
+      "maximum_percent": 1.2698440454705917e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 60,
+        "phase": 0.674157303370786,
+        "maximum_stretch": 1.2698440454705917e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_upper_near": {
+      "maximum_stretch": 1.2698440454705917e-07,
+      "maximum_percent": 1.2698440454705917e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 60,
+        "phase": 0.674157303370786,
+        "maximum_stretch": 1.2698440454705917e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/fore_near": {
+      "maximum_stretch": 1.4590935992764287e-07,
+      "maximum_percent": 1.4590935992764287e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 41,
+        "phase": 0.460674157303371,
+        "maximum_stretch": 1.4590935992764287e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_fore_near": {
+      "maximum_stretch": 1.4590935992764287e-07,
+      "maximum_percent": 1.4590935992764287e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 41,
+        "phase": 0.460674157303371,
+        "maximum_stretch": 1.4590935992764287e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hand_near": {
+      "maximum_stretch": 1.4590935992764287e-07,
+      "maximum_percent": 1.4590935992764287e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 41,
+        "phase": 0.460674157303371,
+        "maximum_stretch": 1.4590935992764287e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_hand_near": {
+      "maximum_stretch": 1.4590935992764287e-07,
+      "maximum_percent": 1.4590935992764287e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 41,
+        "phase": 0.460674157303371,
+        "maximum_stretch": 1.4590935992764287e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/thigh_near": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 16,
+        "phase": 0.32,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_thigh_near": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 16,
+        "phase": 0.32,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/shin_near": {
+      "maximum_stretch": 1.4956768756846373e-07,
+      "maximum_percent": 1.4956768756846373e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 19,
+        "phase": 0.38,
+        "maximum_stretch": 1.4956768756846373e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_shin_near": {
+      "maximum_stretch": 1.4956768756846373e-07,
+      "maximum_percent": 1.4956768756846373e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 19,
+        "phase": 0.38,
+        "maximum_stretch": 1.4956768756846373e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/foot_near": {
+      "maximum_stretch": 1.7466283108724667e-07,
+      "maximum_percent": 1.7466283108724667e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 13,
+        "phase": 0.183098591549296,
+        "maximum_stretch": 1.7466283108724667e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_foot_near": {
+      "maximum_stretch": 1.7466283108724667e-07,
+      "maximum_percent": 1.7466283108724667e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 13,
+        "phase": 0.183098591549296,
+        "maximum_stretch": 1.7466283108724667e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/upper_far": {
+      "maximum_stretch": 1.4124724945219214e-07,
+      "maximum_percent": 1.4124724945219214e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 1.4124724945219214e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_upper_far": {
+      "maximum_stretch": 1.4124724945219214e-07,
+      "maximum_percent": 1.4124724945219214e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 1.4124724945219214e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/fore_far": {
+      "maximum_stretch": 2.1371886571586174e-07,
+      "maximum_percent": 2.1371886571586174e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 2.1371886571586174e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_fore_far": {
+      "maximum_stretch": 2.1371886571586174e-07,
+      "maximum_percent": 2.1371886571586174e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 2.1371886571586174e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hand_far": {
+      "maximum_stretch": 2.1371886571586174e-07,
+      "maximum_percent": 2.1371886571586174e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 2.1371886571586174e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_hand_far": {
+      "maximum_stretch": 2.1371886571586174e-07,
+      "maximum_percent": 2.1371886571586174e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 46,
+        "phase": 0.51685393258427,
+        "maximum_stretch": 2.1371886571586174e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/thigh_far": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 1,
+        "phase": 0.02,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_thigh_far": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 1,
+        "phase": 0.02,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/shin_far": {
+      "maximum_stretch": 1.3832521261747388e-07,
+      "maximum_percent": 1.3832521261747388e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 16,
+        "phase": 0.32,
+        "maximum_stretch": 1.3832521261747388e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_shin_far": {
+      "maximum_stretch": 1.3832521261747388e-07,
+      "maximum_percent": 1.3832521261747388e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 16,
+        "phase": 0.32,
+        "maximum_stretch": 1.3832521261747388e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/foot_far": {
+      "maximum_stretch": 1.8237624033190514e-07,
+      "maximum_percent": 1.8237624033190514e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 19,
+        "phase": 0.267605633802817,
+        "maximum_stretch": 1.8237624033190514e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "front/hidden_foot_far": {
+      "maximum_stretch": 1.8237624033190514e-07,
+      "maximum_percent": 1.8237624033190514e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 19,
+        "phase": 0.267605633802817,
+        "maximum_stretch": 1.8237624033190514e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/head": {
+      "maximum_stretch": 1.4124724945219214e-07,
+      "maximum_percent": 1.4124724945219214e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 52,
+        "phase": 0.584269662921348,
+        "maximum_stretch": 1.4124724945219214e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_head": {
+      "maximum_stretch": 1.4124724945219214e-07,
+      "maximum_percent": 1.4124724945219214e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 52,
+        "phase": 0.584269662921348,
+        "maximum_stretch": 1.4124724945219214e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/torso": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "death",
+        "frame": 54,
+        "phase": 0.606741573033708,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_torso": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "death",
+        "frame": 54,
+        "phase": 0.606741573033708,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/mortar": {
+      "maximum_stretch": 1.4144040338948116e-07,
+      "maximum_percent": 1.4144040338948116e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 59,
+        "phase": 0.662921348314607,
+        "maximum_stretch": 1.4144040338948116e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_mortar": {
+      "maximum_stretch": 1.4144040338948116e-07,
+      "maximum_percent": 1.4144040338948116e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 59,
+        "phase": 0.662921348314607,
+        "maximum_stretch": 1.4144040338948116e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/pelvis": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_pelvis": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/belt": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_belt": {
+      "maximum_stretch": 0.0,
+      "maximum_percent": 0.0,
+      "worst": {
+        "clip": "idle",
+        "frame": 0,
+        "phase": 0.0,
+        "maximum_stretch": 0.0
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/flap": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 15,
+        "phase": 0.3,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_flap": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 15,
+        "phase": 0.3,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/bracer_near": {
+      "maximum_stretch": 2.6365098459990577e-07,
+      "maximum_percent": 2.6365098459990577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 61,
+        "phase": 0.685393258426966,
+        "maximum_stretch": 2.6365098459990577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_bracer_near": {
+      "maximum_stretch": 2.6365098459990577e-07,
+      "maximum_percent": 2.6365098459990577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 61,
+        "phase": 0.685393258426966,
+        "maximum_stretch": 2.6365098459990577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/bracer_far": {
+      "maximum_stretch": 1.8656862454946577e-07,
+      "maximum_percent": 1.8656862454946577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 1.8656862454946577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_bracer_far": {
+      "maximum_stretch": 1.8656862454946577e-07,
+      "maximum_percent": 1.8656862454946577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 1.8656862454946577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/upper_near": {
+      "maximum_stretch": 1.4144040338948116e-07,
+      "maximum_percent": 1.4144040338948116e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 59,
+        "phase": 0.662921348314607,
+        "maximum_stretch": 1.4144040338948116e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_upper_near": {
+      "maximum_stretch": 1.4144040338948116e-07,
+      "maximum_percent": 1.4144040338948116e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 59,
+        "phase": 0.662921348314607,
+        "maximum_stretch": 1.4144040338948116e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/fore_near": {
+      "maximum_stretch": 2.6365098459990577e-07,
+      "maximum_percent": 2.6365098459990577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 61,
+        "phase": 0.685393258426966,
+        "maximum_stretch": 2.6365098459990577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_fore_near": {
+      "maximum_stretch": 2.6365098459990577e-07,
+      "maximum_percent": 2.6365098459990577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 61,
+        "phase": 0.685393258426966,
+        "maximum_stretch": 2.6365098459990577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hand_near": {
+      "maximum_stretch": 2.6365098459990577e-07,
+      "maximum_percent": 2.6365098459990577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 61,
+        "phase": 0.685393258426966,
+        "maximum_stretch": 2.6365098459990577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_hand_near": {
+      "maximum_stretch": 2.6365098459990577e-07,
+      "maximum_percent": 2.6365098459990577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 61,
+        "phase": 0.685393258426966,
+        "maximum_stretch": 2.6365098459990577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/thigh_near": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "lob",
+        "frame": 4,
+        "phase": 0.0563380281690141,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_thigh_near": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "lob",
+        "frame": 4,
+        "phase": 0.0563380281690141,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/shin_near": {
+      "maximum_stretch": 1.4189919195217726e-07,
+      "maximum_percent": 1.4189919195217726e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 17,
+        "phase": 0.23943661971831,
+        "maximum_stretch": 1.4189919195217726e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_shin_near": {
+      "maximum_stretch": 1.4189919195217726e-07,
+      "maximum_percent": 1.4189919195217726e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 17,
+        "phase": 0.23943661971831,
+        "maximum_stretch": 1.4189919195217726e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/foot_near": {
+      "maximum_stretch": 1.8364006493243323e-07,
+      "maximum_percent": 1.8364006493243323e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 18,
+        "phase": 0.253521126760563,
+        "maximum_stretch": 1.8364006493243323e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_foot_near": {
+      "maximum_stretch": 1.8364006493243323e-07,
+      "maximum_percent": 1.8364006493243323e-05,
+      "worst": {
+        "clip": "lob",
+        "frame": 18,
+        "phase": 0.253521126760563,
+        "maximum_stretch": 1.8364006493243323e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/upper_far": {
+      "maximum_stretch": 8.470749168765224e-08,
+      "maximum_percent": 8.470749168765224e-06,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 8.470749168765224e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_upper_far": {
+      "maximum_stretch": 8.470749168765224e-08,
+      "maximum_percent": 8.470749168765224e-06,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 8.470749168765224e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/fore_far": {
+      "maximum_stretch": 1.8656862454946577e-07,
+      "maximum_percent": 1.8656862454946577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 1.8656862454946577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_fore_far": {
+      "maximum_stretch": 1.8656862454946577e-07,
+      "maximum_percent": 1.8656862454946577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 1.8656862454946577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hand_far": {
+      "maximum_stretch": 1.8656862454946577e-07,
+      "maximum_percent": 1.8656862454946577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 1.8656862454946577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_hand_far": {
+      "maximum_stretch": 1.8656862454946577e-07,
+      "maximum_percent": 1.8656862454946577e-05,
+      "worst": {
+        "clip": "death",
+        "frame": 37,
+        "phase": 0.415730337078652,
+        "maximum_stretch": 1.8656862454946577e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/thigh_far": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 1,
+        "phase": 0.02,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_thigh_far": {
+      "maximum_stretch": 2.5155802330090182e-08,
+      "maximum_percent": 2.5155802330090182e-06,
+      "worst": {
+        "clip": "move",
+        "frame": 1,
+        "phase": 0.02,
+        "maximum_stretch": 2.5155802330090182e-08
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/shin_far": {
+      "maximum_stretch": 1.4529023184550738e-07,
+      "maximum_percent": 1.4529023184550738e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 13,
+        "phase": 0.26,
+        "maximum_stretch": 1.4529023184550738e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_shin_far": {
+      "maximum_stretch": 1.4529023184550738e-07,
+      "maximum_percent": 1.4529023184550738e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 13,
+        "phase": 0.26,
+        "maximum_stretch": 1.4529023184550738e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/foot_far": {
+      "maximum_stretch": 1.1920929043895967e-07,
+      "maximum_percent": 1.1920929043895967e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 18,
+        "phase": 0.36,
+        "maximum_stretch": 1.1920929043895967e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    },
+    "rear/hidden_foot_far": {
+      "maximum_stretch": 1.1920929043895967e-07,
+      "maximum_percent": 1.1920929043895967e-05,
+      "worst": {
+        "clip": "move",
+        "frame": 18,
+        "phase": 0.36,
+        "maximum_stretch": 1.1920929043895967e-07
+      },
+      "sampled_frames": 431,
+      "declared_uniform_scale": 1.0,
+      "kind": "rigid",
+      "basis": "maximum affine singular value / declared uniform scale"
+    }
+  }
+}

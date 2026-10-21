@@ -181,6 +181,8 @@ def bone_errors(layout, data, report, current_bindings):
             for track in data['view_tracks'][row['view']][clip]:
                 values.setdefault(track['bone'], {})[track['channel']] = evaluate(track['keys'], phase)
                 modes[track['bone']] = track['forward_mode']
+            from .gait import add_flap_sway
+            add_flap_sway(data, row['view'], clip, phase, values)
             root_progress = values.get('root', {}).get('forward_px', 0.)
             from .bone_contracts import target_chains, fk_world, ik_errors
             gait = 'gait' in data['clips'][clip]
@@ -200,7 +202,7 @@ def bone_errors(layout, data, report, current_bindings):
                     -channels.get('lift_px', 0.)]
                 if not np.allclose(bones[name]['local'][4:], expected, atol=EPSILON, rtol=0):
                     errors.append(tag + ': signed translation: ' + name)
-                if abs(angle(bones[name]['local']) - channels.get('lean_deg', 0.)) > EPSILON:
+                if abs(angle(bones[name]['local']) - (channels.get('lean_deg', 0.) + channels.get('swing_deg', 0.))) > EPSILON:
                     errors.append(tag + ': signed rotation: ' + name)
             for chain in chains:
                 if gait and chain['target'].startswith('foot_'): continue

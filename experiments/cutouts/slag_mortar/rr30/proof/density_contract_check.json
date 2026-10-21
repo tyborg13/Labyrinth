@@ -1,0 +1,77 @@
+{
+  "ok": true,
+  "native_pixels": false,
+  "basis": "Exact shell stage interpreted with dispatch recorder; actual Godot headless validates fixed viewport and both source rests. No rebaked images or native acceptance claimed.",
+  "commands": [
+    [
+      "tools/process_board_density.py",
+      "--only",
+      "slag_mortar_cutout"
+    ],
+    [
+      "tools/visual_probe_runner.py",
+      "--task-id",
+      "rr-30",
+      "--no-headless",
+      "--display-driver",
+      "macos",
+      "--audio-driver",
+      "Dummy",
+      "--timeout",
+      "180",
+      "--expect-size",
+      "1920x1080",
+      "--proof-contract",
+      "tests/rr22/density_contract.json",
+      "--overwrite-result-manifest",
+      "--result-manifest",
+      "/Users/borgerding/workspace/Labyrinth.worktrees/rr-30/experiments/cutouts/slag_mortar/rr30/proof/logs/density-result.json",
+      "tests/rr30/density_rebake.gd",
+      "--",
+      "--only",
+      "slag_mortar_cutout"
+    ],
+    [
+      "tools/process_board_density.py",
+      "--only",
+      "slag_mortar_cutout",
+      "--record-rests"
+    ],
+    [
+      "experiments/cutouts/slag_mortar/rr30_density.py",
+      "seal"
+    ],
+    [
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "rr-30",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/rr22/shadow_refresh.gd"
+    ],
+    [
+      "tools/process_board_density.py",
+      "--only",
+      "slag_mortar_cutout",
+      "--check"
+    ]
+  ],
+  "contract": "tests/rr22/density_contract.json",
+  "contract_sha256": "07d16928f0bd9f15ba99f9f2f050424e57640fc379de1bbdc8e7fce2962b2bfa",
+  "probe": "tests/rr30/density_rebake.gd",
+  "probe_sha256": "27a668b444bcd18c8e4b469b79fda8468922aeb54ee67c6b089214f9d8227bf9",
+  "summary_size": [
+    1920,
+    1080
+  ],
+  "rest_size": [
+    255,
+    255
+  ],
+  "pending": "Director regenerates actual rests and summary using the windowed density stage, then rest/native/sheets/walk/idle/production/review in order."
+}

@@ -1,0 +1,33 @@
+{
+  "purpose": "Proof/debug only; no player-facing choices",
+  "detail_scale": 4,
+  "detail_background_rgba": [
+    30,
+    30,
+    36,
+    255
+  ],
+  "detail_crops": {
+    "front/brace/20": [
+      175,
+      255,
+      245,
+      325
+    ],
+    "front/lob/32": [
+      265,
+      210,
+      325,
+      280
+    ],
+    "front/death/78": [
+      265,
+      225,
+      325,
+      295
+    ]
+  },
+  "log_progress_interval_frames": 100,
+  "test_subprocess_timeout_seconds": 180,
+  "source_measurements": "Named source/native pixel coordinates are measurements, not tuning defaults."
+}

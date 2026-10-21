@@ -1,0 +1,245 @@
+{
+  "basis": "Original source and Godot Sprite2D matrices saved before construction changes; exact replay of active original textures. Full-canvas NPZ maps cover every pixel; compressed JSON expands the flagged windows.",
+  "causes": {
+    "near_arm_dark_slash": "The upper/forearm cut separates; broad hidden_torso solo/sweep material becomes visible through it. Nearest own-torso donor supplies dark torso paint where approved rest paint is arm skin.",
+    "far_arm_dark_slashes": "Original upper_far outer-outline texels become interior when broad hidden_torso/hidden_upper_far continuations extend past the arm. Other exposed elbow pixels come from hidden_upper_far/hidden_fore_far dark edge donors.",
+    "warm_protrusions": "Hidden torso, pelvis, upper/fore/hand/bracer and thigh/shin continuation domains combine whole solo silhouettes, swept seam bands and one-cell guards. They are connected, so detached-island counting cannot reject them; their domains are not bounded to the joint contact.",
+    "hem": "hidden_thigh_near extends well below the knee to source [161,212]; it emerges beside the rigid flap. It is skin material carried by the thigh, not an error in the approved flap painting."
+  },
+  "construction_unchanged_when_recorded": true,
+  "frames": {
+    "front/lob/0016": {
+      "near_arm_seam": {
+        "box_source_px": [
+          166,
+          135,
+          190,
+          149
+        ],
+        "piece_counts": {
+          "upper_near": 148,
+          "hidden_upper_near": 11,
+          "hidden_pelvis": 9,
+          "hidden_torso": 30,
+          "pelvis": 50,
+          "fore_near": 81,
+          "belt": 7
+        }
+      },
+      "far_shoulder": {
+        "box_source_px": [
+          66,
+          107,
+          83,
+          126
+        ],
+        "piece_counts": {
+          "transparent_background": 63,
+          "upper_far": 214,
+          "hidden_torso": 46
+        }
+      },
+      "far_elbow": {
+        "box_source_px": [
+          72,
+          128,
+          96,
+          151
+        ],
+        "piece_counts": {
+          "upper_far": 252,
+          "torso": 40,
+          "hidden_upper_far": 18,
+          "transparent_background": 87,
+          "hidden_fore_far": 1,
+          "fore_far": 67,
+          "bracer_far": 87
+        }
+      },
+      "near_wrist": {
+        "box_source_px": [
+          169,
+          178,
+          215,
+          198
+        ],
+        "piece_counts": {
+          "thigh_near": 10,
+          "transparent_background": 195,
+          "bracer_near": 264,
+          "fore_near": 75,
+          "hand_near": 338,
+          "hidden_fore_near": 13,
+          "hidden_shin_near": 14,
+          "hidden_hand_near": 2,
+          "shin_near": 6,
+          "hidden_bracer_near": 3
+        }
+      },
+      "knees_inner_thighs_hem": {
+        "box_source_px": [
+          78,
+          181,
+          180,
+          219
+        ],
+        "piece_counts": {
+          "hand_far": 4,
+          "transparent_background": 749,
+          "thigh_far": 222,
+          "hidden_pelvis": 19,
+          "flap": 853,
+          "thigh_near": 561,
+          "bracer_near": 14,
+          "shin_far": 470,
+          "hidden_thigh_far": 136,
+          "hidden_shin_near": 31,
+          "hidden_shin_far": 10,
+          "shin_near": 547,
+          "hidden_thigh_near": 65,
+          "foot_far": 195
+        }
+      }
+    },
+    "front/lob/0032": {
+      "near_arm_seam": {
+        "box_source_px": [
+          166,
+          135,
+          190,
+          149
+        ],
+        "piece_counts": {
+          "upper_near": 144,
+          "fore_near": 124,
+          "pelvis": 32,
+          "hidden_upper_near": 3,
+          "hidden_torso": 19,
+          "hidden_belt": 5,
+          "belt": 8,
+          "hidden_pelvis": 1
+        }
+      },
+      "far_shoulder": {
+        "box_source_px": [
+          66,
+          107,
+          83,
+          126
+        ],
+        "piece_counts": {
+          "transparent_background": 20,
+          "upper_far": 303
+        }
+      },
+      "far_elbow": {
+        "box_source_px": [
+          72,
+          128,
+          96,
+          151
+        ],
+        "piece_counts": {
+          "upper_far": 87,
+          "hidden_torso": 58,
+          "torso": 37,
+          "hidden_upper_far": 5,
+          "transparent_background": 261,
+          "fore_far": 22,
+          "bracer_far": 80,
+          "hidden_bracer_far": 2
+        }
+      },
+      "near_wrist": {
+        "box_source_px": [
+          169,
+          178,
+          215,
+          198
+        ],
+        "piece_counts": {
+          "thigh_near": 10,
+          "transparent_background": 201,
+          "bracer_near": 158,
+          "fore_near": 86,
+          "hidden_hand_near": 4,
+          "hidden_fore_near": 2,
+          "hand_near": 434,
+          "hidden_bracer_near": 5,
+          "hidden_shin_near": 14,
+          "shin_near": 6
+        }
+      },
+      "knees_inner_thighs_hem": {
+        "box_source_px": [
+          78,
+          181,
+          180,
+          219
+        ],
+        "piece_counts": {
+          "transparent_background": 733,
+          "thigh_far": 222,
+          "hidden_pelvis": 20,
+          "flap": 853,
+          "thigh_near": 561,
+          "hidden_hand_near": 2,
+          "bracer_near": 4,
+          "shin_far": 472,
+          "hidden_thigh_far": 146,
+          "hidden_shin_near": 31,
+          "hand_near": 15,
+          "hidden_shin_far": 13,
+          "shin_near": 547,
+          "hidden_thigh_near": 65,
+          "hidden_foot_far": 3,
+          "foot_far": 189
+        }
+      }
+    }
+  },
+  "pixel_table": "attribution.json.gz",
+  "attributed_pixels": 12014,
+  "part_names": [
+    "head",
+    "hidden_head",
+    "torso",
+    "hidden_torso",
+    "mortar",
+    "hidden_mortar",
+    "pelvis",
+    "hidden_pelvis",
+    "belt",
+    "hidden_belt",
+    "flap",
+    "hidden_flap",
+    "bracer_near",
+    "hidden_bracer_near",
+    "bracer_far",
+    "hidden_bracer_far",
+    "upper_near",
+    "hidden_upper_near",
+    "fore_near",
+    "hidden_fore_near",
+    "hand_near",
+    "hidden_hand_near",
+    "thigh_near",
+    "hidden_thigh_near",
+    "shin_near",
+    "hidden_shin_near",
+    "foot_near",
+    "hidden_foot_near",
+    "upper_far",
+    "hidden_upper_far",
+    "fore_far",
+    "hidden_fore_far",
+    "hand_far",
+    "hidden_hand_far",
+    "thigh_far",
+    "hidden_thigh_far",
+    "shin_far",
+    "hidden_shin_far",
+    "foot_far",
+    "hidden_foot_far"
+  ]
+}

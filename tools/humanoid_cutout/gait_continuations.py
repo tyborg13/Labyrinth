@@ -6,7 +6,7 @@ density-treated donor; clips without a recipe retain the original texture.
 import numpy as np
 from PIL import Image
 
-from maquette_motion.material_palette import interior_donors, rules
+from maquette_motion.material_palette import interior_donors, rules, luma
 
 
 def active_recipe(layout, name, *, gait=False, clip=None):
@@ -47,6 +47,13 @@ def nearest_donors(case, layout, part, targets):
                  if p['logical_part'] == part['logical_part'] and not p.get('hidden_material'))
     with Image.open(case / donor['file']) as image:
         paint = interior_donors(np.asarray(image.convert('RGBA')), rules(case, layout['facing']))
+    minimum = part.get('continuation_min_luma')
+    if minimum is not None:
+        if type(minimum) not in (int, float) or not np.isfinite(minimum) or minimum < 0:
+            raise ValueError('Invalid continuation donor luminance minimum')
+        paint[luma(paint) < minimum] = 0
+    if not (paint[..., 3] > 0).any():
+        raise ValueError('No approved continuation donors')
     v, u = np.nonzero(paint[..., 3])
     points = np.column_stack((u, v)) + donor['offset']
     result = []

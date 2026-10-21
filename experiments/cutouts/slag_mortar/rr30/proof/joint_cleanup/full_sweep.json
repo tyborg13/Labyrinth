@@ -1,0 +1,38 @@
+{
+  "native_pixels": false,
+  "views": {
+    "front": {
+      "ok": true,
+      "maximum_visible_cover_distance_px": 2.999497061328248,
+      "frames": 431,
+      "failures": [],
+      "skin_luma_floors": {
+        "upper_near": 17.778999999999996,
+        "fore_near": 18.132,
+        "hand_near": 18.099999999999998,
+        "thigh_near": 18.317,
+        "upper_far": 17.854,
+        "fore_far": 18.605,
+        "hand_far": 17.801,
+        "thigh_far": 18.203
+      }
+    },
+    "rear": {
+      "ok": true,
+      "maximum_visible_cover_distance_px": 2.9981903453869387,
+      "frames": 431,
+      "failures": [],
+      "skin_luma_floors": {
+        "upper_near": 17.861,
+        "fore_near": 20.419999999999998,
+        "hand_near": 17.872,
+        "thigh_near": 17.872,
+        "upper_far": 17.79,
+        "fore_far": 18.006999999999998,
+        "hand_far": 17.872,
+        "thigh_far": 17.769
+      }
+    }
+  },
+  "sampled_frames": 862
+}

@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "samples_current": true,
+  "sample_sha256": "e2538ec0308e3b3f48f109bb0e769ce565858a5d7a2afdb91585dfd16ea8b104",
+  "production": {
+    "production_logic": {
+      "current": true,
+      "sha256": "279e7130673412b00d867367f3455baf0c79246e4bc7102d6803c7cf18bc48bf",
+      "frames": 1516
+    },
+    "production_logic_rear": {
+      "current": true,
+      "sha256": "5e3976ef5ea56d01a1ba3ae36b3320cc7ed33edfdbbc0b55f7aeebe1d641a517",
+      "frames": 1516
+    }
+  },
+  "native": "Prior director renderer results require a fresh owner-run binding refresh for current construction"
+}

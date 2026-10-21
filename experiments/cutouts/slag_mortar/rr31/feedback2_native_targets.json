@@ -1,0 +1,139 @@
+{
+  "scope": "Immutable round-1 native pose/defect fixture; repaired sources are tested through these matrices. No captured image is altered.",
+  "native_manifest_sha256": "4762b13c32783bcf08831d34250d39aace703987e51829c0b98ff1cdd28d6fef",
+  "targets": [
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 33,
+      "piece": "hidden_upper_near",
+      "transform": [
+        0.999657332897186,
+        -0.0261769499629736,
+        0.0261769499629736,
+        0.999657332897186,
+        130.845001220703,
+        95.1591186523438
+      ],
+      "destination": [
+        322,
+        242
+      ],
+      "native_frame_sha256": "a8c85be7c3b28434f93c873f79dc4b2adca508301c3e984dc38aa6db43970610"
+    },
+    {
+      "view": "front",
+      "clip": "lob",
+      "frame": 67,
+      "piece": "hidden_upper_near",
+      "transform": [
+        0.999657332897186,
+        -0.0261769499629736,
+        0.0261769499629736,
+        0.999657332897186,
+        130.845001220703,
+        93.1591186523438
+      ],
+      "destination": [
+        322,
+        240
+      ],
+      "native_frame_sha256": "48e360166c7b596d00d0f5a70732097d0d6434ead8cd77211f6c4c0a588ce569"
+    },
+    {
+      "view": "front",
+      "clip": "scatter",
+      "frame": 39,
+      "piece": "hidden_upper_near",
+      "transform": [
+        0.999657332897186,
+        -0.0261769499629736,
+        0.0261769499629736,
+        0.999657332897186,
+        129.845001220703,
+        91.1591186523438
+      ],
+      "destination": [
+        321,
+        238
+      ],
+      "native_frame_sha256": "96ef7cad94696ba849c0d145e616ff4ad4bd37ebc9317ae967e6eebc71a5fb23"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 7,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        87.5346069335938
+      ],
+      "destination": [
+        284,
+        265
+      ],
+      "native_frame_sha256": "dba1560a4ad5614a1bd1b06b2a4e3798a2b6ce4c2ebe117eba11f0c3d2ea22a3"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 8,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        87.5346069335938
+      ],
+      "destination": [
+        284,
+        265
+      ],
+      "native_frame_sha256": "d2139aafbc3c144343eb9c10a57bc79cd56847e0e0be4265ddcc4162945c4f2a"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 47,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        88.5346221923828
+      ],
+      "destination": [
+        284,
+        266
+      ],
+      "native_frame_sha256": "082fd87597a34e701141e1631bc6dc36b7d8a762614e5aa4d3ac1b1e9775c152"
+    },
+    {
+      "view": "rear",
+      "clip": "brace",
+      "frame": 48,
+      "piece": "hidden_upper_far",
+      "transform": [
+        0.994521915912628,
+        -0.104528464376926,
+        0.104528464376926,
+        0.994521915912628,
+        105.717834472656,
+        87.5346069335938
+      ],
+      "destination": [
+        284,
+        265
+      ],
+      "native_frame_sha256": "dba1560a4ad5614a1bd1b06b2a4e3798a2b6ce4c2ebe117eba11f0c3d2ea22a3"
+    }
+  ]
+}

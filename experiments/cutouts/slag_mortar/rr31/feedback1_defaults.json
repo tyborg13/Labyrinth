@@ -1,0 +1,18 @@
+{
+  "purpose": "Only proof, measurement correspondence and test fixture choices; no player-facing value changed.",
+  "progress_interval_frames": 100,
+  "nearest_contact_chunk_pixels": 1024,
+  "barycentric_tolerance": 1e-9,
+  "figure_height_measurement": "inclusive vertical bounding-box span of the assembled rest silhouette, fixed for that view",
+  "contact_for_touching_paint": "mean of shared grid-edge midpoints; both adjacent pieces pose each contact",
+  "contact_for_separated_paint": "mean of all exact nearest painted pixel-centre pairs; no distance allowance",
+  "garment_zone_correspondence": "existing humanoid ownership segments, with semantic aliases listed in calibration.json",
+  "calibration_fixture_height_px": 200,
+  "calibration_fixture_threshold_per_100px": 2,
+  "interpolation_fixture": {
+    "vertices": [[0,0],[1,0],[1,1],[0,1]],
+    "triangles": [[0,1,2],[0,2,3]],
+    "points": [[0,0],[0.25,0.25],[1,1]],
+    "affine": [[0,-1,3],[1,0,4]]
+  }
+}

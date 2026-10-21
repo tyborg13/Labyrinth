@@ -7,7 +7,7 @@ from .bone_contracts import visible_leg, leg_bend_side
 from .leg_roles import roles_for, resolve_bone
 from .gait import expand
 
-CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg', 'lane_px'}
+CHANNELS = {'forward_px', 'lift_px', 'inward_px', 'lean_deg', 'angle_deg', 'lane_px', 'swing_deg'}
 
 
 def keys_for_view(definition, view, views):
@@ -72,7 +72,7 @@ def compile_motion(source, creature, layouts, projection):
                     continue
                 if channel not in CHANNELS:
                     raise ValueError('TODO_DESIGN_' + name)
-                sign = projection[view]['lean_sign'] if channel in ('lean_deg', 'angle_deg') else 1
+                sign = projection[view]['lean_sign'] if channel in ('lean_deg', 'angle_deg', 'swing_deg') else 1
                 rows = []
                 for row in keys:
                     interpolation = row[2] if len(row) > 2 else 'smoothstep'

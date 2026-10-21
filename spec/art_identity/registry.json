@@ -4092,64 +4092,6 @@
       "owner_approval": "rr-23 director-approved mq8b repaint; native cutout proof pending director."
     },
     {
-      "path": "assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png",
-      "id": "slag_mortar",
-      "kind": "creature",
-      "entry_kind": "legacy",
-      "anatomy": "biped",
-      "boss": false,
-      "art_scale": 1.04,
-      "size_class": "medium",
-      "pixel_sha256": "e66c06f6146625e62770b665a33d8937891f8d6ce28ef209091f9bcb643851b9",
-      "metrics": {
-        "height": 213,
-        "width": 178,
-        "height_drawn": 221.52,
-        "symmetry": 0.6296645662755159,
-        "thin_abs": 0.009871451761505723,
-        "thin_rel": 0.024042469179133996,
-        "feature_px": 5.885560094772573,
-        "regions": 658,
-        "chroma": 0.1904425421289474,
-        "value": 0.21065167049051006,
-        "edge_light_share": 0.0,
-        "orphan_share": 0.0035975957530820866,
-        "run_length": 3.194086322869955
-      },
-      "source_path": "spec/art_identity/jobs/slag_mortar/mq9_front/processed.png",
-      "source_pixel_sha256": "68bd72f6f0bedc3a92c40f59f834efddb761f0ccd8a3498d6b121b13ecfae21a",
-      "owner_approval": "rr-22 supplied mq9 paintings; native proof pending director."
-    },
-    {
-      "path": "assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png",
-      "id": "slag_mortar",
-      "kind": "creature",
-      "entry_kind": "legacy",
-      "anatomy": "biped",
-      "boss": false,
-      "art_scale": 1.04,
-      "size_class": "medium",
-      "pixel_sha256": "5e11856413f663bac0c797c0f2d93db0493b7d965687cb2906c668330890f72e",
-      "metrics": {
-        "height": 224,
-        "width": 188,
-        "height_drawn": 232.96,
-        "symmetry": 0.6047931123104601,
-        "thin_abs": 0.004698728579325628,
-        "thin_rel": 0.019703071941877925,
-        "feature_px": 6.237245049414975,
-        "regions": 651,
-        "chroma": 0.19524831491468886,
-        "value": 0.20480008408006653,
-        "edge_light_share": 0.0,
-        "orphan_share": 0.01650477769880755,
-        "run_length": 3.143353605560382
-      },
-      "source_path": "spec/art_identity/jobs/slag_mortar/mq9_rear/processed.png",
-      "source_pixel_sha256": "8702eaa46ff020f53398d547219336db3a5f0ffd3f0a3bc57130199b1493273e",
-      "owner_approval": "rr-22 supplied mq9 paintings; native proof pending director."
-    },
-    {
       "path": "assets/units/arc_thrall_cutout/humanoid_v2/front/rest.png",
       "id": "arc_thrall",
       "kind": "creature",
@@ -4268,6 +4210,245 @@
       "source_path": "assets/art/enemies/storm_capacitor.png",
       "source_pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
       "owner_approval": "rr-17 brief: exact partition of existing approved Storm Capacitor painting. Real native rest equals the approved painting byte for byte in decoded RGBA."
+    },
+    {
+      "id": "slag_mortar",
+      "path": "spec/art_identity/jobs/slag_mortar/mq11_front/processed.png",
+      "entry_kind": "kit",
+      "facing": "front",
+      "kind": "creature",
+      "anatomy": "biped",
+      "size_class": "medium",
+      "art_scale": 1.04,
+      "kit_path": "spec/art_identity/jobs/slag_mortar/mq11_front/kit.json",
+      "kit_version": "55e6a840ea113edb35ccc5027504dfba1e6ba34de55f5a01e18b5152fd22eb7d",
+      "job_id": "mq-slag_mortar-front-mq11",
+      "prompt_path": "spec/art_identity/jobs/slag_mortar/mq11_front/prompt.md",
+      "prompt_sha256": "294b965271c84f9ea8808b70a68113c8100e01675c3859f880317d321561a5b9",
+      "raw_path": "spec/art_identity/jobs/slag_mortar/mq11_front/refs/raw_approved.png",
+      "raw_sha256": "9862d248969d8cb417922e06ec48814050efa719eac6673ed96eb306bbf2d8a5",
+      "ref_pixel_sha256": {
+        "refs/01_maquette_front_parts_mq11.png": "eddaebb8944fa6076ab6681564a25129c135807543a642518693f278934b2fa8",
+        "refs/02_maquette_front_clay_mq11.png": "0718298c51ef5860c7296bd4d18372e5a973622959fb59308af91a305e2b0a64",
+        "refs/03_current_painting_front.png": "674b3239308ff0911a3c22c77a9028bc4f4e8117e9b1d5b6ea936f76cc0cf1ae",
+        "refs/04_original_mortar_front.png": "87732f7a3c0f5a5cd3d8127fd19046eb848edec38c4f550e4439bcbf53026eb1"
+      },
+      "pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0",
+      "source_path": "spec/art_identity/jobs/slag_mortar/mq11_front/processed.png",
+      "source_pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0",
+      "post_steps": [
+        {
+          "match_reference": {
+            "job_path": "spec/art_identity/jobs/slag_mortar/front/kit.json",
+            "pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a"
+          },
+          "parameters": {
+            "accent_hue_bin_deg": 15,
+            "accent_hue_bin_min_share": 0.05,
+            "accent_hue_chroma_floor": 30,
+            "accent_hue_window_deg": 25,
+            "accent_lightness": 80,
+            "accent_margin": 15,
+            "accent_percentile": 90,
+            "allow_protected_share": false,
+            "exclude_green_from_protection": true,
+            "green_residue_margin": 20,
+            "max_protected_body_share": 0.25,
+            "space": "CIE Lab",
+            "std_floor": 1e-06
+          },
+          "pre_step_pixel_sha256": "60ef8346c16f165690782107a2667b155034b4ccd77e1fd048a9f25eb77cb143",
+          "protected_body_share": {
+            "front": 0.08425500186404872,
+            "rear": 0.07025082909056939
+          },
+          "reference_pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a",
+          "step": "palette_match"
+        },
+        {
+          "parameters": {
+            "max_luminance": 0.2,
+            "neighbours": 4,
+            "remove_isolated": true,
+            "tone": [
+              20,
+              16,
+              21
+            ]
+          },
+          "pre_step_pixel_sha256": "9745599c524d75d9055cf89828aad6d59ac6f0bae919345136d43a766042ba74",
+          "step": "clean_outline"
+        }
+      ],
+      "landmarks": {
+        "near": [
+          155,
+          241
+        ],
+        "far": [
+          81,
+          214
+        ]
+      },
+      "sheet_path": "spec/art_identity/jobs/slag_mortar/mq11_front/sheet.png",
+      "judge": {
+        "verdict": "PASS",
+        "date": "2026-10-20",
+        "authority": "Director judge supplied by rr-30 brief; re-judging before merge belongs to design owner",
+        "method": "mq-11 maquette paint-over (belt and loincloth only), composited below y 560 into the approved mq9 painting",
+        "sheet_path": "spec/art_identity/jobs/slag_mortar/mq11_front/sheet.png",
+        "certified_pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0"
+      },
+      "owner_approval": "Director supplied PASS, 2026-10-20; record only after strict certification; re-judge before merge per rr-30 brief."
+    },
+    {
+      "id": "slag_mortar",
+      "path": "spec/art_identity/jobs/slag_mortar/mq11_rear/processed.png",
+      "entry_kind": "kit",
+      "facing": "rear",
+      "kind": "creature",
+      "anatomy": "biped",
+      "size_class": "large",
+      "art_scale": 1.04,
+      "kit_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/kit.json",
+      "kit_version": "d7a004d814f96a7d36fc64cd9271843ffd3c6306f99f326197c271fe214865a1",
+      "job_id": "mq-slag_mortar-rear-mq11",
+      "prompt_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/prompt.md",
+      "prompt_sha256": "da0f4785dbfd8cc8a248e10d79b5a1fdf1659ba9fea57edcf26abda59f6d2e35",
+      "raw_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/refs/raw_approved.png",
+      "raw_sha256": "9d3def05dd234ec80598701711c18bcef7c8f8393a69d02d2b4471018af24fad",
+      "ref_pixel_sha256": {
+        "refs/01_maquette_rear_parts_mq11b.png": "689364e449b05f63639a04a5fdc065ad955aad72db9f7ea0cae344b38a373aae",
+        "refs/02_maquette_rear_clay_mq11b.png": "0cf194192b23292b07b22b26ff5dde71febacf941661c3cd8a8f7eb96740fe46",
+        "refs/03_current_painting_rear.png": "efeb1c690132ff294b4011f65b098a4456dc5400e8939189c5e35dfff77e5f61",
+        "refs/04_approved_front_mq11.png": "d37b4d6d08634b0c8928e87986287a52672f477f25a38906b2464830ca6aea52",
+        "refs/05_original_mortar_rear.png": "095461beca51d2ce5658cceb489a40b4e620bca86c96128bbbba28d9701546ae"
+      },
+      "pixel_sha256": "f4e0e99cd173be2d73102eb06d9b3ac9cadf22121050d157aea448f04902090f",
+      "source_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/processed.png",
+      "source_pixel_sha256": "f4e0e99cd173be2d73102eb06d9b3ac9cadf22121050d157aea448f04902090f",
+      "post_steps": [
+        {
+          "match_reference": {
+            "job_path": "spec/art_identity/jobs/slag_mortar/mq11_front/kit.json",
+            "pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0"
+          },
+          "parameters": {
+            "accent_hue_bin_deg": 15,
+            "accent_hue_bin_min_share": 0.05,
+            "accent_hue_chroma_floor": 30,
+            "accent_hue_window_deg": 25,
+            "accent_lightness": 80,
+            "accent_margin": 15,
+            "accent_percentile": 90,
+            "allow_protected_share": false,
+            "exclude_green_from_protection": true,
+            "green_residue_margin": 20,
+            "max_protected_body_share": 0.25,
+            "space": "CIE Lab",
+            "std_floor": 1e-06
+          },
+          "pre_step_pixel_sha256": "47e5bd1695bf3d6d4b481e0b162f36870c2baac519a7f974bce75302dbf2e2be",
+          "protected_body_share": {
+            "front": 0.018594327990135634,
+            "rear": 0.06586901763224182
+          },
+          "reference_pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0",
+          "step": "palette_match"
+        },
+        {
+          "parameters": {
+            "max_luminance": 0.2,
+            "neighbours": 4,
+            "remove_isolated": true,
+            "tone": [
+              20,
+              16,
+              21
+            ]
+          },
+          "pre_step_pixel_sha256": "9ad8cbcc70899361d7df98cc434fbbc628ab26d8ba68301bb5904c5fc978e9c9",
+          "step": "clean_outline"
+        }
+      ],
+      "landmarks": {
+        "near": [
+          170,
+          229
+        ],
+        "far": [
+          96,
+          205
+        ]
+      },
+      "sheet_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/sheet.png",
+      "judge": {
+        "verdict": "PASS",
+        "date": "2026-10-20",
+        "authority": "Director judge supplied by rr-30 brief; re-judging before merge belongs to design owner",
+        "method": "mq-11 maquette paint-over (belt and loincloth only), composited below y 560 into the approved mq9 painting",
+        "sheet_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/sheet.png",
+        "certified_pixel_sha256": "f4e0e99cd173be2d73102eb06d9b3ac9cadf22121050d157aea448f04902090f"
+      },
+      "owner_approval": "Director supplied PASS, 2026-10-20; record only after strict certification; re-judge before merge per rr-30 brief."
+    },
+    {
+      "path": "assets/units/slag_mortar_cutout/humanoid_v2/front/rest.png",
+      "id": "slag_mortar",
+      "kind": "creature",
+      "entry_kind": "legacy",
+      "anatomy": "biped",
+      "boss": false,
+      "art_scale": 1.04,
+      "size_class": "medium",
+      "pixel_sha256": "94f34ca5c5a2c26e37a1bf8257d5d26b3f811297f18f86e0b80e3a218586e5dd",
+      "metrics": {
+        "height": 213,
+        "width": 178,
+        "height_drawn": 221.52,
+        "symmetry": 0.6035149519470077,
+        "thin_abs": 0.009170167592718048,
+        "thin_rel": 0.023083525319600673,
+        "feature_px": 5.6115355685141886,
+        "regions": 703,
+        "chroma": 0.19224207187505257,
+        "value": 0.20919322808854307,
+        "edge_light_share": 0.0,
+        "orphan_share": 0.007182545060306275,
+        "run_length": 3.0424683892248487
+      },
+      "source_path": "spec/art_identity/jobs/slag_mortar/mq11_front/processed.png",
+      "source_pixel_sha256": "05a8675fe90143bbfa77620943affb773387e3dbcd791bab1cc18e83b2a2b2d0",
+      "owner_approval": "rr-30 supplied mq11 paintings; native proof pending director."
+    },
+    {
+      "path": "assets/units/slag_mortar_cutout/humanoid_v2/rear/rest.png",
+      "id": "slag_mortar",
+      "kind": "creature",
+      "entry_kind": "legacy",
+      "anatomy": "biped",
+      "boss": false,
+      "art_scale": 1.04,
+      "size_class": "large",
+      "pixel_sha256": "f76aa019973249523854ee52f7de2140e6fb97b5ec3dd4496739a07500411e77",
+      "metrics": {
+        "height": 224,
+        "width": 188,
+        "height_drawn": 232.96,
+        "symmetry": 0.6105540897097625,
+        "thin_abs": 0.0044882940439124885,
+        "thin_rel": 0.020419716145728017,
+        "feature_px": 6.070990854489126,
+        "regions": 671,
+        "chroma": 0.1988300783092744,
+        "value": 0.20489966248599636,
+        "edge_light_share": 0.0,
+        "orphan_share": 0.01815535158303344,
+        "run_length": 3.2147406733393993
+      },
+      "source_path": "spec/art_identity/jobs/slag_mortar/mq11_rear/processed.png",
+      "source_pixel_sha256": "f4e0e99cd173be2d73102eb06d9b3ac9cadf22121050d157aea448f04902090f",
+      "owner_approval": "rr-30 supplied mq11 paintings; native proof pending director."
     }
   ],
   "version": 1
