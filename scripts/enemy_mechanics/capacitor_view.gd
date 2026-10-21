@@ -11,6 +11,8 @@ const GLOW_ALPHA: float = 0.4
 const PIP_GAP: float = 4.0
 const PIP_ROW_OFFSET: float = 10.0
 
+static var _preview_engine := Combat.new()
+
 static func charge_tooltip(state: Dictionary, unit: Dictionary) -> String:
 	return Icons.tooltip("charge").replace("At 3,", "At %d," % Rules.threshold(state, unit))
 
@@ -77,11 +79,11 @@ static func presentation_for(state: Dictionary, original: Dictionary) -> Diction
 	for index: int in range(state.get("enemies", []).size()):
 		if Rules.is_capacitor(state["enemies"][index]): indices.append(index)
 	if indices.is_empty(): return original
-	var result: Dictionary = original.duplicate(true)
-	var engine := Combat.new()
-	var previews: Array = result.get("enemy_threat_previews", []).duplicate(true)
+	var result: Dictionary = original.duplicate(false)
+	var engine := _preview_engine
+	var previews: Array = result.get("enemy_threat_previews", []).duplicate(false)
 	var attack_tiles: Array = result.get("projected_attack_tiles", []).duplicate()
-	var damage: Dictionary = result.get("damage_preview", {}).duplicate(true)
+	var damage: Dictionary = result.get("damage_preview", {}).duplicate(false)
 	for index: int in indices:
 		var enemy: Dictionary = state["enemies"][index]
 		if int(enemy.get("hp", 0)) <= 0 or not engine.is_enemy_visible_to_player(state, enemy): continue

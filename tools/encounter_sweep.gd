@@ -97,7 +97,7 @@ static func composition(sample: Dictionary, room: Dictionary) -> Dictionary:
 		result["exit_free_turns"] = ceili(float(distance) / FREE_TILES_PER_TURN) if distance >= 0 else null
 	return result
 
-static func golden() -> Dictionary:
+static func golden(combat_snapshot_normalizer: Callable = Callable()) -> Dictionary:
 	var result: Dictionary = {}
 	for seed_value: int in GOLDEN_SEEDS:
 		# Frozen revision-5 oracle: spx-02/03 intentionally changed revision 6.
@@ -112,6 +112,9 @@ static func golden() -> Dictionary:
 			var initial: Dictionary = engine.create_combat(seed_value, generated, {"hp": 24, "max_hp": 24, "deck_cards": Game.starting_deck(), "equipped_equipment": Game.starting_equipped_equipment()})
 			combat.append(initial)
 			combat.append(engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(initial))["state"])
+		# Only compatibility tests provide a normalizer. Default measurement/CLI
+		# output retains every field of the real, fully resolved combat snapshots.
+		if combat_snapshot_normalizer.is_valid(): combat = combat_snapshot_normalizer.call(combat)
 		result[str(seed_value)] = {"map": digest(state), "rooms": digest(rooms), "combat": digest(combat), "save_roundtrip": digest(bytes_to_var(var_to_bytes([state, rooms, combat])))}
 	return result
 

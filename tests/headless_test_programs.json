@@ -414,6 +414,9 @@
     "path": "tests/warband_orders_test.gd"
   },
   {
+    "path": "tests/warband_wind_lock_test.gd"
+  },
+  {
     "path": "tests/warband_orders_probe.gd",
     "args": [
       "--check-only"

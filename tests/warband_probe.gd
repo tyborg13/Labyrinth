@@ -18,8 +18,13 @@ const CAPTURE_VISION_BONUS: int = Combat.UMBRA_UNLIMITED_RADIUS
 var failures: Array[String]
 var captures: Array[Dictionary]
 var canvas: SubViewport
+var output_directory: String = OUTPUT
+var first_turn_only: bool = false
 
 func _initialize() -> void:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg == "--first-turn-only": first_turn_only = true
+		if arg.begins_with("--output="): output_directory = arg.trim_prefix("--output=")
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	if DisplayServer.get_name() == "headless":
 		push_error("Warband visual proof requires the native renderer; use tools/visual_probe_runner.py --no-headless")
@@ -43,13 +48,13 @@ func _run() -> void:
 	root.add_child(canvas)
 	for variant: Dictionary in [{"biome": "air", "tier": 2}, {"biome": "lightning", "tier": 3}]:
 		await _variant(variant)
-	var file := FileAccess.open(OUTPUT.path_join("captures.json"), FileAccess.WRITE)
+	var file := FileAccess.open(output_directory.path_join("captures.json"), FileAccess.WRITE)
 	if file != null: file.store_string(JSON.stringify({"size": [1920, 1080], "ui_scale": PROOF_UI_SCALE, "seed": Fixture.FIXTURE_SEED, "capture_vision_bonus": CAPTURE_VISION_BONUS, "captures": captures, "errors": failures}, "\t"))
 	canvas.queue_free()
 	await process_frame
 	for failure: String in failures: push_error(failure)
 	print("Warband native proof: %d captures, %d failures" % [captures.size(), failures.size()])
-	print("Warband captures: " + ProjectSettings.globalize_path(OUTPUT))
+	print("Warband captures: " + ProjectSettings.globalize_path(output_directory))
 	quit(0 if failures.is_empty() else 1)
 
 func _variant(variant: Dictionary) -> void:
@@ -65,6 +70,13 @@ func _variant(variant: Dictionary) -> void:
 	if bool(scene.get("_dialogue_active")): scene.call("_close_dialogue")
 	await _await_units_drawn(scene.get("board_view"), state["combat_state"])
 	await create_timer(SETTLE_SECONDS).timeout
+	if first_turn_only:
+		_expect(preload("res://scripts/warband_room_rules.gd").validate(state["current_room_layout"], preload("res://scripts/room_generator.gd").ENEMY_SPAWN_SAFE_RADIUS), "First-turn fixture satisfies the complete spread/approach contract")
+		scene.call("_set_show_all_enemy_intents", true)
+		await _capture(variant, "first_player_turn", {"captain": state["combat_state"]["enemies"][0]["pos"], "followers": state["combat_state"]["enemies"].slice(1), "wind": state["combat_state"].get("wind", {})})
+		scene.queue_free()
+		await process_frame
+		return
 	# The native preview uses the production factory contract. This also works
 	# before spx-02 supplies special-room map entry, without changing that unit.
 	var pre: Dictionary = state.duplicate(true)
@@ -150,7 +162,7 @@ func _capture(variant: Dictionary, name: String, facts: Dictionary) -> void:
 	await RenderingServer.frame_post_draw
 	var image: Image = canvas.get_texture().get_image()
 	_expect(image.get_size() == PROOF_SIZE, "Capture is exactly 1920x1080")
-	var path: String = OUTPUT.path_join("%s_tier%d" % [variant["biome"], variant["tier"]]).path_join(name + ".png")
+	var path: String = output_directory.path_join("%s_tier%d" % [variant["biome"], variant["tier"]]).path_join(name + ".png")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
 	_expect(image.save_png(path) == OK, "Capture writes " + path)
 	captures.append({"path": path, "biome": variant["biome"], "tier": variant["tier"], "facts": facts})

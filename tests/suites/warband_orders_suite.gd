@@ -62,7 +62,10 @@ static func battle(biome: String, ordinary: bool = false) -> Dictionary:
 	if ordinary:
 		var engine := preload("res://scripts/run_engine.gd").new()
 		var source: Dictionary = engine.create_new_run(Warbands.Fixture.FIXTURE_SEED, preload("res://scripts/progression_store.gd").default_data())
-		var layout: Dictionary = preload("res://scripts/room_generator.gd").new().generate_room(Warbands.Fixture.FIXTURE_SEED, Warbands.Fixture.room_spec(biome, 3), Vector2i.UP)
+		# Freeze the old generator input: this control tests ordinary mechanics,
+		# independently of subsequent Warband placement changes. Golden hashes stay.
+		var controls: Dictionary = FileAccess.open("res://tests/fixtures/spx07_order_control_layouts.bin", FileAccess.READ).get_var()
+		var layout: Dictionary = controls[biome].duplicate(true)
 		layout["objective"] = {"type": "kill_all"}
 		for enemy: Dictionary in layout["enemies"]: enemy["is_leader"] = false
 		state = Combat.new().create_combat(Warbands.Fixture.FIXTURE_SEED, layout, engine._player_snapshot(source))

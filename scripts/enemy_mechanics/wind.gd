@@ -41,9 +41,36 @@ static func direction(engine: RefCounted, state: Dictionary, enemy: Dictionary, 
 static func hazard(engine: RefCounted, state: Dictionary, tile: Vector2i) -> bool:
 	return not Paths.is_passable(state["grid"], tile) or engine._terrain_index_at_tile(state, tile) >= 0 or engine._enemy_index_at_tile(state, tile) >= 0 or engine._occupied_illusion_tiles(state).has(tile) or Surfaces.element_at(state, tile) == "fire" or engine._trap_index_at_tile(state, tile) >= 0
 
+# Store the announcement in the selected action so saves, the chip, the real
+# mover and every forecast share one cardinal direction. Legacy saves acquire
+# the additive field once at the owned load boundary.
+static func commit(engine: RefCounted, state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	var has_call: bool = false
+	for action: Dictionary in intent.get("actions", []):
+		if str(action.get("type", "")) == "call_wind": has_call = true; break
+	if not has_call: return intent
+	var result: Dictionary = intent.duplicate(true)
+	for action: Dictionary in result.get("actions", []):
+		if str(action.get("type", "")) == "call_wind":
+			action["_wind_direction"] = direction(engine, state, enemy, int(action.get("hazard_scan", 3)))
+	return result
+
+static func lock_legacy_intents(engine: RefCounted, state: Dictionary) -> void:
+	# The load boundary owns this state. Older saves have no stored announcement;
+	# choose it once from their resumed board, then preserve it like a new intent.
+	for enemy: Dictionary in state.get("enemies", []):
+		for action: Dictionary in enemy.get("intent", {}).get("actions", []):
+			if str(action.get("type", "")) == "call_wind" and not action.has("_wind_direction"):
+				action["_wind_direction"] = direction(engine, state, enemy, int(action.get("hazard_scan", 3)))
+
+static func announced_direction(engine: RefCounted, state: Dictionary, enemy: Dictionary, action: Dictionary) -> Vector2i:
+	# get() evaluates its default eagerly: do not rerun the hazard scan on hits.
+	if action.has("_wind_direction"): return action["_wind_direction"]
+	return direction(engine, state, enemy, int(action.get("hazard_scan", 3)))
+
 static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
-	state["wind"] = {"direction": direction(engine, state, enemy, int(action.get("hazard_scan", 3))), "rounds_left": int(action.get("rounds", 2)), "source_id": int(enemy["id"]), "push": int(action.get("push", 1))}
+	state["wind"] = {"direction": announced_direction(engine, state, enemy, action), "rounds_left": int(action.get("rounds", 2)), "source_id": int(enemy["id"]), "push": int(action.get("push", 1))}
 	return state
 
 static func active(engine: RefCounted, state: Dictionary) -> Dictionary:
@@ -139,7 +166,7 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 	for action: Dictionary in intent.get("actions", []):
 		if str(action.get("type", "")) != "call_wind": continue
 		var enemy: Dictionary = state["enemies"][index]
-		var value: Dictionary = {"direction": direction(engine, state, enemy, int(action.get("hazard_scan", 3))), "rounds_left": int(action.get("rounds", 2)), "source_id": int(enemy["id"]), "push": int(action.get("push", 1))}
+		var value: Dictionary = {"direction": announced_direction(engine, state, enemy, action), "rounds_left": int(action.get("rounds", 2)), "source_id": int(enemy["id"]), "push": int(action.get("push", 1))}
 		var forecast: Dictionary = preview(engine, state, value) if not disabled else {}
 		var affected: Array[Vector2i]
 		for actor: Dictionary in actors(state, value["direction"], int(value["source_id"])):

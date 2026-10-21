@@ -7973,10 +7973,8 @@ func _leave_drag_targeting() -> void:
 	return
 
 func _set_drag_hover_tile(tile: Vector2i) -> void:
+	if _hovered_board_tile == tile: return
 	_move_attack_approach.observe(tile, self)
-	if _hovered_board_tile == tile:
-		_refresh_selected_card_forecast()
-		return
 	_hovered_board_tile = tile
 	_refresh_stage_view()
 	_refresh_selected_card_forecast()
@@ -15497,7 +15495,7 @@ func _pass_preview_summary() -> Dictionary:
 		return {}
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(source_state)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_finish_activation", performance_phase_started)
-	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state)
+	var phase_result: Dictionary = _combat_engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled_state, true)
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_enemy_actions_total", performance_phase_started)
 	return _pass_preview_summary_from_phase_result(cache_key, source_state, phase_result)
 
@@ -19091,7 +19089,7 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 		return
 	var forecast_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var scheduled: Dictionary = _combat_engine.finish_player_activation(state)
-	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled)
+	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled, true)
 	_record_runtime_performance_phase("committed_forecast_prepare", forecast_started)
 	while not bool(cursor.get("complete", false)):
 		await get_tree().process_frame
@@ -19569,7 +19567,7 @@ func _warm_pass_preview_cache_across_frames(
 	if _pass_preview_cache.has(cache_key):
 		_finish_pass_preview_cache_warm(generation, cache_key)
 		return
-	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled_state)
+	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled_state, true)
 	while not bool(cursor.get("complete", false)):
 		await RenderingServer.frame_post_draw
 		if generation != _pass_preview_warm_generation or cache_key != _pass_preview_warm_key:
@@ -33689,6 +33687,7 @@ func _sync_combat_state_from_run() -> void:
 	# immediately before it. Empty combat still receives an owned dictionary.
 	var source: Dictionary = _run_state.get("combat_state", {}) as Dictionary
 	_combat_state = _combat_engine.normalize_player_movement_pool(source) if not source.is_empty() else {}
+	preload("res://scripts/enemy_mechanics/wind.gd").lock_legacy_intents(_combat_engine, _combat_state)
 	if _movement_undo_button != null and not _animation_lock: _movement_undo_button.rules.observe(_combat_state)
 	if not _combat_state.is_empty():
 		if str(_run_state.get("mode", "")) == "combat":

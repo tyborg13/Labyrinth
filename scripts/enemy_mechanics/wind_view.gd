@@ -37,14 +37,18 @@ static func screen_direction(axis: Vector2i) -> Vector2:
 
 static func forecast(view: Control) -> Dictionary:
 	var state: Dictionary = view.combat_state
+	var key: int = state.hash()
+	if view.get_meta("en02_wind_key", -1) == key: return view.get_meta("en02_wind_forecast", {})
 	if (state.get("wind", {}) as Dictionary).is_empty():
 		var has_call: bool = false
 		for enemy: Dictionary in state.get("enemies", []):
 			for action: Dictionary in enemy.get("intent", {}).get("actions", []):
 				if str(action.get("type", "")) == "call_wind": has_call = true
-		if not has_call: return {"wind": {}, "dashed": false, "layers": []}
-	var key: int = state.hash()
-	if view.get_meta("en02_wind_key", -1) == key: return view.get_meta("en02_wind_forecast", {})
+		if not has_call:
+			var empty: Dictionary = {"wind": {}, "dashed": false, "layers": []}
+			view.set_meta("en02_wind_key", key)
+			view.set_meta("en02_wind_forecast", empty)
+			return empty
 	var layers: Array[Dictionary]
 	var value: Dictionary = Wind.active(_engine, state)
 	if not value.is_empty():

@@ -14,24 +14,26 @@ const CRATE_HEIGHT_RATIO: float = 1.1
 const FLECK_COUNT: int = 3
 const FLECK_SIZE: float = 3.0 # Reuse the approved small leaf-fleck size.
 
+static var _preview_engine := Combat.new()
+
 static func presentation_for(state: Dictionary, original: Dictionary) -> Dictionary:
 	var captain: Dictionary = WarbandRules.captain(state)
 	if not WarbandRules.order(state, captain, "thornmother_wall"): return original
 	var effect: Dictionary = original.get("effect", {})
 	if not effect.is_empty() and not bool(effect.get("preview", false)): return original
-	var engine := Combat.new()
+	var engine := _preview_engine
 	var threat: Dictionary = engine.enemy_threat_tiles(state, engine._enemy_index_for_id(state, int(captain["id"])))
 	if str(threat.get("projected_attack_action", {}).get("type", "")) != "grow_bramble": return original
 	# Reuse the marked-intent renderer, including its palette and visibility rules.
 	# The production plan includes keep-distance movement and legal-tile trimming.
-	var result: Dictionary = original.duplicate(true)
-	var rest: Dictionary = result.get("threats_at_rest", {})
+	var result: Dictionary = original.duplicate(false)
+	var rest: Dictionary = (result.get("threats_at_rest", {}) as Dictionary).duplicate(false)
 	var threats: Array = rest.get("threats", [])
 	var key: String = engine._enemy_key(captain)
 	var marked: Dictionary = {"key": key, "area": true}
 	for entry: Dictionary in threats:
 		if str(entry.get("key", "")) == key:
-			marked = entry
+			marked = entry.duplicate(false)
 			break
 	marked["tiles"] = threat.get("projected_attack", [])
 	marked["attacker_tile"] = threat.get("projected_attack_from", captain["pos"])

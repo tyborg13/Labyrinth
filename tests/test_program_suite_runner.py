@@ -40,6 +40,7 @@ SNARE_PROGRAMS = [{"path": "tests/snare_test.gd"}, {"path": "tests/snare_ui_test
 WARBAND_PROGRAMS = [{"path": "tests/warband_test.gd"}, {"path": "tests/warband_ui_test.gd"}]
 WARBAND_ORDER_PROGRAMS = [
     {"path": "tests/warband_orders_test.gd"},
+    {"path": "tests/warband_wind_lock_test.gd"},
     {"path": "tests/warband_orders_probe.gd", "args": ["--check-only"]},
 ]
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
@@ -155,7 +156,8 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # spx-01 inserts its measurement programs before rr07; spx-02 adds the special map/reward and native legend
         # domains; spx-03 appends the Warband programs.
         self.assertEqual(supplemental[-len(WARBAND_PROGRAMS):], WARBAND_PROGRAMS)
-        # spx-04 adds two explicit programs ahead of the untouched spx-03 suffix.
+        # spx-04 adds its explicit programs ahead of the untouched spx-03 suffix;
+        # spx-07 inserts the independent wind-lock regression between them.
         order_end = len(supplemental) - len(WARBAND_PROGRAMS)
         order_start = order_end - len(WARBAND_ORDER_PROGRAMS)
         self.assertEqual(supplemental[order_start:order_end], WARBAND_ORDER_PROGRAMS)

@@ -19,27 +19,29 @@ const DASH_SPEED: float = 24.0
 
 # Feed the existing path, threat-tile and health-preview consumers. This also
 # gives retained render layers their ordinary invalidation keys.
+static var _preview_engine := CombatRules.new()
+
 static func presentation_for(state: Dictionary, original: Dictionary) -> Dictionary:
 	if state.is_empty(): return original
 	var indices: Array[int]
 	for index: int in range(state.get("enemies", []).size()):
 		if not Rules.action_for(state["enemies"][index].get("intent", {})).is_empty(): indices.append(index)
 	if indices.is_empty(): return original
-	var result: Dictionary = original.duplicate(true)
+	var result: Dictionary = original.duplicate(false)
 	var effect: Dictionary = original.get("effect", {})
 	# Card aim effects coexist with enemy intent evidence. Only a resolving
 	# animation suppresses the at-rest forecast.
 	if not effect.is_empty() and not bool(effect.get("preview", false)): return result
-	var engine := CombatRules.new()
-	var previews: Array = result.get("enemy_threat_previews", []).duplicate(true)
+	var engine := _preview_engine
+	var previews: Array = result.get("enemy_threat_previews", []).duplicate(false)
 	var attack_tiles: Array = result.get("projected_attack_tiles", []).duplicate()
 	var path_tiles: Array = result.get("path_tiles", []).duplicate()
-	var damage: Dictionary = result.get("damage_preview", {}).duplicate(true)
+	var damage: Dictionary = result.get("damage_preview", {}).duplicate(false)
 	for index: int in indices:
 		var enemy: Dictionary = state["enemies"][index]
 		if int(enemy.get("hp", 0)) <= 0 or not engine.is_enemy_visible_to_player(state, enemy): continue
-		var threat: Dictionary = engine.enemy_threat_tiles(state, index)
-		threat["enemy_key"] = engine._enemy_key(enemy)
+		var forecast: Dictionary = preload("res://scripts/enemy_mechanics/tether_forecast.gd").for_state(engine, state, index)
+		var threat: Dictionary = forecast["threat"]
 		previews = previews.filter(func(entry: Dictionary) -> bool: return str(entry.get("enemy_key", "")) != str(threat["enemy_key"]))
 		previews.append(threat)
 		if not bool(effect.get("preview", false)):
@@ -47,16 +49,8 @@ static func presentation_for(state: Dictionary, original: Dictionary) -> Diction
 				if not attack_tiles.has(tile): attack_tiles.append(tile)
 			for tile: Vector2i in threat.get("projected_path", []):
 				if not path_tiles.has(tile): path_tiles.append(tile)
-		if int(enemy.get("freeze", 0)) > 0 or int(enemy.get("shock", 0)) > 0: continue
-		var context: Dictionary = engine.enemy_intent_plan(state, index)
-		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), index, Rules.action_for(enemy["intent"]), null, {}, [], context)
-		var losses: Array[Dictionary] = engine._actor_target_losses(state, after)
-		losses.append_array(engine._enemy_target_losses(state, after))
-		for loss: Dictionary in losses:
-			var key: String = str(loss.get("key", ""))
-			if key.is_empty() or damage.has(key): continue
-			var unit: Dictionary = after["player"] if key == "player" else engine._surface_actor(after, str(loss["kind"]), int(loss.get("id", -1)))
-			damage[key] = {"hp": int(unit.get("hp", 0)), "damage": int(loss.get("hp_loss", 0)), "lethal": int(unit.get("hp", 0)) <= 0}
+		for key: String in forecast["damage"]:
+			if not damage.has(key): damage[key] = forecast["damage"][key]
 	result["enemy_threat_previews"] = previews
 	result["projected_attack_tiles"] = attack_tiles
 	result["path_tiles"] = path_tiles
@@ -139,7 +133,7 @@ static func beam_points(start: Vector2, end: Vector2, actor_key: String, flicker
 
 static func cancelled_rows(board: Control, unit: Dictionary, intent: Dictionary) -> Array:
 	if Rules.action_for(intent).is_empty(): return []
-	var engine := CombatRules.new()
+	var engine := _preview_engine
 	var index: int = engine._enemy_index_for_id(board.combat_state, int(unit.get("id", -1)))
 	if index < 0: return []
 	if bool(Rules.plan(engine, board.combat_state, index, intent).get("cancelled", false)):

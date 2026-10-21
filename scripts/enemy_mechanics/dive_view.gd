@@ -10,6 +10,8 @@ const DASH_WIDTH: float = 2.0
 const DASH_LENGTH: float = 10.0
 const DASH_GAP: float = 6.0
 
+static var _preview_engine := Combat.new()
+
 static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if Rules.flying(unit): result.append({"icon": "flying", "count": 0, "fill": COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": Icons.tooltip("flying")})
@@ -33,14 +35,14 @@ static func rest_presentation_for(original: Dictionary) -> Dictionary:
 	# ITB-03 owns chips/discs/zone tags and the exact known preview source.
 	# Keep the approved Dive dash and side-push evidence without injecting
 	# detailed popups, movement wash or a second attack-tile treatment at rest.
-	var result: Dictionary = original.duplicate(true)
+	var result: Dictionary = original.duplicate(false)
 	var lines: Array[Dictionary]
-	var paths: Array = result.get("displacement_paths", []).duplicate(true)
-	var markers: Array = result.get("collision_markers", []).duplicate(true)
+	var paths: Array = result.get("displacement_paths", []).duplicate(false)
+	var markers: Array = result.get("collision_markers", []).duplicate(false)
 	for threat: Dictionary in result["threats_at_rest"].get("threats", []):
 		var plan: Dictionary = threat.get("plan", {})
 		if not Rules.handles(plan.get("projected_attack_action", {})): continue
-		plan = plan.duplicate(true)
+		plan = plan.duplicate(false)
 		plan["alpha"] = threat.get("alpha", 1.0)
 		lines.append(plan)
 		for push: Dictionary in plan.get("side_push_previews", []):
@@ -56,13 +58,13 @@ static func rest_presentation_for(original: Dictionary) -> Dictionary:
 static func presentation_for(state: Dictionary, original: Dictionary) -> Dictionary:
 	if state.is_empty() or (not original.get("effect", {}).is_empty() and not bool(original.get("effect", {}).get("preview", false))): return original
 	if original.has("threats_at_rest"): return rest_presentation_for(original)
-	var result: Dictionary = original.duplicate(true)
-	var engine := Combat.new()
-	var previews: Array = result.get("enemy_threat_previews", []).duplicate(true)
-	var paths: Array = result.get("displacement_paths", []).duplicate(true)
-	var markers: Array = result.get("collision_markers", []).duplicate(true)
+	var result: Dictionary = original.duplicate(false)
+	var engine := _preview_engine
+	var previews: Array = result.get("enemy_threat_previews", []).duplicate(false)
+	var paths: Array = result.get("displacement_paths", []).duplicate(false)
+	var markers: Array = result.get("collision_markers", []).duplicate(false)
 	var attacks: Array = result.get("projected_attack_tiles", []).duplicate()
-	var damage: Dictionary = result.get("damage_preview", {}).duplicate(true)
+	var damage: Dictionary = result.get("damage_preview", {}).duplicate(false)
 	for index: int in range(state.get("enemies", []).size()):
 		var enemy: Dictionary = state["enemies"][index]
 		var action: Dictionary = Rules.action_for(enemy.get("intent", {}))
