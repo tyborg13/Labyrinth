@@ -6503,7 +6503,17 @@ func _mark_dragon_mechanic_opened(state: Dictionary, enemy_index: int) -> void:
 	enemies[enemy_index] = enemy
 	state["enemies"] = enemies
 
+func _all_actor_passable_tiles(state: Dictionary) -> Array[Vector2i]:
+	# Filter before navigation applies occupancy exceptions (Vaulting Sigil,
+	# illusion endpoints). Those exceptions cannot reopen a sealed threshold.
+	var tiles: Array[Vector2i]
+	for tile: Vector2i in _all_passable_tiles(state):
+		if _tile_is_passable(state, tile):
+			tiles.append(tile)
+	return tiles
+
 func _all_passable_tiles(state: Dictionary) -> Array[Vector2i]:
+	# Geometric patterns still use the raw floor, including sealed thresholds.
 	var tiles: Array[Vector2i] = []
 	var grid: Array = state.get("grid", [])
 	for y: int in range(grid.size()):

@@ -1,5 +1,5 @@
 extends RefCounted
-## Director feedback 2: stock-card/AI exploits and final-start placement.
+## Director feedback: sealed-threshold exploits and final-start placement.
 const Combat = preload("res://scripts/combat_engine.gd")
 const Rooms = preload("res://scripts/room_generator.gd")
 const Rules = preload("res://scripts/snare_room_rules.gd")
@@ -12,6 +12,10 @@ const TEST_HP: int = 100
 const SEALED_TILE := Vector2i(7, 4)
 const PLAYER_BESIDE_SEAL := Vector2i(7, 3)
 const LEGACY_ILLUSION_ID: int = 10001
+const DIRECT_ILLUSION_HP: int = 5
+const VAULT_START := Vector2i(7, 5)
+const VAULT_DESTINATION := Vector2i(7, 3)
+const PUSH_ORIGIN := Vector2i(7, 2)
 const FOUR_EDGE_ENTRY := Vector2i(2, 3)
 const FIVE_EDGE_ENTRY := Vector2i(1, 3)
 const TRUE_BEARING_CASES: Array = [
@@ -38,12 +42,17 @@ class ShortFirstGenerator extends "res://scripts/room_generator.gd":
 static func run(expect: Callable) -> void:
 	run_illusion(expect)
 	run_ai(expect)
+	run_vault(expect)
+	run_forced(expect)
 	_true_bearing(expect)
 	_path_boundary(expect)
 
+static func _battle(engine: RefCounted) -> Dictionary:
+	return engine.create_combat(Fixture.FIXTURE_SEED, Rooms.new().generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("fire", 2), Vector2i.RIGHT), {"hp": TEST_HP, "max_hp": TEST_HP, "deck_cards": []})
+
 static func _sealed_battle() -> Dictionary:
 	var engine := Combat.new()
-	var state: Dictionary = engine.create_combat(Fixture.FIXTURE_SEED, Rooms.new().generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("fire", 2), Vector2i.RIGHT), {"hp": TEST_HP, "max_hp": TEST_HP, "deck_cards": []})
+	var state: Dictionary = _battle(engine)
 	for turn: int in range(2): state = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))["state"]
 	return state
 
@@ -59,6 +68,9 @@ static func run_illusion(expect: Callable) -> void:
 	var engine := Combat.new()
 	var state: Dictionary = _sealed_battle()
 	expect.call(state["turn"] == 3 and state["objective"]["exits"][1]["target_tile"] == SEALED_TILE and state["objective"]["exits"][1]["sealed"], "Stock-card regression reaches the real turn-two seal at (7,4)")
+	# Exercise the placement guard independently of card target/commit guards.
+	var direct: Dictionary = engine._create_illusion(state.duplicate(true), SEALED_TILE, DIRECT_ILLUSION_HP)
+	expect.call(not direct["illusions"].any(func(unit: Dictionary) -> bool: return unit["pos"] == SEALED_TILE), "Direct illusion placement rejects a sealed threshold")
 	state["player"]["pos"] = PLAYER_BESIDE_SEAL
 	state["deck"]["hand"] = ["mirror_image", "changing_winds"]
 	var mirror: Dictionary = Data.card_def("mirror_image")["actions"][0]
@@ -90,6 +102,43 @@ static func run_ai(expect: Callable) -> void:
 	expect.call(resolved["enemies"][0]["pos"] != SEALED_TILE, "Cudgel Press resolution never occupies the sealed threshold")
 	expect.call(resolved["player"]["hp"] == state["player"]["hp"], "Cudgel Press cannot deal the exploit's six damage through the seal")
 	print("Snare stock AI: Cudgel Press cannot route or resolve through (7,4)")
+
+static func run_vault(expect: Callable) -> void:
+	var engine := Combat.new()
+	var state: Dictionary = _battle(engine)
+	state = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))["state"]
+	# Strand a live Gaoler on the threshold before its real turn-two seal.
+	state["player"]["pos"] = VAULT_START
+	state["enemies"][0]["pos"] = SEALED_TILE
+	state["relics"] = ["vaulting_sigil"]
+	for intent: Dictionary in Data.enemy_def("chainbound_gaoler")["intents"]:
+		if intent["id"] == "cudgel_press": state["enemies"][0]["intent"] = intent.duplicate(true)
+	state = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))["state"]
+	expect.call(state["turn"] == 3 and state["objective"]["exits"][1]["sealed"], "Vaulting Sigil regression reaches turn three after the real turn-two seal")
+	expect.call(state["player"]["pos"] == VAULT_START and state["enemies"][0]["pos"] == SEALED_TILE and state["enemies"][0]["hp"] > 0, "Vaulting Sigil reproduction retains the player at (7,5) and live Gaoler at (7,4)")
+	expect.call(not engine._tile_is_passable(state, SEALED_TILE) and engine._occupied_actor_tiles(state).has(SEALED_TILE), "Occupied sealed threshold remains actor-impassable")
+	expect.call(engine._all_passable_tiles(state).has(SEALED_TILE), "Geometric tile enumeration retains the raw floor beneath a seal")
+	var action: Dictionary = {"type": "move", "range": 2}
+	var path: Array[Vector2i] = engine.path_for_player_action(state, action, VAULT_DESTINATION)
+	expect.call(not path.has(SEALED_TILE), "Vaulting Sigil path cannot traverse occupied sealed (7,4)")
+	expect.call(not engine.valid_targets_for_player_action(state, action).has(VAULT_DESTINATION), "Vaulting Sigil cannot offer a two-tile Move across the seal")
+	expect.call(not engine.player_movement_targets(state).has(VAULT_DESTINATION), "Vaulting Sigil cannot offer free movement (7,5) through sealed (7,4) to (7,3)")
+	var moved: Dictionary = engine.apply_player_movement(state, VAULT_DESTINATION)
+	expect.call(moved == state, "Rejected Vaulting Sigil free movement preserves player, movement budget and Gaoler statuses")
+	print("Snare Vaulting Sigil: occupied turn-two seal blocks turn-three free movement; geometry stays raw")
+
+static func run_forced(expect: Callable) -> void:
+	var engine := Combat.new()
+	var state: Dictionary = _sealed_battle()
+	state["player"]["pos"] = PUSH_ORIGIN
+	state["enemies"][0]["pos"] = PLAYER_BESIDE_SEAL
+	var push: Dictionary = {"type": "push", "range": 1, "amount": 2}
+	expect.call(not engine._tile_is_passable(state, SEALED_TILE) and Paths.is_passable(state["grid"], SEALED_TILE), "Forced-movement regression distinguishes the seal from the raw floor")
+	expect.call(engine.valid_targets_for_player_action(state, push).has(PLAYER_BESIDE_SEAL), "Push into the sealed threshold is legal through its wall collision")
+	var pushed: Dictionary = engine.apply_player_action(state, push, PLAYER_BESIDE_SEAL)
+	expect.call(pushed["enemies"][0]["pos"] == PLAYER_BESIDE_SEAL, "Force blocker stops the Gaoler before sealed (7,4)")
+	expect.call(pushed["enemies"][0]["hp"] < state["enemies"][0]["hp"], "Push against the seal deals wall collision damage")
+	print("Snare forced movement: sealed threshold stops Push and deals wall collision damage")
 
 static func _true_bearing(expect: Callable) -> void:
 	var engine := Run.new()

@@ -352,6 +352,10 @@ use it; navigation blocker maps carry the same sealed tiles. This covers Mirror
 Image followed by Changing Winds as well as an illusion that already occupies a
 threshold when it seals. Geometric surface queries, LOS and the renderer retain
 the ordinary grid; no accepted Snare visual is changed by this enforcement.
+Relic navigation enumerates state-passable actor tiles before applying enemy
+occupancy or illusion-endpoint exceptions. Vaulting Sigil cannot cross a sealed
+threshold even when a live enemy occupies it; geometric tile enumeration still
+includes that floor for attack and surface patterns.
 
 Each active sealing door has a content-sized HUD-skin chip, `Seals · N`, with
 Wind's title font size, plate, fill, border and padding, minus its icon and arrow.
@@ -443,6 +447,15 @@ room generator to retry a first four-edge candidate. `--feedback-2-only` on
 `snare_test.gd` runs these regressions without the placement matrix. The change
 restores existing movement/card assumptions; no card coefficient, balance value,
 text, palette, asset or animation is redesigned.
+
+Feedback-3 regressions strand the Gaoler on (7,4) before the real turn-two seal,
+equip Vaulting Sigil and attempt turn-three free movement from (7,5) to (7,3).
+The path, card targets, free-movement targets and commit all reject that crossing,
+while raw geometric enumeration retains (7,4). This case also runs in the player
+movement and relic U7 suites. Separate tests call direct illusion placement on
+the seal and Push the Gaoler from (7,3) toward it: placement is rejected, and
+Push stops before the seal with wall collision damage. These run in the illusion
+and forced-movement suites as well, independently covering their low-level guards.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_test.gd
