@@ -307,3 +307,181 @@ interactive inspection saves;
 200 placement seeds per cohort, test player HP 100, fallback-proof seed 123456,
 headless foe-card test size 300×400 and 64 legacy seeds per revision. They live
 as named test/fixture/proof fields.
+
+## Umbral Snare (spx-05)
+
+`types.umbral_snare.enabled` is true in both director data copies; all other
+Snare director values remain unchanged. Revision-6 placement keeps its existing
+requirement for at least two outgoing branches. The objective remains
+`reach_exit`, and its exit destination coordinates come from those branches.
+Revision-5 and earlier Reach Exit generation, saved objectives and RNG are
+unchanged. No variant `pressure` fields are consumed (spx-06 owns them).
+
+`SnareRoomRules` orders exits by shortest walking path from entry to threshold,
+then the lower map lane. SectionMapGraph stores outgoing connections in lane
+order, so their saved ordinal breaks ties without inferring lanes from ring
+coordinates. The first is the permanent jailer door. The remaining doors seal
+after 2 and 4 completed player turns, in path order; a single sealing door uses
+3. Every threshold has at least five walking edges from entry. Generation uses
+20 seeded template retries, then deterministic interior-blocker clearing,
+retaining every exit and unit. Blocking terrain cannot occupy the selected
+walking lanes. Entry directions and ordinary rooms retain their existing rules.
+
+The Umbral Gaoler uses the normal depth-scaled Chainbound Gaoler, then ×2 HP
+rounded up and the director's 2/3/4 Stoneskin. It starts one path tile inside its
+threshold and keeps its normal AI. Each other exit has a Veilbound Acolyte titled
+Sealbinder, exactly 4 HP, on a distinct free adjacent interior tile. Its sole
+intent is `Seal · N` with no actions; forced movement cannot move it.
+
+In the initiative engine an enemy round is the interval from finishing a player
+activation to preparing the next player activation. The saved
+`player_turns_completed` counter advances once at its start; seals resolve at its
+end, before player-turn setup. Enemy activation count, repeats and initiative
+Time do not advance the timer. The legacy batch resolver uses the same hooks.
+At the deadline an unprotected sealing door becomes impassable to player,
+enemy and forced movement; it is excluded from objective exits. Its Sealbinder
+silently dissolves using the existing dissolve presentation, without death
+rewards, death effects, kill credit or sound. Killing the binder first saves
+`kept_open` on its door permanently. The jailer door has no timer.
+
+Each active sealing door has a content-sized HUD-skin chip above its door,
+`Seals · N`, with Wind's typography and no icon. Sealing thresholds reuse the
+existing objective-overlay alpha with `UiPalette.UMBRA`. Killed binders and
+sealed doors lose their chips. Sealed door textures use
+`TODO_DESIGN_DARK_SEAL_TINT`: the brief did not identify a dark-seal palette token;
+`UiPalette.INK_0` is the explicit pending-design placeholder. There are no new
+colour literals, icons, assets, timings or input targets. Chip controls ignore
+pointer input and keyboard/controller focus. Reduced motion uses the existing
+static/dissolve behavior.
+
+At each enemy-round start a variant hunter enters on the entry threshold, or
+the nearest free tile in a stable breadth-first walk. The saved total-arrival
+count caps at 3, including killed hunters; lists alternate by that count. Ice
+instead places its 3 Rime Whelps on the nearest free starting tiles at least two
+tiles from the hero and receives no later arrivals. Hunters use normal enemy
+AI and scaling. The special starting reward roster contains only the Gaoler
+and Sealbinders; hunters do not enlarge it.
+
+Any open exit threshold still wins and commits its branch through the ordinary
+pending-escape flow. The Snare goal always succeeds on escape. The existing
+4-card special offer retains its Rare floor and 1.5× starting-roster Embers;
+`run_engine.gd` adds exactly 6 Embers per open exit, including the used door.
+The existing completed-room guard prevents duplicate payment. Saved combat data
+contains the entry threshold, door roles, timers, protected/sealed flags,
+Sealbinders, total hunters and pending-round bit. No migration or format change
+is needed. `combat_ended` adds the two fields documented in analytics.md.
+No player-card coefficient or card mechanic changes, so no intrinsic card score
+is recalibrated; these fixed encounter assumptions are the director's tuning.
+
+### Validation and proof for the design owner
+
+Headless proof lives in `tests/snare_test.gd` and `tests/snare_ui_test.gd`, both
+registered with the full suite. The matrix covers six variants × three tiers ×
+200 seeds, alternating two/three exits and rotating all four entrances. It checks
+path/role ordering, seal times, exact unit identities/HP/positions, complete
+rosters and the five-edge rule. Focused checks cover forced fallback, exact round
+boundaries, binder kills/immobility, blocked thresholds, silent removal, total
+hunter caps and alternation, ice starts, normal pre-battle entry, 1/2/3-open-door
+rewards, branch commitment, analytics on both callers, and mid-round save/load
+through production repair. Existing 192 full-layout goldens for revisions 3–5
+include revision-5 Reach Exit. UI checks parse the native probe, inspect actual
+HUD-skin chip lifecycle/input behavior and exercise all four proof fixtures.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_ui_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 -m unittest discover -s tests -p 'test_*.py' -v
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tests/test_ui_identity_lint.py
+```
+
+The console accepts `snare BIOME TIER [seed]`, for example `snare fire 2 83`.
+It shares its factory with `--scenario snare --snare-biome BIOME --snare-tier TIER`
+and `--snare-case encounter|first_turn|first_seal|kept_open|escape` in the ordinary
+inspection fixture tool. It starts the normal combat tracker with reason
+`snare_fixture`; analytics remain local append-only JSONL.
+
+Windowed proof cannot run in the implementation sandbox. The director runs:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx05_snare.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-05-visual-result.json tests/snare_probe.gd --task-id spx-05
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-first-turn --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-first-turn.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case first_turn --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-first-seal --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-first-seal.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case first_seal --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-kept-open --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-kept-open.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case kept_open --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-escape --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-escape.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case escape --seed 83 --umbra-stage clear
+```
+
+The native probe asserts 1920×1080 and 100% scale, renderer preparation and real
+body draws. Its captures are
+`user://probes/spx05/fire_tier2/{first_turn,first_seal,kept_open,escape}.png`,
+with a neighboring `captures.json` recording chip labels, exits and bonus facts.
+The first-seal and kept-open fixtures advance the real initiative engine across
+the first deadline; escape resolves the final legal movement step.
+
+Chosen debug defaults: seed 83, fire tier 2; three valid next-row destinations
+from the actual requested section/tier so every fixture has both chips (some
+natural rows have no branching combat node); 100 hero HP for unattended
+boundary survival; a 0.25 s renderer settle and 20 s readiness timeout; capture-only
+unlimited vision. The 180 s visual timeout accommodates four scene preparations.
+Headless fixtures use 100 HP and a fixed 100×100 door rect at (100,100) solely
+for chip-placement assertions. None of these fields changes production tuning.
+The proposal URL/diagram could not be accessed; no external art was downloaded.
+Commits, peer review, native inspection and publication belong to the design owner.
+
+The newly enabled Snare exposes eleven concepts in the fullest production map
+legend. The existing map gate expects ten and one row; its current two-row
+result is left visible for the map owner, under
+`SnareRoomRules.TODO_DESIGN_SNARE_LEGEND_LAYOUT`. This unit does not choose a
+replacement size, spacing, font or legend layout, or weaken that assertion.
+
+`SnareRoomRules.TODO_DESIGN_FIRST_TURN_ESCAPE_POLICY` records a conflict in
+requirement 2: the specified five-tile minimum does not guarantee that no door
+can be reached on turn 1 while existing card movement and immediate open-exit
+escape remain legal. The focused suite reproduces a turn-1 victory through
+normal `prepare_player_card`, real Shadow Step actions and `finish_player_card`,
+using two legal Shadow Step copies and targets (4,4), then (7,4), on seed 83.
+The implementation retains the exact path minimum and existing card/escape
+rules. No new first-turn lock or movement restriction is invented. The owner
+must decide whether the guarantee excludes card movement or requires an
+additional rule. The two-copy hand is a named debug-only test fixture, not a
+production deck change.
+
+### Observed implementation proof (2026-10-21)
+
+```text
+Snare placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+SPX special encounter suite: 0 failures
+SECTION MAP PERFORMANCE PROGRAM RESULT: PASS (6378 checks, 0 failures)
+Warband suite: 0 failures
+Warband UI semantics: 0 failures
+TEST REGISTRATION AUDIT: PASS (777 scripts; full suite=426, quarantined=29, windowed probe=322)
+Ran 1563 tests in 1781.865s
+OK (skipped=66)
+FULL SUITE RUNTIME: 465.815 seconds (budget 900 seconds)
+TEST RESULT: FAIL (2 failure(s))
+```
+
+The two failing Godot children are `encounter_measurement_test` (the golden and
+current-objective assertions also fail at the unchanged integration HEAD), and
+`special_encounter_legend_test` (eleven concepts/two rows after enabling Snare;
+its ten-concept/one-row assertions are preserved for the owner). The underlying
+map-solver regression now validates its original combat domains before special
+substitution; post-substitution identities, branching and route limits remain
+covered by the special suite. UI identity passes 25 tests, icon identity passes
+7, and Godot sidecars pass 19. The headless console reproduction exits 0.
+Native captures and the verified, launched inspection fixture remain the design
+owner's work; no windowed result is claimed.
+
+Local proof logs are `/private/tmp/labyrinth_codex/spx-05-focused-final.log`,
+`spx-05-ui-final.log`, `spx-05-full-godot-final.log`, `spx-05-full-python.log`,
+`spx-05-baseline-measurement.log`, `spx-05-baseline-map-performance.log`, and
+`spx-05-baseline-legend.log`. The baseline legend has ten concepts/one row and
+passes; the temporary baseline project was removed after comparison.
+
+At the final scope check, both catalogs also contained a concurrent Warband air
+order-copy edit, from “everything” to “everyone else” in its wind sentence. That
+unrelated edit was preserved. This unit's catalog write was only the Snare
+`enabled` flag, and the remaining Snare object matches the supplied data exactly.
+Both catalog copies remain byte-identical.

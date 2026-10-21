@@ -110,6 +110,9 @@ const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const LEADER_MARKER_GOLD := Color("e4b65f")
+const SnareRules = preload("res://scripts/snare_room_rules.gd")
+# The brief names a dark seal tint but supplies no token. Await director choice.
+const TODO_DESIGN_DARK_SEAL_TINT := UiPaletteTokens.INK_0
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const WarbandView = preload("res://scripts/warband_view.gd")
 const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
@@ -138,6 +141,7 @@ signal sound_presentation(state: Dictionary, shown: Dictionary)
 
 func present_sound_snapshot(state: Dictionary, shown: Dictionary) -> void:
 	var sound: Dictionary = WarbandView.sound_snapshot(state, shown)
+	sound = SnareRules.sound_snapshot(sound["state"], sound["shown"])
 	sound_presentation.emit(sound["state"], sound["shown"])
 
 signal tile_clicked(tile: Vector2i)
@@ -2109,7 +2113,7 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			"configure",
 			source_texture,
 			source_rect,
-			float(unit.get("death_progress", 0.0)) if bool(unit.get("warband_fled", false)) else preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
+			float(unit.get("death_progress", 0.0)) if bool(unit.get("warband_fled", false)) or bool(unit.get("snare_dissolved", false)) else preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
 			_enemy_shadow_dissolve_seed_for_unit(unit),
 			bool(presentation.get("reduced_motion", false))
 		)
@@ -2236,6 +2240,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 	# retained layers so every layer uses the same origin and scale.
 	if (layout_changed or visual_framing_changed) and not combat_state.is_empty():
 		_ensure_board_layout_cache()
+	_refresh_snare_chips()
 	var fields: Array = changed_fields
 	if fields.is_empty():
 		fields = [
@@ -3560,6 +3565,11 @@ func _queue_combat_state_change_redraws(
 	previous_unit_render_tiles: Dictionary,
 	previous_unit_obstruction_entries: Dictionary
 ) -> void:
+	if changed_keys.has("objective"):
+		_queue_render_layer_redraw(_foreground_render_layer)
+		_queue_render_layer_redraw(_overlay_render_layer)
+		for exit: Dictionary in next_source.get("objective", {}).get("exits", []):
+			_queue_scene_render_layer_for_tile(exit.get("door_tile", Vector2i(-1, -1)))
 	var units_changed: bool = false
 	for key: String in ["player", "illusions", "enemies", "npcs"]:
 		if changed_keys.has(key):
@@ -3790,6 +3800,7 @@ func _update_umbra_return_transition(previous_state: Dictionary, previous_presen
 func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 	return {
 		"room_coord": source_state.get("room_coord", Vector2i.ZERO),
+		"objective": source_state.get("objective", {}),
 		"turn": source_state.get("turn", 0),
 		"player": source_state.get("player", {}),
 		"player_turn_restrictions": source_state.get("player_turn_restrictions", {}),
@@ -6786,6 +6797,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
 	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
+	if _snare_sealing_threshold(tile): draw_colored_polygon(polygon, Color(UiPaletteTokens.UMBRA, 0.30))
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
 	if _objective_exit_tiles_lookup_cache.has(tile):
@@ -6987,7 +6999,7 @@ func _draw_exit_tile_pulse(tile: Vector2i) -> void:
 
 func _draw_objective_exit_target(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
-	draw_colored_polygon(polygon, Color(0.15, 0.70, 0.72, 0.30))
+	if not _snare_sealing_threshold(tile): draw_colored_polygon(polygon, Color(0.15, 0.70, 0.72, 0.30))
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
 	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.05)
 	_draw_tile_ring(tile, Color(0.52, 0.95, 0.91, lerpf(0.66, 0.96, pulse)), lerpf(2.5, 4.0, pulse), 0.90)
@@ -7333,6 +7345,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
+			if _snare_door_sealed(tile): tint = TODO_DESIGN_DARK_SEAL_TINT
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
 				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
@@ -17182,3 +17195,51 @@ func _draw_surface_chain_effect(effect: Dictionary, progress: float) -> void:
 			var hop: Callable = preload("res://scripts/chain_attack_fx.gd").draw_hop
 			var args: Array = [_tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false))]
 			if not PixelFxLayer.route(self, "lightning", hop, args): hop.callv([self] + args)
+
+
+func _snare_sealing_threshold(tile: Vector2i) -> bool:
+	if not SnareRules.active(combat_state): return false
+	for exit: Dictionary in combat_state["objective"]["exits"]:
+		if exit["target_tile"] == tile: return str(exit["role"]) == "sealing"
+	return false
+
+func _snare_door_sealed(tile: Vector2i) -> bool:
+	if not SnareRules.active(combat_state): return false
+	for exit: Dictionary in combat_state["objective"]["exits"]:
+		if exit["door_tile"] == tile: return bool(exit.get("sealed", false))
+	return false
+
+# The Wind chip's HUD skin and typography, with content-sized geometry. Chips
+# are board children so pan/zoom, window changes and reduced motion stay native.
+func _refresh_snare_chips() -> void:
+	if not is_inside_tree(): return
+	var holder: Node = get_node_or_null("SnareSealChips")
+	if holder == null:
+		if not SnareRules.active(combat_state): return
+		holder = Node.new()
+		holder.name = "SnareSealChips"
+		add_child(holder)
+	for child: Node in holder.get_children(): (child as Control).hide()
+	if not SnareRules.active(combat_state): return
+	for exit: Dictionary in combat_state["objective"]["exits"]:
+		if str(exit["role"]) != "sealing" or bool(exit.get("sealed", false)) or bool(exit.get("kept_open", false)): continue
+		var key: String = "Door%d" % int(exit["sealbinder_id"])
+		var chip: PanelContainer = holder.get_node_or_null(key)
+		if chip == null:
+			chip = PanelContainer.new()
+			chip.name = key
+			chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			preload("res://scripts/ui_skin.gd").new().apply_panel_surface(chip, preload("res://scripts/ui_skin.gd").SURFACE_HUD)
+			var label := Label.new()
+			label.name = "Title"
+			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			label.add_theme_font_override("font", UiTypography.ui_font())
+			chip.add_child(label)
+			holder.add_child(chip)
+		(chip.get_node("Title") as Label).text = "Seals · %d" % maxi(0, int(exit["seal_after_player_turns"]) - int(combat_state["objective"]["player_turns_completed"]))
+		chip.reset_size()
+		var door_rect: Rect2 = _door_rect_for_tile(exit["door_tile"], combat_state["grid"])
+		var texture: Texture2D = _door_texture_for_tile(combat_state["grid"], exit["door_tile"])
+		if texture != null: door_rect = _prop_draw_rect(texture, door_rect)
+		chip.position = Vector2(door_rect.get_center().x - chip.size.x * 0.5, door_rect.position.y - chip.size.y)
+		chip.show()

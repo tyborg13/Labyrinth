@@ -1152,3 +1152,18 @@ progression before creating its successor, including consumed heirlooms and
 settled terminal wallets. Unsettled held Embers still follow abandonment rules.
 No historical JSONL is rewritten, and the existing run/combat event payloads,
 source attribution and progression wallet policy remain in use.
+
+## Umbral Snare escape (spx-05)
+
+Both UI and headless console append `doors_open_at_escape` and
+`sealbinders_killed` to the existing `combat_ended.payload`. The first counts all
+unsealed exits at the winning threshold step, including the used door and
+permanently protected doors. It is 0 before escape or outside a Snare.
+`sealbinders_killed` counts actual lethal damage to Sealbinders that protected
+their doors, excluding silent deadline dissolves; it is 0 outside a Snare.
+These derive from the saved combat objective through
+`CombatEngine.snare_escape_context`, using the same open-door count as the
+`embers_per_open_door` reward hook. The completed combat/pending-escape snapshot
+freezes the winning moment. No event is renamed, schema version changes, prior
+record is rewritten or network dependency is introduced. Both paths retain the
+local-first append-only JSONL writer and the existing special/variant context.

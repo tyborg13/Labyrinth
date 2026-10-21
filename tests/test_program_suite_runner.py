@@ -36,6 +36,7 @@ EXTRACTED_PROGRAMS = [
 MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
                    "suites/section_map_performance_program"]
 SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
+SNARE_PROGRAMS = [{"path": "tests/snare_test.gd"}, {"path": "tests/snare_ui_test.gd"}]
 WARBAND_PROGRAMS = [{"path": "tests/warband_test.gd"}, {"path": "tests/warband_ui_test.gd"}]
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
 # Independent of the manifest: recognized but incorrect modes must fail too.
@@ -141,6 +142,8 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         expected.extend(EXTRACTED_PROGRAMS)
         expected.extend(MERGED_PROGRAMS)
         supplemental = json.loads(SUPPLEMENTAL_MANIFEST.read_text())
+        self.assertEqual(supplemental[-len(SNARE_PROGRAMS):], SNARE_PROGRAMS)
+        supplemental = supplemental[:-len(SNARE_PROGRAMS)]
         # det-01 restores owned_cpu_asset_preparation_test after deterministic cancellation coverage;
         # bug-01's four fixed tests left quarantine for the supplemental set at its merge;
         # rr-05 made maquette_cutout_test a real pixel-runtime program (no longer a shared wrapper).
@@ -152,7 +155,7 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.assertEqual(len(accepted), 129, "Preserve the accepted supplemental set plus spx-01 and spx-02")
         self.assertEqual(accepted[-8:-6], [{"path": "tests/encounter_analytics_test.gd"}, {"path": "tests/encounter_measurement_test.gd"}])
         self.assertEqual(accepted[-6:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}, {"path": "tests/special_encounter_test.gd"}, {"path": "tests/special_encounter_legend_test.gd"}])
-        expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
+        expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental + SNARE_PROGRAMS)
         expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)
         self.assertEqual(len(set(actual)), len(actual), "No child may be silently overwritten")

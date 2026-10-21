@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CombatObjectiveRules
 
+const SnareRooms = preload("res://scripts/snare_room_rules.gd")
 const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const Identity = preload("res://scripts/enemy_identity.gd")
@@ -57,6 +58,7 @@ static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i
 		result.merge(WarbandRooms.objective(room, encounter_depth), true)
 		result["name"] = title_for_objective(result)
 		result["description"] = description_for_objective(result)
+	if SnareRooms.is_room(room): result.merge(SnareRooms.objective(room), true)
 	match objective_type:
 		KILL_LEADER:
 			var boss_room: bool = str(room.get("type", "combat")) in ["boss", "guardian"]
@@ -97,6 +99,7 @@ static func exit_target_tiles(objective: Dictionary) -> Array[Vector2i]:
 		if typeof(exit_var) != TYPE_DICTIONARY:
 			continue
 		var exit_spec: Dictionary = exit_var
+		if bool(exit_spec.get("sealed", false)): continue
 		var target: Variant = exit_spec.get("target_tile", Vector2i(-1, -1))
 		if typeof(target) == TYPE_VECTOR2I and not tiles.has(target):
 			tiles.append(target)
@@ -108,6 +111,7 @@ static func exit_door_tiles(objective: Dictionary) -> Array[Vector2i]:
 		if typeof(exit_var) != TYPE_DICTIONARY:
 			continue
 		var exit_spec: Dictionary = exit_var
+		if bool(exit_spec.get("sealed", false)): continue
 		var door: Variant = exit_spec.get("door_tile", Vector2i(-1, -1))
 		if typeof(door) == TYPE_VECTOR2I and not tiles.has(door):
 			tiles.append(door)
@@ -118,6 +122,7 @@ static func exit_spec_for_target(objective: Dictionary, target_tile: Vector2i) -
 		if typeof(exit_var) != TYPE_DICTIONARY:
 			continue
 		var exit_spec: Dictionary = exit_var as Dictionary
+		if bool(exit_spec.get("sealed", false)): continue
 		if exit_spec.get("target_tile", Vector2i(-1, -1)) == target_tile:
 			return exit_spec.duplicate(true)
 	return {}
@@ -158,6 +163,7 @@ static func is_control_intent(intent: Dictionary) -> bool:
 
 static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))
+	if SnareRooms.is_room(room): return REACH_EXIT
 	if Specials.is_warband(room):
 		return KILL_LEADER
 	if room_type in ["boss", "guardian"]:
@@ -201,6 +207,9 @@ static func _eligible_exit_specs(room: Dictionary, travel_dir: Vector2i) -> Arra
 			"coord": connection.get("coord", Vector2i.ZERO),
 			"kind": str(connection.get("kind", "lateral"))
 		})
+	if SnareRooms.is_room(room):
+		for index: int in range(exits.size()):
+			exits[index]["map_lane"] = index
 	# A generated combat room should always have an onward choice. Keep a safe
 	# fallback for handcrafted fixtures that only declare a single connection.
 	if exits.is_empty():

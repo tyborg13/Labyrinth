@@ -415,5 +415,11 @@
   },
   {
     "path": "tests/warband_ui_test.gd"
+  },
+  {
+    "path": "tests/snare_test.gd"
+  },
+  {
+    "path": "tests/snare_ui_test.gd"
   }
 ]

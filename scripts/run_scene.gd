@@ -23567,7 +23567,7 @@ func _death_hold_presentation(
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
-	if bool(unit.get("warband_fled", false)): return board_view.ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
+	if bool(unit.get("warband_fled", false)) or bool(unit.get("snare_dissolved", false)): return board_view.ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
 	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frames(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_count"):
 		var board_count: int = int(board_view.call("_unit_death_frame_count", unit))
@@ -23581,7 +23581,7 @@ func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
 	return maxi(1, columns * rows)
 
 func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
-	if bool(unit.get("warband_fled", false)): return board_view.ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
+	if bool(unit.get("warband_fled", false)) or bool(unit.get("snare_dissolved", false)): return board_view.ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
 	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frame_seconds(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_seconds"):
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
@@ -26822,6 +26822,7 @@ func _defeated_enemy_units_between_states(before_state: Dictionary, after_state:
 			"type": enemy_type,
 			"name": preload("res://scripts/enemy_identity.gd").display_name(before_enemy),
 			"warband_fled": bool(final_enemy.get("warband_fled", false)),
+			"snare_dissolved": bool(final_enemy.get("snare_dissolved", false)),
 			"pos": (final_enemy["warband_flee_path"] as Array).back() if bool(final_enemy.get("warband_fled", false)) and not _reduced_motion_enabled() else final_enemy.get("pos", before_enemy.get("pos", Vector2i.ZERO)),
 			"footprint": _enemy_footprint_for_animation(final_enemy, definition),
 			"hp": maxi(1, int(before_enemy.get("hp", 1))),
@@ -33041,6 +33042,8 @@ func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> vo
 		"initiative_clock": int(combat_state.get("initiative_clock", 0)),
 		"objective_type": str(objective.get("type", CombatObjectiveRules.KILL_ALL)),
 		"objective_target_clock": int(objective.get("target_clock", 0)),
+		"doors_open_at_escape": int(_combat_engine.snare_escape_context(combat_state).get("doors_open_at_escape", 0)),
+		"sealbinders_killed": int(_combat_engine.snare_escape_context(combat_state).get("sealbinders_killed", 0)),
 		"objective_reinforcement_waves": int(objective.get("reinforcement_waves_spawned", 0)),
 		"objective_followers_cleared": int(objective.get("followers_cleared", 0)),
 		"objective_completed_by_leader": bool(objective.get("completed_by_leader", false)),
