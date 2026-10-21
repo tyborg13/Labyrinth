@@ -292,3 +292,7 @@
   ~7 columns visible, opens on the player, wheel/drag/stick, recentres after each choice, edge fades, a slim scroll
   track, painting parallax 0.3); trails keep today's sideways S-curves (control reach 0.52 × dx) drawn as inked dots.
   Revised mockup posted as `map-branching-v2`.
+- map-branching-v2: APPROVED (2026-10-21 14:31). "Looks good, can you implement this one yourself instead of enlisting
+  codex and make sure that it looks really good and hits our standard?" Director: map-03 is implemented by Claude in its
+  own task worktree (generator revision 7, horizontal scrolling, inked S-curve trails, walked/reachable/bypassed trail
+  states, the lantern's walk), judged natively against the mockup; Codex does the code review only.
