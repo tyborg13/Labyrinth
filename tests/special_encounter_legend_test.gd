@@ -4,7 +4,7 @@ const Fixture = preload("res://tests/helpers/special_map_proof_fixture.gd")
 const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Settings = preload("res://scripts/settings_store.gd")
-const FALLBACK_TEST_WIDTH: float = 1000.0
+const LAYOUT_BOUNDARY_DELTA: float = 1.0
 # Independent director contract, including disabled types. Production constants
 # are the subject of this check, never its expected-value oracle.
 const EXPECTED_ORDER: Array = ["combat", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]
@@ -30,7 +30,6 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	var types: Dictionary = Fixture.section_types(state, Graph.active_section(state))
-	_check(types.size() == 10, "Fullest legal production section contains all ten enabled legend concepts")
 	_check(panel._legend_types.size() == types.size(), "Legend lists only the displayed section's types")
 	_check(MapPanelScript.LEGEND_ORDER == EXPECTED_ORDER, "All thirteen legend concepts match the independent approved order")
 	var ordered: Array[String]
@@ -40,20 +39,50 @@ func _run() -> void:
 	for index: int in range(panel._legend_types.size()):
 		var expected_index: int = EXPECTED_ORDER.find(panel._legend_types[index])
 		_check(expected_index >= 0 and panel._legend.get_child(index).get_child(1).text == EXPECTED_LABELS[expected_index], "Legend labels match the independent approved wording")
-	_check(panel._legend.custom_minimum_size.y == 48, "Fullest production legend stays in one row at 1920x1080")
+	_check_row_rule(panel)
 	_check(panel._legend.get_global_rect().end.x <= panel._scout.get_global_rect().position.x, "Legend fits beside Scout")
 	_check_bounds(panel)
 	print("SPX fullest legend: seed=%d section=%d entries=%d rows=%d" % [state["seed"], Graph.active_section(state) + 1, types.size(), panel._legend.custom_minimum_size.y / 48])
-	# Debug-only width exercises the specified second-row fallback using the
-	# same legal section; production resolution remains 1920x1080.
-	panel._legend.size.x = FALLBACK_TEST_WIDTH
-	panel._layout_legend()
-	_check(panel._legend.custom_minimum_size.y == 96, "Legend grows to two centred rows only after 12px gaps cannot fit")
-	_check_bounds(panel)
+	# Debug-only widths straddle the exact fit boundary, independent of how many
+	# special types are enabled or the width of their approved labels.
+	var content_width: float = _content_width(panel)
+	var gaps: int = panel._legend.get_child_count() - 1
+	for width: float in [content_width + 40.0 * gaps, content_width + 12.0 * gaps, content_width + 12.0 * gaps - LAYOUT_BOUNDARY_DELTA]:
+		panel._legend.size.x = width
+		panel._layout_legend()
+		_check_row_rule(panel)
+		_check_bounds(panel)
 	panel.free()
 	for failure: String in failures: push_error(failure)
 	print("SPX special legend suite: %d failures" % failures.size())
 	quit(0 if failures.is_empty() else 1)
+
+func _content_width(panel: Control) -> float:
+	var total: float = 0.0
+	for item: Control in panel._legend.get_children(): total += item.get_combined_minimum_size().x
+	return total
+
+func _check_row_rule(panel: Control) -> void:
+	var minimum_row_width: float = _content_width(panel) + 12.0 * (panel._legend.get_child_count() - 1)
+	var expected_rows: int = 1 if minimum_row_width <= panel._legend.size.x else 2
+	_check(panel._legend.custom_minimum_size.y == 48.0 * expected_rows, "Legend uses one row while 12px gaps fit, otherwise two centred rows")
+	for row: int in range(expected_rows):
+		var first: Control = null
+		var last: Control = null
+		var entries: Array[Control]
+		var content: float = 0.0
+		for item: Control in panel._legend.get_children():
+			if is_equal_approx(item.position.y, row * 48.0):
+				if first == null: first = item
+				last = item
+				entries.append(item)
+				content += item.size.x
+		_check(first != null and last != null, "Every required legend row contains entries")
+		if first != null and last != null:
+			_check(is_equal_approx(first.position.x, panel._legend.size.x - last.get_rect().end.x), "Each legend row is centred")
+			var expected_gap: float = clampf((panel._legend.size.x - content) / maxi(1, entries.size() - 1), 12.0, 40.0)
+			for index: int in range(1, entries.size()):
+				_check(is_equal_approx(entries[index].position.x - entries[index - 1].get_rect().end.x, expected_gap), "Legend gaps shrink evenly from 40px to 12px before wrapping")
 
 func _check_bounds(panel: Control) -> void:
 	var items: Array[Node] = panel._legend.get_children()

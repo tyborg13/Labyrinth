@@ -5,9 +5,10 @@
   escape". The approved proposal gives each section its own way of closing in, so dodging and waiting lose value.
 - **Proposal:** https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX (Umbral Snare, the "The room closes in" column).
 - **Base:** integration HEAD with spx-05 merged (sealing doors, Sealbinders, the Umbral Gaoler, hunters, escape bonus).
-- **Protected director data:** `data/special_encounters.json` → `types.umbral_snare.variants[*].pressure` (id, text,
-  numbers), and its staged copy `spec/peer_benchmark/staged/spx/special_encounters.json`. Import the staged pressure
-  objects into both catalogs byte for byte. Unclear semantics → `TODO_DESIGN_<what>`.
+- **Protected director data:** `spec/peer_benchmark/staged/spx-06/pressures.json` holds the six pressure objects (id,
+  text, numbers). Replace `types.umbral_snare.variants[<biome>].pressure` with them in `data/special_encounters.json`
+  and in the staged copy `spec/peer_benchmark/staged/spx/special_encounters.json` (the two stay byte-identical; a test
+  checks it). Unclear semantics → `TODO_DESIGN_<what>`.
 - **Owned:** `scripts/snare_room_rules.gd`, the Snare hooks in `combat_engine.gd`, `combat_board_view.gd` (pressure
   marks and the vision exemption), `scripts/enemy_mechanics/wind.gd` and `wind_view.gd` (a room-sourced wind and its
   chip label only), `scripts/enemy_mechanics/tether.gd` and `tether_view.gd` (live beams only), the objective tooltip

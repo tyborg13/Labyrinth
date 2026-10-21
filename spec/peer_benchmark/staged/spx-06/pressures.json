@@ -1,0 +1,33 @@
+{
+ "_doc": "spx-06 director data: replace types.umbral_snare.variants[<biome>].pressure in data/special_encounters.json and its staged copy (spec/peer_benchmark/staged/spx/special_encounters.json, which must stay byte-identical to the catalog) with these objects.",
+ "pressures": {
+  "earth": {
+   "id": "rubble_lane",
+   "text": "Each round, Rubble rises on one tile of your shortest way out.",
+   "min_steps_from_hero": 2
+  },
+  "fire": {
+   "id": "fire_rows",
+   "text": "Fire spreads one row from the entry each round."
+  },
+  "air": {
+   "id": "headwind",
+   "text": "A headwind slides everyone 1 tile toward the entry at the end of your turn.",
+   "tiles": 1
+  },
+  "ice": {
+   "id": "frost_thresholds",
+   "text": "The tile in front of each sealing door is Ice."
+  },
+  "lightning": {
+   "id": "live_tethers",
+   "text": "Crossing a live tether hurts and Shocks you."
+  },
+  "shadow": {
+   "id": "umbra_rings",
+   "text": "The Umbra closes in: every two rounds, your sight shrinks by 1.",
+   "every_player_turns": 2,
+   "min_radius": 1
+  }
+ }
+}

@@ -156,7 +156,7 @@
    }
   },
   "umbral_snare": {
-   "enabled": false,
+   "enabled": true,
    "name": "Umbral Snare",
    "emblem": "res://assets/art/icons/map/umbral_snare.png",
    "tooltip_line": "The doors are sealing. Get out before they close.",

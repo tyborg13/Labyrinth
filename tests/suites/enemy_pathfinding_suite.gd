@@ -6,6 +6,7 @@ const RunSceneScript = preload("res://scripts/run_scene.gd")
 const PerformanceTelemetryScript = preload("res://scripts/performance_telemetry.gd")
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/snare_regression_suite.gd").run_ai(expect)
 	_test_deterministic_illusion_tie(expect)
 	_test_melee_stops_at_first_attack_tile(expect)
 	_test_ranged_stays_when_attack_is_available(expect)

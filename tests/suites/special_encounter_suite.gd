@@ -67,7 +67,10 @@ static func _test_section(state: Dictionary, index: int, expect: Callable) -> vo
 				if edge["coord"] == coord or other["coord"] == coord:
 					expect.call(str(other["type"]) != "guardian" and str(Graph.room(state, edge["coord"])["type"]) != "guardian", "No edge joins a Guardian and special")
 		if index == 5: expect.call(node.get("map_landmark", false), "Section VI special is a landmark through fog")
-	expect.call(specials.size() == 1, "With only Warband enabled every section has exactly one special")
+	expect.call(specials.size() in [1, 2], "The enabled catalog retains the authored one/two special section budget")
+	for coord: Vector2i in specials:
+		var special: Dictionary = Graph.room(state, coord)
+		if special["special_type"] == "umbral_snare": expect.call(special["connections"].size() >= 2, "Snare placement requires at least two outgoing exits")
 	var routes: Array[Dictionary]
 	_walk_routes(state, info["entry"], index, 0, 0, 0, 0, routes)
 	var empty_route: bool = false
@@ -162,7 +165,7 @@ static func special_entry(engine: RunEngineScript, seed_value: int = 83, revisio
 		state["section_map_layout_revision"] = revision
 		Graph.initialize(state)
 	for node: Dictionary in state["rooms"].values():
-		if node["type"] != "special" or int(node["section_index"]) != 0: continue
+		if node["type"] != "special" or node.get("special_type", "") != "warband" or int(node["section_index"]) != 0: continue
 		for parent: Dictionary in state["rooms"].values():
 			for edge: Dictionary in parent["connections"]:
 				if edge["coord"] != node["coord"]: continue

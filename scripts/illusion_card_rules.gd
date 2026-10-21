@@ -55,7 +55,7 @@ static func traits_for_action(engine: RefCounted, action: Dictionary) -> Diction
 
 ## The ordinary illusion placement rule: passable, unoccupied, not the hero, visible.
 static func tile_is_free(engine: RefCounted, state: Dictionary, tile: Vector2i, occupied: Dictionary, visible_lookup: Dictionary = {}) -> bool:
-	if not Paths.is_passable(state.get("grid", []), tile):
+	if not engine._tile_is_passable(state, tile):
 		return false
 	if tile == (state.get("player", {}) as Dictionary).get("pos", INVALID) or occupied.has(tile):
 		return false

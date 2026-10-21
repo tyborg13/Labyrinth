@@ -320,5 +320,6 @@
   "tests/warden_bulwark_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/wave4_icon_identity_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/zekarion_cutout_asset_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
-  "tests/zekarion_cutout_gameplay_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution."
+  "tests/zekarion_cutout_gameplay_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
+  "tests/snare_probe.gd": "Native Snare proof at 1920x1080, 100% UI scale. snare_test and snare_ui_test cover headless mechanics, fixture semantics and chip lifecycle; no window server in implementation sandbox."
 }

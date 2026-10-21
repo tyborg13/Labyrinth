@@ -3,6 +3,7 @@ class_name RunEngine
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
+const SnareRules = preload("res://scripts/snare_room_rules.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
 const OmenRules = preload("res://scripts/omen_rules.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
@@ -1303,6 +1304,9 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	_sync_current_layout_doors(next_state, current_room)
 	var ember_bonus: int = GameData.stat_bonus_from_relics(next_state.get("relics", []), "combat_ember_bonus")
 	var earned_embers: int = Specials.reward_embers(room, combat_state) if bool(room.get("special_goal_met", false)) else int(combat_state.get("room_embers", 0))
+	var snare_context: Dictionary = preload("res://scripts/snare_room_rules.gd").escape_context(combat_state)
+	if bool(room.get("special_goal_met", false)) and str(Specials.definition(str(room.get("special_type", ""))).get("bonus", {}).get("kind", "")) == "embers_per_open_door":
+		earned_embers += int(snare_context.get("doors_open_at_escape", 0)) * int(Specials.definition(str(room["special_type"]))["bonus"]["amount"])
 	var total_embers: int = earned_embers + ember_bonus
 	next_state = add_held_embers(next_state, total_embers)
 	if str(room.get("type", "")) == "boss":
@@ -2503,6 +2507,7 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		var chosen_start: Vector2i = run_state.get("pre_battle_start", Vector2i(-1, -1))
 		if _layout_accepts_pre_battle_start(layout, chosen_start):
 			layout["player_start"] = chosen_start
+	SnareRules.finalize_starting_hunters(layout)
 	return layout
 
 func _record_encounter_pick(run_state: Dictionary, layout: Dictionary) -> void:

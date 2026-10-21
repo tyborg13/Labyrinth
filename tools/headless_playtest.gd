@@ -107,7 +107,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: warband BIOME TIER [seed], state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: snare BIOME TIER [seed], warband BIOME TIER [seed], state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
@@ -192,6 +192,8 @@ func _handle_command(command: String) -> void:
 	match verb:
 		"help", "?":
 			_print_help()
+		"snare":
+			_command_snare(command.split(" ", false))
 		"warband":
 			_command_warband(command.split(" ", false))
 		"state", "s":
@@ -1915,6 +1917,8 @@ func _log_combat_transition(previous_run_state: Dictionary, reason: String, tran
 		_analytics_store.write_event("combat_ended", _analytics_context(transition_combat_state), {
 			"reason": reason,
 			"outcome": _combat_engine.combat_outcome(transition_combat_state),
+			"doors_open_at_escape": int(_combat_engine.snare_escape_context(transition_combat_state).get("doors_open_at_escape", 0)),
+			"sealbinders_killed": int(_combat_engine.snare_escape_context(transition_combat_state).get("sealbinders_killed", 0)),
 			"turn": int(transition_combat_state.get("turn", 0)),
 			"room_embers": int(transition_combat_state.get("room_embers", 0)),
 			"remaining_player_hp": int((transition_combat_state.get("player", {}) as Dictionary).get("hp", 0))
@@ -3290,5 +3294,24 @@ func _command_warband(parts: PackedStringArray) -> void:
 	_run_state = fixture.build(_run_engine, _combat_engine, _run_state, options)
 	_sync_combat_state_from_run()
 	_attach_new_combat_analytics({}, "warband_fixture")
+	_pending.clear()
+	_print_state()
+
+
+func _command_snare(parts: PackedStringArray) -> void:
+	if parts.size() < 3:
+		print("Usage: snare <biome> <tier> [seed]")
+		return
+	var fixture = preload("res://tools/snare_inspection.gd")
+	var options: Dictionary = {"snare_biome": parts[1], "snare_tier": int(parts[2])}
+	var error: String = fixture.validate(options)
+	if not error.is_empty():
+		print(error)
+		return
+	var seed: int = int(parts[3]) if parts.size() > 3 else int(_run_state["seed"])
+	_start_new_run(seed)
+	_run_state = fixture.build(_run_engine, _combat_engine, _run_state, options)
+	_sync_combat_state_from_run()
+	_attach_new_combat_analytics({}, "snare_fixture")
 	_pending.clear()
 	_print_state()

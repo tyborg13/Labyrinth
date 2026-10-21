@@ -29,6 +29,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const DragonCombatRules = preload("res://scripts/dragon_combat_rules.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const SnareRules = preload("res://scripts/snare_room_rules.gd")
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
 
@@ -936,6 +937,7 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"rng_state": rng.state,
 		"log": []
 	}
+	if SnareRules.active(state): state["snare_entry"] = room_layout.get("snare_entry", room_layout.get("player_start", Vector2i.ZERO))
 	if DepthRules.depth(room_layout) > 0:
 		state[DepthRules.STATE_KEY] = DepthRules.depth(room_layout)
 		state["section_index"] = int(room_layout.get("section_index", (maxi(1, int(room_layout.get("depth", 1))) - 1) / DEPTHS_PER_SEQUENCE))
@@ -1388,8 +1390,14 @@ func action_with_automatic_origin(state: Dictionary, action: Dictionary, target:
 func player_action_target_reason(state: Dictionary, action: Dictionary, tile: Vector2i) -> String:
 	return VeilRules.target_reason(self, state, action, tile)
 
+func _player_action_destination_is_passable(state: Dictionary, action: Dictionary, tile: Vector2i) -> bool:
+	var kind: String = str(action.get("type", ""))
+	if kind == "illusion" and IllusionCardRules.places_adjacent_to_enemy(action): return true
+	return kind not in ["move", "blink", "illusion", "swap", "illusion_swap"] or _tile_is_passable(state, tile)
+
 func _player_action_target_is_accepted(state: Dictionary, action: Dictionary, tile: Vector2i, accept_target: Callable) -> bool:
 	return (
+		_player_action_destination_is_passable(state, action, tile) and
 		VeilRules.target_reason(self, state, action, tile).is_empty()
 		and _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
 		and SurfaceRelicRules.can_prepare(state, action, tile)
@@ -1538,6 +1546,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		or valid_targets_for_player_action(next_state, action).has(target_tile)
 	)
 	if not VeilRules.target_reason(self, next_state, action, target_tile).is_empty(): return next_state
+	if action_needs_target and not _player_action_destination_is_passable(next_state, action, target_tile): return next_state
 	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
 		return next_state
 	if CardStayRules.is_stay(next_state, action, target_tile):
@@ -2253,6 +2262,7 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	var scheduled_time: int = int(ending["time"])
 	_schedule_actor(next_state, _player_actor_entry(scheduled_time, 0))
 	next_state["current_actor"] = {"kind": "transition"}
+	SnareRules.start_round(self, next_state)
 	return next_state
 
 func advance_to_next_player_turn_with_steps(state: Dictionary) -> Dictionary:
@@ -2805,6 +2815,7 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 	return {"path": path, "destination": to, "collision": collision}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
+	if SnareRules.active(state): return SnareRules.resolve_phase(self, state)
 	if WarbandRules.active(state): return WarbandRules.resolve_phase(self, state)
 	var next_state: Dictionary = state.duplicate(true)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
@@ -2896,6 +2907,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state["current_actor"] = _player_actor_entry(int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
+	SnareRules.end_round(next_state)
 	next_state["player_turn_ending"] = false
 	next_state["banked_play_active"] = clampi(int(next_state.get("banked_plays", 0)), 0, 1)
 	next_state["banked_plays"] = 0
@@ -4709,6 +4721,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 			_record_run_max(next_state, "max_kills_one_card", int((next_state["run_stats"] as Dictionary).get("card_resolution_kills", 0)))
 		var reward_embers: int = 0 if bool(enemy.get("guardian_helper", false)) or (WarbandRules.active(next_state) and not bool(enemy.get("is_leader", false))) else int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
 		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
+		SnareRules.binder_killed(next_state, enemy)
 		var credit: bool = bool(context.get("player_card", is_player_turn(next_state)))
 		var bonus_card_plays: int = 1 if credit and not bool(enemy.get("summoned", false)) else 0
 		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "actor_key": _enemy_key(enemy), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": enemy.duplicate(true), "player_card": credit, "source": context.duplicate(true)})
@@ -4976,6 +4989,7 @@ func _damage_terrain_indices(state: Dictionary, terrain_indices: Array[int], dam
 	return next_state
 
 func _create_illusion(state: Dictionary, pos: Vector2i, health: int, traits: Dictionary = {}) -> Dictionary:
+	if not _tile_is_passable(state, pos): return state
 	var next_state: Dictionary = state
 	for existing_illusion: Dictionary in _live_illusions(next_state):
 		if existing_illusion.get("pos", INVALID_TILE) == pos:
@@ -6491,7 +6505,17 @@ func _mark_dragon_mechanic_opened(state: Dictionary, enemy_index: int) -> void:
 	enemies[enemy_index] = enemy
 	state["enemies"] = enemies
 
+func _all_actor_passable_tiles(state: Dictionary) -> Array[Vector2i]:
+	# Filter before navigation applies occupancy exceptions (Vaulting Sigil,
+	# illusion endpoints). Those exceptions cannot reopen a sealed threshold.
+	var tiles: Array[Vector2i]
+	for tile: Vector2i in _all_passable_tiles(state):
+		if _tile_is_passable(state, tile):
+			tiles.append(tile)
+	return tiles
+
 func _all_passable_tiles(state: Dictionary) -> Array[Vector2i]:
+	# Geometric patterns still use the raw floor, including sealed thresholds.
 	var tiles: Array[Vector2i] = []
 	var grid: Array = state.get("grid", [])
 	for y: int in range(grid.size()):
@@ -6910,7 +6934,7 @@ func _force_line_anchors(state: Dictionary, kind: String, id: int, direction: Ve
 	return anchors
 
 func _force_blocker_at(state: Dictionary, tile: Vector2i, mover_kind: String, mover_id: int) -> Dictionary:
-	if not PathUtils.is_passable(state.get("grid", []), tile):
+	if not _tile_is_passable(state, tile):
 		return {"kind": "wall", "id": -1, "key": "wall", "tile": tile}
 	var terrain_index: int = _terrain_index_at_tile(state, tile)
 	if terrain_index >= 0:
@@ -7086,7 +7110,7 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	return not bool(contact.get("source", false))
 
 func _force_actor_anchored(state: Dictionary, kind: String, id: int) -> bool:
-	return (kind == "enemy" and CapacitorRules.immobile(_force_unit(state, kind, id))) or WindRules.force_anchored(self, state, kind, id)
+	return (kind == "enemy" and (CapacitorRules.immobile(_force_unit(state, kind, id)) or bool(_force_unit(state, kind, id).get("snare_sealbinder", false)))) or WindRules.force_anchored(self, state, kind, id)
 
 func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
@@ -7942,18 +7966,28 @@ func _occupied_terrain_tiles(state: Dictionary) -> Dictionary:
 		occupied[terrain.get("pos", Vector2i.ZERO)] = true
 	return occupied
 
+# Actor placement, movement, swaps and AI share this state-aware rule. The
+# ordinary grid stays intact for renderer, LOS and geometric surface queries.
+func _impassable_tiles(state: Dictionary) -> Dictionary:
+	return SnareRules.sealed_tiles(state)
+
+func _tile_is_passable(state: Dictionary, tile: Vector2i) -> bool:
+	return PathUtils.is_passable(state.get("grid", []), tile) and (not SnareRules.active(state) or not _impassable_tiles(state).has(tile))
+
 func _occupied_actor_tiles(state: Dictionary, exclude_enemy_id: int = -1, exclude_illusion_id: int = -1) -> Dictionary:
 	var occupied: Dictionary = _occupied_enemy_tiles(state, exclude_enemy_id)
 	for tile_var: Variant in _occupied_illusion_tiles(state, exclude_illusion_id).keys():
 		occupied[tile_var] = true
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _player_blocking_tiles(state: Dictionary) -> Dictionary:
 	var occupied: Dictionary = _occupied_enemy_tiles(state)
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
@@ -7962,6 +7996,7 @@ func _known_actor_tiles_for_player(state: Dictionary) -> Dictionary:
 		for tile: Vector2i in _occupied_illusion_tiles(state): occupied[tile] = true
 	for tile_var: Variant in _occupied_terrain_tiles(state).keys():
 		occupied[tile_var] = true
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _dispel_illusion_at_player(state: Dictionary) -> Dictionary:
@@ -7977,6 +8012,7 @@ func _enemy_blocking_tiles(state: Dictionary, exclude_enemy_id: int = -1) -> Dic
 	var occupied: Dictionary = _occupied_actor_tiles(state, exclude_enemy_id)
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	occupied[player_pos] = true
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _enemy_blocking_tiles_without_terrain(state: Dictionary, exclude_enemy_id: int = -1) -> Dictionary:
@@ -7985,6 +8021,7 @@ func _enemy_blocking_tiles_without_terrain(state: Dictionary, exclude_enemy_id: 
 		occupied[tile_var] = true
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	occupied[player_pos] = true
+	occupied.merge(_impassable_tiles(state))
 	return occupied
 
 func _live_enemies(state: Dictionary) -> Array[Dictionary]:
@@ -8112,7 +8149,7 @@ func _enemy_can_occupy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vect
 			return false
 		if occupied.has(tile):
 			return false
-		if not PathUtils.is_passable(state.get("grid", []), tile):
+		if not _tile_is_passable(state, tile):
 			return false
 	return true
 
@@ -8585,6 +8622,10 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		return
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var enemy_type: String = str(enemy.get("type", ""))
+	if bool(enemy.get("snare_sealbinder", false)):
+		enemy["intent"] = SnareRules.seal_intent(state["objective"], enemy)
+		enemies[enemy_index] = enemy
+		return
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
 	if not bool(definition.get("dragon_cycle",false)) and _enemy_should_summon_wisps(state, enemy):
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, _zekarion_summon_intent())
@@ -10102,7 +10143,7 @@ func _enemy_future_trap_penalty(enemy: Dictionary, anchor: Vector2i, planning_co
 
 func _enemy_anchor_is_in_grid(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> bool:
 	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		if not PathUtils.is_passable(state.get("grid", []), tile):
+		if not _tile_is_passable(state, tile):
 			return false
 	return true
 
@@ -12505,3 +12546,6 @@ func illusion_movement_plan(state: Dictionary, illusion_id: int) -> Dictionary:
 
 func apply_illusion_movement(state: Dictionary, illusion_id: int, tile: Vector2i) -> Dictionary:
 	return GuardianRelicRules.move_illusion(self,state,illusion_id,tile)
+
+func snare_escape_context(state: Dictionary) -> Dictionary:
+	return SnareRules.escape_context(state)

@@ -19,6 +19,13 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-21 11:40:
+  - map-03 (Claude-implemented at the owner's request): revision 7 web generator + scrolling map + inked trails +
+    lantern walk built in `../Labyrinth.worktrees/map-03` (wip 997005302); native captures and clip posted as inbox
+    item `map-built`; full suites running; then Codex code review, then merge.
+  - spx-05 round 3 running (Vaulting Sigil crossing sealed thresholds; two surviving mutants).
+  - Warband rework queued from the owner's warband-built verdict (see feedback.md): perf, wind lock, marker redesign
+    (director mockup first), spread spawns, then a new playtest build.
 - 2026-10-21 10:15 — OPEN OWNER ASK (dropped, now re-tracked): map branching. Playtest 9 note 1 ("more interesting
   branching, take inspiration from Slay the Spire") got map-02 (revision 5, merged dd4e67d43 2026-10-17, on master since
   the 2026-10-19 checkpoint). map-02 was accepted on variety *between* maps (fallback rate, distinct topologies) and was

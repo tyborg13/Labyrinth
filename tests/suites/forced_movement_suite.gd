@@ -13,6 +13,7 @@ const DOWN := Vector2i(0, 1)
 
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/snare_regression_suite.gd").run_forced(expect)
 	var combat := CombatEngine.new()
 	_test_aligned_push(combat, expect)
 	_test_off_axis_default_and_alternate(combat, expect)

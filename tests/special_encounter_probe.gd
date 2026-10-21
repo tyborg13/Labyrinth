@@ -83,7 +83,8 @@ func _run() -> void:
 	var fullest: Dictionary = Fixture.fullest_state()
 	panel.set_run_state(fullest)
 	await _capture("07_fullest_legend.png")
-	_check(panel._legend_types.size() == 10, "Fullest legal enabled section displays ten legend entries")
+	_check(panel._legend_types.size() == Fixture.section_types(fullest, Graph.active_section(fullest)).size(), "Fullest legal enabled section displays every present legend concept")
+	_check(panel._legend_types.has("special_umbral_snare"), "Fullest legend capture includes the enabled Snare")
 	_check(panel._legend.get_global_rect().end.x <= panel._scout.get_global_rect().position.x, "Full legend fits beside Scout")
 	for item: Control in panel._legend.get_children():
 		_check(item.get_rect().position.x >= 0 and item.get_rect().end.x <= panel._legend.size.x + 0.01, "Full legend has no clipped entries")

@@ -307,3 +307,315 @@ interactive inspection saves;
 200 placement seeds per cohort, test player HP 100, fallback-proof seed 123456,
 headless foe-card test size 300×400 and 64 legacy seeds per revision. They live
 as named test/fixture/proof fields.
+
+## Umbral Snare (spx-05)
+
+`types.umbral_snare.enabled` is true in both director data copies; all other
+Snare director values remain unchanged. Revision-6 placement keeps its existing
+requirement for at least two outgoing branches. The objective remains
+`reach_exit`, and its exit destination coordinates come from those branches.
+Revision-5 and earlier Reach Exit generation, saved objectives and RNG are
+unchanged. No variant `pressure` fields are consumed (spx-06 owns them).
+
+`SnareRoomRules` orders exits by shortest walking path from entry to threshold,
+then the lower map lane. SectionMapGraph stores outgoing connections in lane
+order, so their saved ordinal breaks ties without inferring lanes from ring
+coordinates. The first is the permanent jailer door. The remaining doors seal
+after 2 and 4 completed player turns, in path order; a single sealing door uses
+3. Every threshold has at least five walking edges from entry. Generation uses
+20 seeded template retries, then deterministic interior-blocker clearing,
+retaining every exit and unit. Blocking terrain cannot occupy the selected
+walking lanes. Entry directions and ordinary rooms retain their existing rules.
+The 5-tile minimum stops free movement from escaping on turn 1; an escape that spends cards on turn 1 is earned.
+
+The Umbral Gaoler uses the normal depth-scaled Chainbound Gaoler, then ×2 HP
+rounded up and the director's 2/3/4 Stoneskin. It starts one path tile inside its
+threshold and keeps its normal AI. Each other exit has a Veilbound Acolyte titled
+Sealbinder, exactly 4 HP, on a distinct free adjacent interior tile. Its sole
+intent is `Seal · N` with no actions; forced movement cannot move it.
+
+In the initiative engine an enemy round is the interval from finishing a player
+activation to preparing the next player activation. The saved
+`player_turns_completed` counter advances once at its start; seals resolve at its
+end, before player-turn setup. Enemy activation count, repeats and initiative
+Time do not advance the timer. The legacy batch resolver uses the same hooks.
+At the deadline an unprotected sealing door becomes impassable to player,
+enemy and forced movement; it is excluded from objective exits. Its Sealbinder
+silently dissolves using the existing dissolve presentation, without death
+rewards, death effects, kill credit or sound. Killing the binder first saves
+`kept_open` on its door permanently. The jailer door has no timer.
+
+Actor passability is centralized in `CombatEngine._tile_is_passable`, backed by
+one objective-blocker lookup. Actor placement, player destination targeting and
+commit (including stale previews), current/future AI anchors and forced movement
+use it; navigation blocker maps carry the same sealed tiles. This covers Mirror
+Image followed by Changing Winds as well as an illusion that already occupies a
+threshold when it seals. Geometric surface queries, LOS and the renderer retain
+the ordinary grid; no accepted Snare visual is changed by this enforcement.
+Relic navigation enumerates state-passable actor tiles before applying enemy
+occupancy or illusion-endpoint exceptions. Vaulting Sigil cannot cross a sealed
+threshold even when a live enemy occupies it; geometric tile enumeration still
+includes that floor for attack and surface patterns.
+
+Each active sealing door has a content-sized HUD-skin chip, `Seals · N`, with
+Wind's title font size, plate, fill, border and padding, minus its icon and arrow.
+Its centre aligns with the destination medallion; its bottom is 6 px above the
+medallion's painted top at default 1920×1080 board zoom. Both chip and gap scale
+with board navigation zoom. Placement reuses `_door_icon_visual_rect`, including
+the medallion ring. The chip's Control holder preserves canvas/theme ancestry.
+
+`UiSkin.SURFACE_HUD` supplies a transparent layout StyleBox plus the shared
+`ThemedPanelOrnament` paint. A PanelContainer had fitted that ornament inside the
+padded content rect (18 px tall for this label), below its 36 px drawing minimum.
+`SnareSealChip` keeps the exact ornament outside container layout under a Node2D
+paint host and sizes it to the full panel. The regression checks a non-empty
+layout StyleBox, drawable full-panel ornament, shared HUD variant and typography.
+No replacement surface, palette or font is authored.
+
+Sealing thresholds reuse the existing objective-overlay alpha with
+`UiPaletteTokens.UMBRA`. Killed binders and sealed doors lose their chips. The
+sealed door and opening textures use `SNARE_SEALED_DOOR_MODULATE`, derived from
+`UiPaletteTokens.UMBRA` at 60% RGB brightness and alpha 1.0 (director mock option D).
+A sealed door submits no destination medallion: icon, ring and unknown placeholder
+are all absent. Other doors retain their ordinary medallions. There are no new
+colour literals, icons, assets, timings or input targets. Chip controls ignore
+pointer input and keyboard/controller focus. Reduced motion uses the existing
+static/dissolve behavior.
+
+The existing intent tooltip shows `Seal · N` followed by this exact rules line:
+“Seals its door in N turns. Kill it to keep the door open. When you escape, each
+open door pays 6 Embers.” At N = 1 it says “in 1 turn”. The payout comes from
+`embers_per_open_door.amount`, and the live saved timer supplies N. Pointer and
+controller inspection use the same title and description.
+
+At each enemy-round start a variant hunter enters on the entry threshold, or
+the nearest free tile in a stable breadth-first walk. The saved total-arrival
+count caps at 3, including killed hunters; lists alternate by that count. Ice
+instead places its 3 Rime Whelps on the nearest free starting tiles at least two
+tiles from the hero and receives no later arrivals. Hunters use normal enemy
+AI and scaling. The special starting reward roster contains only the Gaoler
+and Sealbinders; hunters do not enlarge it.
+
+The generated layout records the authored physical threshold as `snare_entry`
+before True Bearing selects another player start. Combat creation copies that
+field into its existing saved `snare_entry` key. Round arrivals always use the
+physical entrance, including when it is now free. After True Bearing's final
+start is known, ice's three hunters are placed again in the same deterministic
+breadth-first entry order, excluding occupied tiles and tiles less than two
+Manhattan edges from the final player. Preview and combat entry use the same
+final layout. Ordinary authored starts retain their original placements; timers,
+arrival totals, rewards and analytics fields retain their existing format.
+
+Any open exit threshold still wins and commits its branch through the ordinary
+pending-escape flow. The Snare goal always succeeds on escape. The existing
+4-card special offer retains its Rare floor and 1.5× starting-roster Embers;
+`run_engine.gd` adds exactly 6 Embers per open exit, including the used door.
+The existing completed-room guard prevents duplicate payment. Saved combat data
+contains the entry threshold, door roles, timers, protected/sealed flags,
+Sealbinders, total hunters and pending-round bit. No migration or format change
+is needed. `combat_ended` adds the two fields documented in analytics.md.
+No player-card coefficient or card mechanic changes, so no intrinsic card score
+is recalibrated; these fixed encounter assumptions are the director's tuning.
+
+### Validation and proof for the design owner
+
+Headless proof lives in `tests/snare_test.gd` and `tests/snare_ui_test.gd`, both
+registered with the full suite. The matrix covers six variants × three tiers ×
+200 seeds, alternating two/three exits and rotating all four entrances. It checks
+path/role ordering, seal times, exact unit identities/HP/positions, complete
+rosters and the five-edge rule. Focused checks cover forced fallback, exact round
+boundaries, binder kills/immobility, blocked thresholds, silent removal, total
+hunter caps and alternation, ice starts, normal pre-battle entry, 1/2/3-open-door
+rewards, branch commitment, analytics on both callers, and mid-round save/load
+through production repair. Existing 192 full-layout goldens for revisions 3–5
+include revision-5 Reach Exit. UI checks parse the native probe, inspect actual
+HUD-skin chip lifecycle/input behavior, exact plate geometry, medallion spacing at
+default and changed zoom, door/opening draw submissions, singular/plural tooltip
+text, and all four combat proof fixtures. The legend gate checks row count,
+centering and exact 40–12 px gap behavior on either side of the fit boundary,
+without a fixed enabled-concept count.
+
+`tests/suites/snare_regression_suite.gd` adds feedback-2 stock-card and stock-AI
+reproductions after the real turn-two seal: Mirror Image → Changing Winds at
+(7,4), a live illusion on a sealed destination, and Cudgel Press from (7,3)
+toward the hero at (7,5). These also run in `illusion_terrain_test.gd` and
+`enemy_pathfinding_test.gd`. Production True Bearing cases cover seed 83,
+lightning (2,0), and seed 0, ice (3,-2), both selecting (1,3). The authored
+entrance remains (1,4), and the ice roster remains at least two tiles away.
+Explicit formation adversaries reject four edges, accept five, and force the
+room generator to retry a first four-edge candidate. `--feedback-2-only` on
+`snare_test.gd` runs these regressions without the placement matrix. The change
+restores existing movement/card assumptions; no card coefficient, balance value,
+text, palette, asset or animation is redesigned.
+
+Feedback-3 regressions strand the Gaoler on (7,4) before the real turn-two seal,
+equip Vaulting Sigil and attempt turn-three free movement from (7,5) to (7,3).
+The path, card targets, free-movement targets and commit all reject that crossing,
+while raw geometric enumeration retains (7,4). This case also runs in the player
+movement and relic U7 suites. Separate tests call direct illusion placement on
+the seal and Push the Gaoler from (7,3) toward it: placement is rejected, and
+Push stops before the seal with wall collision damage. These run in the illusion
+and forced-movement suites as well, independently covering their low-level guards.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_ui_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/special_encounter_legend_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tests/test_ui_identity_lint.py
+```
+
+The console accepts `snare BIOME TIER [seed]`, for example `snare fire 2 83`.
+It shares its factory with `--scenario snare --snare-biome BIOME --snare-tier TIER`
+and `--snare-case encounter|first_turn|first_seal|kept_open|escape` in the ordinary
+inspection fixture tool. It starts the normal combat tracker with reason
+`snare_fixture`; analytics remain local append-only JSONL.
+
+Windowed proof cannot run in the implementation sandbox. The director runs:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx05_snare.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-05-visual-result.json tests/snare_probe.gd --task-id spx-05
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-first-turn --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-first-turn.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case first_turn --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-first-seal --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-first-seal.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case first_seal --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-kept-open --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-kept-open.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case kept_open --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-escape --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-escape.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case escape --seed 83 --umbra-stage clear
+```
+
+For a map capture with the enabled Snare and the fullest legal legend, reuse the
+spx-02 probe (the first command only writes its proof contract):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/special_encounter_probe.gd -- --proof-contract-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract /private/tmp/labyrinth-inspection-manifests/spx-02-visual-contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-05-map-visual-result.json tests/special_encounter_probe.gd --task-id spx-05
+```
+
+Map captures are `user://spx-02-map-proof/01_future.png` through
+`08_section_vi_fog.png`; `07_fullest_legend.png` includes Umbral Snare and the
+approved centred second row. The probe asserts that the enabled Snare is present.
+
+The native probe asserts 1920×1080 and 100% scale, renderer preparation and real
+body draws. Its captures are
+`user://probes/spx05/fire_tier2/{first_turn,first_seal,kept_open,escape,sealbinder_tooltip,escape_reward}.png`,
+with a neighboring `captures.json` recording chip labels, exits, bonus facts,
+actual rendered tooltip lines, pointer/Sealbinder identity, reward payout and the
+visible Ember-total label. The tooltip frame uses real viewport pointer input over
+the left Sealbinder in the first-turn state and waits for its actual embedded
+Godot tooltip. The reward frame finishes the escape through `RunEngine`, waits
+for the ordinary reward reveal and asserts four offers plus the visible held
+Ember total. These two frames are required by the six-image proof contract.
+The first-seal and kept-open fixtures advance the real initiative engine across
+the first deadline; escape resolves the final legal movement step.
+
+Chosen debug defaults: seed 83, fire tier 2; three valid next-row destinations
+from the actual requested section/tier so every fixture has both chips (some
+natural rows have no branching combat node); 100 hero HP for unattended
+boundary survival; a 0.25 s renderer settle and 20 s readiness timeout; capture-only
+unlimited vision. The 180 s visual timeout accommodates four scene preparations plus the tooltip
+and reward reveal; the new frames reuse their first-turn/escape scenes.
+Headless fixtures use 100 HP and a fixed 100×100 door rect at (100,100) solely
+for chip-placement assertions, a 1.25 navigation zoom for scaling checks, and a
+1 px legend boundary delta. The door-submission double reuses the approved door
+texture; its recorded draws never change production art. None of these fields changes production tuning.
+The proposal URL/diagram could not be accessed; no external art was downloaded.
+Commits, peer review, native inspection and publication belong to the design owner.
+
+The enabled Snare exposes eleven concepts in the fullest production map legend.
+The director confirmed spx-02's existing layout rule: use one row while even gaps
+can shrink from 40 px to 12 px; otherwise use a centred second row. The production
+layout already implements this rule. Both gate and native probe now derive the
+entry count from the displayed section instead of expecting ten concepts.
+
+The first-turn fixture preserves the director's allowed card-assisted escape:
+two legal Shadow Step copies use normal preparation, action and finish paths on
+seed 83. The free-movement assertion remains. The named two-copy test hand is a
+debug fixture, never a production deck change. All three design placeholders are
+resolved by the director's feedback; no pending design values remain.
+
+### Observed feedback-2 proof (2026-10-21)
+
+The unchanged implementation failed the new reproductions with
+`Snare suite: 11 failures`. After the fixes, the focused programs below pass.
+The previously surviving `MIN_EXIT_PATH_TILES` 5 → 4 mutant now exits 1 with
+`Snare suite: 3 failures`: four-edge rejection, short-layout reroll and retained
+five-edge minimum. The constant was restored to 5 before the passing runs.
+
+```text
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+SPX special encounter suite: 0 failures
+SPX fullest legend: seed=0 section=2 entries=11 rows=2
+SPX special legend suite: 0 failures
+Warband suite: 0 failures
+Warband UI semantics: 0 failures
+ILLUSION TERRAIN TEST RESULT: PASS
+ENEMY PATHFINDING TEST RESULT: PASS
+Ran 25 tests in 2.615s
+OK
+```
+
+Logs are `/private/tmp/labyrinth_codex/spx-05-r2-{snare,snare-ui,special,legend,warband,warband-ui,illusion,ai,identity}.log`;
+red and mutation evidence are `spx-05-r2-red.log` and
+`spx-05-r2-minimum-mutant.log`. The Warband UI program emits shutdown leak
+warnings (four resources still in use) after its zero-failure result. Full suites
+and windowed runs were not requested or run. The director accepted feedback-1's
+native captures; visual code and both director catalogs are unchanged this round,
+including the director-owned Stormcaller sentence.
+
+### Observed feedback-1 proof (2026-10-21)
+
+The director requested focused checks only for this round; full suites were not
+rerun. The effective plate regression failed against the pre-fix implementation
+(`Snare UI/fixture suite: 1 failures`), demonstrating the padded-content cause.
+
+```text
+Snare placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries
+Snare first turn: free movement cannot escape; two legal Shadow Steps can
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+SPX fullest legend: seed=0 section=2 entries=11 rows=2
+SPX special legend suite: 0 failures
+Ran 25 tests in 2.764s
+OK
+```
+
+Focused logs are `/private/tmp/labyrinth_codex/spx-05-feedback-{snare,ui,legend,identity}.log`.
+Native frames remain for the design owner; no windowed run is attempted here.
+
+### Observed implementation proof (2026-10-21)
+
+```text
+Snare placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+SPX special encounter suite: 0 failures
+SECTION MAP PERFORMANCE PROGRAM RESULT: PASS (6378 checks, 0 failures)
+Warband suite: 0 failures
+Warband UI semantics: 0 failures
+TEST REGISTRATION AUDIT: PASS (777 scripts; full suite=426, quarantined=29, windowed probe=322)
+Ran 1563 tests in 1781.865s
+OK (skipped=66)
+FULL SUITE RUNTIME: 465.815 seconds (budget 900 seconds)
+TEST RESULT: FAIL (2 failure(s))
+```
+
+The two failing Godot children are `encounter_measurement_test` (the golden and
+current-objective assertions also fail at the unchanged integration HEAD), and
+`special_encounter_legend_test` (the obsolete ten-concept/one-row expectations,
+replaced and passing in feedback 1 with the director-approved responsive rule). The underlying
+map-solver regression now validates its original combat domains before special
+substitution; post-substitution identities, branching and route limits remain
+covered by the special suite. UI identity passes 25 tests, icon identity passes
+7, and Godot sidecars pass 19. The headless console reproduction exits 0.
+Native captures and the verified, launched inspection fixture remain the design
+owner's work; no windowed result is claimed.
+
+Local proof logs are `/private/tmp/labyrinth_codex/spx-05-focused-final.log`,
+`spx-05-ui-final.log`, `spx-05-full-godot-final.log`, `spx-05-full-python.log`,
+`spx-05-baseline-measurement.log`, `spx-05-baseline-map-performance.log`, and
+`spx-05-baseline-legend.log`. The baseline legend has ten concepts/one row and
+passes; the temporary baseline project was removed after comparison.
+
+At the final scope check, both catalogs also contained a concurrent Warband air
+order-copy edit, from “everything” to “everyone else” in its wind sentence. That
+unrelated edit was preserved. This unit's catalog write was only the Snare
+`enabled` flag, and the remaining Snare object matches the supplied data exactly.
+Both catalog copies remain byte-identical.
