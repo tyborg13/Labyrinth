@@ -171,7 +171,7 @@ static func _test_map_revision(check: Callable, legacy: bool) -> void:
 			if type == "graftwright":
 				found += 1
 				check.call(fights >= 3, "Every incoming route to a Graftwright has completed three combats")
-			if type in ["combat", "guardian", "boss"]: fights += 1
+			if type in ["combat", "special", "guardian", "boss"]: fights += 1
 			elif not legacy and type == "mystery" and room.get("mystery_type", "") == "combat": fights += 1
 			for edge: Dictionary in room.get("connections", []): pending.append({"coord": edge["coord"], "fights": fights})
 	check.call(found > 20, "Graftwright appears across deterministic map seeds")

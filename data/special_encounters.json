@@ -1,0 +1,404 @@
+{
+ "version": 1,
+ "_doc": "Director-authored special encounters (owner approval enc-specials, 2026-10-21). Standard fights in new runs are always Defeat All. Special encounters replace standard combat nodes on the section map, carry their own emblem, and pay a better reward. 'enabled' gates each type until its combat rules exist. Escort and gang lists are ordered: tier 1 uses the first 3 units, tier 2 the first 4, tier 3 all 5. Section keys are the section dragon's biome element.",
+ "placement": {
+  "replaces_room_type": "combat",
+  "per_section_count_weights": {
+   "2": 3,
+   "3": 2
+  },
+  "first_step": 3,
+  "last_step_from_boss": 2,
+  "max_per_route": 2,
+  "min_routes_with_special_when_count_at_least_2": 2,
+  "require_route_without_special": true,
+  "distinct_types_per_section": true,
+  "not_adjacent_to_guardian_on_route": true,
+  "mystery_never_special": true,
+  "landmark_through_fog": true,
+  "min_outgoing_edges": {
+   "umbral_snare": 2
+  }
+ },
+ "rewards": {
+  "card_choices": 4,
+  "guaranteed_min_rarity_one_choice": "rare",
+  "ember_multiplier": 1.5,
+  "fail_reward": "standard",
+  "never_relics": true
+ },
+ "types": {
+  "warband": {
+   "enabled": true,
+   "name": "Warband",
+   "emblem": "res://assets/art/icons/map/warband.png",
+   "tooltip_line": "Kill the captain and the rest flee.",
+   "objective": "defeat_leader",
+   "bonus": {
+    "kind": "equipment_drop",
+    "label": "Captain's spoils"
+   },
+   "captain": {
+    "hp_multiplier": 1.25,
+    "stoneskin_by_tier": [
+     2,
+     3,
+     4
+    ],
+    "start_distance": [
+     4,
+     6
+    ],
+    "command": {
+     "radius": 2,
+     "damage_bonus": 1
+    },
+    "keep_distance": {
+     "trigger_range": 2,
+     "step_tiles": 1
+    },
+    "screen_required": true,
+    "never_closest": true,
+    "scale": 1.0
+   },
+   "break_line": "The warband breaks!",
+   "variants": {
+    "earth": {
+     "title": "The Thornmother",
+     "captain": "briar_weaver",
+     "escort": [
+      "warden",
+      "stoneback_mite",
+      "stoneback_mite",
+      "burrow_grub",
+      "bile_bloomer"
+     ],
+     "order": {
+      "id": "thornmother_wall",
+      "text": "Her Thornwall grows 5 tiles long and always rises between you and her."
+     }
+    },
+    "fire": {
+     "title": "The Slagmaster",
+     "captain": "slag_mortar",
+     "escort": [
+      "ash_hound",
+      "ash_hound",
+      "ember_tick",
+      "cinder_ooze",
+      "ember_tick"
+     ],
+     "order": {
+      "id": "slagmaster_barrage",
+      "text": "Barrage: Lob Slag marks two plus-shapes at once. Slag hits whatever is under it."
+     }
+    },
+    "air": {
+     "title": "The Stormcaller",
+     "captain": "gale_herald",
+     "escort": [
+      "chainbound_gaoler",
+      "gust_shrike",
+      "gust_shrike",
+      "roc_fledgling",
+      "roc_fledgling"
+     ],
+     "order": {
+      "id": "stormcaller_wind",
+      "text": "Its wind never drops: a gust slides everything 1 tile every round."
+     }
+    },
+    "ice": {
+     "title": "The Rime Oracle",
+     "captain": "hoarfrost_seer",
+     "escort": [
+      "glacial_mirror",
+      "rime_whelp",
+      "rime_whelp",
+      "rime_spitter",
+      "frostglass_lancer"
+     ],
+     "order": {
+      "id": "oracle_icewall",
+      "text": "Its Icefall lands as a wall of ice pillars between you and it."
+     }
+    },
+    "lightning": {
+     "title": "The Dynamo",
+     "captain": "storm_capacitor",
+     "escort": [
+      "arc_thrall",
+      "arc_thrall",
+      "lightning_wisp",
+      "bell_tender",
+      "lightning_wisp"
+     ],
+     "order": {
+      "id": "dynamo_tether",
+      "text": "While both Thralls stand, Arc Burst fires at 2 Charge instead of 3."
+     }
+    },
+    "shadow": {
+     "title": "The Hollow Prior",
+     "captain": "hollow_mimic",
+     "escort": [
+      "veilbound_acolyte",
+      "veilbound_acolyte",
+      "gloam_stalker",
+      "wick_shade",
+      "wick_shade"
+     ],
+     "order": {
+      "id": "prior_veil",
+      "text": "Veil: while it lives, its followers more than 2 tiles from you stay hidden."
+     }
+    }
+   }
+  },
+  "umbral_snare": {
+   "enabled": false,
+   "name": "Umbral Snare",
+   "emblem": "res://assets/art/icons/map/umbral_snare.png",
+   "tooltip_line": "The doors are sealing. Get out before they close.",
+   "objective": "reach_exit",
+   "bonus": {
+    "kind": "embers_per_open_door",
+    "amount": 6,
+    "label": "Slipped the snare"
+   },
+   "jailer": {
+    "unit": "chainbound_gaoler",
+    "title": "The Umbral Gaoler",
+    "hp_multiplier": 2.0,
+    "stoneskin_by_tier": [
+     2,
+     3,
+     4
+    ]
+   },
+   "sealbinder": {
+    "unit": "veilbound_acolyte",
+    "title": "Sealbinder"
+   },
+   "seal_after_player_turns": [
+    2,
+    4
+   ],
+   "hunters_max": 3,
+   "variants": {
+    "earth": {
+     "hunters": "burrow_grub",
+     "pressure": {
+      "id": "rubble_lane",
+      "text": "Each round, Rubble rises across one tile of the shortest lane."
+     }
+    },
+    "fire": {
+     "hunters": "ash_hound",
+     "pressure": {
+      "id": "fire_rows",
+      "text": "Fire spreads one row from the entry each round."
+     }
+    },
+    "air": {
+     "hunters": "gust_shrike",
+     "pressure": {
+      "id": "headwind",
+      "text": "A headwind slides everything 1 tile toward the entry after each enemy turn."
+     }
+    },
+    "ice": {
+     "hunters": "rime_whelp",
+     "start_hunters": 3,
+     "pressure": {
+      "id": "frost_thresholds",
+      "text": "The tile in front of each sealing door turns to Ice."
+     }
+    },
+    "lightning": {
+     "hunters": "arc_thrall",
+     "pressure": {
+      "id": "live_tethers",
+      "text": "Crossing a live tether hurts and Shocks you."
+     }
+    },
+    "shadow": {
+     "hunters": [
+      "gloam_stalker",
+      "wick_shade"
+     ],
+     "pressure": {
+      "id": "umbra_rings",
+      "text": "The Umbra closes one ring of the room every two rounds."
+     }
+    }
+   }
+  },
+  "ember_hoarder": {
+   "enabled": false,
+   "name": "Ember Hoarder",
+   "emblem": "res://assets/art/icons/map/ember_hoarder.png",
+   "tooltip_line": "Catch the thief before it escapes with its hoard.",
+   "objective": "stop_hoarder",
+   "bonus": {
+    "kind": "hoard",
+    "standard_fight_embers": 1.0,
+    "label": "The hoard"
+   },
+   "hoarder": {
+    "unit": "ember_tick",
+    "title": "Ember Hoarder",
+    "hp_by_tier": [
+     16,
+     20,
+     24
+    ],
+    "move_tiles": 3,
+    "attacks": false,
+    "spill_embers_per_hit": 3,
+    "start_distance": [
+     2,
+     3
+    ],
+    "scale": 1.0,
+    "marks": [
+     "spark_trail",
+     "gold_nameplate"
+    ]
+   },
+   "variants": {
+    "earth": {
+     "gang": [
+      "warden",
+      "stoneback_mite",
+      "stoneback_mite"
+     ],
+     "how": "The Warden blocks the lane; Driving Claw shoves you back."
+    },
+    "fire": {
+     "gang": [
+      "ash_hound",
+      "ash_hound",
+      "cinder_ooze"
+     ],
+     "how": "The Ooze slides Fire across the lane and the Hounds flank you."
+    },
+    "air": {
+     "gang": [
+      "chainbound_gaoler",
+      "roc_fledgling",
+      "roc_fledgling"
+     ],
+     "how": "Manacle Pin roots you to the spot."
+    },
+    "ice": {
+     "gang": [
+      "glacial_mirror",
+      "rime_spitter",
+      "rime_spitter"
+     ],
+     "how": "The Mirror walls off the lane and the Spitters lay Ice."
+    },
+    "lightning": {
+     "gang": [
+      "arc_thrall",
+      "arc_thrall"
+     ],
+     "how": "Their tether beam fences off the Hoarder's path."
+    },
+    "shadow": {
+     "gang": [
+      "wick_shade",
+      "wick_shade",
+      "gloam_stalker"
+     ],
+     "how": "Hooking Grasp pulls you back, and the Stalker ambushes from behind."
+    }
+   }
+  },
+  "last_light": {
+   "enabled": false,
+   "name": "Last Light",
+   "emblem": "res://assets/art/icons/map/last_light.png",
+   "tooltip_line": "Keep the brazier lit until the dark recedes.",
+   "objective": "survive",
+   "bonus": {
+    "kind": "heal_per_flame",
+    "amount": 2,
+    "label": "Kindled"
+   },
+   "brazier": {
+    "flames": 3,
+    "light_radius_by_flames": {
+     "3": 2,
+     "2": 1,
+     "1": 0
+    },
+    "fire_relights": true
+   },
+   "hold_player_turns": 5,
+   "variants": {
+    "earth": {
+     "attackers": [
+      "burrow_grub",
+      "stoneback_mite"
+     ],
+     "twist": {
+      "id": "grub_erupt_beside",
+      "text": "Grubs burrow and erupt right beside the brazier."
+     }
+    },
+    "fire": {
+     "attackers": [
+      "ember_tick",
+      "ash_hound"
+     ],
+     "twist": {
+      "id": "ticks_feed_flame",
+      "text": "A Tick that dies beside the brazier relights a flame."
+     }
+    },
+    "air": {
+     "attackers": [
+      "gust_shrike",
+      "gale_herald"
+     ],
+     "twist": {
+      "id": "gusts_dim_flame",
+      "text": "Each gust of Call the Wind that reaches the brazier costs a flame unless you stand in the way."
+     }
+    },
+    "ice": {
+     "attackers": [
+      "rime_whelp",
+      "hoarfrost_seer"
+     ],
+     "twist": {
+      "id": "icefall_ring",
+      "text": "Icefall rings the brazier with pillars."
+     }
+    },
+    "lightning": {
+     "attackers": [
+      "lightning_wisp",
+      "bell_tender"
+     ],
+     "twist": {
+      "id": "electrified_vigil",
+      "text": "Tenders electrify the floor around the brazier."
+     }
+    },
+    "shadow": {
+     "attackers": [
+      "wick_shade",
+      "veilbound_acolyte"
+     ],
+     "twist": {
+      "id": "two_braziers",
+      "text": "Two braziers; the snuffers always go for the dimmer one."
+     }
+    }
+   }
+  }
+ }
+}

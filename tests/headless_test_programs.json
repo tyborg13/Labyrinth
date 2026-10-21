@@ -397,5 +397,11 @@
   },
   {
     "path": "tests/rr18/runtime_test.gd"
+  },
+  {
+    "path": "tests/special_encounter_test.gd"
+  },
+  {
+    "path": "tests/special_encounter_legend_test.gd"
   }
 ]

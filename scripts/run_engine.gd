@@ -3,6 +3,7 @@ class_name RunEngine
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
+const Specials = preload("res://scripts/special_encounter_library.gd")
 const OmenRules = preload("res://scripts/omen_rules.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 
@@ -921,6 +922,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
 	Chronicle.enter_room(next_state, room)
+	if str(room.get("type", "")) == "special" and next_state.has(Chronicle.PATH_KEY):
+		var path: Array = next_state[Chronicle.PATH_KEY][int(room["section_index"])]
+		path[path.size() - 1] = "special_" + str(room["special_type"])
 	room["revealed"] = true
 	room["visited"] = true
 	room["sealed"] = false
@@ -999,6 +1003,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 				return next_state
 			SectionMapGraph.room(next_state, destination).erase("omen_combat_finished")
 			var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
+			if str(room.get("type", "")) == "special": SectionMapGraph.room(next_state, destination)["special_starting_reward_embers"] = Specials.starting_embers(layout)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
 			var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
 			# The deterministic teaching room deliberately has no loot. Do not let a
@@ -1049,6 +1054,9 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
 	Chronicle.enter_room(next_state, room)
+	if str(room.get("type", "")) == "special" and next_state.has(Chronicle.PATH_KEY):
+		var path: Array = next_state[Chronicle.PATH_KEY][int(room["section_index"])]
+		path[path.size() - 1] = "special_" + str(room["special_type"])
 	room["revealed"] = true
 	room["visited"] = true
 	room["sealed"] = false
@@ -1072,7 +1080,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
 	next_state["current_room_layout"] = _display_layout_for_room(int(next_state.get("seed", 0)), room, travel_dir)
 	_stage_recovery_marker(next_state)
-	if str(room.get("type", "combat")) not in ["combat", "boss", "guardian"] or bool(room.get("cleared", false)) or _room_has_npcs(room):
+	if str(room.get("type", "combat")) not in ["combat", "boss", "guardian", "special"] or bool(room.get("cleared", false)) or _room_has_npcs(room):
 		return move_to_room(run_state, destination)
 	next_state["mode"] = MODE_PRE_BATTLE
 	next_state["combat_state"] = {}
@@ -1128,6 +1136,8 @@ func pre_battle_preview_state(run_state: Dictionary, prepared: Dictionary = {}) 
 	var owned: Dictionary = prepared if prepared_pre_battle_matches_input(prepared, run_state) else prepare_pre_battle_combat(run_state)
 	if owned.is_empty(): return {}
 	var next_state: Dictionary = run_state.duplicate(true)
+	if str(room_metadata(next_state, next_state["current_room"]).get("type", "")) == "special":
+		SectionMapGraph.room(next_state, next_state["current_room"])["special_starting_reward_embers"] = Specials.starting_embers(owned["layout"])
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	return next_state
@@ -1189,6 +1199,8 @@ func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -
 		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
 	SectionMapGraph.room(next_state, next_state["current_room"]).erase("omen_combat_finished")
 	_record_encounter_pick(next_state, owned["layout"])
+	if str(room_metadata(next_state, next_state["current_room"]).get("type", "")) == "special":
+		SectionMapGraph.room(next_state, next_state["current_room"])["special_starting_reward_embers"] = Specials.starting_embers(owned["layout"])
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	_clear_pre_battle_state(next_state)
@@ -1230,7 +1242,7 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var outcome: String = _combat_engine.combat_outcome(combat_state)
 	var finished_room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
-	if outcome == "victory" and str(finished_room.get("type", "")) in ["guardian", "boss"] and bool(finished_room.get("cleared", false)):
+	if outcome == "victory" and str(finished_room.get("type", "")) in ["guardian", "boss", "special"] and bool(finished_room.get("cleared", false)):
 		return run_state.duplicate(true)
 	var pending_escape: Dictionary = _pending_escape_for_combat_victory(combat_state, outcome)
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
@@ -1283,13 +1295,15 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var room: Dictionary = (rooms.get(room_key, {}) as Dictionary).duplicate(true)
 	_record_score_encounter(next_state, room, combat_state)
 	room["cleared"] = true
+	if str(room.get("type", "")) == "special": room["special_goal_met"] = Specials.goal_met(room, combat_state)
 	rooms[room_key] = room
 	next_state["rooms"] = rooms
 	_reveal_neighbors(next_state, current_room)
 	_ensure_loop_escape_connection(next_state, current_room)
 	_sync_current_layout_doors(next_state, current_room)
 	var ember_bonus: int = GameData.stat_bonus_from_relics(next_state.get("relics", []), "combat_ember_bonus")
-	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
+	var earned_embers: int = Specials.reward_embers(room, combat_state) if bool(room.get("special_goal_met", false)) else int(combat_state.get("room_embers", 0))
+	var total_embers: int = earned_embers + ember_bonus
 	next_state = add_held_embers(next_state, total_embers)
 	if str(room.get("type", "")) == "boss":
 		var boss_id: String = str(room.get("boss_id", combat_state.get("boss_id", "")))
@@ -1338,7 +1352,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var pending_card: String = str(reward_skill_state.get("pending_card", ""))
 	if not pending_card.is_empty():
 		if not GameData.card_def(pending_card).is_empty():
-			reward_cards = _offer_with_deferred_id(reward_cards, pending_card)
+			reward_cards = _offer_with_deferred_id(reward_cards, pending_card, bool(room.get("special_goal_met", false)))
 		reward_skill_state["pending_card"] = ""
 		next_state[SKILL_STATE_KEY] = reward_skill_state
 	next_state["pending_reward"] = {
@@ -2456,7 +2470,7 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 	# Lost Embers join the room's own encounter so the map stays truthful. Only a
 	# legacy marker on a non-encounter room needs a generic fight to hold the pile;
 	# a Guardian or boss node chosen by section recovery keeps its real roster.
-	if _room_has_recovery_marker(room) and str(room.get("type", "combat")) not in ["combat", "boss", "guardian"]:
+	if _room_has_recovery_marker(room) and str(room.get("type", "combat")) not in ["combat", "boss", "guardian", "special"]:
 		layout_room["type"] = "combat"
 		if not ElementData.is_elemental(str(layout_room.get("element", ElementData.NONE))):
 			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")
@@ -2474,6 +2488,16 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		layout_room["encounter_biome"] = DragonBossLibrary.element_for_boss(str(section["boss_id"]))
 		layout_room["encounter_history"] = run_state.get("encounter_history", []).duplicate()
 	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
+	if str(room.get("type", "")) == "special":
+		layout["special_starting_reward_embers"] = Specials.starting_embers(layout)
+		# Until spx-03 supplies special loot, use the existing pickup factory.
+		if not equipment_drop.is_empty() and not _layout_has_equipment_drop(layout):
+			var loot_room: Dictionary = layout_room.duplicate(true)
+			loot_room["type"] = "combat"
+			var loot_rng := RandomNumberGenerator.new()
+			loot_rng.seed = _room_generator._room_seed(int(run_state.get("seed", 0)), room["coord"], Specials.EQUIPMENT_LOOT_SEED_SALT)
+			for pickup: Dictionary in _room_generator._generate_loot(layout["grid"], loot_room, loot_rng, _layout_occupied_tiles(layout)):
+				if str(pickup.get("kind", "")) == "equipment": layout["loot"].append(pickup)
 	layout = _layout_with_recovery_loot(layout, room, run_state)
 	if has_run_skill(run_state, "true_bearing") and typeof(run_state.get("pre_battle_start", null)) == TYPE_VECTOR2I:
 		var chosen_start: Vector2i = run_state.get("pre_battle_start", Vector2i(-1, -1))
@@ -2509,7 +2533,7 @@ func _run_has_completed_combat(run_state: Dictionary) -> bool:
 		if typeof(room_var) != TYPE_DICTIONARY:
 			continue
 		var room: Dictionary = room_var
-		if str(room.get("type", "combat")) in ["combat", "boss", "guardian"] and bool(room.get("cleared", false)):
+		if str(room.get("type", "combat")) in ["combat", "boss", "guardian", "special"] and bool(room.get("cleared", false)):
 			return true
 	return false
 
@@ -2696,16 +2720,48 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	var blocked_general: Array[String] = excluded.duplicate()
 	blocked_general.append_array(choices)
 	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
-	if choices.size() < 3:
-		choices.append_array(_draw_reward_cards_for_element(rng, "", 3 - choices.size(), choices, run_state))
+	var special_reward: bool = str(room.get("type", "")) == "special" and bool(room.get("special_goal_met", false))
+	var count: int = int(Specials.catalog()["rewards"]["card_choices"]) if special_reward else 3
+	if choices.size() < count:
+		var blocked: Array[String] = choices.duplicate()
+		if special_reward: blocked.append_array(excluded)
+		var filter: String = Specials.TODO_DESIGN_SPECIAL_FOURTH_CHOICE_ELEMENT_FILTER if special_reward else ""
+		choices.append_array(_draw_reward_cards_for_element(rng, filter, count - choices.size(), blocked, run_state))
+	if special_reward: choices = _special_rarity_floor(rng, choices, excluded, run_state)
 	return choices
 
-func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array[String]:
+func _special_rarity_floor(rng: RandomNumberGenerator, choices: Array[String], excluded: Array[String], run_state: Dictionary) -> Array[String]:
+	var floor_rarity: String = str(Specials.catalog()["rewards"]["guaranteed_min_rarity_one_choice"])
+	var floor_index: int = GameData.CARD_RARITY_TIERS.find(floor_rarity)
+	for id: String in choices:
+		if GameData.CARD_RARITY_TIERS.find(GameData.card_rarity(id)) >= floor_index: return choices
+	if choices.is_empty(): return choices
+	var pool: Dictionary = GameData.reward_card_pool_by_rarity(Specials.TODO_DESIGN_SPECIAL_FOURTH_CHOICE_ELEMENT_FILTER, true).duplicate(true)
+	for rarity: String in GameData.CARD_RARITY_TIERS:
+		if GameData.CARD_RARITY_TIERS.find(rarity) < floor_index:
+			pool[rarity] = []
+		else:
+			pool[rarity] = (pool.get(rarity, []) as Array).filter(func(id: String) -> bool: return not excluded.has(id) and not choices.has(id))
+	var rarity: String = _draw_card_reward_rarity(rng, pool, run_state)
+	if rarity.is_empty(): return choices
+	var weighted: Array[String] = []
+	for id: String in pool[rarity]:
+		for _weight: int in range(GameData.reward_offer_weight(id)): weighted.append(id)
+	if not weighted.is_empty(): choices[choices.size() - 1] = weighted[rng.randi_range(0, weighted.size() - 1)]
+	return choices
+
+func _offer_with_deferred_id(choices_value: Array, deferred_id: String, preserve_rarity_floor: bool = false) -> Array[String]:
 	var choices: Array[String] = _string_array_typed(choices_value)
 	if deferred_id.is_empty() or choices.has(deferred_id):
 		return choices
 	if choices.size() >= 3:
-		choices[choices.size() - 1] = deferred_id
+		var replacement: int = choices.size() - 1
+		if preserve_rarity_floor:
+			for index: int in range(choices.size()):
+				if GameData.card_rarity(choices[index]) == "common":
+					replacement = index
+					break
+		choices[replacement] = deferred_id
 	else:
 		choices.append(deferred_id)
 	return choices
@@ -2753,13 +2809,14 @@ func _draw_card_reward_rarity(rng: RandomNumberGenerator, pool_by_rarity: Dictio
 	return "common"
 
 func _equipment_drop_for_room(run_state: Dictionary, room: Dictionary) -> String:
-	if str(room.get("type", "")) != "combat" or bool(room.get("cleared", false)):
+	if str(room.get("type", "")) not in ["combat", "special"] or bool(room.get("cleared", false)):
 		return ""
 	var coord: Vector2i = room.get("coord", Vector2i.ZERO)
 	var available: Array = _available_equipment_drop_ids(run_state)
 	if available.is_empty():
 		return ""
-	var forced_drop: bool = int(run_state.get("equipment_drop_misses", 0)) >= EQUIPMENT_DROP_PITY_MISSES
+	var special_bonus: String = str(Specials.definition(str(room.get("special_type", ""))).get("bonus", {}).get("kind", "")) if str(room.get("type", "")) == "special" else ""
+	var forced_drop: bool = special_bonus == "equipment_drop" or int(run_state.get("equipment_drop_misses", 0)) >= EQUIPMENT_DROP_PITY_MISSES
 	if not forced_drop and (_coord_hash(int(run_state.get("seed", 0)), coord, 1201) % 100) >= EQUIPMENT_ROOM_DROP_PERCENT:
 		return ""
 	return _weighted_equipment_drop_for_room(run_state, coord, available)
@@ -2777,7 +2834,7 @@ func _weighted_equipment_drop_for_room(run_state: Dictionary, coord: Vector2i, a
 	return available[0]
 
 func _equipment_drop_can_attempt(run_state: Dictionary, room: Dictionary) -> bool:
-	return str(room.get("type", "")) == "combat" and not bool(room.get("cleared", false)) and not _available_equipment_drop_ids(run_state).is_empty()
+	return str(room.get("type", "")) in ["combat", "special"] and not bool(room.get("cleared", false)) and not _available_equipment_drop_ids(run_state).is_empty()
 
 func _record_equipment_drop_attempt(run_state: Dictionary, layout: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -3330,7 +3387,7 @@ func _clear_pre_battle_state(run_state: Dictionary) -> void:
 
 func _room_blocks_exit_reveal(room: Dictionary) -> bool:
 	var room_type: String = str(room.get("type", "combat"))
-	if room_type not in ["combat", "boss", "guardian"]:
+	if room_type not in ["combat", "boss", "guardian", "special"]:
 		return false
 	if bool(room.get("cleared", false)):
 		return false
@@ -3870,7 +3927,7 @@ func _recovery_coord_for_run(run_state: Dictionary) -> Vector2i:
 	var best: Vector2i = original
 	var score: int = 2147483647
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
-		if str(node.get("type", "")) not in ["combat", "boss", "guardian"]:
+		if str(node.get("type", "")) not in ["combat", "boss", "guardian", "special"]:
 			continue
 		var coord: Vector2i = node.get("coord", Vector2i.ZERO)
 		var candidate_score: int = absi(int(node.get("depth", 0)) - _room_depth(original)) * 1000 + absi(coord.x - original.x) + absi(coord.y - original.y)

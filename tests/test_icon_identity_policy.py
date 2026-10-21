@@ -214,7 +214,7 @@ class IconIdentityPolicyTests(unittest.TestCase):
 
         room_source = (REPO_ROOT / "scripts/room_icon_library.gd").read_text(encoding="utf-8")
         room_icons = dict(re.findall(r'^\s*"([^\"]+)":\s*"(res://assets/art/icons/map/[^\"]+)"', room_source, re.MULTILINE))
-        self.assertEqual(set(room_icons), {"boss_vyraketh", "boss_tharokh", "boss_noctyrax", "scavenger", "graftwright", "boss_zekarion", "scout", "combat", "boss_vaeloryx", "treasure", "campfire", "boss_iskaldra", "event", "start"})
+        self.assertEqual(set(room_icons), {"boss_vyraketh", "boss_tharokh", "boss_noctyrax", "scavenger", "graftwright", "boss_zekarion", "scout", "combat", "boss_vaeloryx", "treasure", "campfire", "boss_iskaldra", "event", "start", "special_warband", "special_umbral_snare", "special_ember_hoarder", "special_last_light"})
         concepts.update({f"map:{key}": path for key, path in room_icons.items()})
 
         omen_source = (REPO_ROOT / "scripts/omen_badges.gd").read_text(encoding="utf-8")

@@ -39,7 +39,7 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 	Legacy._test_knowledge(expect, 5)
 
 static func _state(seed_value: int) -> Dictionary:
-	return {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
+	return {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": 5}
 
 static func _test_legacy_hashes(expect: Callable, seed_count: int, first_seed: int = 1) -> void:
 	var revision4: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Metrics.BASELINE_PATH))["hashes"]

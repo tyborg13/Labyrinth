@@ -7,7 +7,8 @@ const DepthRules = preload("res://scripts/depth_rules.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
-const LAYOUT_REVISION: int = 5
+const LAYOUT_REVISION: int = 6
+const Specials = preload("res://scripts/special_encounter_library.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const ROOM_COUNTS: Array[int] = [10, 11, 11, 11, 11, 12]
 const FIGHT_COUNTS: Array[int] = [6, 6, 7, 7, 7, 7]
@@ -92,6 +93,9 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 				layout = {}
 			if layout.is_empty():
 				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
+		if revision >= 6 and not Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id)):
+			layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
+			assert(Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id)), "Revision 6 fallback must place enabled special encounters")
 		var entry: Vector2i = Vector2i.ZERO if index == 0 else Vector2i(-index * 4, 0)
 		var boss := Vector2i((index + 1) * 4, 0)
 		var info: Dictionary = {"index": index, "boss_id": boss_id, "title": Bosses.room_name_for_boss(boss_id), "entry": entry, "boss": boss, "room_count": count, "fight_count": FIGHT_COUNTS[index], "scouts": 2, "entered": false, "lane_count": 5 if revision >= 5 else 4, "walks": layout["walks"]}
@@ -114,6 +118,8 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 			var type: String = data["type"]
 			var node: Dictionary = _node(coord, index, cell.x, cell.y, depth, type, "none")
 			_apply_type_fields(node, type, data.get("combat_element", "fire"))
+			if type == "special":
+				node.merge({"special_type": data["special_type"], "special_variant": data["special_variant"], "map_landmark": true}, true)
 			if type == "mystery":
 				node["mystery_type"] = data["mystery_type"]
 				node["mystery_element"] = data["combat_element"]
@@ -680,7 +686,7 @@ static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count:
 	return false
 
 static func _is_fight(node: Dictionary) -> bool:
-	return str(node["type"]) in ["combat", "guardian"] or (str(node["type"]) == "mystery" and str(node["mystery_type"]) == "combat")
+	return str(node["type"]) in ["combat", "special", "guardian"] or (str(node["type"]) == "mystery" and str(node["mystery_type"]) == "combat")
 
 static func _is_service(node: Dictionary) -> bool:
 	return str(node["type"]) in ["scavenger", "graftwright", "event"] or (str(node["type"]) == "mystery" and str(node["mystery_type"]) != "combat")
@@ -796,7 +802,7 @@ static func _depth_bands(rows: Dictionary, index: int, count: int) -> Dictionary
 
 static func _apply_type_fields(node: Dictionary, type: String, combat_element: String) -> void:
 	node["type"] = type
-	node["element"] = combat_element if type == "combat" else "none"
+	node["element"] = combat_element if type in ["combat", "special"] else "none"
 	node["npcs"] = [{"id": "scavenger", "pos": Vector2i(3, 4)}] if type == "scavenger" else []
 	node["merchant_kind"] = "scavenger" if type == "scavenger" else ""
 
