@@ -4,13 +4,26 @@ extends RefCounted
 const Graph = preload("res://scripts/section_map_graph.gd")
 const MapPanel = preload("res://scripts/section_map_panel.gd")
 const NodeButton = preload("res://scripts/section_map_node.gd")
+const Specials = preload("res://scripts/special_encounter_library.gd")
 const SEEDS: int = 40
 const FIELD_SIZE: Vector2 = Vector2(1864, 823)
 const GAP_TOLERANCE: float = 0.001
+# Graph.initialize digests for seeds 1-24, computed at the pre-map-03 base
+# (3fad2e65b): saved revision-5 and revision-6 runs regenerate unchanged.
+const BASE_DIGEST_SEEDS: int = 24
+const BASE_DIGESTS: Dictionary = {
+	5: "8f11d783419ad86eccf86c676b3d706018c92d50f70fcfdac78aa1847eb7f1e9",
+	6: "a16f2bfec2f02525198b640670520ebf3be6b7807ec6d77fe8f76b0117f4e5a6",
+}
+const PANEL_POSITION: Vector2 = Vector2(28, 28)
+const PANEL_SIZE: Vector2 = Vector2(1864, 1024)
+const WALK_WAIT_SECONDS: float = 0.85
 
 static func run(expect: Callable) -> void:
 	test_new_runs_use_revision_7(expect)
 	test_saved_revisions_regenerate(expect)
+	test_fallback_sections(expect)
+	await test_panel_pointer(expect)
 	var checked: int = 0
 	for seed_value: int in range(1, SEEDS + 1):
 		var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
@@ -31,14 +44,29 @@ static func test_new_runs_use_revision_7(expect: Callable) -> void:
 		expect.call(int(info["lane_count"]) == Graph.V7_LANE_COUNT and bool(info.get("scroll", false)), "Revision 7 sections have seven lanes and scroll")
 
 static func test_saved_revisions_regenerate(expect: Callable) -> void:
-	# Saved runs keep their revision; regenerating one is byte-identical.
 	for revision: int in [5, 6]:
-		var first: Dictionary = {"seed": 83, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": revision}
-		Graph.initialize(first)
-		var second: Dictionary = {"seed": 83, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": revision}
-		Graph.initialize(second)
-		expect.call(int(first["section_map_layout_revision"]) == revision and var_to_str(first["rooms"]) == var_to_str(second["rooms"]), "Revision %d regenerates byte-identically" % revision)
-		expect.call(not bool(Graph.section(first, 0).get("scroll", false)), "Revision %d keeps the fixed-width map" % revision)
+		var text: String = ""
+		for seed_value: int in range(1, BASE_DIGEST_SEEDS + 1):
+			var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": revision}
+			Graph.initialize(state)
+			text += var_to_str(state)
+			if seed_value == 1: expect.call(not bool(Graph.section(state, 0).get("scroll", false)), "Revision %d keeps the fixed-width map" % revision)
+		expect.call(text.sha256_text() == BASE_DIGESTS[revision], "Revision %d maps match the pre-map-03 base byte for byte" % revision)
+
+# The stored fallback sections (exhausted generation or special placement) obey
+# every revision-7 rule, and special encounters place on each.
+static func test_fallback_sections(expect: Callable) -> void:
+	var state: Dictionary = {"seed": 83, "current_room": Vector2i.ZERO, "mode": "room"}
+	Graph.initialize(state, {"force_v7_fallback": true})
+	for index: int in range(6):
+		test_section_rules(state, index, expect)
+		test_doors(state, index, expect)
+		test_layout(state, index, expect)
+		var layout: Dictionary = Graph._fallback_layout_v7(83, index)
+		for placement_seed: int in range(8):
+			var rng := RandomNumberGenerator.new()
+			rng.seed = placement_seed
+			expect.call(Specials.place(layout.duplicate(true), rng, Graph.ROOM_COUNTS[index], "none"), "Special encounters place on stored fallback section %d" % (index + 1))
 
 static func _section_rooms(state: Dictionary, index: int) -> Array:
 	var rooms: Array = []
@@ -49,7 +77,7 @@ static func _section_rooms(state: Dictionary, index: int) -> Array:
 static func test_section_rules(state: Dictionary, index: int, expect: Callable) -> void:
 	var info: Dictionary = Graph.section(state, index)
 	var count: int = int(info["room_count"])
-	var gather: Array[int] = []
+	var gather: Array[int]
 	gather.assign([ceili(count / 2.0), count - 1])
 	var rows: Dictionary = {}
 	for node: Dictionary in _section_rooms(state, index):
@@ -76,7 +104,7 @@ static func test_section_rules(state: Dictionary, index: int, expect: Callable) 
 		ordered.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["map_lane"]) < int(b["map_lane"]))
 		var highest: int = -1
 		for node: Dictionary in ordered:
-			var lanes: Array[int] = []
+			var lanes: Array[int]
 			for link: Dictionary in node["connections"]: lanes.append(int(Graph.room(state, link["coord"])["map_lane"]))
 			lanes.sort()
 			if step < count - 1:
@@ -143,3 +171,85 @@ static func test_layout(state: Dictionary, index: int, expect: Callable) -> void
 			var need: float = NodeButton.max_visual_radius(first) + NodeButton.max_visual_radius(second) + MapPanel.SCROLL_NODE_GAP
 			if point_a.distance_to(positions[coords[b]]) + GAP_TOLERANCE < need: violations += 1
 	expect.call(violations == 0, "Rooms never touch at their largest size (seed %d section %d: %d pairs)" % [int(state["seed"]), index + 1, violations])
+
+# Pointer and lifecycle checks through real GUI input on the panel.
+static func test_panel_pointer(expect: Callable) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1920, 1080)
+	tree.root.add_child(viewport)
+	var panel: Control = MapPanel.new()
+	panel.position = PANEL_POSITION
+	panel.size = PANEL_SIZE
+	viewport.add_child(panel)
+	var state: Dictionary = {"seed": 83, "current_room": Vector2i.ZERO, "mode": "room"}
+	Graph.initialize(state)
+	var info: Dictionary = Graph.section(state, 0)
+	state["current_room"] = info["entry"]
+	Graph.room(state, info["entry"])["visited"] = true
+	Graph.refresh_knowledge(state)
+	panel.set_run_state(state)
+	await tree.process_frame
+	await tree.process_frame
+	var selected: Array = []
+	panel.room_selected.connect(func(coord: Vector2i) -> void: selected.append(coord))
+	var target: Vector2i = panel.available_destinations()[0]
+	var button: Control = panel.node_buttons[target]
+	# A drag that starts on a room scrolls the map and never commits travel.
+	var start: Vector2 = button.get_global_rect().get_center()
+	_pointer(viewport, start, true)
+	_pointer(viewport, start + Vector2(-40.0, 0.0))
+	_pointer(viewport, start + Vector2(-40.0, 0.0), false)
+	await tree.create_timer(WALK_WAIT_SECONDS).timeout
+	expect.call(panel.scroll_offset() > 30.0, "Dragging from a room scrolls the map")
+	expect.call(selected.is_empty(), "A drag from a room never commits travel")
+	# Keyboard or controller activation right after a drag is not swallowed.
+	button.pressed.emit()
+	await tree.create_timer(WALK_WAIT_SECONDS).timeout
+	expect.call(selected == [target], "Activation after a drag still travels")
+	# A small wobble below the drag threshold is still a click.
+	panel.set_run_state(state.merged({"mode": "pre_battle"}))
+	panel.set_run_state(state)
+	panel.scroll_to(0.0)
+	await tree.process_frame
+	start = button.get_global_rect().get_center()
+	_pointer(viewport, start, true)
+	_pointer(viewport, start + Vector2(3.0, 0.0))
+	_pointer(viewport, start + Vector2(3.0, 0.0), false)
+	await tree.create_timer(WALK_WAIT_SECONDS).timeout
+	expect.call(selected.size() == 2 and is_zero_approx(panel.scroll_offset()), "A click that wobbles under the drag threshold travels")
+	# The wheel scrolls over a room as well as over open floor.
+	var wheel := InputEventMouseButton.new()
+	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
+	wheel.pressed = true
+	wheel.position = button.get_global_rect().get_center()
+	wheel.global_position = wheel.position
+	viewport.push_input(wheel, true)
+	await tree.create_timer(0.5).timeout
+	expect.call(panel.scroll_offset() > 0.0, "The wheel scrolls the map over a room")
+	# A finished walk leaves the lantern at its room until the run moves there.
+	expect.call(is_equal_approx(float(panel._canvas.get("travel_progress")), 1.0), "A finished walk holds the lantern at the chosen room")
+	var moved: Dictionary = state.duplicate(true)
+	moved["current_room"] = target
+	Graph.room(moved, target)["visited"] = true
+	Graph.refresh_knowledge(moved)
+	panel.set_run_state(moved)
+	await tree.process_frame
+	expect.call(is_zero_approx(float(panel._canvas.get("travel_progress"))) and bool((panel.node_buttons[target] as Control).get("lantern_marker")), "Arriving resets the walk and the room carries the lantern")
+	viewport.queue_free()
+	await tree.process_frame
+
+static func _pointer(viewport: SubViewport, point: Vector2, pressed: Variant = null) -> void:
+	var event: InputEventMouse
+	if pressed == null:
+		var motion := InputEventMouseMotion.new()
+		motion.button_mask = MOUSE_BUTTON_MASK_LEFT
+		event = motion
+	else:
+		var press := InputEventMouseButton.new()
+		press.button_index = MOUSE_BUTTON_LEFT
+		press.pressed = bool(pressed)
+		event = press
+	event.position = point
+	event.global_position = point
+	viewport.push_input(event, true)

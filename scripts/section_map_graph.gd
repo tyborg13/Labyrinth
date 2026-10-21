@@ -77,6 +77,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 	for index: int in range(6):
 		var section_started: int = Time.get_ticks_usec() if diagnostics.get("enabled", false) else 0
 		var section_diagnostics: Dictionary = {"enabled": true} if diagnostics.get("enabled", false) else {}
+		if diagnostics.get("force_v7_fallback", false): section_diagnostics["force_fallback"] = true
 		var rng := RandomNumberGenerator.new()
 		rng.seed = absi(seed_value * 7919 + index * 104729 + 3491)
 		var count: int = ROOM_COUNTS[index]
@@ -96,7 +97,7 @@ static func _initialize_walk_revision(state: Dictionary, revision: int, diagnost
 			if layout.is_empty():
 				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 		if revision >= 6 and not Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id)):
-			layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
+			layout = _fallback_layout_v7(seed_value, index) if revision >= 7 else _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 			# Placement mutates the layout, so release builds must execute it
 			# independently of the debug-only assertion.
 			var fallback_placed: bool = Specials.place(layout, rng, count, Bosses.element_for_boss(boss_id))
@@ -205,7 +206,7 @@ static func _assign_types_v5(layout: Dictionary, rng: RandomNumberGenerator, see
 	layout["positions"] = {}
 	for cell: Vector2i in layout["order"]:
 		layout["positions"][cell] = domains.size()
-		var candidates: Array[String] = []
+		var candidates: Array[String]
 		if bool(layout["nodes"][cell]["fixed"]): candidates.append(layout["nodes"][cell]["type"])
 		else:
 			var weights: Dictionary = TYPE_WEIGHTS.duplicate()
@@ -238,7 +239,7 @@ static func _assign_types_v5(layout: Dictionary, rng: RandomNumberGenerator, see
 # mockup, 2026-10-21; reference model spec/peer_benchmark/staged/map-03/).
 const V7_LANE_COUNT: int = 7
 const V7_START_LANE: int = 3
-const V7_EXIT_WEIGHTS: Array[int] = [32, 58, 10] # one, two or three exits
+const V7_EXIT_WEIGHTS: Array = [32, 58, 10] # one, two or three exits
 const V7_MERGE_PERCENT: int = 45
 const V7_FORCED_MERGE_PERCENT: int = 75
 const V7_MAX_WIDTH: int = 6
@@ -254,13 +255,51 @@ const V7_FORBID_DOWN: int = 2
 
 static func _section_layout_v7(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
-	for attempt: int in range(SECTION_ATTEMPTS):
-		var layout: Dictionary = _web_layout_v7(rng, index, count, diagnostics)
-		if layout.is_empty(): continue
-		if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, depth_state, V7_TYPE_NODE_BUDGET): return layout
+	# Tests force the fallback through the diagnostics hook.
+	if not diagnostics.get("force_fallback", false):
+		for attempt: int in range(SECTION_ATTEMPTS):
+			var layout: Dictionary = _web_layout_v7(rng, index, count, diagnostics)
+			if layout.is_empty(): continue
+			if _assign_types_v5(layout, rng, seed_value, index, count, diagnostics, depth_state, V7_TYPE_NODE_BUDGET): return layout
 	_diagnostic_v5(diagnostics, "fallback")
 	print("SECTION MAP V7 FALLBACK seed=%d section=%d after %d topology attempts" % [seed_value, index + 1, SECTION_ATTEMPTS])
-	return _fallback_layout(count, FIGHT_COUNTS[index] - 1)
+	return _fallback_layout_v7(seed_value, index)
+
+# One prevalidated revision-7 section per index, for exhausted generation or
+# special placement. tools/section_map_v7_fallbacks.gd regenerates the data;
+# section_map_v7_suite checks every map rule and every boss element's placement.
+const V7_FALLBACK_PATH: String = "res://data/section_map_v7_fallbacks.json"
+
+static func _fallback_layout_v7(seed_value: int, index: int) -> Dictionary:
+	var count: int = ROOM_COUNTS[index]
+	var stored: Dictionary = (JSON.parse_string(FileAccess.get_file_as_string(V7_FALLBACK_PATH)) as Dictionary)[str(index)]
+	var rows: Dictionary = {}
+	for step: String in stored["rows"]:
+		var lanes: Array = []
+		for lane: Variant in stored["rows"][step]: lanes.append(int(lane))
+		rows[int(step)] = lanes
+	var children: Dictionary = {}
+	for cell: String in stored["children"]:
+		var targets: Array = []
+		for target: String in stored["children"][cell]: targets.append(_fallback_cell(target))
+		children[_fallback_cell(cell)] = targets
+	var layout: Dictionary = _layout_from_children_v7(rows, children, count)
+	_prepare_types(layout, seed_value, index, count)
+	layout["positions"] = {}
+	for cell: Vector2i in layout["order"]:
+		layout["positions"][cell] = (layout["positions"] as Dictionary).size()
+		var node: Dictionary = layout["nodes"][cell]
+		var cell_key: String = "%d,%d" % [cell.x, cell.y]
+		if not bool(node["fixed"]): node["type"] = str(stored["types"][cell_key])
+		# Stored hidden types keep the section legal for every run seed.
+		if stored["mystery_types"].has(cell_key): node["mystery_type"] = str(stored["mystery_types"][cell_key])
+		_prefix_bounds(layout, cell)
+	assert(_complete_types_legal(layout, count, FIGHT_COUNTS[index] - 1), "Stored revision-7 fallback is legal")
+	return layout
+
+static func _fallback_cell(text: String) -> Vector2i:
+	var parts: PackedStringArray = text.split(",")
+	return Vector2i(int(parts[0]), int(parts[1]))
 
 static func _web_layout_v7(rng: RandomNumberGenerator, index: int, count: int, diagnostics: Dictionary = {}) -> Dictionary:
 	var mid: int = ceili(count / 2.0)
@@ -361,7 +400,7 @@ static func _web_row_v7(rng: RandomNumberGenerator, step: int, lanes: Array, for
 	if width.size() < 2 or width.size() > (V7_FORCED_MAX_WIDTH if forced else V7_MAX_WIDTH): return {}
 	return {"children": row_children, "meta": meta}
 
-static func _weighted_index_v7(rng: RandomNumberGenerator, weights: Array[int]) -> int:
+static func _weighted_index_v7(rng: RandomNumberGenerator, weights: Array) -> int:
 	var total: int = 0
 	for weight: int in weights: total += weight
 	var roll: int = rng.randi_range(0, total - 1)

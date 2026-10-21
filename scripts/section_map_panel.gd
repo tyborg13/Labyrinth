@@ -101,6 +101,7 @@ var _scroll_tween: Tween
 var _scroll_anchor: String = ""
 var _drag_pressed: bool = false
 var _drag_active: bool = false
+var _drag_released: bool = false
 var _drag_origin: float = 0.0
 var _drag_scroll: float = 0.0
 var _fog_openings := PackedVector4Array()
@@ -492,6 +493,8 @@ func activate_room(coord: Vector2i) -> void:
 	await get_tree().create_timer(seconds).timeout
 	if generation != _activation_generation or source_signature != _signature or not is_visible_in_tree(): return
 	var action: String = _activation_kind
+	# The timer can fire before the tween's last step; the walk has arrived.
+	if walking: _set_travel_progress(1.0)
 	_cancel_activation()
 	if not can_activate_room(coord): return
 	if action == "scout":
@@ -587,7 +590,8 @@ func _layout_nodes() -> void:
 		button.set("actionable", can_activate_room(coord))
 		button.call("refresh_state")
 		if created:
-			button.pressed.connect(activate_room.bind(coord))
+			button.pressed.connect(_on_room_pressed.bind(coord))
+			button.gui_input.connect(_on_room_input.bind(button))
 			button.focus_entered.connect(_show_preview.bind(coord))
 			button.focus_entered.connect(_keep_room_visible.bind(coord))
 			button.focus_exited.connect(_hide_preview_for.bind(coord))
@@ -788,30 +792,48 @@ func _update_fog() -> void:
 	material.set_shader_parameter("motion", 0.0)
 
 func _on_field_input(event: InputEvent) -> void:
-	if _scroll_max <= 0.0: return
+	if _scroll_input(event): _field.accept_event()
+
+# Room buttons stop the pointer, so they forward it: the wheel and drags scroll
+# the map from anywhere, and a press that became a drag never commits travel.
+func _on_room_input(event: InputEvent, button: Control) -> void:
+	if _scroll_input(event): button.accept_event()
+
+func _on_room_pressed(coord: Vector2i) -> void:
+	if _drag_released: return
+	activate_room(coord)
+
+func _scroll_input(event: InputEvent) -> bool:
+	if _scroll_max <= 0.0: return false
 	if event is InputEventMouseButton:
 		var button := event as InputEventMouseButton
 		var factor: float = button.factor if button.factor > 0.0 else 1.0
 		if button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_RIGHT]:
 			_set_scroll(_scroll + SCROLL_WHEEL_STEP * factor, true)
-			_field.accept_event()
-		elif button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_LEFT]:
+			return true
+		if button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_LEFT]:
 			_set_scroll(_scroll - SCROLL_WHEEL_STEP * factor, true)
-			_field.accept_event()
-		elif button.button_index == MOUSE_BUTTON_LEFT:
+			return true
+		if button.button_index == MOUSE_BUTTON_LEFT:
+			# The release that ends a drag reaches the room button after this
+			# handler; the flag swallows only that one press.
+			if not button.pressed and _drag_active:
+				_drag_released = true
+				set_deferred("_drag_released", false)
 			_drag_pressed = button.pressed
 			_drag_active = false
-			_drag_origin = button.position.x
+			_drag_origin = button.global_position.x
 			_drag_scroll = _scroll
 	elif event is InputEventMouseMotion and _drag_pressed:
-		var moved: float = (event as InputEventMouseMotion).position.x - _drag_origin
+		var moved: float = (event as InputEventMouseMotion).global_position.x - _drag_origin
 		_drag_active = _drag_active or absf(moved) >= SCROLL_DRAG_THRESHOLD
 		if _drag_active:
 			_set_scroll(_drag_scroll - moved, false)
-			_field.accept_event()
+			return true
 	elif event is InputEventPanGesture:
 		_set_scroll(_scroll + (event as InputEventPanGesture).delta.x * SCROLL_PAN_GESTURE_STEP, false)
-		_field.accept_event()
+		return true
+	return false
 
 func _process(delta: float) -> void:
 	# The right stick pans freely; the left stick and arrows move focus, and the

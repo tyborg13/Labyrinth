@@ -80,11 +80,18 @@ straight. (The revision 5/6 mapping, by exit count, forced every fork's children
 **Fights.** With this many forks a route may run two fights under the section target (F−2 through F+1); every other
 type rule is unchanged.
 
+**Fallback.** If generation or special placement is ever exhausted, the section uses its stored revision-7 web from
+`data/section_map_v7_fallbacks.json` (one per section, made by the ordinary generator; `tools/section_map_v7_fallbacks.gd`
+regenerates it). It stores the hidden type of each mystery room too, since that decides whether the room counts as a
+fight, so the stored section is legal for every run seed. No natural fallback occurred in 512 seeds.
+
 **Presentation.** Revision 7 sections are wider than the field and scroll sideways: 240 px columns, odd lanes staggered
 right and even lanes left by 22 px, rooms at their usual sizes, and neighbours in a column spread sideways so they never
 touch at their largest size (an actionable Guardian beside an enlarged choice). Rooms hit-test as circles. The map opens
 with the player's room 38% from the left and recentres when the room changes; the wheel, a drag, a trackpad pan and the
-right stick scroll it, and focus keeps the focused room 150 px inside the edges. The painting drifts at 0.3× the scroll.
+right stick scroll it, and focus keeps the focused room 150 px inside the edges. Rooms forward the wheel and drags to the
+map, so both work over a room; a press that moves 6 px or more is a drag and never travels, while a smaller wobble is
+still a click. The painting drifts at 0.3× the scroll.
 Dark fades mark the edges with more map, and a slim gold-on-ink track sits at the bottom. Trails keep the sideways
 S-curves but are inked dots: solid gold where walked, glowing larger dots for the current choices, brighter dots for the
 planned route under the pointer, plain dots ahead and small faded dots for rooms no longer reachable; every room sits on
@@ -461,7 +468,9 @@ save format; see [events.md](events.md).
 
 - `tests/section_map_v7_test.gd`: revision 7 over 40 seeds × 6 sections: lanes, row widths, non-crossing trails,
   route choices and gaps, lane-facing doors with no exit through an entry wall, scrolling positions with no touching
-  rooms, and byte-identical regeneration of saved revisions 5 and 6.
+  rooms; saved revisions 5 and 6 match digests taken at the pre-map-03 base; the forced fallback obeys every rule and
+  places special encounters; real pointer input on the panel (a drag from a room scrolls and never travels, activation
+  after a drag, a sub-threshold click, the wheel over a room, the lantern held after a finished walk and reset on arrival).
 - `tests/map_03_probe.gd`: native revision-7 captures (section start, mid-run, hover, the lantern's walk frames,
   scrolled end, section VI fog, a stepped scroll); `--logic-only` checks scroll offsets and the real-time walk.
 - `tests/section_map_v2_test.gd`: 64 seeds × 6 sections, walk union, planar edges,

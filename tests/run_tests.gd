@@ -400,7 +400,7 @@ func _initialize() -> void:
 	_test_minimap_travel_animation_state()
 	_test_combat_board_loads_door_icons_for_room_types()
 	preload("res://tests/suites/section_map_suite.gd").run(_assert)
-	preload("res://tests/suites/section_map_v7_suite.gd").run(_assert)
+	await preload("res://tests/suites/section_map_v7_suite.gd").run(_assert)
 	_test_run_map_room_types()
 	_test_run_map_two_room_choices_are_like_category_different_type()
 	_test_run_map_recovery_marker_keeps_two_room_choices_like_category()

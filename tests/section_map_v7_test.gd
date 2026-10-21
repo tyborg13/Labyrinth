@@ -1,8 +1,8 @@
 extends SceneTree
 const Suite = preload("res://tests/suites/section_map_v7_suite.gd")
-var failures: Array[String] = []
+var failures: Array[String]
 func _initialize() -> void:
-	Suite.run(func(ok: bool, message: String) -> void:
+	await Suite.run(func(ok: bool, message: String) -> void:
 		if not ok and not failures.has(message): failures.append(message)
 	)
 	for failure: String in failures: push_error(failure)
