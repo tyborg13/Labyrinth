@@ -6,6 +6,10 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const Fixture = preload("res://tests/suites/card_playability_summary_suite.gd")
 var failures: Array[String]
 var comparisons: int = 0
+# room_type and guardian_id predate spx-01 in the UI context: keep them in
+# the frozen legacy oracle. Only the five newly introduced context keys differ.
+const NEW_CONTEXT_KEYS: PackedStringArray = ["encounter_id", "biome", "section_index", "special_type", "special_variant"]
+const LEGACY_GUARDIAN_SEED: int = 421
 
 class CapturingStore:
 	extends "res://scripts/analytics_store.gd"
@@ -121,6 +125,30 @@ class OriginalRunScene:
 		# discovery/save must preserve that bank after held Embers have been cleared.
 		_progression = run_progression if str(_run_state.get("mode", "")) == "victory" else ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
+func legacy_context(context: Dictionary) -> Dictionary:
+	var legacy: Dictionary = context.duplicate(true)
+	for key: String in NEW_CONTEXT_KEYS: legacy.erase(key)
+	return legacy
+
+func legacy_events(events: Array) -> Array:
+	var legacy: Array = events.duplicate(true)
+	for event: Dictionary in legacy: event["context"] = legacy_context(event["context"])
+	return legacy
+
+func test_guardian_legacy_oracle(current: RunScene, original: RunScene, engine: RunEngine, combat: CombatEngine) -> void:
+	var run: Dictionary = engine.create_new_run(LEGACY_GUARDIAN_SEED, ProgressionStore.default_data())
+	for room: Dictionary in run["rooms"].values():
+		if room["type"] != "guardian": continue
+		run["current_room"] = room["coord"]
+		var state: Dictionary = Fixture._fixture(combat, "clear")
+		state["room_type"] = room["type"]
+		state["guardian_id"] = room["guardian_id"]
+		var expected: Dictionary = original._analytics_context_from_states(run, state)
+		check(expected["room_type"] == "guardian" and expected["guardian_id"] == room["guardian_id"], "Legacy oracle reads Guardian metadata without the new helper")
+		check(legacy_context(current._analytics_context_from_states(run, state)) == expected, "Guardian context preserves independent legacy room fields")
+		return
+	check(false, "Guardian legacy fixture exists")
+
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var current := RunScene.new()
@@ -154,14 +182,14 @@ func _initialize() -> void:
 				scene.set("_progression", progression.duplicate(true))
 				scene.set("_run_state", run)
 				scene._analytics_log_card_draws(before, after, before_tracker, after_tracker, "proof_draw")
-			check(current_store.captured == original_store.captured and current_store.captured.size() == 6, "Every card-draw event, ordered context and payload equals original")
+			check(legacy_events(current_store.captured) == original_store.captured and current_store.captured.size() == 6, "Every card-draw event, ordered context and payload equals original")
 			var context: Dictionary = current._analytics_context_from_states(run, after, "pale_spark", "test")
-			check(context == original._analytics_context_from_states(run, after, "pale_spark", "test"), "Full context preserves every scalar and nested field")
+			check(legacy_context(context) == original._analytics_context_from_states(run, after, "pale_spark", "test"), "Legacy context preserves every scalar and nested field")
 			context["balance_transition"]["proof"]["number"] = 100
 			(context["progression_skills"] as Array).append("caller mutation")
 			(context["relics"] as Array).append("caller mutation")
 			current_store.captured[0]["context"]["relics"].append("first event mutation")
-			check(current_store.captured[1]["context"] == original_store.captured[1]["context"], "Each batched event owns its nested context")
+			check(legacy_context(current_store.captured[1]["context"]) == original_store.captured[1]["context"], "Each batched event owns its nested context")
 			check(run == run_before, "Building events and mutating returned context cannot mutate source run/combat")
 			for scene: RunScene in [current, original]:
 				scene.set("_run_state", run)
@@ -183,6 +211,7 @@ func _initialize() -> void:
 		check(current.get("_progression") == original.get("_progression") and (current.get("_combat_state") as Dictionary).is_empty(), "Outcome and empty-combat synchronization preserve behavior")
 		(current.get("_progression") as Dictionary)["skill_ids"].append("caller mutation")
 		check(run == before, "Outcome progression is still an owned snapshot")
+	test_guardian_legacy_oracle(current, original, engine, combat)
 	current.free()
 	original.free()
 	print("TEST RESULT: %s — %d analytics-context/boundary comparisons (%d failures)" % ["PASS" if failures.is_empty() else "FAIL", comparisons, failures.size()])

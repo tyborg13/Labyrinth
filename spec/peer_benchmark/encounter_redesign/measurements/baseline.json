@@ -1,0 +1,295 @@
+{
+  "schema_version": 2,
+  "policy_version": 2,
+  "policy_sha256": "1ba458bdc63f50f99ad598d0d1542691ddd937d79d54584f53e28b5330a6cac6",
+  "source_head": "743b8d1cea9ba321d7a46b500967ce3cc5e6ef6c",
+  "runs_per_group": 200,
+  "first_seed": 1,
+  "workers": 6,
+  "groups": [
+    {
+      "tier": 1,
+      "objective": "kill_all",
+      "n": 200,
+      "win_rate": 0.64,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 15.0,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 6,
+      "biomes": {
+        "air": 31,
+        "earth": 29,
+        "fire": 40,
+        "ice": 31,
+        "lightning": 30,
+        "shadow": 39
+      },
+      "file": "bot-t1-kill_all.json.gz",
+      "sha256": "975e709b558352da001a71eb7a6e1d247bbac1d27f480571e77fd1de0d2eb61b",
+      "elapsed_seconds": 1112.356
+    },
+    {
+      "tier": 1,
+      "objective": "kill_leader",
+      "n": 200,
+      "win_rate": 0.595,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 2,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 18.0,
+        "p10": 3,
+        "p90": 26
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "air": 36,
+        "earth": 34,
+        "fire": 26,
+        "ice": 34,
+        "lightning": 38,
+        "shadow": 32
+      },
+      "file": "bot-t1-kill_leader.json.gz",
+      "sha256": "3e170c4b4518cbfa80245752b752a257ce9b3c4f8e085d23cd7e6e1fd79285b7",
+      "elapsed_seconds": 1095.863
+    },
+    {
+      "tier": 1,
+      "objective": "reach_exit",
+      "n": 200,
+      "win_rate": 0.865,
+      "one_turn_escape_share": 0.03,
+      "turns": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 2,
+        "p90": 5
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 0,
+        "p90": 24
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 33,
+        "earth": 32,
+        "fire": 34,
+        "ice": 34,
+        "lightning": 38,
+        "shadow": 29
+      },
+      "file": "bot-t1-reach_exit.json.gz",
+      "sha256": "83f9aa9660a8817824ced21d6a0a70aae2d328d961823b1be29f6e67eae2725e",
+      "elapsed_seconds": 896.977
+    },
+    {
+      "tier": 2,
+      "objective": "kill_all",
+      "n": 200,
+      "win_rate": 0.415,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 6.0,
+        "p10": 3,
+        "p90": 10
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 6,
+        "p90": 26
+      },
+      "turn_cap_reached": 3,
+      "biomes": {
+        "air": 31,
+        "earth": 37,
+        "fire": 38,
+        "ice": 34,
+        "lightning": 29,
+        "shadow": 31
+      },
+      "file": "bot-t2-kill_all.json.gz",
+      "sha256": "8438686ae06b30762ccb5aa44f8dd94442610c001360d1c3560c1422b837865b",
+      "elapsed_seconds": 1639.708
+    },
+    {
+      "tier": 2,
+      "objective": "kill_leader",
+      "n": 200,
+      "win_rate": 0.36,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 4.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 9,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 29,
+        "earth": 35,
+        "fire": 32,
+        "ice": 35,
+        "lightning": 32,
+        "shadow": 37
+      },
+      "file": "bot-t2-kill_leader.json.gz",
+      "sha256": "bb8a4c53df94f72558743fabb1c038579f15b715683f7256c9868ea2c3d01758",
+      "elapsed_seconds": 1480.718
+    },
+    {
+      "tier": 2,
+      "objective": "reach_exit",
+      "n": 200,
+      "win_rate": 0.54,
+      "one_turn_escape_share": 0.005,
+      "turns": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 2,
+        "p90": 5
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 20.0,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 38,
+        "earth": 26,
+        "fire": 33,
+        "ice": 26,
+        "lightning": 41,
+        "shadow": 36
+      },
+      "file": "bot-t2-reach_exit.json.gz",
+      "sha256": "2aa3c2c57d4b7c40bdd04ebcd2f0a226d239885a190497caa403565d55909343",
+      "elapsed_seconds": 1500.565
+    },
+    {
+      "tier": 3,
+      "objective": "kill_all",
+      "n": 200,
+      "win_rate": 0.25,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 12
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 13,
+        "p90": 26
+      },
+      "turn_cap_reached": 5,
+      "biomes": {
+        "air": 34,
+        "earth": 33,
+        "fire": 34,
+        "ice": 28,
+        "lightning": 35,
+        "shadow": 36
+      },
+      "file": "bot-t3-kill_all.json.gz",
+      "sha256": "e02e8de821103e224d37783952b4b5bb560b6753226e70ab7dac3b845d8db746",
+      "elapsed_seconds": 1746.725
+    },
+    {
+      "tier": 3,
+      "objective": "kill_leader",
+      "n": 200,
+      "win_rate": 0.28,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 12,
+        "p90": 26
+      },
+      "turn_cap_reached": 2,
+      "biomes": {
+        "air": 31,
+        "earth": 32,
+        "fire": 34,
+        "ice": 29,
+        "lightning": 38,
+        "shadow": 36
+      },
+      "file": "bot-t3-kill_leader.json.gz",
+      "sha256": "f0623543df6f2d51a7826f48a13ab523e709042125c94edfd7c757f4faca585c",
+      "elapsed_seconds": 1709.982
+    },
+    {
+      "tier": 3,
+      "objective": "reach_exit",
+      "n": 200,
+      "win_rate": 0.48,
+      "one_turn_escape_share": 0.015,
+      "turns": {
+        "n": 200,
+        "median": 3.0,
+        "p10": 2,
+        "p90": 6
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 0,
+      "biomes": {
+        "air": 29,
+        "earth": 35,
+        "fire": 36,
+        "ice": 39,
+        "lightning": 32,
+        "shadow": 29
+      },
+      "file": "bot-t3-reach_exit.json.gz",
+      "sha256": "00075667341091d6581d4cc36cc2788eba649b9bd42068f80bdb13f468af1659",
+      "elapsed_seconds": 1392.218
+    }
+  ],
+  "tier1_target": {
+    "minimum_win_rate": 0.7,
+    "maximum_median_hp_lost": 8,
+    "met": false
+  }
+}

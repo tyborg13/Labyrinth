@@ -1,0 +1,522 @@
+{
+  "task_id": "spx-01",
+  "feedback_round": 1,
+  "changes_uncommitted": true,
+  "policy_version": 2,
+  "historical_policy_v1": {
+    "base_head": "857c0139bd355b73a92c15249c8a62a607937a26",
+    "checks": [
+      {
+        "name": "analytics_before_fix",
+        "exit_code": 1,
+        "result": "ENCOUNTER ANALYTICS: FAIL (77 failures)",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/analytics-before.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd",
+        "expected_failure": true
+      },
+      {
+        "name": "analytics_after_fix",
+        "exit_code": 0,
+        "result": "ENCOUNTER ANALYTICS: PASS (0 failures)",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/analytics-after.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd",
+        "expected_failure": false
+      },
+      {
+        "name": "focused_measurement",
+        "exit_code": 0,
+        "result": "ENCOUNTER MEASUREMENT: PASS (123 checks; 0 failures)",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/focused-measurement.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+        "expected_failure": false
+      },
+      {
+        "name": "existing_context_equivalence",
+        "exit_code": 0,
+        "result": "TEST RESULT: PASS \u2014 42 analytics-context/boundary comparisons (0 failures)",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/analytics-equivalence.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/combat_analytics_context_equivalence_test.gd",
+        "expected_failure": false
+      },
+      {
+        "name": "full_sweep",
+        "exit_code": 0,
+        "result": "ENCOUNTER SWEEP: PASS (36000 rooms; 2000 seeds per tier/biome; seeds 1..2015)",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/sweep.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/encounter_sweep.py",
+        "expected_failure": false
+      },
+      {
+        "name": "full_baseline",
+        "exit_code": 0,
+        "result": "ENCOUNTER BASELINE: PASS (1800 runs; 200 per objective/tier)",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/baseline-driver.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/encounter_bot.py --baseline",
+        "expected_failure": false
+      },
+      {
+        "name": "godot_full_suite",
+        "exit_code": 0,
+        "result": "TEST RESULT: PASS",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/full-godot.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+        "expected_failure": false
+      },
+      {
+        "name": "python_artifact_and_statistics_checks",
+        "exit_code": 0,
+        "result": "Ran 4 tests; OK",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/python-focused.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -m unittest discover -s tests -p test_encounter_measurement.py -v",
+        "expected_failure": false
+      },
+      {
+        "name": "cross_cohort_preset_consistency",
+        "exit_code": 0,
+        "result": "ENCOUNTER PRESET CONSISTENCY: PASS (all nine cohorts share the same deck presets and policy defaults)",
+        "evidence": "baseline_policy_v1/bot-t*-*.json.gz"
+      },
+      {
+        "name": "program_suite_runner",
+        "exit_code": 0,
+        "result": "Ran 28 tests in 20.412s; OK",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/runner-tests.log",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -m unittest discover -s tests -p test_program_suite_runner.py -v"
+      },
+      {
+        "name": "python_full_suite",
+        "status": "passed",
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 -m unittest discover -s tests -p 'test_*.py' -v",
+        "exit_code": 0,
+        "tests": 1556,
+        "seconds": 1670.857,
+        "skipped": 66,
+        "result_lines": [
+          "Ran 1556 tests in 1670.857s",
+          "OK (skipped=66)"
+        ],
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/full-python.log"
+      }
+    ],
+    "godot_full_runtime_seconds": 494.609,
+    "godot_full_budget_seconds": 900,
+    "godot_main_assertions": 378990,
+    "python_full_suite": {
+      "status": "passed",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 -m unittest discover -s tests -p 'test_*.py' -v",
+      "exit_code": 0,
+      "tests": 1556,
+      "seconds": 1670.857,
+      "skipped": 66,
+      "result_lines": [
+        "Ran 1556 tests in 1670.857s",
+        "OK (skipped=66)"
+      ],
+      "log": "/private/tmp/spx-01-feedback/policy-v1-logs/full-python.log"
+    },
+    "open_issues": [
+      {
+        "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --import",
+        "exit_code": 124,
+        "result": "error: command timed out after 300 seconds.",
+        "log": "/private/tmp/spx-01-feedback/policy-v1-logs/import.log.gz",
+        "impact": "New script UID sidecars were generated and sidecar checks pass; the full Godot suite passes. The optional repository-wide asset import did not finish."
+      }
+    ],
+    "code_sha256": {
+      "scripts/analytics_store.gd": "c1c65ad3965b804e09c87878ee6f6221cb6bf7de89fdd22bd3a575ff86d3ee88",
+      "scripts/encounter_analytics_context.gd": "ce674c2ea85e984b7bbc173002323762391161e70e6dbeedd66a87aefc0167c1",
+      "scripts/encounter_analytics_context.gd.uid": "f6b4e63c972d719953edf7b37f460a88a330cd428e57bde1e683e566f24f408a",
+      "scripts/run_scene.gd": "9d6bd4ec9ea122399c1af437ce41231147ae48baa22c1beef587e5835788e50c",
+      "tests/combat_analytics_context_equivalence_test.gd": "b1b43b079201d6e914830066536e07d6812b2bad883c5ced955632e8ff1f87a8",
+      "tests/encounter_analytics_test.gd": "b07d5129cfe0835d7952cf8dc347e9a920a873bb7eaf13a552c4329afcce934c",
+      "tests/encounter_analytics_test.gd.uid": "97f6be448678476b0a16e74a3e66be4dce7e5b52c5a764152ad573d9e43ab7b2",
+      "tests/encounter_measurement_test.gd": "2fcc190a063160ea9afad1bb94598999dbbf76228f56706e5f0aaf3b13133623",
+      "tests/encounter_measurement_test.gd.uid": "dba32ca7acd5bd8d10b0389fb3e80086050309f8598e43830b94ea790ccfd58b",
+      "tests/test_encounter_measurement.py": "3a325ee9812b4f5e53a18e265517198d0e5cc08267f47bcf5a6e46b9dc843edd",
+      "tests/test_program_suite_runner.py": "b4c140c297f404b40040eb76c8cdb35d90cf1c91874307b1c2f41201fceb43d6",
+      "tools/encounter_bot.gd": "adf739bdc13e8348285e22048beb4561c01cb956e3fb047d4773d422337a8411",
+      "tools/encounter_bot.gd.uid": "a345fee7072c670f457684e26a9a7294ce832cd46a67fad0f5e23c1f4da037be",
+      "tools/encounter_bot.py": "1eb0a5f75a328d8591c8a6ca3c992fa4a42c8426c12e060bfcbbc9a0a5da4248",
+      "tools/encounter_sweep.gd": "40dd6e3e5cf39535c3e47860ec01b7b5d6f3e1bd62963460bc6366e29996c6f9",
+      "tools/encounter_sweep.gd.uid": "445bba863b3b75c6d545ade637f101eb50c27f83789ea54c96f5988ebaa647ea",
+      "tools/encounter_sweep.py": "0fd6c566231a77b094ec1eeeac4d0ad62272e158395008ccd35cf29d6cc5e9c3",
+      "tools/headless_playtest.gd": "c80e89e36321c0e8f7e1ed3af50507298fe20b4cebe01f05efc45a9a21e36934"
+    }
+  },
+  "focused_only_this_round": true,
+  "checks": [
+    {
+      "name": "analytics",
+      "exit_code": 0,
+      "result": "ENCOUNTER ANALYTICS: PASS (0 failures)",
+      "log": "/private/tmp/spx-01-feedback/final-analytics.log",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd"
+    },
+    {
+      "name": "analytics_context",
+      "exit_code": 0,
+      "result": "TEST RESULT: PASS \u2014 42 analytics-context/boundary comparisons (0 failures)",
+      "log": "/private/tmp/spx-01-feedback/final-context.log",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/combat_analytics_context_equivalence_test.gd"
+    },
+    {
+      "name": "measurement",
+      "exit_code": 0,
+      "result": "ENCOUNTER MEASUREMENT: PASS (137 checks; 0 failures)",
+      "log": "/private/tmp/spx-01-feedback/final-measurement.log",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+      "result_lines": [
+        "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+        "ENCOUNTER SMALL SWEEP: PASS (36 rooms)",
+        "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+        "ENCOUNTER BOT DETERMINISM: PASS (3 objectives, repeated seeded rooms)",
+        "ENCOUNTER MEASUREMENT: PASS (137 checks; 0 failures)"
+      ]
+    },
+    {
+      "name": "historical_log_relocation",
+      "result": "ENCOUNTER LOG RELOCATION: PASS (25 logs retained byte-for-byte under /private/tmp)",
+      "exit_code": 0,
+      "log_root": "/private/tmp/spx-01-feedback/policy-v1-logs"
+    },
+    {
+      "name": "zero_damage_bound_calibration_equivalence",
+      "result": "ENCOUNTER DODGE PRUNING: PASS (same 30 calibration outcomes; fewer previews)",
+      "exit_code": 0,
+      "preview_counts": [
+        11444,
+        7219
+      ]
+    },
+    {
+      "name": "full_policy_v2_baseline",
+      "exit_code": 0,
+      "result": "ENCOUNTER BASELINE: PASS (1800 runs; 200 per objective/tier); /Users/borgerding/workspace/Labyrinth.worktrees/spx-01/spec/peer_benchmark/encounter_redesign/baseline.md",
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 tools/encounter_bot.py --baseline",
+      "log": "/private/tmp/spx-01-feedback/baseline-v2-driver.log",
+      "process_logs": "/private/tmp/spx-01-measurement-logs/bot-m1d8r16l",
+      "policy_sha256": "1ba458bdc63f50f99ad598d0d1542691ddd937d79d54584f53e28b5330a6cac6"
+    },
+    {
+      "name": "focused_python_reports",
+      "exit_code": 0,
+      "result_lines": [
+        "Ran 7 tests in 0.312s",
+        "OK"
+      ],
+      "command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 -m unittest discover -s tests -p test_encounter_measurement.py -v",
+      "log": "/private/tmp/spx-01-feedback/final-python.log"
+    },
+    {
+      "name": "git_diff_check_and_scope",
+      "exit_code": 0,
+      "result": "DIFF AND OWNERSHIP CHECK: PASS (only spx-01 owned files; feedback file untouched)"
+    }
+  ],
+  "windowed_proof": {
+    "status": "not_applicable",
+    "reason": "Measurement and additive analytics only; no visual or player-facing changes. No windowed command or inspection fixture is required by this brief."
+  },
+  "todo_design": [],
+  "chosen_defaults": {
+    "bot": {
+      "approach_order": "retained movement, objective distance, engine order",
+      "damage_score": "1.5 times (pass-dodge damage minus candidate-dodge damage)",
+      "deck_reward_seed": 2102026,
+      "defiance": 0,
+      "dodge_search": "all remaining free-movement destinations plus stay; objective-sorted zero-damage bound",
+      "empower": false,
+      "healing_weight": 1.0,
+      "hp": 24,
+      "incoming_damage_weight": 1.5,
+      "kill_score": 5.0,
+      "max_action_targets": 3,
+      "max_card_branches": 3,
+      "max_decisions_per_turn": 12,
+      "max_expanded_action_states": 96,
+      "max_move_options": 5,
+      "max_preview_options": 6,
+      "max_turns": 30,
+      "objective_progress_weight": 1.0,
+      "policy_version": 2,
+      "relics": [],
+      "reward_roll_limit": 10000,
+      "skills": [],
+      "survival_first": true,
+      "trace": false
+    },
+    "unknown_analytics_section_index": -1,
+    "first_seed": 1,
+    "sweep_seeds_per_tier_biome": 2000,
+    "golden_seeds": [
+      1,
+      19,
+      421
+    ],
+    "sample_node": "seed % candidate_count in generation order",
+    "entrance": "first actual incoming section-map edge",
+    "encounter_history": [],
+    "onboarding": "earlier combat marked cleared in isolated measurement input",
+    "leader_distance": "Manhattan between entry and enemy spawn anchors; ties count as closest",
+    "exit_distance": "grid-only shortest path; ignore actors, destructible terrain, traps and surfaces",
+    "percentiles": "nearest rank P10/P90; midpoint median; all outcomes included",
+    "baseline_biome_sampling": "ascending run seeds and natural section order, first 200 objective matches per tier",
+    "measurement_timeout_seconds": 7200,
+    "baseline_workers": 6,
+    "python_cache": "/private/tmp/spx-01-pycache",
+    "role_fallback": "unspecified",
+    "hp_lost": "cumulative damage_received; net_hp_lost also retained",
+    "reward_offer_coordinates": "Vector2i(roll + 1, 0), natural room element, fixed reward seed",
+    "turn_count": "hero activations starting at 1; terminal enemy phase attributed to preceding hero activation",
+    "score_fixtures": {
+      "leader_start_hp": 8,
+      "follower_start_hp": 7,
+      "partial_leader_hp": 3
+    },
+    "feedback": {
+      "policy_version": 2,
+      "healing_weight": 1.0,
+      "dodge": "all reachable destinations plus stay; surviving minimum preview damage, ties by objective distance and generation order",
+      "approach_order": "retained free movement, objective distance, generation order",
+      "candidate_tie": "retained free movement, generation order",
+      "risk": "1.5 times (pass-dodge damage minus card-dodge damage)",
+      "survival": "surviving pass or evaluated candidate always wins over lethal preview",
+      "calibration": {
+        "runs_per_configuration": 30,
+        "first_seed": 1,
+        "selection_order": [
+          "higher win rate",
+          "lower median HP lost"
+        ],
+        "selected_configuration": "approach_retained_movement_first"
+      },
+      "log_root": "/private/tmp/spx-01-measurement-logs",
+      "historical_log_root": "/private/tmp/spx-01-feedback/policy-v1-logs/",
+      "test_arena": {
+        "seed": 4501,
+        "size": 7,
+        "player": [
+          2,
+          3
+        ],
+        "enemy": [
+          3,
+          3
+        ],
+        "enemy_hp": 30,
+        "damage": 10,
+        "enemy_time": 1,
+        "enemy_id": 1,
+        "low_hp": 5,
+        "lethal_hp": 1,
+        "approach_start": [
+          1,
+          3
+        ],
+        "leader_id": 2,
+        "leader_pos": [
+          5,
+          3
+        ],
+        "exit_pos": [
+          2,
+          5
+        ]
+      },
+      "dodge_objective_distances": {
+        "enemy_or_leader": "Manhattan spawn/position anchors",
+        "exit": "grid-only shortest path"
+      }
+    }
+  },
+  "open_issues": [
+    {
+      "issue": "The bounded greedy policy still misses both director thresholds and is not a qualified encounter-band baseline.",
+      "observed_tier1_kill_all": {
+        "n": 200,
+        "win_rate": 0.64,
+        "median_hp_lost": 15
+      },
+      "target": {
+        "minimum_win_rate": 0.7,
+        "maximum_median_hp_lost": 8
+      },
+      "best_tested_configuration": "retained movement first for approaches and shortlist ties; unchanged five free-move origins plus stay, six previewed card outcomes, three targets/branches, 96 expanded states; two 30-room calibration trials",
+      "calibration": "calibration_policy_v2.json"
+    }
+  ],
+  "requirements": [
+    {
+      "number": 1,
+      "status": "passed",
+      "implementation": "best_dodge searches the remaining legal movement pool after each hypothetical card and commits once after the last card; safe ties approach the current objective",
+      "evidence": [
+        "/private/tmp/spx-01-feedback/final-measurement.log",
+        "../../../../tools/encounter_bot.gd"
+      ]
+    },
+    {
+      "number": 2,
+      "status": "passed",
+      "implementation": "marginal live-preview damage credits Block and Stoneskin; survival outranks damage score, including the safe pass alternative",
+      "evidence": [
+        "/private/tmp/spx-01-feedback/final-measurement.log"
+      ]
+    },
+    {
+      "number": 3,
+      "status": "target_not_met",
+      "target": {
+        "tier1_kill_all_win_rate_minimum": 0.7,
+        "median_hp_lost_maximum": 8
+      },
+      "observed": {
+        "n": 200,
+        "win_rate": 0.64,
+        "median_hp_lost": 15
+      },
+      "action": "Stopped tuning after the two bounded configurations; no deck, HP or search-limit changes",
+      "evidence": [
+        "calibration_policy_v2.json",
+        "bot-t1-kill_all.json.gz"
+      ]
+    },
+    {
+      "number": 4,
+      "status": "passed",
+      "policy_version": 2,
+      "evidence": [
+        "baseline_policy_v1.json",
+        "baseline_policy_v1/",
+        "../baseline_policy_v1.md",
+        "baseline.json",
+        "../baseline.md",
+        "bot-t*-*.json.gz",
+        "/private/tmp/spx-01-feedback/baseline-v2-driver.log"
+      ]
+    },
+    {
+      "number": 5,
+      "status": "passed",
+      "implementation": "gzip raw outcomes; retain summary JSON; all 25 historical process logs moved byte-for-byte to /private/tmp; drivers write new logs outside the repository",
+      "evidence": [
+        "baseline_policy_v1.json",
+        "/private/tmp/spx-01-feedback/policy-v1-logs",
+        "/private/tmp/spx-01-measurement-logs/bot-m1d8r16l"
+      ]
+    }
+  ],
+  "proof_for_design_owner": {
+    "windowed_commands": [],
+    "inspection_fixture": "not applicable: no visual or gameplay changes",
+    "headless_commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/encounter_bot.py --baseline",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && PYTHONPYCACHEPREFIX=/private/tmp/spx-01-pycache python3 -m unittest discover -s tests -p test_encounter_measurement.py -v"
+    ]
+  },
+  "preserved_original_implementation": {
+    "scripts/analytics_store.gd": "c1c65ad3965b804e09c87878ee6f6221cb6bf7de89fdd22bd3a575ff86d3ee88",
+    "scripts/encounter_analytics_context.gd": "ce674c2ea85e984b7bbc173002323762391161e70e6dbeedd66a87aefc0167c1",
+    "scripts/encounter_analytics_context.gd.uid": "f6b4e63c972d719953edf7b37f460a88a330cd428e57bde1e683e566f24f408a",
+    "scripts/run_scene.gd": "9d6bd4ec9ea122399c1af437ce41231147ae48baa22c1beef587e5835788e50c",
+    "tests/combat_analytics_context_equivalence_test.gd": "b1b43b079201d6e914830066536e07d6812b2bad883c5ced955632e8ff1f87a8",
+    "tests/encounter_analytics_test.gd": "b07d5129cfe0835d7952cf8dc347e9a920a873bb7eaf13a552c4329afcce934c",
+    "tests/encounter_analytics_test.gd.uid": "97f6be448678476b0a16e74a3e66be4dce7e5b52c5a764152ad573d9e43ab7b2",
+    "tests/encounter_measurement_test.gd.uid": "dba32ca7acd5bd8d10b0389fb3e80086050309f8598e43830b94ea790ccfd58b",
+    "tests/test_program_suite_runner.py": "b4c140c297f404b40040eb76c8cdb35d90cf1c91874307b1c2f41201fceb43d6",
+    "tools/encounter_bot.gd.uid": "a345fee7072c670f457684e26a9a7294ce832cd46a67fad0f5e23c1f4da037be",
+    "tools/encounter_sweep.gd": "40dd6e3e5cf39535c3e47860ec01b7b5d6f3e1bd62963460bc6366e29996c6f9",
+    "tools/encounter_sweep.gd.uid": "445bba863b3b75c6d545ade637f101eb50c27f83789ea54c96f5988ebaa647ea",
+    "tools/headless_playtest.gd": "c80e89e36321c0e8f7e1ed3af50507298fe20b4cebe01f05efc45a9a21e36934"
+  },
+  "preserved_composition": {
+    "composition.json": "5d7286bd9ae50afd8b819e817f58e75abc19028ad41db7ad54c7c980810fef88",
+    "composition.jsonl.gz": "5a007980f6e2c5ac0c8c192b943e51d476aa4d17cc2c9b768d3fdf3e3b59dba9",
+    "composition.md": "59191822cd9d834313a3f2f58f882a69e4a9d0d9b4b6ede2470fff42fd737350"
+  },
+  "status": "implemented_and_measured_target_not_met",
+  "owned_files_changed": [
+    "spec/peer_benchmark/encounter_redesign/baseline.md",
+    "spec/peer_benchmark/encounter_redesign/baseline_policy_v1.md",
+    "spec/peer_benchmark/encounter_redesign/measurements/analytics-after.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/analytics-before.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/analytics-equivalence.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline-driver.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t1-kill_all.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t1-kill_leader.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t1-reach_exit.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t2-kill_all.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t2-kill_leader.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t2-reach_exit.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t3-kill_all.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t3-kill_leader.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/baseline_policy_v1/bot-t3-reach_exit.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-kill_all.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-kill_all.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-kill_all.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-kill_leader.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-kill_leader.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-kill_leader.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-reach_exit.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-reach_exit.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t1-reach_exit.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-kill_all.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-kill_all.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-kill_all.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-kill_leader.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-kill_leader.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-kill_leader.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-reach_exit.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-reach_exit.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t2-reach_exit.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-kill_all.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-kill_all.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-kill_all.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-kill_leader.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-kill_leader.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-kill_leader.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-reach_exit.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-reach_exit.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/bot-t3-reach_exit.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/calibration-approach_objective_first.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/calibration-approach_retained_movement_first.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/calibration_policy_v2.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/coordinate-replay.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/focused-measurement.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/full-godot.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/full-python.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/gdignore.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/import.log.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/proof.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/python-focused.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/registration.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/runner-tests.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/sidecars.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/sweep-artifact-test.log",
+    "spec/peer_benchmark/encounter_redesign/measurements/sweep.log",
+    "tests/encounter_measurement_test.gd",
+    "tests/test_encounter_measurement.py",
+    "tools/encounter_bot.gd",
+    "tools/encounter_bot.py",
+    "tools/encounter_sweep.py"
+  ],
+  "code_sha256": {
+    "tests/encounter_measurement_test.gd": "5a239bcd5cd16d45735d28c0c9ac44c9e1e6d5b301df5ec5c48d531a88f8922d",
+    "tests/test_encounter_measurement.py": "9d3b1f2ee693dd483cb37af1d57f5343f92f8c8bb7b7e5abe65cb206322f0588",
+    "tools/encounter_bot.gd": "1ba458bdc63f50f99ad598d0d1542691ddd937d79d54584f53e28b5330a6cac6",
+    "tools/encounter_bot.py": "f214140fb39afc6421e9bd4aa76c4d2dfc481a549207bdbf5f5efdd92ecc61a4",
+    "tools/encounter_sweep.py": "69a888279b6eb446a70ecc5f9cf1ecbc21ead9cb7693579846cc72c4251c1c7e"
+  },
+  "repository_weight": {
+    "scope": "spec/peer_benchmark/encounter_redesign/measurements (excluding proof.json)",
+    "bytes_before": 3539133,
+    "bytes_after": 926639,
+    "reduction_fraction": 0.7382,
+    "process_logs_in_repository": 0,
+    "historical_logs_preserved_under_private_tmp": 25
+  }
+}

@@ -145,10 +145,12 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # bug-01's four fixed tests left quarantine for the supplemental set at its merge;
         # rr-05 made maquette_cutout_test a real pixel-runtime program (no longer a shared wrapper).
         # rr-12, rr-17 and rr-18 each add one rig/runtime domain after the accepted 122.
-        # spx-02 adds the special map/reward and native legend domains; spx-03 appends the Warband programs.
+        # spx-01 inserts its measurement programs before rr07; spx-02 adds the special map/reward and native legend
+        # domains; spx-03 appends the Warband programs.
         self.assertEqual(supplemental[-len(WARBAND_PROGRAMS):], WARBAND_PROGRAMS)
         accepted = supplemental[:-len(WARBAND_PROGRAMS)]
-        self.assertEqual(len(accepted), 127, "Preserve the accepted supplemental set plus spx-02")
+        self.assertEqual(len(accepted), 129, "Preserve the accepted supplemental set plus spx-01 and spx-02")
+        self.assertEqual(accepted[-8:-6], [{"path": "tests/encounter_analytics_test.gd"}, {"path": "tests/encounter_measurement_test.gd"}])
         self.assertEqual(accepted[-6:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}, {"path": "tests/special_encounter_test.gd"}, {"path": "tests/special_encounter_legend_test.gd"}])
         expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
         expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
