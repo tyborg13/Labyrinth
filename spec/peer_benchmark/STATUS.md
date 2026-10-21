@@ -28,8 +28,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     judged by the director; skinned declared scale; sway and strain mutation tests; own density probe at 1920x1080).
     All windowed stages PASS (director native acceptance committed 4ded5def9), but the director's visual review found
     joint tearing in motion: dark seam slashes on both upper arms and the far elbow, and cover fragments poking past
-    the outline at the shoulder, wrist, knees and hem. Feedback 3 (last round this session) is running. Then: windowed
-    rerun, re-review, merge, inbox clip.
+    the outline at the shoulder, wrist, knees and hem. Round 3 committed d18eb6130 (joint-local covers, approved
+    donors, elbow registration; joint gates pass 862 frames; contact-boundary distance basis decided by the director).
+    Its CPU before/after still shows new dark slits under the jaw and along the strap, so the director is judging it on
+    a fresh windowed run. Round cap reached: any further fix is a fresh session with a redesigned approach, not a
+    round 4.
 - 2026-10-20 15:40:
   - mq-11 merged (56de97dfb). Codex SIGNOFF a3fc15b69, native acceptance director_06, integration green at 300f8277b.
   - rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) launched from 7adad7e92.
