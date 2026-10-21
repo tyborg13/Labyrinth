@@ -1,5 +1,5 @@
 {
-  "min_images": 4,
+  "min_images": 6,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -66,6 +66,50 @@
             120,
             1300,
             700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*fire_tier2/sealbinder_tooltip.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*fire_tier2/escape_reward.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1300,
+            700
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        },
+        {
+          "rect": [
+            1400,
+            0,
+            210,
+            80
           ],
           "min_luma_range": 8,
           "min_luma_stdev": 2

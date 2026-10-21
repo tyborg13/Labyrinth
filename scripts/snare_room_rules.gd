@@ -2,12 +2,6 @@ extends RefCounted
 ## Snare-only layout and saved combat state. No variant pressure is read here.
 const Library = preload("res://scripts/special_encounter_library.gd")
 const Paths = preload("res://scripts/path_utils.gd")
-# Enabling the second special exposes an eleventh legend concept. The existing
-# one-row/ten-concept map gate needs the map owner's layout decision (spx-02).
-const TODO_DESIGN_SNARE_LEGEND_LAYOUT: String = "TODO_DESIGN_SNARE_LEGEND_LAYOUT"
-# Five walking tiles cannot guarantee no first-turn escape when existing Move/
-# Blink cards remain legal. Preserve both explicit rules pending owner policy.
-const TODO_DESIGN_FIRST_TURN_ESCAPE_POLICY: String = "TODO_DESIGN_FIRST_TURN_ESCAPE_POLICY"
 const MIN_EXIT_PATH_TILES: int = 5
 const SINGLE_DOOR_SEAL_TURN: int = 3
 const SEALBINDER_HP: int = 4
@@ -115,7 +109,13 @@ static func seal_intent(objective_value: Dictionary, enemy: Dictionary) -> Dicti
 	var left: int = 0
 	for exit: Dictionary in objective_value.get("exits", []):
 		if int(exit.get("sealbinder_id", -1)) == int(enemy["id"]): left = maxi(0, int(exit["seal_after_player_turns"]) - int(objective_value.get("player_turns_completed", 0)))
-	return {"id": "snare_seal", "name": "Seal · %d" % left, "actions": []}
+	var bonus: int = int(Library.definition("umbral_snare")["bonus"]["amount"])
+	return {"id": "snare_seal", "name": "Seal · %d" % left, "actions": [],
+		"description": "Seals its door in %d %s. Kill it to keep the door open. When you escape, each open door pays %d Embers." % [left, "turn" if left == 1 else "turns", bonus]}
+
+static func seal_tooltip(objective_value: Dictionary, enemy: Dictionary) -> String:
+	var intent: Dictionary = seal_intent(objective_value, enemy)
+	return str(intent["name"]) + "\n" + str(intent["description"])
 
 static func binder_killed(state: Dictionary, enemy: Dictionary) -> void:
 	if not active(state) or not bool(enemy.get("snare_sealbinder", false)): return

@@ -111,8 +111,9 @@ const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const LEADER_MARKER_GOLD := Color("e4b65f")
 const SnareRules = preload("res://scripts/snare_room_rules.gd")
-# The brief names a dark seal tint but supplies no token. Await director choice.
-const TODO_DESIGN_DARK_SEAL_TINT := UiPaletteTokens.INK_0
+const SnareSealChip = preload("res://scripts/snare_seal_chip.gd")
+const SNARE_SEALED_DOOR_MODULATE := Color(UiPaletteTokens.UMBRA.r * 0.6, UiPaletteTokens.UMBRA.g * 0.6, UiPaletteTokens.UMBRA.b * 0.6, 1.0)
+const SNARE_CHIP_MEDALLION_GAP: float = 6.0
 const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const WarbandView = preload("res://scripts/warband_view.gd")
 const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
@@ -4229,6 +4230,8 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
 				return str(region.get("tooltip", ""))
+	var seal_tooltip: String = _snare_sealbinder_tooltip_at_position(at_position)
+	if not seal_tooltip.is_empty(): return seal_tooltip
 	return _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
 
 func _loot_tooltip_at_position(at_position: Vector2) -> String:
@@ -4253,6 +4256,8 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 	var seen: Dictionary = {}
 	for unit: Dictionary in _visible_units():
 		if _enemy_hud_actor_key(unit) != actor_key: continue
+		if str(unit.get("intent", {}).get("id", "")) == "snare_seal":
+			return SnareRules.seal_tooltip(combat_state["objective"], unit)
 		for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
 			for token: Dictionary in row:
 				# The expanded row already states ordinary movement, damage and reach.
@@ -7345,7 +7350,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
 			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
-			if _snare_door_sealed(tile): tint = TODO_DESIGN_DARK_SEAL_TINT
+			if _snare_door_sealed(tile): tint = SNARE_SEALED_DOOR_MODULATE
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
 				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
@@ -7353,7 +7358,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 				_draw_world_texture(door_texture, draw_rect, tint)
 				var icon_id: String = str(exit_icon_ids.get(tile, ""))
 				var icon_texture: Texture2D = _door_icon_texture(icon_id)
-				if icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN:
+				if _door_destination_medallion_visible(tile) and (icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN):
 					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
 	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
 	if tile_id == "pillar":
@@ -17209,37 +17214,47 @@ func _snare_door_sealed(tile: Vector2i) -> bool:
 		if exit["door_tile"] == tile: return bool(exit.get("sealed", false))
 	return false
 
-# The Wind chip's HUD skin and typography, with content-sized geometry. Chips
-# are board children so pan/zoom, window changes and reduced motion stay native.
+# The Wind chip's HUD skin/label, attached to the board's canvas and theme.
+# Use the medallion's actual painted bounds, including its outer ring.
 func _refresh_snare_chips() -> void:
 	if not is_inside_tree(): return
-	var holder: Node = get_node_or_null("SnareSealChips")
+	var holder: Control = get_node_or_null("SnareSealChips")
 	if holder == null:
 		if not SnareRules.active(combat_state): return
-		holder = Node.new()
+		holder = Control.new()
 		holder.name = "SnareSealChips"
+		holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(holder)
-	for child: Node in holder.get_children(): (child as Control).hide()
+	for child: Control in holder.get_children(): child.hide()
 	if not SnareRules.active(combat_state): return
+	_ensure_board_layout_cache()
+	var board_scale: float = _navigation_zoom / _default_navigation_zoom_for_viewport()
 	for exit: Dictionary in combat_state["objective"]["exits"]:
 		if str(exit["role"]) != "sealing" or bool(exit.get("sealed", false)) or bool(exit.get("kept_open", false)): continue
 		var key: String = "Door%d" % int(exit["sealbinder_id"])
 		var chip: PanelContainer = holder.get_node_or_null(key)
 		if chip == null:
-			chip = PanelContainer.new()
+			chip = SnareSealChip.new()
 			chip.name = key
-			chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			preload("res://scripts/ui_skin.gd").new().apply_panel_surface(chip, preload("res://scripts/ui_skin.gd").SURFACE_HUD)
-			var label := Label.new()
-			label.name = "Title"
-			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			label.add_theme_font_override("font", UiTypography.ui_font())
-			chip.add_child(label)
 			holder.add_child(chip)
 		(chip.get_node("Title") as Label).text = "Seals · %d" % maxi(0, int(exit["seal_after_player_turns"]) - int(combat_state["objective"]["player_turns_completed"]))
 		chip.reset_size()
+		chip.scale = Vector2.ONE * board_scale
 		var door_rect: Rect2 = _door_rect_for_tile(exit["door_tile"], combat_state["grid"])
 		var texture: Texture2D = _door_texture_for_tile(combat_state["grid"], exit["door_tile"])
 		if texture != null: door_rect = _prop_draw_rect(texture, door_rect)
-		chip.position = Vector2(door_rect.get_center().x - chip.size.x * 0.5, door_rect.position.y - chip.size.y)
+		var medallion: Rect2 = _door_icon_visual_rect(texture, door_rect)
+		chip.position = Vector2(medallion.get_center().x - chip.size.x * board_scale * 0.5, medallion.position.y - (chip.size.y + SNARE_CHIP_MEDALLION_GAP) * board_scale)
 		chip.show()
+
+func _door_destination_medallion_visible(tile: Vector2i) -> bool:
+	return not _snare_door_sealed(tile)
+
+func _snare_sealbinder_tooltip_at_position(point: Vector2) -> String:
+	if not SnareRules.active(combat_state): return ""
+	var tile: Vector2i = tile_at_global_position(get_global_transform_with_canvas() * point)
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("intent", {}).get("id", "")) != "snare_seal": continue
+		if unit["pos"] == tile or _enemy_hud_actor_clear_rect(unit, _unit_center(unit)).has_point(point):
+			return SnareRules.seal_tooltip(combat_state["objective"], unit)
+	return ""

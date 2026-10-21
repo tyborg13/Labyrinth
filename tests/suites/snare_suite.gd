@@ -93,6 +93,12 @@ static func _boundaries(expect: Callable) -> void:
 	var state: Dictionary = battle()
 	var original: Dictionary = state.duplicate(true)
 	expect.call(not engine.player_movement_targets(state).any(func(tile: Vector2i) -> bool: return Objectives.exit_target_tiles(state["objective"]).has(tile)), "No exit within first-turn base movement")
+	var binder: Dictionary = state["enemies"][1]
+	var bonus: int = int(Library.definition("umbral_snare")["bonus"]["amount"])
+	expect.call(Rules.seal_intent(state["objective"], binder)["description"] == "Seals its door in 2 turns. Kill it to keep the door open. When you escape, each open door pays %d Embers." % bonus, "Seal tooltip uses plural turns and director bonus data")
+	var one_turn: Dictionary = state["objective"].duplicate(true)
+	one_turn["player_turns_completed"] = 1
+	expect.call(Rules.seal_intent(one_turn, binder)["description"] == "Seals its door in 1 turn. Kill it to keep the door open. When you escape, each open door pays %d Embers." % bonus, "Seal tooltip uses singular turn")
 	var binder_pos: Vector2i = state["enemies"][1]["pos"]
 	var binder_turn: Dictionary = engine.resolve_enemy_turn_with_steps(state, 1)["state"]
 	expect.call(binder_turn["enemies"][1]["pos"] == binder_pos and binder_turn["player"]["hp"] == state["player"]["hp"] and binder_turn["enemies"][1]["intent"]["name"] == "Seal · 2", "Only Seal, no movement or damage")
@@ -120,8 +126,7 @@ static func _boundaries(expect: Callable) -> void:
 	expect.call(not silent["state"]["enemies"].any(func(enemy: Dictionary) -> bool: return bool(enemy.get("snare_dissolved", false))) and silent["shown"]["death_animation_units"].is_empty(), "Sealing audio snapshot is silent")
 	print("Snare seals: exact boundary, permanent kill, immobility, blocked exits, silent dissolve and batch API checked")
 
-# Reproduction of the brief's conflicting first-turn guarantee. This preserves
-# real cards and normal exit rules; the named TODO belongs to the design owner.
+# The director allows earned first-turn escape through existing card movement.
 static func _first_turn_card_scope(expect: Callable) -> void:
 	var engine := Combat.new()
 	var state: Dictionary = battle()
@@ -136,8 +141,8 @@ static func _first_turn_card_scope(expect: Callable) -> void:
 			if needs_target: expect.call(engine.valid_targets_for_player_action(state, action).has(tile), "First-turn card escape uses legal real-card targets")
 			state = engine.apply_player_action(state, action, tile if needs_target else Vector2i(-1, -1))
 		state = engine.finish_player_card(state, 0)
-	expect.call(state["turn"] == 1 and engine.combat_outcome(state) == "victory", "TODO_DESIGN_FIRST_TURN_ESCAPE_POLICY: path minimum alone cannot forbid card-assisted first-turn escape")
-	print("Snare design scope: five-tile rule permits existing turn-1 card-assisted escape (two Shadow Steps)")
+	expect.call(state["turn"] == 1 and engine.combat_outcome(state) == "victory", "Existing card movement can earn a first-turn escape")
+	print("Snare first turn: free movement cannot escape; two legal Shadow Steps can")
 
 static func _hunters(expect: Callable) -> void:
 	var engine := Combat.new()

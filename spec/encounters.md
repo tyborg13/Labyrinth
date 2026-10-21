@@ -326,6 +326,7 @@ after 2 and 4 completed player turns, in path order; a single sealing door uses
 20 seeded template retries, then deterministic interior-blocker clearing,
 retaining every exit and unit. Blocking terrain cannot occupy the selected
 walking lanes. Entry directions and ordinary rooms retain their existing rules.
+The 5-tile minimum stops free movement from escaping on turn 1; an escape that spends cards on turn 1 is earned.
 
 The Umbral Gaoler uses the normal depth-scaled Chainbound Gaoler, then ×2 HP
 rounded up and the director's 2/3/4 Stoneskin. It starts one path tile inside its
@@ -344,15 +345,36 @@ silently dissolves using the existing dissolve presentation, without death
 rewards, death effects, kill credit or sound. Killing the binder first saves
 `kept_open` on its door permanently. The jailer door has no timer.
 
-Each active sealing door has a content-sized HUD-skin chip above its door,
-`Seals · N`, with Wind's typography and no icon. Sealing thresholds reuse the
-existing objective-overlay alpha with `UiPalette.UMBRA`. Killed binders and
-sealed doors lose their chips. Sealed door textures use
-`TODO_DESIGN_DARK_SEAL_TINT`: the brief did not identify a dark-seal palette token;
-`UiPalette.INK_0` is the explicit pending-design placeholder. There are no new
+Each active sealing door has a content-sized HUD-skin chip, `Seals · N`, with
+Wind's title font size, plate, fill, border and padding, minus its icon and arrow.
+Its centre aligns with the destination medallion; its bottom is 6 px above the
+medallion's painted top at default 1920×1080 board zoom. Both chip and gap scale
+with board navigation zoom. Placement reuses `_door_icon_visual_rect`, including
+the medallion ring. The chip's Control holder preserves canvas/theme ancestry.
+
+`UiSkin.SURFACE_HUD` supplies a transparent layout StyleBox plus the shared
+`ThemedPanelOrnament` paint. A PanelContainer had fitted that ornament inside the
+padded content rect (18 px tall for this label), below its 36 px drawing minimum.
+`SnareSealChip` keeps the exact ornament outside container layout under a Node2D
+paint host and sizes it to the full panel. The regression checks a non-empty
+layout StyleBox, drawable full-panel ornament, shared HUD variant and typography.
+No replacement surface, palette or font is authored.
+
+Sealing thresholds reuse the existing objective-overlay alpha with
+`UiPaletteTokens.UMBRA`. Killed binders and sealed doors lose their chips. The
+sealed door and opening textures use `SNARE_SEALED_DOOR_MODULATE`, derived from
+`UiPaletteTokens.UMBRA` at 60% RGB brightness and alpha 1.0 (director mock option D).
+A sealed door submits no destination medallion: icon, ring and unknown placeholder
+are all absent. Other doors retain their ordinary medallions. There are no new
 colour literals, icons, assets, timings or input targets. Chip controls ignore
 pointer input and keyboard/controller focus. Reduced motion uses the existing
 static/dissolve behavior.
+
+The existing intent tooltip shows `Seal · N` followed by this exact rules line:
+“Seals its door in N turns. Kill it to keep the door open. When you escape, each
+open door pays 6 Embers.” At N = 1 it says “in 1 turn”. The payout comes from
+`embers_per_open_door.amount`, and the live saved timer supplies N. Pointer and
+controller inspection use the same title and description.
 
 At each enemy-round start a variant hunter enters on the entry threshold, or
 the nearest free tile in a stable breadth-first walk. The saved total-arrival
@@ -385,13 +407,16 @@ hunter caps and alternation, ice starts, normal pre-battle entry, 1/2/3-open-doo
 rewards, branch commitment, analytics on both callers, and mid-round save/load
 through production repair. Existing 192 full-layout goldens for revisions 3–5
 include revision-5 Reach Exit. UI checks parse the native probe, inspect actual
-HUD-skin chip lifecycle/input behavior and exercise all four proof fixtures.
+HUD-skin chip lifecycle/input behavior, exact plate geometry, medallion spacing at
+default and changed zoom, door/opening draw submissions, singular/plural tooltip
+text, and all four combat proof fixtures. The legend gate checks row count,
+centering and exact 40–12 px gap behavior on either side of the fit boundary,
+without a fixed enabled-concept count.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_test.gd
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/snare_ui_test.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 -m unittest discover -s tests -p 'test_*.py' -v
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/special_encounter_legend_test.gd
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tests/test_ui_identity_lint.py
 ```
 
@@ -411,10 +436,28 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspe
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/inspection_fixture.py --task-id spx-05 --run-id spx-05-fire-escape --manifest /private/tmp/labyrinth-inspection-manifests/spx-05-fire-escape.json --launch --scenario snare --snare-biome fire --snare-tier 2 --snare-case escape --seed 83 --umbra-stage clear
 ```
 
+For a map capture with the enabled Snare and the fullest legal legend, reuse the
+spx-02 probe (the first command only writes its proof contract):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/godot_task_runner.py --task-id spx-05 --stream -- godot --headless --path . --script tests/special_encounter_probe.gd -- --proof-contract-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-05 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract /private/tmp/labyrinth-inspection-manifests/spx-02-visual-contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-05-map-visual-result.json tests/special_encounter_probe.gd --task-id spx-05
+```
+
+Map captures are `user://spx-02-map-proof/01_future.png` through
+`08_section_vi_fog.png`; `07_fullest_legend.png` includes Umbral Snare and the
+approved centred second row. The probe asserts that the enabled Snare is present.
+
 The native probe asserts 1920×1080 and 100% scale, renderer preparation and real
 body draws. Its captures are
-`user://probes/spx05/fire_tier2/{first_turn,first_seal,kept_open,escape}.png`,
-with a neighboring `captures.json` recording chip labels, exits and bonus facts.
+`user://probes/spx05/fire_tier2/{first_turn,first_seal,kept_open,escape,sealbinder_tooltip,escape_reward}.png`,
+with a neighboring `captures.json` recording chip labels, exits, bonus facts,
+actual rendered tooltip lines, pointer/Sealbinder identity, reward payout and the
+visible Ember-total label. The tooltip frame uses real viewport pointer input over
+the left Sealbinder in the first-turn state and waits for its actual embedded
+Godot tooltip. The reward frame finishes the escape through `RunEngine`, waits
+for the ordinary reward reveal and asserts four offers plus the visible held
+Ember total. These two frames are required by the six-image proof contract.
 The first-seal and kept-open fixtures advance the real initiative engine across
 the first deadline; escape resolves the final legal movement step.
 
@@ -422,29 +465,46 @@ Chosen debug defaults: seed 83, fire tier 2; three valid next-row destinations
 from the actual requested section/tier so every fixture has both chips (some
 natural rows have no branching combat node); 100 hero HP for unattended
 boundary survival; a 0.25 s renderer settle and 20 s readiness timeout; capture-only
-unlimited vision. The 180 s visual timeout accommodates four scene preparations.
+unlimited vision. The 180 s visual timeout accommodates four scene preparations plus the tooltip
+and reward reveal; the new frames reuse their first-turn/escape scenes.
 Headless fixtures use 100 HP and a fixed 100×100 door rect at (100,100) solely
-for chip-placement assertions. None of these fields changes production tuning.
+for chip-placement assertions, a 1.25 navigation zoom for scaling checks, and a
+1 px legend boundary delta. The door-submission double reuses the approved door
+texture; its recorded draws never change production art. None of these fields changes production tuning.
 The proposal URL/diagram could not be accessed; no external art was downloaded.
 Commits, peer review, native inspection and publication belong to the design owner.
 
-The newly enabled Snare exposes eleven concepts in the fullest production map
-legend. The existing map gate expects ten and one row; its current two-row
-result is left visible for the map owner, under
-`SnareRoomRules.TODO_DESIGN_SNARE_LEGEND_LAYOUT`. This unit does not choose a
-replacement size, spacing, font or legend layout, or weaken that assertion.
+The enabled Snare exposes eleven concepts in the fullest production map legend.
+The director confirmed spx-02's existing layout rule: use one row while even gaps
+can shrink from 40 px to 12 px; otherwise use a centred second row. The production
+layout already implements this rule. Both gate and native probe now derive the
+entry count from the displayed section instead of expecting ten concepts.
 
-`SnareRoomRules.TODO_DESIGN_FIRST_TURN_ESCAPE_POLICY` records a conflict in
-requirement 2: the specified five-tile minimum does not guarantee that no door
-can be reached on turn 1 while existing card movement and immediate open-exit
-escape remain legal. The focused suite reproduces a turn-1 victory through
-normal `prepare_player_card`, real Shadow Step actions and `finish_player_card`,
-using two legal Shadow Step copies and targets (4,4), then (7,4), on seed 83.
-The implementation retains the exact path minimum and existing card/escape
-rules. No new first-turn lock or movement restriction is invented. The owner
-must decide whether the guarantee excludes card movement or requires an
-additional rule. The two-copy hand is a named debug-only test fixture, not a
-production deck change.
+The first-turn fixture preserves the director's allowed card-assisted escape:
+two legal Shadow Step copies use normal preparation, action and finish paths on
+seed 83. The free-movement assertion remains. The named two-copy test hand is a
+debug fixture, never a production deck change. All three design placeholders are
+resolved by the director's feedback; no pending design values remain.
+
+### Observed feedback-1 proof (2026-10-21)
+
+The director requested focused checks only for this round; full suites were not
+rerun. The effective plate regression failed against the pre-fix implementation
+(`Snare UI/fixture suite: 1 failures`), demonstrating the padded-content cause.
+
+```text
+Snare placement matrix: 3600 rooms (6 variants × 3 tiers × 200 seeds), 2/3 exits, 4 entries
+Snare first turn: free movement cannot escape; two legal Shadow Steps can
+Snare suite: 0 failures
+Snare UI/fixture suite: 0 failures
+SPX fullest legend: seed=0 section=2 entries=11 rows=2
+SPX special legend suite: 0 failures
+Ran 25 tests in 2.764s
+OK
+```
+
+Focused logs are `/private/tmp/labyrinth_codex/spx-05-feedback-{snare,ui,legend,identity}.log`.
+Native frames remain for the design owner; no windowed run is attempted here.
 
 ### Observed implementation proof (2026-10-21)
 
@@ -465,8 +525,8 @@ TEST RESULT: FAIL (2 failure(s))
 
 The two failing Godot children are `encounter_measurement_test` (the golden and
 current-objective assertions also fail at the unchanged integration HEAD), and
-`special_encounter_legend_test` (eleven concepts/two rows after enabling Snare;
-its ten-concept/one-row assertions are preserved for the owner). The underlying
+`special_encounter_legend_test` (the obsolete ten-concept/one-row expectations,
+replaced and passing in feedback 1 with the director-approved responsive rule). The underlying
 map-solver regression now validates its original combat domains before special
 substitution; post-substitution identities, branching and route limits remain
 covered by the special suite. UI identity passes 25 tests, icon identity passes
