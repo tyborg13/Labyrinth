@@ -248,10 +248,12 @@ Only the living Warband captain with `thornmother_wall` uses the five-tile
 Thornwall. Its center is the second step of the grid shortest path toward the
 hero, respecting blocking terrain; an occupied center moves to the nearest
 legal floor. The wall runs perpendicular to that path and skips occupied,
-impassable and terrain tiles. Preview and growth share `order_tiles`. Bramble
+impassable and terrain tiles. Preview and growth share `order_tiles`; the board
+feeds the living captain's Thornwall plan into the existing marked-intent tile
+renderer, including legal trimming and keep-distance movement. Bramble
 lifetime, collision damage 2 and Bleed 1 are unchanged, including pushing the
 captain's escort into it. Ordinary Weavers retain their recorded full-state
-legacy golden. Equidistant legal-center ties retain grid traversal order under
-`TODO_DESIGN_THORNWALL_EQUIDISTANT_CENTER_TIE`; no new tie preference was designed.
+legacy golden. Equidistant legal centers prefer the tile nearest the player,
+then nearest the Thornmother, then the existing row-major scan order.
 
 Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

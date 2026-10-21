@@ -5,10 +5,6 @@ const Data = preload("res://scripts/game_data.gd")
 const Identity = preload("res://scripts/enemy_identity.gd")
 const FLEE_TILES: int = 2
 const Library = preload("res://scripts/special_encounter_library.gd")
-# The brief specifies perpendicular lines but not grid rasterization for oblique
-# bearings. Keep the existing cardinal projection until the owner resolves it.
-const TODO_DESIGN_DIAGONAL_ORDER_AXIS: String = "existing_cardinal_projection"
-const TODO_DESIGN_THORNWALL_EQUIDISTANT_CENTER_TIE: String = "existing_grid_scan_order"
 
 static func order_for_objective(objective: Dictionary) -> Dictionary:
 	if str(objective.get("special_type", "")) != "warband": return {}
@@ -24,6 +20,7 @@ static func order_line(objective: Dictionary) -> String:
 	return "Order: " + str(value["text"]) if not value.is_empty() else ""
 
 static func order_axis(engine: RefCounted, delta: Vector2i) -> Vector2i:
+	# Director: project onto the dominant cardinal axis, preferring x on ties.
 	var direction: Vector2i = engine._cardinal_direction(delta)
 	return Vector2i(-direction.y, direction.x)
 

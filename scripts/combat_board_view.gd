@@ -2775,6 +2775,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
 	next_presentation = DiveView.presentation_for(next_state, next_presentation)
+	next_presentation = BrambleView.presentation_for(next_state, next_presentation)
 	next_presentation = StaticEnemyFacing.presentation_for(self, next_state, next_presentation, presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0

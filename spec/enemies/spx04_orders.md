@@ -27,6 +27,69 @@ kind or rewrite of history. Intrinsic card coefficients and protected enemy
 stats remain unchanged; the six authored encounter modifiers above are the
 mechanics under test, not implementation tuning.
 
+## Feedback 1 — implementation and focused validation
+
+1. The Thornmother's production board presentation now submits her exact
+   Thornwall plan to the shared `ThreatTiles` marked-intent renderer. This adds
+   no colour literals. The live-scene headless probe compares the renderer's
+   marked-tile lookup with resolved Bramble terrain for a full wall, blocked
+   and occupied tiles, and an occupied center. Frozen/dead captains clear the
+   marks. Existing focus alpha and order badges are preserved.
+2. The held-wind title and appended tooltip line use the director's exact copy.
+   Live controls also check ordinary finite copy and source-death removal. The
+   native air fixture now has called wind active so its held chip is visible.
+3. Thornwall center selection ranks distance from the preferred center, then
+   player, then Thornmother; complete ties retain scan order.
+4. The existing dominant-cardinal axis already uses x on exact diagonals. The
+   placeholder is removed and eight signed diagonal/dominant-axis cases assert
+   the helper and actual Barrage centers/Oracle marks.
+5. Only focused checks were run for this feedback. No full suite or windowed
+   command was run. The director supplied and judged the original seven native
+   frames; fresh feedback captures remain the director's next proof step.
+
+Observed result lines:
+
+```text
+WARBAND ORDERS TEST RESULT: PASS (187 checks, 0 failures)
+SPX04 THORNWALL BOARD: full wall, legal trimming, center relocation and suppression PASS
+SPX04 WIND CHIP: held copy, finite countdown and source death PASS
+SPX04 PROBE CONTRACT: PASS (7 states, 1920x1080, UI scale 100%)
+EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)
+EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)
+Warband UI semantics: 0 failures
+SPX04 MUTATION RESULT: PASS (5/5 killed; controls pass; exact sources restored)
+Ran 25 tests in 2.653s
+OK
+```
+
+All listed commands exited 0. The order suite still includes all seven
+unchanged ordinary-mechanic goldens and six save roundtrips. Focused mutations
+remove the board bridge or corrupt held copy, each center tie preference or the
+diagonal axis; each fails its intended assertion without a script error. Logs:
+`/private/tmp/spx04-order-mutations/`, with final controls `control_after.log`
+and `probe_control_after.log`. The existing macOS headless certificate message
+appears in Godot output and does not change these exit statuses.
+
+Exact focused commands (Godot scripts are each run through the task runner):
+
+```bash
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/warband_orders_test.gd
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/warband_orders_probe.gd -- --check-only
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/en04_enemies_test.gd
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/en02_enemies_test.gd
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/warband_ui_test.gd
+python3 tests/test_ui_identity_lint.py
+python3 tests/warband_order_mutations.py --feedback-only
+```
+
+Files changed for feedback 1: `scripts/combat_board_view.gd`,
+`scripts/warband_combat_rules.gd`,
+`scripts/enemy_mechanics/{bramble,bramble_view,wind_view}.gd`,
+`spec/enemies/{briar_weaver,gale_herald,hoarfrost_seer,slag_mortar,spx04_orders}.md`,
+`tests/suites/warband_orders_suite.gd`, `tests/warband_orders_test.gd`,
+`tests/warband_orders_probe.gd` and `tests/warband_order_mutations.py`.
+The supplied feedback file, protected data and approved assets are untouched.
+
 ## Proof for the design owner
 
 The sandbox cannot access the macOS window server. No windowed run was attempted.
@@ -36,10 +99,10 @@ renders the actual RunScene to a 1920×1080 UPDATE_ALWAYS SubViewport at UI scal
 image contract requires all seven images and a nonblank board region.
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/visual_probe_runner.py tests/warband_orders_probe.gd --task-id spx-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx04_orders.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx04-orders-proof.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/visual_probe_runner.py tests/warband_orders_probe.gd --task-id spx-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx04_orders.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx04-orders-feedback1-proof.json
 ```
 
-Expected captures (not yet produced) are under the isolated run's
+Expected feedback captures (not yet produced) are under the isolated run's
 `user://probes/spx04/`: `earth_telegraph.png`, `fire_telegraph.png`,
 `air_telegraph.png`, `ice_telegraph.png`, `lightning_telegraph.png`,
 `shadow_telegraph.png`, `shadow_reveal.png`, plus `captures.json` with semantic
@@ -54,21 +117,20 @@ for example, the exact existing interactive Prior fixture command is:
 cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/inspection_fixture.py --task-id spx-04 --run-id spx04-prior --scenario warband --warband-biome shadow --warband-tier 3 --warband-case encounter --seed 83 --manifest /private/tmp/labyrinth-inspection-manifests/spx04-prior.json --summary 'Hollow Prior order: hidden followers and captain break reveal' --launch
 ```
 
-## TODO_DESIGN placeholders
+## Director decisions (feedback 1)
 
-- `TODO_DESIGN_DIAGONAL_ORDER_AXIS`: unsupplied oblique line rasterization;
-  retains the existing cardinal projection for Slagmaster and Oracle.
-- `TODO_DESIGN_THORNWALL_EQUIDISTANT_CENTER_TIE`: unsupplied equal-distance
-  legal-center preference; retains existing grid scan order.
-- `TODO_DESIGN_PERSISTENT_WIND_LABEL`: final persistent-wind chip copy is
-  unsupplied. The chip displays this literal placeholder.
+All three design placeholders are resolved. Barrage and Oracle retain the
+dominant cardinal projection, with x winning exact diagonals. Equidistant legal
+Thornwall centers prefer nearest player, then nearest Thornmother, then existing
+scan order. The wind chip reads `Wind · held` and appends the tooltip line
+`Held by the Stormcaller until it falls.` There are no remaining design TODOs.
 
 ## Chosen defaults
 
 Only test/debug/proof values were chosen: `FIXTURE_SIZE = 11`, `FIXTURE_HP = 100`,
 `FIXTURE_CAPTAIN = (5,2)`, `FIXTURE_PLAYER = (5,6)`,
 `FIXTURE_FOLLOWER_A = (3,5)`, `FIXTURE_FOLLOWER_B = (7,5)`;
-`MINIMUM_CHECK_COUNT = 152` guards skipped test execution. Proof reuses the
+`MINIMUM_CHECK_COUNT = 186` guards skipped test execution. Proof reuses the
 existing fixture seed `PROOF_SEED = 83`, `SETTLE_SECONDS = 0.25`,
 `READY_TIMEOUT_SECONDS = 20`, and `EXPECTED_CASES = 7`.
 Additional test-only fields are `FIXTURE_WALL_CENTER = (5,4)`,
@@ -86,6 +148,19 @@ Additional test-only fields are `FIXTURE_WALL_CENTER = (5,4)`,
 production visibility presentation can exercise the Prior independently of
 room darkness. All these choices are invisible outside tests and probes.
 
+Feedback 1 adds test-only `FIXTURE_CENTER_TIES` (all prefer center `(5,4)`):
+
+| Tie rank | Player | Captain | Legal candidates | Expected |
+| --- | --- | --- | --- | --- |
+| player | (5,6) | (5,2) | (5,3), (5,5) | (5,5) |
+| captain | (7,6) | (3,5) | (5,3), (4,4) | (4,4) |
+| scan | (5,6) | (5,2) | (4,4), (6,4) | (4,4) |
+
+`FIXTURE_AXIS_CAPTAIN = (5,5)`. `FIXTURE_AXIS_BEARINGS` pairs delta and
+perpendicular axis: `(2,2) → down`, `(2,-2) → down`, `(-2,2) → up`,
+`(-2,-2) → up`, `(1,3) → left`, `(-1,-3) → right`, `(3,-1) → down`,
+`(-3,1) → up`. No player-facing values were chosen.
+
 The full Godot runner uses 960 seconds to cover the existing 900-second suite
 budget plus shutdown/report overhead. These values never affect gameplay.
 
@@ -102,8 +177,8 @@ against the unmodified spx-03 runtime. Mutants restore exact source bytes in
 
 - All six captain-only orders: `_thornmother`, `_slagmaster`, `_stormcaller`,
   `_oracle`, `_dynamo`, `_prior` and `_scope_and_copy` cover the authored behavior,
-  levers, scope and live-source boundaries. The three explicit design TODOs
-  above remain for the director.
+  levers, scope and live-source boundaries. Feedback 1 resolves the three
+  original design placeholders as recorded above.
 - Preview before harm and exact order copy: each order asserts its pre-resolution
   plan, stored marks, hidden presentation or threshold before resolution;
   `_scope_and_copy` compares both tooltip paths to the protected JSON text.

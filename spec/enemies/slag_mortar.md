@@ -131,6 +131,6 @@ hits every actor, including allies; that rule is preserved outside Warbands.
 Stored `lob_centers` and `lob_tiles` survive ordinary Variant saves and clear
 only on landing. Existing Fire, retaliation, death and analytics paths remain.
 
-Oblique grid bearings retain the existing cardinal projection under
-`TODO_DESIGN_DIAGONAL_ORDER_AXIS`, pending a director rasterization decision.
+Oblique grid bearings project onto their dominant cardinal axis. Exact
+diagonals (`|dx| == |dy|`) use the x axis before taking the perpendicular.
 Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

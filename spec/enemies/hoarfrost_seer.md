@@ -76,7 +76,7 @@ the coordinate midpoint, with odd coordinates rounded toward the hero. Its axis
 is perpendicular to the Oracle-to-hero bearing. Existing range, legal-floor
 filter, stored delayed marks, damage, empty-tile pillars and shatter-for-2
 collision remain unchanged. Ordinary Seers retain their full-state legacy golden.
-Oblique grid bearings retain the existing cardinal projection under
-`TODO_DESIGN_DIAGONAL_ORDER_AXIS`, pending a director rasterization decision.
+Oblique grid bearings project onto their dominant cardinal axis. Exact
+diagonals (`|dx| == |dy|`) use the x axis before taking the perpendicular.
 
 Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

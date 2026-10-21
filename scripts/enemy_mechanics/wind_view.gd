@@ -7,7 +7,6 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
-const TODO_DESIGN_PERSISTENT_WIND_LABEL: String = "TODO_DESIGN_PERSISTENT_WIND_LABEL"
 const TINT := Color("cfe3f2")
 const DRIFT_PIXELS_PER_SECOND: float = 40.0
 const DIRECTION_NAMES: Dictionary = {Vector2i(0, -1): "toward the upper right", Vector2i(1, 0): "toward the lower right", Vector2i(0, 1): "toward the lower left", Vector2i(-1, 0): "toward the upper left"}
@@ -163,14 +162,17 @@ static func refresh_chip(scene: Control, display_state: Dictionary = {}) -> void
 		scene.ui_root.add_child(chip)
 		chip.z_index = scene._turn_order_panel.z_index
 		scene._turn_order_panel.resized.connect(func() -> void: chip.position = scene._turn_order_panel.position + Vector2(0, scene._turn_order_panel.size.y))
-	var value: Dictionary = Wind.active(_engine, scene._combat_state if display_state.is_empty() else display_state)
+	var state: Dictionary = scene._combat_state if display_state.is_empty() else display_state
+	var value: Dictionary = Wind.active(_engine, state)
 	chip.visible = not value.is_empty() and scene._run_state.get("mode", "") == "combat"
 	if not chip.visible: return
 	var arrow: DirectionArrow = chip.get_node("Contents/Direction")
 	arrow.heading = screen_direction(value["direction"])
 	arrow.queue_redraw()
-	(chip.get_node("Contents/Title") as Label).text = TODO_DESIGN_PERSISTENT_WIND_LABEL if Wind.persistent(_engine, scene._combat_state if display_state.is_empty() else display_state, value) else "Wind · %d" % int(value["rounds_left"])
+	var held: bool = Wind.persistent(_engine, state, value)
+	(chip.get_node("Contents/Title") as Label).text = "Wind · held" if held else "Wind · %d" % int(value["rounds_left"])
 	chip.tooltip_text = Icons.tooltip("wind") + "\n" + direction_name(value["direction"]) + "."
+	if held: chip.tooltip_text += "\nHeld by the Stormcaller until it falls."
 	chip.position = scene._turn_order_panel.position + Vector2(0, scene._turn_order_panel.size.y)
 	chip.reset_size()
 

@@ -102,7 +102,8 @@ wind-only leader/guardian/construct exemptions for the captain's gust, without
 changing card forces or another Herald's wind. The same real-mover copy powers
 all-unit slide/collision previews. Source death clears wind as before. Ordinary
 Herald wind retains its two-boundary lifetime and its full-state legacy golden.
-The persistent wind chip's unsupplied label is the literal named placeholder
-`TODO_DESIGN_PERSISTENT_WIND_LABEL`; the director must supply final copy.
+The persistent wind chip reads `Wind · held`. Its tooltip appends the exact line
+`Held by the Stormcaller until it falls.` Finite wind retains its countdown
+and original tooltip.
 
 Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

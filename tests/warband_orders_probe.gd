@@ -7,6 +7,7 @@ const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Rules = preload("res://scripts/warband_combat_rules.gd")
+const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
 const RenderProof = preload("res://tests/suites/encounter_tables_suite.gd")
 const PROOF_SIZE := Vector2i(1920, 1080)
 const PROOF_UI_SCALE: float = 1.0
@@ -58,6 +59,23 @@ func _check_only() -> void:
 			_expect(units.any(func(unit: Dictionary) -> bool: return str(unit.get("key", "")) == "enemy_%d" % id), "Live scene contains each revealed actor")
 		if item["name"] == "shadow_telegraph":
 			_expect(not units.any(func(unit: Dictionary) -> bool: return str(unit.get("key", "")) in ["enemy_2", "enemy_3"]), "Live scene hides Prior followers")
+		if item["biome"] == "earth":
+			item["facts"]["marked_tiles"] = _check_thornwall_preview(scene, item["state"])
+			var trimmed: Dictionary = item["state"].duplicate(true)
+			trimmed["grid"][Suite.FIXTURE_BRAMBLE_BLOCK.y][Suite.FIXTURE_BRAMBLE_BLOCK.x] = "wall"
+			trimmed["enemies"][1]["pos"] = Suite.FIXTURE_WALL_CENTER + Vector2i.RIGHT
+			var trimmed_tiles: Array = _check_thornwall_preview(scene, trimmed)
+			_expect(trimmed_tiles.size() == item["facts"]["tiles"].size() - 2, "Board trims both blocked and occupied Thornwall tiles")
+			trimmed["enemies"][1]["pos"] = Suite.FIXTURE_WALL_CENTER
+			_check_thornwall_preview(scene, trimmed)
+			trimmed["enemies"][0]["freeze"] = 1
+			scene.call("_render_board_state", trimmed, {})
+			_expect((board.get("_rest_threat_tile_alphas") as Dictionary).is_empty(), "Disabled Thornmother has no marked wall")
+			trimmed["enemies"][0]["hp"] = 0
+			scene.call("_render_board_state", trimmed, {})
+			_expect((board.get("_rest_threat_tile_alphas") as Dictionary).is_empty(), "Dead Thornmother has no marked wall")
+			if failures.is_empty(): print("SPX04 THORNWALL BOARD: full wall, legal trimming, center relocation and suppression PASS")
+		if item["biome"] == "air": _check_wind_chip(scene, item["state"], true)
 		scene.queue_free()
 		await process_frame
 	_expect(cases.size() == EXPECTED_CASES, "Every order plus Prior reveal is covered")
@@ -87,6 +105,7 @@ func _cases() -> Array[Dictionary]:
 			state = engine._resolve_enemy_action(state, 0, intent["actions"][0])
 			state["enemies"][0]["intent"] = Suite.authored(state, "slag_lands" if biome == "fire" else "icefall_land")
 		if biome == "lightning": state["enemies"][0]["charge"] = 2
+		if biome == "air": state = Suite.Wind.resolve(engine, state, 0, intent["actions"][0])
 		var plan: Dictionary = engine.enemy_intent_plan(state, 0)
 		var facts: Dictionary = {"order": Rules.order_line(state["objective"]), "tiles": plan.get("projected_attack", []), "visible_enemy_ids": engine.visible_enemy_ids(state)}
 		if biome == "air":
@@ -105,6 +124,38 @@ func _cases() -> Array[Dictionary]:
 			_expect(visible.size() == 2, "Prior followers reveal before the break movement")
 			cases.append({"name": "shadow_reveal", "biome": biome, "state": reveal, "facts": {"order": facts["order"], "visible_enemy_ids": visible, "before_break_movement": true}})
 	return cases
+
+func _check_thornwall_preview(scene: Node, state: Dictionary) -> Array:
+	scene.call("_render_board_state", state, {})
+	var board: Node = scene.get("board_view")
+	var marked: Array = (board.get("_rest_threat_tile_alphas") as Dictionary).keys()
+	var grown: Array[Vector2i]
+	var result: Dictionary = Combat.new()._resolve_enemy_action(state.duplicate(true), 0, state["enemies"][0]["intent"]["actions"][0])
+	for terrain: Dictionary in result["terrain"]:
+		if str(terrain.get("kind", "")) == "bramble": grown.append(terrain["pos"])
+	_expect(not marked.is_empty() and Suite._same_tiles(marked, grown), "Live board marked-intent preview equals grown Thornwall tiles")
+	for tile: Vector2i in marked:
+		_expect(bool(board.call("_board_tile_is_visible_to_player", tile)), "Each marked Thornwall tile passes production visibility")
+	return marked
+
+func _check_wind_chip(scene: Node, state: Dictionary, check_transitions: bool = false) -> void:
+	WindView.refresh_chip(scene, state)
+	var chip: PanelContainer = (scene.get("ui_root") as Node).get_node("En02WindChip")
+	var title: Label = chip.get_node("Contents/Title")
+	var ordinary_tooltip: String = WindView.Icons.tooltip("wind") + "\n" + WindView.direction_name(state["wind"]["direction"]) + "."
+	_expect(chip.visible and title.text == "Wind · held", "Live Stormcaller chip has approved held title")
+	_expect(chip.tooltip_text == ordinary_tooltip + "\nHeld by the Stormcaller until it falls.", "Live Stormcaller chip appends approved held explanation")
+	if not check_transitions: return
+	var finite: Dictionary = state.duplicate(true)
+	finite["objective"] = {"type": "kill_all"}
+	WindView.refresh_chip(scene, finite)
+	_expect(title.text == "Wind · %d" % int(finite["wind"]["rounds_left"]) and chip.tooltip_text == ordinary_tooltip, "Ordinary finite wind chip keeps countdown and original tooltip")
+	var dead: Dictionary = state.duplicate(true)
+	dead["enemies"][0]["hp"] = 0
+	WindView.refresh_chip(scene, dead)
+	_expect(not chip.visible, "Held wind chip disappears when Stormcaller falls")
+	WindView.refresh_chip(scene, state)
+	if failures.is_empty(): print("SPX04 WIND CHIP: held copy, finite countdown and source death PASS")
 
 func _run_for_case(item: Dictionary) -> Dictionary:
 	var engine := Run.new()
@@ -150,6 +201,8 @@ func _capture_case(item: Dictionary) -> void:
 	scene.call("_set_action_banner", item["facts"]["order"])
 	scene.call("_render_board_state", item["state"], {})
 	var board: Node = scene.get("board_view")
+	if item["biome"] == "earth": item["facts"]["marked_tiles"] = _check_thornwall_preview(scene, item["state"])
+	if item["biome"] == "air": _check_wind_chip(scene, item["state"])
 	var deadline: int = Time.get_ticks_msec() + int(READY_TIMEOUT_SECONDS * 1000.0)
 	var readiness_state: Dictionary = item["state"].duplicate(false)
 	var visible_enemies: Array[Dictionary]

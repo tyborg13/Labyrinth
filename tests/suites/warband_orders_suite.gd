@@ -9,6 +9,7 @@ const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 const Icefall = preload("res://scripts/enemy_mechanics/icefall.gd")
 const Capacitor = preload("res://scripts/enemy_mechanics/capacitor.gd")
 const Veil = preload("res://scripts/enemy_mechanics/veil.gd")
+const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
 const BIOMES = ["earth", "fire", "air", "ice", "lightning", "shadow"]
 const GOLDEN_PATH: String = "res://tests/fixtures/spx04_legacy_golden.json"
 const FIXTURE_SIZE: int = 11
@@ -33,6 +34,22 @@ const FIXTURE_RNG_SEED_COUNT: int = 32
 const FIXTURE_PERSISTENCE_BOUNDARIES: int = 5
 const FIXTURE_LIGHT_RADIUS: int = 1
 const FIXTURE_REVEAL_ACTIVATIONS: int = 2
+const FIXTURE_CENTER_TIES = [
+	{"rank": "player", "player": Vector2i(5, 6), "captain": Vector2i(5, 2), "candidates": [Vector2i(5, 3), Vector2i(5, 5)], "expected": Vector2i(5, 5)},
+	{"rank": "captain", "player": Vector2i(7, 6), "captain": Vector2i(3, 5), "candidates": [Vector2i(5, 3), Vector2i(4, 4)], "expected": Vector2i(4, 4)},
+	{"rank": "scan", "player": Vector2i(5, 6), "captain": Vector2i(5, 2), "candidates": [Vector2i(4, 4), Vector2i(6, 4)], "expected": Vector2i(4, 4)},
+]
+const FIXTURE_AXIS_CAPTAIN := Vector2i(5, 5)
+const FIXTURE_AXIS_BEARINGS = [
+	{"delta": Vector2i(2, 2), "axis": Vector2i.DOWN},
+	{"delta": Vector2i(2, -2), "axis": Vector2i.DOWN},
+	{"delta": Vector2i(-2, 2), "axis": Vector2i.UP},
+	{"delta": Vector2i(-2, -2), "axis": Vector2i.UP},
+	{"delta": Vector2i(1, 3), "axis": Vector2i.LEFT},
+	{"delta": Vector2i(-1, -3), "axis": Vector2i.RIGHT},
+	{"delta": Vector2i(3, -1), "axis": Vector2i.DOWN},
+	{"delta": Vector2i(-3, 1), "axis": Vector2i.UP},
+]
 const SAVE_PATH: String = "user://spx04-mid-order.save"
 
 static func battle(biome: String, ordinary: bool = false) -> Dictionary:
@@ -116,6 +133,8 @@ static func legacy_snapshots() -> Dictionary:
 
 static func run(expect: Callable) -> void:
 	_thornmother(expect)
+	_thornmother_centers(expect)
+	_order_axes(expect)
 	_slagmaster(expect)
 	_stormcaller(expect)
 	_oracle(expect)
@@ -160,6 +179,53 @@ static func _thornmother(expect: Callable) -> void:
 	state["enemies"][0]["hp"] = 0
 	expect.call(Bramble.tiles(engine, state, state["enemies"][0]).size() <= 3, "Dead captain has no Thornmother order")
 	print("Order 1 thornmother_wall: telegraph, geometry, legality and escort lever checked")
+
+static func _thornmother_centers(expect: Callable) -> void:
+	var engine := Combat.new()
+	for fixture: Dictionary in FIXTURE_CENTER_TIES:
+		var state: Dictionary = battle("earth")
+		state["player"]["pos"] = fixture["player"]
+		state["enemies"][0]["pos"] = fixture["captain"]
+		for row: Array in state["grid"]: row.fill("wall")
+		for tile: Vector2i in fixture["candidates"]: state["grid"][tile.y][tile.x] = "stone"
+		expect.call(Bramble.nearest_legal_center(engine, state, FIXTURE_WALL_CENTER, state["enemies"][0]) == fixture["expected"], "Thornwall equal-distance center prefers " + str(fixture["rank"]))
+	var state: Dictionary = battle("earth")
+	state["enemies"][0]["intent"] = authored(state, "thornwall")
+	state["enemies"][1]["pos"] = FIXTURE_WALL_CENTER
+	var tiles: Array[Vector2i] = Bramble.tiles(engine, state, state["enemies"][0])
+	expect.call(tiles.has(FIXTURE_WALL_CENTER + Vector2i.DOWN) and tiles.all(func(tile: Vector2i) -> bool: return tile.y == FIXTURE_WALL_CENTER.y + 1), "Occupied Thornwall center relocates toward player before captain")
+	var original: Dictionary = {"threats_at_rest": {"threats": [{"key": "enemy_1", "tiles": [], "alpha": 0.4, "order": "1"}]}}
+	var before: Dictionary = original.duplicate(true)
+	var presentation: Dictionary = BrambleView.presentation_for(state, original)
+	var marked: Dictionary = presentation["threats_at_rest"]["threats"][0]
+	expect.call(_same_tiles(marked["tiles"], tiles) and marked["alpha"] == 0.4 and marked["order"] == "1", "Thornwall marked intent preserves existing focus alpha and turn badge")
+	expect.call(original == before and BrambleView.presentation_for(state, presentation) == presentation, "Thornwall presentation is immutable and idempotent")
+	state["objective"] = {"type": "kill_all"}
+	expect.call(BrambleView.presentation_for(state, original) == original, "Ordinary Weaver presentation stays unchanged")
+	print("Thornwall center ties: player, captain and scan order checked")
+
+static func _order_axes(expect: Callable) -> void:
+	var engine := Combat.new()
+	for fixture: Dictionary in FIXTURE_AXIS_BEARINGS:
+		expect.call(preload("res://scripts/warband_combat_rules.gd").order_axis(engine, fixture["delta"]) == fixture["axis"], "Order axis projects dominant cardinal with x on exact diagonals")
+		var state: Dictionary = battle("fire")
+		state["enemies"][0]["pos"] = FIXTURE_AXIS_CAPTAIN
+		state["player"]["pos"] = FIXTURE_AXIS_CAPTAIN + Vector2i(fixture["delta"])
+		state["enemies"][0]["intent"] = authored(state, "lob_slag")
+		state["enemies"][0]["intent"]["barrage_side"] = 1
+		var centers: Array[Vector2i] = Lob.centers(engine, state, state["enemies"][0])
+		expect.call(centers.size() == 2 and centers[1] == state["player"]["pos"] + Vector2i(fixture["axis"]) * 2, "Barrage side uses approved dominant-cardinal orientation")
+		state = battle("ice")
+		state["enemies"][0]["pos"] = FIXTURE_AXIS_CAPTAIN
+		state["player"]["pos"] = FIXTURE_AXIS_CAPTAIN + Vector2i(fixture["delta"])
+		var action: Dictionary = authored(state, "icefall")["actions"][0]
+		var tiles: Array[Vector2i] = Icefall.tiles(engine, state, state["enemies"][0], action)
+		var delta: Vector2i = fixture["delta"]
+		var center: Vector2i = FIXTURE_AXIS_CAPTAIN + Vector2i(signi(delta.x) * ceili(absf(delta.x) * 0.5), signi(delta.y) * ceili(absf(delta.y) * 0.5))
+		var expected: Array[Vector2i]
+		for offset: int in range(-2, 3): expected.append(center + Vector2i(fixture["axis"]) * offset)
+		expect.call(_same_tiles(tiles, expected), "Oracle wall uses approved dominant-cardinal orientation")
+	print("Barrage/Oracle axes: exact diagonals and dominant axes checked")
 
 static func _slagmaster(expect: Callable) -> void:
 	var engine := Combat.new()
