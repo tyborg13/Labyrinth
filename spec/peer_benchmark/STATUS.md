@@ -27,7 +27,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     lifecycle tests; the walk completes on its timer. Round 2 (4250cb52e): keys/pads in a drag's release frame still
     travel; the release-fallback regression validates the v7 web. Codex SIGNOFF 4250cb52e. MERGED 0c2726d67; the
     Graftwright integration test now keeps its revision-6 map (4b2fb012a). Integration Godot 561 s PASS, Python OK.
-  - spx-05 MERGED (0ce68a9aa); spx-07 (Warband perf, locked wind, spread spawns) running from 3fad2e65b; spx-06 after it.
+  - spx-05 MERGED (0ce68a9aa). spx-07 r1 committed 31380ca38 (r0 a892292ab): wind lock + spread spawns + side rule done;
+    native director probe sweep max frame ordinary 32.7 / air T2 22.1 / lightning T3 21.2 ms (integration 71/72/64).
+    Card targeting worst 23-38 ms (budget 20) accepted as FOLLOW-UP perf-02 (first visit to each target simulates the
+    enemy response; candidates: worker-thread simulation or cheaper PASS preview). Codex code review running; spx-06
+    launches after spx-07 merges.
   - Warband marker redesign, director-implemented in `../Labyrinth.worktrees/wbv-01` (uncommitted prototype): feathered
     Command glow + rim (no outline), gilt crowned-skull crest on the captain's bar (LEADER box gone; floor beacon off in
     Warband fights), wind streaks instead of per-tile chevrons, chevrons + ghost ring slide previews. Posted as inbox
