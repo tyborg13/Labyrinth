@@ -60,6 +60,7 @@ func _run() -> void:
 	commanded["enemies"][0]["pos"] = Vector2i(1, 2)
 	chips = preload("res://scripts/intent_badges.gd").build(Suite.Combat.new(), commanded, commanded)
 	_expect((chips["badges"] as Array).any(func(badge: Dictionary) -> bool: return badge["key"] == "enemy_2" and badge["number"] == "3"), "At-rest medallion follows moving Command zone")
+	_command_movement_displays()
 	var before: Dictionary = Suite.arena()
 	var after: Dictionary = Suite.Combat.new()._damage_enemy(before.duplicate(true), 0, Suite.TEST_PLAYER_HP, false, true)
 	var concealed: Dictionary = after.duplicate(true)
@@ -111,6 +112,34 @@ func _labels(node: Node) -> Array[String]:
 
 func _expect(ok: bool, message: String) -> void:
 	if not ok: failures.append(message)
+
+func _command_movement_displays() -> void:
+	var engine := Suite.Combat.new()
+	for enters: bool in [true, false]:
+		var state: Dictionary = Suite.arena()
+		state["enemies"].resize(2)
+		state["player"]["pos"] = Vector2i(4, 3)
+		state["enemies"][0]["pos"] = Vector2i(3, 1) if enters else Vector2i(1, 1)
+		var hound: Dictionary = state["enemies"][1]
+		hound["type"] = "ash_hound"
+		hound["pos"] = Vector2i(1, 3)
+		hound["intent"] = {"id": "closing_bite", "time": 4, "actions": [{"type": "move_toward", "range": 2}, {"type": "melee", "damage": 3, "range": 1}]}
+		var expected: int = 4 if enters else 3
+		var label: String = "entering" if enters else "leaving"
+		var threat: Dictionary = engine.enemy_threat_tiles(state, 1)
+		_expect(threat["projected_attack_from"] == Vector2i(3, 3) and int(threat["projected_attack_action"]["damage"]) == expected, "Moving Hound projected attack " + label + " Command")
+		var resolved: Dictionary = engine.resolve_enemy_turn_with_steps(state, 1)["state"]
+		_expect(Suite.TEST_PLAYER_HP - int(resolved["player"]["hp"]) == expected, "Moving Hound resolution " + label + " Command")
+		var shown: Dictionary = preload("res://scripts/intent_badges.gd").build(engine, state, state)
+		_expect((shown["badges"] as Array).any(func(badge: Dictionary) -> bool: return badge["key"] == "enemy_2" and badge["number"] == str(expected)), "Moving Hound medallion " + label + " Command equals projected/resolved damage")
+		var compass: Dictionary = preload("res://scripts/enemy_intent_compass.gd").descriptors_for_state(state)
+		_expect(int(compass["enemy_2"]["value"]) == expected, "Moving Hound Details " + label + " Command equals projected/resolved damage")
+		hound["intent"]["actions"].append(hound["intent"]["actions"].back().duplicate(true))
+		shown = preload("res://scripts/intent_badges.gd").build(engine, state, state)
+		_expect((shown["badges"] as Array).any(func(badge: Dictionary) -> bool: return badge["key"] == "enemy_2" and badge["number"] == "%d×2" % expected), "Projected Command preserves repeated-hit medallions: " + label)
+		resolved = engine.resolve_enemy_turn_with_steps(state, 1)["state"]
+		_expect(Suite.TEST_PLAYER_HP - int(resolved["player"]["hp"]) == expected * 2, "Both repeated hits use projected Command: " + label)
+	print("Warband moving Command displays: entering/leaving aura checked against projection and resolution")
 
 func _live_fixture_surfaces() -> void:
 	# Exercise the production combat and pre-battle surfaces from the same

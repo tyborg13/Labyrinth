@@ -48,6 +48,7 @@ static func run(expect: Callable, measure_opening_damage: bool = false) -> Dicti
 	_titles(expect)
 	_save_load(expect)
 	_native_fixture_semantics(expect)
+	_fixture_case_typing(expect)
 	return report
 
 static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionary:
@@ -90,7 +91,7 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 					if index > 1: expect.call(Paths.manhattan(tile, captain["pos"]) <= 3, "Other escorts near captain: " + context)
 				expect.call(nearest < distance, "Captain never closest: " + context)
 				var screen: Vector2i = enemies[1]["pos"]
-				expect.call(Paths.find_path(grid, entry, screen).size() + Paths.find_path(grid, screen, captain["pos"]).size() == Paths.find_path(grid, entry, captain["pos"]).size() + 1, "Screen on shortest path: " + context)
+				expect.call(Paths.manhattan(entry, screen) + Paths.manhattan(screen, captain["pos"]) == distance, "Screen on Manhattan shortest path: " + context)
 				expect.call(captain["max_hp"] == ceili(generator._scaled_enemy_max_hp(str(captain["type"]), tier) * 1.25) and captain["stoneskin"] == tier + 1, "Warband HP/Stoneskin: " + context)
 				expect.call(not captain.has("scale") and Identity.display_name(captain) == variant["title"], "Captain density/title: " + context)
 				if biome == "lightning":
@@ -104,7 +105,7 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 						var legal: bool = false
 						for candidate: Vector2i in Paths.reachable_tiles(grid, entry, 81):
 							if candidate == tile or Paths.manhattan(entry, candidate) < 3 or Paths.manhattan(entry, candidate) <= Rooms.ENEMY_SPAWN_SAFE_RADIUS or Paths.manhattan(entry, candidate) >= Paths.manhattan(entry, tile): continue
-							if Paths.find_path(grid, entry, candidate).size() + Paths.find_path(grid, candidate, tile).size() != Paths.find_path(grid, entry, tile).size() + 1: continue
+							if Paths.manhattan(entry, candidate) + Paths.manhattan(candidate, tile) != Paths.manhattan(entry, tile): continue
 							if nearby.size() - (1 if nearby.has(candidate) else 0) >= enemies.size() - 2: legal = true
 						expect.call(not legal, "Dynamo uses farthest legal tile: " + context)
 				if measure_opening_damage:
@@ -142,7 +143,33 @@ static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionar
 		report["percent"] = 100.0 * int(report["over_threshold"]) / count
 		print("Warband opening damage >6 HP: TOTAL %d/%d (%.2f%%)" % [report["over_threshold"], count, report["percent"]])
 	_placement_regressions(expect)
+	_screen_geometry_regression(expect)
 	return report
+
+static func _screen_geometry_regression(expect: Callable) -> void:
+	var generated: Dictionary = Rooms.new().generate_room(54, Fixture.room_spec("air", 2), Vector2i.DOWN)
+	var entry: Vector2i = generated["player_start"]
+	var captain: Vector2i = generated["enemies"][0]["pos"]
+	var screen: Vector2i = generated["enemies"][1]["pos"]
+	expect.call(Paths.manhattan(entry, screen) + Paths.manhattan(screen, captain) == Paths.manhattan(entry, captain), "Seed 54 DOWN screen cannot use a Manhattan detour")
+	var grid: Array = arena()["grid"]
+	grid[3][4] = "pillar"
+	entry = Vector2i(4, 1)
+	captain = Vector2i(4, 7)
+	screen = Vector2i(5, 3)
+	var detour: Dictionary = {"grid": grid, "player_start": entry, "enemies": [{"type": "gale_herald", "pos": captain}, {"type": "chainbound_gaoler", "pos": screen}, {"type": "gust_shrike", "pos": Vector2i(3, 6)}]}
+	expect.call(Paths.find_path(grid, entry, screen).size() + Paths.find_path(grid, screen, captain).size() == Paths.find_path(grid, entry, captain).size() + 1, "Detour regression is reachable and on a shortest grid path")
+	expect.call(not RoomRules.validate(detour, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Validator rejects reachable grid-shortest screens off the Manhattan segment")
+	print("Warband screen geometry: seed 54 and reachable grid-detour rejection checked")
+
+static func _fixture_case_typing(expect: Callable) -> void:
+	var source: String = FileAccess.get_file_as_string("res://tools/warband_inspection.gd")
+	var bare_literal := RegEx.new()
+	bare_literal.compile("(?:const|var)\\s+CASES\\s*:\\s*Array\\[String\\]\\s*=\\s*\\[")
+	expect.call(bare_literal.search(source) == null, "Fixture CASES cannot assign a bare literal to Array[String] on Windows")
+	expect.call(Fixture.CASES.is_typed() and Fixture.CASES.get_typed_builtin() == TYPE_STRING, "Fixture CASES has runtime string typing")
+	for value: String in ["encounter", "pre_battle", "keep_distance", "break"]:
+		expect.call(Fixture.validate({"warband_case": value}).is_empty(), "Typed fixture cases preserve " + value)
 
 static func opening_hp_loss(engine: RefCounted, state: Dictionary) -> int:
 	# Exactly the existing headless console's incoming preview, including
@@ -260,10 +287,7 @@ static func _keep_distance(expect: Callable) -> void:
 
 static func _break(expect: Callable) -> void:
 	var engine := Combat.new()
-	var state: Dictionary = battle("fire", 3)
-	state["player"]["hp"] = TEST_PLAYER_HP
-	state["player"]["max_hp"] = TEST_PLAYER_HP
-	state["enemies"][0]["stoneskin"] = 0
+	var state: Dictionary = _break_fixture()
 	var follower_kill: Dictionary = engine._damage_enemy(state.duplicate(true), 1, TEST_PLAYER_HP, false, true)
 	expect.call(follower_kill["room_embers"] == state["room_embers"], "Individually killed follower drops no Embers")
 	var hp_before: int = state["player"]["hp"]
@@ -277,18 +301,16 @@ static func _break(expect: Callable) -> void:
 			var path: Array = enemy["warband_flee_path"]
 			expect.call(path.size() <= 3 and path[0] == enemy["pos"], "Flee at most two tiles")
 			for index: int in range(1, path.size()): expect.call(Paths.manhattan(path[index - 1], path[index]) == 1, "Flee route is contiguous")
+			if int(enemy["id"]) == 2:
+				expect.call(path.size() == 3 and mini(mini(path.back().x - 1, 7 - path.back().x), mini(path.back().y - 1, 7 - path.back().y)) > 0, "Central follower stops after two tiles before reaching the edge and dissolves")
 	expect.call(fled == 5 and after["player"]["hp"] == hp_before, "Ember Ticks flee without bursting")
-	var events: Array = after.get("surface_events", [])
-	expect.call(not events.any(func(event: Dictionary) -> bool: return str(event.get("kind", "")).contains("burst")), "No Tick death-burst event")
+	expect.call((after.get("death_burst_events", []) as Array).is_empty(), "No Tick death-burst event")
 	expect.call((after.get("death_rewards", []) as Array).size() <= 1, "No per-follower break reward")
 	var line: String = after["objective"]["break_line"]
 	expect.call((after["log"] as Array).count(line) == 1, "Break line occurs once")
 	Rules.break_followers(engine, after, 1)
 	expect.call((after["log"] as Array).count(line) == 1, "Break is idempotent")
-	var batch: Dictionary = battle("fire", 3)
-	batch["player"]["hp"] = TEST_PLAYER_HP
-	batch["player"]["max_hp"] = TEST_PLAYER_HP
-	batch["enemies"][0]["stoneskin"] = 0
+	var batch: Dictionary = _break_fixture()
 	batch["_surface_damage_batch"] = true
 	for index: int in range(1, (batch["enemies"] as Array).size()):
 		if str(batch["enemies"][index]["type"]) in ["ember_tick", "cinder_ooze"]:
@@ -297,8 +319,27 @@ static func _break(expect: Callable) -> void:
 	batch["_surface_damage_batch"] = false
 	batch = engine._flush_surface_deaths(batch)
 	expect.call((batch["enemies"] as Array).size() == 6 and (batch["enemies"] as Array).all(func(enemy: Dictionary) -> bool: return int(enemy["hp"]) == 0), "A simultaneous captain/Ooze kill cannot spawn surviving Droplets")
-	expect.call(not (batch.get("surface_events", []) as Array).any(func(event: Dictionary) -> bool: return str(event.get("kind", "")).contains("burst")), "Queued Tick deaths do not burst after simultaneous captain kill")
+	expect.call((batch.get("death_burst_events", []) as Array).is_empty() and int(batch["player"]["hp"]) == TEST_PLAYER_HP, "Queued adjacent Tick deaths do not burst after simultaneous captain kill")
 	print("Warband break: followers, Tick suppression, no follower Embers and one announcement checked (including batched captain/Tick/Ooze deaths)")
+
+static func _break_fixture() -> Dictionary:
+	var state: Dictionary = battle("fire", 3)
+	for y: int in range(1, 8):
+		for x: int in range(1, 8): state["grid"][y][x] = "stone"
+	state["terrain"] = []
+	state["traps"] = []
+	state["surfaces"] = {}
+	state.erase("umbra")
+	state["player"]["pos"] = Vector2i(4, 5)
+	state["player"]["hp"] = TEST_PLAYER_HP
+	state["player"]["max_hp"] = TEST_PLAYER_HP
+	state["player"]["block"] = 0
+	state["player"]["stoneskin"] = 0
+	state["enemies"][0]["stoneskin"] = 0
+	var positions: Array[Vector2i]
+	positions.assign([Vector2i(1, 1), Vector2i(4, 4), Vector2i(7, 3), Vector2i(5, 5), Vector2i(1, 7), Vector2i(7, 7)])
+	for index: int in range(positions.size()): state["enemies"][index]["pos"] = positions[index]
+	return state
 
 static func _titles(expect: Callable) -> void:
 	var engine := Combat.new()

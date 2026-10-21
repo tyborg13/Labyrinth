@@ -1025,7 +1025,8 @@ staged copy before spx-02). Warbands use a specific biome captain and the first
 HP ×1.25, rounded up; Stoneskin is 2/3/4, replacing generic leader bonuses.
 There is no art/footprint scaling. Per director feedback 1, Manhattan ranges
 govern the captain's 5–7-tile opening and every escort's minimum entry distance
-of 3, also outside the ordinary spawn halo. The screen is on a shortest path;
+of 3, also outside the ordinary spawn halo. The screen lies on a Manhattan
+shortest segment, with reachability checked separately from that equality;
 other escorts start within 3 of the captain. After 20 seeded rerolls the
 deterministic fallback relaxes escort clustering first, never entry safety.
 The protected data's original 4–6 range is overridden in `WarbandRoomRules`

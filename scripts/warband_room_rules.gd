@@ -35,13 +35,12 @@ static func positions(grid: Array, entry: Vector2i, count: int, entry_safe_radiu
 		return Paths.manhattan(a, entry) > Paths.manhattan(b, entry) if Paths.manhattan(a, entry) != Paths.manhattan(b, entry) else a.y * grid.size() + a.x < b.y * grid.size() + b.x)
 	if not deterministic and not dynamo: _shuffle(captains, rng)
 	for captain: Vector2i in captains:
-		var path: Array[Vector2i] = Paths.find_path(grid, entry, captain)
 		var screens: Array[Vector2i]
 		for tile: Vector2i in reachable:
 			if tile == captain or not _escort_entry_safe(tile, entry, entry_safe_radius) or Paths.manhattan(tile, entry) >= Paths.manhattan(captain, entry): continue
-			var to_screen: Array[Vector2i] = Paths.find_path(grid, entry, tile)
-			var to_captain: Array[Vector2i] = Paths.find_path(grid, tile, captain)
-			if to_screen.size() + to_captain.size() == path.size() + 1: screens.append(tile)
+			# Reachability is guaranteed by the candidate flood fill. The screen
+			# must lie on the Manhattan segment, not on a route around blockers.
+			if Paths.manhattan(entry, tile) + Paths.manhattan(tile, captain) == Paths.manhattan(entry, captain): screens.append(tile)
 		if not deterministic: _shuffle(screens, rng)
 		for screen: Vector2i in screens:
 			var rest: Array[Vector2i]
@@ -94,7 +93,7 @@ static func validate(layout: Dictionary, entry_safe_radius: int) -> bool:
 		if index > 0 and not _escort_entry_safe(tile, entry, entry_safe_radius): return false
 		if index > 1 and not relaxed and Paths.manhattan(captain, tile) > ESCORT_RADIUS: return false
 	var screen: Vector2i = enemies[1]["pos"]
-	if Paths.find_path(grid, entry, screen).size() + Paths.find_path(grid, screen, captain).size() != Paths.find_path(grid, entry, captain).size() + 1: return false
+	if Paths.manhattan(entry, screen) + Paths.manhattan(screen, captain) != distance: return false
 	if closest >= distance: return false
 	var unused_rng := RandomNumberGenerator.new()
 	if relaxed and not positions(grid, entry, enemies.size(), entry_safe_radius, unused_rng, false, true).is_empty(): return false

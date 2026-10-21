@@ -100,7 +100,6 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		var id: int = int(enemy.get("id", -1))
 		var projected: Dictionary = preview_enemies.get(id, {}) as Dictionary
 		var intent: Dictionary = projected.get("intent", enemy.get("intent", {})) as Dictionary
-		intent = WarbandRules.intent(preview, projected if not projected.is_empty() else enemy, intent)
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(known_preview, enemy, intent)
 		if intent.is_empty():
 			continue
@@ -113,7 +112,13 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			if int((known_enemies[index] as Dictionary).get("id", -2)) == id:
 				threat = engine.enemy_threat_tiles(known_preview, index)
 				break
-		if str(primary.get("type", "")) == "mirror_last_attack": primary = threat.get("projected_attack_action", primary)
+		var repeated_action: Dictionary = {}
+		if WarbandRules.active(known_preview) and is_attack(primary) and not (threat.get("projected_attack_action", {}) as Dictionary).is_empty():
+			# Command is measured at the attack origin after movement, using the
+			# same action as the threat plan and resolver. Retain repeat identity.
+			repeated_action = primary
+			primary = preload("res://scripts/enemy_mechanics/lob.gd").presentation_action(engine, known_preview, enemy, threat["projected_attack_action"])
+		elif str(primary.get("type", "")) == "mirror_last_attack": primary = threat.get("projected_attack_action", primary)
 		var acting: bool = orders.has(actor_key)
 		var attacking: bool = is_attack(primary)
 		var cancelled: bool = projected.is_empty() or int(projected.get("hp", 0)) <= 0
@@ -122,7 +127,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			cancelled = cancelled or (threat.get("projected_attack", []) as Array).is_empty()
 			# Stagger past the hero suppresses the announced attack in this preview.
 			cancelled = cancelled or (committed != preview and not acting and enemy_orders(engine, committed).has(actor_key))
-		var badge: Dictionary = descriptor(primary, intent)
+		var badge: Dictionary = descriptor(primary, intent, repeated_action)
 		badge.merge({"key": actor_key, "order": "·".join(orders.get(actor_key, PackedStringArray())),
 			"acting": acting, "cancelled": cancelled,
 			"danger": attacking and acting and not cancelled and (threat.get("projected_attack", []) as Array).has((preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))),
@@ -143,7 +148,7 @@ static func is_attack(action: Dictionary) -> bool:
 	var kind: String = str(action.get("type", ""))
 	return kind in Compass.MELEE_TYPES or kind in Compass.RANGED_TYPES or kind in Compass.AREA_TYPES or kind in ["push", "grow_bramble"]
 
-static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionary:
+static func descriptor(action: Dictionary, intent: Dictionary = {}, repeated_action: Dictionary = {}) -> Dictionary:
 	var kind: String = str(action.get("type", ""))
 	var number: String = ""
 	for field: String in ["damage", "amount", "count"]:
@@ -159,7 +164,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 	else:
 		var repeats: int = 0
 		for other: Dictionary in intent.get("actions", []):
-			if other == action:
+			if other == (action if repeated_action.is_empty() else repeated_action):
 				repeats += 1
 		if repeats > 1 and not number.is_empty():
 			number += "×%d" % repeats

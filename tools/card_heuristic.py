@@ -340,7 +340,7 @@ def encounter_assumptions() -> dict[str, Any]:
                 "captain_stoneskin_by_tier": [2, 3, 4],
                 "captain_start_distance": [5, 7],
                 "escort_entry_distance_min": 3,
-                "escort_placement": "outside ordinary entry halo; screen on shortest path; other escorts within Manhattan range 3 of captain",
+                "escort_placement": "outside ordinary entry halo; reachable screen satisfies Manhattan shortest-path equality; other escorts within Manhattan range 3 of captain",
                 "placement_fallback": "20 seeded rerolls, then deterministic; relax escort clustering before entry safety or clearing blockers; entry safety never relaxes",
                 "command": "living captain grants followers within Manhattan range 2 +1 on every damaging action",
                 "keep_distance": "one tile before normal intent when player within 2; immobile captain skips",

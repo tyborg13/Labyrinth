@@ -9,7 +9,12 @@ const Paths = preload("res://scripts/path_utils.gd")
 const FIXTURE_SEED: int = 83
 const DEFAULT_BIOME: String = "air"
 const DEFAULT_TIER: int = 2
-const CASES: Array[String] = ["encounter", "pre_battle", "keep_distance", "break"]
+static var CASES: Array[String] = _string_array(["encounter", "pre_battle", "keep_distance", "break"])
+
+static func _string_array(values: Array) -> Array[String]:
+	var result: Array[String]
+	for value: String in values: result.append(value)
+	return result
 
 static func validate(options: Dictionary) -> String:
 	if not Library.definition("warband")["variants"].has(str(options.get("warband_biome", DEFAULT_BIOME))): return "Unknown Warband biome"

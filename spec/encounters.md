@@ -140,8 +140,10 @@ Per [director feedback 1](peer_benchmark/feedback/spx-03_feedback_1.md), placeme
 uses Manhattan range 5–7 from the entry for the captain. Every escort starts at
 least 3 from the entry, and every enemy respects the ordinary spawn halo
 (`RoomGenerator.ENEMY_SPAWN_SAFE_RADIUS`, currently 2). A strictly closer
-follower keeps the captain from being closest; escort[0] is on a shortest grid
-path and at least 3 from entry. Every other escort starts within range 3 of the
+follower keeps the captain from being closest; escort[0] satisfies Manhattan
+equality `d(entry, screen) + d(screen, captain) == d(entry, captain)` and is at
+least 3 from entry. Reachability is checked separately: a shortest grid detour
+does not qualify as a screen. Every other escort starts within range 3 of the
 captain. Every generated room is validated. The approved range supersedes the
 protected file's original 4–6, with named constants in `WarbandRoomRules`;
 neither supplied data copy is rewritten.
@@ -159,8 +161,11 @@ candidates, including full escort capacity under the applicable constraints.
 current follower position. Every positive-damage action receives +1 within
 Manhattan range 2. It is idempotent, reflected in board intent tokens, known
 moves, projected attack actions, forecasts and resolved damage, including after
-movement. The saved intent retains its authored base amounts. The floor banner
-uses the existing leader-marker gold (extracted into `LEADER_MARKER_GOLD` without
+movement. The saved intent retains its authored base amounts. The intent
+medallion and Details compass numbers use the plan's projected attack action,
+so moving into or out of Command changes the displayed damage before the
+enemy moves. The floor banner uses the existing leader-marker gold
+(extracted into `LEADER_MARKER_GOLD` without
 a colour change), 18% fill and 2 px/70% outer edges. It follows the live captain
 and disappears on death; existing Umbra privacy remains in effect.
 
@@ -222,6 +227,15 @@ The UI test parses the native probe without executing it and checks all six
 naming paths, both at-rest and Details intent numbers, silent follower audio
 snapshots, the reduced-motion break, and real scene combat/pre-battle loading
 for the two proof fixtures.
+
+Feedback 2 adds red/green regressions for the moving Ash Hound's medallion and
+Details numbers (entering and leaving Command), the seed-54 DOWN screen and a
+reachable grid-shortest detour rejected by Manhattan equality, and the fixture's
+Windows-safe typed case list. Break coverage inspects `death_burst_events`, puts
+a Tick adjacent to the player, and puts a follower three tiles from the nearest
+edge to require a two-tile stop before dissolve. Controlled Tick-burst and
+unbounded-route mutations are rejected by these assertions; both mutations
+escaped the prior break checks. No production break behavior changes.
 
 Feedback 1's focused placement pass also covers the exact console reproductions
 (`warband air 2 83`, `warband fire 1 7`), a narrow room that can retain its
