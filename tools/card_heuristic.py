@@ -16,8 +16,8 @@ three visited rooms at the current depth when no outward route is otherwise
 available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
 uses base stats, and depth 3 enemies have 112% HP. Standard depths share the same normal-room roster
 eligibility; depth controls density and scaling instead of gating enemy types.
-The first combat remains a kill-all tutorial. Later standard rooms use a seeded
-50/25/25 mix of kill-all, kill-leader, and reach-exit objectives;
+The first combat remains a kill-all tutorial. Standard rooms in layout revision 6+ always use kill-all. Revisions 3–5 retain
+the seeded 50/25/25 mix of kill-all, kill-leader, and reach-exit objectives;
 survive is temporarily out of rotation but retains saved-encounter support;
 boss rooms always use kill-leader without generic leader stat scaling.
 Survival targets initiative 42/46/50 by local depth with one reinforcement every
@@ -141,10 +141,10 @@ BASE_DRAW_PER_TURN = 2
 BASE_PLAYER_MOVEMENT = 2
 MAX_HAND_SIZE = 7
 COMBAT_OBJECTIVE_WEIGHTS_PERCENT = {
-    "kill_all": 50,
-    "kill_leader": 25,
+    "kill_all": 100,
+    "kill_leader": 0,
     "survive": 0,
-    "reach_exit": 25,
+    "reach_exit": 0,
 }
 SURVIVAL_TARGET_CLOCK_BY_LOCAL_DEPTH = [42, 46, 50]
 SURVIVAL_REINFORCEMENT_INTERVAL = 16
@@ -332,6 +332,17 @@ def encounter_assumptions() -> dict[str, Any]:
         "combat_objectives": {
             "first_combat": "kill_all",
             "later_combat_weights_percent": COMBAT_OBJECTIVE_WEIGHTS_PERCENT,
+            "layout_revision": "6+; earlier revisions retain their seeded objective mix",
+            "warband": {
+                "objective": "kill_leader",
+                "roster": "biome captain plus first 3/4/5 ordered escorts at local tier 1/2/3",
+                "captain_hp_multiplier": 1.25,
+                "captain_stoneskin_by_tier": [2, 3, 4],
+                "command": "living captain grants followers within Manhattan range 2 +1 on every damaging action",
+                "keep_distance": "one tile before normal intent when player within 2; immobile captain skips",
+                "break": "surviving followers flee without death effects or individual drops",
+                "score_policy": "objective-specific encounter context; intrinsic coefficients unchanged",
+            },
             "boss_objective": "kill_leader_with_authored_boss_stats",
             "survival_target_clock_by_local_depth": SURVIVAL_TARGET_CLOCK_BY_LOCAL_DEPTH,
             "survival_reinforcement_interval": SURVIVAL_REINFORCEMENT_INTERVAL,

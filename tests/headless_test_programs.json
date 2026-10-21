@@ -397,5 +397,11 @@
   },
   {
     "path": "tests/rr18/runtime_test.gd"
+  },
+  {
+    "path": "tests/warband_test.gd"
+  },
+  {
+    "path": "tests/warband_ui_test.gd"
   }
 ]

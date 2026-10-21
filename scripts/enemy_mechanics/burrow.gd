@@ -53,6 +53,9 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	var struck_player: bool = false
 	var health_loss: int = 0
 	var block_loss: int = 0
+	var emerged: Dictionary = enemy.duplicate(true)
+	emerged["pos"] = destination
+	action = preload("res://scripts/warband_combat_rules.gd").action(state, emerged, action)
 	var attack: Dictionary = action.duplicate(true)
 	attack["type"] = "aoe"
 	attack["_origin_tile"] = destination
@@ -173,6 +176,9 @@ static func threat(engine: RefCounted, state: Dictionary, index: int, intent: Di
 				if int(action.get("damage", 0)) > 0 and not tiles.has(marked): tiles.append(marked)
 				for direction: Vector2i in directions(Vector2i.ONE):
 					if Paths.is_passable(state.get("grid", []), destination + direction): tiles.append(destination + direction)
+	var projected: Dictionary = enemy.duplicate(true)
+	projected["pos"] = destination
+	action = preload("res://scripts/warband_combat_rules.gd").action(state, projected, action)
 	var path: Array[Vector2i]
 	path.append(enemy["pos"])
 	return {"move": [], "attack": tiles, "projected_path": path, "projected_attack": tiles, "projected_destination": destination,

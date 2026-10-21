@@ -107,7 +107,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: warband BIOME TIER [seed], state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
@@ -192,6 +192,8 @@ func _handle_command(command: String) -> void:
 	match verb:
 		"help", "?":
 			_print_help()
+		"warband":
+			_command_warband(command.split(" ", false))
 		"state", "s":
 			_print_state()
 		"map":
@@ -633,10 +635,10 @@ func _print_enemies() -> void:
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
 		var enemy_def: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
-		var intent: Dictionary = enemy.get("intent", {})
+		var intent: Dictionary = preload("res://scripts/warband_combat_rules.gd").intent(_combat_state, enemy, enemy.get("intent", {}))
 		print("  %d: %s at %s HP %d/%d block %d %s intent %s: %s" % [
 			live_index,
-			str(enemy_def.get("name", enemy.get("type", "enemy"))),
+			preload("res://scripts/enemy_identity.gd").display_name(enemy),
 			_coord_text(enemy.get("pos", Vector2i.ZERO)),
 			int(enemy.get("hp", 0)),
 			int(enemy.get("max_hp", 0)),
@@ -2306,6 +2308,8 @@ func _new_death_reward_lines(before_state: Dictionary, after_state: Dictionary) 
 			continue
 		var reward: Dictionary = after_rewards[index]
 		var enemy_def: Dictionary = GameData.enemy_def(str(reward.get("type", "")))
+		var enemy_index: int = _combat_engine._enemy_index_for_id(after_state, int(reward.get("enemy_id", -1)))
+		var enemy: Dictionary = after_state["enemies"][enemy_index] if enemy_index >= 0 else {"type": reward.get("type", "")}
 		var bits: Array[String] = []
 		var embers: int = int(reward.get("embers", 0))
 		var card_plays: int = int(reward.get("card_plays", 0))
@@ -2317,7 +2321,7 @@ func _new_death_reward_lines(before_state: Dictionary, after_state: Dictionary) 
 			bits.append("summoned: no play bonus")
 		if bits.is_empty():
 			bits.append("no combat reward")
-		lines.append("%s %s" % [str(enemy_def.get("name", reward.get("type", "enemy"))), ", ".join(bits)])
+		lines.append("%s %s" % [preload("res://scripts/enemy_identity.gd").display_name(enemy, enemy_def), ", ".join(bits)])
 	return lines
 
 func _print_enemy_round_resolution(phase: Dictionary, before_state: Dictionary, after_enemy_state: Dictionary, before_draw_state: Dictionary, next_turn_state: Dictionary) -> void:
@@ -3266,3 +3270,23 @@ func _command_force(parts: PackedStringArray) -> void:
 	_pending["actions"] = actions
 	_append_note("- Selected %s for the pending card's force direction.\n" % parts[1])
 	_print_pending()
+
+# Debug console only: warband <biome> <tier> [seed]. Uses the same fixture
+# factory as inspection and the native proof, without owning map placement.
+func _command_warband(parts: PackedStringArray) -> void:
+	if parts.size() < 3:
+		print("Usage: warband <biome> <tier> [seed]")
+		return
+	var fixture = preload("res://tools/warband_inspection.gd")
+	var options: Dictionary = {"warband_biome": parts[1], "warband_tier": int(parts[2])}
+	var error: String = fixture.validate(options)
+	if not error.is_empty():
+		print(error)
+		return
+	var seed: int = int(parts[3]) if parts.size() > 3 else int(_run_state["seed"])
+	_start_new_run(seed)
+	_run_state = fixture.build(_run_engine, _combat_engine, _run_state, options)
+	_sync_combat_state_from_run()
+	_attach_new_combat_analytics({}, "warband_fixture")
+	_pending.clear()
+	_print_state()

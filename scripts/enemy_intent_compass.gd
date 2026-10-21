@@ -1,6 +1,8 @@
 extends RefCounted
 class_name EnemyIntentCompass
 
+const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
+
 const FAMILY_ATTACK := "attack"
 const FAMILY_DEFENSE := "defense"
 const FAMILY_SUPPORT := "support"
@@ -35,7 +37,7 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 			continue
 		if filter_visibility and not visible_enemy_ids.has(enemy_id):
 			continue
-		var intent: Dictionary = enemy.get("intent", {}) as Dictionary
+		var intent: Dictionary = WarbandRules.intent(state, enemy, enemy.get("intent", {}))
 		if intent.is_empty():
 			continue
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(state, enemy, intent)

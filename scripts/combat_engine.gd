@@ -29,6 +29,9 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const DragonCombatRules = preload("res://scripts/dragon_combat_rules.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
+const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
+
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
@@ -2574,12 +2577,27 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
-	intent = _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {}))
+	if not immobilized:
+		var retreat: Array[Vector2i] = WarbandRules.retreat_path(self, next_state, enemy)
+		if retreat.size() > 1:
+			var before_retreat: Dictionary = next_state.duplicate(true)
+			var retreat_context: Dictionary = {"committed": true}
+			var retreat_bleed: Array[Dictionary]
+			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, {"type": "move_away"}, retreat_bleed)
+			if not _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+				next_state = _move_enemy_along_planned_path(next_state, enemy_index, retreat, retreat_context, 1)
+			if include_commit_steps: _append_commit_step(steps, before_retreat, next_state, "warband_retreat")
+			for bleed_step: Dictionary in retreat_bleed:
+				steps.append(_umbra_marked_enemy_status_step(before_retreat, next_state, bleed_step, int(enemy["id"])))
+			steps.append(_enemy_action_step(before_retreat, next_state, enemy_index, {"type": "move_away", "range": 1}, retreat_context))
+			enemy = _normalized_enemy(next_state["enemies"][enemy_index])
+			if combat_outcome(next_state) != "": return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
+	intent = WarbandRules.intent(next_state, enemy, _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {})))
 	if not intent.is_empty():
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
 		var actions: Array = intent.get("actions", [])
-		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked)
+		var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent, immobilized, shocked, false)
 		_record_runtime_performance_phase("enemy_turn_plan_total", performance_phase_started)
 		for action_index: int in range(actions.size()):
 			var action_var: Variant = actions[action_index]
@@ -2666,7 +2684,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	if not is_enemy_visible_to_player(state, enemy):
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
-	var intent: Dictionary = BrambleRules.effective_intent(self, state, enemy, enemy.get("intent", {}))
+	var intent: Dictionary = WarbandRules.intent(state, enemy, BrambleRules.effective_intent(self, state, enemy, enemy.get("intent", {})))
 	if not (intent.get("actions", []) as Array).is_empty() and BurrowRules.handles(intent["actions"][0]): return BurrowRules.threat(self, state, enemy_index, intent)
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
@@ -2785,6 +2803,7 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 	return {"path": path, "destination": to, "collision": collision}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
+	if WarbandRules.active(state): return WarbandRules.resolve_phase(self, state)
 	var next_state: Dictionary = state.duplicate(true)
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.state = int(next_state.get("rng_state", 0))
@@ -3375,7 +3394,7 @@ func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictiona
 	var enemy: Dictionary = ((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 	if is_enemy_visible_to_player(next_state, enemy):
 		_log(next_state, "%s prepares %s." % [
-			str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+			EnemyIdentity.display_name(enemy),
 			str(intent.get("name", "an action"))
 		])
 	else:
@@ -3405,7 +3424,7 @@ func _enemy_intent_step_for_player(state: Dictionary, enemy: Dictionary, intent:
 	return {
 		"kind": "intent",
 		"actor_key": _enemy_key(enemy),
-		"actor_name": "Unknown Presence" if hidden else str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+		"actor_name": "Unknown Presence" if hidden else EnemyIdentity.display_name(enemy),
 		"tile": Vector2i(-1, -1) if hidden else enemy.get("pos", Vector2i.ZERO),
 		"intent_name": "Hidden Intent" if hidden else str(intent.get("name", "Action")),
 		"hidden_by_umbra": hidden
@@ -3466,6 +3485,10 @@ func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dict
 func _umbra_marked_enemy_status_step(before_state: Dictionary, after_state: Dictionary, step: Dictionary, enemy_id: int) -> Dictionary:
 	var presented: Dictionary = _umbra_marked_enemy_action_step(before_state, after_state, step, enemy_id)
 	if not bool(presented.get("hidden_by_umbra", false)):
+		var index: int = _enemy_index_for_id(after_state, enemy_id)
+		if index >= 0:
+			var enemy: Dictionary = after_state["enemies"][index]
+			if enemy.has("display_name") and str(presented.get("actor_key", "")) == _enemy_key(enemy): presented["actor_name"] = EnemyIdentity.display_name(enemy)
 		return presented
 	presented["actor_name"] = "Unknown Presence"
 	presented["tile"] = Vector2i(-1, -1)
@@ -3517,7 +3540,7 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 	var after_player: Dictionary = after_state.get("player", {})
 	var action_type: String = str(action.get("type", ""))
 	var enemy_definition: Dictionary = GameData.enemy_def(str(after_enemy.get("type", "")))
-	var actor_name: String = str(enemy_definition.get("name", "Enemy"))
+	var actor_name: String = EnemyIdentity.display_name(after_enemy, enemy_definition)
 	var attack_element: String = str(action.get("element", enemy_definition.get("element", ElementData.NONE)))
 	match action_type:
 		"surface":
@@ -4012,7 +4035,7 @@ func _enemy_key(enemy: Dictionary) -> String:
 	return "enemy_%d" % int(enemy.get("id", -1))
 
 func _enemy_display_name(enemy: Dictionary) -> String:
-	return str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))
+	return EnemyIdentity.display_name(enemy)
 
 func _actor_targets(state: Dictionary) -> Array[Dictionary]:
 	var targets: Array[Dictionary] = []
@@ -4393,7 +4416,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
-	action = action.duplicate(true)
+	action = WarbandRules.action(next_state, enemy, action).duplicate(true)
 	action["_enemy_id"] = int(enemy.get("id", -1))
 	action["_origin_tile"] = enemy.get("pos", INVALID_TILE)
 	next_state["damage_context"] = {"actor_kind": "enemy", "actor_id": int(enemy.get("id", -1)), "source_kind": "direct_attack", "player_card": false, "enemy_type": str(enemy.get("type", "")), "intent_id": str((enemy.get("intent", {}) as Dictionary).get("id", ""))}
@@ -4448,7 +4471,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				for trail_tile: Vector2i in action_context.get("resolved_path", []):
 					if trail_tile == endpoint: break
 					BoardSurfaceRules.place(next_state, trail_tile, str(action["trail_surface"]), _surface_source(next_state, action))
-			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+			_log(next_state, "%s closes in." % EnemyIdentity.display_name(enemy))
 		"move_away":
 			var away_path: Array[Vector2i] = _planned_enemy_movement_path(next_state, enemy, enemy_index, action, followup_action, action_context, target_pos, false)
 			if away_path.size() <= 1:
@@ -4462,26 +4485,26 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				for trail_tile: Vector2i in action_context.get("resolved_path", []):
 					if trail_tile == endpoint: break
 					BoardSurfaceRules.place(next_state, trail_tile, str(action["trail_surface"]), _surface_source(next_state, action))
-			_log(next_state, "%s falls back." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+			_log(next_state, "%s falls back." % EnemyIdentity.display_name(enemy))
 		"block":
 			enemy["block"] = int(enemy.get("block", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s braces for %d block." % [
-				str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
 		"stoneskin":
 			enemy["stoneskin"] = int(enemy.get("stoneskin", 0)) + int(action.get("amount", 0))
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s hardens for %d stoneskin." % [
-				str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
 		"heal_self":
 			enemy["hp"] = mini(int(enemy.get("max_hp", 1)), int(enemy.get("hp", 0)) + int(action.get("amount", 0)))
 			enemies[enemy_index] = enemy
 			_log(next_state, "%s recovers %d health." % [
-				str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+				EnemyIdentity.display_name(enemy),
 				int(action.get("amount", 0))
 			])
 		"heal_ally":
@@ -4496,7 +4519,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			if healed_amount > 0:
 				_log(next_state, "%s stitches %s for %d health." % [
 					_enemy_display_name(enemy),
-					"itself" if heal_target_index == enemy_index else _enemy_display_name(heal_target),
+					"itself" if heal_target_index == enemy_index else EnemyIdentity.running_name(_enemy_display_name(heal_target)),
 					healed_amount
 				])
 		"guard_ally":
@@ -4529,7 +4552,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 						BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
 				_log(next_state, "%s guards %s for %d block." % [
 					_enemy_display_name(enemy),
-					"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
+					"itself" if guard_target_index == enemy_index else EnemyIdentity.running_name(_enemy_display_name(guard_target)),
 					int(action.get("amount", 0))
 				])
 		"melee":
@@ -4682,7 +4705,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		if bool((next_state.get("run_stats", {}) as Dictionary).get("card_resolution_active", false)):
 			_record_run_stat(next_state, "card_resolution_kills", 1)
 			_record_run_max(next_state, "max_kills_one_card", int((next_state["run_stats"] as Dictionary).get("card_resolution_kills", 0)))
-		var reward_embers: int = 0 if bool(enemy.get("guardian_helper", false)) else int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
+		var reward_embers: int = 0 if bool(enemy.get("guardian_helper", false)) or (WarbandRules.active(next_state) and not bool(enemy.get("is_leader", false))) else int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
 		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
 		var credit: bool = bool(context.get("player_card", is_player_turn(next_state)))
 		var bonus_card_plays: int = 1 if credit and not bool(enemy.get("summoned", false)) else 0
@@ -4698,10 +4721,14 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		next_state["_surface_pending_deaths"] = pending
 		if not bool(next_state.get("_surface_damage_batch", false)):
 			next_state = _flush_surface_deaths(next_state)
-		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+		_log(next_state, "%s falls." % EnemyIdentity.display_name(enemy))
 	return next_state
 
 func _clear_remaining_enemies_for_leader_objective(state: Dictionary, leader_id: int) -> Dictionary:
+	if WarbandRules.active(state):
+		state = WarbandRules.break_followers(self, state, leader_id)
+		WindRules.clear_dead_source(self, state)
+		return state
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
 	var cleared_count: int = 0
@@ -5314,7 +5341,7 @@ func _enemy_actor_entry(state: Dictionary, enemy: Dictionary, scheduled_time: in
 		"actor_key": _enemy_key(enemy),
 		"enemy_id": int(enemy.get("id", -1)),
 		"type": enemy_type,
-		"name": str(GameData.enemy_def(enemy_type).get("name", "Enemy")),
+		"name": EnemyIdentity.display_name(enemy),
 		"team": "enemy",
 		"time": scheduled_time,
 		"seq": seq,
@@ -5397,7 +5424,7 @@ func _turn_order_projection_context(state: Dictionary, visible_lookup: Dictionar
 				"actor_key": _enemy_key(enemy),
 				"enemy_id": enemy_id,
 				"type": enemy_type,
-				"name": str(definition.get("name", "Enemy")),
+				"name": EnemyIdentity.display_name(enemy, definition),
 				"team": "enemy",
 				"pos": enemy.get("pos", Vector2i.ZERO)
 			},
@@ -6317,7 +6344,7 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 			return next_state
 		enemy = _normalized_enemy(next_state["enemies"][enemy_index])
 		next_state = _trigger_trap_at_index(next_state, trap_index)
-		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+		_log(next_state, "%s triggers a trap." % EnemyIdentity.display_name(enemy))
 		return next_state
 	if target.is_empty():
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, int(selection.get("terrain_index", -2)))
@@ -6372,7 +6399,7 @@ func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action:
 	else:
 		next_state = _damage_terrain(next_state, terrain_index, damage)
 	_log(next_state, "%s breaks through terrain for %d." % [
-		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
+		EnemyIdentity.display_name(enemy),
 		damage
 	])
 	return next_state
@@ -7529,7 +7556,7 @@ func _trigger_enemy_bleed_for_action(state: Dictionary, enemy_index: int, action
 	var step: Dictionary = _enemy_status_damage_step({
 		"kind": "status_damage",
 		"actor_key": _enemy_key(after_enemy),
-		"actor_name": str(GameData.enemy_def(str(after_enemy.get("type", ""))).get("name", "Enemy")),
+		"actor_name": EnemyIdentity.display_name(after_enemy),
 		"tile": before_enemy.get("pos", Vector2i.ZERO),
 		"amount": maxi(0, int(before_enemy.get("hp", 0)) - int(after_enemy.get("hp", 0))),
 		"label": "Bleed",
@@ -8177,7 +8204,7 @@ func _trigger_enemy_death_spawn(state: Dictionary, enemy: Dictionary) -> Diction
 		var spawned_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[spawned_index] as Dictionary)
 		_schedule_enemy_after_spawn(next_state, spawned_enemy, spawned_index - first_spawned_index)
 	next_state["rng_state"] = intent_rng.state
-	_log(next_state, "%s splits." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
+	_log(next_state, "%s splits." % EnemyIdentity.display_name(enemy))
 	return next_state
 
 func _spawned_enemy_entry(state: Dictionary, enemy_type: String, enemy_id: int, tile: Vector2i, summoned: bool) -> Dictionary:
@@ -9131,7 +9158,30 @@ func _preview_block_for_intent(intent: Dictionary) -> int:
 			total += int(action.get("amount", 0))
 	return total
 
-func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false) -> Dictionary:
+func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false, include_warband_retreat: bool = true) -> Dictionary:
+	if not WarbandRules.active(state): return _enemy_intent_plan_base(state, enemy_index, intent_override, movement_disabled, attack_disabled)
+	if enemy_index < 0 or enemy_index >= (state.get("enemies", []) as Array).size(): return {}
+	var enemy: Dictionary = state["enemies"][enemy_index]
+	var retreat: Array[Vector2i]
+	var planning: Dictionary = state
+	if include_warband_retreat and not movement_disabled:
+		retreat = WarbandRules.retreat_path(self, state, enemy)
+		if retreat.size() > 1:
+			planning = state.duplicate(true)
+			planning["enemies"][enemy_index]["pos"] = retreat.back()
+	var effective: Dictionary = WarbandRules.intent(planning, planning["enemies"][enemy_index], intent_override if not intent_override.is_empty() else enemy.get("intent", {}))
+	var plan: Dictionary = _enemy_intent_plan_base(planning, enemy_index, effective, movement_disabled, attack_disabled)
+	var projected: Dictionary = enemy.duplicate(true)
+	projected["pos"] = plan.get("landing", plan.get("destination", enemy["pos"]))
+	if plan.has("attack_action"): plan["attack_action"] = WarbandRules.action(planning, projected, plan["attack_action"])
+	if retreat.size() > 1:
+		var combined: Array[Vector2i] = retreat.duplicate()
+		combined.append_array(_vector2i_values(plan.get("path", [])).slice(1))
+		plan["path"] = combined
+		plan["warband_retreat"] = retreat
+	return plan
+
+func _enemy_intent_plan_base(state: Dictionary, enemy_index: int, intent_override: Dictionary = {}, movement_disabled: bool = false, attack_disabled: bool = false) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size():
@@ -12157,6 +12207,8 @@ func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Ve
 func _flush_surface_deaths(state: Dictionary) -> Dictionary:
 	var deaths: Array = state.get("_surface_pending_deaths", []).duplicate(true)
 	state.erase("_surface_pending_deaths")
+	if WarbandRules.broken(state):
+		state = _clear_remaining_enemies_for_leader_objective(state, int(state["objective"]["leader_id"]))
 	for death: Dictionary in deaths:
 		var enemy: Dictionary = death["enemy"]
 		var prior_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
@@ -12166,9 +12218,9 @@ func _flush_surface_deaths(state: Dictionary) -> Dictionary:
 		state["damage_context"] = prior_context
 		if bool(enemy.get("is_leader", false)) and str((state.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.KILL_LEADER:
 			state = _clear_remaining_enemies_for_leader_objective(state, int(enemy.get("id", -1)))
-		else:
+		elif not WarbandRules.suppress_death_effects(state, enemy):
 			state = _trigger_enemy_death_spawn(state, enemy)
-		state = DeathBurstRules.on_death(self, state, enemy)
+		if not WarbandRules.suppress_death_effects(state, enemy): state = DeathBurstRules.on_death(self, state, enemy)
 	return state
 
 func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> Dictionary:
@@ -12303,7 +12355,7 @@ func _surface_events_since(before_state: Dictionary, after_state: Dictionary) ->
 	return events
 
 func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
-	action = action.duplicate(true)
+	action = WarbandRules.action(before_state, before_state["enemies"][enemy_index], action).duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary
 	if DiveRules.handles(action): step = DiveRules.step(self, before_state, after_state, enemy_index, action, action_context)
@@ -12323,6 +12375,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
 	if not CapacitorRules.grounded_targets(before_state, after_state).is_empty(): step["grounded_targets"] = CapacitorRules.grounded_targets(before_state, after_state)
 	if not step.is_empty():
+		if (before_state["enemies"][enemy_index] as Dictionary).has("display_name") and not step.has("source_actor_key"):
+			step["actor_name"] = EnemyIdentity.display_name(before_state["enemies"][enemy_index])
 		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
 		step["surface_events"] = _surface_events_since(before_state, after_state)
 	return step

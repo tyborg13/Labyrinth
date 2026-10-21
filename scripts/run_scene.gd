@@ -13503,7 +13503,7 @@ func _animate_turn_order_alongside_defeats(
 	skip_terrain_destruction: bool = false,
 	order_before_state: Dictionary = {}
 ) -> void:
-	if _combat_pacing.overlap_defeats(before_state, after_state, skip_terrain_destruction): return
+	if not preload("res://scripts/warband_view.gd").break_started(before_state, after_state) and _combat_pacing.overlap_defeats(before_state, after_state, skip_terrain_destruction): return
 	# The rail may start from a different projection (for example, before this
 	# card's Stagger) so its motion shows the delay landing.
 	var before_order: Array[Dictionary] = _turn_order_entries_from_state(order_before_state if not order_before_state.is_empty() else before_state)
@@ -18592,7 +18592,7 @@ func _enemy_destination_preview_units(
 			"role": "enemy_move_preview",
 			"id": int(enemy.get("id", -1)),
 			"type": str(enemy.get("type", "")),
-			"name": str(enemy.get("name", GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))),
+			"name": str(enemy.get("name", preload("res://scripts/enemy_identity.gd").display_name(enemy))),
 			"pos": destination,
 			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"hp": hp,
@@ -23464,6 +23464,7 @@ func _animate_defeats_and_terrain_destruction(
 	base_presentation: Dictionary = {},
 	skip_terrain_destruction: bool = false
 ) -> void:
+	await preload("res://scripts/warband_view.gd").animate_break(self, before_state, after_state, base_presentation)
 	var death_units: Array[Dictionary] = _defeated_player_units_between_states(before_state, after_state)
 	death_units.append_array(_defeated_enemy_units_between_states(before_state, after_state))
 	_start_terminal_defeat_music_if_needed(death_units, after_state)
@@ -23542,6 +23543,8 @@ func _death_hold_presentation(
 	var hold_units: Array[Dictionary] = []
 	for unit: Dictionary in death_units:
 		var hold_unit: Dictionary = unit.duplicate(true)
+		if bool(hold_unit.get("warband_fled", false)):
+			hold_unit["pos"] = _animation_actor_unit(before_state, str(hold_unit["key"]))["pos"]
 		hold_unit["death_frame"] = 0
 		hold_unit["death_progress"] = 0.0
 		hold_units.append(hold_unit)
@@ -23564,6 +23567,7 @@ func _death_hold_presentation(
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
+	if bool(unit.get("warband_fled", false)): return board_view.ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
 	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frames(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_count"):
 		var board_count: int = int(board_view.call("_unit_death_frame_count", unit))
@@ -23577,6 +23581,7 @@ func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
 	return maxi(1, columns * rows)
 
 func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
+	if bool(unit.get("warband_fled", false)): return board_view.ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
 	if MaquetteAction.handles(str(unit.get("type", ""))): return preload("res://scripts/maquette_cutout_runtime/death.gd").frame_seconds(str(unit["type"]))
 	if board_view != null and board_view.has_method("_unit_death_frame_seconds"):
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
@@ -26815,8 +26820,9 @@ func _defeated_enemy_units_between_states(before_state: Dictionary, after_state:
 			"role": "enemy",
 			"id": enemy_id,
 			"type": enemy_type,
-			"name": str(definition.get("name", "Enemy")),
-			"pos": final_enemy.get("pos", before_enemy.get("pos", Vector2i.ZERO)),
+			"name": preload("res://scripts/enemy_identity.gd").display_name(before_enemy),
+			"warband_fled": bool(final_enemy.get("warband_fled", false)),
+			"pos": (final_enemy["warband_flee_path"] as Array).back() if bool(final_enemy.get("warband_fled", false)) and not _reduced_motion_enabled() else final_enemy.get("pos", before_enemy.get("pos", Vector2i.ZERO)),
 			"footprint": _enemy_footprint_for_animation(final_enemy, definition),
 			"hp": maxi(1, int(before_enemy.get("hp", 1))),
 			"max_hp": maxi(1, int(before_enemy.get("max_hp", before_enemy.get("hp", 1)))),

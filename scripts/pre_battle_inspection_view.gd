@@ -47,7 +47,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	identity.alignment = BoxContainer.ALIGNMENT_CENTER
 	identity.add_theme_constant_override("separation", 6)
 	header.add_child(identity)
-	var name_label := View.label(str(definition.get("name", enemy.get("type", ""))), 30)
+	var name_label := View.label(preload("res://scripts/enemy_identity.gd").display_name(enemy, definition), 30)
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_label.custom_minimum_size.x = Typography.scaled_value(host, 300.0)
 	name_label.size.x = name_label.custom_minimum_size.x
@@ -78,7 +78,8 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	moves.add_theme_constant_override("separation", 7)
 	content.add_child(moves)
 	for intent: Dictionary in host.call("_pre_battle_known_enemy_intents", str(enemy.get("type", ""))):
-		moves.add_child(build_move(host, intent))
+		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
+		moves.add_child(build_move(host, preload("res://scripts/warband_combat_rules.gd").intent(battle, enemy, intent)))
 	if moves.get_child_count() == 0:
 		moves.add_child(View.label("No recorded moves.", 14, Palette.TEXT_2))
 	return panel

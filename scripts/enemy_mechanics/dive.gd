@@ -144,6 +144,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	state = _push_passed_units(engine, state, index, action, tiles, forecast["side_direction"], pushes)
 	var landing: Vector2i = _landing_tile(engine, state, index, forecast["destination"], tiles)
 	state["enemies"][index]["pos"] = landing
+	action = preload("res://scripts/warband_combat_rules.gd").action(state, state["enemies"][index], action)
 	if Paths.manhattan(landing, hero_tile) == 1: state = Reflect.damage_line(engine, state, index, action, engine._vector2i_values([hero_tile]))
 	state["damage_context"] = previous
 	return state

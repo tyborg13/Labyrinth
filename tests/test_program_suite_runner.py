@@ -36,6 +36,7 @@ EXTRACTED_PROGRAMS = [
 MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section_map_v5_layout_test",
                    "suites/section_map_performance_program"]
 SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
+WARBAND_PROGRAMS = [{"path": "tests/warband_test.gd"}, {"path": "tests/warband_ui_test.gd"}]
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
 # Independent of the manifest: recognized but incorrect modes must fail too.
 REQUIRED_FIXTURE_MODES = {
@@ -144,8 +145,10 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # bug-01's four fixed tests left quarantine for the supplemental set at its merge;
         # rr-05 made maquette_cutout_test a real pixel-runtime program (no longer a shared wrapper).
         # rr-12, rr-17 and rr-18 each add one rig/runtime domain after the accepted 122.
-        self.assertEqual(len(supplemental), 125, "Preserve the accepted supplemental set plus rr-17 and rr-18")
-        self.assertEqual(supplemental[-4:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}])
+        self.assertEqual(supplemental[-len(WARBAND_PROGRAMS):], WARBAND_PROGRAMS)
+        accepted = supplemental[:-len(WARBAND_PROGRAMS)]
+        self.assertEqual(len(accepted), 125, "Preserve the accepted supplemental set plus rr-17 and rr-18")
+        self.assertEqual(accepted[-4:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}])
         expected.extend(program["path"].removeprefix("tests/").removesuffix(".gd") for program in supplemental)
         expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         self.assertEqual(list(actual), expected)

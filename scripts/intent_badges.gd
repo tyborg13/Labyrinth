@@ -1,6 +1,7 @@
 extends RefCounted
 ## Read-only end-now presentation. No resolver or scheduling state is retained.
 
+const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
 const Compass = preload("res://scripts/enemy_intent_compass.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
@@ -99,6 +100,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		var id: int = int(enemy.get("id", -1))
 		var projected: Dictionary = preview_enemies.get(id, {}) as Dictionary
 		var intent: Dictionary = projected.get("intent", enemy.get("intent", {})) as Dictionary
+		intent = WarbandRules.intent(preview, projected if not projected.is_empty() else enemy, intent)
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(known_preview, enemy, intent)
 		if intent.is_empty():
 			continue

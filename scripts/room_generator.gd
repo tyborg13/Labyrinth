@@ -1,6 +1,9 @@
 extends RefCounted
 class_name RoomGenerator
 
+const Specials = preload("res://scripts/special_encounter_library.gd")
+const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
+
 const DepthRules = preload("res://scripts/depth_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -121,6 +124,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var boss_id: String = str(room.get("boss_id", ""))
 	var objective: Dictionary = CombatObjectiveRules.build_for_room(run_seed, room, travel_dir)
 	var encounter: Dictionary = {}
+	var warband: bool = Specials.is_warband(room)
 	var table_encounter: bool = _uses_encounter_tables(room)
 	var enemy_types: Array = []
 	if table_encounter:
@@ -129,15 +133,34 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		# path, including placement. An empty combat is never a valid fallback.
 		table_encounter = not (encounter.get("units", []) as Array).is_empty()
 		if table_encounter: enemy_types = encounter["units"]
-	if not table_encounter and npc_specs.is_empty():
+	if warband:
+		enemy_types = WarbandRooms.roster(room, clampi(encounter_depth, 1, 3))
+	elif not table_encounter and npc_specs.is_empty():
 		enemy_types = _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
-	enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
-	enemy_types = _apply_spawn_groups(enemy_types, int(room.get("max_units", -1)))
+	if not warband:
+		enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
+		enemy_types = _apply_spawn_groups(enemy_types, int(room.get("max_units", -1)))
 	if str(objective.get("type", "")) == CombatObjectiveRules.SURVIVE:
 		objective["reinforcement_pool"] = _unique_enemy_types(enemy_types)
 	objective["initial_enemy_count"] = enemy_types.size()
 	var objective_exit_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
 	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter)
+	if warband:
+		for attempt: int in range(WarbandRooms.MAX_PLACEMENT_ATTEMPTS):
+			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), rng, enemy_types[0] == "storm_capacitor")
+			if enemy_positions.size() == enemy_types.size(): break
+			# Retry the existing room template with the same seeded RNG.
+			grid = _base_grid(rng)
+			_apply_available_doors(grid, room)
+			_apply_template(grid, rng)
+		if enemy_positions.size() != enemy_types.size():
+			# The deterministic fallback retains this room's floor and doors,
+			# clearing interior template blockers before exhaustive placement.
+			for y: int in range(1, ROOM_HEIGHT - 1):
+				for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
+			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), rng, enemy_types[0] == "storm_capacitor", true)
+		assert(enemy_positions.size() == enemy_types.size(), "No legal Warband formation")
+		moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
 	if table_encounter: assert(enemy_positions.size() == enemy_types.size(), "Section encounter placement lost units")
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
@@ -192,6 +215,10 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"objective": objective,
 		"theme": TILE_STONE
 	}
+	if warband:
+		layout["special_type"] = "warband"
+		layout["special_variant"] = room["special_variant"]
+		assert(WarbandRooms.validate(layout), "Illegal Warband placement")
 	if table_encounter:
 		layout["encounter_id"] = encounter["id"]
 		layout["biome"] = room["encounter_biome"]
@@ -604,6 +631,7 @@ func _apply_leader_objective(enemies: Array[Dictionary], objective: Dictionary) 
 	var leader_index: int = 0
 	var highest_hp: int = -1
 	for index: int in range(enemies.size()):
+		if str(objective.get("special_type", "")) == "warband": break
 		var max_hp: int = int(enemies[index].get("max_hp", 0))
 		if max_hp > highest_hp:
 			highest_hp = max_hp
@@ -615,6 +643,8 @@ func _apply_leader_objective(enemies: Array[Dictionary], objective: Dictionary) 
 	leader["hp"] = leader_max_hp
 	leader["stoneskin"] = int(leader.get("stoneskin", 0)) + int(objective.get("leader_stoneskin", 0))
 	leader["is_leader"] = true
+	if objective.has("leader_display_name"):
+		leader["display_name"] = objective["leader_display_name"]
 	enemies[leader_index] = leader
 	objective["leader_id"] = int(leader.get("id", -1))
 	objective["leader_type"] = str(leader.get("type", ""))

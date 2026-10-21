@@ -1,6 +1,10 @@
 extends RefCounted
 class_name CombatObjectiveRules
 
+const WarbandRooms = preload("res://scripts/warband_room_rules.gd")
+const Specials = preload("res://scripts/special_encounter_library.gd")
+const Identity = preload("res://scripts/enemy_identity.gd")
+
 const KILL_ALL: String = "kill_all"
 const KILL_LEADER: String = "kill_leader"
 const SURVIVE: String = "survive"
@@ -49,14 +53,18 @@ static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i
 		"description": description(objective_type),
 		"icon_path": icon_path(objective_type)
 	}
+	if Specials.is_warband(room):
+		result.merge(WarbandRooms.objective(room, encounter_depth), true)
+		result["name"] = title_for_objective(result)
+		result["description"] = description_for_objective(result)
 	match objective_type:
 		KILL_LEADER:
 			var boss_room: bool = str(room.get("type", "combat")) in ["boss", "guardian"]
 			# Bosses already own authored health and defenses. They use the leader
 			# objective so killing the boss ends the encounter, without receiving a
 			# second layer of generic leader scaling.
-			result["leader_health_multiplier"] = 1.0 if boss_room else 1.5
-			result["leader_stoneskin"] = 0 if boss_room else 2 + encounter_depth
+			result["leader_health_multiplier"] = result.get("leader_health_multiplier", 1.0 if boss_room else 1.5)
+			result["leader_stoneskin"] = result.get("leader_stoneskin", 0 if boss_room else 2 + encounter_depth)
 		SURVIVE:
 			result["target_clock"] = SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH[encounter_depth - 1]
 			result["reinforcement_interval"] = SURVIVAL_REINFORCEMENT_INTERVAL
@@ -150,9 +158,13 @@ static func is_control_intent(intent: Dictionary) -> bool:
 
 static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))
+	if Specials.is_warband(room):
+		return KILL_LEADER
 	if room_type in ["boss", "guardian"]:
 		return KILL_LEADER
 	if room_type != "combat":
+		return KILL_ALL
+	if int(room.get("section_map_layout_revision", 0)) >= 6:
 		return KILL_ALL
 	if bool(room.get(ONBOARDING_ROOM_KEY, false)):
 		return KILL_ALL
@@ -221,6 +233,8 @@ static func _mixed_seed(run_seed: int, coord: Vector2i, salt: int) -> int:
 static func title_for_objective(objective: Dictionary) -> String:
 	var type: String = str(objective.get("type", KILL_ALL))
 	if type == KILL_LEADER:
+		if str(objective.get("special_type", "")) == "warband":
+			return "Defeat %s" % Identity.running_name(str(objective["leader_display_name"]))
 		var identity: String = str(objective.get("leader_type", ""))
 		var data: Dictionary = preload("res://scripts/game_data.gd").enemy_def(identity)
 		if bool(data.get("guardian",false)) or preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(identity):
@@ -229,6 +243,8 @@ static func title_for_objective(objective: Dictionary) -> String:
 
 static func description_for_objective(objective: Dictionary) -> String:
 	var type: String = str(objective.get("type",KILL_ALL))
+	if str(objective.get("special_type", "")) == "warband":
+		return "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage."
 	var title: String = title_for_objective(objective)
 	if type == KILL_LEADER and title != display_name(type):
 		return ""
