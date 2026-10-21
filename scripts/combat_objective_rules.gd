@@ -244,7 +244,7 @@ static func title_for_objective(objective: Dictionary) -> String:
 static func description_for_objective(objective: Dictionary) -> String:
 	var type: String = str(objective.get("type",KILL_ALL))
 	if str(objective.get("special_type", "")) == "warband":
-		return "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage."
+		return "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage." + "\n" + preload("res://scripts/warband_combat_rules.gd").order_line(objective)
 	var title: String = title_for_objective(objective)
 	if type == KILL_LEADER and title != display_name(type):
 		return ""

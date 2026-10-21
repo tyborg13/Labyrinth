@@ -91,3 +91,22 @@ headlessly; this command adds the owner's interactive launch):
 ```bash
 cd /Users/borgerding/workspace/Labyrinth.worktrees/en-02 && python3 tools/inspection_fixture.py --task-id en-02 --run-id en02-gale-herald --scenario combat --enemy-types gale_herald --enemy-positions 5:2 --enemy-intents call_the_wind --player-position 5:5 --surfaces fire@6:5 --umbra-stage clear --biome vaeloryx --manifest /private/tmp/labyrinth-inspection-manifests/en02-gale-herald.json --summary 'Gale Herald before Call the Wind beside Fire' --launch
 ```
+
+## spx-04 — The Stormcaller
+
+Only wind sourced by the living Warband captain with `stormcaller_wind` keeps
+its authored `rounds_left` without decrement. Each Call replaces the direction
+through the existing hazard scan. Each gust slides the hero and eligible
+followers one tile through the existing forced mover; explicit Anchored,
+immobile and buried rules still apply. The Stormcaller stands firm like a base
+Gale Herald through `force_anchored`, and its preview contains no captain slide.
+The same real-mover copy powers follower/hero slide and collision previews.
+The director's exact Order line is `Order: Its wind never drops: a gust slides
+everyone else 1 tile every round.` Runtime wind behavior is unchanged by this
+wording correction. Source death clears wind as before. Ordinary
+Herald wind retains its two-boundary lifetime and its full-state legacy golden.
+The persistent wind chip reads `Wind · held`. Its tooltip appends the exact line
+`Held by the Stormcaller until it falls.` Finite wind retains its countdown
+and original tooltip.
+
+Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

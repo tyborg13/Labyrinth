@@ -4,6 +4,26 @@ const Paths = preload("res://scripts/path_utils.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Identity = preload("res://scripts/enemy_identity.gd")
 const FLEE_TILES: int = 2
+const Library = preload("res://scripts/special_encounter_library.gd")
+
+static func order_for_objective(objective: Dictionary) -> Dictionary:
+	if str(objective.get("special_type", "")) != "warband": return {}
+	return Library.definition("warband")["variants"].get(str(objective.get("special_variant", "")), {}).get("order", {})
+
+static func order(state: Dictionary, enemy: Dictionary, id: String) -> bool:
+	if not active(state) or not bool(enemy.get("is_leader", false)) or int(enemy.get("hp", 0)) <= 0: return false
+	var leader: Dictionary = captain(state)
+	return int(leader.get("id", -1)) == int(enemy.get("id", -2)) and str(order_for_objective(state["objective"]).get("id", "")) == id
+
+static func order_line(objective: Dictionary) -> String:
+	var value: Dictionary = order_for_objective(objective)
+	return "Order: " + str(value["text"]) if not value.is_empty() else ""
+
+static func order_axis(engine: RefCounted, delta: Vector2i) -> Vector2i:
+	# Director: project onto the dominant cardinal axis, preferring x on ties.
+	var direction: Vector2i = engine._cardinal_direction(delta)
+	return Vector2i(-direction.y, direction.x)
+
 
 static func active(state: Dictionary) -> bool:
 	return str(state.get("objective", {}).get("special_type", "")) == "warband"
@@ -36,9 +56,14 @@ static func intent(state: Dictionary, enemy: Dictionary, original: Dictionary) -
 	if not active(state): return original
 	var result: Dictionary = original.duplicate(true)
 	var actions: Array[Dictionary]
-	for value: Dictionary in original.get("actions", []): actions.append(action(state, enemy, value))
+	for value: Dictionary in result.get("actions", []): actions.append(action(state, enemy, value))
 	result["actions"] = actions
 	return result
+
+# Selected live intents can react to a Thrall death. Authored known-move lists
+# keep every move, so pre-battle inspection never collapses Charge/Burst rows.
+static func current_intent(state: Dictionary, enemy: Dictionary, original: Dictionary) -> Dictionary:
+	return intent(state, enemy, preload("res://scripts/enemy_mechanics/capacitor.gd").effective_intent(state, enemy, original))
 
 static func retreat_path(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
 	var empty: Array[Vector2i]
@@ -76,6 +101,11 @@ static func _has_screen(state: Dictionary, player: Vector2i, tile: Vector2i, cap
 static func break_followers(engine: RefCounted, state: Dictionary, leader_id: int) -> Dictionary:
 	var objective: Dictionary = state["objective"]
 	if bool(objective.get("completed_by_leader", false)): return state
+	# Reveal happens before the break snapshot/animation, including followers
+	# whose own Fade flag was active. This does not execute their Ambush.
+	if str(order_for_objective(objective).get("id", "")) == "prior_veil":
+		for follower: Dictionary in state["enemies"]:
+			if int(follower["id"]) != leader_id: follower["veiled"] = false
 	var cleared: int = 0
 	# Resolve all escape routes before removing anyone. Reserving destinations
 	# prevents followers crossing/stacking in the simultaneous presentation beat.

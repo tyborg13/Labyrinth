@@ -2775,6 +2775,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
 	next_presentation = DiveView.presentation_for(next_state, next_presentation)
+	next_presentation = BrambleView.presentation_for(next_state, next_presentation)
 	next_presentation = StaticEnemyFacing.presentation_for(self, next_state, next_presentation, presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
@@ -4250,6 +4251,10 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 				if detail.is_empty() or seen.has(detail): continue
 				seen[detail] = true
 				lines.append(detail)
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) == actor_key and bool(enemy.get("is_leader", false)):
+			var order: String = WarbandRules.order_line(combat_state.get("objective", {}))
+			if not order.is_empty(): lines.append(order)
 	return "\n".join(lines)
 
 func controller_tooltip_for_tile(tile: Vector2i) -> String:
@@ -8326,8 +8331,8 @@ func _build_visible_units() -> Array[Dictionary]:
 			"boss_bar": bool(_enemy_render_definition(str(enemy.get("type", ""))).get("boss_bar", false)),
 			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
-			"intent": preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(combat_state, enemy, WarbandRules.intent(combat_state, enemy, enemy.get("intent", {}))),
-			"veiled": bool(enemy.get("veiled", false)),
+			"intent": preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(combat_state, enemy, WarbandRules.current_intent(combat_state, enemy, enemy.get("intent", {}))),
+			"veiled": preload("res://scripts/enemy_mechanics/veil.gd").effective_veiled(combat_state, enemy),
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
 			"max_hp": int(enemy.get("max_hp", 1)),
@@ -8346,6 +8351,7 @@ func _build_visible_units() -> Array[Dictionary]:
 		# Older saves and partial animation snapshots can omit an authored large
 		# footprint (or transiently collapse it to 1x1). Resolve it before any
 		# sprite, shadow, HUD, depth, or compass anchoring consumes the unit.
+		if WarbandRules.order(combat_state, enemy, "dynamo_tether"): enemy_unit["charge"] = int(enemy.get("charge", 0))
 		enemy_unit["footprint"] = _resolved_unit_footprint(enemy_unit)
 		units_to_draw.append(enemy_unit)
 	units_to_draw.append_array(_death_animation_units_from_presentation())
@@ -9023,7 +9029,8 @@ func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect
 	var font: Font = get_theme_default_font()
 	if font != null:
 		draw_string(font, marker_rect.position + Vector2(24.0, 17.0), "LEADER", HORIZONTAL_ALIGNMENT_CENTER, 61.0, 11, Color("ffe2a3"))
-	_register_tooltip(marker_rect, "Leader · Defeating this marked enemy clears the encounter immediately.")
+	var order: String = WarbandRules.order_line(combat_state.get("objective", {}))
+	_register_tooltip(marker_rect, "Leader · Defeating this marked enemy clears the encounter immediately." + ("\n" + order if not order.is_empty() else ""))
 
 func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> void:
 	var font: Font = get_theme_default_font()
@@ -16533,7 +16540,7 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	if not refraction_rows.is_empty(): return refraction_rows
 	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
 	if not cancelled.is_empty(): return cancelled
-	var mechanic_rows: Array = CapacitorView.rows(intent) + MimicView.rows(self, unit, intent) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
+	var mechanic_rows: Array = CapacitorView.rows(intent, combat_state, unit) + MimicView.rows(self, unit, intent) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
 	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
@@ -16729,7 +16736,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = WindView.status_badges(unit)
 	badges.append_array(ReflectView.badges(unit))
 	badges.append_array(DiveView.badges(unit))
-	badges.append_array(CapacitorView.badges(unit))
+	badges.append_array(CapacitorView.badges(unit, combat_state))
 	badges.append_array(VeilView.badges(unit))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))

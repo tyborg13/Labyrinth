@@ -411,6 +411,15 @@
     "path": "tests/special_encounter_legend_test.gd"
   },
   {
+    "path": "tests/warband_orders_test.gd"
+  },
+  {
+    "path": "tests/warband_orders_probe.gd",
+    "args": [
+      "--check-only"
+    ]
+  },
+  {
     "path": "tests/warband_test.gd"
   },
   {

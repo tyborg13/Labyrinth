@@ -48,3 +48,15 @@ Mean no-Shock activation cadence at local depth 2 is 20.25 Time; kill before
 three pips, Shock, or separate units. See the EN06 heuristic rows and scorer.
 
 Proof and exact commands: [en06 implementation handoff](en06_implementation_handoff.md).
+
+## spx-04 — The Dynamo
+
+Only the living Warband captain with `dynamo_tether` lowers its Charge threshold
+to 2 while both living Arc Thralls remain. Threshold is computed at display,
+planning, selection and activation, so either Thrall dying immediately restores
+3 and replaces any premature two-Charge Burst with Charge. The existing Burst,
+reset, nearest-target/hop rules and Shock grounding remain unchanged. Pips and
+Charge tooltip read the same threshold and actual saved Charge. Ordinary
+Capacitors retain their full-state legacy golden and three-Charge threshold.
+
+Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

@@ -51,3 +51,19 @@ Authored weighted cadence is 17 Time at local depth 2 (fallbacks use Shade Bolt'
 same encounter assumptions, with unchanged intrinsic card coefficients.
 
 Proof and exact commands: [en06 implementation handoff](en06_implementation_handoff.md).
+
+## spx-04 — The Hollow Prior
+
+Only the living Warband captain with `prior_veil` gives its distant followers
+Veil and hidden-enemy presentation. Distance is the ordinary closest-footprint
+Manhattan distance: more than 2 hides; entering 2 reveals. Existing Light and
+Truesight reveal them. All hidden targeting, threat privacy, collision, captions
+and information-limited forecasts use the ordinary visibility query. Revealed
+veiled bodies reuse the existing Veil presentation; native Fade flags remain
+independent. Captain death disables the aura immediately and reveals followers even through
+room Umbra; missing captains in partial forecasts never count as death. Break clears every
+follower's native Veil before the existing flee display. It never executes Fade
+or Ambush. Ordinary Mimic and Fade/Ambush full-state goldens remain unchanged.
+No new art, animation, sound, analytics events or save migration are introduced.
+
+Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

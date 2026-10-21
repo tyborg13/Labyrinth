@@ -72,6 +72,10 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	var guardian_summary: String = GuardianLibrary.inspection_summary(enemy)
 	if not guardian_summary.is_empty():
 		content.add_child(rules_label(guardian_summary, "GuardianEncounterRules", 600.0))
+	if bool(enemy.get("is_leader", false)):
+		var battle: Dictionary = host.get("_pre_battle_preview_run_state").get("combat_state", {})
+		var order: String = preload("res://scripts/warband_combat_rules.gd").order_line(battle.get("objective", {}))
+		if not order.is_empty(): content.add_child(rules_label(order, "WarbandCaptainOrder", 600.0))
 	content.add_child(View.section("KNOWN MOVES"))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"

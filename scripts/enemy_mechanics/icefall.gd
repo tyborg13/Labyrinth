@@ -21,6 +21,13 @@ static func tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, acti
 	var delta: Vector2i = hero - Vector2i(enemy["pos"])
 	if Paths.manhattan(hero, enemy["pos"]) > int(action.get("range", 5)):
 		return result
+	if preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "oracle_icewall"):
+		var center: Vector2i = Vector2i(enemy["pos"]) + Vector2i(signi(delta.x) * ceili(absf(delta.x) * 0.5), signi(delta.y) * ceili(absf(delta.y) * 0.5))
+		var axis: Vector2i = preload("res://scripts/warband_combat_rules.gd").order_axis(engine, delta)
+		for offset: int in range(-2, 3):
+			var tile: Vector2i = center + axis * offset
+			if Paths.is_passable(state["grid"], tile) and engine._terrain_index_at_tile(state, tile) < 0: result.append(tile)
+		return result
 	# Diagonal directions use the row, including shallow diagonals.
 	var axis: Vector2i = Vector2i(0, 1) if delta.y == 0 else Vector2i(1, 0)
 	for tile: Vector2i in [hero - axis, hero, hero + axis]:

@@ -356,7 +356,7 @@ static func _titles(expect: Callable) -> void:
 		expect.call(engine._enemy_intent_step_for_player(state, captain, captain["intent"])["actor_name"] == title, "Action caption title: " + biome)
 		expect.call(engine._umbra_marked_enemy_status_step(state, state, {"kind": "status_damage", "actor_key": "enemy_1", "actor_name": "Definition name"}, 1)["actor_name"] == title, "Passive Retaliate/illusion status caption title: " + biome)
 		expect.call(Objectives.title_for_objective(state["objective"]) == "Defeat " + Identity.running_name(title), "Objective lowercase the: " + biome)
-		expect.call(Objectives.description_for_objective(state["objective"]) == "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage.", "Exact Warband tooltip")
+		expect.call(Objectives.description_for_objective(state["objective"]) == "Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage.\nOrder: " + Library.definition("warband")["variants"][biome]["order"]["text"], "Exact Warband tooltip")
 		var follower: Dictionary = state["enemies"][1]
 		expect.call(Identity.display_name(follower) == Data.enemy_def(str(follower["type"]))["name"], "Other enemies retain definition names")
 	print("Warband titles: all six instance, caption, objective and initiative paths checked")

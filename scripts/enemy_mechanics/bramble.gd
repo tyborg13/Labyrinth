@@ -19,12 +19,54 @@ static func tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> A
 	var hero: Vector2i = state["player"]["pos"]
 	var delta: Vector2i = hero - Vector2i(enemy["pos"])
 	if delta == Vector2i.ZERO: return result
+	if preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "thornmother_wall"):
+		return order_tiles(engine, state, enemy)
 	# Cardinal front is toward the Weaver; diagonal front uses both axes, row.
 	var front := hero - Vector2i(signi(delta.x), signi(delta.y))
 	var axis := Vector2i(0, 1) if delta.y == 0 else Vector2i(1, 0)
 	for tile: Vector2i in [front - axis, front, front + axis]:
 		if Paths.is_passable(state["grid"], tile) and engine._terrain_index_at_tile(state, tile) < 0 and not Icefall.occupied(engine, state, tile): result.append(tile)
 	return result
+
+static func order_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	var hero: Vector2i = state["player"]["pos"]
+	var blocked: Dictionary = {}
+	for terrain: Dictionary in state.get("terrain", []):
+		if engine._terrain_index_at_tile(state, terrain["pos"]) >= 0: blocked[terrain["pos"]] = true
+	var path: Array[Vector2i] = Paths.find_path(state["grid"], enemy["pos"], hero, blocked, true)
+	if path.size() < 2: return result
+	var center: Vector2i = path[mini(2, path.size() - 1)]
+	var axis: Vector2i = preload("res://scripts/warband_combat_rules.gd").order_axis(engine, path[1] - path[0])
+	var legal_center: Vector2i = nearest_legal_center(engine, state, center, enemy)
+	if legal_center == engine.INVALID_TILE: return result
+	for offset: int in range(-2, 3):
+		var tile: Vector2i = legal_center + axis * offset
+		if legal_tile(engine, state, tile): result.append(tile)
+	return result
+
+static func nearest_legal_center(engine: RefCounted, state: Dictionary, center: Vector2i, enemy: Dictionary) -> Vector2i:
+	var nearest: int = 2147483647
+	var nearest_player: int = 2147483647
+	var nearest_captain: int = 2147483647
+	var legal_center: Vector2i = engine.INVALID_TILE
+	for y: int in range(state["grid"].size()):
+		for x: int in range(state["grid"][y].size()):
+			var tile := Vector2i(x, y)
+			if not legal_tile(engine, state, tile): continue
+			var distance: int = Paths.manhattan(center, tile)
+			var player_distance: int = Paths.manhattan(state["player"]["pos"], tile)
+			var captain_distance: int = Paths.manhattan(enemy["pos"], tile)
+			# Equal ranks deliberately keep the existing row-major scan order.
+			if distance < nearest or (distance == nearest and (player_distance < nearest_player or (player_distance == nearest_player and captain_distance < nearest_captain))):
+				nearest = distance
+				nearest_player = player_distance
+				nearest_captain = captain_distance
+				legal_center = tile
+	return legal_center
+
+static func legal_tile(engine: RefCounted, state: Dictionary, tile: Vector2i) -> bool:
+	return Paths.is_passable(state["grid"], tile) and engine._terrain_index_at_tile(state, tile) < 0 and not Icefall.occupied(engine, state, tile)
 
 static func mend_action(engine: RefCounted, state: Dictionary, enemy: Dictionary, action: Dictionary) -> Dictionary:
 	var result: Dictionary = action.duplicate(true)

@@ -117,3 +117,20 @@ peer review, signoff and publication remain with the design owner.
   RunScene gained 11 lines.
 - Windowed captures were not run and no PNG capture paths are claimed as proof.
   The design owner must run and inspect the listed native command.
+
+## spx-04 — The Slagmaster
+
+Only the living Warband captain with `slagmaster_barrage` adds a second plus,
+two tiles perpendicular to the Mortar-to-hero bearing. The room RNG selects
+and persists `intent.barrage_side` before preview. If that center is blocked,
+the other side is tried; if both centers are blocked, the normal plus remains.
+Old mid-combat saves without a selected side read a copy of their saved RNG.
+The stored union has no duplicate hits, both centers use existing center damage,
+and both pluses land in the same ordinary batched landing. Existing slag already
+hits every actor, including allies; that rule is preserved outside Warbands.
+Stored `lob_centers` and `lob_tiles` survive ordinary Variant saves and clear
+only on landing. Existing Fire, retaliation, death and analytics paths remain.
+
+Oblique grid bearings project onto their dominant cardinal axis. Exact
+diagonals (`|dx| == |dy|`) use the x axis before taking the perpendicular.
+Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

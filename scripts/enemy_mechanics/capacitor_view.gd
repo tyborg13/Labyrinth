@@ -11,14 +11,17 @@ const GLOW_ALPHA: float = 0.4
 const PIP_GAP: float = 4.0
 const PIP_ROW_OFFSET: float = 10.0
 
-static func badges(unit: Dictionary) -> Array[Dictionary]:
+static func charge_tooltip(state: Dictionary, unit: Dictionary) -> String:
+	return Icons.tooltip("charge").replace("At 3,", "At %d," % Rules.threshold(state, unit))
+
+static func badges(unit: Dictionary, state: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	if Rules.is_capacitor(unit): result.append({"icon": "charge", "count": int(unit.get("charge", 0)), "fill": EMPTY_COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": Icons.tooltip("charge") + "\n%d/3" % int(unit.get("charge", 0))})
+	if Rules.is_capacitor(unit): result.append({"icon": "charge", "count": int(unit.get("charge", 0)), "fill": EMPTY_COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": charge_tooltip(state, unit) + "\n%d/%d" % [int(unit.get("charge", 0)), Rules.threshold(state, unit)]})
 	return result
 
 static func draw_pips(board: Control, unit: Dictionary, health: Rect2) -> void:
 	if not Rules.is_capacitor(unit): return
-	var centers: Array[Vector2] = pip_centers(health)
+	var centers: Array[Vector2] = pip_centers(health, Rules.threshold(board.combat_state, unit))
 	for index: int in range(centers.size()):
 		var center: Vector2 = centers[index]
 		var points := PackedVector2Array([center + Vector2(0, -4), center + Vector2(4, 0), center + Vector2(0, 4), center + Vector2(-4, 0)])
@@ -29,13 +32,13 @@ static func draw_pips(board: Control, unit: Dictionary, health: Rect2) -> void:
 			points.append(points[0])
 			board.draw_polyline(points, EMPTY_COLOR, 1.0, true)
 
-static func pip_centers(health_frame: Rect2) -> Array[Vector2]:
+static func pip_centers(health_frame: Rect2, threshold: int = Rules.MAX_CHARGE) -> Array[Vector2]:
 	var result: Array[Vector2]
-	for index: int in range(Rules.MAX_CHARGE):
-		result.append(Vector2(health_frame.get_center().x + (index - 1) * (PIP_SIZE + PIP_GAP), health_frame.position.y - PIP_ROW_OFFSET))
+	for index: int in range(threshold):
+		result.append(Vector2(health_frame.get_center().x + (index - float(threshold - 1) * 0.5) * (PIP_SIZE + PIP_GAP), health_frame.position.y - PIP_ROW_OFFSET))
 	return result
 
-static func rows(intent: Dictionary) -> Array:
+static func rows(intent: Dictionary, state: Dictionary = {}, unit: Dictionary = {}) -> Array:
 	if not Rules.handles_intent(intent): return []
 	var action: Dictionary = intent["actions"][0]
 	var token: Dictionary
@@ -45,7 +48,7 @@ static func rows(intent: Dictionary) -> Array:
 		token = Icons.icon_text_token("chain", str(int(action["damage"])))
 	# Arc Burst retains the approved Chain art, but explains Charge.
 	token["glossary_key"] = "charge"
-	token["tooltip"] = Icons.tooltip("charge")
+	token["tooltip"] = charge_tooltip(state, unit)
 	return [[token]]
 
 static func draw_telegraphs(board: Control) -> void:

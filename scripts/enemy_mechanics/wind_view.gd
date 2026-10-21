@@ -162,14 +162,17 @@ static func refresh_chip(scene: Control, display_state: Dictionary = {}) -> void
 		scene.ui_root.add_child(chip)
 		chip.z_index = scene._turn_order_panel.z_index
 		scene._turn_order_panel.resized.connect(func() -> void: chip.position = scene._turn_order_panel.position + Vector2(0, scene._turn_order_panel.size.y))
-	var value: Dictionary = Wind.active(_engine, scene._combat_state if display_state.is_empty() else display_state)
+	var state: Dictionary = scene._combat_state if display_state.is_empty() else display_state
+	var value: Dictionary = Wind.active(_engine, state)
 	chip.visible = not value.is_empty() and scene._run_state.get("mode", "") == "combat"
 	if not chip.visible: return
 	var arrow: DirectionArrow = chip.get_node("Contents/Direction")
 	arrow.heading = screen_direction(value["direction"])
 	arrow.queue_redraw()
-	(chip.get_node("Contents/Title") as Label).text = "Wind · %d" % int(value["rounds_left"])
+	var held: bool = Wind.persistent(_engine, state, value)
+	(chip.get_node("Contents/Title") as Label).text = "Wind · held" if held else "Wind · %d" % int(value["rounds_left"])
 	chip.tooltip_text = Icons.tooltip("wind") + "\n" + direction_name(value["direction"]) + "."
+	if held: chip.tooltip_text += "\nHeld by the Stormcaller until it falls."
 	chip.position = scene._turn_order_panel.position + Vector2(0, scene._turn_order_panel.size.y)
 	chip.reset_size()
 

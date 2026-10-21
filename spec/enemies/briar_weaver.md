@@ -241,3 +241,19 @@ owning-spec updates; it does not commit the merge.
 ```bash
 cd /Users/borgerding/workspace/Labyrinth.worktrees/en-04 && git add -- assets/generated/unit_shadow_cache.res data/enemies.json scripts/action_icon_library.gd scripts/combat_board_view.gd scripts/combat_engine.gd scripts/cutout_context.gd scripts/enemy_intent_compass.gd scripts/intent_badges.gd scripts/run_scene.gd spec/assets/board_pixel_density/outputs.json spec/assets/board_pixel_density/registry.json spec/assets/enemies/raw_sha256.txt spec/card_balance_heuristic.md spec/icon_identity_policy.md tools/card_heuristic.py scripts/enemy_mechanics/bramble_view.gd scripts/enemy_mechanics/lob_view.gd tests/en04_enemies_test.gd tests/suites/en04_enemies_suite.gd spec/enemies/briar_weaver.md spec/enemies/slag_mortar.md
 ```
+
+## spx-04 — The Thornmother
+
+Only the living Warband captain with `thornmother_wall` uses the five-tile
+Thornwall. Its center is the second step of the grid shortest path toward the
+hero, respecting blocking terrain; an occupied center moves to the nearest
+legal floor. The wall runs perpendicular to that path and skips occupied,
+impassable and terrain tiles. Preview and growth share `order_tiles`; the board
+feeds the living captain's Thornwall plan into the existing marked-intent tile
+renderer, including legal trimming and keep-distance movement. Bramble
+lifetime, collision damage 2 and Bleed 1 are unchanged, including pushing the
+captain's escort into it. Ordinary Weavers retain their recorded full-state
+legacy golden. Equidistant legal centers prefer the tile nearest the player,
+then nearest the Thornmother, then the existing row-major scan order.
+
+Validation and director capture commands: [spx-04 handoff](spx04_orders.md).
