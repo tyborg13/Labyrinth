@@ -203,10 +203,23 @@ static func test_panel_pointer(expect: Callable) -> void:
 	await tree.create_timer(WALK_WAIT_SECONDS).timeout
 	expect.call(panel.scroll_offset() > 30.0, "Dragging from a room scrolls the map")
 	expect.call(selected.is_empty(), "A drag from a room never commits travel")
-	# Keyboard or controller activation right after a drag is not swallowed.
-	button.pressed.emit()
-	await tree.create_timer(WALK_WAIT_SECONDS).timeout
-	expect.call(selected == [target], "Activation after a drag still travels")
+	# Enter or the pad's A in the same frame as a drag's release still travels.
+	for confirm: InputEvent in _confirm_events():
+		panel.set_run_state(state.merged({"mode": "pre_battle"}))
+		panel.set_run_state(state)
+		await tree.process_frame
+		start = button.get_global_rect().get_center()
+		_pointer(viewport, start, true)
+		_pointer(viewport, start + Vector2(-40.0, 0.0))
+		_pointer(viewport, start + Vector2(-40.0, 0.0), false)
+		button.grab_focus()
+		viewport.push_input(confirm, true)
+		var release: InputEvent = confirm.duplicate()
+		release.set("pressed", false)
+		viewport.push_input(release, true)
+		await tree.create_timer(WALK_WAIT_SECONDS).timeout
+		expect.call(selected.size() == 1 and selected[0] == target, "%s right after a drag's release travels" % confirm.as_text())
+		selected.clear()
 	# A small wobble below the drag threshold is still a click.
 	panel.set_run_state(state.merged({"mode": "pre_battle"}))
 	panel.set_run_state(state)
@@ -217,7 +230,7 @@ static func test_panel_pointer(expect: Callable) -> void:
 	_pointer(viewport, start + Vector2(3.0, 0.0))
 	_pointer(viewport, start + Vector2(3.0, 0.0), false)
 	await tree.create_timer(WALK_WAIT_SECONDS).timeout
-	expect.call(selected.size() == 2 and is_zero_approx(panel.scroll_offset()), "A click that wobbles under the drag threshold travels")
+	expect.call(selected.size() == 1 and is_zero_approx(panel.scroll_offset()), "A click that wobbles under the drag threshold travels")
 	# The wheel scrolls over a room as well as over open floor.
 	var wheel := InputEventMouseButton.new()
 	wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
@@ -238,6 +251,19 @@ static func test_panel_pointer(expect: Callable) -> void:
 	expect.call(is_zero_approx(float(panel._canvas.get("travel_progress"))) and bool((panel.node_buttons[target] as Control).get("lantern_marker")), "Arriving resets the walk and the room carries the lantern")
 	viewport.queue_free()
 	await tree.process_frame
+
+static func _confirm_events() -> Array[InputEvent]:
+	var events: Array[InputEvent]
+	var key := InputEventKey.new()
+	key.keycode = KEY_ENTER
+	key.physical_keycode = KEY_ENTER
+	key.pressed = true
+	events.append(key)
+	var pad := InputEventJoypadButton.new()
+	pad.button_index = JOY_BUTTON_A
+	pad.pressed = true
+	events.append(pad)
+	return events
 
 static func _pointer(viewport: SubViewport, point: Vector2, pressed: Variant = null) -> void:
 	var event: InputEventMouse

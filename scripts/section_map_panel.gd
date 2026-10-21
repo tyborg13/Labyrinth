@@ -803,6 +803,11 @@ func _on_room_pressed(coord: Vector2i) -> void:
 	if _drag_released: return
 	activate_room(coord)
 
+# Keys and pads reach the panel before the focused room, so an activation in
+# the same frame as a drag's release is never mistaken for that release.
+func _input(event: InputEvent) -> void:
+	if _drag_released and (event is InputEventKey or event is InputEventJoypadButton or event is InputEventAction): _drag_released = false
+
 func _scroll_input(event: InputEvent) -> bool:
 	if _scroll_max <= 0.0: return false
 	if event is InputEventMouseButton:

@@ -2,6 +2,7 @@ extends RefCounted
 
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Specials = preload("res://scripts/special_encounter_library.gd")
+const V7Suite = preload("res://tests/suites/section_map_v7_suite.gd")
 const RELEASE_TEST_SEED: int = 0
 const SNARE_TEST_SEEDS: int = 64
 const SNARE_TEST_ROOM_COUNT: int = 6
@@ -45,6 +46,11 @@ static func _test_release_fallback(expect: Callable) -> void:
 			for room: Dictionary in state["rooms"].values():
 				if int(room["section_index"]) == index and room["type"] == "special": count += 1
 			expect.call(count == 1 if revision == 6 else count >= 1, "Assertion-free revision %d fallback places an enabled special in section %d" % [revision, index + 1])
+			if revision == 7:
+				# The repaired section must still be a valid revision-7 web.
+				V7Suite.test_section_rules(state, index, expect)
+				V7Suite.test_doors(state, index, expect)
+				V7Suite.test_layout(state, index, expect)
 	print("SPX release fallback regression: checked 6 sections of revisions 6 and 7 with assertions removed")
 
 static func _test_snare_exits(expect: Callable) -> void:
