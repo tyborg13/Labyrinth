@@ -24,7 +24,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     straight 5-lane layout; weak v5/v6 and panel guards; typed literals). Fixed by the director in 24d083bab: rooms
     forward wheel/drags and a drag never travels; stored per-section v7 fallback `data/section_map_v7_fallbacks.json`
     (+ mystery hidden types; tools/section_map_v7_fallbacks.gd); base digests for revisions 5/6; real-pointer and
-    lifecycle tests; the walk completes on its timer. 5/5 mutants caught; focused suites PASS. Codex re-review running.
+    lifecycle tests; the walk completes on its timer. Round 2 (4250cb52e): keys/pads in a drag's release frame still
+    travel; the release-fallback regression validates the v7 web. Codex SIGNOFF 4250cb52e. MERGED 0c2726d67; the
+    Graftwright integration test now keeps its revision-6 map (4b2fb012a). Integration Godot 561 s PASS, Python OK.
   - spx-05 MERGED (0ce68a9aa); spx-07 (Warband perf, locked wind, spread spawns) running from 3fad2e65b; spx-06 after it.
   - Warband marker redesign, director-implemented in `../Labyrinth.worktrees/wbv-01` (uncommitted prototype): feathered
     Command glow + rim (no outline), gilt crowned-skull crest on the captain's bar (LEADER box gone; floor beacon off in

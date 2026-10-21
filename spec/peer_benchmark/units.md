@@ -121,3 +121,5 @@
 | int-05 | Scope the last re-pinned cross-unit identity pins (rr-14 Seer identity) and sweep | running |
 | sfx-05 | Empower charge (A Kindle, -24 LUFS) and un-charge (-30 LUFS) cues, wired to the toggle | running |
 | mq-11 | Maquette fixes: Mimic hero-style hair; Mortar loincloth on the hip line | running |
+| map-03 | Section map revision 7: 7-lane branching web, lane-facing doors, scrolling map with inked trails and the lantern walk (director-implemented at the owner's request; Codex reviews only) | merged 0c2726d67 (Codex SIGNOFF 4250cb52e after 2 fix rounds; Graftwright test pinned to revision 6 in 4b2fb012a; integration Godot 561 s PASS, Python OK); owner verdict on inbox `map-built` pending |
+| wbv-01 | Warband marker redesign (Command glow + rim, captain crest, wind streaks, slide chevrons + ghost rings), director-implemented | prototype e98f198ee in ../Labyrinth.worktrees/wbv-01; mockup posted as inbox `warband-markers`; build after the verdict and after spx-07 merges |
