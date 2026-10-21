@@ -338,7 +338,7 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	caption.add_theme_constant_override("separation", roundi(Typography.scaled_value(host, 8.0)))
 	card.add_child(caption)
-	var name_label := label(str(definition.get("name", enemy.get("type", ""))), 19)
+	var name_label := label(preload("res://scripts/enemy_identity.gd").display_name(enemy, definition), 19)
 	name_label.name = "PreBattleEnemyName"
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

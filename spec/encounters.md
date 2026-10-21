@@ -118,3 +118,192 @@ composition id, biome, room element and unit count. Proof uses seed `83`, fixed 
 `0.25`-second settling wait, and each section's deepest regular room as debug-only
 fixture defaults. Peer review, inspection fixtures, commits and publication
 belong to the design owner for this implementation handoff.
+
+## Warbands and revision-6 standard fights (spx-03)
+
+Standard `combat` rooms with `section_map_layout_revision >= 6` always use
+`kill_all`. Earlier revisions retain their exact seeded objective roll, roster,
+placement RNG and serialized layouts. Guardian and dragon objectives and stats
+are unchanged. Existing Survive and Reach Exit saves remain supported.
+
+The spx-02 entry contract is `{type: special, special_type: warband,
+special_variant: <biome>}`. `SpecialEncounterLibrary` reads the immutable
+`data/special_encounters.json`, falling back to the staged director file until
+spx-02 installs it. Neither file is rewritten. `order` fields are not read.
+
+`WarbandRoomRules` uses the specific variant captain and the first 3/4/5 ordered
+escorts at the existing local depth tier. It bypasses generic leader selection,
+spawn-group expansion and extra-unit adjustments. Ordinary depth/sequence HP
+scaling applies, then the captain receives ×1.25 HP rounded up and 2/3/4
+Stoneskin, replacing the generic leader bonuses. Pixel density is unchanged.
+Per [director feedback 1](peer_benchmark/feedback/spx-03_feedback_1.md), placement
+uses Manhattan range 5–7 from the entry for the captain. Every escort starts at
+least 3 from the entry, and every enemy respects the ordinary spawn halo
+(`RoomGenerator.ENEMY_SPAWN_SAFE_RADIUS`, currently 2). A strictly closer
+follower keeps the captain from being closest; escort[0] satisfies Manhattan
+equality `d(entry, screen) + d(screen, captain) == d(entry, captain)` and is at
+least 3 from entry. Reachability is checked separately: a shortest grid detour
+does not qualify as a screen. Every other escort starts within range 3 of the
+captain. Every generated room is validated. The approved range supersedes the
+protected file's original 4–6, with named constants in `WarbandRoomRules`;
+neither supplied data copy is rewritten.
+
+The seeded search retains 20 rerolls. Its deterministic fallback tries the
+strict formation first, then relaxes only the other escorts' range from the
+captain before clearing interior template blockers if no safe formation fits.
+The captain range, minimum escort entry distance, ordinary entry halo and screen
+path never relax. An additive `warband_escort_radius_relaxed` layout field marks
+the capacity exception; validation rejects it when a strict formation fits.
+Dynamo anchors are searched farthest first across all legal reachable
+candidates, including full escort capacity under the applicable constraints.
+
+`WarbandCombatRules` computes Command at use time from the living captain and
+current follower position. Every positive-damage action receives +1 within
+Manhattan range 2. It is idempotent, reflected in board intent tokens, known
+moves, projected attack actions, forecasts and resolved damage, including after
+movement. The saved intent retains its authored base amounts. The intent
+medallion and Details compass numbers use the plan's projected attack action,
+so moving into or out of Command changes the displayed damage before the
+enemy moves. The floor banner uses the existing leader-marker gold
+(extracted into `LEADER_MARKER_GOLD` without
+a colour change), 18% fill and 2 px/70% outer edges. It follows the live captain
+and disappears on death; existing Umbra privacy remains in effect.
+
+At a mobile captain's turn, after ordinary start-of-turn statuses, a player
+within range 2 triggers one legal movement tile. Farthest screened destinations
+win, then farthest unscreened destinations. Actual navigation respects occupancy,
+terrain, Rubble, traps, ordinary movement-action Bleed and arrival effects; Frozen/Petrified/Immobilized movement
+restrictions and immobile Dynamo are preserved. The normal intent then retargets. Both the initiative and legacy batch APIs
+share this activation path.
+Full previews use the same resolution and the immediate plan includes this step.
+
+Captain death follows the existing leader objective outcome. Fleeing followers
+are cleared without actor-death effects, Tick bursts, summons or reward records.
+Individually killed Warband followers also award no Embers. Batched captain /
+Tick / Ooze deaths recognize the captain before draining the death queue, so
+queued bursts or spawn effects cannot outlive the break. Their simultaneous
+escape routes run up to two tiles toward the nearest reachable interior board
+edge, respecting blockers and reserving destinations. Presentation runs this one
+silent beat, then uses the existing silhouette dissolve. Concealed followers
+show their bodies for this escape presentation without executing Erupt/Ambush
+or changing the committed mechanic/status state. Reduced motion skips
+the run and uses the existing reduced dissolve. `break_line` appears once in the
+ordinary action announcement; the existing victory flow owns audio. No map,
+reward selection, Ember room payout or variant order behavior is implemented here.
+
+`EnemyIdentity.display_name` resolves the saved per-instance `display_name`,
+falling back to the unchanged definition name. It feeds action captions, status
+captions, turn-order projections, board/support tooltips, pre-battle cards and
+inspection, console output and death/destination presentations. The objective
+uses the running form (`Defeat the Stormcaller`) and this exact tooltip:
+“Kill the captain and the rest flee. Followers within 2 tiles of it deal +1 damage.”
+The existing leader marker is unchanged. All Warband state is ordinary saved
+combat data; no save migration or outcome-event schema change is needed.
+Instance metadata and internal Command action annotations are additive, and the
+analytics context builders are untouched. The heuristic's encounter assumptions
+and specification were updated together; intrinsic card coefficients are unchanged.
+
+### Validation and fixture commands
+
+Run from `/Users/borgerding/workspace/Labyrinth.worktrees/spx-03`:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/godot_task_runner.py --task-id spx-03 --stream -- godot --headless --path . --script tests/warband_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/godot_task_runner.py --task-id spx-03 --stream -- godot --headless --path . --script tests/warband_ui_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/godot_task_runner.py --task-id spx-03 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 -m unittest discover -s tests -p 'test_*.py' -v
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tests/test_ui_identity_lint.py
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tests/test_icon_identity_policy.py
+```
+
+The placement matrix covers six variants × three tiers × 200 seeds, rotating
+through all four entrances. The 192 legacy full-layout SHA-256 goldens in
+`tests/fixtures/spx03_legacy_golden.json` were captured from unmodified HEAD
+`f3beee6fe36b1faa37277a14426831b37f2f043f` generators/objective rules (64 seeds
+per revision 3/4/5). The temporary reference copies were removed after capture.
+All 18 biome/tier fixture combinations retain an actual matching section room and its connections.
+Both focused tests are registered with the full suite's headless program runner.
+The UI test parses the native probe without executing it and checks all six
+naming paths, both at-rest and Details intent numbers, silent follower audio
+snapshots, the reduced-motion break, and real scene combat/pre-battle loading
+for the two proof fixtures.
+
+Feedback 2 adds red/green regressions for the moving Ash Hound's medallion and
+Details numbers (entering and leaving Command), the seed-54 DOWN screen and a
+reachable grid-shortest detour rejected by Manhattan equality, and the fixture's
+Windows-safe typed case list. Break coverage inspects `death_burst_events`, puts
+a Tick adjacent to the player, and puts a follower three tiles from the nearest
+edge to require a two-tile stop before dissolve. Controlled Tick-burst and
+unbounded-route mutations are rejected by these assertions; both mutations
+escaped the prior break checks. No production break behavior changes.
+
+Feedback 1's focused placement pass also covers the exact console reproductions
+(`warband air 2 83`, `warband fire 1 7`), a narrow room that can retain its
+blockers only by relaxing captain clustering, and a wider ordinary entry halo.
+To record first-turn damage for the same 3,600-room matrix, use:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/godot_task_runner.py --task-id spx-03 --timeout 900 --stream -- godot --headless --path . --script tests/warband_test.gd -- --opening-damage-report /private/tmp/labyrinth_codex/spx-03-feedback1-opening-damage.json
+```
+
+The optional report uses the existing console incoming-preview path:
+`finish_player_activation`, then `advance_to_next_player_turn_with_steps`,
+comparing player HP before next-turn setup. It includes Command, initiative and
+repeat activations; it does not estimate damage from printed attack totals.
+Each room uses fresh-run default equipment/relics and no plays or movement, with
+test HP 100 to avoid lethal truncation. It records the count and percentage over
+6 HP for every biome/tier cohort and the total. Normal suite runs omit this
+extra simulation cost. The director reruns native proof after this focused fix.
+
+The manual headless console accepts `warband <biome> <tier> [seed]`. For example:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/godot_task_runner.py --task-id spx-03 --stream -- godot --headless --path . --script tools/headless_playtest.gd -- --seed 83 --output-dir /private/tmp/labyrinth_codex/spx-03-console
+```
+
+Then enter `warband air 2 83` or `warband lightning 3 83`. The command uses the
+ordinary combat-start/tracker path with reason `warband_fixture`; outcomes retain
+the existing event schemas and local append-only analytics writer.
+`tools/inspection_fixture.py --scenario warband --warband-biome <biome>
+--warband-tier <1|2|3> --seed <seed>` generates and verifies an ordinary combat
+save. `--warband-case keep_distance` puts the hero within trigger range;
+`--warband-case break` leaves a 1 HP captain. `pre_battle` is also staged, but
+production entry into a special room remains spx-02's integration responsibility.
+The capture probe supplies the normal prepared factory directly so it can prove
+the production pre-battle UI before that unit lands.
+
+### Proof for the design owner
+
+This sandbox has no macOS window server. Native proof must run on the director's
+machine, at 1920×1080 and 100% UI scale. No native capture is claimed here.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx03_warband.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx-03-visual-result.json tests/warband_probe.gd --task-id spx-03
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/inspection_fixture.py --task-id spx-03 --run-id spx-03-air-inspection --manifest /private/tmp/labyrinth-inspection-manifests/spx-03-air-tier2.json --launch --scenario warband --warband-biome air --warband-tier 2 --seed 83 --umbra-stage clear
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/inspection_fixture.py --task-id spx-03 --run-id spx-03-lightning-inspection --manifest /private/tmp/labyrinth-inspection-manifests/spx-03-lightning-tier3.json --launch --scenario warband --warband-biome lightning --warband-tier 3 --seed 83 --umbra-stage clear
+```
+
+The 180-second visual timeout allows two complete scene preparations and eight
+native captures, including movement/death presentation. Capture paths are
+`user://probes/spx03/{air_tier2,lightning_tier3}/{pre_battle,first_player_turn,
+keep_distance,warband_breaks}.png`; `captures.json` records seed, size, UI scale,
+Command followers and resolved movement/break facts. Every body must be
+prepared and observed in a native draw before capture. `keep_distance` for Dynamo
+proves the required immobile skip; the Stormcaller capture shows a real step.
+The probe's unlimited-vision field is capture-only, allowing every follower and
+intent to be inspected without changing gameplay visibility rules.
+
+Director feedback 1 approves `WarbandView.BREAK_BEAT_SECONDS = 0.4`, the existing
+two-tile travel cadence; the design placeholder is removed. No asset was
+created, altered or downloaded. The
+proposal URL/diagram was inaccessible to the implementation environment; the
+explicit unit brief and protected data are authoritative.
+
+Chosen non-player defaults: proof/test seed 83; fixture biome air and tier 2
+when omitted (the console/inspector keep their existing seed defaults);
+proof readiness timeout 20 s, settling wait 0.25 s, movement sample wait 0.1 s,
+break sample fraction 0.5, unlimited capture vision and Clear Umbra for the
+interactive inspection saves;
+200 placement seeds per cohort, test player HP 100, fallback-proof seed 123456,
+headless foe-card test size 300×400 and 64 legacy seeds per revision. They live
+as named test/fixture/proof fields.

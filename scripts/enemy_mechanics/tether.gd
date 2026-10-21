@@ -111,6 +111,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	if engine._enemy_cannot_continue_after_bleed(state, index): return state
 	var partner_index: int = engine._enemy_index_for_id(state, int(current["partner_id"]))
 	if partner_index < 0 or int(state["enemies"][partner_index].get("hp", 0)) <= 0: return state
+	action = preload("res://scripts/warband_combat_rules.gd").action(state, state["enemies"][index], action)
 	var origin: Vector2i = state["enemies"][index]["pos"]
 	var tiles: Array[Vector2i] = beam_tiles(engine, state, origin, state["enemies"][partner_index]["pos"], int(action.get("max_length", 6)))
 	context["resolved_tiles"] = tiles

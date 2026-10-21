@@ -518,7 +518,7 @@ func _live_detail(state: Dictionary, objective: Dictionary) -> String:
 				var enemy: Dictionary = enemy_var
 				if int(enemy.get("id", -2)) != leader_id:
 					continue
-				var enemy_name: String = str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Leader"))
+				var enemy_name: String = preload("res://scripts/enemy_identity.gd").display_name(enemy)
 				var hp: int = maxi(0, int(enemy.get("hp", 0)))
 				return "%s · %d/%d HP" % [enemy_name, hp, int(enemy.get("max_hp", hp))]
 			return "The leader has fallen"

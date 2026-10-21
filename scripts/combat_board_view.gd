@@ -109,6 +109,11 @@ const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const LEADER_MARKER_GOLD := Color("e4b65f")
+const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
+const WarbandView = preload("res://scripts/warband_view.gd")
+const EnemyIdentity = preload("res://scripts/enemy_identity.gd")
+
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
 var _art_treatment: RefCounted = null
@@ -132,7 +137,8 @@ const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 signal sound_presentation(state: Dictionary, shown: Dictionary)
 
 func present_sound_snapshot(state: Dictionary, shown: Dictionary) -> void:
-	sound_presentation.emit(state, shown)
+	var sound: Dictionary = WarbandView.sound_snapshot(state, shown)
+	sound_presentation.emit(sound["state"], sound["shown"])
 
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
@@ -2103,7 +2109,7 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			"configure",
 			source_texture,
 			source_rect,
-			preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
+			float(unit.get("death_progress", 0.0)) if bool(unit.get("warband_fled", false)) else preload("res://scripts/maquette_cutout_runtime/death.gd").dissolve_phase(str(unit.get("type", "")), float(unit.get("death_progress", 0.0))),
 			_enemy_shadow_dissolve_seed_for_unit(unit),
 			bool(presentation.get("reduced_motion", false))
 		)
@@ -6776,6 +6782,7 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	WarbandView.draw_banner_tile(self, tile, polygon, LEADER_MARKER_GOLD)
 	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
 	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
@@ -8315,11 +8322,11 @@ func _build_visible_units() -> Array[Dictionary]:
 			"role": "enemy",
 			"id": int(enemy.get("id", -1)),
 			"type": str(enemy.get("type", "")),
-			"name": str(_enemy_render_definition(str(enemy.get("type", ""))).get("name", "Enemy")),
+			"name": EnemyIdentity.display_name(enemy, _enemy_render_definition(str(enemy.get("type", "")))),
 			"boss_bar": bool(_enemy_render_definition(str(enemy.get("type", ""))).get("boss_bar", false)),
 			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
-			"intent": preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(combat_state, enemy, enemy.get("intent", {})),
+			"intent": preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(combat_state, enemy, WarbandRules.intent(combat_state, enemy, enemy.get("intent", {}))),
 			"veiled": bool(enemy.get("veiled", false)),
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
@@ -9008,7 +9015,7 @@ func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect
 		return
 	var marker_rect: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
 	draw_rect(marker_rect, Color(0.12, 0.055, 0.045, 0.96), true)
-	draw_rect(marker_rect, Color("e4b65f"), false, 2.0)
+	draw_rect(marker_rect, LEADER_MARKER_GOLD, false, 2.0)
 	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_LEADER))
 	if texture != null:
 		var icon_rect := Rect2(marker_rect.position + Vector2(3.0, 2.0), Vector2(20.0, 20.0))
@@ -16641,7 +16648,7 @@ func _support_target_enemy(source_enemy: Dictionary, action: Dictionary) -> Dict
 func _support_enemy_unit(enemy: Dictionary) -> Dictionary:
 	var unit: Dictionary = enemy.duplicate(true)
 	unit["id"] = int(unit.get("id", -1))
-	unit["name"] = str(_enemy_render_definition(str(unit.get("type", ""))).get("name", "Enemy"))
+	unit["name"] = EnemyIdentity.display_name(unit, _enemy_render_definition(str(unit.get("type", ""))))
 	unit["hp"] = int(unit.get("hp", 0))
 	unit["max_hp"] = maxi(1, int(unit.get("max_hp", 1)))
 	unit["block"] = int(unit.get("block", 0))

@@ -163,3 +163,6 @@ static func _routes_legal(layout: Dictionary, selected: Dictionary, rules: Dicti
 			zero_routes = mini(witnesses, zero_routes + zero)
 			special_routes = mini(witnesses, special_routes + hit)
 	return (not bool(rules["require_route_without_special"]) or zero_routes > 0) and (not complete or selected.size() < 2 or special_routes >= witnesses)
+
+static func is_warband(room: Dictionary) -> bool:
+	return str(room.get("type", "")) == "special" and str(room.get("special_type", "")) == "warband"

@@ -83,6 +83,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	context["blink_from"] = start
 	context["blink_to"] = end
 	if ambush:
+		action = preload("res://scripts/warband_combat_rules.gd").action(state, state["enemies"][index], action)
 		var strike_context: Dictionary = context.duplicate(true)
 		strike_context["target_key"] = "player"
 		strike_context["blocking_terrain_index"] = -1

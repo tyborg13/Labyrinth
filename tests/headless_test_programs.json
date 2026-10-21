@@ -403,5 +403,11 @@
   },
   {
     "path": "tests/special_encounter_legend_test.gd"
+  },
+  {
+    "path": "tests/warband_test.gd"
+  },
+  {
+    "path": "tests/warband_ui_test.gd"
   }
 ]

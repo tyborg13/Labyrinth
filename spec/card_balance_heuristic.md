@@ -152,9 +152,9 @@ grouped by active relic ids.
 
 Encounter calibration is also important:
 
-- The first combat remains a `Kill All` onboarding encounter. Later standard
-  rooms deterministically use a `50/25/25` mix of `Kill All`, `Kill
-  the Leader`, and `Reach the Exit`. `Survive` is temporarily out of rotation;
+- The first combat remains a `Kill All` onboarding encounter. Layout revision
+  `6+` standard fights always use `Kill All`. Revisions `3–5` retain the seeded
+  `50/25/25` mix of `Kill All`, `Kill the Leader`, and `Reach the Exit`. `Survive` is temporarily out of rotation;
   its former seeded slots use `Kill All`, while its implementation and saved
   encounters remain supported. Boss rooms always use `Kill the
   Leader` without applying the generic leader health/defense bonus on top of
@@ -1015,3 +1015,28 @@ Protected values come from `peer_benchmark/staged/enemies/wave_e2.json` and
 The scorer's `en06_enemies` context mirrors these assumptions. The director owns
 encounter additions after merge. Existing enemy-action events, source attribution,
 death rewards and save storage carry these mechanics without new analytics types.
+
+
+## Warbands (spx-03)
+
+Revision-6 specials use the protected `data/special_encounters.json` (or its
+staged copy before spx-02). Warbands use a specific biome captain and the first
+3/4/5 ordered escorts by local tier. Captain HP is the ordinary depth-scaled
+HP ×1.25, rounded up; Stoneskin is 2/3/4, replacing generic leader bonuses.
+There is no art/footprint scaling. Per director feedback 1, Manhattan ranges
+govern the captain's 5–7-tile opening and every escort's minimum entry distance
+of 3, also outside the ordinary spawn halo. The screen lies on a Manhattan
+shortest segment, with reachability checked separately from that equality;
+other escorts start within 3 of the captain. After 20 seeded rerolls the
+deterministic fallback relaxes escort clustering first, never entry safety.
+The protected data's original 4–6 range is overridden in `WarbandRoomRules`
+without rewriting that owner-supplied file. Manhattan ranges also govern
+Command radius 2 (+1 damage to every follower damaging action), and the
+keep-distance trigger at range 2 (one normal movement tile before the ordinary
+intent, favoring a follower screen; immobile captains skip it). Captain death
+ends combat; surviving followers flee without death effects or individual
+rewards. Individually killed followers also award no Embers. These assumptions
+are mirrored by `tools/card_heuristic.py --show-assumptions`; intrinsic card
+coefficients remain objective-neutral and unchanged. No card mechanic changed,
+so no card score is recalibrated. Compare realized AOE/execute/control value by
+the existing objective cohort. Variant orders are outside this unit.

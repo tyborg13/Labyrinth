@@ -1,6 +1,8 @@
 extends RefCounted
 class_name EnemyIntentCompass
 
+const WarbandRules = preload("res://scripts/warband_combat_rules.gd")
+
 const FAMILY_ATTACK := "attack"
 const FAMILY_DEFENSE := "defense"
 const FAMILY_SUPPORT := "support"
@@ -25,6 +27,8 @@ const MOVEMENT_TYPES := ["move_away", "move_toward"]
 
 static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
 	var result: Dictionary = {}
+	var command_engine: RefCounted
+	if WarbandRules.active(state): command_engine = preload("res://scripts/combat_engine.gd").new()
 	var filter_visibility: bool = not visible_enemy_ids.is_empty() or state.has("umbra")
 	for enemy_var: Variant in state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
@@ -35,11 +39,15 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 			continue
 		if filter_visibility and not visible_enemy_ids.has(enemy_id):
 			continue
-		var intent: Dictionary = enemy.get("intent", {}) as Dictionary
+		var intent: Dictionary = enemy.get("intent", {})
 		if intent.is_empty():
 			continue
 		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(state, enemy, intent)
 		var descriptor: Dictionary = descriptor_for_enemy(intent)
+		if command_engine != null and str(descriptor.get("family", "")) == FAMILY_ATTACK:
+			var threat: Dictionary = command_engine.enemy_threat_tiles(state, command_engine._enemy_index_for_id(state, enemy_id))
+			var projected_action: Dictionary = threat.get("projected_attack_action", {})
+			if not projected_action.is_empty(): descriptor = descriptor_for_enemy({"actions": [projected_action]})
 		if str(descriptor.get("action_type", "")) == "lob_mark": descriptor["value"] = preload("res://scripts/enemy_mechanics/lob.gd").landing_action(preload("res://scripts/combat_engine.gd").new(), state, enemy)["center_damage"]
 		if str(intent.get("id", "")) == "mirror":
 			var engine = preload("res://scripts/combat_engine.gd").new()

@@ -315,6 +315,7 @@
   "tests/visible_terrain_shortcut_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/vyraketh_cutout_asset_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/vyraketh_cutout_gameplay_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
+  "tests/warband_probe.gd": "Native Warband proof at 1920x1080, UI scale 100%; warband_test and warband_ui_test run all headless semantics.",
   "tests/warden_bulwark_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/wave4_icon_identity_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
   "tests/zekarion_cutout_asset_probe.gd": "Real-renderer capture/interactive proof; excluded from headless execution.",
