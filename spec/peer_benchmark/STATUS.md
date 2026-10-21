@@ -70,9 +70,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   - Inbox:
     - empower-sound-built is open (clip with sound).
     - Encounter redesign: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX. enc-specials APPROVED
-      2026-10-21 (Hoarder = reused Ember Tick; captains unscaled). spx-01 (measurement) launched from 857c0139b.
-      Next: author the special-encounter data and the spx-02 brief (framework + Warband pilot). enc-clarity,
-      enc-dragons and enc-guardians still await verdicts. See `encounter_redesign/README.md`.
+      2026-10-21 (Hoarder = reused Ember Tick; captains unscaled). Running: spx-01 (measurement, from 857c0139b),
+      spx-02 (map placement, emblems, legend, tooltips, rewards) and spx-03 (Warband combat; standard fights always
+      Defeat All), both from f3beee6fe. Director data: staged/spx/special_encounters.json + emblems. Next: spx-04
+      (the six Warband orders), then the Snare, Last Light and Hoarder. enc-clarity, enc-dragons and enc-guardians
+      still await verdicts. See `encounter_redesign/README.md`.
     - Inbox cards now support an optional `link`.
   - sfx-05 Low (backlog): three missing regression cases (rejected-toggle silence, available() health guard,
     can_attempt() non-health guards).
