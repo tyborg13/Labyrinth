@@ -2,12 +2,10 @@ extends RefCounted
 
 const Rules = preload("res://scripts/warband_combat_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
-const Pacing = preload("res://scripts/combat_pacing.gd")
 const Actors = preload("res://scripts/actor_presentation.gd")
 const Maquette = preload("res://scripts/maquette_cutout_runtime/action.gd")
-# The brief specifies one simultaneous beat, but no duration. Retain the
-# existing two-tile travel cadence pending the director's timing value.
-const TODO_DESIGN_WARBAND_BREAK_BEAT_SECONDS: float = Pacing.ENEMY_TILE_SECONDS * Rules.FLEE_TILES
+# Director feedback 1 approves the existing two-tile travel cadence.
+const BREAK_BEAT_SECONDS: float = 0.4
 
 static func draw_banner_tile(board: Control, tile: Vector2i, polygon: PackedVector2Array, gold: Color) -> void:
 	var state: Dictionary = board.get("combat_state")
@@ -43,7 +41,7 @@ static func animate_break(scene: Node, before: Dictionary, after: Dictionary, ba
 		if not bool(unit.get("warband_fled", false)): held_captain.append(unit)
 	held["death_animation_units"] = held_captain
 	var origin: int = scene._combat_pacing.presentation_usec()
-	var duration: int = roundi(TODO_DESIGN_WARBAND_BREAK_BEAT_SECONDS * 1000000.0)
+	var duration: int = roundi(BREAK_BEAT_SECONDS * 1000000.0)
 	while true:
 		var progress: float = clampf(float(scene._combat_pacing.presentation_usec() - origin) / duration, 0.0, 1.0)
 		var frame: Dictionary = break_frame(scene.board_view, followers, progress, held)

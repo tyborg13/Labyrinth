@@ -147,18 +147,20 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter)
 	if warband:
 		for attempt: int in range(WarbandRooms.MAX_PLACEMENT_ATTEMPTS):
-			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), rng, enemy_types[0] == "storm_capacitor")
+			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), ENEMY_SPAWN_SAFE_RADIUS, rng, enemy_types[0] == "storm_capacitor")
 			if enemy_positions.size() == enemy_types.size(): break
 			# Retry the existing room template with the same seeded RNG.
 			grid = _base_grid(rng)
 			_apply_available_doors(grid, room)
 			_apply_template(grid, rng)
 		if enemy_positions.size() != enemy_types.size():
+			enemy_positions = WarbandRooms.fallback_positions(grid, player_start, enemy_types.size(), ENEMY_SPAWN_SAFE_RADIUS, enemy_types[0] == "storm_capacitor")
+		if enemy_positions.size() != enemy_types.size():
 			# The deterministic fallback retains this room's floor and doors,
 			# clearing interior template blockers before exhaustive placement.
 			for y: int in range(1, ROOM_HEIGHT - 1):
 				for x: int in range(1, ROOM_WIDTH - 1): grid[y][x] = TILE_STONE
-			enemy_positions = WarbandRooms.positions(grid, player_start, enemy_types.size(), rng, enemy_types[0] == "storm_capacitor", true)
+			enemy_positions = WarbandRooms.fallback_positions(grid, player_start, enemy_types.size(), ENEMY_SPAWN_SAFE_RADIUS, enemy_types[0] == "storm_capacitor")
 		assert(enemy_positions.size() == enemy_types.size(), "No legal Warband formation")
 		moss = _generate_moss_overlays(grid, run_seed, coord, room_type)
 	if table_encounter: assert(enemy_positions.size() == enemy_types.size(), "Section encounter placement lost units")
@@ -218,7 +220,9 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	if warband:
 		layout["special_type"] = "warband"
 		layout["special_variant"] = room["special_variant"]
-		assert(WarbandRooms.validate(layout), "Illegal Warband placement")
+		for index: int in range(2, enemy_positions.size()):
+			if PathUtils.manhattan(enemy_positions[0], enemy_positions[index]) > WarbandRooms.ESCORT_RADIUS: layout["warband_escort_radius_relaxed"] = true
+		assert(WarbandRooms.validate(layout, ENEMY_SPAWN_SAFE_RADIUS), "Illegal Warband placement")
 	if table_encounter:
 		layout["encounter_id"] = encounter["id"]
 		layout["biome"] = room["encounter_biome"]

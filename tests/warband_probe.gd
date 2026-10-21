@@ -122,7 +122,7 @@ func _variant(variant: Dictionary) -> void:
 	var done_break: Dictionary = {"done": false}
 	_break(scene, before_break, broken, done_break)
 	await _await_motion(scene, done_break)
-	await create_timer(preload("res://scripts/warband_view.gd").TODO_DESIGN_WARBAND_BREAK_BEAT_SECONDS * BREAK_SAMPLE_FRACTION).timeout
+	await create_timer(preload("res://scripts/warband_view.gd").BREAK_BEAT_SECONDS * BREAK_SAMPLE_FRACTION).timeout
 	await _capture(variant, "warband_breaks", {"line": broken["objective"]["break_line"], "followers": broken["objective"]["followers_cleared"], "outcome": combat.combat_outcome(broken)})
 	_expect((scene.get("action_banner") as Label).text == broken["objective"]["break_line"], "Break announcement uses the combat banner")
 	while not bool(done_break["done"]): await process_frame

@@ -1023,7 +1023,13 @@ Revision-6 specials use the protected `data/special_encounters.json` (or its
 staged copy before spx-02). Warbands use a specific biome captain and the first
 3/4/5 ordered escorts by local tier. Captain HP is the ordinary depth-scaled
 HP ×1.25, rounded up; Stoneskin is 2/3/4, replacing generic leader bonuses.
-There is no art/footprint scaling. Manhattan ranges govern the 4–6-tile opening,
+There is no art/footprint scaling. Per director feedback 1, Manhattan ranges
+govern the captain's 5–7-tile opening and every escort's minimum entry distance
+of 3, also outside the ordinary spawn halo. The screen is on a shortest path;
+other escorts start within 3 of the captain. After 20 seeded rerolls the
+deterministic fallback relaxes escort clustering first, never entry safety.
+The protected data's original 4–6 range is overridden in `WarbandRoomRules`
+without rewriting that owner-supplied file. Manhattan ranges also govern
 Command radius 2 (+1 damage to every follower damaging action), and the
 keep-distance trigger at range 2 (one normal movement tile before the ordinary
 intent, favoring a follower screen; immobile captains skip it). Captain death

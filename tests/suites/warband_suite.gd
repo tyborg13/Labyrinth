@@ -15,6 +15,7 @@ const MATRIX_SEEDS: int = 200
 const TEST_PLAYER_HP: int = 100
 const LEGACY_GOLDEN_SEEDS: int = 64
 const FALLBACK_PROOF_SEED: int = 123456
+const OPENING_DAMAGE_THRESHOLD: int = 6
 
 class FallbackGenerator extends "res://scripts/room_generator.gd":
 	var template_attempts: int = 0
@@ -23,9 +24,22 @@ class FallbackGenerator extends "res://scripts/room_generator.gd":
 		for y: int in range(1, 8):
 			for x: int in range(1, 8): grid[y][x] = "pillar"
 
+class NarrowFallbackGenerator extends FallbackGenerator:
+	func _base_grid(_rng: RandomNumberGenerator) -> Array:
+		var grid: Array = []
+		for y: int in range(9):
+			var row: Array = []
+			for x: int in range(9): row.append("wall")
+			grid.append(row)
+		for y: int in range(1, 8): grid[y][4] = "stone"
+		for x: int in range(4, 8): grid[7][x] = "stone"
+		for y: int in range(5, 7): grid[y][7] = "stone"
+		return grid
+	func _apply_template(_grid: Array, _rng: RandomNumberGenerator) -> void:
+		template_attempts += 1
 
-static func run(expect: Callable) -> void:
-	_matrix(expect)
+static func run(expect: Callable, measure_opening_damage: bool = false) -> Dictionary:
+	var report: Dictionary = _matrix(expect, measure_opening_damage)
 	_golden(expect)
 	_command(expect)
 	_command_composite_movement(expect)
@@ -34,13 +48,24 @@ static func run(expect: Callable) -> void:
 	_titles(expect)
 	_save_load(expect)
 	_native_fixture_semantics(expect)
+	return report
 
-static func _matrix(expect: Callable) -> void:
+static func _matrix(expect: Callable, measure_opening_damage: bool) -> Dictionary:
 	var generator := Rooms.new()
+	var combat := Combat.new()
+	var player_snapshot: Dictionary = {}
+	if measure_opening_damage:
+		var engine := Run.new()
+		player_snapshot = engine._player_snapshot(engine.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()))
+		player_snapshot["hp"] = TEST_PLAYER_HP
+		player_snapshot["max_hp"] = TEST_PLAYER_HP
+	var report: Dictionary = {"threshold_hp": OPENING_DAMAGE_THRESHOLD, "method": "headless console incoming preview: finish_player_activation then advance_to_next_player_turn_with_steps, HP before next-turn setup", "player": "fresh-run default loadout, 100 HP to avoid lethal truncation, no cards or movement", "seeds_per_cohort": MATRIX_SEEDS, "cohorts": [], "rooms": [], "over_threshold": 0}
 	var count: int = 0
 	for biome: String in Library.definition("warband")["variants"]:
 		var variant: Dictionary = Library.definition("warband")["variants"][biome]
 		for tier: int in [1, 2, 3]:
+			var over_threshold: int = 0
+			var max_hp_loss: int = 0
 			for seed: int in range(MATRIX_SEEDS):
 				var room: Dictionary = Fixture.room_spec(biome, tier)
 				var layout: Dictionary = generator.generate_room(seed, room, Paths.DIRS_4[seed % 4])
@@ -52,7 +77,7 @@ static func _matrix(expect: Callable) -> void:
 				expect.call(enemies.size() == tier + 3 and captain["type"] == variant["captain"] and bool(captain.get("is_leader", false)), "Authored roster/captain: " + context)
 				for index: int in range(1, enemies.size()): expect.call(enemies[index]["type"] == variant["escort"][index - 1], "Ordered tier escort: " + context)
 				var distance: int = Paths.manhattan(entry, captain["pos"])
-				expect.call(distance >= 4 and distance <= 6, "Captain range 4–6: " + context)
+				expect.call(distance >= 5 and distance <= 7, "Captain range 5–7: " + context)
 				var nearest: int = distance
 				var occupied: Dictionary = {entry: true}
 				for index: int in range(enemies.size()):
@@ -60,6 +85,8 @@ static func _matrix(expect: Callable) -> void:
 					expect.call(not occupied.has(tile) and Paths.is_passable(grid, tile) and not Paths.find_path(grid, entry, tile).is_empty(), "Distinct reachable spawn: " + context)
 					occupied[tile] = true
 					nearest = mini(nearest, Paths.manhattan(entry, tile))
+					expect.call(Paths.manhattan(entry, tile) > Rooms.ENEMY_SPAWN_SAFE_RADIUS, "Every spawn outside ordinary entry halo: " + context)
+					if index > 0: expect.call(Paths.manhattan(entry, tile) >= 3, "Every escort at least 3 from entry: " + context)
 					if index > 1: expect.call(Paths.manhattan(tile, captain["pos"]) <= 3, "Other escorts near captain: " + context)
 				expect.call(nearest < distance, "Captain never closest: " + context)
 				var screen: Vector2i = enemies[1]["pos"]
@@ -70,21 +97,71 @@ static func _matrix(expect: Callable) -> void:
 					# Independently enumerate every farther legal anchor, including
 					# its capacity for the complete escort and a shortest-path screen.
 					for tile: Vector2i in Paths.reachable_tiles(grid, entry, 81):
-						if Paths.manhattan(tile, entry) <= distance or Paths.manhattan(tile, entry) > 6: continue
+						if Paths.manhattan(tile, entry) <= distance or Paths.manhattan(tile, entry) > 7: continue
 						var nearby: Array[Vector2i]
 						for other: Vector2i in Paths.reachable_tiles(grid, entry, 81):
-							if other != tile and Paths.manhattan(other, tile) <= 3: nearby.append(other)
-						expect.call(nearby.size() < enemies.size() - 2, "Dynamo uses farthest legal tile: " + context)
+							if other != tile and Paths.manhattan(other, entry) >= 3 and Paths.manhattan(other, entry) > Rooms.ENEMY_SPAWN_SAFE_RADIUS and Paths.manhattan(other, tile) <= 3: nearby.append(other)
+						var legal: bool = false
+						for candidate: Vector2i in Paths.reachable_tiles(grid, entry, 81):
+							if candidate == tile or Paths.manhattan(entry, candidate) < 3 or Paths.manhattan(entry, candidate) <= Rooms.ENEMY_SPAWN_SAFE_RADIUS or Paths.manhattan(entry, candidate) >= Paths.manhattan(entry, tile): continue
+							if Paths.find_path(grid, entry, candidate).size() + Paths.find_path(grid, candidate, tile).size() != Paths.find_path(grid, entry, tile).size() + 1: continue
+							if nearby.size() - (1 if nearby.has(candidate) else 0) >= enemies.size() - 2: legal = true
+						expect.call(not legal, "Dynamo uses farthest legal tile: " + context)
+				if measure_opening_damage:
+					var hp_loss: int = opening_hp_loss(combat, combat.create_combat(seed, layout, player_snapshot))
+					if hp_loss > OPENING_DAMAGE_THRESHOLD: over_threshold += 1
+					max_hp_loss = maxi(max_hp_loss, hp_loss)
+					(report["rooms"] as Array).append({"biome": biome, "tier": tier, "seed": seed, "entry_direction": seed % 4, "hp_loss": hp_loss})
 				count += 1
+			if measure_opening_damage:
+				(report["cohorts"] as Array).append({"biome": biome, "tier": tier, "rooms": MATRIX_SEEDS, "over_threshold": over_threshold, "percent": 100.0 * over_threshold / MATRIX_SEEDS, "max_hp_loss": max_hp_loss})
+				report["over_threshold"] += over_threshold
+				print("Warband opening damage >6 HP: %s tier %d: %d/%d (%.2f%%), max %d HP" % [biome, tier, over_threshold, MATRIX_SEEDS, 100.0 * over_threshold / MATRIX_SEEDS, max_hp_loss])
 	print("Warband placement matrix: %d rooms (6 variants × 3 tiers × 200 seeds), 4 entry directions" % count)
 	var sample: Dictionary = generator.generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("air", 2), Vector2i.UP)
 	var rng := RandomNumberGenerator.new()
-	var first: Array[Vector2i] = RoomRules.positions(sample["grid"], sample["player_start"], 5, rng, false, true)
+	var first: Array[Vector2i] = RoomRules.positions(sample["grid"], sample["player_start"], 5, Rooms.ENEMY_SPAWN_SAFE_RADIUS, rng, false, true)
 	rng.seed = FALLBACK_PROOF_SEED
-	expect.call(first == RoomRules.positions(sample["grid"], sample["player_start"], 5, rng, false, true), "Deterministic legal fallback is seed-independent")
+	expect.call(first == RoomRules.positions(sample["grid"], sample["player_start"], 5, Rooms.ENEMY_SPAWN_SAFE_RADIUS, rng, false, true), "Deterministic legal fallback is seed-independent")
 	var blocked := FallbackGenerator.new()
 	var fallback: Dictionary = blocked.generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("lightning", 3), Vector2i.UP)
-	expect.call(blocked.template_attempts <= RoomRules.MAX_PLACEMENT_ATTEMPTS + 1 and RoomRules.validate(fallback), "Exhausted seeded retries produce a deterministic legal fallback room")
+	expect.call(blocked.template_attempts <= RoomRules.MAX_PLACEMENT_ATTEMPTS + 1 and RoomRules.validate(fallback, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Exhausted seeded retries produce a deterministic legal fallback room")
+	var narrow := NarrowFallbackGenerator.new()
+	var relaxed: Dictionary = narrow.generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("lightning", 3), Vector2i.UP)
+	expect.call(narrow.template_attempts == RoomRules.MAX_PLACEMENT_ATTEMPTS + 1 and bool(relaxed.get("warband_escort_radius_relaxed", false)) and RoomRules.validate(relaxed, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Small fallback room relaxes only captain clustering after all seeded retries")
+	expect.call(relaxed["grid"][6][3] == "wall", "Clustering relaxes before fallback clears blockers")
+	var repeat: Dictionary = NarrowFallbackGenerator.new().generate_room(Fixture.FIXTURE_SEED, Fixture.room_spec("lightning", 3), Vector2i.UP)
+	expect.call(relaxed == repeat, "Relaxed fallback remains deterministic")
+	# Revalidate the entry halo even if it becomes larger than the authored
+	# three-tile minimum; fallback must never trade it for roster capacity.
+	var wider_halo: int = 3
+	var halo_positions: Array[Vector2i] = RoomRules.fallback_positions(sample["grid"], sample["player_start"], 5, wider_halo, false)
+	expect.call(halo_positions.size() == 5 and halo_positions.all(func(tile: Vector2i) -> bool: return Paths.manhattan(tile, sample["player_start"]) > wider_halo), "Fallback preserves the supplied ordinary entry halo")
+	if measure_opening_damage:
+		report["total_rooms"] = count
+		report["percent"] = 100.0 * int(report["over_threshold"]) / count
+		print("Warband opening damage >6 HP: TOTAL %d/%d (%.2f%%)" % [report["over_threshold"], count, report["percent"]])
+	_placement_regressions(expect)
+	return report
+
+static func opening_hp_loss(engine: RefCounted, state: Dictionary) -> int:
+	# Exactly the existing headless console's incoming preview, including
+	# Command, initiative timing and repeated activations. No damage estimator.
+	var phase: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))
+	var before_setup: Dictionary = phase.get("player_turn_before_state", {})
+	var after_enemy: Dictionary = before_setup if not before_setup.is_empty() else phase["state"]
+	return maxi(0, int(state["player"]["hp"]) - int(after_enemy["player"]["hp"]))
+
+static func _placement_regressions(expect: Callable) -> void:
+	var run_engine := Run.new()
+	var combat := Combat.new()
+	for sample: Dictionary in [{"biome": "air", "tier": 2, "seed": 83}, {"biome": "fire", "tier": 1, "seed": 7}]:
+		var run: Dictionary = Fixture.build(run_engine, combat, run_engine.create_new_run(sample["seed"], Store.default_data()), {"warband_biome": sample["biome"], "warband_tier": sample["tier"]})
+		var layout: Dictionary = run["current_room_layout"]
+		expect.call(RoomRules.validate(layout, Rooms.ENEMY_SPAWN_SAFE_RADIUS), "Console placement regression: " + str(sample))
+		for index: int in range(1, layout["enemies"].size()):
+			expect.call(Paths.manhattan(layout["enemies"][index]["pos"], layout["player_start"]) >= 3, "Console escorts never start within 2 tiles: " + str(sample))
+		print("Warband console regression: %s tier %d seed %d: pass preview %d HP" % [sample["biome"], sample["tier"], sample["seed"], opening_hp_loss(combat, run["combat_state"])])
 
 static func _golden(expect: Callable) -> void:
 	var golden: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/spx03_legacy_golden.json"))

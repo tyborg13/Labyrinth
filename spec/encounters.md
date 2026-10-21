@@ -136,12 +136,24 @@ escorts at the existing local depth tier. It bypasses generic leader selection,
 spawn-group expansion and extra-unit adjustments. Ordinary depth/sequence HP
 scaling applies, then the captain receives ×1.25 HP rounded up and 2/3/4
 Stoneskin, replacing the generic leader bonuses. Pixel density is unchanged.
-Placement uses Manhattan range 4–6 from the entry, a strictly closer follower,
-escort[0] on a shortest grid path, and every other escort within range 3 of the
-captain. Every generated room is validated. The seeded search has at most 20
-template attempts; the deterministic fallback clears interior template blockers
-and exhaustively chooses a legal formation. Dynamo anchors are searched farthest
-first across all legal reachable candidates, including full escort capacity.
+Per [director feedback 1](peer_benchmark/feedback/spx-03_feedback_1.md), placement
+uses Manhattan range 5–7 from the entry for the captain. Every escort starts at
+least 3 from the entry, and every enemy respects the ordinary spawn halo
+(`RoomGenerator.ENEMY_SPAWN_SAFE_RADIUS`, currently 2). A strictly closer
+follower keeps the captain from being closest; escort[0] is on a shortest grid
+path and at least 3 from entry. Every other escort starts within range 3 of the
+captain. Every generated room is validated. The approved range supersedes the
+protected file's original 4–6, with named constants in `WarbandRoomRules`;
+neither supplied data copy is rewritten.
+
+The seeded search retains 20 rerolls. Its deterministic fallback tries the
+strict formation first, then relaxes only the other escorts' range from the
+captain before clearing interior template blockers if no safe formation fits.
+The captain range, minimum escort entry distance, ordinary entry halo and screen
+path never relax. An additive `warband_escort_radius_relaxed` layout field marks
+the capacity exception; validation rejects it when a strict formation fits.
+Dynamo anchors are searched farthest first across all legal reachable
+candidates, including full escort capacity under the applicable constraints.
 
 `WarbandCombatRules` computes Command at use time from the living captain and
 current follower position. Every positive-damage action receives +1 within
@@ -211,6 +223,24 @@ naming paths, both at-rest and Details intent numbers, silent follower audio
 snapshots, the reduced-motion break, and real scene combat/pre-battle loading
 for the two proof fixtures.
 
+Feedback 1's focused placement pass also covers the exact console reproductions
+(`warband air 2 83`, `warband fire 1 7`), a narrow room that can retain its
+blockers only by relaxing captain clustering, and a wider ordinary entry halo.
+To record first-turn damage for the same 3,600-room matrix, use:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-03 && python3 tools/godot_task_runner.py --task-id spx-03 --timeout 900 --stream -- godot --headless --path . --script tests/warband_test.gd -- --opening-damage-report /private/tmp/labyrinth_codex/spx-03-feedback1-opening-damage.json
+```
+
+The optional report uses the existing console incoming-preview path:
+`finish_player_activation`, then `advance_to_next_player_turn_with_steps`,
+comparing player HP before next-turn setup. It includes Command, initiative and
+repeat activations; it does not estimate damage from printed attack totals.
+Each room uses fresh-run default equipment/relics and no plays or movement, with
+test HP 100 to avoid lethal truncation. It records the count and percentage over
+6 HP for every biome/tier cohort and the total. Normal suite runs omit this
+extra simulation cost. The director reruns native proof after this focused fix.
+
 The manual headless console accepts `warband <biome> <tier> [seed]`. For example:
 
 ```sh
@@ -249,9 +279,9 @@ proves the required immobile skip; the Stormcaller capture shows a real step.
 The probe's unlimited-vision field is capture-only, allowing every follower and
 intent to be inspected without changing gameplay visibility rules.
 
-Open design value: `WarbandView.TODO_DESIGN_WARBAND_BREAK_BEAT_SECONDS` retains
-the existing two-tile travel cadence (0.4 s) until the director specifies the
-beat's numeric duration. No asset was created, altered or downloaded. The
+Director feedback 1 approves `WarbandView.BREAK_BEAT_SECONDS = 0.4`, the existing
+two-tile travel cadence; the design placeholder is removed. No asset was
+created, altered or downloaded. The
 proposal URL/diagram was inaccessible to the implementation environment; the
 explicit unit brief and protected data are authoritative.
 
