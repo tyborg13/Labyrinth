@@ -7,6 +7,7 @@ const Run = preload("res://scripts/run_engine.gd")
 const Game = preload("res://scripts/game_data.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const Store = preload("res://scripts/analytics_store.gd")
+const POLICY_VERSION: int = 2
 const DECK_REWARD_SEED: int = 2102026
 const REWARD_ROLL_LIMIT: int = 10000
 const MAX_TURNS: int = 30
@@ -18,10 +19,11 @@ const MAX_PREVIEW_OPTIONS: int = 6
 const MAX_EXPANDED_ACTION_STATES: int = 96
 const KILL_SCORE: float = 5.0
 const INCOMING_DAMAGE_WEIGHT: float = 1.5
+const HEALING_WEIGHT: float = 1.0
 const MAX_HP: int = 24
 
 static func defaults() -> Dictionary:
-	return {"deck_reward_seed": DECK_REWARD_SEED, "reward_roll_limit": REWARD_ROLL_LIMIT, "max_turns": MAX_TURNS, "max_decisions_per_turn": MAX_DECISIONS_PER_TURN, "max_move_options": MAX_MOVE_OPTIONS, "max_action_targets": MAX_ACTION_TARGETS, "max_card_branches": MAX_CARD_BRANCHES, "max_preview_options": MAX_PREVIEW_OPTIONS, "max_expanded_action_states": MAX_EXPANDED_ACTION_STATES, "hp": MAX_HP, "kill_score": KILL_SCORE, "incoming_damage_weight": INCOMING_DAMAGE_WEIGHT, "objective_progress_weight": 1.0, "empower": false, "skills": [], "relics": [], "defiance": 0}
+	return {"policy_version": POLICY_VERSION, "healing_weight": HEALING_WEIGHT, "survival_first": true, "dodge_search": "all remaining free-movement destinations plus stay; objective-sorted zero-damage bound", "approach_order": "retained movement, objective distance, engine order", "damage_score": "1.5 times (pass-dodge damage minus candidate-dodge damage)", "trace": false, "deck_reward_seed": DECK_REWARD_SEED, "reward_roll_limit": REWARD_ROLL_LIMIT, "max_turns": MAX_TURNS, "max_decisions_per_turn": MAX_DECISIONS_PER_TURN, "max_move_options": MAX_MOVE_OPTIONS, "max_action_targets": MAX_ACTION_TARGETS, "max_card_branches": MAX_CARD_BRANCHES, "max_preview_options": MAX_PREVIEW_OPTIONS, "max_expanded_action_states": MAX_EXPANDED_ACTION_STATES, "hp": MAX_HP, "kill_score": KILL_SCORE, "incoming_damage_weight": INCOMING_DAMAGE_WEIGHT, "objective_progress_weight": 1.0, "empower": false, "skills": [], "relics": [], "defiance": 0}
 
 static func deck_presets() -> Dictionary:
 	var engine := Run.new()
@@ -46,6 +48,7 @@ class Policy:
 	var engine = CombatEngine.new()
 	var expanded: int = 0
 	var last_preview_count: int = 0
+	var trace: bool = false
 
 	func enemy_hp(state: Dictionary) -> Dictionary:
 		var result: Dictionary = {}
@@ -75,13 +78,65 @@ class Policy:
 			if old_distance >= 0 and new_distance >= 0: value += old_distance - new_distance
 		return value
 
-	func incoming_damage(state: Dictionary) -> int:
-		# This is the live revealed-intent preview used by the game, including
-		# card Time and changed defenses at the candidate's actual end tile.
+	func phase_preview(state: Dictionary) -> Dictionary:
+		# The same revealed-intent preview as the UI; never peek at unrevealed
+		# follow-up intents. It includes card Time, Block and Stoneskin.
+		last_preview_count += 1
 		var scheduled: Dictionary = engine.finish_player_activation(state)
 		var preview: Dictionary = engine.preview_revealed_enemy_actions_before_player_turn_with_steps(scheduled)
 		var after: Dictionary = preview.get("state", state)
-		return maxi(0, int(state["player"]["hp"]) - int(after["player"]["hp"]))
+		return {"damage": maxi(0, int(state["player"]["hp"]) - int(after["player"]["hp"])), "survives": int(after["player"]["hp"]) > 0}
+
+	func objective_distance(state: Dictionary) -> int:
+		var objective: Dictionary = state.get("objective", {})
+		if str(objective.get("type", "")) == Objectives.REACH_EXIT: return exit_distance(state)
+		var leader_id: int = int(objective.get("leader_id", -1))
+		if leader_id >= 0:
+			for enemy: Dictionary in state["enemies"]:
+				if int(enemy["id"]) == leader_id and int(enemy["hp"]) > 0:
+					return Sweep.Paths.manhattan(state["player"]["pos"], enemy["pos"])
+		return nearest_enemy(state)
+
+	func dodge_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+		if incumbent.is_empty(): return true
+		if candidate["survives"] != incumbent["survives"]: return bool(candidate["survives"])
+		if candidate["damage"] != incumbent["damage"]: return int(candidate["damage"]) < int(incumbent["damage"])
+		return int(candidate["distance"]) < int(incumbent["distance"])
+
+	func best_dodge(state: Dictionary) -> Dictionary:
+		# Search every legal destination in the remaining free movement pool,
+		# including staying put. Movement is committed only after the final card.
+		var candidates: Array[Dictionary]
+		candidates.append({"state": state, "distance": objective_distance(state), "order": 0})
+		for tile: Vector2i in engine.player_movement_targets(state):
+			var moved: Dictionary = engine.apply_player_movement(state, tile)
+			candidates.append({"state": moved, "distance": objective_distance(moved), "order": candidates.size()})
+		candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+			if a["distance"] != b["distance"]: return a["distance"] < b["distance"]
+			return int(a["order"]) < int(b["order"]))
+		var best: Dictionary = {}
+		for candidate: Dictionary in candidates:
+			var moved: Dictionary = candidate["state"]
+			var preview: Dictionary = phase_preview(moved)
+			# Include damage on the way to the destination (Fire, Bleed, traps).
+			var damage: int = int(preview["damage"]) + maxi(0, int(state["player"]["hp"]) - int(moved["player"]["hp"]))
+			var distance: int = int(candidate["distance"])
+			var evaluated: Dictionary = {"state": moved, "damage": damage, "survives": preview["survives"], "distance": distance}
+			if dodge_precedes(evaluated, best): best = evaluated
+			# Zero is the exact lower bound. Objective-sorted destinations make
+			# the first surviving zero-damage preview provably optimal.
+			if bool(preview["survives"]) and damage == 0: break
+		return best
+
+	func option_score(before: Dictionary, after: Dictionary, baseline: Dictionary, dodge: Dictionary) -> float:
+		# Marginal preview damage credits defense only when it actually saves HP
+		# this phase, and charges cards that expose the hero or extend the clock.
+		var value: float = gain(before, after) + INCOMING_DAMAGE_WEIGHT * (int(baseline["damage"]) - int(dodge["damage"]))
+		value += HEALING_WEIGHT * (int(after["player"]["hp"]) - int(before["player"]["hp"]))
+		if str(before.get("objective", {}).get("type", "")) == Objectives.REACH_EXIT:
+			# Free progress available even when passing is not a card's benefit.
+			value += exit_distance(after) - int(dodge["distance"]) - (exit_distance(before) - int(baseline["distance"]))
+		return value
 
 	func branches(state: Dictionary, actions: Array, index: int, effect: bool) -> Array[Dictionary]:
 		var result: Array[Dictionary]
@@ -111,48 +166,50 @@ class Policy:
 		return result.slice(0, MAX_CARD_BRANCHES)
 
 	func choose(state: Dictionary) -> Dictionary:
+		last_preview_count = 0
+		var baseline: Dictionary = best_dodge(state)
+		if engine.combat_outcome(baseline["state"]) == "victory": return {}
 		var origins: Array[Dictionary]
 		origins.append({"state": state, "order": 0})
 		var movements: Array[Dictionary]
 		for tile: Vector2i in engine.player_movement_targets(state):
 			var moved: Dictionary = engine.apply_player_movement(state, tile)
-			movements.append({"state": moved, "gain": gain(state, moved), "order": movements.size() + 1})
+			movements.append({"state": moved, "distance": objective_distance(moved), "remaining": engine.player_movement_remaining(moved), "order": movements.size() + 1})
 		movements.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-			if float(a["gain"]) != float(b["gain"]): return float(a["gain"]) > float(b["gain"])
+			if a["remaining"] != b["remaining"]: return a["remaining"] > b["remaining"]
+			if a["distance"] != b["distance"]: return a["distance"] < b["distance"]
 			return int(a["order"]) < int(b["order"]))
-		# Include the original tile and bounded free moves. For non-exit
-		# objectives the movement shortlist prioritizes proximity to living enemies.
-		if str(state.get("objective", {}).get("type", "")) != Objectives.REACH_EXIT:
-			movements.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-				if nearest_enemy(a["state"]) != nearest_enemy(b["state"]): return nearest_enemy(a["state"]) < nearest_enemy(b["state"])
-				return int(a["order"]) < int(b["order"]))
 		origins.append_array(movements.slice(0, MAX_MOVE_OPTIONS))
 		var options: Array[Dictionary]
 		for origin: Dictionary in origins:
 			var base: Dictionary = origin["state"]
-			if origin["order"] != 0: options.append({"state": base, "gain": gain(state, base), "order": options.size()})
 			var hand: Array = base["deck"]["hand"]
 			for hand_index: int in range(hand.size()):
 				if not engine.hand_card_has_play_budget(base, hand_index): continue
 				expanded = 0
 				var prepared: Dictionary = engine.prepare_player_card(base, hand_index)
-				var actions: Array = engine.card_play_actions(str(hand[hand_index]), prepared)
-				for resolved: Dictionary in branches(prepared, actions, 0, false):
-					var after: Dictionary = engine.finish_player_card(resolved, hand_index, engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
-					options.append({"state": after, "gain": gain(state, after), "order": options.size()})
+				var card_actions: Array = engine.card_play_actions(str(hand[hand_index]), prepared)
+				for resolved: Dictionary in branches(prepared, card_actions, 0, false):
+					var after: Dictionary = engine.finish_player_card(resolved, hand_index, engine.card_plays_spent_for_actions(card_actions), {"play_mode": "play"})
+					var defense: int = maxi(0, int(after["player"].get("block", 0)) + int(after["player"].get("stoneskin", 0)) - int(state["player"].get("block", 0)) - int(state["player"].get("stoneskin", 0)))
+					var potential: float = gain(state, after) + INCOMING_DAMAGE_WEIGHT * mini(defense, int(baseline["damage"]))
+					potential += HEALING_WEIGHT * (int(after["player"]["hp"]) - int(state["player"]["hp"]))
+					options.append({"state": after, "card": hand[hand_index], "potential": potential, "remaining": engine.player_movement_remaining(after), "order": options.size()})
 		options.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
-			if float(a["gain"]) != float(b["gain"]): return float(a["gain"]) > float(b["gain"])
+			if float(a["potential"]) != float(b["potential"]): return float(a["potential"]) > float(b["potential"])
+			if a["remaining"] != b["remaining"]: return a["remaining"] > b["remaining"]
 			return int(a["order"]) < int(b["order"]))
 		var best: Dictionary = {}
 		var score: float = 0.0
-		last_preview_count = 0
+		var survives: bool = bool(baseline["survives"])
 		for option: Dictionary in options.slice(0, MAX_PREVIEW_OPTIONS):
-			if float(option["gain"]) <= score: continue # incoming damage cannot improve this upper bound
-			var value: float = float(option["gain"]) - INCOMING_DAMAGE_WEIGHT * incoming_damage(option["state"])
-			last_preview_count += 1
-			if value > score:
+			var dodge: Dictionary = best_dodge(option["state"])
+			var value: float = option_score(state, option["state"], baseline, dodge)
+			if survives and not bool(dodge["survives"]): continue
+			if (bool(dodge["survives"]) and not survives) or value > score:
+				survives = bool(dodge["survives"])
 				score = value
-				best = {"state": option["state"], "score": score}
+				best = {"state": option["state"], "score": score, "card": option["card"], "dodge": dodge["state"]["player"]["pos"], "predicted_damage": dodge["damage"]}
 		return best
 
 	func nearest_enemy(state: Dictionary) -> int:
@@ -180,6 +237,7 @@ class Policy:
 				var selected: Dictionary = choose(state)
 				previews += last_preview_count
 				if selected.is_empty(): break
+				if trace: print("BOT CARD: ", Store._sanitize_variant({"turn": turns, "before": state["player"], "remaining": engine.player_movement_remaining(state), "card": selected["card"], "after": selected["state"]["player"], "dodge": selected["dodge"], "predicted_damage": selected["predicted_damage"], "score": selected["score"]}))
 				state = selected["state"]
 				if kill_count(state) > kills and first_death == null: first_death = turns
 				kills = kill_count(state)
@@ -187,11 +245,20 @@ class Policy:
 				actions += 1
 			if decision == MAX_DECISIONS_PER_TURN: capped = true
 			if not engine.combat_outcome(state).is_empty(): break
+			last_preview_count = 0
+			var dodge: Dictionary = best_dodge(state)
+			state = dodge["state"]
+			if trace: print("BOT DODGE: ", Store._sanitize_variant({"turn": turns, "player": state["player"], "predicted_damage": dodge["damage"], "enemies": state["enemies"]}))
+			if kill_count(state) > kills and first_death == null: first_death = turns
+			kills = kill_count(state)
+			previews += last_preview_count
+			if not engine.combat_outcome(state).is_empty(): break
 			state = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(state))["state"]
+			if trace: print("BOT PHASE: ", Store._sanitize_variant({"turn": turns, "player": state["player"], "outcome": engine.combat_outcome(state)}))
 			if kill_count(state) > kills and first_death == null: first_death = turns
 			kills = kill_count(state)
 		var outcome: String = engine.combat_outcome(state)
-		return {"seed": seed_value, "objective": layout["objective"]["type"], "outcome": outcome if not outcome.is_empty() else "lost", "won": outcome == "victory", "turns": turns, "hp_lost": int(state.get("run_stats", {}).get("damage_received", 0)), "net_hp_lost": MAX_HP - int(state["player"]["hp"]), "kills": kills, "first_enemy_death_turn": first_death, "search_capped": capped, "turn_cap_reached": outcome.is_empty(), "decisions": actions, "intent_previews": previews}
+		return {"policy_version": POLICY_VERSION, "seed": seed_value, "objective": layout["objective"]["type"], "outcome": outcome if not outcome.is_empty() else "lost", "won": outcome == "victory", "turns": turns, "hp_lost": int(state.get("run_stats", {}).get("damage_received", 0)), "net_hp_lost": MAX_HP - int(state["player"]["hp"]), "kills": kills, "first_enemy_death_turn": first_death, "search_capped": capped, "turn_cap_reached": outcome.is_empty(), "decisions": actions, "intent_previews": previews}
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -207,6 +274,7 @@ func _initialize() -> void:
 	var output: String = Sweep.option(args, "--output", "user://encounter_bot.json")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output.get_base_dir()))
 	var policy := Policy.new()
+	policy.trace = args.has("--trace")
 	var results: Array[Dictionary]
 	var seed_value: int = int(Sweep.option(args, "--seed", "1"))
 	while results.size() < count:

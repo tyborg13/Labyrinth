@@ -4,12 +4,88 @@ const Bot = preload("res://tools/encounter_bot.gd")
 const Game = preload("res://scripts/game_data.gd")
 var failures: int = 0
 var checks: int = 0
+# Debug-only arena; independent of all authored encounters and deck presets.
+const POLICY_FIXTURE: Dictionary = {"seed": 4501, "size": 7, "player": Vector2i(2, 3), "enemy": Vector2i(3, 3), "enemy_hp": 30, "damage": 10, "enemy_time": 1, "enemy_id": 1, "low_hp": 5, "lethal_hp": 1, "approach_start": Vector2i(1, 3), "leader_id": 2, "leader_pos": Vector2i(5, 3), "exit_pos": Vector2i(2, 5)}
 
 func check(condition: bool, message: String) -> void:
 	checks += 1
 	if not condition:
 		failures += 1
 		print("FAIL: " + message)
+
+func policy_fixture(room: Dictionary, hand: Array) -> Dictionary:
+	var policy := Bot.Policy.new()
+	var state: Dictionary = policy.engine.create_combat(POLICY_FIXTURE["seed"], room, {"hp": Bot.MAX_HP, "max_hp": Bot.MAX_HP, "deck_cards": Game.starting_deck(), "relics": []})
+	var grid: Array
+	for y: int in range(POLICY_FIXTURE["size"]):
+		var row: Array[String]
+		for x: int in range(POLICY_FIXTURE["size"]):
+			row.append("wall" if x == 0 or y == 0 or x == POLICY_FIXTURE["size"] - 1 or y == POLICY_FIXTURE["size"] - 1 else "stone")
+		grid.append(row)
+	state["grid"] = grid
+	state["objective"] = {"type": "kill_all"}
+	state["player"]["pos"] = POLICY_FIXTURE["player"]
+	state["terrain"] = []
+	state["traps"] = []
+	state["loot"] = []
+	state["surfaces"] = {}
+	state["umbra"]["stage"] = "clear"
+	var enemy: Dictionary = policy.engine._spawned_enemy_entry(state, "crawler", POLICY_FIXTURE["enemy_id"], POLICY_FIXTURE["enemy"], false)
+	enemy["hp"] = POLICY_FIXTURE["enemy_hp"]
+	enemy["max_hp"] = POLICY_FIXTURE["enemy_hp"]
+	enemy["intent"] = {"id": "fixture", "time": POLICY_FIXTURE["enemy_time"], "actions": [{"type": "melee", "range": 1, "damage": POLICY_FIXTURE["damage"]}]}
+	state["enemies"] = [enemy]
+	state["turn_queue"] = [policy.engine._enemy_actor_entry(state, enemy, POLICY_FIXTURE["enemy_time"], 1)]
+	state["deck"]["hand"] = hand.duplicate()
+	return state
+
+func test_policy(room: Dictionary) -> void:
+	var policy := Bot.Policy.new()
+	var state: Dictionary = policy_fixture(room, [])
+	var original: Dictionary = state.duplicate(true)
+	var stay: Dictionary = policy.phase_preview(state)
+	var dodge: Dictionary = policy.best_dodge(state)
+	check(stay["damage"] == POLICY_FIXTURE["damage"] and dodge["damage"] == 0, "end-turn dodge escapes a real revealed melee intent")
+	var minimum_distance: int = 1000000
+	for tile: Vector2i in policy.engine.player_movement_targets(state):
+		var moved: Dictionary = policy.engine.apply_player_movement(state, tile)
+		if policy.phase_preview(moved)["damage"] == 0: minimum_distance = mini(minimum_distance, policy.objective_distance(moved))
+	check(dodge["distance"] == minimum_distance, "safe dodge ties approach the nearest objective")
+	check(state == original, "dodge search leaves the live state unchanged")
+	for card: String in ["brace", "stonewall_stance"]:
+		state = policy_fixture(room, [card])
+		state["player_movement_remaining"] = 0
+		var baseline: Dictionary = policy.best_dodge(state)
+		var chosen: Dictionary = policy.choose(state)
+		check(not chosen.is_empty() and chosen["card"] == card, "zero-damage defense survives shortlist and is played: " + card)
+		if chosen.is_empty(): continue
+		var defended: Dictionary = policy.best_dodge(chosen["state"])
+		var prevented: int = int(baseline["damage"]) - int(defended["damage"])
+		var expected: int = int(Game.card_def(card)["actions"][0]["amount"])
+		check(prevented == expected and chosen["score"] == Bot.INCOMING_DAMAGE_WEIGHT * prevented, "defense scores actual preview HP prevented: " + card)
+	state = policy_fixture(room, ["whirlwind_slash", "brace"])
+	state["player"]["hp"] = POLICY_FIXTURE["low_hp"]
+	state["player_movement_remaining"] = 0
+	var chosen: Dictionary = policy.choose(state)
+	check(not chosen.is_empty() and chosen["card"] == "brace" and policy.best_dodge(chosen["state"])["survives"], "surviving defense beats a higher-damage lethal card preview")
+	state = policy_fixture(room, ["rooted_stance"])
+	state["player"]["hp"] = POLICY_FIXTURE["lethal_hp"]
+	check(policy.best_dodge(state)["survives"] and policy.choose(state).is_empty(), "safe pass and dodge beats a lethal no-move card")
+	state = policy_fixture(room, ["quick_stab"])
+	state["player"]["pos"] = POLICY_FIXTURE["approach_start"]
+	chosen = policy.choose(state)
+	check(not chosen.is_empty() and chosen["predicted_damage"] == 0 and policy.engine.player_movement_remaining(chosen["state"]) > 0, "approach plus card preserves a safe post-card free step")
+	state = policy_fixture(room, [])
+	state["objective"] = {"type": "kill_leader", "leader_id": POLICY_FIXTURE["leader_id"]}
+	state["enemies"].append(policy.engine._spawned_enemy_entry(state, "crawler", POLICY_FIXTURE["leader_id"], POLICY_FIXTURE["leader_pos"], false))
+	check(policy.objective_distance(state) == Sweep.Paths.manhattan(POLICY_FIXTURE["player"], POLICY_FIXTURE["leader_pos"]), "leader dodge proximity ignores closer followers")
+	state = policy_fixture(room, [])
+	state["objective"] = {"type": "reach_exit", "exits": [{"target_tile": POLICY_FIXTURE["exit_pos"]}]}
+	dodge = policy.best_dodge(state)
+	check(dodge["state"]["player"]["pos"] == POLICY_FIXTURE["exit_pos"] and policy.engine.combat_outcome(dodge["state"]) == "victory", "end-turn movement reaches the nearest safe exit")
+	check(policy.choose(state).is_empty(), "available free escape does not waste a card")
+	check(Bot.defaults()["policy_version"] == 2, "policy version is recorded in defaults")
+	print("ENCOUNTER BOT DODGE/DEFENSE: %s" % ["PASS" if failures == 0 else "FAIL"])
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -66,6 +142,7 @@ func _initialize() -> void:
 	for sample: Dictionary in Sweep.samples(state):
 		var room: Dictionary = Sweep.layout(sample, state)
 		if not selected.has(room["objective"]["type"]): selected[room["objective"]["type"]] = room
+	test_policy(selected.values()[0])
 	for objective: String in selected:
 		var room: Dictionary = selected[objective]
 		var before: Dictionary = room.duplicate(true)

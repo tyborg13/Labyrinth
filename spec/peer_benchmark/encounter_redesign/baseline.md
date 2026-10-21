@@ -1,10 +1,8 @@
 # Encounter measurement baseline (spx-01)
 
-Measured against integration HEAD `857c0139bd355b73a92c15249c8a62a607937a26` with additive analytics changes only. 200 natural rooms per objective per tier; all outcomes are included in percentiles. This is a bounded greedy bot baseline, not a model of expert play. No encounter, objective, reward, map, combat or save rules change.
+Policy version 2, source HEAD `743b8d1cea9ba321d7a46b500967ce3cc5e6ef6c`; the exact measurement policy hash is in baseline.json. 200 natural rooms per objective per tier; all outcomes are included in percentiles. This is a bounded greedy bot baseline, not a model of expert play. No encounter, objective, reward, map, combat or save rules change.
 
-Run `python3 tools/encounter_sweep.py` then `python3 tools/encounter_bot.py --baseline` from this worktree. Raw room records are in `measurements/composition.jsonl.gz`; `composition.json` and `baseline.json` contain summaries. The nine `bot-t*-*.json` files retain every outcome, seed, room coordinate and entrance, plus deck ids and policy defaults. Per-process logs retain exact runner commands. Replay a recorded room with `python3 tools/encounter_bot.py --seed SEED --tier TIER --objective OBJECTIVE --coord=X,Y --runs 1 --output-dir /private/tmp/spx-01-replay`.
-
-Verification results, exact commands and the import-timeout note are in [the proof manifest](measurements/proof.json). Windowed captures and an inspection fixture are not applicable to this measurement-only unit.
+Run `python3 tools/encounter_sweep.py` then `python3 tools/encounter_bot.py --baseline` from this worktree. Raw room records are in `measurements/composition.jsonl.gz`; `composition.json` and `baseline.json` contain summaries. The nine `bot-t*-*.json.gz` files retain every outcome, seed, room coordinate and entrance, plus deck ids and policy defaults. Per-process logs and uncompressed working records stay under `/private/tmp/spx-01-measurement-logs/`. [Policy v1](baseline_policy_v1.md) and `measurements/baseline_policy_v1.json` retain the original baseline for comparison. Verification commands and results are in [the proof manifest](measurements/proof.json). Windowed proof is not applicable. Replay a recorded room with `python3 tools/encounter_bot.py --seed SEED --tier TIER --objective OBJECTIVE --coord=X,Y --runs 1 --output-dir /private/tmp/spx-01-replay`.
 
 ## Sampling and definitions
 
@@ -16,25 +14,33 @@ Turns count hero activations, starting at 1, with lethal enemy phases attributed
 
 | Tier | Objective | N | Win rate | Turns median (P10–P90) | HP lost median (P10–P90) | One-turn escapes |
 |---|---|---:|---:|---:|---:|---:|
-| 1 | kill_all | 200 | 12.5% | 3 (2–6) | 24 (19–24) | — |
-| 1 | kill_leader | 200 | 20.0% | 3 (2–6) | 24 (9–24) | — |
-| 1 | reach_exit | 200 | 39.5% | 3 (2–4) | 24 (0–24) | 4.5% |
-| 2 | kill_all | 200 | 3.5% | 3 (2–5) | 24 (24–24) | — |
-| 2 | kill_leader | 200 | 9.0% | 3 (2–5) | 24 (24–24) | — |
-| 2 | reach_exit | 200 | 23.5% | 3 (2–4) | 24 (7–24) | 1.0% |
-| 3 | kill_all | 200 | 0.0% | 3 (2–5) | 24 (24–24) | — |
-| 3 | kill_leader | 200 | 1.5% | 3 (2–5) | 24 (24–24) | — |
-| 3 | reach_exit | 200 | 19.0% | 2.5 (2–4) | 24 (10–24) | 3.5% |
+| 1 | kill_all | 200 | 64.0% | 5 (3–7) | 15 (0–26) | — |
+| 1 | kill_leader | 200 | 59.5% | 4 (2–7) | 18 (3–26) | — |
+| 1 | reach_exit | 200 | 86.5% | 3 (2–5) | 5 (0–24) | 3.0% |
+| 2 | kill_all | 200 | 41.5% | 6 (3–10) | 24 (6–26) | — |
+| 2 | kill_leader | 200 | 36.0% | 4 (3–8) | 24 (9–26) | — |
+| 2 | reach_exit | 200 | 54.0% | 3 (2–5) | 20 (0–26) | 0.5% |
+| 3 | kill_all | 200 | 25.0% | 5 (3–12) | 24 (13–26) | — |
+| 3 | kill_leader | 200 | 28.0% | 5 (3–13) | 24 (12–26) | — |
+| 3 | reach_exit | 200 | 48.0% | 3 (2–6) | 24 (0–26) | 1.5% |
+
+2 bounded configurations were compared on the same first 30 tier-1 Defeat All rooms. approach_objective_first: 63.3% wins and 16.5 median HP lost; approach_retained_movement_first: 66.7% wins and 17 median HP lost. Selected `approach_retained_movement_first` by higher win rate, then lower median HP lost. Search limits, decks and HP were held fixed. Calibration records and summaries are in `measurements/calibration_policy_v2.json` and its gzipped raw files. Tuning stopped after these configurations; the full cohort above reports the selected policy. This policy remains unqualified for encounter-band calibration if the target below is not met.
+
+Tier-1 Defeat All target (≥70% wins, median HP lost ≤8): NOT MET. Policy v1 measured 12.5% wins and 24 median HP lost on these same rooms.
 
 ## Chosen defaults
 
-These affect measurement only. Tier 1 uses GameData.starting_deck(), default equipment, no relics, 24 HP. Tier 2 appends three common reward rolls; tier 3 appends those commons and two rares. Rewards come from the actual coordinate-based reward offer stream on the fixed seed below (coordinates `(roll + 1, 0)`, with each room’s natural element); accepted duplicates are retained. No skills, consumables, omens or Defiance; no Empower. All ties use explicit generation order. Non-exit movement shortlists prioritize distance to a living enemy; exit shortlists prioritize exit distance closed. Optional free moves happen before a card; movement-only choices support exits. Multiaction cards use sequential engine resolution with bounded target branches. Search first ranks candidates by HP removed + 5 per kill + leader damage + unblocked exit distance closed; it evaluates the exact revealed-intent preview penalty for the best bounded shortlist. That preview respects card Time, the end tile and defenses. The bot chooses the highest positive score, otherwise passes. Equal scores retain the first option. Search limits deliberately constrain the policy and must be held fixed for future comparisons.
+These affect measurement only. Tier 1 uses GameData.starting_deck(), default equipment, no relics, 24 HP. Tier 2 appends three common reward rolls; tier 3 appends those commons and two rares. Rewards come from the actual coordinate-based reward offer stream on the fixed seed below (coordinates `(roll + 1, 0)`, with each room’s natural element); accepted duplicates are retained. No skills, consumables, omens or Defiance; no Empower. All otherwise equal ties use explicit generation order. Before each card, search the current tile and up to five free-move origins, prioritizing retained movement and then distance to the objective. Multiaction cards use sequential engine resolution with bounded target branches. Rank the shortlist by actual HP removed + 5 per kill + objective progress + potential defense and healing, preferring retained free movement on ties. For each of the top six candidates, search every legal remaining free-movement destination and staying put. Destinations are ordered by objective distance; a surviving zero-damage preview reaches the exact lower bound, so the remaining previews can be pruned. Choose the dodge with the least predicted HP damage (including damage on the path); ties approach the nearest living enemy or designated leader by Manhattan distance, or the nearest exit by grid-only path distance. Evaluate the card against passing with its own best dodge: damage/kills/objective progress + healing + 1.5 × (pass damage − candidate damage). Thus Block and Stoneskin earn only the HP damage the live preview says they prevent this phase; no flat defense bonus is paid. Free exit progress already available when passing is subtracted. A pass or evaluated candidate whose preview survives always displaces a lethal preview, regardless of raw score. The live preview stops at unrevealed follow-up intents; the policy does not inspect those future actions. Commit the card and its approach, then replan; commit the dodge after the final card. Highest positive score wins; otherwise pass and dodge. Search limits deliberately constrain the policy and must be held fixed for future comparisons.
 
 ```json
 {
+  "approach_order": "retained movement, objective distance, engine order",
+  "damage_score": "1.5 times (pass-dodge damage minus candidate-dodge damage)",
   "deck_reward_seed": 2102026,
   "defiance": 0,
+  "dodge_search": "all remaining free-movement destinations plus stay; objective-sorted zero-damage bound",
   "empower": false,
+  "healing_weight": 1.0,
   "hp": 24,
   "incoming_damage_weight": 1.5,
   "kill_score": 5.0,
@@ -46,9 +52,12 @@ These affect measurement only. Tier 1 uses GameData.starting_deck(), default equ
   "max_preview_options": 6,
   "max_turns": 30,
   "objective_progress_weight": 1.0,
+  "policy_version": 2,
   "relics": [],
   "reward_roll_limit": 10000,
-  "skills": []
+  "skills": [],
+  "survival_first": true,
+  "trace": false
 }
 ```
 
@@ -130,7 +139,7 @@ Reward presets:
 }
 ```
 
-The sweep starts at seed 1 and accepts 2,000 seeds per tier/biome. Golden seeds are 1, 19 and 421. Baselines start at seed 1; the Python driver uses six concurrent isolated Godot processes. The offline measurement timeout is 7,200 seconds per process; ordinary tests retain the project caps.
+The sweep starts at seed 1 and accepts 2,000 seeds per tier/biome. Golden seeds are 1, 19 and 421. Baselines start at seed 1; the Python driver uses 6 concurrent isolated Godot processes. The offline measurement timeout is 7,200 seconds per process; ordinary tests retain the project caps.
 
 ## Composition sweep
 

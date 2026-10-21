@@ -13,6 +13,7 @@ import statistics
 import subprocess
 import sys
 import time
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "spec/peer_benchmark/encounter_redesign/measurements"
@@ -99,7 +100,10 @@ def main() -> None:
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     raw = output / "composition.jsonl"
-    elapsed = run_engine("tools/encounter_sweep.gd", ["--seeds", str(args.seeds), "--first-seed", str(args.first_seed), "--output", str(raw)], output / "sweep.log")
+    log_root = Path("/private/tmp/spx-01-measurement-logs")
+    log_root.mkdir(parents=True, exist_ok=True)
+    log_dir = Path(tempfile.mkdtemp(prefix="sweep-", dir=log_root))
+    elapsed = run_engine("tools/encounter_sweep.gd", ["--seeds", str(args.seeds), "--first-seed", str(args.first_seed), "--output", str(raw)], log_dir / "sweep.log")
     rows = [json.loads(line) for line in raw.read_text().splitlines()]
     bins = Counter((r["tier"], r["biome"]) for r in rows)
     identities = {(r["tier"], r["biome"], r["seed"]) for r in rows}

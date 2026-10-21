@@ -1,0 +1,71 @@
+{
+  "policy_version": 2,
+  "runs_per_configuration": 30,
+  "first_seed": 1,
+  "selection_order": [
+    "higher win rate",
+    "lower median HP lost"
+  ],
+  "selected_configuration": "approach_retained_movement_first",
+  "search_limits_changed": false,
+  "configurations": [
+    {
+      "name": "approach_objective_first",
+      "raw_file": "calibration-approach_objective_first.json.gz",
+      "n": 30,
+      "win_rate": 0.6333333333333333,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 30,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 7
+      },
+      "hp_lost": {
+        "n": 30,
+        "median": 16.5,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 4,
+        "earth": 5,
+        "fire": 7,
+        "ice": 3,
+        "lightning": 5,
+        "shadow": 6
+      },
+      "sha256": "16776c3af104034079dd89c35104cb511005af34fdef9b0247760a1f79669639"
+    },
+    {
+      "name": "approach_retained_movement_first",
+      "raw_file": "calibration-approach_retained_movement_first.json.gz",
+      "n": 30,
+      "win_rate": 0.6666666666666666,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 30,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 8
+      },
+      "hp_lost": {
+        "n": 30,
+        "median": 17.0,
+        "p10": 0,
+        "p90": 26
+      },
+      "turn_cap_reached": 1,
+      "biomes": {
+        "air": 4,
+        "earth": 5,
+        "fire": 7,
+        "ice": 3,
+        "lightning": 5,
+        "shadow": 6
+      },
+      "sha256": "af930398231ce12d81f78c80045349a9aa50a66bac9878ff269962fd57e452d0"
+    }
+  ]
+}
