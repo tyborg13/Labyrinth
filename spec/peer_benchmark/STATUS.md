@@ -68,11 +68,13 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   - Inbox:
     - empower-sound-built is open (clip with sound).
     - Encounter redesign: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX. enc-specials APPROVED
-      2026-10-21 (Hoarder = reused Ember Tick; captains unscaled). Running: spx-01 (measurement, from 857c0139b),
-      spx-02 (map placement, emblems, legend, tooltips, rewards; windowed proof judged; review round: 6 findings, fix round 2 running) and spx-03 (round 1 ade9f5ca6: escort spacing fixed, windowed proof judged, Codex review running) (Warband combat; standard fights always
-      Defeat All), both from f3beee6fe. Director data: staged/spx/special_encounters.json + emblems. Next: spx-04
-      (the six Warband orders), then the Snare, Last Light and Hoarder. enc-clarity, enc-dragons and enc-guardians
-      still await verdicts. See `encounter_redesign/README.md`.
+      2026-10-21. MERGED on integration: spx-02 a20648afc (map placement, emblems, legend, tooltips, rewards), spx-03
+      8b53574d4 (Warband combat; standard fights Defeat All in revision 6+), integration repair fd9adb42c (the
+      escape-transaction test pinned to revision 5), and spx-01 011dd1467 (analytics context, sweep, bot v2 as a
+      relative benchmark; suites running). Running: spx-04 (the six Warband orders). Pinned playtest worktree
+      `../Labyrinth.worktrees/peer-benchmark-playtest-spx` at fd9adb42c (detached) for the owner's Warband inbox item.
+      Next: Umbral Snare, Last Light, Hoarder briefs. enc-clarity, enc-dragons and enc-guardians await verdicts.
+      See `encounter_redesign/README.md`.
     - Inbox cards now support an optional `link`.
   - sfx-05 Low (backlog): three missing regression cases (rejected-toggle silence, available() health guard,
     can_attempt() non-health guards).
