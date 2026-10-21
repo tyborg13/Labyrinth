@@ -1,0 +1,1 @@
+Continue where you stopped (the previous turn ended on a model-capacity error). Finish feedback 3: complete the revision-6 baselines (standard Defeat All and Warband, tiers 1-3, 200 runs each), the focused tests, and one full Godot suite at the end; then report.

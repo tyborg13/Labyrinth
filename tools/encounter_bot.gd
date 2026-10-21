@@ -260,6 +260,12 @@ class Policy:
 		var outcome: String = engine.combat_outcome(state)
 		return {"policy_version": POLICY_VERSION, "seed": seed_value, "objective": layout["objective"]["type"], "outcome": outcome if not outcome.is_empty() else "lost", "won": outcome == "victory", "turns": turns, "hp_lost": int(state.get("run_stats", {}).get("damage_received", 0)), "net_hp_lost": MAX_HP - int(state["player"]["hp"]), "kills": kills, "first_enemy_death_turn": first_death, "search_capped": capped, "turn_cap_reached": outcome.is_empty(), "decisions": actions, "intent_previews": previews}
 
+func write_report(output: String, revision: int, cohort: String, presets: Dictionary, results: Array[Dictionary]) -> void:
+	var file := FileAccess.open(output, FileAccess.WRITE)
+	assert(file != null)
+	file.store_string(JSON.stringify({"revision": revision, "cohort": cohort, "defaults": defaults(), "decks": presets, "results": results}, "\t"))
+	file.close()
+
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var args: PackedStringArray = OS.get_cmdline_user_args()
@@ -267,7 +273,18 @@ func _initialize() -> void:
 	var tier: int = int(Sweep.option(args, "--tier", "1"))
 	assert(tier in [1, 2, 3])
 	var count: int = int(Sweep.option(args, "--runs", "1"))
+	var revision: int = int(Sweep.option(args, "--revision", str(Sweep.CURRENT_REVISION)))
+	assert(revision in [Sweep.LEGACY_REVISION, Sweep.CURRENT_REVISION])
+	var cohort: String = Sweep.option(args, "--cohort", "standard")
+	assert(cohort in Sweep.cohorts(revision), "Cohort is unavailable in this revision")
 	var objective: String = Sweep.option(args, "--objective", "kill_all")
+	if revision == Sweep.CURRENT_REVISION:
+		var expected_objective: String = "kill_leader" if cohort == "warband" else "kill_all"
+		if args.has("--objective") and objective != expected_objective:
+			push_error("Revision 6 objective must match its standard/Warband cohort; use --revision 5 for legacy objectives")
+			quit(1)
+			return
+		objective = expected_objective
 	var requested_coord: String = Sweep.option(args, "--coord", "")
 	assert(requested_coord.is_empty() or count == 1, "Coordinate replay requires exactly one run")
 	assert(objective in ["kill_all", "kill_leader", "reach_exit"] and count > 0)
@@ -276,18 +293,51 @@ func _initialize() -> void:
 	var policy := Policy.new()
 	policy.trace = args.has("--trace")
 	var results: Array[Dictionary]
+	var resume_path: String = Sweep.option(args, "--resume-report", "")
+	if not resume_path.is_empty():
+		var resumed: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(resume_path))
+		# JSON converts integer variants and typed arrays; compare like formats.
+		if resumed["defaults"] != JSON.parse_string(JSON.stringify(defaults())) or resumed["decks"] != JSON.parse_string(JSON.stringify(presets)):
+			push_error("Resume requires identical policy defaults and decks")
+			quit(1)
+			return
+		assert(int(resumed["revision"]) == revision and resumed["cohort"] == cohort, "Resume requires the same revision/cohort")
+		for result: Dictionary in resumed["results"]:
+			assert(int(result["tier"]) == tier and result["objective"] == objective)
+			results.append(result)
+		assert(results.size() <= count)
+	var resume_count: int = results.size()
+	var skipped: int = 0
 	var seed_value: int = int(Sweep.option(args, "--seed", "1"))
+	var first_seed: int = seed_value
 	while results.size() < count:
-		var state: Dictionary = Sweep.map_for_seed(seed_value)
+		if seed_value - first_seed >= Sweep.MAX_SEED_SCAN:
+			push_error("Seed scan exhausted before the requested cohort was filled")
+			quit(1)
+			return
+		var state: Dictionary = Sweep.map_for_seed(seed_value, revision)
 		for sample: Dictionary in Sweep.samples(state):
-			if int(sample["tier"]) != tier: continue
+			if int(sample["tier"]) != tier or sample["cohort"] != cohort: continue
 			var coord: Vector2i = sample["room"]["coord"]
 			if not requested_coord.is_empty() and requested_coord != "%d,%d" % [coord.x, coord.y]: continue
 			var room: Dictionary = Sweep.layout(sample, state)
 			if room["objective"]["type"] != objective: continue
+			if skipped < resume_count:
+				var previous: Dictionary = results[skipped]
+				var same_coord: bool = int(previous["coord"]["x"]) == coord.x and int(previous["coord"]["y"]) == coord.y
+				var travel: Vector2i = sample["travel_dir"]
+				var same_travel: bool = int(previous["travel_dir"]["x"]) == travel.x and int(previous["travel_dir"]["y"]) == travel.y
+				if int(previous["seed"]) != seed_value or not same_coord or previous["biome"] != sample["biome"] or not same_travel:
+					push_error("Resume prefix differs from production sample order")
+					quit(1)
+					return
+				skipped += 1
+				continue
 			var result: Dictionary = policy.run_room(seed_value, room, presets[str(tier)])
-			result.merge({"tier": tier, "biome": sample["biome"], "section_index": sample["section_index"], "coord": Store._sanitize_variant(sample["room"]["coord"]), "travel_dir": Store._sanitize_variant(sample["travel_dir"]), "encounter_id": room.get("encounter_id", "")})
+			result.merge({"revision": revision, "cohort": cohort, "special_type": room.get("special_type", ""), "special_variant": room.get("special_variant", ""), "tier": tier, "biome": sample["biome"], "section_index": sample["section_index"], "coord": Store._sanitize_variant(sample["room"]["coord"]), "travel_dir": Store._sanitize_variant(sample["travel_dir"]), "encounter_id": room.get("encounter_id", "")})
 			results.append(result)
+			# Durable offline checkpoint; an interrupted measurement can resume.
+			write_report(output, revision, cohort, presets, results)
 			print("ENCOUNTER BOT RUN: " + JSON.stringify(result))
 			if results.size() >= count: break
 		if not requested_coord.is_empty() and results.is_empty():
@@ -295,8 +345,6 @@ func _initialize() -> void:
 			quit(1)
 			return
 		seed_value += 1
-	var file := FileAccess.open(output, FileAccess.WRITE)
-	assert(file != null)
-	file.store_string(JSON.stringify({"defaults": defaults(), "decks": presets, "results": results}, "\t"))
-	print("ENCOUNTER BOT: PASS (%d runs, tier %d, %s)" % [results.size(), tier, objective])
+	write_report(output, revision, cohort, presets, results)
+	print("ENCOUNTER BOT: PASS (%d runs, revision %d, tier %d, %s / %s)" % [results.size(), revision, tier, cohort, objective])
 	quit()

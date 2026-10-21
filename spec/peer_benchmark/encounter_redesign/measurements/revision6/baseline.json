@@ -1,0 +1,215 @@
+{
+  "schema_version": 3,
+  "revision": 6,
+  "policy_version": 2,
+  "policy_sha256": "6cbd002cd7432382691e4904a8781e71939f0134e599d8f7ce6f97f979a591a0",
+  "source_head": "64345c31e73a14e2666b3b04d32102bde582f381",
+  "runs_per_group": 200,
+  "first_seed": 1,
+  "workers": 6,
+  "groups": [
+    {
+      "revision": 6,
+      "cohort": "standard",
+      "tier": 1,
+      "objective": "kill_all",
+      "n": 200,
+      "win_rate": 0.665,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 13.0,
+        "p10": 0,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 6,
+      "biomes": {
+        "air": 33,
+        "earth": 34,
+        "fire": 33,
+        "ice": 33,
+        "lightning": 34,
+        "shadow": 33
+      },
+      "file": "bot-t1-standard.json.gz",
+      "sha256": "6322f947d3c8118dfa39c9b641cba0fbe251df111beefe2358d74d10b59569bd",
+      "elapsed_seconds": 804.405
+    },
+    {
+      "revision": 6,
+      "cohort": "warband",
+      "tier": 1,
+      "objective": "kill_leader",
+      "n": 200,
+      "win_rate": 0.825,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 7.0,
+        "p10": 4,
+        "p90": 14
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 11.0,
+        "p10": 2,
+        "p90": 24
+      },
+      "turn_cap_reached": 12,
+      "biomes": {
+        "air": 29,
+        "earth": 37,
+        "fire": 30,
+        "ice": 36,
+        "lightning": 29,
+        "shadow": 39
+      },
+      "file": "bot-t1-warband.json.gz",
+      "sha256": "e8608e479f40f978580f6f7b06ef2ea0c3f30a4e545283e0609095ea650f0d46",
+      "elapsed_seconds": 928.62
+    },
+    {
+      "revision": 6,
+      "cohort": "standard",
+      "tier": 2,
+      "objective": "kill_all",
+      "n": 200,
+      "win_rate": 0.405,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 9
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 7,
+        "p90": 26
+      },
+      "turn_cap_reached": 6,
+      "biomes": {
+        "air": 34,
+        "earth": 33,
+        "fire": 34,
+        "ice": 33,
+        "lightning": 33,
+        "shadow": 33
+      },
+      "file": "bot-t2-standard.json.gz",
+      "sha256": "82edca7bf4c6cdb9bb5d8ba1c35f95603d0ade3ffc4ae7ab70c06d80deba9fbb",
+      "elapsed_seconds": 1213.425
+    },
+    {
+      "revision": 6,
+      "cohort": "warband",
+      "tier": 2,
+      "objective": "kill_leader",
+      "n": 200,
+      "win_rate": 0.71,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 8.0,
+        "p10": 3,
+        "p90": 14
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 16.5,
+        "p10": 2,
+        "p90": 26.0
+      },
+      "turn_cap_reached": 5,
+      "biomes": {
+        "air": 31,
+        "earth": 35,
+        "fire": 32,
+        "ice": 34,
+        "lightning": 32,
+        "shadow": 36
+      },
+      "file": "bot-t2-warband.json.gz",
+      "sha256": "6c659fd794e3a057e42b484a84732cc4fd536f0c0213339720c77aab9ab3a9de",
+      "elapsed_seconds": 1047.608
+    },
+    {
+      "revision": 6,
+      "cohort": "standard",
+      "tier": 3,
+      "objective": "kill_all",
+      "n": 200,
+      "win_rate": 0.27,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 5.0,
+        "p10": 3,
+        "p90": 13
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 12,
+        "p90": 26
+      },
+      "turn_cap_reached": 7,
+      "biomes": {
+        "air": 32,
+        "earth": 34,
+        "fire": 34,
+        "ice": 33,
+        "lightning": 34,
+        "shadow": 33
+      },
+      "file": "bot-t3-standard.json.gz",
+      "sha256": "7e6baf4f2a7fc5af1127dc3ad1fc4845bda78a1be1961d23e44ae19b770d7fad",
+      "elapsed_seconds": 1764.209
+    },
+    {
+      "revision": 6,
+      "cohort": "warband",
+      "tier": 3,
+      "objective": "kill_leader",
+      "n": 200,
+      "win_rate": 0.375,
+      "one_turn_escape_share": null,
+      "turns": {
+        "n": 200,
+        "median": 7.0,
+        "p10": 3,
+        "p90": 19
+      },
+      "hp_lost": {
+        "n": 200,
+        "median": 24.0,
+        "p10": 9.0,
+        "p90": 26
+      },
+      "turn_cap_reached": 16,
+      "biomes": {
+        "air": 40,
+        "earth": 33,
+        "fire": 31,
+        "ice": 30,
+        "lightning": 34,
+        "shadow": 32
+      },
+      "file": "bot-t3-warband.json.gz",
+      "sha256": "b241f6fc473a39ac1c825c2d6d48a76d9513b21ebe9b2e0d4f7623320fc7eda0",
+      "elapsed_seconds": 1555.754
+    }
+  ],
+  "tier1_target": {
+    "minimum_win_rate": 0.7,
+    "maximum_median_hp_lost": 8,
+    "met": false
+  }
+}

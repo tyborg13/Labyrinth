@@ -1,0 +1,278 @@
+{
+  "task_id": "spx-01",
+  "feedback_round": 3,
+  "status": "measurement_passed_full_suite_failed_before_cache_repair",
+  "changes_uncommitted": true,
+  "measured_head": "64345c31e73a14e2666b3b04d32102bde582f381",
+  "integration_parent": "011dd1467",
+  "requirements": [
+    {
+      "number": 1,
+      "status": "passed",
+      "choice": "Pin the original three-seed golden to the supported revision-5 generator. Retaining original hashes keeps the measurement side-effect oracle independent of intentional spx-02/03 map and objective changes.",
+      "golden_fixture_unchanged": true,
+      "real_run_save_test_revision": 6
+    },
+    {
+      "number": 2,
+      "status": "passed",
+      "current_revision": 6,
+      "cohorts": [
+        "standard / kill_all",
+        "warband / kill_leader"
+      ],
+      "production_path": "Real SectionMapGraph nodes and RunEngine._combat_layout_for_room, including spx-03 Warband formation; no objectives, rosters, variants or tiers forced.",
+      "composition_rooms": 72000,
+      "distinct_seeds_per_cohort_tier_biome": 2000,
+      "last_seed": 14087,
+      "bot_rooms": 1200,
+      "runs_per_cohort_tier": 200,
+      "legacy_flag": "--revision 5",
+      "old_policy_v2_report": "spec/peer_benchmark/encounter_redesign/baseline_policy_v2_revision5.md",
+      "historical_measurement_files_unchanged": 29
+    },
+    {
+      "number": 3,
+      "status": "passed",
+      "coverage": "Dodge/defense and repeated three-objective determinism use explicit test arenas, independent of current map rolls. Production small sweeps separately cover both revisions."
+    },
+    {
+      "number": 4,
+      "status": "partial_full_suite_not_green",
+      "reason": "The single full suite failed only on special_encounter_test because approved emblem .ctex cache files were absent. Rebuilt the local import cache through the documented headless import command; focused special_encounter_test then passed. Full suite was not repeated under the one-run instruction.",
+      "focused_engine_checks": 575,
+      "focused_python_tests": 10,
+      "full_godot_runs": 1,
+      "full_godot_child_programs": 183
+    }
+  ],
+  "policy": {
+    "version": 2,
+    "core_byte_identical_to_head": true,
+    "core_sha256": "2bae48c910ff632d61230c3d55e30a24c8d434e421221aa8a03a85af6b034a75",
+    "decks_hp_and_search_limits_unchanged": true,
+    "tier1_target": {
+      "minimum_win_rate": 0.7,
+      "maximum_median_hp_lost": 8,
+      "met": false
+    }
+  },
+  "measurement_recovery": {
+    "interrupted_by_previous_model_capacity_error": true,
+    "completed_bot_records_recovered": 243,
+    "remaining_bot_records_measured": 957,
+    "resume_validates_production_sample_prefix": true,
+    "checkpoint_tests": [
+      "One completed Warband result plus one resumed result equals the first two uninterrupted production results",
+      "72 sweep records byte-identical after resuming 29 completed rows and a deliberately truncated final row"
+    ],
+    "development_corrections": [
+      "Normalize JSON integer/array representations before checkpoint metadata comparison",
+      "Trim an interrupted final JSONL row before sweep resume",
+      "The already-running original collector finished all six raw cohorts, then its Markdown render found the parallel composition table was not ready. Rendered successfully with --report-only after the sweep, without replaying combats. Future collectors can leave completed summaries for report-only rendering."
+    ]
+  },
+  "asset_cache_repair": {
+    "command": "python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --import",
+    "focused_command": "python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/special_encounter_test.gd",
+    "tracked_sidecars_checked": 20387,
+    "tracked_sidecars_changed": 0,
+    "import_log": "/private/tmp/spx-01-feedback-3/import-cache.log",
+    "focused_log": "/private/tmp/spx-01-feedback-3/special-after-import.log"
+  },
+  "commands": [
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_sweep.py --revision 6 --resume",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_bot.py --baseline --revision 6 --resume-dir /private/tmp/spx-01-measurement-logs/bot-lps9prp1",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_bot.py --baseline --revision 6 --report-only",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_analytics_test.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/combat_analytics_context_equivalence_test.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tests/encounter_measurement_test.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B -m unittest discover -s tests -p test_encounter_measurement.py -v",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_sweep.py --revision 5 --seeds 2 --output-dir /private/tmp/spx-01-feedback-3/legacy-sweep",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_bot.py --baseline --revision 5 --runs 1 --output-dir /private/tmp/spx-01-feedback-3/legacy-bot --report-path /private/tmp/spx-01-feedback-3/legacy-baseline.md",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_bot.py --revision 6 --cohort warband --seed 2 --tier 1 --coord=13,-5 --runs 1 --output-dir /private/tmp/spx-01-feedback-3/warband-replay",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 tools/godot_task_runner.py --task-id spx-01 --stream -- godot --headless --path . --script tools/encounter_bot.gd -- --revision 6 --cohort warband --tier 1 --runs 2 --resume-report /private/tmp/spx-01-feedback-3/resume-one.json --output /private/tmp/spx-01-feedback-3/resume-two.json",
+    "cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-01 && python3 -B tools/encounter_sweep.py --revision 6 --seeds 2 --resume --output-dir /private/tmp/spx-01-feedback-3/sweep-resumed"
+  ],
+  "focused_results": [
+    {
+      "log": "/private/tmp/spx-01-feedback-3/final-encounter_analytics_test.log",
+      "result_lines": [
+        "ENCOUNTER CALLER METADATA: PASS (UI/headless; combat, Guardian, boss; start/end/rewards)",
+        "ENCOUNTER ANALYTICS: PASS (0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/final-combat_analytics_context_equivalence_test.log",
+      "result_lines": [
+        "TEST RESULT: PASS \u2014 44 analytics-context/boundary comparisons (0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/final-encounter_measurement_test.log",
+      "result_lines": [
+        "ENCOUNTER RUN SAVE: PASS (3 seeds; ProgressionStore; complete state equality)",
+        "ENCOUNTER GOLDEN: PASS (3 seeds; maps, rooms, combat, saves)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 5; 36 rooms; seeds 1..2)",
+        "ENCOUNTER SMALL SWEEP: PASS (revision 6; 72 rooms; seeds 1..15)",
+        "ENCOUNTER BOT DODGE/DEFENSE: PASS",
+        "ENCOUNTER BOT DETERMINISM: PASS (3 explicit objective fixtures, repeated seeded rooms)",
+        "ENCOUNTER MEASUREMENT: PASS (575 checks; 0 failures)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/python-final.log",
+      "result_lines": [
+        "Ran 10 tests in 1.039s",
+        "OK"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/sweep-resume-driver-final.log",
+      "result_lines": [
+        "ENCOUNTER COMPOSITION: PASS (72000 rooms; revision 6; 2000 seeds per cohort/tier/biome)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/baseline-report-final.log",
+      "result_lines": [
+        "ENCOUNTER BASELINE: PASS (1200 runs; 200 per cohort/tier; revision 6); /Users/borgerding/workspace/Labyrinth.worktrees/spx-01/spec/peer_benchmark/encounter_redesign/baseline.md"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/legacy-sweep-driver.log",
+      "result_lines": [
+        "ENCOUNTER COMPOSITION: PASS (36 rooms; revision 5; 2 seeds per cohort/tier/biome)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/legacy-bot-driver.log",
+      "result_lines": [
+        "ENCOUNTER BASELINE: PASS (9 runs; 1 per cohort/tier; revision 5); /private/tmp/spx-01-feedback-3/legacy-baseline.md"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/warband-replay-verification.log",
+      "result_lines": [
+        "ENCOUNTER WARBAND REPLAY: PASS (revision 6; seed 2; tier 1; coord 13,-5; complete result equality)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/resume-verification.log",
+      "result_lines": [
+        "ENCOUNTER BOT CHECKPOINT: PASS (resumed 1 + 1; identical first two production Warband results)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/sweep-checkpoint-verification.log",
+      "result_lines": [
+        "ENCOUNTER SWEEP CHECKPOINT: PASS (72 identical rows; resumed 29 completed rows plus a truncated final line)"
+      ]
+    },
+    {
+      "log": "/private/tmp/spx-01-feedback-3/special-after-import.log",
+      "result_lines": [
+        "SPX release fallback regression: checked 6 sections with assertions removed",
+        "SPX Snare exit regression: checked 64 seeds with one-exit rejection and two-exit placement",
+        "SPX legacy golden graphs: checked 9 seeds across revisions 3\u20135",
+        "SPX equipment pity regression: positive misses reset through pre-battle and direct entry",
+        "SPX deferred reward regression: seed 1 keeps three Lightning slots; general-only Rare floor repaired",
+        "SPX special reward filters: checked 64 seeds x 6 room elements; forced Rare floor in each filter",
+        "SPX revision 6 maps: checked 64 seeds x 6 sections, exhaustive routes",
+        "SPX special encounter suite: 0 failures"
+      ]
+    }
+  ],
+  "full_godot": {
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "spx-01",
+      "--timeout",
+      "900",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/run_tests.gd"
+    ],
+    "returncode": 1,
+    "elapsed_seconds": 444.358,
+    "log": "/private/tmp/spx-01-feedback-3/full-godot.log",
+    "invocations": 1,
+    "result_lines": [
+      "MAIN BODY RUNTIME: 204.495 seconds",
+      "MAIN BODY ASSERTIONS: 378992",
+      "FULL SUITE RUNTIME: 439.669 seconds (budget 900 seconds)",
+      "TEST RESULT: FAIL (1 failure(s))"
+    ],
+    "program_summary": "spec/peer_benchmark/encounter_redesign/measurements/feedback_3_godot_programs.json",
+    "program_summary_sha256": "9da447b867c8ecb91823602ebf845c22132afe7c2ff061a945d86f7e8e786949",
+    "child_programs": 183,
+    "failed_child_programs": 1,
+    "failed_programs": [
+      "special_encounter_test"
+    ]
+  },
+  "chosen_defaults": {
+    "MAX_SEED_SCAN": 100000,
+    "SMALL_SWEEP_MAX_SEED": 100,
+    "POLICY_FIXTURE.determinism_enemy_hp": 8,
+    "current_output_directory": "spec/peer_benchmark/encounter_redesign/measurements/revision6",
+    "legacy_rerun_directory": "spec/peer_benchmark/encounter_redesign/measurements/revision5",
+    "checkpoint_frequency": "after each completed bot room",
+    "sweep_checkpoint_probe_complete_rows": 29,
+    "sweep_checkpoint_probe_partial_line_bytes": 53,
+    "bot_checkpoint_probe_completed_runs": 1,
+    "bot_checkpoint_probe_total_runs": 2
+  },
+  "todo_design": [],
+  "windowed_proof": {
+    "status": "not_applicable",
+    "commands": [],
+    "capture_paths": [],
+    "reason": "Offline measurements and regression expectations only; no visual changes."
+  },
+  "open_issues": [
+    "A green full-suite result was not observed: the one full run failed on missing emblem import cache; that test passed after cache bootstrap. The full suite was not repeated, per instruction.",
+    "The unchanged policy v2 remains unqualified for encounter-band calibration: revision-6 tier-1 standard win rate 66.5%, median HP lost 13; target is at least 70% and at most 8. No policy retuning was requested in this integration feedback."
+  ],
+  "files_changed": [
+    "spec/analytics.md",
+    "tests/encounter_measurement_test.gd",
+    "tests/test_encounter_measurement.py",
+    "tools/encounter_bot.gd",
+    "tools/encounter_bot.py",
+    "tools/encounter_sweep.gd",
+    "tools/encounter_sweep.py",
+    "spec/peer_benchmark/encounter_redesign/baseline.md",
+    "spec/peer_benchmark/encounter_redesign/baseline_policy_v2_revision5.md",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/baseline.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/bot-t1-standard.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/bot-t1-warband.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/bot-t2-standard.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/bot-t2-warband.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/bot-t3-standard.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/bot-t3-warband.json.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/composition.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/composition.jsonl.gz",
+    "spec/peer_benchmark/encounter_redesign/measurements/revision6/composition.md",
+    "spec/peer_benchmark/encounter_redesign/measurements/feedback_3_proof.json",
+    "spec/peer_benchmark/encounter_redesign/measurements/feedback_3_godot_programs.json"
+  ],
+  "code_sha256": {
+    "spec/analytics.md": "30e34fc03605f226d5d23beea5d34b86bf2c2b9b542c7ff50fae9ae317273afa",
+    "tests/encounter_measurement_test.gd": "a4e940fb885a97f0ec63a1b53e7ca1ed701d35ea6fb85e49c0e06d07a1e13210",
+    "tests/test_encounter_measurement.py": "c628c04728480f6742927ccc147f1f40fa8f726284bb9c26f6a9f62d6925c814",
+    "tools/encounter_bot.gd": "6cbd002cd7432382691e4904a8781e71939f0134e599d8f7ce6f97f979a591a0",
+    "tools/encounter_bot.py": "9ce8d128c41a87080ab60a25214962dfc286bdf9b7a6354f3bacae7d4cffb00b",
+    "tools/encounter_sweep.gd": "678724cebfdc4c1e6a2e0a793e24ac4ffcf8bb97b0e99947bc9f027311625f3b",
+    "tools/encounter_sweep.py": "fb87752926720dae52706e7fc3435f5a7e8a9e192c5524124e181d26c6fc79ab"
+  },
+  "golden_fixture_sha256": "07053b37d471fbe3a439a497333c2832528c32a0d935e7252d2300683f67a4e9"
+}

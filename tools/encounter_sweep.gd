@@ -11,13 +11,20 @@ const DEFAULT_FIRST_SEED: int = 1
 const DEFAULT_SEEDS: int = 2000
 const FREE_TILES_PER_TURN: int = 2
 const GOLDEN_SEEDS: PackedInt32Array = [1, 19, 421]
+const CURRENT_REVISION: int = 6
+const LEGACY_REVISION: int = 5
+const MAX_SEED_SCAN: int = 100000
 
 static func option(args: PackedStringArray, name: String, fallback: String) -> String:
 	var index: int = args.find(name)
 	return args[index + 1] if index >= 0 and index + 1 < args.size() else fallback
 
-static func map_for_seed(seed_value: int) -> Dictionary:
-	var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room"}
+static func cohorts(revision: int) -> PackedStringArray:
+	return PackedStringArray(["standard", "warband"] if revision == CURRENT_REVISION else ["standard"])
+
+static func map_for_seed(seed_value: int, revision: int = CURRENT_REVISION) -> Dictionary:
+	assert(revision in [LEGACY_REVISION, CURRENT_REVISION])
+	var state: Dictionary = {"seed": seed_value, "current_room": Vector2i.ZERO, "mode": "room", "section_map_layout_revision": revision}
 	Graph.initialize(state)
 	return state
 
@@ -26,28 +33,30 @@ static func samples(state: Dictionary) -> Array[Dictionary]:
 	for section: Dictionary in state["map_sections"]:
 		var biome: String = Bosses.element_for_boss(str(section["boss_id"]))
 		for tier: int in range(1, 4):
-			var candidates: Array[Dictionary]
-			for room: Dictionary in state["rooms"].values():
-				if room["type"] == "combat" and int(room["section_index"]) == int(section["index"]) and posmod(int(room["depth"]) - 1, 4) + 1 == tier:
-					candidates.append(room)
-			if candidates.is_empty(): continue
-			var room: Dictionary = candidates[posmod(int(state["seed"]), candidates.size())]
-			# Use the first actual incoming map edge, including its physical door.
-			var travel: Vector2i = Vector2i.ZERO
-			for parent: Dictionary in state["rooms"].values():
-				for edge: Dictionary in parent.get("connections", []):
-					if edge.get("coord") == room["coord"] and int(parent.get("map_step", -1)) < int(room["map_step"]) and parent["section_index"] == room["section_index"]:
-						travel = edge["door_dir"]
-						break
-				if travel != Vector2i.ZERO: break
-			assert(travel != Vector2i.ZERO, "Sample must have a real incoming map edge")
-			result.append({"seed": int(state["seed"]), "tier": tier, "biome": biome, "section_index": int(section["index"]), "room": room.duplicate(true), "travel_dir": travel})
+			for cohort: String in cohorts(int(state["section_map_layout_revision"])):
+				var candidates: Array[Dictionary]
+				for room: Dictionary in state["rooms"].values():
+					var matches: bool = room["type"] == "combat" if cohort == "standard" else room["type"] == "special" and room.get("special_type", "") == "warband"
+					if matches and int(room["section_index"]) == int(section["index"]) and posmod(int(room["depth"]) - 1, 4) + 1 == tier:
+						candidates.append(room)
+				if candidates.is_empty(): continue
+				var room: Dictionary = candidates[posmod(int(state["seed"]), candidates.size())]
+				# Use the first actual incoming map edge, including its physical door.
+				var travel: Vector2i = Vector2i.ZERO
+				for parent: Dictionary in state["rooms"].values():
+					for edge: Dictionary in parent.get("connections", []):
+						if edge.get("coord") == room["coord"] and int(parent.get("map_step", -1)) < int(room["map_step"]) and parent["section_index"] == room["section_index"]:
+							travel = edge["door_dir"]
+							break
+					if travel != Vector2i.ZERO: break
+				assert(travel != Vector2i.ZERO, "Sample must have a real incoming map edge")
+				result.append({"seed": int(state["seed"]), "revision": int(state["section_map_layout_revision"]), "cohort": cohort, "tier": tier, "biome": biome, "section_index": int(section["index"]), "room": room.duplicate(true), "travel_dir": travel})
 	return result
 
 static func layout(sample: Dictionary, map_state: Dictionary = {}) -> Dictionary:
 	# RunEngine owns encounter biome/history, equipment drops and objective setup.
 	# Mark an earlier combat completed so this is not the guided first fight.
-	var state: Dictionary = (map_state if not map_state.is_empty() else map_for_seed(int(sample["seed"]))).duplicate(true)
+	var state: Dictionary = (map_state if not map_state.is_empty() else map_for_seed(int(sample["seed"]), int(sample["revision"]))).duplicate(true)
 	state["current_room"] = sample["room"]["coord"]
 	state["encounter_history"] = []
 	# _run_has_completed_combat uses the persisted cleared-room metadata.
@@ -67,6 +76,7 @@ static func unblocked_distance(grid: Array, start: Vector2i, goals: Array) -> in
 static func composition(sample: Dictionary, room: Dictionary) -> Dictionary:
 	var objective: Dictionary = room["objective"]
 	var result: Dictionary = {"seed": sample["seed"], "tier": sample["tier"], "biome": sample["biome"], "section_index": sample["section_index"], "coord": sample["room"]["coord"], "travel_dir": sample["travel_dir"], "objective": objective["type"], "encounter_id": room.get("encounter_id", ""), "unit_count": room["enemies"].size(), "base_hp": 0, "spawn_hp": 0, "roles": {}, "leader_type": "", "leader_distance": null, "leader_closest": null, "exit_path_length": null, "exit_free_turns": null}
+	result.merge({"revision": sample["revision"], "cohort": sample["cohort"], "special_type": room.get("special_type", ""), "special_variant": room.get("special_variant", "")})
 	var closest: int = 1000000
 	for enemy: Dictionary in room["enemies"]:
 		var definition: Dictionary = Game.enemy_def(enemy["type"])
@@ -90,7 +100,9 @@ static func composition(sample: Dictionary, room: Dictionary) -> Dictionary:
 static func golden() -> Dictionary:
 	var result: Dictionary = {}
 	for seed_value: int in GOLDEN_SEEDS:
-		var state: Dictionary = map_for_seed(seed_value)
+		# Frozen revision-5 oracle: spx-02/03 intentionally changed revision 6.
+		# Continue proving that measurement adds no side effects to saved layouts.
+		var state: Dictionary = map_for_seed(seed_value, LEGACY_REVISION)
 		var rooms: Array = []
 		var combat: Array = []
 		for sample: Dictionary in samples(state):
@@ -111,7 +123,8 @@ func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var output: String = option(args, "--output", "user://encounter_sweep.jsonl")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output.get_base_dir()))
-	var file := FileAccess.open(output, FileAccess.WRITE)
+	var resume: bool = args.has("--resume") and FileAccess.file_exists(output) and not args.has("--golden")
+	var file := FileAccess.open(output, FileAccess.READ_WRITE if resume else FileAccess.WRITE)
 	assert(file != null, "Cannot open sweep output")
 	if args.has("--golden"):
 		file.store_string(JSON.stringify(golden(), "\t"))
@@ -120,14 +133,46 @@ func _initialize() -> void:
 		return
 	var count: int = int(option(args, "--seeds", str(DEFAULT_SEEDS)))
 	var first: int = int(option(args, "--first-seed", str(DEFAULT_FIRST_SEED)))
+	var revision: int = int(option(args, "--revision", str(CURRENT_REVISION)))
+	assert(revision in [LEGACY_REVISION, CURRENT_REVISION])
 	assert(count > 0 and first >= 0)
 	var counts: Dictionary = {}
 	var generated: int = 0
 	var seed_value: int = first
-	while counts.size() < 18 or counts.values().min() < count:
-		var state: Dictionary = map_for_seed(seed_value)
+	var resumed: Dictionary = {}
+	if resume:
+		while file.get_position() < file.get_length():
+			var start: int = file.get_position()
+			var parser := JSON.new()
+			if parser.parse(file.get_line()) != OK:
+				# A killed writer may leave only the final line incomplete.
+				if file.get_position() == file.get_length():
+					var resize_error: Error = file.resize(start)
+					assert(resize_error == OK, "Cannot trim interrupted sweep line")
+					break
+				push_error("Invalid row inside sweep checkpoint")
+				quit(1)
+				return
+			var row: Dictionary = parser.data
+			assert(int(row["revision"]) == revision and int(row["seed"]) >= first)
+			var key: String = "%s/%s/%s" % [row["cohort"], row["biome"], int(row["tier"])]
+			var identity: String = "%s/%s" % [key, int(row["seed"])]
+			assert(not resumed.has(identity), "Duplicate seed in sweep checkpoint")
+			resumed[identity] = true
+			counts[key] = int(counts.get(key, 0)) + 1
+			assert(int(counts[key]) <= count)
+			generated += 1
+			seed_value = maxi(seed_value, int(row["seed"]))
+		file.seek_end()
+	while counts.size() < 18 * cohorts(revision).size() or counts.values().min() < count:
+		if seed_value - first >= MAX_SEED_SCAN:
+			push_error("Seed scan exhausted before every cohort/tier/biome bin was filled")
+			quit(1)
+			return
+		var state: Dictionary = map_for_seed(seed_value, revision)
 		for sample: Dictionary in samples(state):
-			var key: String = "%s/%s" % [sample["biome"], sample["tier"]]
+			var key: String = "%s/%s/%s" % [sample["cohort"], sample["biome"], sample["tier"]]
+			if resumed.has("%s/%s" % [key, seed_value]): continue
 			if int(counts.get(key, 0)) >= count: continue
 			var room: Dictionary = layout(sample, state)
 			file.store_line(JSON.stringify(Store._sanitize_variant(composition(sample, room))))
@@ -136,5 +181,5 @@ func _initialize() -> void:
 		seed_value += 1
 		if seed_value % 100 == 0: print("ENCOUNTER SWEEP: seed %d, %d rooms" % [seed_value, generated])
 	file.close()
-	print("ENCOUNTER SWEEP: PASS (%d rooms; %d seeds per tier/biome; seeds %d..%d)" % [generated, count, first, seed_value - 1])
+	print("ENCOUNTER SWEEP: PASS (%d rooms; revision %d; %d seeds per cohort/tier/biome; seeds %d..%d)" % [generated, revision, count, first, seed_value - 1])
 	quit()
