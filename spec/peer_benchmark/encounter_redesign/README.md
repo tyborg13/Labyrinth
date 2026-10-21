@@ -14,6 +14,8 @@ build with Codex as its own workstream. Nothing here is built yet.
   flees with embers) and Last Light (the parked Survive objective around a brazier). Each type pays in its own
   currency (gear, embers, embers, healing), on top of 4 card choices (at least one Rare or better) and 1.5× embers.
   2–3 per section, never the same type twice; per-section variant tables are in `body.html`.
+- APPROVED 2026-10-21 (enc-specials), with the director decisions recorded in `../feedback.md`: the Hoarder reuses an
+  Ember Tick, the Cinder Crown gang drops its Ticks, and captains are not scaled.
 - Concept emblems (proposal only, not shippable identity art): prompts in `emblems/prompt_*.txt`, image jobs
   `enc-emblem-{warband,umbral-snare,ember-hoarder,last-light}` with refs fight/relic/scavenger/campfire/lantern from
   `assets/art/icons/map/`. Outputs, by sha256, in `output/encounter-redesign-2026-10-20/emblems/`:

@@ -245,4 +245,10 @@
   bracers before the face; scatter no longer reaches into the crucible. Rig gates must run on rendered frames.
 - mimic-rig-v2: APPROVED (2026-10-21 03:00). "Good enough for now." Merged 007f685c0. Revisit list: the faint 1 px chest
   seam during actions (with the Mirror's feet and fists).
+- enc-specials: APPROVED (2026-10-21 03:01). Owner: "For now, let's just reuse enemies for ember hoarder, maybe we'll put
+  a dedicated thiefy dude in the future." Director decisions on approval: the Hoarder is an Ember Tick gorged on stolen
+  embers (no new art; a spark trail and an "Ember Hoarder" nameplate; its burst scatters the hoard); the Cinder Crown
+  gang becomes 2 Ash Hounds + a Cinder Ooze (no Ticks); captains are NOT scaled (board pixel density) but marked by the
+  Command banner and a titled nameplate. Build order: enc-01 measurement, enc-02 framework + Warband pilot, then Snare
+  and Last Light, then Hoarder.
 
