@@ -7,6 +7,7 @@ const Dragons = preload("res://scripts/dragon_boss_library.gd")
 const CombatRules = preload("res://scripts/warband_combat_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const FIXTURE_SEED: int = 83
+const FIXTURE_MAP_REVISION: int = 6
 const DEFAULT_BIOME: String = "air"
 const DEFAULT_TIER: int = 2
 static var CASES: Array[String] = _string_array(["encounter", "pre_battle", "keep_distance", "break"])
@@ -29,6 +30,11 @@ static func room_spec(biome: String, tier: int, coord: Vector2i = Vector2i.ZERO)
 static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, options: Dictionary) -> Dictionary:
 	assert(validate(options).is_empty())
 	var state: Dictionary = source.duplicate(true)
+	# Fixture fights stay the measured revision-6 rooms (map-03 made revision 7
+	# the default); saved runs keep their revision the same way.
+	if int(state.get("section_map_layout_revision", 0)) != FIXTURE_MAP_REVISION:
+		state["section_map_layout_revision"] = FIXTURE_MAP_REVISION
+		Graph.initialize(state)
 	var biome: String = str(options.get("warband_biome", DEFAULT_BIOME))
 	var tier: int = int(options.get("warband_tier", DEFAULT_TIER))
 	var room: Dictionary = {}
