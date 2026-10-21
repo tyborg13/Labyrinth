@@ -20,8 +20,20 @@ static func handles_intent(intent: Dictionary) -> bool:
 		if handles(action): return true
 	return false
 
-static func choose(enemy: Dictionary, intents: Array) -> Dictionary:
-	var id: String = "discharge" if int(enemy.get("charge", 0)) >= MAX_CHARGE else "charge"
+static func threshold(state: Dictionary, enemy: Dictionary) -> int:
+	if not preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "dynamo_tether"): return MAX_CHARGE
+	var thralls: int = 0
+	for follower: Dictionary in state.get("enemies", []):
+		if str(follower.get("type", "")) == "arc_thrall" and not bool(follower.get("is_leader", false)) and int(follower.get("hp", 0)) > 0: thralls += 1
+	return 2 if thralls >= 2 else MAX_CHARGE
+
+static func effective_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	if not preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "dynamo_tether"): return intent
+	var engine := preload("res://scripts/combat_engine.gd").new()
+	return choose(enemy, engine._scaled_enemy_intents(Data.enemy_def("storm_capacitor")["intents"], int(state.get("room_depth", 1)), state, enemy), state)
+
+static func choose(enemy: Dictionary, intents: Array, state: Dictionary = {}) -> Dictionary:
+	var id: String = "discharge" if int(enemy.get("charge", 0)) >= threshold(state, enemy) else "charge"
 	for intent: Dictionary in intents:
 		if str(intent.get("id", "")) == id: return intent.duplicate(true)
 	return {}
@@ -30,7 +42,7 @@ static func grounded(engine: RefCounted, enemy: Dictionary, before_shock: int, s
 	if not is_capacitor(enemy) or before_shock > 0 or int(enemy.get("shock", 0)) <= 0: return
 	enemy["charge"] = maxi(0, int(enemy.get("charge", 0)) - int(Data.enemy_def("storm_capacitor")["charge"]["lose_on_shock"]))
 	enemy["grounded_seq"] = int(enemy.get("grounded_seq", 0)) + 1
-	enemy["intent"] = choose(enemy, engine._scaled_enemy_intents(Data.enemy_def("storm_capacitor")["intents"], int(state.get("room_depth", 1)), state, enemy))
+	enemy["intent"] = choose(enemy, engine._scaled_enemy_intents(Data.enemy_def("storm_capacitor")["intents"], int(state.get("room_depth", 1)), state, enemy), state)
 
 # Source is excluded just as it is in the existing enemy Chain resolver.
 # First reach is ordinary Manhattan range; hops include the eight neighbours.

@@ -1,0 +1,248 @@
+# spx-04 implementation handoff
+
+The six orders read their ids and exact tooltip text from the protected
+`data/special_encounters.json`. That file and the director's supplied assets
+are unchanged. This task leaves all work uncommitted on `codex/spx-04`.
+Commit, independent review, inspection and publication belong to the director.
+
+1. Thornmother: five legal Bramble tiles, shortest-path center two steps from
+   captain, nearest legal-center fallback; existing damage/Bleed/lifetime.
+2. Slagmaster: seeded, saved perpendicular side; fallback to the other legal
+   center; two pluses share the stored union, damage batch and existing FX.
+3. Stormcaller: source-scoped persistent wind, re-aim on Call, all-unit
+   real-mover previews, existing force anchoring/collisions and source cleanup.
+4. Oracle: five midpoint marks rounded toward hero; existing landing/pillars.
+5. Dynamo: live Thralls determine 2/3 Charge threshold for planning, selection,
+   activation and pips/tooltip; either death removes the reduction immediately.
+6. Prior: distant followers use hidden visibility and existing Veil rules,
+   reveal through range/Light/Truesight, and reveal through even Eclipse Umbra
+   before break movement.
+
+Shared order activation requires a matching living Warband captain. Captain
+intent, leader-marker and pre-battle inspection tooltips and objective descriptions append exactly
+`Order: <order.text>`. Existing Command, retreat, break, input and save paths
+remain. Local append-only analytics retain their ordinary enemy-action,
+surface, forced-movement, hidden-attack and death paths; there is no new event
+kind or rewrite of history. Intrinsic card coefficients and protected enemy
+stats remain unchanged; the six authored encounter modifiers above are the
+mechanics under test, not implementation tuning.
+
+## Proof for the design owner
+
+The sandbox cannot access the macOS window server. No windowed run was attempted.
+The native probe builds seven states through production planners/resolvers and
+renders the actual RunScene to a 1920×1080 UPDATE_ALWAYS SubViewport at UI scale
+1.0. It checks actor renderer readiness and actual body draw submission. The
+image contract requires all seven images and a nonblank board region.
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/visual_probe_runner.py tests/warband_orders_probe.gd --task-id spx-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx04_orders.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx04-orders-proof.json
+```
+
+Expected captures (not yet produced) are under the isolated run's
+`user://probes/spx04/`: `earth_telegraph.png`, `fire_telegraph.png`,
+`air_telegraph.png`, `ice_telegraph.png`, `lightning_telegraph.png`,
+`shadow_telegraph.png`, `shadow_reveal.png`, plus `captures.json` with semantic
+facts. The runner prints their absolute paths. No screenshots are claimed as
+verified until the director runs and inspects them.
+
+The brief assigns inspection-fixture preparation to the director and requires
+no new fixture CLI. The existing production Warband fixtures remain available;
+for example, the exact existing interactive Prior fixture command is:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/inspection_fixture.py --task-id spx-04 --run-id spx04-prior --scenario warband --warband-biome shadow --warband-tier 3 --warband-case encounter --seed 83 --manifest /private/tmp/labyrinth-inspection-manifests/spx04-prior.json --summary 'Hollow Prior order: hidden followers and captain break reveal' --launch
+```
+
+## TODO_DESIGN placeholders
+
+- `TODO_DESIGN_DIAGONAL_ORDER_AXIS`: unsupplied oblique line rasterization;
+  retains the existing cardinal projection for Slagmaster and Oracle.
+- `TODO_DESIGN_THORNWALL_EQUIDISTANT_CENTER_TIE`: unsupplied equal-distance
+  legal-center preference; retains existing grid scan order.
+- `TODO_DESIGN_PERSISTENT_WIND_LABEL`: final persistent-wind chip copy is
+  unsupplied. The chip displays this literal placeholder.
+
+## Chosen defaults
+
+Only test/debug/proof values were chosen: `FIXTURE_SIZE = 11`, `FIXTURE_HP = 100`,
+`FIXTURE_CAPTAIN = (5,2)`, `FIXTURE_PLAYER = (5,6)`,
+`FIXTURE_FOLLOWER_A = (3,5)`, `FIXTURE_FOLLOWER_B = (7,5)`;
+`MINIMUM_CHECK_COUNT = 152` guards skipped test execution. Proof reuses the
+existing fixture seed `PROOF_SEED = 83`, `SETTLE_SECONDS = 0.25`,
+`READY_TIMEOUT_SECONDS = 20`, and `EXPECTED_CASES = 7`.
+Additional test-only fields are `FIXTURE_WALL_CENTER = (5,4)`,
+`FIXTURE_BRAMBLE_PUSH_START = (5,3)`, `FIXTURE_BRAMBLE_BLOCK = (3,4)`,
+`FIXTURE_BARRAGE_CENTER = (3,6)`, `FIXTURE_BARRAGE_OTHER_CENTER = (7,6)`,
+`FIXTURE_BARRAGE_OUTER_ARM = (2,6)`, `FIXTURE_WIND_HAZARD = (6,6)`,
+`FIXTURE_ICE_PUSH_START = (4,3)`, `FIXTURE_ODD_MIDPOINT_HERO = (5,7)`,
+`FIXTURE_ODD_MIDPOINT_CENTER = (5,5)`, `FIXTURE_PRIOR_NEAR_HERO = (3,7)`,
+`FIXTURE_RNG_SEED_FIRST = 1`, `FIXTURE_RNG_SEED_COUNT = 32`,
+`FIXTURE_PERSISTENCE_BOUNDARIES = 5`, `FIXTURE_LIGHT_RADIUS = 1`, and
+`FIXTURE_REVEAL_ACTIVATIONS = 2`. `SAVE_PATH` is the isolated
+`user://spx04-mid-order.save`; mutation logs go to
+`/private/tmp/spx04-order-mutations`. The native proof output directory is
+`user://probes/spx04`. The probe uses the existing Clear Umbra state so the
+production visibility presentation can exercise the Prior independently of
+room darkness. All these choices are invisible outside tests and probes.
+
+The full Godot runner uses 960 seconds to cover the existing 900-second suite
+budget plus shutdown/report overhead. These values never affect gameplay.
+
+## Validation
+
+Results are recorded after execution below. The focused suite contains one
+function per order, pre-resolution preview/telegraph assertions, scope/copy,
+mutation guards, saves and seven full-state ordinary-mechanic goldens recorded
+against the unmodified spx-03 runtime. Mutants restore exact source bytes in
+`finally` and require a failing intended assertion, not a parser error.
+
+
+## Task contract coverage
+
+- All six captain-only orders: `_thornmother`, `_slagmaster`, `_stormcaller`,
+  `_oracle`, `_dynamo`, `_prior` and `_scope_and_copy` cover the authored behavior,
+  levers, scope and live-source boundaries. The three explicit design TODOs
+  above remain for the director.
+- Preview before harm and exact order copy: each order asserts its pre-resolution
+  plan, stored marks, hidden presentation or threshold before resolution;
+  `_scope_and_copy` compares both tooltip paths to the protected JSON text.
+- Ordinary mechanics and mid-combat saves: seven full Variant goldens recorded
+  against the unmodified integration runtime, all six real save roundtrips and
+  deterministic continuation. The unchanged spx-03 Warband suite covers
+  placement, Command, retreat and break.
+- Director inspection: the seven-state native probe and image contract are
+  written; its live-scene headless contract passes. Fresh PNG inspection is
+  pending the listed windowed command.
+
+The initial complete Godot run ended `TEST RESULT: FAIL (2 failure(s))` and
+`FULL SUITE RUNTIME: 459.604 seconds (budget 900 seconds)`. All 183 other child
+programs, including the new order suite/probe, passed. The two failing programs
+were `encounter_measurement_test` and `special_encounter_test` (missing cached
+emblem imports). The required headless import bootstrap subsequently exited 0.
+The initial full log is
+`/private/tmp/labyrinth-godot-home/spx-04-1792567294423583000-76987/godot.log`.
+
+The measurement failure was reproduced with every modified runtime script
+restored temporarily to the unmodified integration HEAD, then restored to the
+exact implementation bytes. No existing assertion was changed:
+
+```text
+SPX03 UNMODIFIED RUNTIME BASELINE: exit 1
+FAIL: pre-change golden maps, rooms, combat transitions and save roundtrips match
+ENCOUNTER GOLDEN: FAIL (3 seeds; maps, rooms, combat, saves)
+FAIL: small sweep includes every current objective
+ENCOUNTER SMALL SWEEP: FAIL (36 rooms)
+ENCOUNTER MEASUREMENT: FAIL (132 checks; 2 failures)
+```
+
+Baseline log: `/private/tmp/spx04-base-measurement.log`.
+
+
+Post-bootstrap full Godot result:
+
+```text
+MAIN BODY RUNTIME: 213.688 seconds
+MAIN BODY ASSERTIONS: 378992
+SPX special encounter suite: 0 failures
+WARBAND ORDERS TEST RESULT: PASS (156 checks, 0 failures)
+SPX04 PROBE CONTRACT: PASS (7 states, 1920x1080, UI scale 100%)
+FULL SUITE RUNTIME: 459.638 seconds (budget 900 seconds)
+TEST RESULT: FAIL (1 failure(s))
+```
+
+184/185 child programs pass. The sole failing program is the independently
+reproduced pre-existing `encounter_measurement_test`; no assertion was rewritten.
+Final full stdout: `/private/tmp/spx04-full-final.log`; engine log:
+`/private/tmp/labyrinth-godot-home/spx-04-1792568117528599000-80837/godot.log`.
+The final order suite includes the Eclipse reveal boundary, unchanged ordinary
+board projection and actual saved Dynamo Charge. The probe also checks the
+pre-battle captain's exact line and preservation of both authored Dynamo moves.
+
+
+## Final focused validation and Python sweep
+
+```text
+WARBAND ORDERS TEST RESULT: PASS (157 checks, 0 failures)
+SPX04 MUTATION RESULT: PASS (10/10 killed; controls pass; exact sources restored)
+SPX04 PROBE CONTRACT: PASS (7 states, 1920x1080, UI scale 100%)
+Warband suite: 0 failures
+Warband UI semantics: 0 failures
+EN06 ENEMIES TEST RESULT: PASS (177 checks, 0 failures)
+TEST REGISTRATION AUDIT: PASS (776 scripts; full suite=426, quarantined=29, windowed probe=321)
+```
+
+UI identity lint: `Ran 25 tests in 3.453s` / `OK`.
+The scheduler regression suite: `Ran 28 tests in 19.368s` / `OK`, including
+all 133 supplemental mode mutations rejected. The legacy 129-program set and
+spx-03 suffix assertions remain intact; the two new programs have their own
+explicit registration contract immediately ahead of that suffix. The original
+Warband tooltip assertion was updated only to include the newly required exact
+protected Order line; no pre-existing failing assertion was weakened.
+
+The full Python command was:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 -m unittest discover -s tests -p 'test_*.py' -v
+```
+
+Observed complete-sweep result (before the registration fix):
+
+```text
+Ran 1563 tests in 1641.851s
+FAILED (failures=1, skipped=66)
+```
+
+Its only failure was `test_manifest_preserves_all_existing_children_and_order`.
+That task-introduced registration issue is fixed and the affected 28-test
+scheduler suite now passes as recorded above. The entire Python sweep was not
+repeated after that manifest/contract-only fix. Full Python log:
+`/private/tmp/spx04-python-full.log`. The sweep's generated Briar proof sample
+was restored to its original bytes; no unrelated production/art diff remains.
+
+The last tooltip refinement keeps the existing Charge wording while replacing
+its `At 3` number with the live threshold in the Dynamo's badge and intent row;
+ordinary tooltip copy remains byte-identical. The focused suite checks both.
+Latest focused log:
+`/private/tmp/spx04-order-mutations/control_after.log`.
+Latest probe log:
+`/private/tmp/labyrinth-godot-home/spx-04-1792569897152952000-89727/godot.log`.
+Existing macOS headless certificate warnings appear in the engine logs. EN06
+also reports retained-resource warnings at shutdown while returning 0; its
+assertions pass. No native capture was attempted or produced.
+
+
+## Files changed
+
+- `scripts/combat_board_view.gd`
+- `scripts/combat_engine.gd`
+- `scripts/combat_objective_rules.gd`
+- `scripts/enemy_mechanics/bramble.gd`
+- `scripts/enemy_mechanics/capacitor.gd`
+- `scripts/enemy_mechanics/capacitor_view.gd`
+- `scripts/enemy_mechanics/icefall.gd`
+- `scripts/enemy_mechanics/lob.gd`
+- `scripts/enemy_mechanics/veil.gd`
+- `scripts/enemy_mechanics/wind.gd`
+- `scripts/enemy_mechanics/wind_view.gd`
+- `scripts/pre_battle_inspection_view.gd`
+- `scripts/warband_combat_rules.gd`
+- `spec/enemies/briar_weaver.md`
+- `spec/enemies/gale_herald.md`
+- `spec/enemies/hoarfrost_seer.md`
+- `spec/enemies/hollow_mimic.md`
+- `spec/enemies/slag_mortar.md`
+- `spec/enemies/storm_capacitor.md`
+- `tests/headless_test_programs.json`
+- `tests/suites/warband_suite.gd`
+- `tests/test_program_suite_runner.py`
+- `spec/enemies/spx04_orders.md`
+- `tests/fixtures/spx04_legacy_golden.json`
+- `tests/proof_contracts/spx04_orders.json`
+- `tests/suites/warband_orders_suite.gd`
+- `tests/suites/warband_orders_suite.gd.uid`
+- `tests/warband_order_mutations.py`
+- `tests/warband_orders_probe.gd`
+- `tests/warband_orders_probe.gd.uid`
+- `tests/warband_orders_test.gd`
+- `tests/warband_orders_test.gd.uid`

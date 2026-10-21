@@ -374,11 +374,13 @@ func is_tile_visible_to_player(state: Dictionary, tile: Vector2i, visible_lookup
 func is_enemy_visible_to_player(state: Dictionary, enemy: Dictionary, visible_lookup: Dictionary = {}) -> bool:
 	if int(enemy.get("hp", 0)) <= 0:
 		return false
+	if VeilRules.prior_revealed(state, enemy): return true
 	var definition: Dictionary = GameData.enemies().get(str(enemy.get("type", "")), {}) as Dictionary
 	if bool(definition.get("boss_bar", false)):
 		return true
 	if _player_has_truesight(state):
 		return true
+	if VeilRules.prior_hidden(self, state, enemy): return false
 	for tile: Vector2i in _enemy_footprint_tiles(enemy):
 		if is_tile_visible_to_player(state, tile, visible_lookup):
 			return true
@@ -2533,7 +2535,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "time_cost": 0}
 	next_state["current_actor"] = _enemy_actor_entry(next_state, enemy, int(next_state.get("initiative_clock", 0)), int(next_state.get("activation_seq", 0)))
-	var intent: Dictionary = (enemy.get("intent", {}) as Dictionary).duplicate(true)
+	var intent: Dictionary = WarbandRules.current_intent(next_state, enemy, enemy.get("intent", {})).duplicate(true)
 	var turn_time_cost: int = _enemy_intent_time_cost(intent)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_setup: Dictionary = next_state.duplicate(true)
@@ -2592,7 +2594,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			steps.append(_enemy_action_step(before_retreat, next_state, enemy_index, {"type": "move_away", "range": 1}, retreat_context))
 			enemy = _normalized_enemy(next_state["enemies"][enemy_index])
 			if combat_outcome(next_state) != "": return {"state": next_state, "steps": steps, "time_cost": turn_time_cost}
-	intent = WarbandRules.intent(next_state, enemy, _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {})))
+	intent = WarbandRules.current_intent(next_state, enemy, _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {})))
 	if not intent.is_empty():
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
@@ -2684,7 +2686,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	if not is_enemy_visible_to_player(state, enemy):
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
-	var intent: Dictionary = WarbandRules.intent(state, enemy, BrambleRules.effective_intent(self, state, enemy, enemy.get("intent", {})))
+	var intent: Dictionary = WarbandRules.current_intent(state, enemy, BrambleRules.effective_intent(self, state, enemy, enemy.get("intent", {})))
 	if not (intent.get("actions", []) as Array).is_empty() and BurrowRules.handles(intent["actions"][0]): return BurrowRules.threat(self, state, enemy_index, intent)
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
@@ -8593,7 +8595,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		int(state.get("room_depth", 1)), state, enemy
 	)
 	if CapacitorRules.is_capacitor(enemy):
-		enemy["intent"] = CapacitorRules.choose(enemy, intents)
+		enemy["intent"] = CapacitorRules.choose(enemy, intents, state)
 		enemies[enemy_index] = enemy
 		return
 	# Declared zero-weight follow-ups are forced; held mechanics survive skips.
@@ -8649,7 +8651,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	if enemy_type in ["hoarfrost_seer", "gale_herald", "glacial_mirror", "gust_shrike", "briar_weaver", "slag_mortar"]:
 		var chosen: Dictionary = WindRules.choose_intent(self, state, enemy_index, intents, rng)
 		if not chosen.is_empty():
-			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, chosen)
+			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, LobRules.declare(state, enemy, chosen, rng))
 			enemies[enemy_index] = enemy
 			return
 		# Range/LOS can reject every immediate shot after Thornwall fills its
@@ -9169,7 +9171,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		if retreat.size() > 1:
 			planning = state.duplicate(true)
 			planning["enemies"][enemy_index]["pos"] = retreat.back()
-	var effective: Dictionary = WarbandRules.intent(planning, planning["enemies"][enemy_index], intent_override if not intent_override.is_empty() else enemy.get("intent", {}))
+	var effective: Dictionary = WarbandRules.current_intent(planning, planning["enemies"][enemy_index], intent_override if not intent_override.is_empty() else enemy.get("intent", {}))
 	var plan: Dictionary = _enemy_intent_plan_base(planning, enemy_index, effective, movement_disabled, attack_disabled)
 	var projected: Dictionary = enemy.duplicate(true)
 	projected["pos"] = plan.get("landing", plan.get("destination", enemy["pos"]))

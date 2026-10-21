@@ -5,6 +5,31 @@ const Tether = preload("res://scripts/enemy_mechanics/tether.gd")
 const TARGETING_REASON: String = "Veiled — attack from an adjacent tile."
 const BLINK_RANGE: int = 4 # Fade and Ambush share the brief's range.
 
+static func prior_follower(state: Dictionary, enemy: Dictionary) -> bool:
+	if bool(enemy.get("is_leader", false)) or int(enemy.get("hp", 0)) <= 0: return false
+	var leader: Dictionary = preload("res://scripts/warband_combat_rules.gd").captain(state)
+	return preload("res://scripts/warband_combat_rules.gd").order(state, leader, "prior_veil")
+
+# A real captain death reveals followers before the break even in dark rooms.
+# Missing captains in information-limited forecasts never count as a death.
+static func prior_revealed(state: Dictionary, enemy: Dictionary) -> bool:
+	if bool(enemy.get("is_leader", false)): return false
+	var rules: Script = preload("res://scripts/warband_combat_rules.gd")
+	return str(rules.order_for_objective(state.get("objective", {})).get("id", "")) == "prior_veil" and rules.broken(state)
+
+static func prior_hidden(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> bool:
+	if not prior_follower(state, enemy) or engine._enemy_distance_to_tile(enemy, state["player"]["pos"]) <= 2 or engine.player_has_truesight(state): return false
+	for tile: Vector2i in engine._enemy_footprint_tiles(enemy):
+		if engine._light_source_covers_tile(state, tile): return false
+	return true
+
+static func effective_veiled(state: Dictionary, enemy: Dictionary) -> bool:
+	if bool(enemy.get("veiled", false)): return true
+	if not prior_follower(state, enemy): return false
+	for tile: Vector2i in preload("res://scripts/board_surface_rules.gd").footprint_tiles(enemy):
+		if Paths.manhattan(tile, state["player"]["pos"]) <= 2: return false
+	return true
+
 static func handles(action: Dictionary) -> bool:
 	return str(action.get("type", "")) == "veil_blink" or bool(action.get("ends_veil", false))
 
@@ -21,7 +46,7 @@ static func target_reason(engine: RefCounted, state: Dictionary, action: Diction
 	# Area, surfaces and secondary chain/conduction hits never pass this gate.
 	if str(action.get("type", "")) not in ["melee", "ranged", "push", "pull", "swap", "petrify"]: return ""
 	var index: int = engine._enemy_index_at_tile(state, tile)
-	if index < 0 or not bool(state["enemies"][index].get("veiled", false)): return ""
+	if index < 0 or not effective_veiled(state, state["enemies"][index]): return ""
 	var origin: Vector2i = state["player"]["pos"]
 	if engine._enemy_distance_to_tile(state["enemies"][index], origin) <= 1: return ""
 	return TARGETING_REASON

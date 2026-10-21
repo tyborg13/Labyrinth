@@ -9,10 +9,33 @@ static func handles(action: Dictionary) -> bool:
 static func tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	if str(action.get("type", "")) == "lob_land": return engine._vector2i_values(enemy.get("lob_tiles", []))
 	var result: Array[Vector2i]
-	var hero: Vector2i = state["player"]["pos"]
-	for delta: Vector2i in [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]:
-		var tile: Vector2i = hero + delta
-		if tile.y >= 0 and tile.y < state["grid"].size() and tile.x >= 0 and tile.x < state["grid"][tile.y].size(): result.append(tile)
+	for center: Vector2i in centers(engine, state, enemy):
+		for delta: Vector2i in [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]:
+			var tile: Vector2i = center + delta
+			if Paths.is_in_bounds(state["grid"], tile) and not result.has(tile): result.append(tile)
+	return result
+
+# Select once on the room RNG when declaring, never in a preview. The signed
+# side is saved in the intent; old saves use a copy of their saved RNG state.
+static func declare(state: Dictionary, enemy: Dictionary, intent: Dictionary, rng: RandomNumberGenerator) -> Dictionary:
+	if not preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "slagmaster_barrage"): return intent
+	if not (intent.get("actions", []) as Array).any(func(action: Dictionary) -> bool: return str(action.get("type", "")) == "lob_mark"): return intent
+	var result: Dictionary = intent.duplicate(true)
+	result["barrage_side"] = -1 if rng.randi_range(0, 1) == 0 else 1
+	return result
+
+static func centers(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i] = engine._vector2i_values([state["player"]["pos"]])
+	if not preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "slagmaster_barrage"): return result
+	var rng := RandomNumberGenerator.new()
+	rng.state = int(state.get("rng_state", 0))
+	var side: int = int(enemy.get("intent", {}).get("barrage_side", -1 if rng.randi_range(0, 1) == 0 else 1))
+	var axis: Vector2i = preload("res://scripts/warband_combat_rules.gd").order_axis(engine, Vector2i(state["player"]["pos"]) - Vector2i(enemy["pos"]))
+	for sign_value: int in [side, -side]:
+		var tile: Vector2i = result[0] + axis * sign_value * 2
+		if Paths.is_passable(state["grid"], tile) and engine._terrain_index_at_tile(state, tile) < 0:
+			result.append(tile)
+			break
 	return result
 
 static func available(engine: RefCounted, state: Dictionary, enemy: Dictionary, intent: Dictionary) -> bool:
@@ -33,7 +56,7 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 	return {}
 
 static func damage(enemy: Dictionary, action: Dictionary, tile: Vector2i) -> int:
-	return int(action["center_damage"] if tile == enemy.get("lob_center") else action["arm_damage"])
+	return int(action["center_damage"] if tile == enemy.get("lob_center") or (enemy.get("lob_centers", []) as Array).has(tile) else action["arm_damage"])
 
 static func landing_action(engine: RefCounted, state: Dictionary, enemy: Dictionary) -> Dictionary:
 	var intents: Array = engine._scaled_enemy_intents(preload("res://scripts/game_data.gd").enemy_def("slag_mortar")["intents"], int(state.get("room_depth", 1)), state, enemy)
@@ -52,6 +75,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 		if not available(engine, state, enemy, {"actions": [action]}): return state
 		enemy["lob_center"] = state["player"]["pos"]
 		enemy["lob_tiles"] = tiles(engine, state, enemy, action)
+		if preload("res://scripts/warband_combat_rules.gd").order(state, enemy, "slagmaster_barrage"): enemy["lob_centers"] = centers(engine, state, enemy)
 		return state
 	if (enemy.get("lob_tiles", []) as Array).is_empty(): return state
 	state = engine._trigger_enemy_bleed_for_resolved_action(state, index, action, bleed_steps)
@@ -88,6 +112,7 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 		Surfaces.place(state, tile, str(action["surface"]), {"actor_kind": "enemy", "actor_id": enemy["id"], "source_kind": "lob_land", "player_card": false})
 	state["enemies"][index].erase("lob_tiles")
 	state["enemies"][index].erase("lob_center")
+	state["enemies"][index].erase("lob_centers")
 	return state
 
 static func animation_step(engine: RefCounted, before: Dictionary, after: Dictionary, index: int, action: Dictionary) -> Dictionary:

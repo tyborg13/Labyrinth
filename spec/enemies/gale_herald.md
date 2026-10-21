@@ -91,3 +91,18 @@ headlessly; this command adds the owner's interactive launch):
 ```bash
 cd /Users/borgerding/workspace/Labyrinth.worktrees/en-02 && python3 tools/inspection_fixture.py --task-id en-02 --run-id en02-gale-herald --scenario combat --enemy-types gale_herald --enemy-positions 5:2 --enemy-intents call_the_wind --player-position 5:5 --surfaces fire@6:5 --umbra-stage clear --biome vaeloryx --manifest /private/tmp/labyrinth-inspection-manifests/en02-gale-herald.json --summary 'Gale Herald before Call the Wind beside Fire' --launch
 ```
+
+## spx-04 — The Stormcaller
+
+Only wind sourced by the living Warband captain with `stormcaller_wind` keeps
+its authored `rounds_left` without decrement. Each Call replaces the direction
+through the existing hazard scan. Every unit enters the existing forced mover;
+explicit Anchored, immobile and buried rules still apply. This removes ordinary
+wind-only leader/guardian/construct exemptions for the captain's gust, without
+changing card forces or another Herald's wind. The same real-mover copy powers
+all-unit slide/collision previews. Source death clears wind as before. Ordinary
+Herald wind retains its two-boundary lifetime and its full-state legacy golden.
+The persistent wind chip's unsupplied label is the literal named placeholder
+`TODO_DESIGN_PERSISTENT_WIND_LABEL`; the director must supply final copy.
+
+Validation and director capture commands: [spx-04 handoff](spx04_orders.md).

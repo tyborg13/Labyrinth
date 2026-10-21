@@ -37,6 +37,10 @@ MERGED_PROGRAMS = ["opening_boon_recovery_test", "section_map_v5_test", "section
                    "suites/section_map_performance_program"]
 SUPPLEMENTAL_MANIFEST = ROOT / "tests/headless_test_programs.json"
 WARBAND_PROGRAMS = [{"path": "tests/warband_test.gd"}, {"path": "tests/warband_ui_test.gd"}]
+WARBAND_ORDER_PROGRAMS = [
+    {"path": "tests/warband_orders_test.gd"},
+    {"path": "tests/warband_orders_probe.gd", "args": ["--check-only"]},
+]
 FIXTURE_TEST_TIMEOUT_SECONDS = 30
 # Independent of the manifest: recognized but incorrect modes must fail too.
 REQUIRED_FIXTURE_MODES = {
@@ -148,7 +152,11 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         # spx-01 inserts its measurement programs before rr07; spx-02 adds the special map/reward and native legend
         # domains; spx-03 appends the Warband programs.
         self.assertEqual(supplemental[-len(WARBAND_PROGRAMS):], WARBAND_PROGRAMS)
-        accepted = supplemental[:-len(WARBAND_PROGRAMS)]
+        # spx-04 adds two explicit programs ahead of the untouched spx-03 suffix.
+        order_end = len(supplemental) - len(WARBAND_PROGRAMS)
+        order_start = order_end - len(WARBAND_ORDER_PROGRAMS)
+        self.assertEqual(supplemental[order_start:order_end], WARBAND_ORDER_PROGRAMS)
+        accepted = supplemental[:order_start]
         self.assertEqual(len(accepted), 129, "Preserve the accepted supplemental set plus spx-01 and spx-02")
         self.assertEqual(accepted[-8:-6], [{"path": "tests/encounter_analytics_test.gd"}, {"path": "tests/encounter_measurement_test.gd"}])
         self.assertEqual(accepted[-6:], [{"path": "tests/rr07/runtime_test.gd"}, {"path": "tests/rr12/runtime_test.gd"}, {"path": "tests/rr17/runtime_test.gd"}, {"path": "tests/rr18/runtime_test.gd"}, {"path": "tests/special_encounter_test.gd"}, {"path": "tests/special_encounter_legend_test.gd"}])
