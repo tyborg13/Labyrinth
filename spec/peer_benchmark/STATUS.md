@@ -19,6 +19,14 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-21 18:30:
+  - spx-07 MERGED b5e3b5cbc (Codex SIGNOFF f3f7d8458 after 2 fix rounds; native sweep max 20.1/17.5 ms Warband,
+    34.5 ms ordinary; targeting floor 40 ms = follow-up perf-02). Warband inspection fixture pinned to revision-6 maps
+    (df876a12c). Integration Godot 479 s PASS, Python OK.
+  - Owner: map-built APPROVED ("Really nice."). warband-markers NEEDS CHANGES (rings/dashes amateurish) -> redone in
+    wbv-01 2a5eedc77 (wind landing ghosts, Dive flight swoosh, crackling Tether/chain arcs); posted `warband-markers-v2`.
+  - spx-06 (Snare pressures) LAUNCHED from 7ff2f5ae5. wbv-01 merges after its verdict (conflicts expected in
+    wind_view/tether_view with spx-06; director resolves).
 - 2026-10-21 13:10:
   - map-03: Codex review of 4687a81ab = CHANGES REQUESTED (room drag committed travel; v7 exhaustion fell back to the
     straight 5-lane layout; weak v5/v6 and panel guards; typed literals). Fixed by the director in 24d083bab: rooms
