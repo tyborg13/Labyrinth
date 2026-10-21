@@ -275,3 +275,5 @@
   director's resume-validation fix changed the bot file's hash; the density manifest dropped the 20 Mortar textures
   rr-30 retired to `excluded_paths` (8df5ff702). Lesson: a focused check that runs per entry can skip a whole-registry
   rule; a unit that edits a shared registry must run its full check.
+- mortar-rig-v2: APPROVED (2026-10-21 13:53). Merged 7b7553afb (rr-30 + rr-31, squashed). Revisit list: the single-pixel
+  joint specks in some action frames (with the Mimic's chest seam and the Mirror's feet and fists).
