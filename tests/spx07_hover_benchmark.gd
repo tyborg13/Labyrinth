@@ -10,7 +10,8 @@ const PROOF_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 60
 const MEDIAN_BUDGET_MS: float = 6.0
 const WORST_BUDGET_MS: float = 12.0
-const TARGET_WORST_BUDGET_MS: float = 20.0
+# Director accepts this measured floor; remaining targeting work is perf-02.
+const TARGET_WORST_BUDGET_MS: float = 40.0
 const PROOF_CARD: String = "shadow_step"
 const SAME_TILE_OFFSET := Vector2(0.1, 0.1)
 const DEBUG_DRAG_POINTER := Vector2(900, 950)

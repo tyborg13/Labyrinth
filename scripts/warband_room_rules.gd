@@ -22,7 +22,7 @@ static func objective(room: Dictionary, tier: int) -> Dictionary:
 
 # Ranges use Manhattan distance. A screen must also lie on a shortest walkable
 # route; every complete formation has an approach avoiding its outer followers.
-static func positions(grid: Array, entry: Vector2i, count: int, entry_safe_radius: int, rng: RandomNumberGenerator, dynamo: bool, deterministic: bool = false, _legacy_relax: bool = false) -> Array[Vector2i]:
+static func positions(grid: Array, entry: Vector2i, count: int, entry_safe_radius: int, rng: RandomNumberGenerator, dynamo: bool, deterministic: bool = false) -> Array[Vector2i]:
 	var rules: Dictionary = Library.definition("warband")["followers"]
 	var reachable: Array[Vector2i] = Paths.reachable_tiles(grid, entry, grid.size() * grid.size())
 	var captains: Array[Vector2i]

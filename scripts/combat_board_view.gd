@@ -812,7 +812,6 @@ static var _path_crumble_cache: Dictionary = {}
 static var _path_draw_cache := preload("res://scripts/board_path_draw_cache.gd").new()
 var _path_command_capture_active: bool = false
 var _path_captured_commands: Array[Dictionary]
-var _submitted_path_meshes: Array[ArrayMesh]
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
 var _action_floor_render_layer: Control = null
@@ -2556,7 +2555,7 @@ func _process_board_frame(delta: float) -> void:
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
 	if not skip_effects and TetherView.needs_redraw(self): _queue_render_layer_redraw(_effects_render_layer)
 	VeilView.queue_redraws(self)
-	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas) or (not (WindView.forecast(self).get("wind", {}) as Dictionary).is_empty() and not bool(presentation.get("reduced_motion", false))):
+	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas) or (WindView.has_forecast(self) and not bool(presentation.get("reduced_motion", false))):
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if IntentBadges.needs_pulse(presentation): _queue_render_layer_redraw(_hud_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
@@ -2680,7 +2679,7 @@ func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 	return _effective_unit_tile(unit)
 
 func _presentation_needs_continuous_redraw() -> bool:
-	if not (WindView.forecast(self).get("wind", {}) as Dictionary).is_empty() and not bool(presentation.get("reduced_motion", false)): return true
+	if WindView.has_forecast(self) and not bool(presentation.get("reduced_motion", false)): return true
 	if not visible:
 		return false
 	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
@@ -4333,7 +4332,7 @@ func _submit_pixel_line(points: PackedVector2Array, core: Color, halo: Color, el
 	return true
 
 func _draw() -> void:
-	_submitted_path_meshes.clear()
+	_path_draw_cache.begin_canvas_draw(self)
 	_pixel_fx_draw_transform = Transform2D.IDENTITY
 	if is_instance_valid(_pixel_fx_layer):
 		_pixel_fx_layer.begin(self)
@@ -4488,8 +4487,11 @@ func _draw_overlay_render_layer() -> void:
 		return
 	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
 	var section_started_usec: int = Time.get_ticks_usec()
+	# One owned exact forecast per synchronous tile loop. No tile can mutate the
+	# board between these draws; avoid querying/copying it again for every tile.
+	var wind_layers: Array = WindView.tile_layers(self)
 	for tile: Vector2i in tiles:
-		_draw_tile_overlays(tile)
+		_draw_tile_overlays(tile, wind_layers)
 	_draw_action_ground_markings()
 	_draw_large_enemy_attack_highlight_extensions(_visible_units())
 	_record_render_section_time("tile_overlays", section_started_usec)
@@ -6830,7 +6832,7 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 	]))
 	return faces
 
-func _draw_tile_overlays(tile: Vector2i) -> void:
+func _draw_tile_overlays(tile: Vector2i, wind_layers: Array) -> void:
 	var detailed: bool = is_instance_valid(_render_instrumentation_owner) and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
 	var started: int = Time.get_ticks_usec() if detailed else 0
 	var polygon: PackedVector2Array = _tile_polygon(tile)
@@ -6881,7 +6883,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if detailed: _record_render_section_time("overlay_icefall", started); started = Time.get_ticks_usec()
 	LobView.draw_tile(self, tile)
 	if detailed: _record_render_section_time("overlay_lob", started); started = Time.get_ticks_usec()
-	WindView.draw_tile(self, tile)
+	for layer: Dictionary in wind_layers: WindView.draw_layer_tile(self, tile, layer)
 	if detailed: _record_render_section_time("overlay_wind", started)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
@@ -12998,22 +13000,22 @@ func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool
 			if preload("res://scripts/surface_variety_relic_rules.gd").is_light_link(combat_state, path_tiles[index - 1], path_tiles[index]):
 				_draw_path_tiles_uncached(path_tiles, color, hero_path)
 				return
-	var entry: Dictionary = _cached_path_entry(path_tiles, color, hero_path)
 	if _path_command_capture_active:
+		var entry: Dictionary = _cached_path_entry(path_tiles, color, hero_path)
 		for command: Dictionary in _path_draw_cache.clipped(entry, _path_depth_clip, _polygon_can_draw):
 			if command.has("polygon"): _submit_path_polygon(command["polygon"], command["color"])
 			else: _submit_path_line(command["line"], command["color"], command["width"], command["antialiased"])
 	else:
-		for command: Dictionary in _path_draw_cache.batches(entry, _path_depth_clip, _polygon_can_draw):
-			if command.has("mesh"):
-				_submitted_path_meshes.append(command["mesh"])
-				draw_mesh(command["mesh"], null)
-			else: draw_polyline(command["line"], command["color"], command["width"], command["antialiased"])
+		# Drawing keeps cached meshes private; the cache publishes no mutable data.
+		_path_draw_cache.draw_path(self, _path_cache_inputs(path_tiles, color), func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path), _path_depth_clip, _polygon_can_draw)
 
 func _cached_path_entry(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> Dictionary:
+	return _path_draw_cache.path(_path_cache_inputs(path_tiles, color), func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path))
+
+func _path_cache_inputs(path_tiles: Array[Vector2i], color: Color) -> Array:
 	var centers := PackedVector2Array()
 	for tile: Vector2i in path_tiles: centers.append(_tile_center(tile))
-	return _path_draw_cache.path([path_tiles, centers, _tile_width(), _tile_height(), color], func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path))
+	return [path_tiles, centers, _tile_width(), _tile_height(), color]
 
 func prepare_intent_path_geometry(path: Array[Vector2i]) -> void:
 	# Called once per committed board revision, using plans already queried by
@@ -13027,8 +13029,9 @@ func prepare_intent_path_geometry(path: Array[Vector2i]) -> void:
 	if combined != path and combined.size() >= 2: paths.append(combined)
 	for source: Array in paths:
 		var prepared: Array[Vector2i] = _vector2i_array(source)
-		var entry: Dictionary = _cached_path_entry(prepared, ENEMY_PATH_PREVIEW_COLOR)
-		for tile: Vector2i in prepared: _path_draw_cache.batches(entry, _tile_polygon(tile), _polygon_can_draw)
+		var clips: Array = []
+		for tile: Vector2i in prepared: clips.append(_tile_polygon(tile))
+		_path_draw_cache.prepare_path(_path_cache_inputs(prepared, ENEMY_PATH_PREVIEW_COLOR), func() -> Array: return _capture_unclipped_path(prepared, ENEMY_PATH_PREVIEW_COLOR, false), clips, _polygon_can_draw)
 
 func _capture_unclipped_path(path_tiles: Array[Vector2i], color: Color, hero_path: bool) -> Array:
 	var previous_clip: PackedVector2Array = _path_depth_clip

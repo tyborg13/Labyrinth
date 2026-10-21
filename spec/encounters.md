@@ -694,7 +694,9 @@ and redraw counts. Headless sampling disables low-processor mode and its fallbac
 sleep, with no frame cap. Godot holds the process monitor across multiple frames;
 raw monitor percentiles and actual frame percentiles are reported separately.
 This proves script work, not native GPU/frame delivery. The director reruns the
-unchanged native probe. Card/drag limits are now 6 ms median / 20 ms worst.
+unchanged native probe. Director feedback 2 accepts the measured targeting floor:
+card/drag limits are 6 ms median / 40 ms worst; further targeting optimization is
+tracked as perf-02. Synchronous hover retains its 12 ms worst-case limit.
 
 The measured draw hot spots were repeated path geometry/clip construction and
 death-burst presence checks that scaled whole enemy intent catalogs per tile.
@@ -708,3 +710,21 @@ between retained layers. `GameData.enemy_def` memoizes pure fixed-point scaling
 against the exact raw definition while still returning private copies. In-place
 catalog edits invalidate the memo. Planner anchor snapshots reuse their already
 owned enemy array instead of deep-copying it twice.
+
+All public cache results own their nested dictionaries, arrays and packed data.
+Badge focus variants only share evidence internally; every published focus or
+unfocused snapshot is a deep copy. Path-cache result snapshots also own mesh
+resources, since ordinary container deep copies keep Resource references. The
+production renderer prepares and draws private cached paths without publishing
+those entries or meshes. It retains submitted mesh RIDs until the canvas's next
+draw and releases that storage on canvas exit. Public clip queries validate the
+commands in caller-owned entries as well as their ids. Every hash-indexed unit
+cache verifies exact owned inputs; wind has no view-local hash-only shortcut.
+One owned wind forecast serves each synchronous overlay tile loop.
+
+`tests/helpers/spx07_cache_ownership_cases.gd`, registered through the Warband UI
+suite, mutates each nested container independently and checks both retained
+results and later hits. It covers memo, plan, threat/coverage/geometry, catalog,
+orders, badge focus, Tether, wind, paths, clips and mesh resources. Its locked-wind
+collision fixture preserves the reviewer's unequal states hashing to 2943709617:
+hero `(2,3)` with nonce 104756 and `(8,8)` with nonce 8893, including undo.

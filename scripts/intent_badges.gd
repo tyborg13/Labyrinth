@@ -59,9 +59,11 @@ func presentation_for_state(engine: RefCounted, committed: Dictionary, preview: 
 		_cache = build(engine, committed, preview, "", known_source.call() if known_source.is_valid() else preview, _orders_for(engine, preview), _orders_for(engine, committed))
 		_focused_cache = {}
 		engine._record_runtime_performance_phase("rest_badges_build", started)
-	if focus_key.is_empty(): return _cache
-	if focus_key == _focus_key and not _focused_cache.is_empty(): return _focused_cache
+	if focus_key.is_empty(): return _cache.duplicate(true)
+	if focus_key == _focus_key and not _focused_cache.is_empty(): return _focused_cache.duplicate(true)
 	_focus_key = focus_key
+	# Internal variants may share plans; every published result owns its full
+	# nested data so a caller cannot mutate another focus or a future cache hit.
 	_focused_cache = _cache.duplicate(false)
 	for field: String in ["badges", "threats"]:
 		var values: Array[Dictionary]
@@ -70,7 +72,7 @@ func presentation_for_state(engine: RefCounted, committed: Dictionary, preview: 
 			value["alpha"] = float(original["alpha"]) * (ISOLATED_ALPHA if str(original["key"]) != focus_key else 1.0)
 			values.append(value)
 		_focused_cache[field] = values
-	return _focused_cache
+	return _focused_cache.duplicate(true)
 
 func _orders_for(engine: RefCounted, state: Dictionary) -> Dictionary:
 	var definitions: Array
