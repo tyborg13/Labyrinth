@@ -69,10 +69,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     removed.
   - Inbox:
     - empower-sound-built is open (clip with sound).
-    - Encounter redesign posted: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX (revision 2, 20 Oct:
-      four map-visible special encounters after the owner's redirect) and items enc-specials, enc-clarity,
-      enc-dragons, enc-guardians. No enc units until the owner settles the direction. See
-      `encounter_redesign/README.md`.
+    - Encounter redesign: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX. enc-specials APPROVED
+      2026-10-21 (Hoarder = reused Ember Tick; captains unscaled). spx-01 (measurement) launched from 857c0139b.
+      Next: author the special-encounter data and the spx-02 brief (framework + Warband pilot). enc-clarity,
+      enc-dragons and enc-guardians still await verdicts. See `encounter_redesign/README.md`.
     - Inbox cards now support an optional `link`.
   - sfx-05 Low (backlog): three missing regression cases (rejected-toggle silence, available() health guard,
     can_attempt() non-health guards).
