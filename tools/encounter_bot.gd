@@ -310,7 +310,8 @@ func _initialize() -> void:
 	var skipped: int = 0
 	var seed_value: int = int(Sweep.option(args, "--seed", "1"))
 	var first_seed: int = seed_value
-	while results.size() < count:
+	# Validate the whole resumed prefix, even when it already holds the requested count.
+	while results.size() < count or skipped < resume_count:
 		if seed_value - first_seed >= Sweep.MAX_SEED_SCAN:
 			push_error("Seed scan exhausted before the requested cohort was filled")
 			quit(1)
@@ -333,6 +334,7 @@ func _initialize() -> void:
 					return
 				skipped += 1
 				continue
+			if results.size() >= count: break
 			var result: Dictionary = policy.run_room(seed_value, room, presets[str(tier)])
 			result.merge({"revision": revision, "cohort": cohort, "special_type": room.get("special_type", ""), "special_variant": room.get("special_variant", ""), "tier": tier, "biome": sample["biome"], "section_index": sample["section_index"], "coord": Store._sanitize_variant(sample["room"]["coord"]), "travel_dir": Store._sanitize_variant(sample["travel_dir"]), "encounter_id": room.get("encounter_id", "")})
 			results.append(result)
