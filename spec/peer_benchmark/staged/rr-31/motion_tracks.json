@@ -1,0 +1,1035 @@
+{
+ "_doc": "Director motion data (rr-22), humanoid rig v2 for the Slag Mortar. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels of the 255 px painting, two-bone hand and foot targets, world_step feet, inward_px, per-view view_keys). Key rows are [phase, value] or [phase, value, interpolation]; the interpolation names the segment that ends at that key. `move` is a gait block (rig spec section 4, Gait block): the compiler generates its feet, pelvis, root and arm swing (director, gait-01, 2026-10-19). rr-30 (2026-10-20): apron chain replaced by a rigid belt + hinged flap (flap.swing_deg, move.gait.flap_sway); rigid bracers; every other value unchanged from rr-22. rr-31 (director, 2026-10-20): the arms of a single-painting cutout this heavy cannot lift or cross without tearing at the shoulders, so the actions are carried by the body, the stance and the crucible. Arms stay low and close: hands move at most 4 px from rest in any channel; head lean stays within 3 degrees of the torso; the torso pitches at most 14 degrees. lob, brace, scatter and death are rewritten; land and hit keep their motion with the head lean capped at 3 degrees; idle and move are unchanged.",
+ "slag_mortar": {
+  "rig": "humanoid_v2",
+  "units": "source_px",
+  "maquette": "spec/art_identity/maquettes/slag_mortar/measurements.json",
+  "art": {
+   "front": "spec/art_identity/jobs/slag_mortar/mq9_front",
+   "rear": "spec/art_identity/jobs/slag_mortar/mq9_rear"
+  },
+  "pieces_note": "head (rigid); torso with the harness straps (rigid); mortar = the crucible as a rigid held item, child of the torso at mortar_pivot (the harness between the shoulder blades), with its own angle_deg; pelvis; belt = the leather belt band, rigid on the pelvis; flap = the loincloth flap, a RIGID piece hinged at the belt's front centre (front view) or back centre (rear view, the narrower sash), with a swing_deg channel (positive = hem forward, toward the facing); per arm a skinned bare arm over upper and fore, a RIGID iron bracer piece (bracer_<side>, child of the forearm, never skinned), and a rigid fist; per leg a skinned leg, rigid foot. Director rr-30 (owner 2026-10-20: 'the loin cloth is very wrongly positioned'; 'noticeably wrong tearing and stretching during animations around his face and arms').",
+  "clips": {
+   "idle": {
+    "seconds": 0.84,
+    "loop": true,
+    "intents": [],
+    "note": "the hero's cut-out bob: torso (with the harness and the crucible riding on it), head and both free arms drop 2 px and return as one rigid group; pelvis, belt, flap, legs and feet still",
+    "keys": {
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -2
+      ],
+      [
+       0.55,
+       -2
+      ],
+      [
+       0.91,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.85,
+    "intents": [
+     "brace:move_away"
+    ],
+    "note": "a heavy plod on the protagonist's model: both legs step, six stomping steps per tile rest to rest, the near foot leading; 5 px lift; the pelvis settles 3.5 px after each landing and the torso jolts 1 px on the four full-step landings; the crucible rides the torso; the fists swing 2 px; the loincloth flap trails 2 px",
+    "gait": {
+     "model": "protagonist_walk",
+     "steps_per_tile": 6,
+     "lead": "near",
+     "stance_fraction": 0.6,
+     "lift_px": 5,
+     "lane_narrowing": 0.7,
+     "leg_scale_max": 1.22,
+     "settle_px": {
+      "contact": 2.0,
+      "down": 3.5,
+      "passing": 1.0,
+      "up": 0.5
+     },
+     "arm_swing": {
+      "near": {
+       "bone": "hand_near",
+       "px": 2
+      },
+      "far": {
+       "bone": "hand_far",
+       "px": 2
+      }
+     },
+     "max_fit_px": 6,
+     "flap_sway": {
+      "_doc": "added on top of flap.swing_deg: the flap sways with each step, trailing the pelvis settle",
+      "deg": 4,
+      "lag_s": 0.06,
+      "per": "step"
+     }
+    },
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.12,
+       2
+      ],
+      [
+       0.88,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.28,
+       0
+      ],
+      [
+       0.3,
+       -1,
+       "linear"
+      ],
+      [
+       0.34,
+       0
+      ],
+      [
+       0.48,
+       0
+      ],
+      [
+       0.5,
+       -1,
+       "linear"
+      ],
+      [
+       0.54,
+       0
+      ],
+      [
+       0.68,
+       0
+      ],
+      [
+       0.7,
+       -1,
+       "linear"
+      ],
+      [
+       0.74,
+       0
+      ],
+      [
+       0.88,
+       0
+      ],
+      [
+       0.9,
+       -1,
+       "linear"
+      ],
+      [
+       0.94,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "flap.swing_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -3
+      ],
+      [
+       0.9,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "lob": {
+    "seconds": 1.2,
+    "contact": 0.6,
+    "intents": [
+     "lob_slag:lob_mark"
+    ],
+    "note": "sinks 4 px and leans in, then heaves up and back: the crucible tips 22 degrees over the shoulder toward the target and the slag is lobbed (contact; the existing lob mark); the fists pump 3 px with the heave, the arms riding the body; settles",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -4
+      ],
+      [
+       0.6,
+       -1
+      ],
+      [
+       0.8,
+       -1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       3
+      ],
+      [
+       0.6,
+       -4
+      ],
+      [
+       0.8,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       2
+      ],
+      [
+       0.6,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "mortar.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -4
+      ],
+      [
+       0.55,
+       22
+      ],
+      [
+       0.7,
+       18
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.8,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.8,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       3
+      ],
+      [
+       0.6,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "land": {
+    "seconds": 0.6,
+    "contact": 0.3,
+    "intents": [
+     "slag_lands:lob_land"
+    ],
+    "note": "as the slag lands far away the brute rocks forward 2 px and the emptied crucible rattles on its back (hold steps); a satisfied nod",
+    "keys": {
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       2
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "mortar.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3,
+       "hold"
+      ],
+      [
+       0.4,
+       -2,
+       "hold"
+      ],
+      [
+       0.5,
+       1,
+       "hold"
+      ],
+      [
+       0.6,
+       0,
+       "hold"
+      ],
+      [
+       1,
+       0,
+       "hold"
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "brace": {
+    "seconds": 0.9,
+    "contact": 0.4,
+    "note": "plants its feet and hunches behind its iron forearms: sinks 3 px, pitches forward 4 degrees with the chin tucked, and pulls both fists 4 px in toward the belly so the bracers close in front of the body; holds; releases",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -3
+      ],
+      [
+       0.75,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       4
+      ],
+      [
+       0.75,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       4
+      ],
+      [
+       0.75,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       3
+      ],
+      [
+       0.75,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       4
+      ],
+      [
+       0.75,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       3
+      ],
+      [
+       0.75,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       2
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "scatter": {
+    "seconds": 0.8,
+    "contact": 0.5,
+    "intents": [
+     "scatter_shot:ranged"
+    ],
+    "note": "winds back, then heaves the crucible forward: it tips 14 degrees over the shoulder and spills a scatter of slag at the target (contact; the existing shot) as the torso drives into the throw and the near fist punches 4 px forward; settles",
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.7,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.5,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "mortar.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       14
+      ],
+      [
+       0.7,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.7,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "hit": {
+    "seconds": 0.5,
+    "intents": [],
+    "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 3 degrees, both hands trail 1 px; recovered by 0.6",
+    "keys": {
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       1
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       1
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "flap.swing_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -5
+      ],
+      [
+       0.6,
+       1
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.5,
+    "terminal": true,
+    "intents": [],
+    "note": "sags to its knees: the pelvis drops 12 px over planted feet, the torso pitches forward 14 degrees with the crucible tipping a further 10 degrees over its head, the head bows 3 degrees more, the fists sink with the body; terminal pose held, then the existing fade",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       1
+      ],
+      [
+       0.6,
+       -8
+      ],
+      [
+       0.9,
+       -12
+      ],
+      [
+       1,
+       -12
+      ]
+     ],
+     "pelvis.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.9,
+       5
+      ],
+      [
+       1,
+       5
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -2
+      ],
+      [
+       0.55,
+       6
+      ],
+      [
+       0.85,
+       14
+      ],
+      [
+       1,
+       14
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.9,
+       6
+      ],
+      [
+       1,
+       6
+      ]
+     ],
+     "mortar.angle_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       4
+      ],
+      [
+       0.9,
+       10
+      ],
+      [
+       1,
+       10
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       2
+      ],
+      [
+       0.9,
+       3
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -2
+      ],
+      [
+       1,
+       -4
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.9,
+       3
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -2
+      ],
+      [
+       1,
+       -4
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.9,
+       3
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "flap.swing_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       4
+      ],
+      [
+       1,
+       6
+      ]
+     ]
+    }
+   }
+  }
+ }
+}
