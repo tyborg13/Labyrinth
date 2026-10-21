@@ -239,4 +239,8 @@
   combat "is always just defeat all the enemies." Then "Yes, please" to rewriting the proposal as four types with
   per-section variants, rewards, map-icon mockups and placement rules. Posted as inbox item enc-specials; both old
   items closed with a pointer.
+- Director decision, 2026-10-20 (Mortar, from rr-30's native captures): a single-painting cutout with arms this heavy
+  cannot lift 12–50 px or cross the body without tearing at the shoulders. The Mortar's actions are carried by body,
+  stance and crucible: hands ≤ 4 px from rest, head ≤ 3° from the torso, torso pitch ≤ 14°. Brace no longer crosses the
+  bracers before the face; scatter no longer reaches into the crucible. Rig gates must run on rendered frames.
 

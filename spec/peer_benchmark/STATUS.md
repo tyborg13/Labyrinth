@@ -24,15 +24,13 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     rerun after a hidden-window stall), director visual judgment passed, Codex SIGNOFF feffbfb06, both full suites
     green. Inbox item mimic-rig-v2 posted (awaiting owner). Low, not blocking: a faint 1 px chest seam during actions,
     visible only at 3x.
-  - rr-30: round 2 committed 407ca1d9a (rear re-processed from the toned raw a9bf0b7e5: chroma 0.1988, certified and
-    judged by the director; skinned declared scale; sway and strain mutation tests; own density probe at 1920x1080).
-    All windowed stages PASS (director native acceptance committed 4ded5def9), but the director's visual review found
-    joint tearing in motion: dark seam slashes on both upper arms and the far elbow, and cover fragments poking past
-    the outline at the shoulder, wrist, knees and hem. Round 3 committed d18eb6130 (joint-local covers, approved
-    donors, elbow registration; joint gates pass 862 frames; contact-boundary distance basis decided by the director).
-    Its CPU before/after still shows new dark slits under the jaw and along the strap, so the director is judging it on
-    a fresh windowed run. Round cap reached: any further fix is a fresh session with a redesigned approach, not a
-    round 4.
+  - rr-30 → rr-31: rr-30 ended at round 3 (d18eb6130 + native acceptance 5b77d354c). Loincloth, rear flap, identity,
+    0% stretch and cover geometry are done, but the real captures tear in every arm-raising action (lob heave, brace,
+    scatter, death), and the CPU gates missed it. Director decision: the Mortar acts with body, stance and crucible;
+    hands stay within 4 px, head within 3° of the torso, torso pitch ≤ 14° (staged/rr-31/motion_tracks.json). rr-31
+    (fresh session, branched from rr-30 + integration at cd93d4430) imports it, measures joint budgets, and moves the
+    gates onto rendered frames (notches, frayed edges, interior contour), proven to fail on the round-3 captures. The
+    rr-30 worktree stays read-only as evidence until rr-31 lands; then remove both.
 - 2026-10-20 15:40:
   - mq-11 merged (56de97dfb). Codex SIGNOFF a3fc15b69, native acceptance director_06, integration green at 300f8277b.
   - rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) launched from 7adad7e92.
