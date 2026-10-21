@@ -75,6 +75,20 @@ Offline encounter measurement uses the production section-map, room-generation
 and CombatEngine APIs without emitting gameplay analytics or writing run/profile
 saves. See [the baseline](peer_benchmark/encounter_redesign/baseline.md) for the
 sampling contract, bounded greedy policy, deck presets and raw result paths.
+The tools default to map revision 6: standard Defeat All and authored Warband
+cohorts, sampled through their real map nodes and RunEngine layouts. Use
+`--revision 5` for the saved-generator objective cohorts; bot selection then uses
+`--objective kill_all|kill_leader|reach_exit`. Revision-6 bot selection uses
+`--cohort standard|warband`. New output lives in `measurements/revision6/`
+(legacy reruns in `measurements/revision5/`); historical revision-5 raw records
+and reports are retained. The side-effect golden deliberately pins revision 5
+and keeps its original hashes. Current save/load and both-revision sampling
+checks remain separate from that frozen oracle. Policy version 2 is unchanged.
+Interrupted measurements can continue with sweep `--resume` and bot
+`--resume-dir /private/tmp/spx-01-measurement-logs/bot-<run>/`. Bot checkpoints
+retain completed rooms and validate their seed/coordinate/entrance prefix
+against production sampling before playing the remaining rooms. The sweep
+retains complete JSONL rows and trims an interrupted final line before resuming.
 
 ## Current Event Types
 
