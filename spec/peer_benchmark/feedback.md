@@ -286,3 +286,9 @@
   merges at 45%, every route ≥ 3 choices and no run without a choice > 2 rooms (forced Relic and Ember Hearth rows
   excluded) → 45% forks, 1.47 exits, 5 choices per route. Pizazz: inked dotted trails that wind a little, glowing next
   choices, a solid ember walked trail, faded cut-off rooms, ground shadows, and the lantern travelling the trail.
+- map-branching: NEEDS CHANGES (2026-10-21 14:22). "Far too dense visually. I like the amount of choice you've added"
+  — shrink icons or scroll like StS; the mockup's connections read as "clusters of zig zagged straight lines ... a step
+  back". Director decisions: keep the choice density; the map scrolls horizontally (today's node size, 240 px columns,
+  ~7 columns visible, opens on the player, wheel/drag/stick, recentres after each choice, edge fades, a slim scroll
+  track, painting parallax 0.3); trails keep today's sideways S-curves (control reach 0.52 × dx) drawn as inked dots.
+  Revised mockup posted as `map-branching-v2`.

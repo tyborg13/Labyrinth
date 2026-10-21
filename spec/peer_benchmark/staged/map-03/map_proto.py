@@ -4,7 +4,7 @@ Not product code. It measures choice density and renders mockups on the real Cin
 """
 import json, math, random, sys
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 REPO = Path('/Users/borgerding/workspace/Labyrinth.worktrees/peer-benchmark')
 CAPTURE = Path('/Users/borgerding/workspace/Labyrinth/output/spx-05-2026-10-21/r1/07_fullest_legend.png')
@@ -328,3 +328,144 @@ if __name__ == '__main__':
         types = assign_types(rows, children, 11, seed)
         print(metrics(rows, children, 11))
         render(rows, children, types, 11, sys.argv[3], mode, seed, progress)
+
+
+# ---- Revision after owner feedback 2026-10-21: scrolling map, today's node size, smooth S-curve trails ----
+COL = 240          # px per column (today ~149)
+FIELD = (32, 134, 1888, 913)
+PARALLAX = 0.3
+
+
+def s_curve(a, b):
+    """Today's trail shape: leave and enter each room sideways, bend in the middle."""
+    (x0, y0), (x3, y3) = a, b
+    reach = max(20.0, (x3 - x0) * 0.52)
+    c1, c2 = (x0 + reach, y0), (x3 - reach, y3)
+    pts = []
+    for i in range(241):
+        t = i / 240; u = 1 - t
+        pts.append((u ** 3 * x0 + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t ** 3 * x3,
+                    u ** 3 * y0 + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t ** 3 * y3))
+    return pts
+
+
+def world_layout(rows, count, seed):
+    rng = random.Random(seed * 13 + 5)
+    pos = {}
+    for s in rows:
+        for l in rows[s]:
+            pos[(s, l)] = (247 + (s - 1) * COL + (rng.uniform(-22, 22) if s > 1 else 0), 205 + l * 103 + rng.uniform(-20, 20))
+    start, boss = (107, 522), (247 + (count - 2) * COL + 175, 522)
+    return pos, start, boss
+
+
+def render_scroll(rows, children, types, count, out, seed=0, progress=0, scroll=None, overview=False):
+    cap = Image.open(CAPTURE).convert('RGBA')
+    pos, start, boss = world_layout(rows, count, seed)
+    width = int(boss[0] + 140)
+    fw, fh = FIELD[2] - FIELD[0], FIELD[3] - FIELD[1]
+    current, visited, avail = None, [], [(1, l) for l in rows[1]]
+    if progress:
+        prng = random.Random(seed * 97 + 1); cell = (1, rows[1][1]); visited.append(cell)
+        for _ in range(progress - 1):
+            cell = prng.choice(children[cell]); visited.append(cell)
+        current = cell; avail = list(children[current])
+    reach = set()
+    if current is not None:
+        stack = [current]
+        while stack:
+            c = stack.pop()
+            for k in children.get(c, []):
+                if k not in reach: reach.add(k); stack.append(k)
+    bypassed = lambda c: current is not None and c not in reach and c not in visited
+    focus_x = pos[current][0] if current else start[0]
+    max_scroll = max(0, width - fw)
+    if scroll is None:
+        scroll = min(max_scroll, max(0, focus_x - fw * 0.38))
+    # World canvas (map layer) and a parallax painting behind it.
+    world = Image.new('RGBA', (width, fh + FIELD[1]), (0, 0, 0, 0))
+    paint = Image.open(REPO / 'assets/art/backgrounds/sections/vyraketh.png').convert('RGB')
+    pw = int(fw + max_scroll * PARALLAX) if not overview else width
+    sc = max(pw / paint.width, fh / paint.height)
+    paint = paint.resize((int(paint.width * sc), int(paint.height * sc)), Image.LANCZOS).point(lambda v: int(v * 0.56))
+    top = (paint.height - fh) // 2
+    radius = {c: (52 if c in avail else (42 if c == current else 31)) for c in pos}
+    layer = Image.new('RGBA', world.size, (0, 0, 0, 0)); d = ImageDraw.Draw(layer)
+    glow = Image.new('RGBA', world.size, (0, 0, 0, 0)); g = ImageDraw.Draw(glow)
+    links = [(start, pos[(1, l)], 55, radius[(1, l)], 'immediate' if current is None else ('walked' if (1, l) in visited else 'bypassed')) for l in rows[1]]
+    for a, kids in children.items():
+        for b in kids:
+            kind = 'walked' if (a in visited and b in visited) else ('immediate' if a == current else ('bypassed' if (bypassed(a) or bypassed(b)) else 'ahead'))
+            links.append((pos[a], pos[b], radius[a], radius[b], kind))
+    for l in rows[count - 1]:
+        c = (count - 1, l); links.append((pos[c], boss, radius[c], 82, 'bypassed' if bypassed(c) else 'ahead'))
+    for a, b, ra, rb, kind in links:
+        pts = [p for p in s_curve(a, b) if math.dist(p, a) > ra + 6 and math.dist(p, b) > rb + 6]
+        if not pts: continue
+        if kind == 'walked':
+            d.line(pts, fill=(10, 8, 12, 170), width=8); d.line(pts, fill=(196, 150, 84, 255), width=4); continue
+        spacing, rr, col, halo = {'immediate': (11, 3.6, (246, 216, 150, 255), 160), 'ahead': (13, 2.7, (201, 181, 138, 230), 150),
+                                  'bypassed': (15, 2.0, (120, 112, 128, 110), 70)}[kind]
+        if kind == 'immediate': g.line(pts, fill=(255, 190, 90, 120), width=14)
+        dots = resample(pts, spacing)
+        for p in dots: d.ellipse((p[0] - rr - 1.6, p[1] - rr - 1.6, p[0] + rr + 1.6, p[1] + rr + 1.6), fill=(10, 8, 12, halo))
+        for p in dots: d.ellipse((p[0] - rr, p[1] - rr, p[0] + rr, p[1] + rr), fill=col)
+    world = Image.alpha_composite(world, glow.filter(ImageFilter.GaussianBlur(7)))
+    world = Image.alpha_composite(world, layer)
+    shadow = Image.new('RGBA', world.size, (0, 0, 0, 0)); sd = ImageDraw.Draw(shadow)
+    for c, (x, y) in pos.items():
+        r = radius[c]; sd.ellipse((x - r * 1.15, y + r * 0.35, x + r * 1.15, y + r * 1.05), fill=(0, 0, 0, 120))
+    world = Image.alpha_composite(world, shadow.filter(ImageFilter.GaussianBlur(6)))
+    med = Image.open(REPO / 'assets/art/ui/section_map/medallion.png').convert('RGBA')
+    names = {'fight': 'fight', 'scavenger': 'scavenger', 'graftwright': 'graftwright', 'event': 'event', 'relic': 'relic',
+             'campfire': 'campfire', 'warband': 'warband', 'umbral_snare': 'umbral_snare', 'guardian': 'fight', 'mystery': None}
+    for c, (x, y) in pos.items():
+        r = radius[c]; name = names[types[c]]; dd = ImageDraw.Draw(world)
+        if name is None:
+            for k in range(0, 360, 30): dd.arc((x - r, y - r, x + r, y + r), k, k + 17, fill=(170, 162, 175, 255) if not bypassed(c) else (90, 86, 98, 255), width=2)
+            fnt = ImageFont.truetype('/System/Library/Fonts/Supplemental/Georgia Bold.ttf', 24)
+            dd.text((x, y), '?', fill=(200, 192, 205, 255) if not bypassed(c) else (98, 92, 106, 255), font=fnt, anchor='mm'); continue
+        m = med.resize((int(r * 2.25), int(r * 2.25)), Image.LANCZOS)
+        world.alpha_composite(m, (int(x - r * 1.125), int(y - r * 1.125)))
+        ic, mask = icon(name, int(r * 0.80), 1.0 if c in avail else (0.38 if bypassed(c) else (0.55 if c in visited else 0.80)))
+        world.paste(ic, (int(x - r * 0.80), int(y - r * 0.80)), mask)
+        if c in avail: dd.ellipse((x - r - 4, y - r - 4, x + r + 4, y + r + 4), outline=(255, 218, 141, 255), width=4)
+        if c in visited and c != current: dd.ellipse((x - r - 2, y - r - 2, x + r + 2, y + r + 2), outline=(183, 193, 173, 255), width=4)
+        if bypassed(c):
+            veil = Image.new('RGBA', (int(2 * r + 8), int(2 * r + 8)), (0, 0, 0, 0))
+            ImageDraw.Draw(veil).ellipse((0, 0, 2 * r + 7, 2 * r + 7), fill=(14, 12, 18, 120)); world.alpha_composite(veil, (int(x - r - 4), int(y - r - 4)))
+    for (cx, cy, rr), dst in [((107, 522, 54), start), ((1765, 522, 92), boss)]:
+        patch = cap.crop((cx - rr, cy - rr, cx + rr, cy + rr)); pm = Image.new('L', patch.size, 0)
+        ImageDraw.Draw(pm).ellipse((1, 1, 2 * rr - 2, 2 * rr - 2), fill=255)
+        world.paste(patch, (int(dst[0] - rr), int(dst[1] - rr)), pm)
+    if current is None:
+        x, y = start; ImageDraw.Draw(world).polygon([(x, y - 56), (x - 16, y - 78), (x + 16, y - 78)], fill=(255, 240, 192))
+    if current is not None:
+        lantern = cap.crop((57, 472, 157, 572)); mask = Image.new('L', lantern.size, 0); ImageDraw.Draw(mask).ellipse((2, 2, 97, 97), fill=255)
+        x, y = pos[current]; world.paste(lantern, (int(x - 50), int(y - 50)), mask)
+        ImageDraw.Draw(world).polygon([(x, y - 56), (x - 18, y - 82), (x + 18, y - 82)], fill=(255, 240, 192))
+    if overview:
+        bg = Image.new('RGBA', world.size, (0, 0, 0, 255))
+        pc = paint.crop((0, top, world.width, top + fh)); bg.paste(pc, (0, FIELD[1]))
+        world = world.crop((0, 0, world.width, world.height))
+        full = Image.alpha_composite(bg, world).crop((0, FIELD[1], world.width, FIELD[1] + fh))
+        full.convert('RGB').save(out); return
+    # Compose the viewport into the real panel.
+    frame = cap.copy()
+    pcrop = paint.crop((int(scroll * PARALLAX), top, int(scroll * PARALLAX) + fw, top + fh)).convert('RGBA')
+    view = world.crop((int(scroll) + FIELD[0], FIELD[1], int(scroll) + FIELD[0] + fw, FIELD[1] + fh))
+    field = Image.alpha_composite(pcrop, view)
+    # Edge fades show there is more map to either side.
+    fade = Image.new('RGBA', field.size, (0, 0, 0, 0)); fd = ImageDraw.Draw(fade)
+    for i in range(90):
+        a = int(170 * (1 - i / 90) ** 1.6)
+        if scroll < max_scroll - 1: fd.line([(fw - 1 - i, 0), (fw - 1 - i, fh)], fill=(6, 5, 8, a))
+        if scroll > 1: fd.line([(i, 0), (i, fh)], fill=(6, 5, 8, a))
+    field = Image.alpha_composite(field, fade)
+    # A slim scroll track inside the bottom of the field.
+    td = ImageDraw.Draw(field); tw = 420; tx = (fw - tw) // 2; ty = fh - 18
+    td.rounded_rectangle((tx, ty, tx + tw, ty + 6), 3, fill=(20, 17, 22, 200), outline=(120, 100, 70, 200))
+    thumb = int(tw * fw / width); off = int((tw - thumb) * (scroll / max_scroll if max_scroll else 0))
+    td.rounded_rectangle((tx + off, ty, tx + off + thumb, ty + 6), 3, fill=(214, 182, 120, 255))
+    frame.paste(field, FIELD[:2])
+    frame.convert('RGB').save(out)
