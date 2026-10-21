@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dfxea03bws0gl"
-path="res://.godot/imported/04_approved_front_mq11.png-ed74d1c7d132789ebf574fa1c2ba73ee.ctex"
+path="res://.godot/imported/04_approved_front_mq11.png-7c65f97c039f1d2d041826c059ff5b14.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_approved_front_mq11.png"
-dest_files=["res://.godot/imported/04_approved_front_mq11.png-ed74d1c7d132789ebf574fa1c2ba73ee.ctex"]
+source_file="res://spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/04_approved_front_mq11.png"
+dest_files=["res://.godot/imported/04_approved_front_mq11.png-7c65f97c039f1d2d041826c059ff5b14.ctex"]
 
 [params]
 

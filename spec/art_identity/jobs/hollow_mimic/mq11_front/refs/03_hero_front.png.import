@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7cnr3tlypcq3"
-path="res://.godot/imported/03_hero_front.png-57687d1dd35289d5d10c95800744dd85.ctex"
+path="res://.godot/imported/03_hero_front.png-58f300e8bd4826fff98369e05e51b37a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/03_hero_front.png"
-dest_files=["res://.godot/imported/03_hero_front.png-57687d1dd35289d5d10c95800744dd85.ctex"]
+source_file="res://spec/art_identity/jobs/hollow_mimic/mq11_front/refs/03_hero_front.png"
+dest_files=["res://.godot/imported/03_hero_front.png-58f300e8bd4826fff98369e05e51b37a.ctex"]
 
 [params]
 

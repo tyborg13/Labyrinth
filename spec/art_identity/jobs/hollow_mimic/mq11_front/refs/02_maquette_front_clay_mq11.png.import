@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://gh0n2vasw6py"
-path="res://.godot/imported/02_maquette_front_clay_mq11.png-d6646548acbf9aa9a6d585fd260d6a95.ctex"
+path="res://.godot/imported/02_maquette_front_clay_mq11.png-6a0c7f147260615810f3dcf206cded0f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front/02_maquette_front_clay_mq11.png"
-dest_files=["res://.godot/imported/02_maquette_front_clay_mq11.png-d6646548acbf9aa9a6d585fd260d6a95.ctex"]
+source_file="res://spec/art_identity/jobs/hollow_mimic/mq11_front/refs/02_maquette_front_clay_mq11.png"
+dest_files=["res://.godot/imported/02_maquette_front_clay_mq11.png-6a0c7f147260615810f3dcf206cded0f.ctex"]
 
 [params]
 
