@@ -105,7 +105,7 @@
      ],
      "order": {
       "id": "stormcaller_wind",
-      "text": "Its wind never drops: a gust slides everything 1 tile every round."
+      "text": "Its wind never drops: a gust slides everyone else 1 tile every round."
      }
     },
     "ice": {
