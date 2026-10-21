@@ -19,6 +19,17 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-19; humanoid rig v2 + roster wave 1)
+- 2026-10-21 13:10:
+  - map-03: Codex review of 4687a81ab = CHANGES REQUESTED (room drag committed travel; v7 exhaustion fell back to the
+    straight 5-lane layout; weak v5/v6 and panel guards; typed literals). Fixed by the director in 24d083bab: rooms
+    forward wheel/drags and a drag never travels; stored per-section v7 fallback `data/section_map_v7_fallbacks.json`
+    (+ mystery hidden types; tools/section_map_v7_fallbacks.gd); base digests for revisions 5/6; real-pointer and
+    lifecycle tests; the walk completes on its timer. 5/5 mutants caught; focused suites PASS. Codex re-review running.
+  - spx-05 MERGED (0ce68a9aa); spx-07 (Warband perf, locked wind, spread spawns) running from 3fad2e65b; spx-06 after it.
+  - Warband marker redesign, director-implemented in `../Labyrinth.worktrees/wbv-01` (uncommitted prototype): feathered
+    Command glow + rim (no outline), gilt crowned-skull crest on the captain's bar (LEADER box gone; floor beacon off in
+    Warband fights), wind streaks instead of per-tile chevrons, chevrons + ghost ring slide previews. Posted as inbox
+    `warband-markers`; build after the verdict and after spx-07 merges (both touch wind_view/combat_board_view).
 - 2026-10-21 11:40:
   - map-03 (Claude-implemented at the owner's request): revision 7 web generator + scrolling map + inked trails +
     lantern walk built in `../Labyrinth.worktrees/map-03` (wip 997005302); native captures and clip posted as inbox
