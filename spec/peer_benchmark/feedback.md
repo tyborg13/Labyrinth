@@ -243,4 +243,6 @@
   cannot lift 12–50 px or cross the body without tearing at the shoulders. The Mortar's actions are carried by body,
   stance and crucible: hands ≤ 4 px from rest, head ≤ 3° from the torso, torso pitch ≤ 14°. Brace no longer crosses the
   bracers before the face; scatter no longer reaches into the crucible. Rig gates must run on rendered frames.
+- mimic-rig-v2: APPROVED (2026-10-21 03:00). "Good enough for now." Merged 007f685c0. Revisit list: the faint 1 px chest
+  seam during actions (with the Mirror's feet and fists).
 
