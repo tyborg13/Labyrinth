@@ -277,3 +277,12 @@
   rule; a unit that edits a shared registry must run its full check.
 - mortar-rig-v2: APPROVED (2026-10-21 13:53). Merged 7b7553afb (rr-30 + rr-31, squashed). Revisit list: the single-pixel
   joint specks in some action frames (with the Mimic's chest seam and the Mirror's feet and fists).
+- Owner, 2026-10-21 (map): the branching ask from playtest 9 "got lost". Today's map is "too much like a few straight
+  lines with a couple of branches here and there. It doesn't feel like Slay the Spire or Inscryption." On Inscryption:
+  "far more beautiful. I don't want a full redesign to copy it, but if we can give ours a little more pizazz while we're
+  already touching it, I wouldn't complain." Director measurement (revision 5/6, 200 seeds × 6 sections): 17% of rooms
+  fork, 1.19 exits per room, 3 choices per route (worst route 1), longest no-choice run 5 (up to 8). Proposal (mockup in
+  the inbox item `map-branching`; prototype `staged/map-03/map_proto.py`): 7 lanes, exits weighted 1:32 / 2:58 / 3:10,
+  merges at 45%, every route ≥ 3 choices and no run without a choice > 2 rooms (forced Relic and Ember Hearth rows
+  excluded) → 45% forks, 1.47 exits, 5 choices per route. Pizazz: inked dotted trails that wind a little, glowing next
+  choices, a solid ember walked trail, faded cut-off rooms, ground shadows, and the lantern travelling the trail.

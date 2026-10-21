@@ -1,0 +1,32 @@
+{
+ "source": "revision 5/6 generator, seeds 1-200 x 6 sections (map_choice_metrics.gd)",
+ "metrics": {
+  "nodes": {
+   "median": 30
+  },
+  "fork_share": {
+   "median": 0.166666666666667
+  },
+  "mean_out": {
+   "median": 1.18518518518519
+  },
+  "lane_change_share": {
+   "median": 0.444444444444444
+  },
+  "routes": {
+   "median": 17
+  },
+  "choices_median": {
+   "median": 3
+  },
+  "choices_min": {
+   "median": 1
+  },
+  "longest_run_median": {
+   "median": 3
+  },
+  "longest_run_max": {
+   "median": 5
+  }
+ }
+}
