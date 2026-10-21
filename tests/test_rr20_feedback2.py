@@ -19,6 +19,7 @@ from humanoid_cutout.cpu_pose import CpuPose as FullPose
 from cpu_proof import CpuPose
 from continuations import derivation_errors
 import proof_records
+from tests.rr29_historical_mimic import production_bytes
 
 FIXTURE_VALUE=5
 GAIT_ENDPOINT_ALPHA_MISMATCH_PX=20
@@ -39,7 +40,7 @@ class FeedbackTwoTests(unittest.TestCase):
 
     def test_new_director_import_gait_and_readable_leading_hand(self):
         self.assertEqual((CASE/'director_motion.json').read_bytes(),DIRECTOR.read_bytes())
-        self.assertEqual((ASSETS/'director_motion.json').read_bytes(),DIRECTOR.read_bytes())
+        self.assertEqual(production_bytes('rr20',ASSETS/'director_motion.json'),DIRECTOR.read_bytes())
         data=read_json(CASE/'compiled_motion.json')
         self.assertEqual(data['clips']['move']['seconds'],.8)
         self.assertEqual(data['clips']['move']['gait']['steps_per_tile'],6)
@@ -47,8 +48,8 @@ class FeedbackTwoTests(unittest.TestCase):
         self.assertNotIn('leg_roles',read_json(CASE/'anatomy.json'))
         for view in VIEWS:
             self.assertNotIn('leg_roles',read_json(CASE/f'layouts/{view}.json'))
-            production=read_json(ASSETS/(view+'.json'))
-            self.assertEqual(production['rest_source_sha256'],digest(ASSETS/production['rest_source']))
+            production=json.loads(production_bytes('rr20',ASSETS/(view+'.json')))
+            self.assertEqual(production['rest_source_sha256'],__import__('hashlib').sha256(production_bytes('rr20',ASSETS/production['rest_source'])).hexdigest())
             for clip in ('bolt','mirror'):
                 tracks=data['view_tracks'][view][clip]
                 near=next(t for t in tracks if t['bone']=='hand_near' and t['channel']=='forward_px')

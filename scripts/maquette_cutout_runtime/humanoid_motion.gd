@@ -123,6 +123,8 @@ static func world_transforms(data: Dictionary, clip: String, phase: float, layou
 					_solve_two_bone(result, joints, "thigh_" + side, "shin_" + side, foot, true, float(policy["bend_side"]))
 				for name: String in ["thigh_" + side, "shin_" + side, foot]: solved[name] = true
 				_propagate_descendants(result, joints, authored, order, solved)
+	if data["clips"][clip].has("gait"):
+		Gait.shoulder_pendulum(result, joints, data["clips"][clip]["gait"], float(data["clips"][clip]["seconds"]), phase, forward)
 	# Held items keep their rest world orientation, independent of solved hands.
 	for chain: Dictionary in layout.get("ik_chains", []):
 		var target: String = str(chain["target"])

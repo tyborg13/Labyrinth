@@ -1,0 +1,220 @@
+{
+  "task_id": "rr-29",
+  "feedback": 2,
+  "branch": "codex/rr-29",
+  "base_head": "052a20fb8ada73168660c27301f7e2cb8acbb910",
+  "preservation_integration_base": "8b6cf8d063bf4a8a5de973bae2e28251c4f57f0a",
+  "phase": "code_complete_director_native_recapture_pending",
+  "implementation_complete": true,
+  "native_capture_certified": false,
+  "task_git_metadata_changed": false,
+  "feedback_changes_uncommitted": true,
+  "windowed_process_attempted": false,
+  "peer_review_attempted": false,
+  "full_suites_run_this_pass": false,
+  "prior_feedback_verification": {
+    "revision": "052a20fb8ada73168660c27301f7e2cb8acbb910",
+    "path": "experiments/cutouts/hollow_mimic/rr29/proof/verification.json"
+  },
+  "acceptance": {
+    "1_native_producer": {
+      "status": "FIXED; existing capture requires recapture",
+      "meshes_missing_transforms_per_view": 8,
+      "poses_per_view": 504,
+      "regenerated_poses": 1008,
+      "native_transform_records": 15928,
+      "maximum_transform_error": 0.0,
+      "generic_gate_modified": false,
+      "capture_order_fix": "scene-tree preorder for equal-depth items; runtime unchanged",
+      "original_manifest_mismatches": 31,
+      "corrected_order_frame_mismatches": 0,
+      "frames_checked": 724,
+      "original_receipt_preserved": true
+    },
+    "2_far_arm_runtime": {
+      "status": "PASS",
+      "fixture": "tests/rr29/far_arm_fixture.gd",
+      "checks": 26,
+      "mutation_rejected_for": [
+        "hand_far",
+        "sleeve_far"
+      ],
+      "restoration_and_rear_exclusion_checked": true
+    },
+    "3_rear_prompt_chain": {
+      "status": "PASS",
+      "ordered_sources": [
+        "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11.md",
+        "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11_r2.md"
+      ],
+      "kit_version": "57de7c9ec1b9b39371c53be6a262fb3e48c47c8d1c770434d3697de4949a9cd6",
+      "negative_controls": [
+        "captured revision bytes",
+        "canonical revision bytes",
+        "reordered base/revision pair"
+      ],
+      "approved_prompt_and_paint_bytes_unchanged": true
+    },
+    "4_preservation": {
+      "status": "PASS",
+      "checks": 5,
+      "includes_committed_changes": true,
+      "regression_tests": [
+        "test_rr29_preservation_rejects_committed_out_of_scope_changes",
+        "test_rr29_preservation_includes_committed_shared_records_and_new_files"
+      ],
+      "fixtures_are_disposable_git_repositories": true
+    }
+  },
+  "tests": [
+    {
+      "command": "python3 tests/rr29_python_suite.py tests.test_rr29_mimic tests.test_rr29_historical_ranges tests.test_art_identity_gate",
+      "result_lines": [
+        "Ran 129 tests in 56.805s",
+        "OK",
+        "RR29 PYTHON FOCUSED: PASS (4 Godot invocations forced to rr-29)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_focused_final.log"
+    },
+    {
+      "command": "python3 tests/rr29_python_suite.py tests.test_icon_identity_policy",
+      "result_lines": [
+        "Ran 7 tests in 0.060s",
+        "OK"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_icons.log"
+    },
+    {
+      "command": "python3 tools/art_identity_gate.py check --id hollow_mimic --strict",
+      "result_lines": [
+        "ART IDENTITY CHECK: PASS (0 failures, 0 pending_reart warnings, 0 skipped replays)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_identity.log"
+    },
+    {
+      "command": "PYTHONPATH=tools python3 experiments/cutouts/hollow_mimic/rr29_preservation.py",
+      "result_lines": [
+        "RR29 OTHER FIGURES: PASS (5 checks)"
+      ],
+      "log": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_preservation.log"
+    }
+  ],
+  "native_replay": {
+    "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 PYTHONPATH=tools python3 experiments/cutouts/hollow_mimic/rr29_gates.py --native experiments/cutouts/hollow_mimic/rr29/proof/native",
+    "capture": "experiments/cutouts/hollow_mimic/rr29/proof/native",
+    "original_log": "experiments/cutouts/hollow_mimic/rr29/proof/director_native_run.log",
+    "log": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_native_replay_final.log",
+    "result": "RR29 NATIVE GATES: FAIL (32 errors)",
+    "exceptions": [],
+    "binding_differences": [
+      "runtime:tests/rr29/far_arm_fixture.gd",
+      "runtime:tests/rr29/native_probe.gd",
+      "runtime:tests/rr29/paint_order.gd",
+      "runtime:tests/rr29/samples.gd"
+    ],
+    "exit_code": 1,
+    "error_counts": {
+      "stale_native_proof_inputs": 1,
+      "old_manifest_equal_depth_order": 31
+    },
+    "errors": [
+      "stale native proof inputs",
+      "('front', 'block', 10): native frame differs from isolated GPU pieces",
+      "('front', 'block', 11): native frame differs from isolated GPU pieces",
+      "('front', 'block', 12): native frame differs from isolated GPU pieces",
+      "('front', 'block', 13): native frame differs from isolated GPU pieces",
+      "('front', 'block', 14): native frame differs from isolated GPU pieces",
+      "('front', 'block', 15): native frame differs from isolated GPU pieces",
+      "('front', 'block', 16): native frame differs from isolated GPU pieces",
+      "('front', 'block', 17): native frame differs from isolated GPU pieces",
+      "('front', 'block', 18): native frame differs from isolated GPU pieces",
+      "('front', 'block', 19): native frame differs from isolated GPU pieces",
+      "('front', 'block', 20): native frame differs from isolated GPU pieces",
+      "('front', 'block', 21): native frame differs from isolated GPU pieces",
+      "('front', 'block', 22): native frame differs from isolated GPU pieces",
+      "('front', 'block', 23): native frame differs from isolated GPU pieces",
+      "('front', 'block', 24): native frame differs from isolated GPU pieces",
+      "('front', 'block', 25): native frame differs from isolated GPU pieces",
+      "('front', 'block', 26): native frame differs from isolated GPU pieces",
+      "('front', 'block', 27): native frame differs from isolated GPU pieces",
+      "('front', 'block', 28): native frame differs from isolated GPU pieces",
+      "('front', 'block', 29): native frame differs from isolated GPU pieces",
+      "('front', 'block', 30): native frame differs from isolated GPU pieces",
+      "('front', 'block', 31): native frame differs from isolated GPU pieces",
+      "('front', 'block', 32): native frame differs from isolated GPU pieces",
+      "('front', 'block', 33): native frame differs from isolated GPU pieces",
+      "('front', 'block', 34): native frame differs from isolated GPU pieces",
+      "('front', 'block', 35): native frame differs from isolated GPU pieces",
+      "('front', 'block', 36): native frame differs from isolated GPU pieces",
+      "('front', 'block', 37): native frame differs from isolated GPU pieces",
+      "('front', 'block', 38): native frame differs from isolated GPU pieces",
+      "('front', 'block', 39): native frame differs from isolated GPU pieces",
+      "('front', 'block', 40): native frame differs from isolated GPU pieces"
+    ],
+    "crash_fixed": true
+  },
+  "producer_diagnostics": {
+    "command": "OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 PYTHONPATH=tools python3 experiments/cutouts/hollow_mimic/rr29_native_diagnostics.py",
+    "result_lines": [
+      "RR29 SAMPLE/NATIVE TRANSFORMS: PASS (15928 pieces; 724 frames; maximum error 0.0)",
+      "RR29 NATIVE TIE ORDER: PASS (724 existing frames; 31 old-order mismatches diagnosed)"
+    ],
+    "log": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_native_diagnostics.log",
+    "report": "experiments/cutouts/hollow_mimic/rr29/proof/feedback2_native_diagnostics.json",
+    "certifies_native_capture": false,
+    "native_receipt_sha256": "2d3b942c2506f47335b3e237c42d8f1ea6cc4415445edc87fdcdbabcec8b9d47"
+  },
+  "mutation_proof": {
+    "result": "RR29 FAR ARM MUTATION: PASS (disabled far promotion rejected for hand and sleeve; production bytes untouched)",
+    "report": "experiments/cutouts/hollow_mimic/rr29/proof/far_arm_mutation/result.json",
+    "log": "experiments/cutouts/hollow_mimic/rr29/proof/far_arm_mutation/run.log"
+  },
+  "accepted_production_art_motion_bytes": "unchanged from beginning of feedback 2; only rear certification kit and sheet differ",
+  "files_changed_this_pass": [
+    "tests/rr29/samples.gd",
+    "tests/rr29/native_probe.gd",
+    "tests/rr29/paint_order.gd",
+    "tests/rr29/far_arm_fixture.gd",
+    "tests/test_rr29_mimic.py",
+    "tests/test_rr29_historical_ranges.py",
+    "tools/art_identity_gate.py",
+    "tools/art_identity_prompts.py",
+    "spec/art_identity/jobs/hollow_mimic/mq11_rear/kit.json",
+    "spec/art_identity/jobs/hollow_mimic/mq11_rear/sheet_pair.png",
+    "spec/art_identity/registry.json",
+    "experiments/cutouts/hollow_mimic/rr29_preservation.py",
+    "experiments/cutouts/hollow_mimic/rr29_native_diagnostics.py",
+    "experiments/cutouts/hollow_mimic/rr29/README.md",
+    "experiments/cutouts/hollow_mimic/rr29/proof/verification.json"
+  ],
+  "TODO_DESIGN": {},
+  "chosen_defaults": {
+    "FIXTURE_ORIGIN": [
+      128,
+      128
+    ],
+    "FIXTURE_SCALE": [
+      2,
+      2
+    ],
+    "CROSSING_OFFSET_PX": 1,
+    "OUTSIDE_GAP_PX": 10,
+    "TRANSFORM_TOLERANCE": 0.0001
+  },
+  "proof_for_design_owner": {
+    "commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh native",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh production",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-29 && sh experiments/cutouts/hollow_mimic/rr29_proof.sh review"
+    ],
+    "native_capture": "experiments/cutouts/hollow_mimic/rr29/proof/native/",
+    "production_capture": "experiments/cutouts/hollow_mimic/rr29/proof/production_native/",
+    "review_mp4": "experiments/cutouts/hollow_mimic/rr29/proof/hollow_mimic_review.mp4",
+    "inspection_fixture_command": "not requested; probes construct fixtures"
+  },
+  "open_issues": [
+    "Fresh windowed capture required: original receipt binds old producers and old layout-based equal-z order; original pixels/receipt preserved."
+  ],
+  "original_native_receipt_sha256_unchanged": true,
+  "whitespace_check": "git diff --check: PASS"
+}

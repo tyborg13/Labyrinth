@@ -41,11 +41,33 @@ def validate(gait, clip):
     if gait['lead'] not in SIDES: raise ValueError('gait: invalid lead')
     if not .5 < gait['stance_fraction'] < 1: raise ValueError('gait: stance_fraction must be between .5 and 1')
     if set(gait['settle_px']) != {'contact', 'down', 'passing', 'up'}: raise ValueError('gait: unknown/missing settle fields')
-    if set(gait['arm_swing']) - set(SIDES): raise ValueError('gait: unknown arm side')
-    for arm in gait['arm_swing'].values():
-        if set(arm) != {'bone', 'px'}: raise ValueError('gait: unknown/missing arm fields')
+    arms = gait['arm_swing']
+    pendulum = arms.get('model') == 'shoulder_pendulum'
+    if 'model' in arms and not pendulum: raise ValueError('gait: unknown arm model')
+    if set(arms) - set(SIDES) - ({'model', '_doc', 'phase', 'envelope'} if pendulum else set()):
+        raise ValueError('gait: unknown arm side')
+    if pendulum and arms.get('phase') != 'opposite_same_side_leg':
+        raise ValueError('gait: unknown pendulum phase')
+    if pendulum and 'envelope' in arms:
+        envelope = arms['envelope']
+        if (set(envelope) - {'ramp_fraction', 'ease', '_doc'} or
+                envelope.get('ease') != 'smoothstep' or
+                type(envelope.get('ramp_fraction')) not in (int, float) or
+                not 0 < envelope['ramp_fraction'] <= .5):
+            raise ValueError('gait: invalid pendulum envelope')
+    arm_numbers = []
+    for side in SIDES:
+        if side not in arms: continue
+        arm = arms[side]
+        if pendulum:
+            if set(arm) != {'upper_deg', 'forearm_lag_s', 'forearm_bend_deg'} or set(arm['forearm_bend_deg']) != {'forward', 'back'}:
+                raise ValueError('gait: unknown/missing pendulum fields')
+            arm_numbers += [arm['upper_deg'], arm['forearm_lag_s'], *arm['forearm_bend_deg'].values()]
+        else:
+            if set(arm) != {'bone', 'px'}: raise ValueError('gait: unknown/missing arm fields')
+            arm_numbers.append(arm['px'])
     numbers = [gait[k] for k in ('lift_px', 'lane_narrowing', 'max_fit_px')]
-    numbers += list(gait['settle_px'].values()) + [a['px'] for a in gait['arm_swing'].values()]
+    numbers += list(gait['settle_px'].values()) + arm_numbers
     numbers += [gait.get('leg_scale_max', 1.22)]
     if any(not isinstance(v, (int, float)) or not math.isfinite(v) or v < 0 for v in numbers):
         raise ValueError('gait: values must be finite and nonnegative')
@@ -86,7 +108,9 @@ def expand(gait, layout, clip):
         settle[end] = 0. if end == 1. else -gait['settle_px']['contact'] * amplitude
         start = end
     generated['pelvis.lift_px'] = [[at, value] for at, value in sorted(settle.items())]
-    for side, arm in gait['arm_swing'].items():
+    # Pendulums are analytical FK, sampled from the unchanged gait metadata;
+    # they must not also generate the legacy hand-target slide/IK.
+    for side, arm in ({} if gait['arm_swing'].get('model') == 'shoulder_pendulum' else gait['arm_swing']).items():
         rows = [[0., 0.]]
         for i, swing in enumerate(swings):
             amplitude = .5 if i in (0, len(swings)-1) else 1.

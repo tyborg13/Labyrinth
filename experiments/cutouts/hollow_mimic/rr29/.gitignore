@@ -1,0 +1,6 @@
+# Reproducible captures/full diagnostics stay local; compact handoff records ship.
+proof/*
+!proof/build.json
+!proof/arm_measurements.json
+!proof/draw_order_findings.json
+!proof/verification.json

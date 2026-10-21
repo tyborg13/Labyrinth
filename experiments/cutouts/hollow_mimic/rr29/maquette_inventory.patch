@@ -1,0 +1,9 @@
+--- a/spec/art_identity/maquettes/hollow_mimic/COMMIT_MANIFEST.txt
++++ b/spec/art_identity/maquettes/hollow_mimic/COMMIT_MANIFEST.txt
+@@ -104,3 +104,6 @@
+ shape_measurements.py
+ shape_proof.py
+ workflow.py
++prompt_front_mq11b.md
++prompt_rear_mq11.md
++prompt_rear_mq11_r2.md

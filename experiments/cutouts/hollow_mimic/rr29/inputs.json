@@ -1,0 +1,8 @@
+{
+  "front_job": "spec/art_identity/jobs/hollow_mimic/mq11_front",
+  "rear_job": "spec/art_identity/jobs/hollow_mimic/mq11_rear",
+  "front_delivery": "tests/mq11_proof/director_08/hollow_mimic/capture",
+  "rear_delivery": "tests/mq11_proof/director_06/hollow_mimic/capture",
+  "fused_occlusion": true,
+  "design_placeholders": {}
+}

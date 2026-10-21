@@ -3692,62 +3692,288 @@
       "owner_approval": "rr-10 feedback 5: supplied approved mq5 front and mq6 rear painting; derived rest snapshot, not a worker art verdict or native proof."
     },
     {
-      "path": "assets/units/hollow_mimic_cutout/front/rest.png",
       "id": "hollow_mimic",
+      "path": "assets/units/hollow_mimic_cutout/front/rest.png",
       "kind": "creature",
-      "entry_kind": "legacy",
+      "entry_kind": "kit",
       "anatomy": "biped",
       "boss": false,
       "art_scale": 1.0,
       "size_class": "medium",
-      "pixel_sha256": "48bf6ea474b5e7b561c90b0044e55c6e09b2de37966046e1cda07c4248115a84",
-      "metrics": {
-        "height": 209,
-        "width": 117,
-        "height_drawn": 209.0,
-        "symmetry": 0.6645935139937805,
-        "thin_abs": 0.01721249047981721,
-        "thin_rel": 0.04897182025894897,
-        "feature_px": 6.178074510004131,
-        "regions": 344,
-        "chroma": 0.02255454504726491,
-        "value": 0.16674639308274716,
-        "edge_light_share": 0.0,
-        "orphan_share": 0.02559025133282559,
-        "run_length": 3.3883870967741934
+      "facing": "front",
+      "kit_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
+      "job_id": "mq11-hollow_mimic-front",
+      "kit_version": "37b3603da917c7362f121ab178f8da6e6fb5e79d6cc4c78a30a11aa93f81561d",
+      "prompt_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/prompt.md",
+      "prompt_sha256": "1f5471aa66cd77b8fa2f3a9fc9fc247bbf216bf2548b17e9062dd4247c6d1939",
+      "ref_pixel_sha256": {
+        "refs/01_maquette_front_parts_mq11b.png": "e385b3c7ed5e318a416077bbb7161b2ba3ca2369484e88fb7eeaf76e8daec846",
+        "refs/02_maquette_front_clay_mq11b.png": "3863ca8397faf4c94ab95ced4d51218ae30a0411695dc4236c93b2426220c1b8",
+        "refs/03_current_painting_front.png": "b03e96a2d8a11ff3fca98bf0141017cca9156ff66e6430065706fb4aa8c6de9c",
+        "refs/04_original_mimic_front.png": "619a300b544f0059675002894eb787a65144a8eda5581b75d566afb265cbb02a",
+        "refs/05_hero_front.png": "0569646d633c9565ca8c10a0bf350e2254b2154b72f4870ae751f62ab6aef4cb"
       },
-      "source_path": "spec/art_identity/jobs/hollow_mimic/mq9_front/processed.png",
-      "source_pixel_sha256": "5048e8a6c7fbf8bff2fc707000b4f7ea7d208a8f9e7979e57cccb59990238687",
-      "owner_approval": "rr-20 supplied approved mq9 paintings; native certification pending director."
+      "raw_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/refs/raw_approved.png",
+      "raw_sha256": "b942a1d4036f2234dbea4f94444492531b89c76db082edc91295228f403fc150",
+      "post_steps": [
+        {
+          "match_reference": {
+            "job_path": "spec/art_identity/jobs/hollow_mimic/front/kit.json",
+            "pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3"
+          },
+          "parameters": {
+            "accent_hue_bin_deg": 15,
+            "accent_hue_bin_min_share": 0.05,
+            "accent_hue_chroma_floor": 30,
+            "accent_hue_window_deg": 25,
+            "accent_lightness": 80,
+            "accent_margin": 15,
+            "accent_percentile": 90,
+            "allow_protected_share": false,
+            "exclude_green_from_protection": true,
+            "green_residue_margin": 20,
+            "max_protected_body_share": 0.25,
+            "space": "CIE Lab",
+            "std_floor": 1e-06
+          },
+          "pre_step_pixel_sha256": "0f552cc2271839b9fbb129a21a1de7f8889300499c3f4f6a1c977a3de881357e",
+          "protected_body_share": {
+            "front": 0.0004009944662763654,
+            "rear": 0.0
+          },
+          "reference_pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3",
+          "step": "palette_match"
+        }
+      ],
+      "source_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/processed.png",
+      "source_pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2",
+      "pixel_sha256": "ae688671f039967ffd99d08117a40ca384d3abe640d586018ab881dcbe6cd84c",
+      "sheet_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/sheet_pair.png",
+      "landmarks": {
+        "near": [
+          162.75,
+          223.25
+        ],
+        "far": [
+          111.75,
+          198.25
+        ]
+      },
+      "judge": {
+        "verdict": "PASS",
+        "date": "2026-10-20",
+        "log": "spec/art_identity/jobs/hollow_mimic/mq11_front/director_verdict.md"
+      },
+      "owner_approval": "rr-29 director-approved mq11 hair paintings; director sheet re-judgment before merge",
+      "metrics": {
+        "height": 218,
+        "width": 117,
+        "height_drawn": 218.0,
+        "symmetry": 0.6533201921892324,
+        "thin_abs": 0.017342761443989607,
+        "thin_rel": 0.054037960550800124,
+        "feature_px": 5.993534841230852,
+        "regions": 374,
+        "chroma": 0.02243627633412874,
+        "value": 0.16575018863518612,
+        "edge_light_share": 0.01975540921919097,
+        "orphan_share": 0.033420171194640864,
+        "run_length": 3.1485821420201545
+      }
     },
     {
-      "path": "assets/units/hollow_mimic_cutout/rear/rest.png",
       "id": "hollow_mimic",
+      "path": "assets/units/hollow_mimic_cutout/rear/rest.png",
       "kind": "creature",
-      "entry_kind": "legacy",
+      "entry_kind": "kit",
       "anatomy": "biped",
       "boss": false,
       "art_scale": 1.0,
       "size_class": "medium",
-      "pixel_sha256": "6c3042ac1a4d5bed756ab24ae184cf239dea3498d3e22ec33af110eea01d1d3d",
-      "metrics": {
-        "height": 203,
-        "width": 114,
-        "height_drawn": 203.0,
-        "symmetry": 0.6628902647872481,
-        "thin_abs": 0.014144606874753052,
-        "thin_rel": 0.060766495456341385,
-        "feature_px": 6.240069033148715,
-        "regions": 325,
-        "chroma": 0.018789442288175643,
-        "value": 0.16393022458766202,
-        "edge_light_share": 0.0,
-        "orphan_share": 0.015250888976689055,
-        "run_length": 3.26159793814433
+      "facing": "rear",
+      "kit_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/kit.json",
+      "job_id": "mq11-hollow_mimic-rear",
+      "kit_version": "57de7c9ec1b9b39371c53be6a262fb3e48c47c8d1c770434d3697de4949a9cd6",
+      "prompt_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/prompt.md",
+      "prompt_sha256": "d12d225dd81a927c5951e3ad452f3fff04c53634c2d2870eca086b52fc203fee",
+      "ref_pixel_sha256": {
+        "refs/01_maquette_rear_parts_mq11.png": "bc2ad0b8cae4de9e90b48c0751a14eb18c969d870c1fcb58ee3d5ae6a000e805",
+        "refs/02_maquette_rear_clay_mq11.png": "3e8c8e8a3cbd64da51368214b247d926edd6346b6e58cb1065e4d4ff7eb8e76b",
+        "refs/03_current_painting_rear.png": "0cce36269f3d2c36239a6ed366a9d36b96a999838a42cf1f5fda1fe79083806c",
+        "refs/04_approved_front_mq11.png": "b03e96a2d8a11ff3fca98bf0141017cca9156ff66e6430065706fb4aa8c6de9c",
+        "refs/04_original_mimic_rear.png": "8b8e15632feaa7aa31701a9a3ea2d7504a80e4b364481aad3c9b802d8179ee50"
       },
-      "source_path": "spec/art_identity/jobs/hollow_mimic/mq9_rear/processed.png",
-      "source_pixel_sha256": "bc4182a98b7c5265a93a0072db8aa972ecc126aacbc2cf7d89cb1397c3b3b5b0",
-      "owner_approval": "rr-20 supplied approved mq9 paintings; native certification pending director."
+      "raw_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/refs/raw_approved.png",
+      "raw_sha256": "3cf4c02c0f961c95d239c3d2fff0faae7844d38127b7893021bb1744222a2fae",
+      "post_steps": [
+        {
+          "match_reference": {
+            "job_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
+            "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2"
+          },
+          "parameters": {
+            "accent_hue_bin_deg": 15,
+            "accent_hue_bin_min_share": 0.05,
+            "accent_hue_chroma_floor": 30,
+            "accent_hue_window_deg": 25,
+            "accent_lightness": 80,
+            "accent_margin": 15,
+            "accent_percentile": 90,
+            "allow_protected_share": false,
+            "exclude_green_from_protection": true,
+            "green_residue_margin": 20,
+            "max_protected_body_share": 0.25,
+            "space": "CIE Lab",
+            "std_floor": 1e-06
+          },
+          "pre_step_pixel_sha256": "eb28818df4e0d2bf8c8ae2b5a51f0d012b2b1bc8a69d6484e4e43a9b82c25b8b",
+          "protected_body_share": {
+            "front": 0.0,
+            "rear": 0.000368052999631947
+          },
+          "reference_pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2",
+          "step": "palette_match"
+        },
+        {
+          "corrections": [
+            {
+              "after": [
+                12,
+                10,
+                12,
+                255
+              ],
+              "before": [
+                11,
+                25,
+                11,
+                255
+              ],
+              "neighbours": [
+                {
+                  "pixel": [
+                    155,
+                    65
+                  ],
+                  "rgba": [
+                    24,
+                    21,
+                    23,
+                    255
+                  ]
+                },
+                {
+                  "pixel": [
+                    156,
+                    64
+                  ],
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ],
+              "pixel": [
+                156,
+                65
+              ]
+            },
+            {
+              "after": [
+                16,
+                14,
+                15,
+                255
+              ],
+              "before": [
+                14,
+                42,
+                22,
+                255
+              ],
+              "neighbours": [
+                {
+                  "pixel": [
+                    142,
+                    93
+                  ],
+                  "rgba": [
+                    33,
+                    27,
+                    30,
+                    255
+                  ]
+                },
+                {
+                  "pixel": [
+                    141,
+                    94
+                  ],
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    255
+                  ]
+                }
+              ],
+              "pixel": [
+                141,
+                93
+              ]
+            }
+          ],
+          "pixels": [
+            [
+              156,
+              65
+            ],
+            [
+              141,
+              93
+            ]
+          ],
+          "pre_step_pixel_sha256": "f571784d009b129a7af57965a34a7fc0444efcc0eb06fa34dd5b022738534df8",
+          "step": "key_residue_4_neighbour_mean"
+        }
+      ],
+      "source_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/processed.png",
+      "source_pixel_sha256": "d1baa2e3637583aed53b62626cab4abd394d996fb9b8aba1313c6902a56f82a3",
+      "pixel_sha256": "1f82728380170fd34898658520da4470f78c8e0a23df59409e61d3460bc5b400",
+      "sheet_path": "spec/art_identity/jobs/hollow_mimic/mq11_rear/sheet_pair.png",
+      "landmarks": {
+        "near": [
+          94.5,
+          206.0
+        ],
+        "far": [
+          145.5,
+          231.0
+        ]
+      },
+      "judge": {
+        "verdict": "PASS",
+        "date": "2026-10-20",
+        "log": "spec/art_identity/jobs/hollow_mimic/mq11_rear/director_verdict.md"
+      },
+      "owner_approval": "rr-29 director-approved mq11 hair paintings; director sheet re-judgment before merge",
+      "metrics": {
+        "height": 215,
+        "width": 114,
+        "height_drawn": 215.0,
+        "symmetry": 0.6841124976718197,
+        "thin_abs": 0.015015457088178974,
+        "thin_rel": 0.05991461798910647,
+        "feature_px": 5.909775788595139,
+        "regions": 389,
+        "chroma": 0.018337215645863825,
+        "value": 0.16406629200185888,
+        "edge_light_share": 0.004524886877828055,
+        "orphan_share": 0.01965258354188135,
+        "run_length": 3.1025348253025804
+      }
     },
     {
       "path": "assets/units/briar_weaver_cutout/humanoid_v2/front/rest.png",

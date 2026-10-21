@@ -87,6 +87,57 @@ static func segment_transform(original: Vector2, projected: Vector2, origin: Vec
 	result.origin = origin
 	return result
 
+## Same landing clock and half-step envelope as the legacy hand swing. Outside
+## the rest-to-rest clip, a delayed forearm samples rest rather than wrapping.
+static func arm_wave(gait: Dictionary, side: String, phase: float) -> float:
+	if phase <= 0.0 or phase >= 1.0: return 0.0
+	var count: int = int(gait["steps_per_tile"]) - 1
+	var half_stance: float = float(gait["stance_fraction"]) / float(count)
+	var previous_phase: float = 0.0
+	var previous_value: float = 0.0
+	for step: int in range(1, count + 2):
+		var landed_side: String = str(gait["lead"]) if step % 2 == 1 else ("far" if gait["lead"] == "near" else "near")
+		var landing: float = float(step) / float(count) - half_stance if step <= count else 1.0
+		var amplitude: float = 0.5 if step == 1 or step == count + 1 else 1.0
+		var value: float = amplitude * (-1.0 if side == landed_side else 1.0) if step <= count else 0.0
+		if phase <= landing:
+			return lerpf(previous_value, value, smoothstep(previous_phase, landing, phase))
+		previous_phase = landing
+		previous_value = value
+	return 0.0
+
+static func shoulder_pendulum(world: Dictionary, joints: Dictionary, gait: Dictionary, seconds: float, phase: float, forward: Vector2) -> void:
+	var arms: Dictionary = gait.get("arm_swing", {})
+	if arms.get("model", "") != "shoulder_pendulum": return
+	var envelope: float = 1.0
+	if arms.has("envelope"):
+		var ramp: float = float(arms["envelope"]["ramp_fraction"])
+		envelope = smoothstep(0.0, ramp, phase) * smoothstep(0.0, ramp, 1.0 - phase)
+	for side: String in ["near", "far"]:
+		if not arms.has(side): continue
+		var arm: Dictionary = arms[side]
+		var upper: String = "upper_" + side
+		var fore: String = "fore_" + side
+		var hand: String = "hand_" + side
+		var a: Vector2 = Tracks.point(joints[upper]["position"])
+		var b: Vector2 = Tracks.point(joints[fore]["position"])
+		var c: Vector2 = Tracks.point(joints[hand]["position"])
+		var shoulder: Transform2D = world[upper]
+		var base_angle: float = shoulder.get_rotation()
+		# Positive wave moves the downward arm toward projected facing.
+		var direction: float = signf((c - a).cross(forward))
+		var wave: float = arm_wave(gait, side, phase) * envelope
+		var delayed: float = arm_wave(gait, side, phase - float(arm["forearm_lag_s"]) * envelope / seconds) * envelope
+		var upper_angle: float = base_angle + deg_to_rad(float(arm["upper_deg"]) * wave * direction)
+		var bend_side: float = signf((b - a).cross(c - b))
+		var bend: float = float(arm["forearm_bend_deg"]["forward" if delayed >= 0.0 else "back"]) * absf(delayed)
+		var fore_angle: float = base_angle + deg_to_rad(float(arm["upper_deg"]) * delayed * direction + bend * bend_side)
+		var elbow: Vector2 = shoulder.origin + (b - a).rotated(upper_angle)
+		var wrist: Vector2 = elbow + (c - b).rotated(fore_angle)
+		world[upper] = Transform2D(upper_angle, shoulder.origin)
+		world[fore] = Transform2D(fore_angle, elbow)
+		world[hand] = Transform2D(fore_angle, wrist)
+
 static func solve(world: Dictionary, joints: Dictionary, side: String, projection: float, bend: float, skin: bool) -> void:
 	var upper: String = "thigh_" + side
 	var lower: String = "shin_" + side

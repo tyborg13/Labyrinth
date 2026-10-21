@@ -1,0 +1,80 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hollow_mimic",
+  "job_id": "mq11-hollow_mimic-rear",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "57de7c9ec1b9b39371c53be6a262fb3e48c47c8d1c770434d3697de4949a9cd6",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/hollow_mimic/mq11_front/kit.json",
+    "pixel_sha256": "be31f0bab9af441bac927814e5ac59e506ee871a6e41a302e707adb451be0aa2"
+  },
+  "method": "mq-11 maquette paint-over (hair only); director edit of the approved mq9 painting",
+  "peers": [
+    "hero_front",
+    "hollow_mimic_front"
+  ],
+  "processed_post_steps": [
+    {
+      "pixels": [
+        [
+          156,
+          65
+        ],
+        [
+          141,
+          93
+        ]
+      ],
+      "step": "key_residue_4_neighbour_mean"
+    }
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "d12d225dd81a927c5951e3ad452f3fff04c53634c2d2870eca086b52fc203fee",
+  "prompt_source": "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11.md",
+  "raw_path": "refs/raw_approved.png",
+  "refs": [
+    {
+      "canon_id": "01_maquette_rear_parts_mq11",
+      "file": "refs/01_maquette_rear_parts_mq11.png",
+      "pixel_sha256": "bc2ad0b8cae4de9e90b48c0751a14eb18c969d870c1fcb58ee3d5ae6a000e805",
+      "role": "maquette_parts",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/01_maquette_rear_parts_mq11.png"
+    },
+    {
+      "canon_id": "02_maquette_rear_clay_mq11",
+      "file": "refs/02_maquette_rear_clay_mq11.png",
+      "pixel_sha256": "3e8c8e8a3cbd64da51368214b247d926edd6346b6e58cb1065e4d4ff7eb8e76b",
+      "role": "maquette_clay",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/02_maquette_rear_clay_mq11.png"
+    },
+    {
+      "canon_id": "03_current_painting_rear",
+      "file": "refs/03_current_painting_rear.png",
+      "pixel_sha256": "0cce36269f3d2c36239a6ed366a9d36b96a999838a42cf1f5fda1fe79083806c",
+      "role": "identity",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/03_current_painting_rear.png"
+    },
+    {
+      "canon_id": "04_approved_front_mq11",
+      "file": "refs/04_approved_front_mq11.png",
+      "pixel_sha256": "b03e96a2d8a11ff3fca98bf0141017cca9156ff66e6430065706fb4aa8c6de9c",
+      "role": "identity",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_approved_front_mq11.png"
+    },
+    {
+      "canon_id": "04_original_mimic_rear",
+      "file": "refs/04_original_mimic_rear.png",
+      "pixel_sha256": "8b8e15632feaa7aa31701a9a3ea2d7504a80e4b364481aad3c9b802d8179ee50",
+      "role": "identity",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_rear/04_original_mimic_rear.png"
+    }
+  ],
+  "revision_prompt_path": "prompt_r2.md",
+  "revision_prompt_sha256": "c37c155d96146285f74063795bfba222a3e8696cbf0d7163c96353520814c1c6",
+  "revision_prompt_source": "spec/art_identity/maquettes/hollow_mimic/prompt_rear_mq11_r2.md",
+  "size_class": "medium",
+  "target_h": 203,
+  "view": "creature_rear"
+}

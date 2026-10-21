@@ -1,0 +1,61 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hollow_mimic",
+  "job_id": "mq11-hollow_mimic-front",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "37b3603da917c7362f121ab178f8da6e6fb5e79d6cc4c78a30a11aa93f81561d",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/hollow_mimic/front/kit.json",
+    "pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3"
+  },
+  "method": "mq-11 maquette paint-over (hair only); director edit of the approved mq9 painting",
+  "peers": [
+    "hero_front",
+    "hollow_mimic_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "1f5471aa66cd77b8fa2f3a9fc9fc247bbf216bf2548b17e9062dd4247c6d1939",
+  "prompt_source": "spec/art_identity/maquettes/hollow_mimic/prompt_front_mq11b.md",
+  "refs": [
+    {
+      "canon_id": "01_maquette_front_parts_mq11b",
+      "file": "refs/01_maquette_front_parts_mq11b.png",
+      "pixel_sha256": "e385b3c7ed5e318a416077bbb7161b2ba3ca2369484e88fb7eeaf76e8daec846",
+      "role": "maquette_parts",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/01_maquette_front_parts_mq11b.png"
+    },
+    {
+      "canon_id": "02_maquette_front_clay_mq11b",
+      "file": "refs/02_maquette_front_clay_mq11b.png",
+      "pixel_sha256": "3863ca8397faf4c94ab95ced4d51218ae30a0411695dc4236c93b2426220c1b8",
+      "role": "maquette_clay",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/02_maquette_front_clay_mq11b.png"
+    },
+    {
+      "canon_id": "03_current_painting_front",
+      "file": "refs/03_current_painting_front.png",
+      "pixel_sha256": "b03e96a2d8a11ff3fca98bf0141017cca9156ff66e6430065706fb4aa8c6de9c",
+      "role": "identity",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/03_current_painting_front.png"
+    },
+    {
+      "canon_id": "04_original_mimic_front",
+      "file": "refs/04_original_mimic_front.png",
+      "pixel_sha256": "619a300b544f0059675002894eb787a65144a8eda5581b75d566afb265cbb02a",
+      "role": "identity",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/04_original_mimic_front.png"
+    },
+    {
+      "canon_id": "05_hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "0569646d633c9565ca8c10a0bf350e2254b2154b72f4870ae751f62ab6aef4cb",
+      "role": "identity",
+      "source_file": "spec/peer_benchmark/staged/mq11/paint/refs_hollow_mimic_front_mq11b/05_hero_front.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 206,
+  "view": "creature_front"
+}

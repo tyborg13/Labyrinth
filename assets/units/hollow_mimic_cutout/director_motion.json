@@ -1,5 +1,5 @@
 {
- "_doc": "Director motion data (rr-20), humanoid rig v2 for the Hollow Mimic. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels of the 255 px painting, two-bone hand and foot targets, world_step feet, inward_px, per-view view_keys). Key rows are [phase, value] or [phase, value, interpolation]; the interpolation names the segment that ends at that key. `move` is a gait block (rig spec section 4, Gait block): the compiler generates its feet, pelvis, root and arm swing (director, gait-01, 2026-10-19).",
+ "_doc": "Director motion data (rr-20), humanoid rig v2 for the Hollow Mimic. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels of the 255 px painting, two-bone hand and foot targets, world_step feet, inward_px, per-view view_keys). Key rows are [phase, value] or [phase, value, interpolation]; the interpolation names the segment that ends at that key. `move` is a gait block (rig spec section 4, Gait block): the compiler generates its feet, pelvis, root and arm swing (director, gait-01, 2026-10-19). rr-29 (2026-10-20): move.gait.arm_swing replaced by a shoulder pendulum; every other value is unchanged from rr-20.",
  "hollow_mimic": {
   "rig": "humanoid_v2",
   "units": "source_px",
@@ -45,7 +45,7 @@
     "intents": [
      "recede:move_away"
     ],
-    "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; the arms swing 4 px opposite the stepping leg",
+    "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; each arm swings from the shoulder like a pendulum, opposite its same-side leg, and the forearm trails the upper arm",
     "gait": {
      "model": "protagonist_walk",
      "steps_per_tile": 6,
@@ -61,13 +61,29 @@
       "up": 0.0
      },
      "arm_swing": {
+      "model": "shoulder_pendulum",
+      "_doc": "Director (owner 2026-10-20: 'the arms don't sway realistically during the walk'). The upper arm rotates about the shoulder joint in screen space toward the facing direction (forward) and away from it (back), opposite the same-side leg; the forearm follows the upper arm with a time lag and bends more on the backswing; the hand is rigid with the forearm. Replaces the 4 px hand-target slide.",
+      "phase": "opposite_same_side_leg",
       "near": {
-       "bone": "hand_near",
-       "px": 4
+       "upper_deg": 16,
+       "forearm_lag_s": 0.07,
+       "forearm_bend_deg": {
+        "forward": 3,
+        "back": 11
+       }
       },
       "far": {
-       "bone": "hand_far",
-       "px": 4
+       "upper_deg": 14,
+       "forearm_lag_s": 0.07,
+       "forearm_bend_deg": {
+        "forward": 3,
+        "back": 10
+       }
+      },
+      "envelope": {
+       "ramp_fraction": 0.12,
+       "ease": "smoothstep",
+       "_doc": "Director rr-29 fb1: swing amplitude and forearm lag ramp in over the first and out over the last 12% of the clip, so the walk starts and ends exactly at rest."
       }
      },
      "max_fit_px": 6

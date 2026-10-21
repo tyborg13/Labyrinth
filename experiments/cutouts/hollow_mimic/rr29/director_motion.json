@@ -1,0 +1,893 @@
+{
+ "_doc": "Director motion data (rr-20), humanoid rig v2 for the Hollow Mimic. Binding semantics: spec/peer_benchmark/humanoid_cutout_rig.md section 4 (source pixels of the 255 px painting, two-bone hand and foot targets, world_step feet, inward_px, per-view view_keys). Key rows are [phase, value] or [phase, value, interpolation]; the interpolation names the segment that ends at that key. `move` is a gait block (rig spec section 4, Gait block): the compiler generates its feet, pelvis, root and arm swing (director, gait-01, 2026-10-19). rr-29 (2026-10-20): move.gait.arm_swing replaced by a shoulder pendulum; every other value is unchanged from rr-20.",
+ "hollow_mimic": {
+  "rig": "humanoid_v2",
+  "units": "source_px",
+  "maquette": "spec/art_identity/maquettes/hollow_mimic/measurements.json",
+  "art": {
+   "front": "spec/art_identity/jobs/hollow_mimic/mq9_front",
+   "rear": "spec/art_identity/jobs/hollow_mimic/mq9_rear"
+  },
+  "pieces_note": "head = the spiky hair mass with the mask (rigid); torso, pelvis; per arm a skinned bodysuit sleeve over upper and fore, rigid gloved hand; per leg a skinned leg over thigh and shin, rigid boot. No held item, no cloth.",
+  "clips": {
+   "idle": {
+    "seconds": 0.84,
+    "loop": true,
+    "intents": [],
+    "note": "the hero's cut-out bob: torso, head and both free arms drop 2 px and return as one rigid group; pelvis, legs and feet still",
+    "keys": {
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -2
+      ],
+      [
+       0.55,
+       -2
+      ],
+      [
+       0.91,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.8,
+    "intents": [
+     "recede:move_away"
+    ],
+    "note": "a light, quick walk on the protagonist's model: both legs step, six steps per tile rest to rest, the near foot leading; 7 px lift (the long rear leg needs the higher swing to out-bend its stance knee); the pelvis settles 2 px after each landing; a 3 degree lean; each arm swings from the shoulder like a pendulum, opposite its same-side leg, and the forearm trails the upper arm",
+    "gait": {
+     "model": "protagonist_walk",
+     "steps_per_tile": 6,
+     "lead": "near",
+     "stance_fraction": 0.6,
+     "lift_px": 7,
+     "lane_narrowing": 0.7,
+     "leg_scale_max": 1.22,
+     "settle_px": {
+      "contact": 1.0,
+      "down": 2.0,
+      "passing": 0.5,
+      "up": 0.0
+     },
+     "arm_swing": {
+      "model": "shoulder_pendulum",
+      "_doc": "Director (owner 2026-10-20: 'the arms don't sway realistically during the walk'). The upper arm rotates about the shoulder joint in screen space toward the facing direction (forward) and away from it (back), opposite the same-side leg; the forearm follows the upper arm with a time lag and bends more on the backswing; the hand is rigid with the forearm. Replaces the 4 px hand-target slide.",
+      "phase": "opposite_same_side_leg",
+      "near": {
+       "upper_deg": 16,
+       "forearm_lag_s": 0.07,
+       "forearm_bend_deg": {
+        "forward": 3,
+        "back": 11
+       }
+      },
+      "far": {
+       "upper_deg": 14,
+       "forearm_lag_s": 0.07,
+       "forearm_bend_deg": {
+        "forward": 3,
+        "back": 10
+       }
+      },
+      "envelope": {
+       "ramp_fraction": 0.12,
+       "ease": "smoothstep",
+       "_doc": "Director rr-29 fb1: swing amplitude and forearm lag ramp in over the first and out over the last 12% of the clip, so the walk starts and ends exactly at rest."
+      }
+     },
+     "max_fit_px": 6
+    },
+    "keys": {
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.12,
+       3
+      ],
+      [
+       0.88,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "bolt": {
+    "seconds": 0.8,
+    "contact": 0.45,
+    "intents": [
+     "shade_bolt:ranged"
+    ],
+    "note": "the leading arm (hand_far: the arm on the target's side in both 3/4 views) draws back, then thrusts open-palmed at the target as the shadow bolt leaves (contact), reaching out of the black silhouette so the gesture reads at board scale; the body leans 4 degrees into it; the near hand pulls back",
+    "keys": {
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.45,
+       -4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -6
+      ],
+      [
+       0.45,
+       24
+      ],
+      [
+       0.65,
+       22
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.45,
+       3
+      ],
+      [
+       0.65,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -2
+      ],
+      [
+       0.45,
+       4
+      ],
+      [
+       0.65,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.45,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       8
+      ],
+      [
+       0.45,
+       16
+      ],
+      [
+       0.65,
+       14
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "mirror": {
+    "seconds": 0.9,
+    "contact": 0.5,
+    "intents": [
+     "mirror:mirror_last_attack"
+    ],
+    "note": "mirrors your last attack: it crouches with both hands drawn back, then thrusts both hands at the target (contact; the copied effect plays), the leading hand (hand_far) reaching furthest so the thrust leaves the black silhouette, mask tipped forward; recovers",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       -1
+      ],
+      [
+       0.7,
+       -1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.7,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.7,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -4
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -6
+      ],
+      [
+       0.5,
+       14
+      ],
+      [
+       0.7,
+       12
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       4
+      ],
+      [
+       0.5,
+       10
+      ],
+      [
+       0.7,
+       8
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       2
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       0.7,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -6
+      ],
+      [
+       0.5,
+       22
+      ],
+      [
+       0.7,
+       20
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       4
+      ],
+      [
+       0.5,
+       12
+      ],
+      [
+       0.7,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "block": {
+    "seconds": 0.8,
+    "contact": 0.4,
+    "intents": [
+     "recede:block"
+    ],
+    "note": "crosses both forearms in front of the mask and sinks 2 px behind them; holds; lowers",
+    "keys": {
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       34
+      ],
+      [
+       0.75,
+       34
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       14
+      ],
+      [
+       0.75,
+       14
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       6
+      ],
+      [
+       0.75,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       30
+      ],
+      [
+       0.75,
+       30
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.inward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       12
+      ],
+      [
+       0.75,
+       12
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       6
+      ],
+      [
+       0.75,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       -2
+      ],
+      [
+       0.75,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "hit": {
+    "seconds": 0.5,
+    "intents": [],
+    "note": "spec hit: torso knocked 3 px back and 1 px down with a 3 degree lean back, head nods back 4 degrees, both hands trail 1 px; recovered by 0.6",
+    "keys": {
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -1
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -3
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -4
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       1
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       1
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.4,
+    "terminal": true,
+    "intents": [],
+    "note": "the knees give: the pelvis drops 20 px over planted boots, the torso pitches forward 22 degrees, the mask bows, the hands drop; terminal pose held, then the existing fade",
+    "keys": {
+     "pelvis.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       1
+      ],
+      [
+       0.6,
+       -14
+      ],
+      [
+       0.9,
+       -20
+      ],
+      [
+       1,
+       -20
+      ]
+     ],
+     "pelvis.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.9,
+       5
+      ],
+      [
+       1,
+       5
+      ]
+     ],
+     "torso.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -3
+      ],
+      [
+       0.55,
+       10
+      ],
+      [
+       0.85,
+       22
+      ],
+      [
+       1,
+       22
+      ]
+     ],
+     "torso.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       3
+      ],
+      [
+       0.9,
+       6
+      ],
+      [
+       1,
+       6
+      ]
+     ],
+     "head.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       8
+      ],
+      [
+       0.9,
+       18
+      ],
+      [
+       1,
+       18
+      ]
+     ],
+     "hand_near.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -4
+      ],
+      [
+       1,
+       -8
+      ]
+     ],
+     "hand_near.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.9,
+       6
+      ],
+      [
+       1,
+       6
+      ]
+     ],
+     "hand_far.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -4
+      ],
+      [
+       1,
+       -8
+      ]
+     ],
+     "hand_far.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.9,
+       6
+      ],
+      [
+       1,
+       6
+      ]
+     ]
+    }
+   }
+  }
+ }
+}

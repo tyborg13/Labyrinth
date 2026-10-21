@@ -16,6 +16,7 @@ from humanoid_cutout.cpu_pose import CpuPose
 from humanoid_cutout.source_space import DetachedSource
 from humanoid_cutout.gates import structure_errors, source_errors
 from humanoid_cutout.texel_attachments import attach
+from tests.rr29_historical_mimic import production_bytes
 
 APPROVED_REVISION = 'e0d78de13'
 SEER = ROOT / 'experiments/cutouts/hoarfrost_seer/rr10'
@@ -62,11 +63,11 @@ class FragmentTests(unittest.TestCase):
                         path = case / part['file']
                         self.assertEqual(approved(path), path.read_bytes())
                 for path in (case / old['rest_source'], assets / view / 'rest.png'):
-                    self.assertEqual(approved(path), path.read_bytes())
+                    self.assertEqual(approved(path), production_bytes('rr26',path) if path.is_relative_to(assets) else path.read_bytes())
             for folder in (case, assets):
                 for name in ('compiled_motion.json', 'director_motion.json'):
                     path = folder / name
-                    self.assertEqual(approved(path), path.read_bytes())
+                    self.assertEqual(approved(path), production_bytes('rr26',path) if folder==assets else path.read_bytes())
 
     def test_mimic_near_leg_underlap_fixes_both_frames_and_removal_reopens_them(self):
         layout = read_json(CASE / 'layouts/rear.json')

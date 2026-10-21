@@ -1,0 +1,103 @@
+{
+  "ok": true,
+  "errors": [],
+  "views": {
+    "front": {
+      "near": {
+        "peak_to_peak_px": 23.4094206798507,
+        "rr20_slide_px": 8.94427190999916,
+        "ratio": 2.6172527977017754,
+        "endpoints": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "maximum_rest_error": 2.1972655986246536e-05
+          },
+          {
+            "frame": 47,
+            "phase": 1.0,
+            "maximum_rest_error": 2.1972656014668246e-05
+          }
+        ],
+        "step_arc_departure_px": [
+          0.16282963185673244,
+          0.587622577255751,
+          0.8838576307410877
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      },
+      "far": {
+        "peak_to_peak_px": 18.788281233781955,
+        "rr20_slide_px": 6.082767547431625,
+        "ratio": 3.0887718603869847,
+        "endpoints": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "maximum_rest_error": 2.1972655986246536e-05
+          },
+          {
+            "frame": 47,
+            "phase": 1.0,
+            "maximum_rest_error": 3.417968700603069e-05
+          }
+        ],
+        "step_arc_departure_px": [
+          0.5323819821818527,
+          0.5412750973601512,
+          0.1495202444041583
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      }
+    },
+    "rear": {
+      "near": {
+        "peak_to_peak_px": 23.40940503602897,
+        "rr20_slide_px": 7.28010988928052,
+        "ratio": 3.21552907745222,
+        "endpoints": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "maximum_rest_error": 2.1972655986246536e-05
+          },
+          {
+            "frame": 47,
+            "phase": 1.0,
+            "maximum_rest_error": 6.713866895324827e-06
+          }
+        ],
+        "step_arc_departure_px": [
+          0.2056326555071682,
+          0.45167409808073455,
+          0.7236084630138033
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      },
+      "far": {
+        "peak_to_peak_px": 23.40943371624398,
+        "rr20_slide_px": 8.944292381906545,
+        "ratio": 2.617248264781577,
+        "endpoints": [
+          {
+            "frame": 0,
+            "phase": 0.0,
+            "maximum_rest_error": 2.502441398632982e-05
+          },
+          {
+            "frame": 47,
+            "phase": 1.0,
+            "maximum_rest_error": 9.765624795932126e-06
+          }
+        ],
+        "step_arc_departure_px": [
+          0.482669550513102,
+          0.5586642174141465,
+          0.3712059734485421
+        ],
+        "screen_pixel_scale": 0.603514787262561
+      }
+    }
+  },
+  "units": "source px; screen px = source px * screen_pixel_scale"
+}

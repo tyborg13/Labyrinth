@@ -604,11 +604,11 @@
     },
     "assets/units/hollow_mimic_cutout/front/rest.png": {
       "category": "other",
-      "reason": "Derived rr-20 rest; separately certified by native rest_paths."
+      "reason": "Derived rr-29 rest; separately certified by native rest_paths."
     },
     "assets/units/hollow_mimic_cutout/rear/rest.png": {
       "category": "other",
-      "reason": "Derived rr-20 rest; separately certified by native rest_paths."
+      "reason": "Derived rr-29 rest; separately certified by native rest_paths."
     },
     "assets/units/glacial_mirror_cutout/humanoid_v2/front/rest.png": {
       "category": "other",
@@ -5364,14 +5364,14 @@
       "facings": {
         "front": {
           "measurement_path": "assets/units/hollow_mimic_cutout/front/rest.png",
-          "orphan_share": 0.056892612338156894,
-          "t": 1.0344630616907844,
-          "grid": 1.03,
+          "orphan_share": 0.07517677707480462,
+          "t": 1.1258838853740232,
+          "grid": 1.13,
           "mode": "clean"
         },
         "rear": {
           "measurement_path": "assets/units/hollow_mimic_cutout/rear/rest.png",
-          "orphan_share": 0.03208218095614382,
+          "orphan_share": 0.04902105108199617,
           "t": 1.0,
           "grid": 1.0,
           "mode": "clean"
@@ -5385,7 +5385,7 @@
           "assets/units/hollow_mimic_cutout/rear/rest.png"
         ]
       },
-      "derivation_note": "rr-20 approved mq9 source partition; feedback-1 residue cleanup and feedback-2 own-edge joint continuations; native rest recertification pending director.",
+      "derivation_note": "rr-29 approved mq11 source partition; exact rest identity; rr20 cuts and recomputed own-piece joint/rr28 continuations; native rest recertification pending director.",
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "hollow_mimic.art_scale",

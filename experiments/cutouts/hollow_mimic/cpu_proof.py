@@ -58,7 +58,7 @@ class CpuPose(FullCpuPose):
 def state(model, pose):
     layers, maps = model.layers(pose)
     owners = posed_owners(layers, model.layout['parts'], pose['bones'],
-                          PROOF_DEFAULTS['source_offset'], load(CASE)['ownership'])
+                          PROOF_DEFAULTS['source_offset'], load(model.case)['ownership'])
     defects = pockets(layers)['failures']
     return layers, maps, owners, defects
 
