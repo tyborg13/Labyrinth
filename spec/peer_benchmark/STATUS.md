@@ -24,13 +24,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     rerun after a hidden-window stall), director visual judgment passed, Codex SIGNOFF feffbfb06, both full suites
     green. Inbox item mimic-rig-v2 posted (awaiting owner). Low, not blocking: a faint 1 px chest seam during actions,
     visible only at 3x.
-  - rr-30 → rr-31: rr-30 ended at round 3 (d18eb6130 + native acceptance 5b77d354c). Loincloth, rear flap, identity,
-    0% stretch and cover geometry are done, but the real captures tear in every arm-raising action (lob heave, brace,
-    scatter, death), and the CPU gates missed it. Director decision: the Mortar acts with body, stance and crucible;
-    hands stay within 4 px, head within 3° of the torso, torso pitch ≤ 14° (staged/rr-31/motion_tracks.json). rr-31
-    (fresh session, branched from rr-30 + integration at cd93d4430) imports it, measures joint budgets, and moves the
-    gates onto rendered frames (notches, frayed edges, interior contour), proven to fail on the round-3 captures. The
-    rr-30 worktree stays read-only as evidence until rr-31 lands; then remove both.
+  - rr-30 → rr-31: rr-31 imported the director motion (arms low and close). Round 0's image gates were over-strict;
+    round 1 calibrated them on approved rigs (Seer, Thrall, Mirror, Mimic) and found they can't separate the torn
+    brace20 and rear death78 frames from approved motion. Director decision: image gates stay as diagnostics only;
+    acceptance is the director's visual judgment of the native clips. Round 1 committed e6eea62a8; its windowed
+    stages are running. Then: judge, re-review, merge, inbox clip. Remove the rr-30 and rr-31 worktrees after landing.
 - 2026-10-20 15:40:
   - mq-11 merged (56de97dfb). Codex SIGNOFF a3fc15b69, native acceptance director_06, integration green at 300f8277b.
   - rr-29 (Mimic re-rig) and rr-30 (Mortar re-rig) launched from 7adad7e92.
@@ -71,7 +69,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     - empower-sound-built is open (clip with sound).
     - Encounter redesign: proposal https://claude.ai/artifact/D6P63LRV4ccFizPGmMqzRX. enc-specials APPROVED
       2026-10-21 (Hoarder = reused Ember Tick; captains unscaled). Running: spx-01 (measurement, from 857c0139b),
-      spx-02 (map placement, emblems, legend, tooltips, rewards; round 1 5b59fff34, windowed map proof PASS and judged, Codex review running) and spx-03 (Warband combat; standard fights always
+      spx-02 (map placement, emblems, legend, tooltips, rewards; windowed proof judged; review round: 6 findings, fix round 2 running) and spx-03 (round 1 ade9f5ca6: escort spacing fixed, windowed proof judged, Codex review running) (Warband combat; standard fights always
       Defeat All), both from f3beee6fe. Director data: staged/spx/special_encounters.json + emblems. Next: spx-04
       (the six Warband orders), then the Snare, Last Light and Hoarder. enc-clarity, enc-dragons and enc-guardians
       still await verdicts. See `encounter_redesign/README.md`.
