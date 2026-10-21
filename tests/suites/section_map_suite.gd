@@ -244,6 +244,9 @@ static func _test_reach_exit(engine: RunEngineScript, expect: Callable) -> void:
 
 static func _test_generated_escape_transaction(engine: RunEngineScript, expect: Callable) -> void:
 	var state: Dictionary = engine.create_new_run(92, Progression.default_data())
+	# Standard fights roll Reach the Exit only on revision 5 and earlier; revision 6 brings it back through the Umbral
+	# Snare. Prove the legacy escape transaction on a revision-5 run state.
+	state["section_map_layout_revision"] = 5
 	for opening: Dictionary in (state.get("rooms", {}) as Dictionary).values():
 		if str(opening.get("type", "")) == "combat" and int(opening.get("map_step", 0)) == 1:
 			opening["cleared"] = true
