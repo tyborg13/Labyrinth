@@ -159,10 +159,10 @@ fallback preserves all spacing and approach constraints; if no formation fits,
 the existing generator clears interior blockers and searches again. It never
 relaxes follower spacing. Dynamo still takes the farthest legal complete anchor.
 
-`TODO_DESIGN_SKIRMISHER_LANE_ORDER` remains empty: the brief does not define
-"lower lane" coordinates or a priority among perpendicular offsets on one side.
-Within-side candidates remain unranked until the owner resolves this. All other
-role/range/gap/approach rules are enforced, including in deterministic fallback.
+Within each side, the seeded roll chooses among valid candidates with no further
+ranking. Tiles on the entry-to-captain line (cross product zero) belong to neither
+side and never take a skirmisher. Deterministic fallback retains the established
+candidate scan order, preserving every role/range/gap/approach constraint.
 
 `WarbandCombatRules` computes Command at use time from the living captain and
 current follower position. Every positive-damage action receives +1 within
@@ -684,3 +684,27 @@ with `--first-turn-only`, `tests/proof_contracts/spx07_warband.json`, 1920×1080
 100% UI scale. See `output/spx07/design_owner_proof.sh` for exact renderer,
 frame-time and verified inspection-fixture commands. Native captures must be
 run by the design owner on a machine with window-server access.
+
+Director feedback 1 adds `tests/spx07_frame_benchmark.gd`: the director's exact
+viewport-input path, 1.5-second settling period, four seconds idle and six seconds
+of motion per fixture. It awaits real process frames, including deferred work and
+queued CanvasItem draws. It retains raw `Performance.TIME_PROCESS` readings,
+actual iteration intervals, frame-indexed board render sections, script phases
+and redraw counts. Headless sampling disables low-processor mode and its fallback
+sleep, with no frame cap. Godot holds the process monitor across multiple frames;
+raw monitor percentiles and actual frame percentiles are reported separately.
+This proves script work, not native GPU/frame delivery. The director reruns the
+unchanged native probe. Card/drag limits are now 6 ms median / 20 ms worst.
+
+The measured draw hot spots were repeated path geometry/clip construction and
+death-burst presence checks that scaled whole enemy intent catalogs per tile.
+`board_path_draw_cache.gd` retains the original ordered polygon/line commands and
+the original per-tile clipping operations; gradients, distress, colours and depth
+order are preserved. Known intent paths are prepared once per committed board
+revision, synchronously. The original builder remains the command-equivalence
+oracle. The Warband UI test exercises cold/warm caches at two proof layouts.
+Lob/Burrow mark views retain their pure preview engines; wind evidence is shared
+between retained layers. `GameData.enemy_def` memoizes pure fixed-point scaling
+against the exact raw definition while still returning private copies. In-place
+catalog edits invalidate the memo. Planner anchor snapshots reuse their already
+owned enemy array instead of deep-copying it twice.

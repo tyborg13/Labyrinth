@@ -8,8 +8,6 @@ const MAX_PLACEMENT_ATTEMPTS: int = 20
 const CAPTAIN_START_DISTANCE_MIN: int = 5
 const CAPTAIN_START_DISTANCE_MAX: int = 7
 const ESCORT_ENTRY_DISTANCE_MIN: int = 3
-# The brief does not define lane numbering or within-side offset priority.
-const TODO_DESIGN_SKIRMISHER_LANE_ORDER: String = ""
 
 static func roster(room: Dictionary, tier: int) -> Array:
 	var variant: Dictionary = Library.definition("warband")["variants"][room["special_variant"]]
@@ -32,7 +30,7 @@ static func positions(grid: Array, entry: Vector2i, count: int, entry_safe_radiu
 		var distance: int = Paths.manhattan(tile, entry)
 		if distance >= CAPTAIN_START_DISTANCE_MIN and distance <= CAPTAIN_START_DISTANCE_MAX and distance > entry_safe_radius: captains.append(tile)
 	captains.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
-		return Paths.manhattan(a, entry) > Paths.manhattan(b, entry) if Paths.manhattan(a, entry) != Paths.manhattan(b, entry) else _lower_lane(a, b))
+		return Paths.manhattan(a, entry) > Paths.manhattan(b, entry) if Paths.manhattan(a, entry) != Paths.manhattan(b, entry) else _row_major_precedes(a, b))
 	if not deterministic and not dynamo: _shuffle(captains, rng)
 	for captain: Vector2i in captains:
 		var guards: Array[Vector2i]
@@ -50,8 +48,8 @@ static func positions(grid: Array, entry: Vector2i, count: int, entry_safe_radiu
 		if not deterministic:
 			_shuffle(guards, rng)
 			_shuffle(screens, rng)
-		# TODO_DESIGN_SKIRMISHER_LANE_ORDER: leave within-side candidates
-		# unranked until the owner defines "lower lane" and offset priority.
+			_shuffle(skirmishers, rng)
+		# The seeded candidate order is the only priority within each side.
 		for guard: Vector2i in guards:
 			for screen: Vector2i in screens:
 				if Paths.manhattan(guard, screen) <= 1: continue
@@ -63,7 +61,7 @@ static func positions(grid: Array, entry: Vector2i, count: int, entry_safe_radiu
 	var empty: Array[Vector2i]
 	return empty
 
-static func _lower_lane(a: Vector2i, b: Vector2i) -> bool:
+static func _row_major_precedes(a: Vector2i, b: Vector2i) -> bool:
 	return a.y < b.y if a.y != b.y else a.x < b.x
 
 static func side(entry: Vector2i, captain: Vector2i, tile: Vector2i) -> int:

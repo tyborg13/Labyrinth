@@ -156,6 +156,7 @@ static func _spread_rules(expect: Callable, layout: Dictionary, context: String)
 			var line: Vector2i = captain - entry
 			var offset: Vector2i = tile - entry
 			var cross: int = line.x * offset.y - line.y * offset.x
+			expect.call(cross != 0, "No skirmisher sits on the entry-to-captain line: " + context)
 			expect.call(cross < 0 if (index - 3) % 2 == 0 else cross > 0, "Alternating left/right skirmishers: " + context)
 			for previous: int in range(index): expect.call(Paths.manhattan(tile, enemies[previous]["pos"]) >= 3, "Skirmisher gap from every prior unit: " + context)
 		if index >= 2:

@@ -1285,6 +1285,7 @@ var _skill_analytics_staged_now: bool = false
 var _skill_analytics_flushing: bool = false
 var _preview_combat_state: Dictionary = {}
 var _combat_preview_revision: int = 0
+var _intent_path_geometry_revision: int = -1
 var _board_encounter_key: String = ""
 var _board_encounter_roster: Array[String]
 var _board_encounter_started: bool = false
@@ -18185,6 +18186,13 @@ func _refresh_stage_view() -> void:
 		presentation
 	)
 	if run_mode == "combat" and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
+	if _selected_card_index < 0 and not _player_movement_selected and _intent_path_geometry_revision != _combat_preview_revision and board_view.has_method("prepare_intent_path_geometry"):
+		for index: int in range(_combat_state.get("enemies", []).size()):
+			var enemy: Dictionary = _combat_state["enemies"][index]
+			if int(enemy.get("hp", 0)) <= 0 or not _combat_engine.is_enemy_visible_to_player(_combat_state, enemy): continue
+			var threat: Dictionary = _combat_engine.enemy_threat_tiles(_combat_state, index)
+			board_view.prepare_intent_path_geometry(_vector2i_array(threat.get("projected_path", [])))
+		_intent_path_geometry_revision = _combat_preview_revision
 	performance_phase_started = _record_runtime_performance_phase("stage_board_submission", performance_phase_started)
 	_refresh_boss_health_overlay(display_state, presentation)
 	_record_runtime_performance_phase("stage_boss_overlay", performance_phase_started)

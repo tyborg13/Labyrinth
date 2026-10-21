@@ -20,6 +20,7 @@ const BREATH_SECONDS: float = 1.5
 const BREATH_SCALE: float = 0.03
 const MOUND_TILE_WIDTH: float = 0.60
 const MOUND_TILE_HEIGHT: float = 0.32
+static var _preview_engine := Combat.new()
 
 static func draw_body(view: Control, unit: Dictionary) -> bool:
 	draw_dust(view, unit)
@@ -147,7 +148,7 @@ static func rise_state(state: Dictionary, step: Dictionary) -> Dictionary:
 
 static func marks(state: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	var engine := Combat.new()
+	var engine := _preview_engine
 	for enemy: Dictionary in state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0 or not bool(enemy.get("burrowed", false)): continue
 		var landing: Vector2i = Rules.landing_tile(engine, state, enemy)

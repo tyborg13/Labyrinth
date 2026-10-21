@@ -7874,7 +7874,8 @@ func _enemy_aoe_can_target_center(state: Dictionary, enemy: Dictionary, action: 
 
 func _state_with_enemy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vector2i) -> Dictionary:
 	var preview_state: Dictionary = state.duplicate(true)
-	var enemies: Array = preview_state.get("enemies", []).duplicate(true)
+	# The deep state copy already owns every other enemy and the array itself.
+	var enemies: Array = preview_state.get("enemies", [])
 	var enemy_id: int = int(enemy.get("id", -1))
 	for index: int in range(enemies.size()):
 		if typeof(enemies[index]) != TYPE_DICTIONARY:

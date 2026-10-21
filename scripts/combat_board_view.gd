@@ -809,6 +809,10 @@ var _path_render_layer: Control = null
 var _path_depth_clip := PackedVector2Array()
 var _path_depth_tile := Vector2i(-1,-1)
 static var _path_crumble_cache: Dictionary = {}
+static var _path_draw_cache := preload("res://scripts/board_path_draw_cache.gd").new()
+var _path_command_capture_active: bool = false
+var _path_captured_commands: Array[Dictionary]
+var _submitted_path_meshes: Array[ArrayMesh]
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
 var _action_floor_render_layer: Control = null
@@ -843,6 +847,7 @@ var _dynamic_draw_total_usec: int = 0
 var _dynamic_draw_max_usec: int = 0
 var _render_section_total_usec: Dictionary = {}
 var _render_section_max_usec: Dictionary = {}
+var _render_frame_sections_usec: Dictionary = {}
 var _unit_shadow_sync_miss_metrics: Dictionary = {}
 var _unit_shadow_draw_cache_metrics: Dictionary = {}
 var _full_dynamic_redraw_count: int = 0
@@ -2375,6 +2380,8 @@ func render_instrumentation_snapshot() -> Dictionary:
 			)
 	return {
 		"static_draw_count": static_count,
+		"path_geometry_builds": _path_draw_cache.build_records.duplicate(true),
+		"path_geometry_cache": _path_draw_cache.statistics(),
 		"dynamic_draw_count": dynamic_count,
 		"static_draw_total_usec": static_total_usec,
 		"static_draw_max_usec": static_max_usec,
@@ -2463,6 +2470,7 @@ func _merge_unit_shadow_draw_cache_metrics(target: Dictionary, source: Dictionar
 		target["by_type"] = target_by_type
 
 func reset_render_instrumentation() -> void:
+	if not _is_dynamic_render_layer: _path_draw_cache.build_records.clear()
 	_static_draw_frame_top.clear()
 	_static_render_cache_reuse_count = 0
 	if is_instance_valid(_static_render_cache_layer): _static_render_cache_layer.call("reset_render_instrumentation")
@@ -2483,6 +2491,7 @@ func reset_render_instrumentation() -> void:
 	_retained_draw_frame_count = 0
 	_retained_draw_frame_layer_usec.clear()
 	_retained_draw_frame_layer_detail_usec.clear()
+	_render_frame_sections_usec.clear()
 	_retained_draw_frame_max_usec = 0
 	_retained_draw_frame_max_count = 0
 	_retained_draw_frame_max_layers.clear()
@@ -2499,6 +2508,12 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
+	var owner: Node = _render_instrumentation_owner if is_instance_valid(_render_instrumentation_owner) else self
+	var started: int = Time.get_ticks_usec() if bool(owner.get("_submission_performance_instrumentation_enabled")) else 0
+	_process_board_frame(delta)
+	if started > 0: owner.call("_record_render_frame_section", Engine.get_process_frames(), "board_process", Time.get_ticks_usec() - started)
+
+func _process_board_frame(delta: float) -> void:
 	if not _is_dynamic_render_layer and not bool(presentation.get("reduced_motion", false)):
 		for enemy: Dictionary in combat_state.get("enemies", []):
 			if int(enemy.get("hp", 0)) > 0 and bool(enemy.get("burrowed", false)): _queue_scene_render_layer_for_tile(enemy["pos"])
@@ -3272,6 +3287,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
 func set_submission_performance_instrumentation_enabled(enabled: bool) -> void:
+	_path_draw_cache.record_builds = enabled
 	_submission_performance_instrumentation_enabled = enabled
 	_submission_performance_total_usec.clear()
 	_submission_performance_counts.clear()
@@ -4317,6 +4333,7 @@ func _submit_pixel_line(points: PackedVector2Array, core: Color, halo: Color, el
 	return true
 
 func _draw() -> void:
+	_submitted_path_meshes.clear()
 	_pixel_fx_draw_transform = Transform2D.IDENTITY
 	if is_instance_valid(_pixel_fx_layer):
 		_pixel_fx_layer.begin(self)
@@ -4694,6 +4711,7 @@ func _commit_retained_draw_frame() -> void:
 		"draw_count": _retained_draw_frame_count,
 		"layer_usec": _retained_draw_frame_layer_usec.duplicate(true),
 		"layer_detail_usec": _retained_draw_frame_layer_detail_usec.duplicate(true),
+		"section_usec": _render_frame_sections_usec.duplicate(),
 	}
 	if _retained_draw_frame_total_usec > _retained_draw_frame_max_usec:
 		_retained_draw_frame_max_usec = _retained_draw_frame_total_usec
@@ -4710,11 +4728,22 @@ func _commit_retained_draw_frame() -> void:
 	_retained_draw_frame_count = 0
 	_retained_draw_frame_layer_usec.clear()
 	_retained_draw_frame_layer_detail_usec.clear()
+	_render_frame_sections_usec.clear()
 
 func _record_render_section_time(section: String, started_usec: int) -> void:
 	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
 	_render_section_total_usec[section] = int(_render_section_total_usec.get(section, 0)) + elapsed_usec
 	_render_section_max_usec[section] = maxi(int(_render_section_max_usec.get(section, 0)), elapsed_usec)
+	var owner: Node = _render_instrumentation_owner if is_instance_valid(_render_instrumentation_owner) else self
+	if bool(owner.get("_submission_performance_instrumentation_enabled")):
+		owner.call("_record_render_frame_section", Engine.get_process_frames(), section, elapsed_usec)
+
+func _record_render_frame_section(frame_id: int, section: String, elapsed_usec: int) -> void:
+	if _retained_draw_frame_id != frame_id:
+		_commit_retained_draw_frame()
+		_render_frame_sections_usec.clear()
+		_retained_draw_frame_id = frame_id
+	_render_frame_sections_usec[section] = int(_render_frame_sections_usec.get(section, 0)) + elapsed_usec
 
 func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
 	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
@@ -6802,10 +6831,14 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 	return faces
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
+	var detailed: bool = is_instance_valid(_render_instrumentation_owner) and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	var started: int = Time.get_ticks_usec() if detailed else 0
 	var polygon: PackedVector2Array = _tile_polygon(tile)
 	WarbandView.draw_banner_tile(self, tile, polygon, LEADER_MARKER_GOLD)
+	if detailed: _record_render_section_time("overlay_banner", started); started = Time.get_ticks_usec()
 	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
 	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
+	if detailed: _record_render_section_time("overlay_rest", started); started = Time.get_ticks_usec()
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if _snare_sealing_threshold(tile): draw_colored_polygon(polygon, Color(UiPaletteTokens.UMBRA, 0.30))
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
@@ -6841,10 +6874,15 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 			draw_texture_rect(summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72))
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
+	if detailed: _record_render_section_time("overlay_targets", started); started = Time.get_ticks_usec()
 	_draw_meteor_mark(tile)
+	if detailed: _record_render_section_time("overlay_meteor", started); started = Time.get_ticks_usec()
 	IcefallView.draw_tile(self, tile)
+	if detailed: _record_render_section_time("overlay_icefall", started); started = Time.get_ticks_usec()
 	LobView.draw_tile(self, tile)
+	if detailed: _record_render_section_time("overlay_lob", started); started = Time.get_ticks_usec()
 	WindView.draw_tile(self, tile)
+	if detailed: _record_render_section_time("overlay_wind", started)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
 		# top so it remains the unmistakable primary targeting signal.
@@ -12859,17 +12897,25 @@ func _draw_path_depth_pass(tile: Vector2i) -> void:
 
 func _draw_path_color_polygon(polygon: PackedVector2Array, color: Color) -> void:
 	if _path_depth_clip.is_empty():
-		draw_colored_polygon(polygon,color)
+		_submit_path_polygon(polygon, color)
 		return
 	for piece: PackedVector2Array in Geometry2D.intersect_polygons(polygon,_path_depth_clip):
-		if _polygon_can_draw(piece): draw_colored_polygon(piece,color)
+		if _polygon_can_draw(piece): _submit_path_polygon(piece, color)
+
+func _submit_path_polygon(polygon: PackedVector2Array, color: Color) -> void:
+	if _path_command_capture_active: _path_captured_commands.append({"polygon": polygon, "color": color})
+	else: draw_colored_polygon(polygon, color)
+
+func _submit_path_line(line: PackedVector2Array, color: Color, width: float, antialiased: bool) -> void:
+	if _path_command_capture_active: _path_captured_commands.append({"line": line, "color": color, "width": width, "antialiased": antialiased})
+	else: draw_polyline(line, color, width, antialiased)
 
 func _draw_path_line(line: PackedVector2Array, color: Color, width: float, antialiased: bool) -> void:
 	if _path_depth_clip.is_empty():
-		draw_polyline(line,color,width,antialiased)
+		_submit_path_line(line, color, width, antialiased)
 		return
 	for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(line,_path_depth_clip):
-		if piece.size()>1: draw_polyline(piece,color,width,antialiased)
+		if piece.size()>1: _submit_path_line(piece, color, width, antialiased)
 
 func _draw_path_preview() -> void:
 	WindView.draw_paths(self)
@@ -12943,6 +12989,65 @@ func _threat_has_projected_movement(threat: Dictionary) -> bool:
 	return path.size() >= 2 and path[0] != path[path.size() - 1]
 
 func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> void:
+	if _path_depth_tile.x >= 0 and not path_tiles.has(_path_depth_tile): return
+	if path_tiles.size() < 2:
+		_draw_path_tiles_uncached(path_tiles, color, hero_path)
+		return
+	if hero_path:
+		for index: int in range(1, path_tiles.size()):
+			if preload("res://scripts/surface_variety_relic_rules.gd").is_light_link(combat_state, path_tiles[index - 1], path_tiles[index]):
+				_draw_path_tiles_uncached(path_tiles, color, hero_path)
+				return
+	var entry: Dictionary = _cached_path_entry(path_tiles, color, hero_path)
+	if _path_command_capture_active:
+		for command: Dictionary in _path_draw_cache.clipped(entry, _path_depth_clip, _polygon_can_draw):
+			if command.has("polygon"): _submit_path_polygon(command["polygon"], command["color"])
+			else: _submit_path_line(command["line"], command["color"], command["width"], command["antialiased"])
+	else:
+		for command: Dictionary in _path_draw_cache.batches(entry, _path_depth_clip, _polygon_can_draw):
+			if command.has("mesh"):
+				_submitted_path_meshes.append(command["mesh"])
+				draw_mesh(command["mesh"], null)
+			else: draw_polyline(command["line"], command["color"], command["width"], command["antialiased"])
+
+func _cached_path_entry(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> Dictionary:
+	var centers := PackedVector2Array()
+	for tile: Vector2i in path_tiles: centers.append(_tile_center(tile))
+	return _path_draw_cache.path([path_tiles, centers, _tile_width(), _tile_height(), color], func() -> Array: return _capture_unclipped_path(path_tiles, color, hero_path))
+
+func prepare_intent_path_geometry(path: Array[Vector2i]) -> void:
+	# Called once per committed board revision, using plans already queried by
+	# the rest badges. Hover focus then only replays these ordered commands.
+	if path.size() < 2: return
+	var paths: Array = [path]
+	# Tether's existing adapter appends its route to the focused base path.
+	# Prepare that exact composition too, without changing its displayed shape.
+	var tether: Dictionary = TetherView.presentation_for(combat_state, {"path_tiles": path})
+	var combined: Array[Vector2i] = _vector2i_array(tether.get("path_tiles", []))
+	if combined != path and combined.size() >= 2: paths.append(combined)
+	for source: Array in paths:
+		var prepared: Array[Vector2i] = _vector2i_array(source)
+		var entry: Dictionary = _cached_path_entry(prepared, ENEMY_PATH_PREVIEW_COLOR)
+		for tile: Vector2i in prepared: _path_draw_cache.batches(entry, _tile_polygon(tile), _polygon_can_draw)
+
+func _capture_unclipped_path(path_tiles: Array[Vector2i], color: Color, hero_path: bool) -> Array:
+	var previous_clip: PackedVector2Array = _path_depth_clip
+	var previous_tile: Vector2i = _path_depth_tile
+	var previous_capture: bool = _path_command_capture_active
+	var previous_commands: Array[Dictionary] = _path_captured_commands
+	var commands: Array[Dictionary]
+	_path_captured_commands = commands
+	_path_command_capture_active = true
+	_path_depth_clip = PackedVector2Array()
+	_path_depth_tile = Vector2i(-1, -1)
+	_draw_path_tiles_uncached(path_tiles, color, hero_path)
+	_path_captured_commands = previous_commands
+	_path_command_capture_active = previous_capture
+	_path_depth_clip = previous_clip
+	_path_depth_tile = previous_tile
+	return commands
+
+func _draw_path_tiles_uncached(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> void:
 	if _path_depth_tile.x>=0 and not path_tiles.has(_path_depth_tile): return
 	if path_tiles.is_empty():
 		return

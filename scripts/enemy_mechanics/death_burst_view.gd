@@ -18,7 +18,7 @@ const TIME_BOUNDARY_EPSILON: float = 0.000001
 
 static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	if int(unit.get("hp", 0)) > 0 and Data.enemy_def(str(unit.get("type", ""))).has("death_burst"):
+	if int(unit.get("hp", 0)) > 0 and Data.enemies().get(str(unit.get("type", "")), {}).has("death_burst"):
 		var amount: int = Rules.damage(unit)
 		result.append({"icon": BURST_ICON, "count": amount, "icon_tint": Color.WHITE, "fill": FIRE, "border": FIRE,
 			"tooltip": Glossary.name_for("burst") + "\n" + Glossary.definition("burst") + "\n%d damage" % amount})
@@ -33,7 +33,9 @@ static func focused_tiles(view: Control) -> Array[Vector2i]:
 	var result: Array[Vector2i]
 	var focus: Vector2i = view._controller_focus_tile if view._controller_focus_tile.x >= 0 else view._hover_tile
 	for enemy: Dictionary in view.combat_state.get("enemies", []):
-		if int(enemy.get("hp", 0)) <= 0 or not Data.enemy_def(str(enemy.get("type", ""))).has("death_burst") or not view._board_tile_is_visible_to_player(enemy.get("pos", Vector2i(-1, -1))): continue
+		# This is a presence check. Fixed-point scaling/deep-copying every enemy's
+		# complete intent catalog on every board tile dominated overlay drawing.
+		if int(enemy.get("hp", 0)) <= 0 or not Data.enemies().get(str(enemy.get("type", "")), {}).has("death_burst") or not view._board_tile_is_visible_to_player(enemy.get("pos", Vector2i(-1, -1))): continue
 		var key: String = "enemy_%d" % int(enemy["id"])
 		if enemy.get("pos") != focus and not bool((view._damage_preview_map().get(key, {}) as Dictionary).get("lethal", false)): continue
 		for tile: Vector2i in Rules.tiles(view.combat_state, enemy):

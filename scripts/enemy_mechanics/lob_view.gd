@@ -12,17 +12,18 @@ const APEX_TILES: float = 2.2
 # Measured kiln centre in the registered approved sprite, refreshed by the
 # asset processor. This is a source landmark, not a new camera/layout choice.
 const KILN_SOURCE_POINT := Vector2(168, 53)
+static var _preview_engine := CombatScript.new()
 
 static func rows(view: Control, unit: Dictionary, intent: Dictionary) -> Array:
 	var result: Array
 	for action: Dictionary in intent.get("actions", []):
 		if not Rules.handles(action): continue
-		result.append(Icons.tokens_for_action(Rules.presentation_action(CombatScript.new(), view.combat_state, unit, action)))
+		result.append(Icons.tokens_for_action(Rules.presentation_action(_preview_engine, view.combat_state, unit, action)))
 	return result
 
 static func marks(view: Control) -> Dictionary:
 	var result: Dictionary = {}
-	var engine: RefCounted = CombatScript.new()
+	var engine := _preview_engine
 	for enemy: Dictionary in view.combat_state.get("enemies", []):
 		if int(enemy.get("hp", 0)) <= 0: continue
 		if (enemy.get("lob_tiles", []) as Array).is_empty(): continue

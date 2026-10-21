@@ -168,8 +168,14 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	card = _tag_card_actions_for_combat(card)
 	return card
 
+static var _enemy_definition_memo := preload("res://scripts/combat_preview_memo.gd").new()
+
 static func enemy_def(enemy_type: String) -> Dictionary:
-	return _scale_enemy_fixed_point(_duplicate_dict(enemies().get(enemy_type, {})))
+	# Scaling is pure catalog work, repeated throughout planning and rendering.
+	# Preserve private caller ownership and detect in-place catalog/test edits.
+	var raw: Variant = enemies().get(enemy_type, {})
+	var source: Dictionary = raw if raw is Dictionary else {}
+	return _enemy_definition_memo.resolve([enemy_type, source], func() -> Dictionary: return _scale_enemy_fixed_point(source))
 
 static func npc_def(npc_id: String) -> Dictionary:
 	return _duplicate_dict(npcs().get(npc_id, {}))

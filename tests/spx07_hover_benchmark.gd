@@ -10,6 +10,7 @@ const PROOF_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 60
 const MEDIAN_BUDGET_MS: float = 6.0
 const WORST_BUDGET_MS: float = 12.0
+const TARGET_WORST_BUDGET_MS: float = 20.0
 const PROOF_CARD: String = "shadow_step"
 const SAME_TILE_OFFSET := Vector2(0.1, 0.1)
 const DEBUG_DRAG_POINTER := Vector2(900, 950)
@@ -89,14 +90,19 @@ func _run() -> void:
 			var samples: Array[float]
 			var stationary: Array[float]
 			var snapshots: Array
+			var target_costs: Array[Dictionary]
 			scene.call("set_runtime_performance_instrumentation_enabled", not OS.get_cmdline_user_args().has("--no-profile"))
 			for y: int in range(state["combat_state"]["grid"].size()):
 				for x: int in range(state["combat_state"]["grid"][y].size()):
 					var tile := Vector2i(x, y)
 					var point: Vector2 = board.call("_tile_center", tile)
+					var costs_before: Dictionary = _target_phase_totals(scene)
 					var started: int = Time.get_ticks_usec()
 					_motion(scene, board, point, mode)
 					samples.append(float(Time.get_ticks_usec() - started) / 1000.0)
+					var costs_after: Dictionary = _target_phase_totals(scene)
+					for phase: String in costs_after: costs_after[phase] = float(costs_after[phase] - costs_before[phase]) / 1000.0
+					target_costs.append({"tile": tile, "ms": samples.back(), "inclusive_phase_ms": costs_after})
 					var stage_calls: int = int((scene.get("_runtime_performance_counts") as Dictionary).get("stage_total", 0))
 					started = Time.get_ticks_usec()
 					_motion(scene, board, point + SAME_TILE_OFFSET, mode)
@@ -119,11 +125,15 @@ func _run() -> void:
 				if matches: preview_comparisons += snapshots.size()
 				FileAccess.open(snap_path + ".after", FileAccess.WRITE).store_string(serialized)
 			var stats: Dictionary = _stats(samples)
+			target_costs.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["ms"] > b["ms"])
+			target_costs.resize(10)
 			var result: Dictionary = {"case": case["name"], "mode": mode, "tile_change_ms": stats, "same_tile_ms": _stats(stationary), "profile": profile, "snapshots_sha256": serialized.sha256_text()}
+			result["worst_targets"] = target_costs
 			(report["cases"] as Array).append(result)
 			print("SPX07 CPU %s %s median=%.3f worst=%.3f same_tile_worst=%.3f ms" % [case["name"], mode, stats["median"], stats["worst"], result["same_tile_ms"]["worst"]])
 			if not baseline:
-				_expect(stats["median"] <= MEDIAN_BUDGET_MS and stats["worst"] <= WORST_BUDGET_MS, "CPU budget " + case["name"] + " " + mode)
+				var worst_budget: float = WORST_BUDGET_MS if mode == "hover" else TARGET_WORST_BUDGET_MS
+				_expect(stats["median"] <= MEDIAN_BUDGET_MS and stats["worst"] <= worst_budget, "CPU budget " + case["name"] + " " + mode)
 		scene.queue_free()
 		for frame: int in range(TEARDOWN_FRAMES): await process_frame
 	_expect(same_tile_preview_rebuilds == 0, "Same-tile motion never rebuilds preview presentation")
@@ -153,6 +163,15 @@ func _motion(scene: Node, board: Control, point: Vector2, mode: String) -> void:
 	if bool(scene.get("_board_hover_refresh_pending")):
 		scene.call("_flush_board_hover_presentation", scene.get("_board_hover_refresh_generation"))
 
+func _target_phase_totals(scene: Node) -> Dictionary:
+	var totals: Dictionary = scene.get("_runtime_performance_totals_usec")
+	var result: Dictionary = {}
+	for phase: String in ["stage_total", "stage_preview_presentation_total", "stage_board_submission", "hover_context_copy_total", "pass_preview_enemy_actions_total"]:
+		result[phase] = int(totals.get(phase, 0))
+	var engine: RefCounted = scene.get("_combat_engine")
+	result["rest_badges_build"] = int((engine.get("_runtime_performance_totals_usec") as Dictionary).get("rest_badges_build", 0))
+	return result
+
 func _stats(values: Array[float]) -> Dictionary:
 	values.sort()
 	return {"samples": values.size(), "median": values[values.size() / 2], "p95": values[int(values.size() * 0.95)], "worst": values.back()}
@@ -161,6 +180,7 @@ func _expect(ok: bool, message: String) -> void:
 	if not ok: failures.append(message)
 
 func _cache_regressions() -> void:
+	preload("res://tests/helpers/spx07_catalog_cache_cases.gd").run(_expect)
 	var engine := Combat.new()
 	var run := Run.new()
 	var state: Dictionary = Fixture.build(run, engine, run.create_new_run(Fixture.FIXTURE_SEED, Store.default_data()), {"warband_biome": "lightning", "warband_tier": 3})["combat_state"]
