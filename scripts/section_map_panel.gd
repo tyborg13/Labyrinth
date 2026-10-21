@@ -17,6 +17,7 @@ const LegacyMap = preload("res://scripts/labyrinth_map_view.gd")
 const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Fog = preload("res://shaders/section_map_fog.gdshader")
+const Palette = preload("res://scripts/ui_palette.gd")
 
 signal room_selected(coord: Vector2i)
 signal scout_requested(coord: Vector2i)
@@ -64,6 +65,45 @@ var _activation_generation: int = 0
 var _activation_tween: Tween
 const ACTIVATION_SECONDS: float = 0.28
 const REDUCED_ACTIVATION_SECONDS: float = 0.14
+# Revision 7 sections scroll sideways (map-03, owner-approved mockup 2026-10-21):
+# rooms keep their size, columns get 240 px, and the painting drifts at 0.3x.
+const SCROLL_COLUMN: float = 240.0
+const SCROLL_START_X: float = 112.0
+const SCROLL_FIRST_STEP_X: float = 320.0
+const SCROLL_BOSS_GAP: float = 190.0
+const SCROLL_END_MARGIN: float = 128.0
+const SCROLL_TOP: float = 72.0
+const SCROLL_BOTTOM: float = 96.0
+const SCROLL_STAGGER: float = 22.0
+const SCROLL_JITTER: Vector2 = Vector2(10, 6)
+const SCROLL_NODE_GAP: float = 10.0
+const SCROLL_FOCUS_FRACTION: float = 0.38
+const SCROLL_KEEP_VISIBLE_MARGIN: float = 150.0
+const SCROLL_PARALLAX: float = 0.3
+const SCROLL_WHEEL_STEP: float = 170.0
+const SCROLL_PAN_GESTURE_STEP: float = 26.0
+const SCROLL_STICK_SPEED: float = 1150.0
+const SCROLL_STICK_DEADZONE: float = 0.22
+const SCROLL_DRAG_THRESHOLD: float = 6.0
+const SCROLL_SETTLE_SECONDS: float = 0.32
+const SCROLL_EDGE_FADE: float = 104.0
+const SCROLL_TRACK_WIDTH: float = 420.0
+const SCROLL_TRACK_HEIGHT: float = 6.0
+const SCROLL_TRACK_INSET: float = 22.0
+const LANTERN_WALK_SECONDS: float = 0.62
+var _world: Control
+var _token: Control
+var _scroll_overlay: Control
+var _scroll: float = 0.0
+var _scroll_max: float = 0.0
+var _scroll_world_width: float = 0.0
+var _scroll_tween: Tween
+var _scroll_anchor: String = ""
+var _drag_pressed: bool = false
+var _drag_active: bool = false
+var _drag_origin: float = 0.0
+var _drag_scroll: float = 0.0
+var _fog_openings := PackedVector4Array()
 
 func _ready() -> void:
 	_build()
@@ -125,12 +165,32 @@ func _build() -> void:
 	_full_field(_fog)
 	# Known topology remains legible over fog. Only revealed/outlined endpoints
 	# enter the canvas, so this never draws a route to an undiscovered room.
+	# The world holds the trails and rooms. It fills the field, and in a
+	# scrolling section it is wider and slides left as the map scrolls.
+	_world = Control.new()
+	_world.name = "MapWorld"
+	_full_field(_world)
 	_canvas = Canvas.new()
 	_canvas.name = "Connections"
-	_full_field(_canvas)
+	_canvas.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_world.add_child(_canvas)
 	_nodes = Control.new()
 	_nodes.name = "RoomNodes"
-	_full_field(_nodes)
+	_nodes.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_nodes.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_world.add_child(_nodes)
+	_token = Control.new()
+	_token.name = "LanternWalk"
+	_token.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_token.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_token.draw.connect(func() -> void: _canvas.call("draw_lantern_token", _token))
+	_world.add_child(_token)
+	_scroll_overlay = Control.new()
+	_scroll_overlay.name = "ScrollCues"
+	_full_field(_scroll_overlay)
+	_scroll_overlay.draw.connect(_draw_scroll_cues)
+	_field.gui_input.connect(_on_field_input)
 	var footer: PanelContainer = _panel()
 	_layout.add_child(footer)
 	var legend_row := HBoxContainer.new()
@@ -302,6 +362,9 @@ func set_run_state(source: Dictionary) -> void:
 	if previous_current != run_state.get("current_room", Graph.INVALID):
 		viewed_section = Graph.active_section(run_state)
 		reset_interaction()
+		if _canvas != null:
+			_canvas.set("travel_progress", 0.0)
+			_token.queue_redraw()
 	if _built:
 		_refresh()
 
@@ -405,10 +468,20 @@ func activate_room(coord: Vector2i) -> void:
 	var source_signature: int = _signature
 	var button: Control = node_buttons.get(coord)
 	var seconds: float = REDUCED_ACTIVATION_SECONDS if _reduced_motion else ACTIVATION_SECONDS
+	var current: Vector2i = run_state.get("current_room", Graph.INVALID)
+	# On a scrolling map the lantern walks the trail to the chosen room first.
+	var walking: bool = _activation_kind == "room" and bool(_canvas.get("ink")) and not _reduced_motion and node_buttons.has(current) and button != null
+	if walking: seconds = LANTERN_WALK_SECONDS
 	if button != null:
 		button.call("set_activation_progress", 0.001)
 		_activation_tween = button.create_tween()
 		_activation_tween.tween_method(Callable(button, "set_activation_progress"), 0.001, 1.0, seconds)
+	if walking:
+		(node_buttons[current] as Control).set("lantern_marker", false)
+		(node_buttons[current] as Control).queue_redraw()
+		_canvas.set("travel_from", current)
+		_canvas.set("travel_to", coord)
+		_activation_tween.parallel().tween_method(_set_travel_progress, 0.001, 1.0, seconds)
 	_canvas.set("selected", coord)
 	_canvas.queue_redraw()
 	var feedback: Node = get_node_or_null("/root/CursorFeedback")
@@ -430,11 +503,23 @@ func activate_room(coord: Vector2i) -> void:
 	else:
 		room_selected.emit(coord)
 
+func _set_travel_progress(progress: float) -> void:
+	_canvas.set("travel_progress", progress)
+	_token.queue_redraw()
+
 func _cancel_activation() -> void:
 	_activation_generation += 1
 	if _activation_tween != null:
 		_activation_tween.kill()
 		_activation_tween = null
+	# A finished walk keeps the lantern at its destination until the run moves
+	# there; an interrupted one puts it back.
+	if _canvas != null and float(_canvas.get("travel_progress")) > 0.0 and float(_canvas.get("travel_progress")) < 1.0:
+		_set_travel_progress(0.0)
+		var walker: Control = node_buttons.get(_canvas.get("travel_from"))
+		if is_instance_valid(walker):
+			walker.set("lantern_marker", true)
+			walker.queue_redraw()
 	var button: Control = node_buttons.get(activation_coord)
 	if is_instance_valid(button): button.call("set_activation_progress", 0.0)
 	activation_coord = Graph.INVALID
@@ -475,11 +560,14 @@ func _layout_nodes() -> void:
 	var future: Dictionary = Graph.descendants(run_state, run_state.get("current_room", Graph.INVALID))
 	var positions: Dictionary = {}
 	var openings := PackedVector4Array()
+	var scrolling: bool = bool(info.get("scroll", false)) and Graph.modern(run_state)
+	var world_positions: Dictionary = section_positions(run_state.get("rooms", {}), info, _field.size) if scrolling else {}
+	_configure_world(scrolling, info)
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
 		if int(node.get("section_index", -1)) != viewed_section or not (bool(node.get("revealed", false)) or bool(node.get("map_outline", false)) or _has_recovery(node)):
 			continue
 		var coord: Vector2i = node.get("coord", Graph.INVALID)
-		var point: Vector2 = _node_position(node, info, _field.size, Graph.modern(run_state))
+		var point: Vector2 = world_positions.get(coord, Vector2.ZERO) if scrolling else _node_position(node, info, _field.size, Graph.modern(run_state))
 		positions[coord] = point
 		var button: Button = remaining.get(coord) as Button
 		var created: bool = button == null
@@ -493,12 +581,15 @@ func _layout_nodes() -> void:
 		var state: String = _node_route_state(node, available, future)
 		button.call("configure", node, _room_label(node), state, _reduced_motion)
 		button.set("modern_layout", Graph.modern(run_state))
+		button.set("round_hit", scrolling)
+		button.set("lantern_marker", scrolling)
 		button.set("scout_target", scout_targeting and can_activate_room(coord))
 		button.set("actionable", can_activate_room(coord))
 		button.call("refresh_state")
 		if created:
 			button.pressed.connect(activate_room.bind(coord))
 			button.focus_entered.connect(_show_preview.bind(coord))
+			button.focus_entered.connect(_keep_room_visible.bind(coord))
 			button.focus_exited.connect(_hide_preview_for.bind(coord))
 			button.mouse_entered.connect(_show_preview.bind(coord))
 			button.mouse_exited.connect(_hide_preview_for.bind(coord))
@@ -506,7 +597,7 @@ func _layout_nodes() -> void:
 		if button.get_index() != retained.size(): _nodes.move_child(button, retained.size())
 		retained[coord] = button
 		var known: bool = bool(node.get("revealed", false)) or _has_recovery(node)
-		openings.append(Vector4(point.x / _field.size.x, point.y / _field.size.y, 0.081 if known else 0.045, 0.21 if known else 0.11))
+		openings.append(Vector4(point.x, point.y, 0.081 if known else 0.045, 0.21 if known else 0.11))
 	# Keep only the displayed section's known nodes; section switches and lost
 	# outlines remove stale controls, so retention remains bounded by this view.
 	for stale: Control in remaining.values():
@@ -518,22 +609,27 @@ func _layout_nodes() -> void:
 	if focused_coord != Graph.INVALID and node_buttons.has(focused_coord):
 		(node_buttons[focused_coord] as Control).grab_focus()
 		_show_preview(focused_coord)
-	var opening_count: int = mini(32, openings.size())
-	while openings.size() < 32:
-		openings.append(Vector4.ZERO)
+	_fog_openings = openings
 	_fog.visible = not Graph.full_visibility(run_state, viewed_section)
 	var unknown_legend: Control = find_child("Legend_unknown", true, false)
 	if unknown_legend != null:
 		(unknown_legend.get_parent().get_child(1) as Label).text = "Unknown room" if Graph.modern(run_state) else "Unknown"
-	var material := _fog.material as ShaderMaterial
-	material.set_shader_parameter("openings", openings)
-	material.set_shader_parameter("opening_count", opening_count)
-	material.set_shader_parameter("motion", 0.0)
+	_canvas.set("ink", scrolling)
 	_canvas.set("state", run_state)
 	_canvas.set("positions", positions)
 	_canvas.set("section_index", viewed_section)
 	_canvas.set("selected", selected_coord)
 	_canvas.queue_redraw()
+	if scrolling:
+		var anchor: String = "%d|%s" % [viewed_section, Graph.key(run_state.get("current_room", Graph.INVALID))]
+		if anchor != _scroll_anchor:
+			_scroll_anchor = anchor
+			_set_scroll(_focus_scroll(world_positions, info), false)
+		else:
+			_set_scroll(_scroll, false)
+	else:
+		_scroll_anchor = ""
+		_set_scroll(0.0, false)
 	# Retained hovered nodes do not re-emit mouse_entered on a resize. Keep the
 	# existing optional preview beside its node after deferred layout settles.
 	if selected_coord != Graph.INVALID and node_buttons.has(selected_coord) and is_instance_valid(_preview):
@@ -571,6 +667,195 @@ static func _node_position(node: Dictionary, info: Dictionary, field_size: Vecto
 			jitter.y = clampf(jitter.y, -y_limit, y_limit)
 		point += jitter
 	return point
+
+# --- Revision 7 scrolling ---------------------------------------------------
+
+# World positions for a scrolling section. Odd lanes sit a little right and even
+# lanes a little left, so neighbouring lanes stagger instead of stacking, and
+# two rooms in a column never touch even at their largest (an actionable
+# Guardian beside an enlarged choice).
+static func section_positions(rooms: Dictionary, info: Dictionary, field_size: Vector2) -> Dictionary:
+	var index: int = int(info.get("index", 0))
+	var count: int = int(info.get("room_count", 11))
+	var lanes: int = int(info.get("lane_count", 7))
+	var span: float = maxf(1.0, field_size.y - SCROLL_TOP - SCROLL_BOTTOM)
+	var columns: Dictionary = {}
+	var result: Dictionary = {}
+	var radii: Dictionary = {}
+	for node: Dictionary in rooms.values():
+		if int(node.get("section_index", -1)) != index: continue
+		var coord: Vector2i = node.get("coord", Graph.INVALID)
+		var type: String = str(node.get("type", ""))
+		var lane: float = float(node.get("map_lane", float(lanes - 1) * 0.5))
+		var step: int = int(node.get("map_step", 0))
+		var point := Vector2(_scroll_column_x(step, count, type), SCROLL_TOP + span * lane / float(maxi(1, lanes - 1)))
+		radii[coord] = NodeButton.max_visual_radius(node)
+		if type not in ["start", "boss"]:
+			var jitter: Vector2 = _node_jitter(coord)
+			var stagger: float = SCROLL_STAGGER if roundi(lane) % 2 == 1 else -SCROLL_STAGGER
+			point += Vector2(stagger + clampf(jitter.x, -SCROLL_JITTER.x, SCROLL_JITTER.x), clampf(jitter.y, -SCROLL_JITTER.y, SCROLL_JITTER.y))
+			if not columns.has(step): columns[step] = []
+			columns[step].append(coord)
+		result[coord] = point
+	for step: int in columns:
+		var cells: Array = columns[step]
+		cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return (result[a] as Vector2).y < (result[b] as Vector2).y)
+		for offset: int in range(1, cells.size()):
+			var upper: Vector2i = cells[offset - 1]
+			var lower: Vector2i = cells[offset]
+			var need: float = float(radii[upper]) + float(radii[lower]) + SCROLL_NODE_GAP
+			var delta: Vector2 = (result[lower] as Vector2) - (result[upper] as Vector2)
+			if delta.length() >= need or absf(delta.y) >= need: continue
+			var spread: float = (sqrt(need * need - delta.y * delta.y) - absf(delta.x)) * 0.5
+			var side: float = 1.0 if delta.x >= 0.0 else -1.0
+			result[upper] = (result[upper] as Vector2) - Vector2(side * spread, 0.0)
+			result[lower] = (result[lower] as Vector2) + Vector2(side * spread, 0.0)
+	return result
+
+static func _scroll_column_x(step: int, count: int, type: String) -> float:
+	if type == "start": return SCROLL_START_X
+	if type == "boss": return SCROLL_FIRST_STEP_X + float(count - 2) * SCROLL_COLUMN + SCROLL_BOSS_GAP
+	return SCROLL_FIRST_STEP_X + float(step - 1) * SCROLL_COLUMN
+
+static func scroll_world_width(info: Dictionary, field_size: Vector2) -> float:
+	var boss_x: float = _scroll_column_x(0, int(info.get("room_count", 11)), "boss")
+	return maxf(field_size.x, boss_x + NodeButton.max_visual_radius({"type": "boss"}) + SCROLL_END_MARGIN)
+
+func _configure_world(scrolling: bool, info: Dictionary) -> void:
+	if scrolling:
+		_scroll_world_width = scroll_world_width(info, _field.size)
+		_scroll_max = maxf(0.0, _scroll_world_width - _field.size.x)
+		_world.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		_world.size = Vector2(_scroll_world_width, _field.size.y)
+		# The painting is wider than the field by its parallax share of the scroll.
+		_background.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		_background.size = Vector2(_field.size.x + _scroll_max * SCROLL_PARALLAX, _field.size.y)
+	else:
+		_scroll_world_width = _field.size.x
+		_scroll_max = 0.0
+		_world.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+# The current room sits a little left of centre so its choices show ahead.
+func _focus_scroll(world_positions: Dictionary, _info: Dictionary) -> float:
+	var current: Vector2i = run_state.get("current_room", Graph.INVALID)
+	var x: float = (world_positions[current] as Vector2).x if world_positions.has(current) else SCROLL_START_X
+	return x - _field.size.x * SCROLL_FOCUS_FRACTION
+
+func scroll_offset() -> float:
+	return _scroll
+
+func scroll_limit() -> float:
+	return _scroll_max
+
+func scroll_to(value: float, animate: bool = false) -> void:
+	_set_scroll(value, animate)
+
+func _set_scroll(value: float, animate: bool) -> void:
+	var target: float = clampf(value, 0.0, _scroll_max)
+	if _scroll_tween != null:
+		_scroll_tween.kill()
+		_scroll_tween = null
+	if animate and not _reduced_motion and is_inside_tree() and absf(target - _scroll) > 1.0:
+		_scroll_tween = create_tween()
+		_scroll_tween.tween_method(_apply_scroll, _scroll, target, SCROLL_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	else:
+		_apply_scroll(target)
+
+func _apply_scroll(value: float) -> void:
+	_scroll = clampf(value, 0.0, _scroll_max)
+	if _world == null: return
+	_world.position = Vector2(-_scroll, 0.0)
+	if _scroll_max > 0.0: _background.position = Vector2(-_scroll * SCROLL_PARALLAX, 0.0)
+	_update_fog()
+	_scroll_overlay.queue_redraw()
+	if selected_coord != Graph.INVALID and is_instance_valid(_preview): _position_preview(selected_coord)
+
+func _update_fog() -> void:
+	# The shader holds 32 openings; rooms on screen take precedence.
+	var visible_openings := PackedVector4Array()
+	var hidden_openings := PackedVector4Array()
+	for opening: Vector4 in _fog_openings:
+		var screen := Vector4((opening.x - _scroll) / _field.size.x, opening.y / _field.size.y, opening.z, opening.w)
+		if screen.x > -0.1 and screen.x < 1.1: visible_openings.append(screen)
+		else: hidden_openings.append(screen)
+	visible_openings.append_array(hidden_openings)
+	var opening_count: int = mini(32, visible_openings.size())
+	visible_openings.resize(32)
+	var material := _fog.material as ShaderMaterial
+	material.set_shader_parameter("openings", visible_openings)
+	material.set_shader_parameter("opening_count", opening_count)
+	material.set_shader_parameter("motion", 0.0)
+
+func _on_field_input(event: InputEvent) -> void:
+	if _scroll_max <= 0.0: return
+	if event is InputEventMouseButton:
+		var button := event as InputEventMouseButton
+		var factor: float = button.factor if button.factor > 0.0 else 1.0
+		if button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_RIGHT]:
+			_set_scroll(_scroll + SCROLL_WHEEL_STEP * factor, true)
+			_field.accept_event()
+		elif button.pressed and button.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_LEFT]:
+			_set_scroll(_scroll - SCROLL_WHEEL_STEP * factor, true)
+			_field.accept_event()
+		elif button.button_index == MOUSE_BUTTON_LEFT:
+			_drag_pressed = button.pressed
+			_drag_active = false
+			_drag_origin = button.position.x
+			_drag_scroll = _scroll
+	elif event is InputEventMouseMotion and _drag_pressed:
+		var moved: float = (event as InputEventMouseMotion).position.x - _drag_origin
+		_drag_active = _drag_active or absf(moved) >= SCROLL_DRAG_THRESHOLD
+		if _drag_active:
+			_set_scroll(_drag_scroll - moved, false)
+			_field.accept_event()
+	elif event is InputEventPanGesture:
+		_set_scroll(_scroll + (event as InputEventPanGesture).delta.x * SCROLL_PAN_GESTURE_STEP, false)
+		_field.accept_event()
+
+func _process(delta: float) -> void:
+	# The right stick pans freely; the left stick and arrows move focus, and the
+	# map follows the focused room.
+	if _scroll_max <= 0.0 or not is_visible_in_tree(): return
+	var axis: float = 0.0
+	for device: int in Input.get_connected_joypads():
+		var value: float = Input.get_joy_axis(device, JOY_AXIS_RIGHT_X)
+		if absf(value) > absf(axis): axis = value
+	if absf(axis) < SCROLL_STICK_DEADZONE: return
+	var strength: float = (absf(axis) - SCROLL_STICK_DEADZONE) / (1.0 - SCROLL_STICK_DEADZONE)
+	_set_scroll(_scroll + signf(axis) * strength * SCROLL_STICK_SPEED * delta, false)
+
+func _keep_room_visible(coord: Vector2i) -> void:
+	if _scroll_max <= 0.0 or not node_buttons.has(coord): return
+	var button: Control = node_buttons[coord]
+	var x: float = button.position.x + button.size.x * 0.5
+	if x < _scroll + SCROLL_KEEP_VISIBLE_MARGIN:
+		_set_scroll(x - SCROLL_KEEP_VISIBLE_MARGIN, true)
+	elif x > _scroll + _field.size.x - SCROLL_KEEP_VISIBLE_MARGIN:
+		_set_scroll(x - _field.size.x + SCROLL_KEEP_VISIBLE_MARGIN, true)
+
+# Edge fades show there is more map that way; a slim track shows where you are.
+func _draw_scroll_cues() -> void:
+	if _scroll_max <= 0.0: return
+	var area: Vector2 = _field.size
+	var dark := Color(Palette.INK_0, 0.74)
+	var clear := Color(Palette.INK_0, 0.0)
+	if _scroll > 0.5:
+		_scroll_overlay.draw_polygon(PackedVector2Array([Vector2.ZERO, Vector2(SCROLL_EDGE_FADE, 0), Vector2(SCROLL_EDGE_FADE, area.y), Vector2(0, area.y)]), PackedColorArray([dark, clear, clear, dark]))
+	if _scroll < _scroll_max - 0.5:
+		_scroll_overlay.draw_polygon(PackedVector2Array([Vector2(area.x - SCROLL_EDGE_FADE, 0), Vector2(area.x, 0), Vector2(area.x, area.y), Vector2(area.x - SCROLL_EDGE_FADE, area.y)]), PackedColorArray([clear, dark, dark, clear]))
+	var track := Rect2(Vector2((area.x - SCROLL_TRACK_WIDTH) * 0.5, area.y - SCROLL_TRACK_INSET - SCROLL_TRACK_HEIGHT), Vector2(SCROLL_TRACK_WIDTH, SCROLL_TRACK_HEIGHT))
+	_draw_pill(track.grow(1.5), Color(Palette.LINE, 0.9))
+	_draw_pill(track, Color(Palette.INK_0, 0.86))
+	var thumb_width: float = maxf(40.0, SCROLL_TRACK_WIDTH * area.x / _scroll_world_width)
+	var thumb := Rect2(Vector2(track.position.x + (SCROLL_TRACK_WIDTH - thumb_width) * (_scroll / _scroll_max), track.position.y), Vector2(thumb_width, SCROLL_TRACK_HEIGHT))
+	_draw_pill(thumb, Palette.GOLD)
+
+func _draw_pill(rect: Rect2, color: Color) -> void:
+	var radius: float = rect.size.y * 0.5
+	_scroll_overlay.draw_rect(Rect2(rect.position + Vector2(radius, 0), Vector2(maxf(0.0, rect.size.x - rect.size.y), rect.size.y)), color)
+	_scroll_overlay.draw_circle(rect.position + Vector2(radius, radius), radius, color)
+	_scroll_overlay.draw_circle(rect.end - Vector2(radius, radius), radius, color)
 
 func _node_route_state(node: Dictionary, available: Array[Vector2i], future: Dictionary) -> String:
 	var coord: Vector2i = node.get("coord", Graph.INVALID)
@@ -622,7 +907,7 @@ func _show_preview(coord: Vector2i) -> void:
 func _position_preview(coord: Vector2i) -> void:
 	if _preview == null or selected_coord != coord or not node_buttons.has(coord): return
 	var button: Control = node_buttons[coord]
-	var center: Vector2 = button.position + button.size * 0.5
+	var center: Vector2 = button.position + button.size * 0.5 + _world.position
 	var radius: float = float(button.call("visual_radius")) + 18.0
 	var y: float = center.y + radius if center.y < _field.size.y * 0.55 else center.y - radius - _preview.size.y
 	_preview.position = Vector2(clampf(center.x - _preview.size.x * 0.5, 12, _field.size.x - _preview.size.x - 12), clampf(y, 12, _field.size.y - _preview.size.y - 12))

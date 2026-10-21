@@ -1,0 +1,38 @@
+{
+  "min_images": 6,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/01_section_start.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/02_mid_run.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/03_choice_hover.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/05_scrolled_end.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/06_section_vi_fog.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/walk/frame_018.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

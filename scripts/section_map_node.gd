@@ -11,6 +11,10 @@ var pulse_phase: float = 0.0
 var actionable: bool = false
 var scout_target: bool = false
 var activation_progress: float = 0.0
+# Revision 7 scrolling maps: rooms hit-test as circles (columns sit close), and
+# the room you stand in shows the lantern.
+var round_hit: bool = false
+var lantern_marker: bool = false
 var _configured: bool = false
 
 func configure(data: Dictionary, _caption: String, state: String, reduce_motion: bool = false) -> void:
@@ -50,6 +54,16 @@ func visual_radius() -> float:
 	if route_state == "visited": return 33.0
 	return 29.0
 
+# The largest radius a room can take in any state, for layout spacing.
+static func max_visual_radius(data: Dictionary) -> float:
+	if str(data.get("type", "")) == "boss": return 88.0
+	if str(data.get("type", "")) == "guardian": return 66.0
+	return 46.0
+
+func _has_point(point: Vector2) -> bool:
+	if not round_hit: return Rect2(Vector2.ZERO, size).has_point(point)
+	return point.distance_to(size * 0.5) <= visual_radius() + 10.0
+
 func pulse_scale() -> float:
 	return 1.0 if reduced_motion or activation_progress > 0.0 or (route_state != "reachable" and not scout_target) or not actionable else 1.0 + 0.055 * (0.5 + 0.5 * sin(pulse_phase))
 
@@ -69,7 +83,9 @@ func has_recovery() -> bool:
 func _draw() -> void:
 	var center: Vector2 = size * 0.5
 	var mystery: bool = str(room_data.get("type", "")) == "mystery"
-	var known: bool = bool(room_data.get("revealed", false)) and not mystery
+	# On a scrolling map the room you stand in always shows the lantern.
+	var lantern: bool = route_state == "current" and lantern_marker
+	var known: bool = (bool(room_data.get("revealed", false)) and not mystery) or lantern
 	var current: bool = route_state == "current"
 	var available: bool = (route_state == "reachable" or scout_target) and actionable
 	var visited: bool = route_state == "visited"
@@ -93,8 +109,9 @@ func _draw() -> void:
 		if bypassed: tint = Color("5b5961")
 		elif not current and not visited and not boss and not available: tint = Color("7a7880")
 		var icon_id: String = preload("res://scripts/room_icon_library.gd").icon_id_for_room(room_data)
+		if lantern: icon_id = "start"
 		var icon_tint: Color = medallion_icon_tint()
-		if str(room_data.get("type", "")) == "guardian":
+		if str(room_data.get("type", "")) == "guardian" and not lantern:
 			draw_texture_rect(MapSkin.icon_texture(icon_id), Rect2(center-Vector2.ONE*radius,Vector2.ONE*radius*2.0), false, icon_tint)
 		else:
 			MapSkin.draw_medallion(self, center, radius, MapSkin.icon_texture(icon_id), icon_tint, tint, 0.25 * sin(PI * activation_progress))
@@ -149,7 +166,7 @@ func medallion_icon_tint() -> Color:
 	return tint
 
 func _guardian_emblem() -> bool:
-	return str(room_data.get("type",""))=="guardian" and bool(room_data.get("revealed",false))
+	return str(room_data.get("type",""))=="guardian" and bool(room_data.get("revealed",false)) and not (route_state == "current" and lantern_marker)
 
 func _rim_gap(ordinary: float) -> float:
 	return 2.0 if _guardian_emblem() else ordinary

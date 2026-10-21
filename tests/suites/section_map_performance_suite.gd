@@ -19,7 +19,7 @@ static func run(expect: Callable) -> void:
 	# controlled. The committed regression bounds deterministic search work.
 	var fallback_within_limit: bool = report["fallback"] <= seeds.size() * Graph.ROOM_COUNTS.size() * Benchmark.FALLBACK_LIMIT
 	expect.call(fallback_within_limit, "Fallback rate stays within the sweep's limit")
-	expect.call(report["max_attempt_nodes"] <= Graph.V5_TYPE_NODE_BUDGET, "Every type assignment respects its deterministic node budget")
+	expect.call(report["max_attempt_nodes"] <= _type_budget(), "Every type assignment respects its deterministic node budget")
 	# Exercise the ordinary public call too: diagnostics must not enter saves or
 	# influence the generated graph, and all 21 cases retain complete map rules.
 	for sample: Dictionary in report["samples"]:
@@ -34,7 +34,11 @@ static func run(expect: Callable) -> void:
 		Graph.initialize(second)
 		expect.call(var_to_str(first) == var_to_str(second), "Same 32-bit seed gives a byte-identical graph with or without diagnostics: %d" % int(sample["seed"]))
 		for index: int in range(6): _test_rules(first, index, expect)
-	print("Section map fast performance: %s (%d seeds x 6 sections; max attempt %d/%d nodes; fallback %d; max section %.3fms; max run %.3fms)" % ["PASS" if fallback_within_limit and report["max_attempt_nodes"] <= Graph.V5_TYPE_NODE_BUDGET else "FAIL", seeds.size(), report["max_attempt_nodes"], Graph.V5_TYPE_NODE_BUDGET, report["fallback"], report["all_sections"]["max_ms"], report["runs"]["max_ms"]])
+	print("Section map fast performance: %s (%d seeds x 6 sections; max attempt %d/%d nodes; fallback %d; max section %.3fms; max run %.3fms)" % ["PASS" if fallback_within_limit and report["max_attempt_nodes"] <= _type_budget() else "FAIL", seeds.size(), report["max_attempt_nodes"], _type_budget(), report["fallback"], report["all_sections"]["max_ms"], report["runs"]["max_ms"]])
+
+# New runs use the current revision's per-attempt budget.
+static func _type_budget() -> int:
+	return Graph.V7_TYPE_NODE_BUDGET if Graph.LAYOUT_REVISION >= 7 else Graph.V5_TYPE_NODE_BUDGET
 
 static func _test_seed_fixtures(expect: Callable) -> void:
 	var seeds: Array = JSON.parse_string(FileAccess.get_file_as_string(Benchmark.SEED_PATH))
