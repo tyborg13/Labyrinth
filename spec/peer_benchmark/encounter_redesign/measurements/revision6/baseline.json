@@ -2,8 +2,8 @@
   "schema_version": 3,
   "revision": 6,
   "policy_version": 2,
-  "policy_sha256": "6cbd002cd7432382691e4904a8781e71939f0134e599d8f7ce6f97f979a591a0",
-  "source_head": "64345c31e73a14e2666b3b04d32102bde582f381",
+  "policy_sha256": "c90b92005d67d7ea0137e7c35a508bdc8b10d1eee34d70bf7fa4a5d434aa5d82",
+  "source_head": "78f992063999bfee6f48770f8e0d62906ac8759b",
   "runs_per_group": 200,
   "first_seed": 1,
   "workers": 6,
@@ -26,7 +26,7 @@
         "n": 200,
         "median": 13.0,
         "p10": 0,
-        "p90": 26.0
+        "p90": 26
       },
       "turn_cap_reached": 6,
       "biomes": {
@@ -38,8 +38,8 @@
         "shadow": 33
       },
       "file": "bot-t1-standard.json.gz",
-      "sha256": "6322f947d3c8118dfa39c9b641cba0fbe251df111beefe2358d74d10b59569bd",
-      "elapsed_seconds": 804.405
+      "sha256": "d7e12ed5a042c1d0862f20d15629547f95575dc7e00404ea8ad1c344a3492c89",
+      "elapsed_seconds": 1025.961
     },
     {
       "revision": 6,
@@ -47,13 +47,13 @@
       "tier": 1,
       "objective": "kill_leader",
       "n": 200,
-      "win_rate": 0.825,
+      "win_rate": 0.76,
       "one_turn_escape_share": null,
       "turns": {
         "n": 200,
         "median": 7.0,
         "p10": 4,
-        "p90": 14
+        "p90": 15
       },
       "hp_lost": {
         "n": 200,
@@ -61,7 +61,7 @@
         "p10": 2,
         "p90": 24
       },
-      "turn_cap_reached": 12,
+      "turn_cap_reached": 14,
       "biomes": {
         "air": 29,
         "earth": 37,
@@ -71,8 +71,8 @@
         "shadow": 39
       },
       "file": "bot-t1-warband.json.gz",
-      "sha256": "e8608e479f40f978580f6f7b06ef2ea0c3f30a4e545283e0609095ea650f0d46",
-      "elapsed_seconds": 928.62
+      "sha256": "8343d2a5a188556e1f063214e5a2ea7183929b48604c897e06aac86969b639d6",
+      "elapsed_seconds": 1329.902
     },
     {
       "revision": 6,
@@ -104,8 +104,8 @@
         "shadow": 33
       },
       "file": "bot-t2-standard.json.gz",
-      "sha256": "82edca7bf4c6cdb9bb5d8ba1c35f95603d0ade3ffc4ae7ab70c06d80deba9fbb",
-      "elapsed_seconds": 1213.425
+      "sha256": "8c32ad1755de320d0a8f9cf470451a8721691dc500a326041892960e7e2671f4",
+      "elapsed_seconds": 1407.727
     },
     {
       "revision": 6,
@@ -113,21 +113,21 @@
       "tier": 2,
       "objective": "kill_leader",
       "n": 200,
-      "win_rate": 0.71,
+      "win_rate": 0.64,
       "one_turn_escape_share": null,
       "turns": {
         "n": 200,
-        "median": 8.0,
+        "median": 7.0,
         "p10": 3,
-        "p90": 14
+        "p90": 16
       },
       "hp_lost": {
         "n": 200,
-        "median": 16.5,
+        "median": 17.0,
         "p10": 2,
-        "p90": 26.0
+        "p90": 26
       },
-      "turn_cap_reached": 5,
+      "turn_cap_reached": 11,
       "biomes": {
         "air": 31,
         "earth": 35,
@@ -137,8 +137,8 @@
         "shadow": 36
       },
       "file": "bot-t2-warband.json.gz",
-      "sha256": "6c659fd794e3a057e42b484a84732cc4fd536f0c0213339720c77aab9ab3a9de",
-      "elapsed_seconds": 1047.608
+      "sha256": "7f938affab51e5f3490261ea34c824b12b99bf8d0b1c5bc37f659632fbdf6e87",
+      "elapsed_seconds": 1602.328
     },
     {
       "revision": 6,
@@ -170,8 +170,8 @@
         "shadow": 33
       },
       "file": "bot-t3-standard.json.gz",
-      "sha256": "7e6baf4f2a7fc5af1127dc3ad1fc4845bda78a1be1961d23e44ae19b770d7fad",
-      "elapsed_seconds": 1764.209
+      "sha256": "c37e4e8637245f7a973c42be083b3d934ef3cda15b812e0b67c6154131561c5c",
+      "elapsed_seconds": 1882.519
     },
     {
       "revision": 6,
@@ -179,21 +179,21 @@
       "tier": 3,
       "objective": "kill_leader",
       "n": 200,
-      "win_rate": 0.375,
+      "win_rate": 0.315,
       "one_turn_escape_share": null,
       "turns": {
         "n": 200,
-        "median": 7.0,
+        "median": 6.5,
         "p10": 3,
-        "p90": 19
+        "p90": 24
       },
       "hp_lost": {
         "n": 200,
         "median": 24.0,
-        "p10": 9.0,
+        "p10": 7,
         "p90": 26
       },
-      "turn_cap_reached": 16,
+      "turn_cap_reached": 18,
       "biomes": {
         "air": 40,
         "earth": 33,
@@ -203,8 +203,8 @@
         "shadow": 32
       },
       "file": "bot-t3-warband.json.gz",
-      "sha256": "b241f6fc473a39ac1c825c2d6d48a76d9513b21ebe9b2e0d4f7623320fc7eda0",
-      "elapsed_seconds": 1555.754
+      "sha256": "a019d63f40f32c68ce6346a547c1ab0fa249eba580203c6562b91c26e47e0307",
+      "elapsed_seconds": 2054.087
     }
   ],
   "tier1_target": {

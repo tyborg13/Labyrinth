@@ -1,6 +1,6 @@
 # Encounter measurement baseline (spx-01)
 
-Revision 6, policy version 2, integration HEAD `64345c31e73a14e2666b3b04d32102bde582f381`. 200 natural rooms per standard Defeat All and Warband cohort per tier; all outcomes are included in percentiles. The exact tooling hash is in `measurements/revision6/baseline.json`. This bounded greedy bot measures current production rules. No gameplay or policy tuning changed in this integration update.
+Revision 6, policy version 2, integration HEAD `78f992063999bfee6f48770f8e0d62906ac8759b`. 200 natural rooms per standard Defeat All and Warband cohort per tier; all outcomes are included in percentiles. The exact tooling hash is in `measurements/revision6/baseline.json`. This bounded greedy bot measures current production rules. No gameplay or policy tuning changed in this integration update.
 
 Run `python3 tools/encounter_sweep.py --revision 6` then `python3 tools/encounter_bot.py --baseline --revision 6`. Gzipped raw records, summary JSON and composition tables are in `measurements/revision6/`. Per-process logs and uncompressed working records stay under `/private/tmp/spx-01-measurement-logs/`. Replay with `python3 tools/encounter_bot.py --revision 6 --cohort COHORT --seed SEED --tier TIER --coord=X,Y --runs 1 --output-dir /private/tmp/spx-01-replay`.
 
@@ -19,11 +19,11 @@ Turns count hero activations, starting at 1, with lethal enemy phases attributed
 | Tier | Cohort | Objective | N | Win rate | Turns median (P10–P90) | HP lost median (P10–P90) | One-turn escapes |
 |---|---|---|---:|---:|---:|---:|---:|
 | 1 | standard | kill_all | 200 | 66.5% | 5 (3–9) | 13 (0–26) | — |
-| 1 | warband | kill_leader | 200 | 82.5% | 7 (4–14) | 11 (2–24) | — |
+| 1 | warband | kill_leader | 200 | 76.0% | 7 (4–15) | 11 (2–24) | — |
 | 2 | standard | kill_all | 200 | 40.5% | 5 (3–9) | 24 (7–26) | — |
-| 2 | warband | kill_leader | 200 | 71.0% | 8 (3–14) | 16.5 (2–26) | — |
+| 2 | warband | kill_leader | 200 | 64.0% | 7 (3–16) | 17 (2–26) | — |
 | 3 | standard | kill_all | 200 | 27.0% | 5 (3–13) | 24 (12–26) | — |
-| 3 | warband | kill_leader | 200 | 37.5% | 7 (3–19) | 24 (9–26) | — |
+| 3 | warband | kill_leader | 200 | 31.5% | 6.5 (3–24) | 24 (7–26) | — |
 
 Tier-1 Defeat All target (≥70% wins, median HP lost ≤8): NOT MET. The earlier revision-5 policy v2 baseline measured 64% wins and 15 median HP lost; policy v1 measured 12.5% and 24. Those historical rooms differ from this revision-6 cohort. A failed target leaves the policy unqualified for encounter-band calibration.
 
