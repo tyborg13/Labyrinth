@@ -9,8 +9,8 @@ Commit, independent review, inspection and publication belong to the director.
    captain, nearest legal-center fallback; existing damage/Bleed/lifetime.
 2. Slagmaster: seeded, saved perpendicular side; fallback to the other legal
    center; two pluses share the stored union, damage batch and existing FX.
-3. Stormcaller: source-scoped persistent wind, re-aim on Call, all-unit
-   real-mover previews, existing force anchoring/collisions and source cleanup.
+3. Stormcaller: source-scoped persistent wind, re-aim on Call, one-tile
+   hero/follower previews, anchored captain, existing collisions/source cleanup.
 4. Oracle: five midpoint marks rounded toward hero; existing landing/pillars.
 5. Dynamo: live Thralls determine 2/3 Charge threshold for planning, selection,
    activation and pips/tooltip; either death removes the reduction immediately.
@@ -26,6 +26,82 @@ surface, forced-movement, hidden-attack and death paths; there is no new event
 kind or rewrite of history. Intrinsic card coefficients and protected enemy
 stats remain unchanged; the six authored encounter modifiers above are the
 mechanics under test, not implementation tuning.
+
+## Feedback 2 — Stormcaller wording and independent displacement checks
+
+The director corrected the protected catalog and staged copy to
+`Its wind never drops: a gust slides everyone else 1 tile every round.` Neither
+file was edited by the implementation worker. Both have SHA-256
+`f7053caa0d4b399793227be07b1428e33a7d40b8bad87305b742432fb5df892c`.
+Runtime wind code is unchanged: the captain remains anchored through the base
+Gale Herald's `force_anchored` rule, and its preview contains no slide.
+
+1. `_scope_and_copy` pins the director's new exact Order line and checks both
+   the captain's production intent tooltip and objective tooltip against it.
+   The existing live-scene probe checks the pre-battle order line as well.
+2. Preview and end-of-turn resolution independently assert fixed destinations
+   for every unit. The unobstructed fixture's player goes `(5,6) → (5,5)`,
+   followers go `(3,5) → (3,4)` and `(7,5) → (7,4)`, and the captain stays
+   `(5,2)`. Preview paths are checked against these fixed one-tile endpoints;
+   forecast/resolution equality is retained as an additional check.
+   A pillar at `(3,4)` stops the first follower at `(3,5)`, with the existing
+   two-damage collision and collision marker/event. Every other unit's fixed
+   destination is also asserted in this blocked case.
+3. Focused verification only. `--wind-only` mutation mode exercises a two-tile
+   push and bypassed captain anchoring, requiring the corresponding independent
+   destination assertion to fail. Mutations restore exact source bytes, and
+   run both order and live-scene controls before and after.
+
+Files changed for feedback 2: `tests/suites/warband_orders_suite.gd`,
+`tests/warband_orders_test.gd`, `tests/warband_order_mutations.py`,
+`spec/enemies/gale_herald.md` and this handoff. The director's existing data
+edits and supplied feedback file are preserved. No production script changes,
+art, dependency, balance or analytics changes are needed.
+
+Chosen defaults are test-only: `FIXTURE_WIND_EXPECTED` holds player `(5,5)` and
+enemy destinations `[(5,2), (3,4), (7,4)]`; `FIXTURE_WIND_PILLAR = (3,4)`;
+`FIXTURE_WIND_BLOCKED_EXPECTED` holds player `(5,5)` and enemy destinations
+`[(5,2), (3,5), (7,4)]`; `MINIMUM_CHECK_COUNT = 213`. The fixture's collision
+expectation `FIXTURE_WIND_COLLISION_DAMAGE = 2` records the existing rule.
+No design placeholders remain.
+
+Exact focused commands:
+
+```bash
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/warband_orders_test.gd
+python3 tools/godot_task_runner.py --task-id spx-04 --stream -- godot --headless --path . --script tests/en02_enemies_test.gd
+python3 tests/warband_order_mutations.py --wind-only
+```
+
+The mutation command also runs `tests/warband_orders_probe.gd -- --check-only`
+through the task runner for both controls. No full suite or native capture was
+run for feedback 2. No new visual behavior is expected; the director can reuse
+the existing seven-frame probe below to inspect the changed Order text.
+
+Observed result lines (all commands exited 0):
+
+```text
+WARBAND ORDERS TEST RESULT: PASS (214 checks, 0 failures)
+EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)
+SPX04 MUTATION wind_two_tile_push: KILLED
+SPX04 MUTATION wind_sliding_captain: KILLED
+SPX04 MUTATION RESULT: PASS (2/2 killed; controls pass; exact sources restored)
+SPX04 PROBE CONTRACT: PASS (7 states, 1920x1080, UI scale 100%)
+SPX04 DIRECTOR DATA: PASS (2 protected files preserved; approved Stormcaller copy)
+SPX04 RUNTIME: unchanged (all production scripts)
+```
+
+Final controls: `/private/tmp/spx04-order-mutations/control_after.log` and
+`/private/tmp/spx04-order-mutations/probe_control_after.log`. EN02 engine log:
+`/private/tmp/labyrinth-godot-home/spx-04-1792576566967572000-9746/godot.log`.
+`git diff --check` passes. No production script diff remains after mutations;
+both protected files match the hashes above.
+
+Open issue: the final headless probe passes its assertions and exits 0 but
+reports `ObjectDB instances leaked at exit` and `2 resources still in use at
+exit` during shutdown. The order suite and EN02 also emit the existing macOS
+certificate message. No assertion was weakened to accommodate output. Native
+capture is director-owned; no feedback-2 PNGs were produced here.
 
 ## Feedback 1 — implementation and focused validation
 
@@ -99,7 +175,7 @@ renders the actual RunScene to a 1920×1080 UPDATE_ALWAYS SubViewport at UI scal
 image contract requires all seven images and a nonblank board region.
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/visual_probe_runner.py tests/warband_orders_probe.gd --task-id spx-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx04_orders.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx04-orders-feedback1-proof.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/spx-04 && python3 tools/visual_probe_runner.py tests/warband_orders_probe.gd --task-id spx-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/spx04_orders.json --result-manifest /private/tmp/labyrinth-inspection-manifests/spx04-orders-feedback2-proof.json
 ```
 
 Expected feedback captures (not yet produced) are under the isolated run's
@@ -130,7 +206,7 @@ scan order. The wind chip reads `Wind · held` and appends the tooltip line
 Only test/debug/proof values were chosen: `FIXTURE_SIZE = 11`, `FIXTURE_HP = 100`,
 `FIXTURE_CAPTAIN = (5,2)`, `FIXTURE_PLAYER = (5,6)`,
 `FIXTURE_FOLLOWER_A = (3,5)`, `FIXTURE_FOLLOWER_B = (7,5)`;
-`MINIMUM_CHECK_COUNT = 186` guards skipped test execution. Proof reuses the
+`MINIMUM_CHECK_COUNT = 213` guards skipped test execution. Proof reuses the
 existing fixture seed `PROOF_SEED = 83`, `SETTLE_SECONDS = 0.25`,
 `READY_TIMEOUT_SECONDS = 20`, and `EXPECTED_CASES = 7`.
 Additional test-only fields are `FIXTURE_WALL_CENTER = (5,4)`,

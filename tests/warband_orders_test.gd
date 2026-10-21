@@ -2,7 +2,7 @@ extends SceneTree
 const Suite = preload("res://tests/suites/warband_orders_suite.gd")
 var failures: Array[String]
 var checks: int = 0
-const MINIMUM_CHECK_COUNT: int = 186
+const MINIMUM_CHECK_COUNT: int = 213
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	Suite.run(_expect)

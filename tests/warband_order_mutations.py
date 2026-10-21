@@ -27,6 +27,10 @@ FEEDBACK_MUTATIONS = (
     ('diagonal_axis', 'scripts/warband_combat_rules.gd', 'var direction: Vector2i = engine._cardinal_direction(delta)', 'var direction: Vector2i = Vector2i(0, signi(delta.y)) if absi(delta.x) == absi(delta.y) else engine._cardinal_direction(delta)', 'Order axis projects dominant cardinal with x on exact diagonals'),
 )
 PROBE_MUTATIONS = {'thornwall_board', 'held_wind_copy'}
+WIND_MUTATIONS = (
+    ('wind_two_tile_push', 'scripts/enemy_mechanics/wind.gd', 'axis, int(value.get("push", 1)), {}, true)', 'axis, 2, {}, true)', 'Stormcaller resolution independent one-tile hero destination'),
+    ('wind_sliding_captain', 'scripts/enemy_mechanics/wind.gd', '\treturn str(unit.get("type", "")) == "gale_herald" or bool(Data.enemy_def(str(unit.get("type", ""))).get("anchored", false))', '\tif preload("res://scripts/warband_combat_rules.gd").order(state, unit, "stormcaller_wind"): return false\n\treturn str(unit.get("type", "")) == "gale_herald" or bool(Data.enemy_def(str(unit.get("type", ""))).get("anchored", false))', 'Stormcaller resolution captain stays anchored'),
+)
 
 def run(name, probe=False):
     script = 'tests/warband_orders_probe.gd' if probe else 'tests/warband_orders_test.gd'
@@ -39,7 +43,12 @@ def run(name, probe=False):
 
 def main():
     LOG_DIR.mkdir(parents=True, exist_ok=True)
-    mutations = FEEDBACK_MUTATIONS if '--feedback-only' in sys.argv[1:] else MUTATIONS + FEEDBACK_MUTATIONS
+    if '--wind-only' in sys.argv[1:]:
+        mutations = WIND_MUTATIONS
+    elif '--feedback-only' in sys.argv[1:]:
+        mutations = FEEDBACK_MUTATIONS
+    else:
+        mutations = MUTATIONS + FEEDBACK_MUTATIONS + WIND_MUTATIONS
     for probe in (False, True):
         control = run('probe_control_before' if probe else 'control_before', probe)
         if control.returncode:

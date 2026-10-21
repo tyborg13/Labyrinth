@@ -25,6 +25,11 @@ const FIXTURE_BARRAGE_CENTER := Vector2i(3, 6)
 const FIXTURE_BARRAGE_OTHER_CENTER := Vector2i(7, 6)
 const FIXTURE_BARRAGE_OUTER_ARM := Vector2i(2, 6)
 const FIXTURE_WIND_HAZARD := Vector2i(6, 6)
+const FIXTURE_WIND_EXPECTED = {"player": Vector2i(5, 5), "enemies": [Vector2i(5, 2), Vector2i(3, 4), Vector2i(7, 4)]}
+const FIXTURE_WIND_PILLAR := Vector2i(3, 4)
+const FIXTURE_WIND_BLOCKED_EXPECTED = {"player": Vector2i(5, 5), "enemies": [Vector2i(5, 2), Vector2i(3, 5), Vector2i(7, 4)]}
+const FIXTURE_WIND_COLLISION_DAMAGE: int = 2
+const STORMCALLER_ORDER_LINE: String = "Order: Its wind never drops: a gust slides everyone else 1 tile every round."
 const FIXTURE_ICE_PUSH_START := Vector2i(4, 3)
 const FIXTURE_ODD_MIDPOINT_HERO := Vector2i(5, 7)
 const FIXTURE_ODD_MIDPOINT_CENTER := Vector2i(5, 5)
@@ -275,12 +280,21 @@ static func _stormcaller(expect: Callable) -> void:
 	var plan: Dictionary = engine.enemy_intent_plan(state, 0)
 	var forecast: Dictionary = plan["wind_preview"]
 	expect.call(forecast["displacement_paths"].size() == 3, "Stormcaller wind preview shows hero and both followers sliding")
+	expect.call(plan["wind"]["direction"] == Vector2i.UP, "Stormcaller fixture calls northward wind")
+	_stormcaller_destinations(forecast["state"], FIXTURE_WIND_EXPECTED, "preview", expect)
+	var hero_path: Array[Vector2i] = engine._vector2i_values([FIXTURE_PLAYER, FIXTURE_WIND_EXPECTED["player"]])
+	expect.call((forecast["displacement_paths"] as Array).has(hero_path), "Stormcaller previews independent one-tile hero path")
+	for index: int in range(1, 3):
+		var path: Array[Vector2i] = engine._vector2i_values([before["enemies"][index]["pos"], FIXTURE_WIND_EXPECTED["enemies"][index]])
+		expect.call((forecast["displacement_paths"] as Array).has(path), "Stormcaller previews independent one-tile follower path")
+	expect.call((forecast["displacement_paths"] as Array).all(func(path: Array) -> bool: return path[0] != FIXTURE_CAPTAIN), "Stormcaller preview contains no captain slide")
 	expect.call(state == before, "Stormcaller preview never mutates state")
 	state = Wind.resolve(engine, state, 0, intent["actions"][0])
-	state = Wind.push_all(engine, state, state["wind"])
+	var steps: Array[Dictionary]
+	state = Wind.end_turn(engine, state, steps)
+	_stormcaller_destinations(state, FIXTURE_WIND_EXPECTED, "resolution", expect)
 	for index: int in range(3): expect.call(state["enemies"][index]["pos"] == forecast["state"]["enemies"][index]["pos"], "Stormcaller real mover matches forecast")
 	expect.call(state["player"]["pos"] == forecast["state"]["player"]["pos"], "Stormcaller hero slide matches forecast")
-	var steps: Array[Dictionary]
 	for boundary: int in range(FIXTURE_PERSISTENCE_BOUNDARIES): state = Wind.end_turn(engine, state, steps)
 	expect.call(not Wind.active(engine, state).is_empty() and state["wind"]["rounds_left"] == 2, "Stormcaller wind does not expire across enemy-turn boundaries")
 	state = battle("air")
@@ -292,7 +306,35 @@ static func _stormcaller(expect: Callable) -> void:
 	state["enemies"][0]["hp"] = 0
 	Wind.clear_dead_source(engine, state)
 	expect.call(not state.has("wind"), "Stormcaller death immediately clears wind")
-	print("Order 3 stormcaller_wind: all-unit forecast, real mover, persistence and re-aim checked")
+	_stormcaller_collision(expect)
+	print("Order 3 stormcaller_wind: independent one-tile destinations, anchored captain, pillar collision, persistence and re-aim checked")
+
+static func _stormcaller_destinations(state: Dictionary, expected: Dictionary, phase: String, expect: Callable) -> void:
+	expect.call(state["player"]["pos"] == expected["player"], "Stormcaller %s independent one-tile hero destination" % phase)
+	expect.call(state["enemies"][0]["pos"] == expected["enemies"][0], "Stormcaller %s captain stays anchored" % phase)
+	for index: int in range(1, 3):
+		expect.call(state["enemies"][index]["pos"] == expected["enemies"][index], "Stormcaller %s follower %d independent destination" % [phase, index])
+
+static func _stormcaller_collision(expect: Callable) -> void:
+	var engine := Combat.new()
+	var state: Dictionary = battle("air")
+	state["enemies"][0]["intent"] = authored(state, "call_the_wind")
+	state["grid"][FIXTURE_WIND_PILLAR.y][FIXTURE_WIND_PILLAR.x] = "pillar"
+	var before: Dictionary = state.duplicate(true)
+	var plan: Dictionary = engine.enemy_intent_plan(state, 0)
+	var forecast: Dictionary = plan["wind_preview"]
+	_stormcaller_destinations(forecast["state"], FIXTURE_WIND_BLOCKED_EXPECTED, "pillar preview", expect)
+	var markers: Array = forecast["collision_markers"]
+	expect.call(markers.size() == 1 and markers[0].get("actor_key") == "enemy_2" and markers[0].get("tile") == FIXTURE_FOLLOWER_A and markers[0].get("blocked_tile") == FIXTURE_WIND_PILLAR and int(markers[0].get("damage", 0)) == FIXTURE_WIND_COLLISION_DAMAGE, "Stormcaller preview marks follower stopped by pillar with existing collision damage")
+	expect.call((forecast["displacement_paths"] as Array).size() == 2 and not (forecast["displacement_paths"] as Array).any(func(path: Array) -> bool: return path[0] in [FIXTURE_CAPTAIN, FIXTURE_FOLLOWER_A]), "Stormcaller pillar preview omits blocked follower and anchored captain slides")
+	expect.call(state == before, "Stormcaller pillar preview never mutates state")
+	state = Wind.resolve(engine, state, 0, state["enemies"][0]["intent"]["actions"][0])
+	var steps: Array[Dictionary]
+	state = Wind.end_turn(engine, state, steps)
+	_stormcaller_destinations(state, FIXTURE_WIND_BLOCKED_EXPECTED, "pillar resolution", expect)
+	expect.call(int(state["enemies"][1]["hp"]) == FIXTURE_HP - FIXTURE_WIND_COLLISION_DAMAGE and int(forecast["state"]["enemies"][1]["hp"]) == FIXTURE_HP - FIXTURE_WIND_COLLISION_DAMAGE, "Stormcaller pillar stops follower and applies existing two-damage collision")
+	var contacts: Array = engine._surface_events_since(before, state).filter(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "force_collision")
+	expect.call(contacts.size() == 1 and contacts[0].get("actor_key") == "enemy_2" and contacts[0].get("blocked_tile") == FIXTURE_WIND_PILLAR, "Stormcaller pillar resolution records the existing collision event")
 
 static func _oracle(expect: Callable) -> void:
 	var engine := Combat.new()
@@ -391,6 +433,7 @@ static func _scope_and_copy(expect: Callable) -> void:
 		expect.call(rules.order(state, state["enemies"][0], str(order["id"])), "Order active only on matching living captain: " + biome)
 		expect.call(not rules.order(state, state["enemies"][1], str(order["id"])), "Order never granted to follower: " + biome)
 		var expected: String = "Order: " + str(order["text"])
+		if biome == "air": expect.call(expected == STORMCALLER_ORDER_LINE, "Stormcaller protected Order copy says everyone else")
 		expect.call(objectives.description_for_objective(state["objective"]).ends_with(expected), "Objective tooltip exact protected order copy: " + biome)
 		board.combat_state = state
 		expect.call(board.enemy_intent_tooltip("enemy_1").ends_with(expected), "Captain tooltip exact protected order copy: " + biome)

@@ -96,11 +96,14 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/en-02 && python3 tools/inspec
 
 Only wind sourced by the living Warband captain with `stormcaller_wind` keeps
 its authored `rounds_left` without decrement. Each Call replaces the direction
-through the existing hazard scan. Every unit enters the existing forced mover;
-explicit Anchored, immobile and buried rules still apply. This removes ordinary
-wind-only leader/guardian/construct exemptions for the captain's gust, without
-changing card forces or another Herald's wind. The same real-mover copy powers
-all-unit slide/collision previews. Source death clears wind as before. Ordinary
+through the existing hazard scan. Each gust slides the hero and eligible
+followers one tile through the existing forced mover; explicit Anchored,
+immobile and buried rules still apply. The Stormcaller stands firm like a base
+Gale Herald through `force_anchored`, and its preview contains no captain slide.
+The same real-mover copy powers follower/hero slide and collision previews.
+The director's exact Order line is `Order: Its wind never drops: a gust slides
+everyone else 1 tile every round.` Runtime wind behavior is unchanged by this
+wording correction. Source death clears wind as before. Ordinary
 Herald wind retains its two-boundary lifetime and its full-state legacy golden.
 The persistent wind chip reads `Wind · held`. Its tooltip appends the exact line
 `Held by the Stormcaller until it falls.` Finite wind retains its countdown
